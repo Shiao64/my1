@@ -1,125 +1,87 @@
-/* =============================
-   全站基礎設定
-============================= */
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: #f9f9f9;
-  color: #333;
-}
-
-/* =============================
-   頁首區塊（含標題與導覽列）
-============================= */
-header {
-  position: relative;
-  background-image: url("images/header-bg.jpg");
-  background-position: center center;  /* 圖片水平、垂直居中 */
-  background-repeat: no-repeat;        /* 不重複 */
-  background-size: cover;              /* 填滿背景，居中裁切 */
-  color: #fff;
-  padding: 200px 20px;                 /* 調整高度讓背景明顯 */
-  text-align: center;
-  overflow: hidden;
-}
-
-header h1,
-header nav {
-  position: relative; /* 讓文字顯示在圖片上 */
-  z-index: 1;
-}
-
-header h1 {
-  margin: 0;
-}
-
-/* =============================
-   導覽列
-============================= */
-nav {
+/* ===== 导航菜单 ===== */
+.site-header {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 10px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background: #222;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
-
-nav a {
-  color: #ffcc00;
-  text-decoration: none;
-  margin: 5px 15px;
+.site-header .logo {
   font-weight: bold;
 }
-
-nav a:hover {
+.main-nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 10px;
+}
+.main-nav a:hover {
+  text-decoration: underline;
+}
+.lang-switch a {
+  color: #ffcc00;
+  margin-left: 5px;
+  text-decoration: none;
+}
+.lang-switch a:hover {
   text-decoration: underline;
 }
 
-/* =============================
-   主要內容
-============================= */
-main {
+/* ===== Schedule ===== */
+.schedule {
   max-width: 800px;
-  margin: 40px auto;
+  margin: 60px auto;
   padding: 0 20px;
   text-align: center;
 }
-
-main h2 {
-  color: #444;
+.schedule table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+.schedule th, .schedule td {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+.schedule th {
+  background: #f0f0f0;
 }
 
-main a {
-  color: #007BFF;
-  text-decoration: none;
+/* ===== Travel ===== */
+.travel {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+.travel h2 {
+  margin-bottom: 20px;
 }
 
-main a:hover {
-  text-decoration: underline;
+/* ===== FAQ ===== */
+.faq {
+  max-width: 800px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+.faq h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.faq h3 {
+  margin-top: 20px;
 }
 
-/* =============================
-   響應式：手機
-============================= */
-@media (max-width: 600px) {
-  header h1 {
-    font-size: 1.3em; /* 手機頁首縮小 */
-  }
-  main {
-    padding: 10px;
-    font-size: 14px; /* 手機整體文字縮小 */
-  }
-  nav a {
-    font-size: 14px;
-  }
-  main h2 {
-    font-size: 18px;
-  }
-  main h3 {
-    font-size: 16px;
-  }
-}
-
-/* =============================
-   圖片通用設定
-============================= */
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-/* =============================
-   頁尾
-============================= */
+/* 页脚 */
 footer {
   text-align: center;
   background: #eee;
   padding: 10px;
   margin-top: 40px;
 }
-
 footer p {
   font-size: 12px;
   margin: 0;
