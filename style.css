@@ -1,4 +1,6 @@
-/* 全站基礎設定 */
+/* =============================
+   全站基礎設定
+============================= */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -7,93 +9,110 @@ body {
   color: #333;
 }
 
-/* ====== 頁首 ====== */
+/* =============================
+   頁首區塊（含標題與導覽列）
+============================= */
 header {
-  position: relative; /* 為了之後的 overlay */
-  background: url("images/header-bg.jpg") center center / cover no-repeat; /* 背景圖片 */
+  position: relative;
+  /* 背景圖片，確保 images/header-bg.jpg 存在於正確路徑 */
+  background: url("images/header-bg.jpg") center center / cover no-repeat;
   color: #fff;
-  padding: 40px 20px; /* 增加 padding，圖片區域更高 */
+  padding: 40px 20px;
   text-align: center;
   overflow: hidden;
 }
-/*
+
+/* 如果想加遮罩，可以再把這段取消註解
 header::before {
-  /* 加一層半透明遮罩，讓文字更清楚 */
   content: "";
   position: absolute;
   top: 0; left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.4); /* 黑色遮罩，40%透明 */
+  background: rgba(0,0,0,0.4); 
   z-index: 0;
 }
 */
 
 header h1,
-nav {
-  position: relative; /* 文字放在遮罩上方 */
+header nav {
+  position: relative; /* 確保文字顯示在遮罩或背景之上 */
   z-index: 1;
 }
+
 header h1 {
   margin: 0;
 }
 
-/* ====== 導航列 ====== */
+/* =============================
+   導覽列
+============================= */
 nav {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 10px;
 }
+
 nav a {
   color: #ffcc00;
   text-decoration: none;
   margin: 5px 15px;
   font-weight: bold;
 }
+
 nav a:hover {
   text-decoration: underline;
 }
 
-/* ====== 主要內容 ====== */
+/* =============================
+   主要內容
+============================= */
 main {
   max-width: 800px;
   margin: 40px auto;
   padding: 0 20px;
   text-align: center;
 }
+
 main h2 {
   color: #444;
 }
+
 main a {
   color: #007BFF;
   text-decoration: none;
 }
+
 main a:hover {
   text-decoration: underline;
 }
 
-/* ====== 響應式：手機 ====== */
+/* =============================
+   響應式：手機
+============================= */
 @media (max-width: 600px) {
   header h1 {
     font-size: 1.3em; /* 手機頁首縮小 */
   }
   main {
     padding: 10px;
-    font-size: 14px; /* 手機版整體文字縮小 */
+    font-size: 14px; /* 手機整體文字縮小 */
   }
   nav a {
-    font-size: 14px; /* 手機版導覽列縮小 */
+    font-size: 14px; /* 手機導覽字體縮小 */
   }
   main h2 {
-    font-size: 18px; /* 手機標題縮小 */
+    font-size: 18px;
   }
   main h3 {
-    font-size: 16px; /* 手機小標題縮小 */
+    font-size: 16px;
   }
 }
 
-/* ====== 圖片通用設定 ====== */
+/* =============================
+   圖片通用設定
+============================= */
 img {
   max-width: 100%;
   height: auto;
@@ -101,13 +120,16 @@ img {
   margin: 0 auto;
 }
 
-/* ====== 頁尾 ====== */
+/* =============================
+   頁尾
+============================= */
 footer {
   text-align: center;
   background: #eee;
   padding: 10px;
   margin-top: 40px;
 }
+
 footer p {
   font-size: 12px;
   margin: 0;
