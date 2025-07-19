@@ -16,6 +16,7 @@ header {
   text-align: center;
   overflow: hidden;
 }
+/*
 header::before {
   /* 加一層半透明遮罩，讓文字更清楚 */
   content: "";
@@ -26,6 +27,8 @@ header::before {
   background: rgba(0,0,0,0.4); /* 黑色遮罩，40%透明 */
   z-index: 0;
 }
+*/
+
 header h1,
 nav {
   position: relative; /* 文字放在遮罩上方 */
