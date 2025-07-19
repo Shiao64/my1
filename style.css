@@ -12,12 +12,24 @@ body {
 /* =============================
    頁首區塊（含標題與導覽列）
 ============================= */
+
+/*
 header {
   position: relative;
   /* 背景圖片，確保 images/header-bg.jpg 存在於正確路徑 */
   background: url("images/header-bg.jpg") center center / cover no-repeat;
   color: #fff;
   padding: 40px 20px;
+  text-align: center;
+  overflow: hidden;
+}
+*/
+
+header {
+  position: relative;
+  background: url("images/header-bg.jpg") center center / cover no-repeat;
+  color: #fff;
+  padding: 200px 20px; /* 調整高度讓背景明顯 */
   text-align: center;
   overflow: hidden;
 }
