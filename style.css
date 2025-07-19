@@ -13,7 +13,7 @@ body {
    頁首區塊（含標題與導覽列）
 ============================= */
 
-/*
+
 header {
   position: relative;
   /* 背景圖片，確保 images/header-bg.jpg 存在於正確路徑 */
@@ -23,8 +23,8 @@ header {
   text-align: center;
   overflow: hidden;
 }
-*/
 
+/*
 header {
   position: relative;
   background: url("images/header-bg.jpg") center center / cover no-repeat;
@@ -33,6 +33,7 @@ header {
   text-align: center;
   overflow: hidden;
 }
+*/
 
 /* 如果想加遮罩，可以再把這段取消註解
 header::before {
