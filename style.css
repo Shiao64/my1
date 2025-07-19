@@ -50,24 +50,37 @@ main a {
 /* 響應式：小於 600px（手機）時調整 */
 @media (max-width: 600px) {
   header h1 {
-    font-size: 1.3em; /* 原本 1.3em，再小一點 */
+    font-size: 1.3em; /* 手機頁首縮小 */
   }
   main {
     padding: 10px;
     font-size: 14px; /* 手機版整體文字縮小 */
   }
   nav a {
-    font-size: 14px; /* 導航列字體小一點 */
+    font-size: 14px; /* 手機版導覽列縮小 */
   }
   main h2 {
-    font-size: 18px; /* 小標題縮小 */
+    font-size: 18px; /* 手機標題縮小 */
   }
   main h3 {
-    font-size: 16px; /* 小標題再小 */
+    font-size: 16px; /* 手機小標題縮小 */
   }
 }
 
 img {
   max-width: 100%;
   height: auto;
+}
+
+/* 頁尾 */
+footer {
+  text-align: center;       /* 文字置中 */
+  background: #eee;         /* 背景顏色，可自訂 */
+  padding: 10px;
+  margin-top: 40px;
+}
+footer p {
+  font-size: 12px;          /* 小字體 */
+  margin: 0;                /* 移除預設邊距 */
+  color: #666;              /* 淡灰色文字，可自訂 */
 }
