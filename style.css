@@ -1,3 +1,4 @@
+/* 全站基礎設定 */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -6,18 +7,35 @@ body {
   color: #333;
 }
 
-/* 頁首 */
+/* ====== 頁首 ====== */
 header {
-  background: #222;
+  position: relative; /* 為了之後的 overlay */
+  background: url("images/header-bg.jpg") center center / cover no-repeat; /* 背景圖片 */
   color: #fff;
-  padding: 20px;
+  padding: 40px 20px; /* 增加 padding，圖片區域更高 */
   text-align: center;
+  overflow: hidden;
+}
+header::before {
+  /* 加一層半透明遮罩，讓文字更清楚 */
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4); /* 黑色遮罩，40%透明 */
+  z-index: 0;
+}
+header h1,
+nav {
+  position: relative; /* 文字放在遮罩上方 */
+  z-index: 1;
 }
 header h1 {
   margin: 0;
 }
 
-/* 導航列：在電腦橫向，在手機堆疊 */
+/* ====== 導航列 ====== */
 nav {
   display: flex;
   justify-content: center;
@@ -28,12 +46,13 @@ nav a {
   color: #ffcc00;
   text-decoration: none;
   margin: 5px 15px;
+  font-weight: bold;
 }
 nav a:hover {
   text-decoration: underline;
 }
 
-/* 主要內容：用 max-width 限制寬度 */
+/* ====== 主要內容 ====== */
 main {
   max-width: 800px;
   margin: 40px auto;
@@ -45,9 +64,13 @@ main h2 {
 }
 main a {
   color: #007BFF;
+  text-decoration: none;
+}
+main a:hover {
+  text-decoration: underline;
 }
 
-/* 響應式：小於 600px（手機）時調整 */
+/* ====== 響應式：手機 ====== */
 @media (max-width: 600px) {
   header h1 {
     font-size: 1.3em; /* 手機頁首縮小 */
@@ -67,20 +90,23 @@ main a {
   }
 }
 
+/* ====== 圖片通用設定 ====== */
 img {
   max-width: 100%;
   height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
-/* 頁尾 */
+/* ====== 頁尾 ====== */
 footer {
-  text-align: center;       /* 文字置中 */
-  background: #eee;         /* 背景顏色，可自訂 */
+  text-align: center;
+  background: #eee;
   padding: 10px;
   margin-top: 40px;
 }
 footer p {
-  font-size: 12px;          /* 小字體 */
-  margin: 0;                /* 移除預設邊距 */
-  color: #666;              /* 淡灰色文字，可自訂 */
+  font-size: 12px;
+  margin: 0;
+  color: #666;
 }
