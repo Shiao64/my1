@@ -6,58 +6,56 @@ body {
   color: #333;
 }
 
+/* 頁首 */
 header {
   background: #222;
   color: #fff;
   padding: 20px;
   text-align: center;
 }
-
 header h1 {
   margin: 0;
 }
 
+/* 導航列：在電腦橫向，在手機堆疊 */
 nav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
   margin-top: 10px;
 }
-
 nav a {
   color: #ffcc00;
   text-decoration: none;
-  margin: 0 10px;
+  margin: 5px 15px;
 }
-
 nav a:hover {
   text-decoration: underline;
 }
 
+/* 主要內容：用 max-width 限制寬度 */
 main {
   max-width: 800px;
   margin: 40px auto;
   padding: 0 20px;
   text-align: center;
 }
-
-h2 {
+main h2 {
   color: #444;
 }
-
-a {
+main a {
   color: #007BFF;
 }
 
-footer {
-  background: #eee;
-  padding: 10px;
-  text-align: center;
-  font-size: 14px;
-  margin-top: 40px;
-}
-
-/* 手機響應式 */
+/* 響應式：小於 600px（手機）時調整 */
 @media (max-width: 600px) {
-  nav a {
-    display: block;
-    margin: 5px 0;
+  header h1 {
+    font-size: 1.5em;
+  }
+  nav {
+    flex-direction: column; /* 導航變直排 */
+  }
+  main {
+    padding: 10px;
   }
 }
