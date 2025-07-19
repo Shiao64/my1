@@ -50,7 +50,7 @@ main a {
 /* 響應式：小於 600px（手機）時調整 */
 @media (max-width: 600px) {
   header h1 {
-    font-size: 1.3em; /* 原本 1.5em，再小一點 */
+    font-size: 1.0em; /* 原本 1.3em，再小一點 */
   }
   main {
     padding: 10px;
