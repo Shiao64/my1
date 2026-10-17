@@ -1,35 +1,45 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>报名即将开放 · Registration opens Dec 1, 2026 · Select Tango Weekend</title>
+<script>(function(){var l=null;try{l=new URLSearchParams(location.search).get('lang');}catch(e){}if(l==='en'||l==='zh'){try{localStorage.setItem('stw-lang',l);}catch(e){}}else{try{l=localStorage.getItem('stw-lang');}catch(e){}}if(l!=='zh')l='en';var r=document.documentElement;r.setAttribute('data-lang',l);r.lang=l==='zh'?'zh-CN':'en';})();</script>
+<title data-en="Registration opens Dec 1, 2026 · Select Tango Weekend Beijing" data-zh="报名将于 2026 年 12 月 1 日开放 · 北京精选探戈周末">Registration opens Dec 1, 2026 · Select Tango Weekend Beijing</title>
+<meta name="description" content="Registration for the 4th Select Tango Weekend Beijing (June 18–22, 2027, A.C. Art Museum Hotel) opens December 1, 2026." data-en="Registration for the 4th Select Tango Weekend Beijing (June 18–22, 2027, A.C. Art Museum Hotel) opens December 1, 2026." data-zh="第4届北京精选探戈周末（2027年6月18–22日，北京奥加美术馆酒店）报名将于 2026 年 12 月 1 日开放。">
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-<section class="hero" style="min-height:100vh;display:flex;align-items:center">
-  <div class="wrap" style="display:block;text-align:center;max-width:760px">
-    <span class="edition">第 4 届 · 4th Edition · 2027.6.18–22</span>
-    <h1>报名将于 2026年12月1日开放<span class="en">Registration opens December 1, 2026</span></h1>
-    <p class="meta">第4届北京精选探戈周末 · A.C. Art Museum Hotel（艺术博物馆酒店），北京
-      <span class="en">4th Select Tango Weekend · A.C. Art Museum Hotel, Beijing</span></p>
-    <div class="countdown" data-countdown style="justify-content:center">
-      <div><b data-d>--</b><span>天 days</span></div>
-      <div><b data-h>--</b><span>时 hrs</span></div>
-      <div><b data-m>--</b><span>分 min</span></div>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="../index.html"><span data-l="zh">北京精选探戈周末<small>SELECT TANGO WEEKEND</small></span><span data-l="en">Select Tango Weekend<small>BEIJING · 2027</small></span></a>
+    <div class="lang-switch" role="group" aria-label="Language / 语言">
+      <button type="button" data-set-lang="en" lang="en" aria-pressed="true">English</button>
+      <button type="button" data-set-lang="zh" lang="zh-CN" aria-pressed="false">中文</button>
     </div>
-    <p class="meta" style="margin-top:28px">报名开放前，欢迎加入社群获取最新消息：
-      <span class="en">Until then, join our community for updates:</span></p>
+  </div>
+</header>
+<section class="hero" style="min-height:calc(100vh - 64px);display:flex;align-items:center">
+  <div class="wrap" style="display:block;text-align:center;max-width:760px">
+    <span class="edition"><span data-l="zh">第 4 届 · 2027.6.18–22</span><span data-l="en">4th Edition · June 18–22, 2027</span></span>
+    <h1><span data-l="zh">报名将于 2026 年 12 月 1 日开放</span><span data-l="en">Registration opens December 1, 2026</span></h1>
+    <p class="meta"><span data-l="zh">第4届北京精选探戈周末 · 北京奥加美术馆酒店（A.C. Art Museum Hotel）</span><span data-l="en">4th Select Tango Weekend · A.C. Art Museum Hotel, Beijing</span></p>
+    <div class="countdown" data-countdown style="justify-content:center">
+      <div><b data-d>--</b><span><span data-l="zh">天</span><span data-l="en">days</span></span></div>
+      <div><b data-h>--</b><span><span data-l="zh">时</span><span data-l="en">hrs</span></span></div>
+      <div><b data-m>--</b><span><span data-l="zh">分</span><span data-l="en">min</span></span></div>
+    </div>
+    <p class="meta" style="margin-top:28px"><span data-l="zh">报名开放前，欢迎加入社群获取最新消息：</span><span data-l="en">Until then, join our community for the latest news:</span></p>
     <div class="btns" style="justify-content:center">
       <a class="btn btn-gold" href="https://www.facebook.com/groups/selecttangoweekend" target="_blank" rel="noopener">Facebook: selecttangoweekend</a>
       <a class="btn btn-ghost" href="mailto:info@tangoweekend.org">info@tangoweekend.org</a>
     </div>
-    <p class="meta">微信群 WeChat group：「2027 Select Tango Weekend」<span class="en">Email us for an invite</span></p>
-    <p style="margin-top:30px"><a class="btn btn-ghost" href="../index.html">← 返回首页 Back to home</a></p>
+    <p class="meta"><span data-l="zh">微信群：「2027 Select Tango Weekend」，发邮件给我们即可受邀入群</span><span data-l="en">WeChat group “2027 Select Tango Weekend” — email us for an invite</span></p>
+    <p style="margin-top:30px"><a class="btn btn-ghost" href="../index.html"><span data-l="zh">← 返回首页</span><span data-l="en">← Back to home</span></a></p>
   </div>
 </section>
+<script src="../js/lang.js"></script>
 <script>
-(function(){var t=new Date('2026-12-01T00:00:00+08:00').getTime();function k(){var d=t-Date.now();document.querySelectorAll('[data-countdown]').forEach(function(e){if(d<=0){e.innerHTML='<div><b>✓</b><span>报名已开放 Open</span></div>';return;}e.querySelector('[data-d]').textContent=Math.floor(d/864e5);e.querySelector('[data-h]').textContent=String(Math.floor(d%864e5/36e5)).padStart(2,'0');e.querySelector('[data-m]').textContent=String(Math.floor(d%36e5/6e4)).padStart(2,'0');});}k();setInterval(k,30000);})();
+(function(){var t=new Date('2026-12-01T00:00:00+08:00').getTime();function k(){var d=t-Date.now();document.querySelectorAll('[data-countdown]').forEach(function(e){if(d<=0){e.innerHTML='<div><b>✓</b><span><span data-l="zh">报名已开放</span><span data-l="en">Open</span></span></div>';return;}e.querySelector('[data-d]').textContent=Math.floor(d/864e5);e.querySelector('[data-h]').textContent=String(Math.floor(d%864e5/36e5)).padStart(2,'0');e.querySelector('[data-m]').textContent=String(Math.floor(d%36e5/6e4)).padStart(2,'0');});}k();setInterval(k,30000);})();
 </script>
 </body>
 </html>
