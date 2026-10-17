@@ -75,7 +75,7 @@ section.alt .card{background:var(--cream)}
 .ev{display:flex;justify-content:space-between;gap:14px;padding:6px 0}
 .ev + .ev{border-top:1px dashed var(--line)}
 .ev-time{white-space:nowrap;font-weight:700;color:var(--red-dark);font-variant-numeric:tabular-nums}
-.ev .price{display:inline-block;margin-left:6px;font-size:.8rem;background:var(--gold-soft);color:var(--red-dark);border-radius:6px;padding:0 6px;font-style:normal}
+.ev .price{display:inline-block;margin-left:6px;font-size:.68rem;background:var(--gold-soft);color:var(--red-dark);border-radius:6px;padding:0 5px;vertical-align:middle;line-height:1.5;font-style:normal}
 .note{font-size:.9rem;color:var(--muted);margin-top:14px}
 .sched-img{border-radius:var(--radius);border:1px solid var(--line)}
 
