@@ -1,123 +1,416 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Select Tango Weekend</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第4届北京精选探戈周末 · 4th Select Tango Weekend Beijing · 2027/6/18–22</title>
+<meta name="description" content="第4届北京精选探戈周末 Select Tango Weekend Beijing，2027年6月18–22日，A.C. Art Museum Hotel。五天舞会、周一四合院晚宴、一日游与城市漫步。">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ===== 导航菜单 ===== -->
-  <header class="site-header">
-    <div class="logo"></div>
+<div class="draft-banner">网站草稿 · 时程与价格以正式公布为准 &nbsp;|&nbsp; Website draft · schedule &amp; prices subject to change</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="#top">北京精选探戈周末<small>SELECT TANGO WEEKEND</small></a>
+    <button class="nav-toggle" aria-label="菜单 Menu" aria-expanded="false">☰</button>
     <nav class="main-nav">
-      <a href="#hero">Home</a>
-      <a href="#about">About</a>
-      <a href="#schedule">Schedule</a>
-      <a href="#gallery">Gallery</a>
-      <a href="#registration">Register</a>
-      <a href="#travel">Travel</a>
+      <a href="#about">关于</a>
+      <a href="#schedule">时程</a>
+      <a href="#prices">票价</a>
+      <a href="#djs">DJ</a>
+      <a href="#hotel">住宿</a>
+      <a href="#gallery">往届</a>
+      <a href="#refreshments">茶点</a>
       <a href="#faq">FAQ</a>
-      <a href="#contact">Contact</a>
+      <a href="#contact">联系</a>
+      <a href="#registration" class="nav-cta">报名 Register</a>
     </nav>
-    <div class="lang-switch">
-      <a href="?lang=en">EN</a> | <a href="?lang=zh">中文</a>
-    </div>
-  </header>
+  </div>
+</header>
 
-  <!-- ===== Hero 区块 ===== -->
-  <section id="hero" class="hero">
-    <div class="hero-content">
-      <h1>Select Tango Weekend</h1>
-      <p>June 20–22, 2025 · Beijing</p>
-      <a href="https://jsj.top/f/QxD8gP/" class="btn">Register Now</a>
-      <a href="#about" class="btn-secondary">Learn More</a>
+<!-- ===== HERO ===== -->
+<section class="hero hero-photo" id="top">
+  <div class="wrap">
+    <div>
+      <span class="edition">第 4 届 · 4th Edition · 2024 · 2025 · 2026 · <b>2027</b></span>
+      <h1>第4届北京精选探戈周末<span class="en">SELECT TANGO WEEKEND · BEIJING</span></h1>
+      <p class="meta"><strong>2027 年 6 月 18 – 22 日</strong> · 北京 · A.C. Art Museum Hotel（艺术博物馆酒店）
+        <span class="en">June 18–22, 2027 · Beijing, China · A.C. Art Museum Hotel</span></p>
+      <p class="meta">五个夜晚的舞会 · 四合院晚宴 · 一日游与城市漫步
+        <span class="en">Five nights of milongas · a courtyard dinner · day trip &amp; city walk</span></p>
+      <div class="btns">
+        <a class="btn btn-gold" href="#registration">报名信息 Registration</a>
+        <a class="btn btn-ghost" href="#schedule">查看时程 Schedule</a>
+        <a class="btn btn-ghost" href="images/poster4.jpg" target="_blank">完整海报 Poster</a>
+      </div>
+      <p class="cd-label">报名将于 2026年12月1日开放 / Registration opens December 1, 2026</p>
+      <div class="countdown" data-countdown>
+        <div><b data-d>--</b><span>天 days</span></div>
+        <div><b data-h>--</b><span>时 hrs</span></div>
+        <div><b data-m>--</b><span>分 min</span></div>
+      </div>
     </div>
-  </section>
+    <img class="hero-poster" src="images/poster4_top.jpg" alt="第4届北京精选探戈周末海报 · 4th Select Tango Weekend poster" width="800" height="1200">
+  </div>
+</section>
 
-  <!-- ===== About 区块 ===== -->
-  <section id="about" class="about">
-    <h2>About</h2>
-    <p>
-      <strong>Select Tango Weekend</strong> 是一场专注于阿根廷探戈的国际聚会。<br>
-      理念：分享舞蹈与友谊<br>
-      地点：北京 A.C. Art Museum Hotel<br>
-      时间：2025 年 6 月 20-22 日<br>
-      团队：来自世界各地的 DJ、组织者与志愿者
+<!-- ===== ABOUT ===== -->
+<section id="about">
+  <div class="wrap">
+    <div class="sec-title"><h2>关于活动</h2><span class="en">About the Weekend</span></div>
+    <p style="max-width:780px;margin:0 auto 34px;text-align:center">
+      北京精选探戈周末是一场以阿根廷探戈为核心的国际聚会：精选的 DJ、舒适的舞池、来自世界各地的舞友，以及北京的文化与风景。第 4 届将连续五天，在使馆区的 A.C. Art Museum Hotel 举行。
+      <span class="en">Select Tango Weekend is an international Argentine tango gathering — carefully chosen DJs, a great floor, dancers from around the world, and the culture of Beijing. The 4th edition runs five days at the A.C. Art Museum Hotel in Beijing's embassy district.</span>
     </p>
-  </section>
-
-  <!-- ===== Schedule 区块 ===== -->
-  <section id="schedule" class="schedule">
-    <h2>Schedule</h2>
-    <table>
-      <tr><th>日期</th><th>时间</th><th>活动</th></tr>
-      <tr><td>6/20</td><td>19:00 - 23:00</td><td>欢迎 Milonga</td></tr>
-      <tr><td>6/21</td><td>14:00 - 18:00</td><td>下午场 Milonga</td></tr>
-      <tr><td>6/21</td><td>21:00 - 03:00</td><td>晚间 Gala Milonga</td></tr>
-      <tr><td>6/22</td><td>13:00 - 17:00</td><td>告别 Milonga</td></tr>
-    </table>
-  </section>
-
-  <!-- ===== Gallery 区块 ===== -->
-  <section id="gallery" class="gallery">
-    <h2>Gallery</h2>
-    <div class="gallery-grid">
-      <img src="images/sample1.jpg" alt="Event photo 1" />
-      <img src="images/sample2.jpg" alt="Event photo 2" />
-      <img src="images/sample3.jpg" alt="Event photo 3" />
+    <div class="grid g3 facts">
+      <div class="card"><div class="ico">📅</div><h3>2027.6.18 – 6.22</h3><p>周五至下周二，共 5 天<span class="en">Friday to Tuesday, 5 days</span></p></div>
+      <div class="card"><div class="ico">🏨</div><h3>A.C. Art Museum Hotel</h3><p>四星级 · 使馆区，澳大利亚、加拿大大使馆对面<span class="en">4-star · embassy district, across from the Australian &amp; Canadian embassies</span></p></div>
+      <div class="card"><div class="ico">🎧</div><h3>5 位国际 DJ</h3><p>Chris Han · Robin · Uno · Kostas · Ajit<span class="en">Five international DJs</span></p></div>
     </div>
-    <div class="video">
-      <iframe width="560" height="315" src="https://www.youtube.com/embed/YOUR_VIDEO_ID" frameborder="0" allowfullscreen></iframe>
+  </div>
+</section>
+
+<!-- ===== SCHEDULE ===== -->
+<section id="schedule" class="alt">
+  <div class="wrap">
+    <div class="sec-title"><h2>活动时程</h2><span class="en">Schedule · June 18–22, 2027</span>
+      <p><span class="draft">草稿 DRAFT · 以最终公布为准 Subject to change</span></p></div>
+    <div class="grid g2" style="align-items:start">
+      <div class="card">
+        <div class="day">
+          <div class="day-date">6/18 周五<span class="en">Fri, June 18</span></div>
+          <div>
+            <div class="ev"><div>上午 一日游：天坛、前门大街<i class="price">450 元</i><span class="en">Day Trip: Temple of Heaven &amp; Qianmen Street</span></div><div class="ev-time">上午 AM</div></div>
+            <div class="ev"><div>欢迎舞会<span class="en">Welcome Milonga</span></div><div class="ev-time">20:00–24:00</div></div>
+          </div>
+        </div>
+        <div class="day">
+          <div class="day-date">6/19 周六<span class="en">Sat, June 19</span></div>
+          <div>
+            <div class="ev"><div>下午场舞会<span class="en">Afternoon Milonga</span></div><div class="ev-time">14:00–18:00</div></div>
+            <div class="ev"><div>晚场舞会<span class="en">Evening Milonga</span></div><div class="ev-time">20:00–02:00</div></div>
+          </div>
+        </div>
+        <div class="day">
+          <div class="day-date">6/20 周日<span class="en">Sun, June 20</span></div>
+          <div>
+            <div class="ev"><div>下午场舞会<span class="en">Afternoon Milonga</span></div><div class="ev-time">14:00–18:00</div></div>
+            <div class="ev"><div>晚场舞会<span class="en">Evening Milonga</span></div><div class="ev-time">20:00–01:00</div></div>
+          </div>
+        </div>
+        <div class="day">
+          <div class="day-date">6/21 周一<span class="en">Mon, June 21</span></div>
+          <div>
+            <div class="ev"><div>现代四合院 晚宴 + 舞会（酒店专车接送）<i class="price">450 元</i><span class="en">Dinner &amp; Milonga at a modern Siheyuan courtyard (hotel shuttle)</span></div><div class="ev-time">16:00–24:00</div></div>
+          </div>
+        </div>
+        <div class="day">
+          <div class="day-date">6/22 周二<span class="en">Tue, June 22</span></div>
+          <div>
+            <div class="ev"><div>上午 City Walk：亮马河城市漫步<i class="price">400 元</i><span class="en">City Walk along the Liangma River — riverside path with cafés &amp; skyline views</span></div><div class="ev-time">上午 AM</div></div>
+            <div class="ev"><div>告别舞会<span class="en">Farewell Milonga</span></div><div class="ev-time">21:00–01:00</div></div>
+          </div>
+        </div>
+        <p class="note">除周一四合院外，所有舞会均在 A.C. Art Museum Hotel 举行。<span class="en">All milongas are at the A.C. Art Museum Hotel, except Monday's courtyard evening.</span></p>
+      </div>
+      <figure style="margin:0">
+        <img class="sched-img" src="images/schedule4.jpg" alt="第4届时程表（草稿）· 4th edition schedule (draft)" loading="lazy" width="1000" height="934">
+        <figcaption class="note" style="text-align:center">时程表（草稿）<span class="en">Schedule graphic (draft)</span></figcaption>
+      </figure>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- ===== Registration 区块 ===== -->
-  <section id="registration" class="registration">
-    <h2>Registration</h2>
-    <p>立即报名参加这场精彩的舞蹈周末！</p>
-    <a href="https://jsj.top/f/QxD8gP/" class="btn">Register Here</a>
-    <p>加入我们的 Facebook 社群：<a href="https://www.facebook.com/groups/selecttangoweekend" target="_blank">FB Group</a></p>
-  </section>
+<!-- ===== PRICES ===== -->
+<section id="prices">
+  <div class="wrap">
+    <div class="sec-title"><h2>票价</h2><span class="en">Passes &amp; Prices (RMB)</span>
+      <p><span class="draft">草稿 DRAFT · 以报名时公布为准 Subject to change</span></p></div>
+    <div class="grid g3">
+      <div class="card price-card">
+        <h3>四日通票 Four Pass</h3>
+        <div class="amt">930 <small>元</small></div>
+        <p>周五、六、日、周二舞会<span class="en">Fri, Sat, Sun &amp; Tue milongas</span></p>
+        <ul class="breakdown">
+          <li><span>欢迎舞会 Welcome</span><span>150</span></li>
+          <li><span>下午场 Afternoon ×2</span><span>300</span></li>
+          <li><span>晚场 Evening ×2</span><span>400</span></li>
+          <li><span>告别舞会 Farewell</span><span>80</span></li>
+        </ul>
+        <p class="note">不含周一四合院晚宴和舞会<span class="en">Does not include Monday's courtyard dinner &amp; milonga</span></p>
+      </div>
+      <div class="card price-card featured">
+        <span class="ribbon">推荐 Recommended</span>
+        <h3>四日通票 + 周一四合院</h3>
+        <div class="amt">1,380 <small>元</small></div>
+        <p>全部 6 场舞会 + 四合院晚宴<span class="en">Four Pass + Monday Siheyuan dinner &amp; milonga (with hotel shuttle)</span></p>
+        <ul class="breakdown">
+          <li><span>四日通票 Four Pass</span><span>930</span></li>
+          <li><span>周一四合院 Monday courtyard</span><span>450</span></li>
+        </ul>
+      </div>
+      <div class="card price-card">
+        <h3>文化活动 Excursions</h3>
+        <p style="margin-top:14px">另外收费，可单独报名<span class="en">Booked separately</span></p>
+        <ul class="breakdown">
+          <li><span>周五一日游 Day Trip<br><small>天坛 · 前门大街</small></span><span>450</span></li>
+          <li><span>周二 City Walk<br><small>亮马河 Liangma River</small></span><span>400</span></li>
+          <li><span>周一四合院（单买）<br><small>Monday courtyard only</small></span><span>450</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <!-- ===== Travel 区块 ===== -->
-  <section id="travel" class="travel">
-    <h2>Travel & Accommodation</h2>
-    <p>推荐住宿：A.C. Art Museum Hotel，北京市中心，步行即可到场馆。</p>
-    <p>交通：地铁 2 号线 ××站下车，步行 5 分钟。</p>
-    <p>机场接驳：提供 Shuttle Bus 服务，请提前联系我们。</p>
-  </section>
+<!-- ===== DJS ===== -->
+<section id="djs" class="alt">
+  <div class="wrap">
+    <div class="sec-title"><h2>DJ 阵容</h2><span class="en">DJs</span></div>
+    <div class="grid g5">
+      <div class="card dj"><div class="avatar">C</div><h3>Chris Han</h3><div class="from">澳大利亚 Australia</div></div>
+      <div class="card dj"><div class="avatar">R</div><h3>Robin</h3><div class="from">纽约 New York</div></div>
+      <div class="card dj"><div class="avatar">U</div><h3>Uno</h3><div class="from">&nbsp;</div></div>
+      <div class="card dj"><div class="avatar">K</div><h3>Kostas</h3><div class="from">&nbsp;</div></div>
+      <div class="card dj"><div class="avatar">A</div><h3>Ajit</h3><div class="from">&nbsp;</div></div>
+    </div>
+    <p class="note" style="text-align:center">各场次 DJ 安排稍后公布<span class="en">Session-by-session DJ line-up to be announced</span></p>
+  </div>
+</section>
 
-  <!-- ===== FAQ 区块 ===== -->
-  <section id="faq" class="faq">
-    <h2>FAQ</h2>
-    <h3>❓ 活动需要穿着要求吗？</h3>
-    <p>建议正式着装，男士请勿穿短裤、运动鞋。</p>
-    <h3>❓ 是否有单日票？</h3>
-    <p>目前仅提供全通票。</p>
-    <h3>❓ 是否提供餐饮？</h3>
-    <p>每场 Milonga 提供小食与茶歇。</p>
-  </section>
+<!-- ===== REGISTRATION ===== -->
+<section id="registration" class="reg">
+  <div class="wrap">
+    <div class="sec-title"><h2>报名</h2><span class="en">Registration</span></div>
+    <p class="reg-notice">报名将于 2026年12月1日开放<span class="en">Registration opens December 1, 2026</span></p>
+    <div class="countdown" data-countdown>
+      <div><b data-d>--</b><span>天 days</span></div>
+      <div><b data-h>--</b><span>时 hrs</span></div>
+      <div><b data-m>--</b><span>分 min</span></div>
+    </div>
+    <div class="btns">
+      <!-- REGISTRATION LINK: replace href here (currently points to the placeholder page register/index.html).
+           When registration opens, set href to the real form URL and change class "btn-disabled" to "btn-gold",
+           remove aria-disabled, and change the label to "立即报名 Register now". -->
+      <a id="register-btn" class="btn btn-disabled" href="register/index.html" aria-disabled="true">立即报名 Register <span class="tag">即将开放 Coming soon</span></a>
+      <a class="btn btn-ghost" href="https://www.facebook.com/groups/selecttangoweekend" target="_blank" rel="noopener">加入 FB 社群 Join FB group</a>
+    </div>
+    <div class="grid g2 reg-steps">
+      <div class="card"><h3>12/1 开放报名</h3><p>报名开放后填写报名表，确认后会以邮件通知付款方式。<span class="en">Fill in the form once it opens on Dec 1; we'll confirm by email with payment details.</span></p></div>
+      <div class="card"><h3>约 12 月中 酒店预订</h3><p>酒店预订约于 2026 年 12 月中旬开放，我们可以团体预订，争取更优惠的房价。<span class="en">Hotel booking opens around mid-December 2026; we book as a group for better rates.</span></p></div>
+    </div>
+  </div>
+</section>
 
-  <!-- ===== Contact 区块 ===== -->
-  <section id="contact" class="contact">
-    <h2>Contact</h2>
-    <p>如果有任何问题，欢迎联系：</p>
-    <p>Email: <a href="mailto:info@tangoweekend.org">info@tangoweekend.org</a></p>
-    <p>或加入我们的 <a href="https://www.facebook.com/groups/selecttangoweekend">Facebook 社群</a></p>
-    <p>
-      关注我们的社群：
-      <a href="https://www.instagram.com/youraccount" target="_blank">Instagram</a> |
-      <a href="https://www.xiaohongshu.com/user/youraccount" target="_blank">小红书</a> |
-      <a href="https://www.youtube.com/channel/YOURCHANNEL" target="_blank">YouTube</a>
-    </p>
-  </section>
+<!-- ===== HOTEL / TRAVEL ===== -->
+<section id="hotel">
+  <div class="wrap">
+    <div class="sec-title"><h2>住宿与交通</h2><span class="en">Hotel &amp; Travel</span></div>
+    <div class="grid g2">
+      <div class="card">
+        <h3>A.C. Art Museum Hotel（艺术博物馆酒店）</h3>
+        <p>四星级酒店，位于北京使馆区，澳大利亚、加拿大大使馆对面。除周一四合院外，所有舞会都在酒店内举行，住在这里上下楼就到舞池。
+        <span class="en">4-star hotel in Beijing's embassy district, across from the Australian and Canadian embassies. Every milonga except Monday's is held here — the dance floor is just an elevator ride away.</span></p>
+      </div>
+      <div class="card">
+        <h3>团体房价 · 交通</h3>
+        <p>酒店预订约 2026 年 12 月中旬开放，团体价格届时公布。周一四合院提供酒店往返专车。机场与地铁交通指南将于报名开放后补充。
+        <span class="en">Group-rate hotel booking opens around mid-December 2026. A shuttle runs from the hotel to Monday's courtyard. Airport &amp; metro directions will be added after registration opens.</span></p>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <!-- ===== 页尾 ===== -->
-  <footer>
-    <p>&copy; 2025 Select Tango Weekend. All rights reserved.</p>
-  </footer>
+<!-- ===== PAST EDITIONS ===== -->
+<section id="gallery" class="past">
+  <div class="wrap">
+    <div class="sec-title"><h2>往届回顾</h2><span class="en">Past Editions · 2024 – 2026</span></div>
 
+    <div class="tabs" role="tablist" aria-label="往届 Past editions">
+      <button role="tab" id="tab-2024" aria-controls="ed-2024" aria-selected="false">2024<small>第 1 届</small></button>
+      <button role="tab" id="tab-2025" aria-controls="ed-2025" aria-selected="false">2025<small>第 2 届</small></button>
+      <button role="tab" id="tab-2026" aria-controls="ed-2026" aria-selected="true">2026<small>第 3 届</small></button>
+    </div>
+
+    <!-- 2024 · 1st -->
+    <div class="ed-panel" id="ed-2024" role="tabpanel" aria-labelledby="tab-2024">
+      <div class="ed-head">
+        <a class="ed-cover" href="images/past/2024_dancefloor_01.jpg" data-lb="y2024" data-cap="第 1 届：坐满的舞池 · 1st edition: a packed dance floor"><img src="images/past/thumb/2024_dancefloor_01.jpg" srcset="images/past/thumb/2024_dancefloor_01.jpg 800w, images/past/2024_dancefloor_01.jpg 1920w" sizes="(max-width:820px) 100vw, 640px" alt="第 1 届：坐满的舞池 · 1st edition: a packed dance floor" loading="lazy"></a>
+        <div class="ed-text">
+          <span class="ed-badge">第 1 届 · 1st Edition · 2024 年 6 月 June 2024</span>
+          <h3>一切从这里开始</h3>
+          <span class="en">Where it all began</span>
+          <p>第一届精选探戈周末在 A.C. Art Museum Hotel 举行。紫色灯光下舞池坐满，来自各地的舞友在这里相遇。
+            <span class="en">The very first Select Tango Weekend at the A.C. Art Museum Hotel — a full floor under violet light and dancers meeting from near and far.</span></p>
+        </div>
+      </div>
+      <h4 class="pair-title">暖光 · 冷光 <span>Warm &amp; Cool — two moods of the same floor</span></h4>
+      <div class="pair">
+        <figure><a href="images/past/2024_milonga_stage_01.jpg" data-lb="y2024" data-cap="暖光下的舞会 · Milonga in warm amber light"><img src="images/past/thumb/2024_milonga_stage_01.jpg" alt="暖光下的舞会 · Milonga in warm amber light" loading="lazy"></a><figcaption>暖光下的舞会<span>Milonga in warm amber light</span></figcaption></figure>
+        <figure><a href="images/past/2024_milonga_stage_02.jpg" data-lb="y2024" data-cap="紫光下的舞会 · Milonga in violet light"><img src="images/past/thumb/2024_milonga_stage_02.jpg" alt="紫光下的舞会 · Milonga in violet light" loading="lazy"></a><figcaption>紫光下的舞会<span>Milonga in violet light</span></figcaption></figure>
+      </div>
+      <p class="note">2024 年的舞会茶点见下方「茶点与服务」。<a href="#refreshments">→ 查看</a><span class="en">See the 2024 milonga refreshments below.</span></p>
+    </div>
+
+    <!-- 2025 · 2nd -->
+    <div class="ed-panel" id="ed-2025" role="tabpanel" aria-labelledby="tab-2025">
+      <div class="ed-head">
+        <a class="ed-cover" href="images/past/2025_groupphoto_01.jpg" data-lb="y2025" data-cap="第 2 届：舞友合影 · 2nd edition: dancers together"><img src="images/past/thumb/2025_groupphoto_01.jpg" srcset="images/past/thumb/2025_groupphoto_01.jpg 800w, images/past/2025_groupphoto_01.jpg 1920w" sizes="(max-width:820px) 100vw, 640px" alt="第 2 届：舞友合影 · 2nd edition: dancers together" loading="lazy"></a>
+        <div class="ed-text">
+          <span class="ed-badge">第 2 届 · 2nd Edition · 2025 年 6 月 20–22 日 June 20–22, 2025</span>
+          <h3>We made it!</h3>
+          <span class="en">The second edition, with international DJs</span>
+          <p>第二届延续了好口碑，国际 DJ（包括 Fernando Isley）加盟，宴会厅布置一新。
+            <span class="en">The second edition built on the first, with international DJs including Fernando Isley and a freshly dressed ballroom.</span></p>
+        </div>
+      </div>
+      <div class="gallery land">
+          <figure><a href="images/past/2025_organizers_02.jpg" data-lb="y2025" data-cap="组织者合影 · The organizers"><img src="images/past/thumb/2025_organizers_02.jpg" alt="组织者合影 · The organizers" loading="lazy"></a><figcaption>组织者合影<span>The organizers</span></figcaption></figure>
+          <figure><a href="images/past/2025_djbanner_03.jpg" data-lb="y2025" data-cap="DJ 台与主视觉 · DJ booth & stage visual"><img src="images/past/thumb/2025_djbanner_03.jpg" alt="DJ 台与主视觉 · DJ booth & stage visual" loading="lazy"></a><figcaption>DJ 台与主视觉<span>DJ booth & stage visual</span></figcaption></figure>
+          <figure><a href="images/past/2025_dj_fernandoisley_04.jpg" data-lb="y2025" data-cap="DJ Fernando Isley · DJ Fernando Isley"><img src="images/past/thumb/2025_dj_fernandoisley_04.jpg" alt="DJ Fernando Isley · DJ Fernando Isley" loading="lazy"></a><figcaption>DJ Fernando Isley<span>DJ Fernando Isley</span></figcaption></figure>
+          <figure><a href="images/past/2025_ballroom_05.jpg" data-lb="y2025" data-cap="布置好的宴会厅 · The ballroom, ready for the milonga"><img src="images/past/thumb/2025_ballroom_05.jpg" alt="布置好的宴会厅 · The ballroom, ready for the milonga" loading="lazy"></a><figcaption>布置好的宴会厅<span>The ballroom, ready for the milonga</span></figcaption></figure>
+      </div>
+    </div>
+
+    <!-- 2026 · 3rd -->
+    <div class="ed-panel active" id="ed-2026" role="tabpanel" aria-labelledby="tab-2026">
+      <div class="ed-head">
+        <a class="ed-cover" href="images/past/2026_group_01.jpg" data-lb="y2026" data-cap="第 3 届：全场大合影 · 3rd edition: everyone together"><img src="images/past/thumb/2026_group_01.jpg" srcset="images/past/thumb/2026_group_01.jpg 800w, images/past/2026_group_01.jpg 1920w" sizes="(max-width:820px) 100vw, 640px" alt="第 3 届：全场大合影 · 3rd edition: everyone together" loading="lazy"></a>
+        <div class="ed-text">
+          <span class="ed-badge">第 3 届 · 3rd Edition · 2026 年 6 月 18–22 日 June 18–22, 2026</span>
+          <h3>五天，越来越精彩</h3>
+          <span class="en">Five days, bigger and brighter</span>
+          <p>第三届扩展为五天：表演、满场舞会、四合院之夜和城市漫步。专业摄影 Piufoto 记录了舞池里的每一个拥抱。
+            <span class="en">The 3rd edition grew to five days — performances, packed milongas, a courtyard night and a city walk. Photographer Piufoto captured every embrace.</span></p>
+          <p class="note"><a href="https://m.alltuu.com/album/e9758ce599055720529450e3896b3216/2744456043" target="_blank" rel="noopener">完整相册 Full album (alltuu) ↗</a></p>
+        </div>
+      </div>
+      <div class="gallery">
+          <figure class="wide"><a href="images/past/2026_performance_04.jpg" data-lb="y2026" data-cap="开场集体表演 · Opening group performance"><img src="images/past/thumb/2026_performance_04.jpg" alt="开场集体表演 · Opening group performance" loading="lazy"></a><figcaption>开场集体表演<span>Opening group performance</span></figcaption></figure>
+          <figure><a href="images/past/2026_performance_01.jpg" data-lb="y2026" data-cap="集体表演 · Group performance"><img src="images/past/thumb/2026_performance_01.jpg" alt="集体表演 · Group performance" loading="lazy"></a><figcaption>集体表演<span>Group performance</span></figcaption></figure>
+          <figure><a href="images/past/2026_performance_02.jpg" data-lb="y2026" data-cap="表演：红裙与吊带裤 · Performance in red & black"><img src="images/past/thumb/2026_performance_02.jpg" alt="表演：红裙与吊带裤 · Performance in red & black" loading="lazy"></a><figcaption>表演：红裙与吊带裤<span>Performance in red & black</span></figcaption></figure>
+          <figure><a href="images/past/2026_performance_03.jpg" data-lb="y2026" data-cap="在「北京精选探戈周末」横幅前起舞 · Dancing before the festival banner"><img src="images/past/thumb/2026_performance_03.jpg" alt="在「北京精选探戈周末」横幅前起舞 · Dancing before the festival banner" loading="lazy"></a><figcaption>在「北京精选探戈周末」横幅前起舞<span>Dancing before the festival banner</span></figcaption></figure>
+          <figure><a href="images/past/2026_couple_01.jpg" data-lb="y2026" data-cap="拥抱 · The embrace"><img src="images/past/thumb/2026_couple_01.jpg" alt="拥抱 · The embrace" loading="lazy"></a><figcaption>拥抱<span>The embrace</span></figcaption></figure>
+          <figure><a href="images/past/2026_couple_02.jpg" data-lb="y2026" data-cap="暖光中的相拥 · A warm embrace"><img src="images/past/thumb/2026_couple_02.jpg" alt="暖光中的相拥 · A warm embrace" loading="lazy"></a><figcaption>暖光中的相拥<span>A warm embrace</span></figcaption></figure>
+          <figure><a href="images/past/2026_couple_03.jpg" data-lb="y2026" data-cap="舞池里的专注 · Lost in the music"><img src="images/past/thumb/2026_couple_03.jpg" alt="舞池里的专注 · Lost in the music" loading="lazy"></a><figcaption>舞池里的专注<span>Lost in the music</span></figcaption></figure>
+          <figure><a href="images/past/alltuu_2026_01.jpg" data-lb="y2026" data-cap="专业摄影：舞池瞬间 · On the floor (Piufoto)"><img src="images/past/thumb/alltuu_2026_01.jpg" alt="专业摄影：舞池瞬间 · On the floor (Piufoto)" loading="lazy"></a><figcaption>专业摄影：舞池瞬间<span>On the floor (Piufoto)</span></figcaption></figure>
+          <figure><a href="images/past/alltuu_2026_02.jpg" data-lb="y2026" data-cap="专业摄影：闭眼共舞 · Eyes closed (Piufoto)"><img src="images/past/thumb/alltuu_2026_02.jpg" alt="专业摄影：闭眼共舞 · Eyes closed (Piufoto)" loading="lazy"></a><figcaption>专业摄影：闭眼共舞<span>Eyes closed (Piufoto)</span></figcaption></figure>
+          <figure><a href="images/past/alltuu_2026_03.jpg" data-lb="y2026" data-cap="专业摄影：笑容 · Smiles (Piufoto)"><img src="images/past/thumb/alltuu_2026_03.jpg" alt="专业摄影：笑容 · Smiles (Piufoto)" loading="lazy"></a><figcaption>专业摄影：笑容<span>Smiles (Piufoto)</span></figcaption></figure>
+          <figure><a href="images/past/2026_milonga_01.jpg" data-lb="y2026" data-cap="舞会 · Milonga"><img src="images/past/thumb/2026_milonga_01.jpg" alt="舞会 · Milonga" loading="lazy"></a><figcaption>舞会<span>Milonga</span></figcaption></figure>
+          <figure><a href="images/past/2026_milonga_02.jpg" data-lb="y2026" data-cap="满场舞会 · A full floor"><img src="images/past/thumb/2026_milonga_02.jpg" alt="满场舞会 · A full floor" loading="lazy"></a><figcaption>满场舞会<span>A full floor</span></figcaption></figure>
+          <figure class="wide"><a href="images/past/2026_joy_01.jpg" data-lb="y2026" data-cap="欢乐时刻 · Pure joy"><img src="images/past/thumb/2026_joy_01.jpg" alt="欢乐时刻 · Pure joy" loading="lazy"></a><figcaption>欢乐时刻<span>Pure joy</span></figcaption></figure>
+          <figure class="small"><a href="images/past/thumb/alltuu_2026_08.jpg" data-lb="y2026" data-cap="相拥 · Embrace"><img src="images/past/thumb/alltuu_2026_08.jpg" alt="相拥 · Embrace" loading="lazy"></a><figcaption>相拥<span>Embrace</span></figcaption></figure>
+      </div>
+    </div>
+
+    <!-- ===== VIDEOS ===== -->
+    <div class="sec-title" style="margin-top:60px"><h2 style="font-size:1.6rem">精彩视频</h2><span class="en">Videos</span></div>
+    <div class="videos">
+      <!-- VIDEO LINKS: replace / add href with real video URLs (Facebook / YouTube / Bilibili) -->
+      <a class="video featured-video" href="https://www.facebook.com/groups/selecttangoweekend/posts/2225991414640827/" target="_blank" rel="noopener">
+        <div class="thumb" style="background-image:url(images/past/video_poster_2026.jpg)"><span class="play" aria-hidden="true">▶</span><span class="dur">2:33</span></div>
+        <div class="meta"><div class="platform">Facebook · 2026 第 3 届</div>
+          <strong>Michael Tan &amp; WaiChing See 表演</strong>
+          <span class="en">Beijing Select Tango Weekend 2026 · “Loca” – Juan D'Arienzo · watch on Facebook ↗</span></div>
+      </a>
+      <a class="video" href="https://www.facebook.com/groups/selecttangoweekend" target="_blank" rel="noopener">
+        <div class="thumb soon"><span class="play" aria-hidden="true">▶</span></div>
+        <div class="meta"><div class="platform">Facebook 社群</div>更多视频在社群里<span class="en">More videos in our Facebook group ↗</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== REFRESHMENTS ===== -->
+<section id="refreshments" class="alt">
+  <div class="wrap">
+    <div class="sec-title"><h2>茶点与服务</h2><span class="en">Milonga Refreshments &amp; Service</span></div>
+    <p class="lead">每场舞会都有精心准备的茶点与水果，跳累了随时补充能量。（图为 2024 年第 1 届）
+      <span class="en">Every milonga comes with a generous spread of snacks, fruit and drinks. (Photos: 1st edition, 2024)</span></p>
+    <div class="gallery g-3">
+          <figure><a href="images/past/2024_buffet_01.jpg" data-lb="food" data-cap="茶点与水果 · Snacks & fruit"><img src="images/past/thumb/2024_buffet_01.jpg" alt="茶点与水果 · Snacks & fruit" loading="lazy"></a><figcaption>茶点与水果<span>Snacks & fruit</span></figcaption></figure>
+          <figure><a href="images/past/2024_buffet_02.jpg" data-lb="food" data-cap="热菜与点心 · Hot dishes & treats"><img src="images/past/thumb/2024_buffet_02.jpg" alt="热菜与点心 · Hot dishes & treats" loading="lazy"></a><figcaption>热菜与点心<span>Hot dishes & treats</span></figcaption></figure>
+          <figure><a href="images/past/2024_buffet_03.jpg" data-lb="food" data-cap="丰盛的自助台 · A generous buffet"><img src="images/past/thumb/2024_buffet_03.jpg" alt="丰盛的自助台 · A generous buffet" loading="lazy"></a><figcaption>丰盛的自助台<span>A generous buffet</span></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section id="faq">
+  <div class="wrap" style="max-width:820px">
+    <div class="sec-title"><h2>常见问题</h2><span class="en">FAQ</span></div>
+    <details><summary>有着装要求吗？ Is there a dress code?</summary>
+      <p>建议正式着装，男士请勿穿短裤、运动鞋。<span class="en">Elegant attire is recommended; gentlemen, please no shorts or sneakers.</span></p></details>
+    <details><summary>四日通票包含哪些？ What does the Four Pass include?</summary>
+      <p>周五欢迎舞会、周六与周日的下午场和晚场、周二告别舞会，共 6 场。不含周一四合院晚宴和舞会（另加 450 元，或选 1,380 元套票）。<span class="en">Friday welcome, Saturday &amp; Sunday afternoon and evening milongas, and Tuesday farewell — 6 milongas. Monday's courtyard dinner &amp; milonga is extra (450 RMB, or take the 1,380 RMB package).</span></p></details>
+    <details><summary>一日游和 City Walk 怎么报名？ How do I join the Day Trip or City Walk?</summary>
+      <p>两项都另外收费（一日游 450 元，City Walk 400 元），在报名表中勾选即可。<span class="en">Both are optional add-ons (Day Trip 450 RMB, City Walk 400 RMB) — select them on the registration form.</span></p></details>
+    <details><summary>舞会提供餐饮吗？ Are refreshments provided?</summary>
+      <p>每场舞会提供小食与茶歇；周一四合院含晚宴。<span class="en">Snacks and tea at every milonga; Monday's courtyard evening includes dinner.</span></p></details>
+    <details><summary>如何订酒店？ How do I book the hotel?</summary>
+      <p>酒店预订约 2026 年 12 月中旬开放，我们会统一团体预订以争取更好的房价，详情会通过邮件和社群通知。<span class="en">Hotel booking opens around mid-December 2026. We book as a group for better rates; details will be shared by email and in our groups.</span></p></details>
+  </div>
+</section>
+
+<!-- ===== CONTACT / FOOTER ===== -->
+<footer id="contact">
+  <div class="wrap">
+    <div class="cols">
+      <div><h4>联系我们 Contact</h4><p>Email: <a href="mailto:info@tangoweekend.org">info@tangoweekend.org</a></p></div>
+      <div><h4>Facebook 社群</h4><p><a href="https://www.facebook.com/groups/selecttangoweekend" target="_blank" rel="noopener">facebook.com/groups/selecttangoweekend</a></p></div>
+      <div><h4>微信群 WeChat</h4><p>「2027 Select Tango Weekend」<span class="en" style="color:#f3d9c9">Ask us by email for an invite</span></p></div>
+    </div>
+    <p class="copy">© 2027 Select Tango Weekend · 北京精选探戈周末</p>
+  </div>
+</footer>
+
+<script>
+// Countdown to registration opening: Dec 1, 2026 00:00 Beijing time (UTC+8)
+(function(){
+  var target = new Date('2026-12-01T00:00:00+08:00').getTime();
+  function tick(){
+    var diff = target - Date.now();
+    document.querySelectorAll('[data-countdown]').forEach(function(el){
+      if (diff <= 0){ el.innerHTML = '<div><b>✓</b><span>报名已开放 Open</span></div>'; return; }
+      var d = Math.floor(diff/864e5), h = Math.floor(diff%864e5/36e5), m = Math.floor(diff%36e5/6e4);
+      el.querySelector('[data-d]').textContent = d;
+      el.querySelector('[data-h]').textContent = String(h).padStart(2,'0');
+      el.querySelector('[data-m]').textContent = String(m).padStart(2,'0');
+    });
+  }
+  tick(); setInterval(tick, 30000);
+  // mobile nav
+  var btn = document.querySelector('.nav-toggle'), nav = document.querySelector('.main-nav');
+  btn.addEventListener('click', function(){ var o = nav.classList.toggle('open'); btn.setAttribute('aria-expanded', o); });
+  nav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ nav.classList.remove('open'); }); });
+})();
+
+// Past-editions tabs
+(function(){
+  var tabs=document.querySelectorAll('.tabs [role=tab]'), panels=document.querySelectorAll('.ed-panel');
+  document.documentElement.classList.add('js');
+  tabs.forEach(function(t){ t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.setAttribute('aria-selected', x===t);});
+    panels.forEach(function(p){p.classList.toggle('active', p.id===t.getAttribute('aria-controls'));});
+  });});
+})();
+// Lightbox
+(function(){
+  var lb=document.createElement('div'); lb.className='lb'; lb.setAttribute('role','dialog'); lb.setAttribute('aria-modal','true'); lb.hidden=true;
+  lb.innerHTML='<button class="lb-x" aria-label="关闭 Close">✕</button><button class="lb-prev" aria-label="上一张 Previous">‹</button><figure><img alt=""><figcaption></figcaption></figure><button class="lb-next" aria-label="下一张 Next">›</button>';
+  document.body.appendChild(lb);
+  var img=lb.querySelector('img'), cap=lb.querySelector('figcaption'), list=[], i=0;
+  function show(){ var a=list[i]; img.src=a.getAttribute('href'); img.alt=a.dataset.cap||''; cap.textContent=(a.dataset.cap||'')+'  ('+(i+1)+'/'+list.length+')'; }
+  function open(a){ list=[].slice.call(document.querySelectorAll('[data-lb="'+a.dataset.lb+'"]')); i=list.indexOf(a); show(); lb.hidden=false; document.body.style.overflow='hidden'; }
+  function close(){ lb.hidden=true; img.src=''; document.body.style.overflow=''; }
+  function step(d){ i=(i+d+list.length)%list.length; show(); }
+  document.addEventListener('click',function(e){ var a=e.target.closest('[data-lb]'); if(a){ e.preventDefault(); open(a);} });
+  lb.addEventListener('click',function(e){ if(e.target===lb||e.target.classList.contains('lb-x')) close(); else if(e.target.classList.contains('lb-prev')) step(-1); else if(e.target.classList.contains('lb-next')) step(1); });
+  document.addEventListener('keydown',function(e){ if(lb.hidden) return; if(e.key==='Escape') close(); if(e.key==='ArrowLeft') step(-1); if(e.key==='ArrowRight') step(1); });
+  var x0=null; lb.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+  lb.addEventListener('touchend',function(e){ if(x0===null) return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>50) step(dx<0?1:-1); x0=null; });
+})();
+</script>
 </body>
 </html>
