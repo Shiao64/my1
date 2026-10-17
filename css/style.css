@@ -267,3 +267,4 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 }
 .hero h1.one-line{white-space:nowrap;font-size:clamp(1.55rem,4.4vw,3rem)}
 .hero h1.one-line .en{white-space:normal}
+@media (min-width:1061px){html[lang="en"] .lang-switch{margin-left:26px}}
