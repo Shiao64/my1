@@ -352,26 +352,16 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 
 /* ===== China Tango Map: banner + region nav ===== */
 .china-stw-banner{
-  display:block;text-decoration:none;color:inherit;
-  background:linear-gradient(90deg,var(--red-deep),var(--red-dark) 55%,#5a0a10);
-  border-bottom:3px solid var(--gold);
-}
-.china-stw-banner-inner{
-  display:flex;flex-direction:column;gap:0;padding:0;max-width:1180px;width:100%;margin:0 auto;
+  display:block;text-decoration:none;color:inherit;line-height:0;
+  background:var(--red-deep);
+  border-bottom:2px solid var(--gold);
 }
 .china-stw-banner img{
-  display:block;width:100%;height:clamp(140px,22vw,220px);
-  object-fit:cover;object-position:center 18%;
-  border-radius:0;border:0;flex-shrink:0
+  display:block;width:100%;height:auto;
+  max-height:clamp(36px,9vw,48px);
+  object-fit:cover;object-position:center;
+  border-radius:0;border:0
 }
-.china-stw-banner-copy{
-  display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;
-  padding:10px 18px;color:var(--gold-soft);min-width:0
-}
-.china-stw-banner-copy strong{font-family:var(--serif);font-size:1.2rem;color:var(--gold)}
-.china-stw-banner-copy span{font-size:.9rem;opacity:.95}
-.china-stw-banner-copy em{font-style:normal;font-weight:700;font-size:.85rem;color:var(--gold);margin-left:auto}
-.china-stw-banner:hover .china-stw-banner-copy em{text-decoration:underline}
 .china-map-hero h1{margin:0 0 8px;font-family:var(--serif);font-size:clamp(2rem,5vw,3rem);color:var(--gold-soft)}
 .china-map-sub{margin:0 0 12px;font-size:1.05rem;color:#f3d9c9}
 .china-region-nav{
@@ -409,9 +399,7 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 .china-count{font-family:var(--sans);font-size:.85rem;color:var(--muted);font-weight:600}
 .china-empty{margin:0;padding:16px 18px;border:1px dashed var(--line);border-radius:var(--radius);background:#fff}
 @media (max-width:600px){
-  .china-stw-banner img{width:100%;height:clamp(110px,28vw,160px)}
-  .china-stw-banner-copy strong{font-size:1.05rem}
-  .china-stw-banner-copy span{font-size:.82rem}
+  .china-stw-banner img{max-height:clamp(34px,10vw,44px)}
   .china-region-nav{top:48px}
   .china-region-nav-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .china-region-tile{min-height:84px;padding:10px 6px}
