@@ -1182,3 +1182,52 @@ body.china-page > .nav-toggle{
   .china-filters-compact input[type="date"].china-date-input{width:96px!important;max-width:96px!important;height:26px!important;max-height:26px!important;font-size:.68rem!important}
   .china-filters-compact .china-search-btn{height:26px!important;font-size:.68rem!important}
 }
+
+/* china51: banner +15–20%; Type checkmarks; cities only */
+.china-page{padding-top:44px!important}
+.china-page .china-stw-banner.china-stw-ad,
+.china-page .china-stw-ad-hposter{
+  height:40px!important;max-height:40px!important;min-height:40px!important;
+}
+.china-page .china-stw-ad-overlay .china-stw-ad-title{
+  font-size:clamp(.95rem,2.5vw,1.2rem)!important;
+}
+.china-page .china-stw-ad-overlay .china-stw-ad-date{
+  font-size:clamp(.8rem,2vw,.98rem)!important;
+}
+.china-filters-compact .china-type-check{
+  display:inline-flex!important;align-items:center;gap:5px;
+  cursor:pointer;user-select:none;
+  border:1.5px solid var(--red-dark);
+  background:#fff;color:var(--red-dark);
+  padding:5px 10px!important;font-size:.82rem!important;font-weight:600;
+}
+.china-filters-compact .china-type-check .china-check{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:14px;height:14px;border-radius:3px;flex-shrink:0;
+  border:1.5px solid currentColor;background:transparent;
+  font-size:11px;line-height:1;font-weight:800;
+}
+.china-filters-compact .china-type-check .china-check::before{content:""; }
+.china-filters-compact .china-type-check:has(input:checked){
+  background:var(--red-dark)!important;color:#fff!important;border-color:var(--gold)!important;
+  box-shadow:0 0 0 1px rgba(232,192,106,.35);
+}
+.china-filters-compact .china-type-check:has(input:checked) .china-check{
+  background:var(--gold);border-color:var(--gold);color:var(--red-deep);
+}
+.china-filters-compact .china-type-check:has(input:checked) .china-check::before{
+  content:"✓";
+}
+.china-filters-compact .china-type-check:not(:has(input:checked)){
+  opacity:.85;
+}
+@media (max-width:700px){
+  .china-page{padding-top:40px!important}
+  .china-page .china-stw-banner.china-stw-ad,
+  .china-page .china-stw-ad-hposter{height:36px!important;max-height:36px!important;min-height:36px!important}
+  .china-page .china-stw-ad-overlay .china-stw-ad-title{font-size:.9rem!important}
+  .china-page .china-stw-ad-overlay .china-stw-ad-date{font-size:.75rem!important}
+  .china-filters-compact .china-type-check{padding:4px 8px!important;font-size:.72rem!important;gap:4px}
+  .china-filters-compact .china-type-check .china-check{width:12px;height:12px;font-size:9px}
+}
