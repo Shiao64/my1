@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china63">
+<link rel="stylesheet" href="../css/style.css?v=china64">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — June 18–22, 2027">
@@ -31,7 +31,6 @@
           <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="milonga" checked><span class="china-check" aria-hidden="true"></span> Milonga</label>
           <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="practica" checked><span class="china-check" aria-hidden="true"></span> Practica</label>
           <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="event" checked><span class="china-check" aria-hidden="true"></span> Event</label>
-          <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="festival" checked><span class="china-check" aria-hidden="true"></span> Festival</label>
         </div>
       </div>
       <div class="china-city-wrap">
@@ -264,7 +263,7 @@
         var t = li.getAttribute('data-type') || '', isEvent = li.getAttribute('data-kind') === 'event';
         var festLike = isEvent && FEST_TYPES.indexOf(t) !== -1;
         // Event box: every event-kind listing (event, festival, marathon, championship, encuentro, weekend, ...)
-        // Festival box: festival + marathon + encuentro + championship + weekend
+        // (Festival box removed: Event covers festival, marathon, championship, encuentro)
         var typeOk = isEvent ? (types.indexOf('event') !== -1 || (festLike && types.indexOf('festival') !== -1)) : types.indexOf(t) !== -1;
         var ok = regionOk && typeOk && itemMatchesDate(li);
         li.hidden = !ok; if (ok) shown++;
@@ -299,7 +298,7 @@
     applyFilters();
   });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china63', {cache: 'no-cache'})
+  fetch('events.json?v=china64', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
