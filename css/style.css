@@ -1266,3 +1266,25 @@ body.china-page > .nav-toggle{
   }
   .china-filters-compact .china-search-btn{height:20px!important;font-size:.65rem!important;padding:0 7px!important}
 }
+
+/* china53: banner ~just under title size; city labels without counts */
+.china-page{padding-top:56px!important}
+.china-page .china-stw-banner.china-stw-ad,
+.china-page .china-stw-ad-hposter{
+  height:50px!important;max-height:50px!important;min-height:50px!important;
+}
+.china-page .china-stw-ad-overlay .china-stw-ad-title{
+  font-size:clamp(1.05rem,2.8vw,1.35rem)!important;
+}
+.china-page .china-stw-ad-overlay .china-stw-ad-date{
+  font-size:clamp(.85rem,2.2vw,1.05rem)!important;
+}
+/* Title stays a touch larger than banner copy */
+.china-page .china-map-hero h1{
+  font-size:clamp(1.65rem,4.8vw,2.25rem)!important;
+}
+@media (max-width:700px){
+  .china-page{padding-top:50px!important}
+  .china-page .china-stw-banner.china-stw-ad,
+  .china-page .china-stw-ad-hposter{height:46px!important;max-height:46px!important;min-height:46px!important}
+}
