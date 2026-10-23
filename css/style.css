@@ -592,3 +592,7 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 /* legacy icon tiles, if any cached markup */
 .china-region-tile{min-height:0;padding:6px 8px;gap:3px}
 .china-region-icon svg{width:16px;height:16px}
+
+/* China Tango Map button pinned to page's top-left corner */
+.btn-china-corner{position:absolute;top:4px;left:6px;z-index:60;margin:0;padding:3px 10px;font-size:.72rem}
+@media (max-width:640px){.draft-banner{padding-left:128px}}
