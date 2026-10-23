@@ -903,3 +903,25 @@ body.china-page > .nav-toggle{
   .china-stw-ad-copy{align-items:flex-start}
   .china-page{padding-top:92px}
 }
+
+
+/* china42b: keep poster thumb small inside full-width sticky ad */
+.china-page .china-stw-banner.china-stw-ad{
+  width:100%!important;max-width:none!important;margin:0!important;
+  line-height:normal!important;background:linear-gradient(90deg,#5a0a12 0%,#8b1520 45%,#5a0a12 100%)!important;
+}
+.china-page .china-stw-banner.china-stw-ad img.china-stw-ad-poster,
+.china-page .china-stw-ad-poster{
+  display:block!important;
+  width:72px!important;max-width:72px!important;min-width:56px!important;
+  height:108px!important;max-height:108px!important;
+  object-fit:cover!important;object-position:top center!important;
+  border-radius:6px!important;border:2px solid var(--gold)!important;
+  box-shadow:0 4px 16px rgba(0,0,0,.45)!important;flex-shrink:0!important;
+}
+@media (max-width:600px){
+  .china-page .china-stw-ad-inner{flex-direction:row!important;flex-wrap:nowrap!important;gap:10px!important;text-align:left!important}
+  .china-page .china-stw-ad-poster{width:56px!important;max-width:56px!important;height:84px!important;max-height:84px!important}
+  .china-page .china-stw-ad-copy{align-items:flex-start!important}
+  .china-page{padding-top:100px!important}
+}
