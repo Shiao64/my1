@@ -1158,3 +1158,27 @@ body.china-page > .nav-toggle{
   .china-page .china-stw-ad-overlay .china-stw-ad-title{font-size:.8rem!important}
   .china-page .china-stw-ad-overlay .china-stw-ad-date{font-size:.68rem!important}
 }
+
+/* china50: tiny date inputs; banner image textless; tighter strip */
+.china-page{padding-top:36px!important}
+.china-page .china-stw-banner.china-stw-ad,
+.china-page .china-stw-ad-hposter{height:34px!important;max-height:34px!important;min-height:34px!important}
+.china-filters-compact .china-date-field span{line-height:1;margin:0}
+.china-filters-compact input[type="date"].china-date-input,
+.china-filters-compact .china-date-input{
+  width:110px!important;max-width:110px!important;min-width:0!important;
+  height:28px!important;max-height:28px!important;min-height:28px!important;
+  padding:2px 4px!important;font-size:.72rem!important;line-height:1.1!important;
+  box-sizing:border-box!important;
+  -webkit-appearance:none;appearance:none;
+}
+.china-filters-compact .china-search-btn{
+  height:28px!important;max-height:28px!important;padding:0 10px!important;font-size:.72rem!important;
+}
+@media (max-width:700px){
+  .china-page{padding-top:32px!important}
+  .china-page .china-stw-banner.china-stw-ad,
+  .china-page .china-stw-ad-hposter{height:30px!important;max-height:30px!important;min-height:30px!important}
+  .china-filters-compact input[type="date"].china-date-input{width:96px!important;max-width:96px!important;height:26px!important;max-height:26px!important;font-size:.68rem!important}
+  .china-filters-compact .china-search-btn{height:26px!important;font-size:.68rem!important}
+}
