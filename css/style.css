@@ -613,3 +613,12 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 /* hamburger pinned to page's very top-left corner */
 body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important;background:var(--red-deep);padding:4px 9px}
 @media (max-width:1060px){.draft-banner{padding-left:56px}}
+
+/* top-right: China Tango Map + language switch */
+.top-right-bar{position:absolute;top:4px;right:6px;z-index:60;display:flex;align-items:center;gap:6px}
+.top-right-bar .btn-china{margin:0;padding:3px 10px;font-size:.72rem}
+.top-lang{display:flex;border:1px solid #c9a24a;border-radius:999px;overflow:hidden;background:#fff8e1}
+.top-lang a{padding:3px 8px;font-size:.72rem;line-height:1.3;text-decoration:none;color:#7a4d00}
+.top-lang a+a{border-left:1px solid #c9a24a}
+.top-lang a[aria-current="page"]{background:var(--gold);color:var(--red-deep);font-weight:700}
+@media (max-width:640px){.draft-banner{padding-right:240px;text-align:left;font-size:.75rem}}
