@@ -3,8 +3,18 @@
  "source": "OnlyTangoInfo",
  "source_updated": "2026-10-21",
  "total_before": 27,
- "total_after": 27,
+ "total_after": 26,
  "added": [],
- "removed": [],
+ "removed": [
+  {
+   "id": "GvpiVaFb",
+   "name": "Wuhan Tango Carnival",
+   "city": "Wuhan",
+   "type": "festival",
+   "when": "2026-10-01..2026-10-04",
+   "venue": null,
+   "organizers": []
+  }
+ ],
  "updated": []
 }

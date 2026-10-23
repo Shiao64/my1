@@ -120,6 +120,9 @@ def main():
     # Excluded per owner (2026-10-23): untyped/unclear entries, and anything without a type
     EXCLUDE_IDS = {'GpOaldUV', 'qIDsVZoD'}  # As Tango (Beijing), Beijing Tango Marathon La Ideal
     recs = [r for r in recs if r['id'] not in EXCLUDE_IDS and r.get('type')]
+    # Excluded per owner (2026-10-23): never list these cities
+    EXCLUDE_CITIES = {'Wuhan'}
+    recs = [r for r in recs if r['city'] not in EXCLUDE_CITIES]
     # Excluded per owner (2026-10-23): entries with no date (events) or no weekday schedule (weekly)
     recs = [r for r in recs if (r['kind']=='event' and r.get('start')) or (r['kind']=='weekly' and r.get('weekday') is not None)]
     # Drop events that ended more than one month before today (owner rule 2026-10-23)

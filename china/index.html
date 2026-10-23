@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china59">
+<link rel="stylesheet" href="../css/style.css?v=china60">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — June 18–22, 2027">
@@ -53,7 +53,6 @@
           <option value="tc">Taichung</option>
           <option value="tp">Taipei</option>
           <option value="tj">Tianjin</option>
-          <option value="wh">Wuhan</option>
         </select>
       </div>
       <div class="china-date-wrap">
@@ -150,8 +149,8 @@
   var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var DAYF = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  var CITY_ORDER = ['Beijing','Shanghai','Hong Kong','Shenzhen','Guangzhou','Wuhan','Suzhou','Taipei','Doulan Village'];
-  var CITY_ID = {'Beijing':'bj','Shanghai':'sh','Hong Kong':'hk','Shenzhen':'sz','Guangzhou':'gz','Wuhan':'wh','Suzhou':'su',
+  var CITY_ORDER = ['Beijing','Shanghai','Hong Kong','Shenzhen','Guangzhou','Suzhou','Taipei','Doulan Village'];
+  var CITY_ID = {'Beijing':'bj','Shanghai':'sh','Hong Kong':'hk','Shenzhen':'sz','Guangzhou':'gz','Suzhou':'su',
     'Taipei':'tp','Doulan Village':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj'};
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -285,7 +284,7 @@
   function onSearch(){ flashSearch(); applyFilters(); }
   if (searchBtn) searchBtn.addEventListener('click', onSearch);
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china59', {cache: 'no-cache'})
+  fetch('events.json?v=china60', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');

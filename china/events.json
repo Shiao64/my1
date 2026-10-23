@@ -717,29 +717,5 @@
   },
   "source": "OnlyTangoInfo",
   "updated": "2026-10-21"
- },
- {
-  "id": "GvpiVaFb",
-  "kind": "event",
-  "type": "festival",
-  "name": "Wuhan Tango Carnival",
-  "city": "Wuhan",
-  "country": "China",
-  "region": "China",
-  "start": "2026-10-01",
-  "end": "2026-10-04",
-  "weekday": null,
-  "weekdays": null,
-  "time": null,
-  "venue": null,
-  "venue_address": null,
-  "organizers": [],
-  "links": {
-   "facebook": "https://www.facebook.com/bythewei",
-   "video": null,
-   "other": null
-  },
-  "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
  }
 ]
