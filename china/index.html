@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china66">
+<link rel="stylesheet" href="../css/style.css?v=china67">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — June 18–22, 2027">
@@ -178,6 +178,7 @@
     var L = r.links || {}, out = [];
     if (L.facebook) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">Facebook</a>');
     if (L.other) out.push('<a class="china-linkbtn" href="' + esc(L.other) + '" target="_blank" rel="noopener">' + 'Website' + '</a>');
+    if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + 'WeChat' + '</a>');
     if (L.video) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">Video</a>');
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
   }
@@ -318,7 +319,7 @@
   Array.prototype.forEach.call(document.querySelectorAll('input[name="etype"]'), function(el){ el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china66', {cache: 'no-cache'})
+  fetch('events.json?v=china67', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');

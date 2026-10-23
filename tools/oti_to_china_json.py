@@ -144,11 +144,12 @@ def main():
             'time': None,
             'venue': 'Jinsha Lake Grand Theatre (金沙湖大剧院)',
             'venue_address': '金沙湖, Hangzhou',
-            'organizers': ['Randy Chen'],
+            'organizers': ['蒋黎黎 Lily'],
             'links': {
                 'facebook': None,
                 'video': None,
                 'other': 'https://uzzfwntg.jsjform.com/f/NBcCOy',
+                'wechat': 'https://mp.weixin.qq.com/s/3w6PRyzOzKG-jHIch8fGEg',
             },
             'source': 'manual:web+wechat',
             'updated': UPDATED,
