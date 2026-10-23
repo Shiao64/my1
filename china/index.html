@@ -10,11 +10,10 @@
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Beijing Select Tango Weekend — June 18–22, 2027">
   <span class="china-stw-ad-inner">
-    <img class="china-stw-ad-poster" src="../images/poster4_top.jpg?v=42" alt="" width="120" height="180" loading="eager">
+    <img class="china-stw-ad-poster" src="../images/poster4_top.jpg?v=46" alt="" width="40" height="60" loading="eager">
     <span class="china-stw-ad-copy">
-      <span class="china-stw-ad-kicker">4th Edition · Beijing</span>
       <span class="china-stw-ad-title">Beijing Select Tango Weekend</span>
-      <span class="china-stw-ad-date">June 18–22, 2027 · AC Embassy Hotel</span>
+      <span class="china-stw-ad-date">June 18–22, 2027</span>
       <span class="china-stw-ad-cta">View event →</span>
     </span>
   </span>
@@ -25,44 +24,45 @@
   </div>
 </section>
 <section id="filters" class="m-filters">
-  <div class="wrap m-filters-inner">
-    <div class="m-block">
-      <h2 class="m-label">Type</h2>
-      <div class="m-chips">      <label class="m-chip"><input type="checkbox" name="etype" value="milonga" checked> Milonga</label>
-      <label class="m-chip"><input type="checkbox" name="etype" value="practica" checked> Practica</label>
-      <label class="m-chip"><input type="checkbox" name="etype" value="big" checked> Event</label>
+  <div class="wrap m-filters-inner china-filters-compact">
+    <div class="m-block china-type-city-row">
+      <div class="china-type-wrap">
+        <h2 class="m-label">Type</h2>
+        <div class="m-chips china-type-chips">
+          <label class="m-chip"><input type="checkbox" name="etype" value="milonga" checked> Milonga</label>
+          <label class="m-chip"><input type="checkbox" name="etype" value="practica" checked> Practica</label>
+          <label class="m-chip"><input type="checkbox" name="etype" value="big" checked> Event</label>
+        </div>
+      </div>
+      <div class="china-city-wrap">
+        <h2 class="m-label">City</h2>
+        <select id="china-city" class="m-select m-select-city" aria-label="City">
+          <option value="all">All cities</option>
+          <option value="bj">Beijing (15)</option>
+          <option value="hk">Hong Kong (1)</option>
+          <option value="sh">Shanghai (1)</option>
+          <option value="cd">Chengdu</option>
+          <option value="cq">Chongqing</option>
+          <option value="gz">Guangzhou</option>
+          <option value="hz">Hangzhou</option>
+          <option value="nj">Nanjing</option>
+          <option value="sy">Shenyang</option>
+          <option value="sz">Shenzhen</option>
+          <option value="su">Suzhou</option>
+          <option value="tc">Taichung</option>
+          <option value="tp">Taipei</option>
+          <option value="tj">Tianjin</option>
+          <option value="wh">Wuhan</option>
+          <option value="ot">Other Region</option>
+        </select>
       </div>
     </div>
-    <div class="m-block">
-      <h2 class="m-label">City</h2>
-      <select id="china-city" class="m-select m-select-city" aria-label="City">
-        <option value="all">All cities</option>
-        <option value="bj">Beijing (15)</option>
-        <option value="hk">Hong Kong (1)</option>
-        <option value="sh">Shanghai (1)</option>
-        <option value="cd">Chengdu</option>
-        <option value="cq">Chongqing</option>
-        <option value="gz">Guangzhou</option>
-        <option value="hz">Hangzhou</option>
-        <option value="nj">Nanjing</option>
-        <option value="sy">Shenyang</option>
-        <option value="sz">Shenzhen</option>
-        <option value="su">Suzhou</option>
-        <option value="tc">Taichung</option>
-        <option value="tp">Taipei</option>
-        <option value="tj">Tianjin</option>
-        <option value="wh">Wuhan</option>
-        <option value="ot">Other Region</option>
-      </select>
-    </div>
-    <div class="m-block">
+    <div class="m-block china-date-row">
       <h2 class="m-label">Date</h2>
-      <div class="m-date-actions china-date-btns">
-        <button type="button" class="btn m-btn" id="china-btn-today" aria-pressed="false">Today</button>
-        <button type="button" class="btn m-btn" id="china-btn-week" aria-pressed="false">This Week</button>
-        <button type="button" class="btn m-btn" id="china-btn-month" aria-pressed="false">This Month</button>
-        <button type="button" class="btn m-btn" id="china-btn-pick-month" aria-pressed="false">Select Month</button>
-        <input type="month" id="china-month-pick" class="m-input china-month-pick" aria-label="Select month" hidden>
+      <div class="china-date-fromto">
+        <label class="china-date-field">From <input type="date" id="china-from" class="m-input" aria-label="From date"></label>
+        <label class="china-date-field">To <input type="date" id="china-to" class="m-input" aria-label="To date"></label>
+        <button type="button" class="btn m-btn china-search-btn" id="china-search">Search</button>
       </div>
       <p class="note" id="china-date-hint" aria-live="polite"></p>
     </div>
@@ -259,25 +259,20 @@
 (function(){
   var citySel = document.getElementById('china-city');
   var hint = document.getElementById('china-date-hint');
-  var monthPick = document.getElementById('china-month-pick');
-  var btns = {
-    today: document.getElementById('china-btn-today'),
-    week: document.getElementById('china-btn-week'),
-    month: document.getElementById('china-btn-month'),
-    pick: document.getElementById('china-btn-pick-month')
-  };
-  var mode = 'all';
-  var rangeStart = '', rangeEnd = '';
+  var fromEl = document.getElementById('china-from');
+  var toEl = document.getElementById('china-to');
+  var searchBtn = document.getElementById('china-search');
   var MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
   var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   function iso(y,m,d){ return y + '-' + pad(m+1) + '-' + pad(d); }
-  function todayISO(){ var n = new Date(); return iso(n.getFullYear(), n.getMonth(), n.getDate()); }
   function parseISO(s){ var p = s.split('-'); return new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10)); }
   function formatDay(isoStr){ var d = parseISO(isoStr); return MON_SHORT[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); }
   function formatRange(a, b){
-    if (!a) return 'all dates';
-    if (!b || a === b) return formatDay(a);
+    if (!a && !b) return 'all dates';
+    if (a && !b) return 'from ' + formatDay(a);
+    if (!a && b) return 'through ' + formatDay(b);
+    if (a === b) return formatDay(a);
     var da = parseISO(a), db = parseISO(b);
     if (da.getFullYear() === db.getFullYear()) {
       if (da.getMonth() === db.getMonth()) return MON_SHORT[da.getMonth()] + ' ' + da.getDate() + ' – ' + db.getDate() + ', ' + da.getFullYear();
@@ -285,16 +280,13 @@
     }
     return formatDay(a) + ' – ' + formatDay(b);
   }
-  function mondayOf(d){
-    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    var day = x.getDay();
-    var diff = day === 0 ? -6 : 1 - day;
-    x.setDate(x.getDate() + diff);
-    return x;
+  function activeRange(){
+    var a = fromEl && fromEl.value ? fromEl.value : '';
+    var b = toEl && toEl.value ? toEl.value : '';
+    if (!a && !b) return null;
+    if (a && b && b < a) { var tmp=a; a=b; b=tmp; }
+    return [a || '0000-01-01', b || '9999-12-31'];
   }
-  function lastDayOfMonth(y, m0){ return new Date(y, m0 + 1, 0).getDate(); }
-  function activeRange(){ if (mode === 'all') return null; if (rangeStart) return [rangeStart, rangeEnd || rangeStart]; return null; }
-  function setPressed(active){ Object.keys(btns).forEach(function(k){ if (btns[k]) btns[k].setAttribute('aria-pressed', k === active ? 'true' : 'false'); }); }
   function parseDates(text){
     var out = []; if (!text) return out;
     var year = 2026; var ym = text.match(/\b(20\d{2})\b/); if (ym) year = parseInt(ym[1], 10);
@@ -358,24 +350,30 @@
       if (countEl && regionOk) countEl.textContent = '(' + shown + ')';
       if (regionOk) totalVisible += shown;
     });
-    if (hint) { var r = activeRange(); hint.textContent = 'Date range: ' + (r ? formatRange(r[0], r[1]) : 'all dates') + ' · Showing ' + totalVisible + ' events.'; }
+    if (hint) {
+      var a = fromEl && fromEl.value ? fromEl.value : '';
+      var b = toEl && toEl.value ? toEl.value : '';
+      hint.textContent = 'Date range: ' + formatRange(a, b) + ' · Showing ' + totalVisible + ' events.';
+    }
   }
-  function setToday(){ mode='day'; var t=todayISO(); rangeStart=t; rangeEnd=t; if(monthPick) monthPick.hidden=true; setPressed('today'); applyFilters(); }
-  function setWeek(){ mode='week'; var n=new Date(); var mon=mondayOf(n); var sun=new Date(mon.getFullYear(), mon.getMonth(), mon.getDate()+6); rangeStart=iso(mon.getFullYear(), mon.getMonth(), mon.getDate()); rangeEnd=iso(sun.getFullYear(), sun.getMonth(), sun.getDate()); if(monthPick) monthPick.hidden=true; setPressed('week'); applyFilters(); }
-  function setThisMonth(){ mode='month'; var n=new Date(); rangeStart=iso(n.getFullYear(), n.getMonth(), 1); rangeEnd=iso(n.getFullYear(), n.getMonth(), lastDayOfMonth(n.getFullYear(), n.getMonth())); if(monthPick) monthPick.hidden=true; setPressed('month'); applyFilters(); }
-  function openPickMonth(){ setPressed('pick'); if(!monthPick) return; monthPick.hidden=false; try{ monthPick.showPicker&&monthPick.showPicker(); }catch(e){} monthPick.focus(); }
-  function onMonthPicked(){ if(!monthPick||!monthPick.value) return; mode='pick'; var yp=monthPick.value.split('-'); var y=parseInt(yp[0],10), m0=parseInt(yp[1],10)-1; rangeStart=iso(y,m0,1); rangeEnd=iso(y,m0,lastDayOfMonth(y,m0)); setPressed('pick'); applyFilters(); }
+  function flashSearch(){
+    if (!searchBtn) return;
+    searchBtn.classList.remove('is-flash');
+    void searchBtn.offsetWidth;
+    searchBtn.classList.add('is-flash');
+    setTimeout(function(){ searchBtn.classList.remove('is-flash'); }, 450);
+  }
+  function onSearch(){ flashSearch(); applyFilters(); }
   annotateItems();
-  if (citySel) citySel.addEventListener('change', applyFilters);
-  if (btns.today) btns.today.addEventListener('click', setToday);
-  if (btns.week) btns.week.addEventListener('click', setWeek);
-  if (btns.month) btns.month.addEventListener('click', setThisMonth);
-  if (btns.pick) btns.pick.addEventListener('click', openPickMonth);
-  if (monthPick) monthPick.addEventListener('change', onMonthPicked);
-  document.querySelectorAll('input[name="etype"]').forEach(function(el){ el.addEventListener('change', applyFilters); });
+  if (searchBtn) searchBtn.addEventListener('click', onSearch);
+  [fromEl, toEl].forEach(function(el){
+    if (!el) return;
+    el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); });
+  });
   applyFilters();
 })();
 </script>
+
 
 </body>
 </html>
