@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china64">
+<link rel="stylesheet" href="../css/style.css?v=china65">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — June 18–22, 2027">
@@ -254,17 +254,35 @@
     var r = activeRange(); if (!r) return true; if (!dates.length) return false;
     return dates.some(function(d){ return d >= r[0] && d <= r[1]; });
   }
+  function typeMatches(li, types){
+    var t = li.getAttribute('data-type') || '', isEvent = li.getAttribute('data-kind') === 'event';
+    return isEvent ? types.indexOf('event') !== -1 : types.indexOf(t) !== -1;
+  }
+  // City dropdown lists only cities with results for the current type + date filters
+  function updateCityOptions(){
+    if (!citySel) return;
+    var types = checkedTypes(), has = {};
+    document.querySelectorAll('.china-city-block').forEach(function(block){
+      var id = block.getAttribute('data-region'), n = 0;
+      block.querySelectorAll('.china-list > li').forEach(function(li){ if (typeMatches(li, types) && itemMatchesDate(li)) n++; });
+      if (n) has[id] = 1;
+    });
+    Array.prototype.forEach.call(citySel.options, function(o){
+      if (o.value === 'all') return;
+      var off = !has[o.value]; o.hidden = off; o.disabled = off;
+    });
+    if (citySel.value !== 'all' && !has[citySel.value]) citySel.value = 'all';
+  }
   function applyFilters(){
+    updateCityOptions();
     var city = citySel ? citySel.value : 'all', types = checkedTypes(), totalVisible = 0;
     document.querySelectorAll('.china-city-block').forEach(function(block){
       var regionOk = (city === 'all' || city === block.getAttribute('data-region'));
       var items = block.querySelectorAll('.china-list > li'), shown = 0;
       items.forEach(function(li){
         var t = li.getAttribute('data-type') || '', isEvent = li.getAttribute('data-kind') === 'event';
-        var festLike = isEvent && FEST_TYPES.indexOf(t) !== -1;
         // Event box: every event-kind listing (event, festival, marathon, championship, encuentro, weekend, ...)
-        // (Festival box removed: Event covers festival, marathon, championship, encuentro)
-        var typeOk = isEvent ? (types.indexOf('event') !== -1 || (festLike && types.indexOf('festival') !== -1)) : types.indexOf(t) !== -1;
+        var typeOk = typeMatches(li, types);
         var ok = regionOk && typeOk && itemMatchesDate(li);
         li.hidden = !ok; if (ok) shown++;
       });
@@ -297,8 +315,10 @@
     else { fromEl.min = CUTOFF; if (!fromEl.value || fromEl.value < CUTOFF) fromEl.value = todayISO(); }
     applyFilters();
   });
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="etype"]'), function(el){ el.addEventListener('change', updateCityOptions); });
+  [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china64', {cache: 'no-cache'})
+  fetch('events.json?v=china65', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
