@@ -2,10 +2,251 @@
  "date": "2026-10-23",
  "source": "OnlyTangoInfo",
  "source_updated": "2026-10-21",
- "total_before": 27,
- "total_after": 26,
- "added": [],
- "removed": [
+ "total_before": 26,
+ "total_after": 51,
+ "added": [
+  {
+   "id": "ECIlxVQa",
+   "name": "Oriental Tango Congress(OTC)",
+   "city": "Beijing",
+   "type": "festival",
+   "when": "2026-04-17..2026-04-19",
+   "venue": null,
+   "organizers": [
+    "Allen Ma (Allen y Simona Tango)",
+    "Simona Wu"
+   ]
+  },
+  {
+   "id": "GpOaldUV",
+   "name": "As Tango",
+   "city": "Beijing",
+   "type": "event",
+   "when": null,
+   "venue": null,
+   "organizers": []
+  },
+  {
+   "id": "qIDsVZoD",
+   "name": "Beijing Tango Marathon La Ideal",
+   "city": "Beijing",
+   "type": "marathon",
+   "when": null,
+   "venue": null,
+   "organizers": [
+    "Frank Jin"
+   ]
+  },
+  {
+   "id": "SvxneECE",
+   "name": "Greater China Tango Championship",
+   "city": "Chengdu",
+   "type": "championship",
+   "when": "2026-04-02..2026-04-06",
+   "venue": null,
+   "organizers": []
+  },
+  {
+   "id": "xcfKpfBd",
+   "name": "ICH Chengdu Tango Festival&Competition",
+   "city": "Chengdu",
+   "type": "championship",
+   "when": "2026-05-11..2026-05-15",
+   "venue": null,
+   "organizers": [
+    "Panda Lu (Panda and Lucia)"
+   ]
+  },
+  {
+   "id": "tUucFLlj",
+   "name": "7th Canton Tango Festival",
+   "city": "Guangzhou",
+   "type": "event",
+   "when": "2025-12-04..2025-12-08",
+   "venue": null,
+   "organizers": []
+  },
+  {
+   "id": "aojHwhuJ",
+   "name": "South China Argentine Tango Competition",
+   "city": "Guangzhou",
+   "type": "festival",
+   "when": "2026-03-19..2026-03-22",
+   "venue": null,
+   "organizers": [
+    "Pop & Xiao Yang"
+   ]
+  },
+  {
+   "id": "MAYuqvkH",
+   "name": "Nanjing Tango Festival",
+   "city": "Nanjing",
+   "type": "festival",
+   "when": "2026-05-05..2026-05-07",
+   "venue": null,
+   "organizers": [
+    "Wang Felicia"
+   ]
+  },
+  {
+   "id": "SODHFOlM",
+   "name": "Tango Caravan(Sha Xi old town)",
+   "city": "ShaXi",
+   "type": "festival",
+   "when": "2026-04-10..2026-04-12",
+   "venue": null,
+   "organizers": [
+    "Liu Zheng",
+    "Will Fred"
+   ]
+  },
+  {
+   "id": "OZWgScUw",
+   "name": "Shanghai International Tango Festival",
+   "city": "Shanghai",
+   "type": "festival",
+   "when": "2026-07-24..2026-07-27",
+   "venue": null,
+   "organizers": [
+    "Vivan Yeh"
+   ]
+  },
+  {
+   "id": "mRVUOWAP",
+   "name": "Essa Milonga",
+   "city": "Shanghai",
+   "type": "milonga",
+   "when": "",
+   "venue": null,
+   "organizers": []
+  },
+  {
+   "id": "rccbKIYP",
+   "name": "Infinity milonga",
+   "city": "Shanghai",
+   "type": "milonga",
+   "when": "",
+   "venue": null,
+   "organizers": [
+    "Irene Liu"
+   ]
+  },
+  {
+   "id": "qpMjOerW",
+   "name": "Milonga Adios",
+   "city": "Shanghai",
+   "type": "milonga",
+   "when": "",
+   "venue": "Soundcafe",
+   "organizers": []
+  },
+  {
+   "id": "ecyMAjFj",
+   "name": "Shanghai Essa",
+   "city": "Shanghai",
+   "type": "milonga",
+   "when": "",
+   "venue": null,
+   "organizers": [
+    "Maggie Zhang"
+   ]
+  },
+  {
+   "id": "JKQfiwMf",
+   "name": "Tango Cool Shanghai",
+   "city": "Shanghai",
+   "type": "milonga",
+   "when": "",
+   "venue": null,
+   "organizers": []
+  },
+  {
+   "id": "DFBKYdPX",
+   "name": "Te Amo Tango Lounge",
+   "city": "Shanghai",
+   "type": "milonga",
+   "when": "",
+   "venue": null,
+   "organizers": [
+    "Kai Wang"
+   ]
+  },
+  {
+   "id": "rGVIDTwb",
+   "name": "Shenyang Summer Ice & Snow Tango Weekend",
+   "city": "Shenyang",
+   "type": "festival",
+   "when": "2026-08-14..2026-08-16",
+   "venue": null,
+   "organizers": [
+    "Coco Feng"
+   ]
+  },
+  {
+   "id": "ReJcTcDb",
+   "name": "Tango CHINA-Dapeng Tango Holiday",
+   "city": "Shenzhen",
+   "type": "festival",
+   "when": "2026-01-10..2026-01-11",
+   "venue": null,
+   "organizers": []
+  },
+  {
+   "id": "myUOvJMl",
+   "name": "Shenzhen Tango Maracontro",
+   "city": "Shenzhen",
+   "type": "festival",
+   "when": "2026-03-27..2026-03-29",
+   "venue": null,
+   "organizers": [
+    "Aykut Kazanci",
+    "Miranda Xu"
+   ]
+  },
+  {
+   "id": "uXBtrvcn",
+   "name": "Luna Tango",
+   "city": "Shenzhen",
+   "type": "milonga",
+   "when": "",
+   "venue": null,
+   "organizers": [
+    "Aykut Kazanci"
+   ]
+  },
+  {
+   "id": "nTUlADFZ",
+   "name": "Suzhou Tango Festival",
+   "city": "Suzhou",
+   "type": "festival",
+   "when": null,
+   "venue": null,
+   "organizers": [
+    "Hao Ran Shi"
+   ]
+  },
+  {
+   "id": "TUHKwYQN",
+   "name": "Taichung Tango Festival",
+   "city": "Taichung",
+   "type": "festival",
+   "when": "2026-04-03..2026-04-05",
+   "venue": null,
+   "organizers": [
+    "Weilung Chang"
+   ]
+  },
+  {
+   "id": "RvOdcecU",
+   "name": "Taipei Tango Weekend",
+   "city": "Taipei",
+   "type": "event",
+   "when": null,
+   "venue": null,
+   "organizers": [
+    "Grace Liman Chan"
+   ]
+  },
   {
    "id": "GvpiVaFb",
    "name": "Wuhan Tango Carnival",
@@ -14,7 +255,19 @@
    "when": "2026-10-01..2026-10-04",
    "venue": null,
    "organizers": []
+  },
+  {
+   "id": "nXWpXqWZ",
+   "name": "Xi-an Tango Festival",
+   "city": "Xi-an",
+   "type": "festival",
+   "when": "2026-09-24..2026-09-27",
+   "venue": null,
+   "organizers": [
+    "Jezebel Dang"
+   ]
   }
  ],
+ "removed": [],
  "updated": []
 }

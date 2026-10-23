@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china60">
+<link rel="stylesheet" href="../css/style.css?v=china63">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — June 18–22, 2027">
@@ -62,6 +62,7 @@
           <label class="china-date-field"><span>To</span><input type="date" id="china-to" class="m-input china-date-input" aria-label="To date"></label>
           <button type="button" class="btn m-btn china-search-btn" id="china-search">Search</button>
         </div>
+        <label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> Show all (past &amp; TBA)</label>
       </div>
     </div>
     <p class="note" id="china-date-hint" aria-live="polite"></p>
@@ -129,6 +130,9 @@
   var toEl = document.getElementById('china-to');
   var searchBtn = document.getElementById('china-search');
   var root = document.getElementById('china-listings');
+  var showAllEl = document.getElementById('china-showall');
+  function showAll(){ return !!(showAllEl && showAllEl.checked); }
+  function todayISO(){ var n = new Date(), m = n.getMonth()+1, d = n.getDate(); return n.getFullYear() + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d; }
   // Default From = today (local)
   (function(){
     if (!fromEl || fromEl.value) return;
@@ -144,7 +148,7 @@
   })();
   if (fromEl) {
     fromEl.min = CUTOFF;
-    fromEl.addEventListener('change', function(){ if (fromEl.value && fromEl.value < CUTOFF) fromEl.value = CUTOFF; });
+    fromEl.addEventListener('change', function(){ if (!showAll() && fromEl.value && fromEl.value < CUTOFF) fromEl.value = CUTOFF; });
   }
   var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -185,23 +189,23 @@
     if (r.kind === 'event' && r.start) {
       var dates = [], d = parseISO(r.start), e = parseISO(r.end || r.start);
       while (d <= e) { dates.push(isoOf(d)); d.setDate(d.getDate()+1); }
-      attrs = ' data-dates="' + dates.join(',') + '" data-sort="' + dates[0] + '"';
+      attrs = ' data-dates="' + dates.join(',') + '" data-sort="' + dates[0] + '"' + ((r.end || r.start) < CUTOFF ? ' data-past="1"' : '');
       when = formatRange(r.start, r.end || r.start);
       body.push(line('Dates', when));
     } else if (r.kind === 'event') {
-      attrs = ' data-always="1"'; when = 'Dates TBA'; body.push(line('Dates', 'TBA'));
+      attrs = ' data-always="1" data-tba="1"'; when = 'Dates TBA'; body.push(line('Dates', 'TBA'));
     } else {
       attrs = ' data-always="1"';
       var ds = r.weekdays || (r.weekday != null ? [r.weekday] : null);
       if (ds) {
         when = 'Every ' + (ds.length > 1 ? DAYS[ds[0]] + '–' + DAYS[ds[ds.length-1]] : DAYS[ds[0]]) + (r.time ? ' · ' + r.time : '');
-      } else when = 'Weekly · Day TBA';
+      } else { when = 'Day TBA'; attrs += ' data-tba="1"'; }
       if (r.time) body.push(line('Time', esc(r.time)));
     }
     if (r.venue) body.push(line('Venue', esc(r.venue) + (r.venue_address ? ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>' : '')));
     body.push(line('City', cityLabel(r)));
     if (r.organizers && r.organizers.length) body.push(line('Organizer', esc(r.organizers.join(', '))));
-    return '<li class="ev-card' + (hl ? ' china-stw-highlight' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-region="' + rid + '"' + attrs + '>' +
+    return '<li class="ev-card' + (hl ? ' china-stw-highlight' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + attrs + '>' +
       '<div class="ev-top"><span class="ev-type">' + esc(r.type) + '</span><span class="ev-when">' + esc(when) + '</span>' + (hl ? '<span class="china-badge">Our event</span>' : '') + '</div>' +
       '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
@@ -241,9 +245,12 @@
     if (a && b && b < a) { var t = a; a = b; b = t; }
     return [a || '0000-01-01', b || '9999-12-31'];
   }
+  var FEST_TYPES = ['festival','marathon','encuentro','championship','weekend'];
   function checkedTypes(){ return Array.prototype.map.call(document.querySelectorAll('input[name="etype"]:checked'), function(el){ return el.value; }); }
   function itemMatchesDate(li){
-    if (li.getAttribute('data-always') === '1') return true; // weekly + dates-TBA always pass
+    var all = showAll();
+    if (!all && (li.getAttribute('data-tba') === '1' || li.getAttribute('data-past') === '1')) return false; // default view: no TBA, no past
+    if (li.getAttribute('data-always') === '1') return true; // weekly (+ TBA when Show all) pass date filter
     var dates = (li.getAttribute('data-dates') || '').split(',').filter(Boolean);
     var r = activeRange(); if (!r) return true; if (!dates.length) return false;
     return dates.some(function(d){ return d >= r[0] && d <= r[1]; });
@@ -254,9 +261,11 @@
       var regionOk = (city === 'all' || city === block.getAttribute('data-region'));
       var items = block.querySelectorAll('.china-list > li'), shown = 0;
       items.forEach(function(li){
-        var t = li.getAttribute('data-type') || '';
-        var tk = (t === 'festival' || t === 'marathon' || t === 'weekend' || t === 'encuentro') ? 'festival' : t;  // Festival covers festival + marathon
-        var typeOk = types.indexOf(tk) !== -1 || (tk === 'festival' && types.indexOf('event') !== -1);  // Event includes Festival
+        var t = li.getAttribute('data-type') || '', isEvent = li.getAttribute('data-kind') === 'event';
+        var festLike = isEvent && FEST_TYPES.indexOf(t) !== -1;
+        // Event box: every event-kind listing (event, festival, marathon, championship, encuentro, weekend, ...)
+        // Festival box: festival + marathon + encuentro + championship + weekend
+        var typeOk = isEvent ? (types.indexOf('event') !== -1 || (festLike && types.indexOf('festival') !== -1)) : types.indexOf(t) !== -1;
         var ok = regionOk && typeOk && itemMatchesDate(li);
         li.hidden = !ok; if (ok) shown++;
       });
@@ -274,7 +283,7 @@
       if (regionOk) totalVisible += shown;
     });
     var ge = document.querySelector('.china-global-empty'); if (ge) ge.hidden = totalVisible > 0;
-    if (hint) hint.textContent = 'Date range: ' + formatRange(fromEl && fromEl.value, toEl && toEl.value) + ' · Showing ' + totalVisible + ' listings (weekly & dates-TBA always shown).';
+    if (hint) hint.textContent = 'Date range: ' + formatRange(fromEl && fromEl.value, toEl && toEl.value) + ' · Showing ' + totalVisible + ' listings' + (showAll() ? ' (Show all: incl. past & TBA).' : ' (weekly always shown).');
   }
   function flashSearch(){
     if (!searchBtn) return;
@@ -283,14 +292,23 @@
   }
   function onSearch(){ flashSearch(); applyFilters(); }
   if (searchBtn) searchBtn.addEventListener('click', onSearch);
+  if (showAllEl) showAllEl.addEventListener('change', function(){
+    if (!fromEl) { applyFilters(); return; }
+    if (showAll()) { fromEl.removeAttribute('min'); fromEl.value = ''; }
+    else { fromEl.min = CUTOFF; if (!fromEl.value || fromEl.value < CUTOFF) fromEl.value = todayISO(); }
+    applyFilters();
+  });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china62', {cache: 'no-cache'})
+  fetch('events.json?v=china63', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
       if (up) { var p = up.split('-'), lbl = MON_SHORT[+p[1]-1] + ' ' + (+p[2]) + ', ' + p[0];
         Array.prototype.forEach.call(document.querySelectorAll('.china-updated'), function(el){ el.textContent = lbl; }); }
-      data = data.filter(function(r){ return !(r.kind === 'event' && r.start && (r.end || r.start) < CUTOFF); }); render(data); applyFilters(); })
+      data = data.filter(function(r){ return !r.hidden; });  // owner-hidden entries never shown
+      if (citySel) { var have = {}; Array.prototype.forEach.call(citySel.options, function(o){ have[o.value] = 1; });
+        data.forEach(function(r){ var id = cityId(r.city); if (!have[id]) { have[id] = 1; var o = document.createElement('option'); o.value = id; o.textContent = r.city; citySel.appendChild(o); } }); }
+      render(data); applyFilters(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">Could not load listings (' + esc(err.message) + '). Please refresh.</p>'; });
 })();
 </script>

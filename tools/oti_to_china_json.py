@@ -14,8 +14,6 @@ if '--updated' in args:
     i = args.index('--updated'); UPDATED = args[i+1]; del args[i:i+2]
 if args: SRC = args[0]
 if len(args) > 1: OUT = args[1]
-RANGE_START = datetime.date(2026, 10, 1)
-RANGE_END = max(datetime.date(2027, 12, 31), datetime.date.today() + datetime.timedelta(days=550))  # rolling horizon for weekly CI runs
 
 def load_rows(path):
     s = open(path, encoding='utf-8').read()
@@ -94,7 +92,7 @@ def main():
         fec = f.get('fec', '')
         if typ.startswith('event'):
             sub = typ.split(' ', 1)[1] if ' ' in typ else 'event'
-            if sub not in ('festival', 'marathon', 'event'): sub = 'festival'   # e.g. championship
+            # keep OTI subtype as-is (festival, marathon, encuentro, championship, ...); page groups them under Festival
             rec.update(kind='event', type=sub)
             if fec.startswith('EVT.'):
                 _, _, mon, days, yr = fec.split('.')
@@ -104,7 +102,6 @@ def main():
                 if b < a:  # crosses into next month
                     em, ey = (m+1, y) if m < 12 else (1, y+1); ed = datetime.date(ey, em, b)
                 else: ed = datetime.date(y, m, b)
-                if ed < RANGE_START or sd > RANGE_END: continue
                 rec.update(start=sd.isoformat(), end=ed.isoformat())
         elif typ in ('milonga', 'practica'):
             t = 'practica' if re.search(r'练习|practica', name, re.I) else typ
@@ -115,7 +112,7 @@ def main():
                 t1, t2 = tm.split('-')
                 rec.update(weekday=ds[0], weekdays=ds, time=f'{t1[:2]}:{t1[2:]}–{t2[:2]}:{t2[2:]}')
         else:
-            continue  # venues, academies, lists
+            continue  # venues, academies, people and resource lists (e.g. 'milongas de Pekín', milonga.tw) are not listings
         recs.append(rec)
     # Manual additions per owner (kept across weekly updates)
     OVERRIDES = {
@@ -130,20 +127,16 @@ def main():
         for k, v in o.items():
             if k == 'links': r['links'].update(v)
             else: r[k] = v
-    # Excluded per owner (2026-10-23): untyped/unclear entries, and anything without a type
-    EXCLUDE_IDS = {'GpOaldUV', 'qIDsVZoD'}  # As Tango (Beijing), Beijing Tango Marathon La Ideal
-    recs = [r for r in recs if r['id'] not in EXCLUDE_IDS and r.get('type')]
-    # Excluded per owner (2026-10-23): never list these cities
-    EXCLUDE_CITIES = {'Wuhan'}
-    recs = [r for r in recs if r['city'] not in EXCLUDE_CITIES]
-    # Excluded per owner (2026-10-23): entries with no date (events) or no weekday schedule (weekly)
-    recs = [r for r in recs if (r['kind']=='event' and r.get('start')) or (r['kind']=='weekly' and r.get('weekday') is not None)]
-    # Drop events that ended more than one month before today (owner rule 2026-10-23)
-    import datetime as _dt
-    import calendar as _cal
-    _t = _dt.date.today(); _y, _m = (_t.year, _t.month-1) if _t.month > 1 else (_t.year-1, 12)
-    _cut = _dt.date(_y, _m, min(_t.day, _cal.monthrange(_y, _m)[1])).isoformat()  # safe for e.g. Mar 31
-    recs = [r for r in recs if not (r['kind']=='event' and r.get('start') and (r.get('end') or r['start']) < _cut)]
+    # COMPLETE data set (owner 2026-10-23): nothing is dropped here; filtering is display-only on the page.
+    # Owner's display decisions are kept as flags:
+    HIDE_IDS = {'GpOaldUV': 'Owner excluded: As Tango (Beijing) – no date/organizer',
+                'qIDsVZoD': 'Owner excluded: Beijing Tango Marathon La Ideal – no date'}
+    HIDE_CITIES = {'Wuhan': 'Owner excluded: Wuhan'}
+    for r in recs:
+        reason = HIDE_IDS.get(r['id']) or HIDE_CITIES.get(r['city'])
+        r['hidden'] = bool(reason)
+        r['hidden_reason'] = reason
+        r['tba'] = (r['kind'] == 'event' and not r.get('start')) or (r['kind'] == 'weekly' and r.get('weekday') is None)
     kind_o = {'event': 0, 'weekly': 1}
     recs.sort(key=lambda x: (x['city'], kind_o[x['kind']], x['start'] or '9999', x['name']))
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)
@@ -151,7 +144,7 @@ def main():
         json.dump(recs, fh, ensure_ascii=False, indent=1)
     from collections import Counter
     print(len(recs), 'records ->', OUT)
-    print(Counter((x['kind'], 'dated' if x['start'] else ('sched' if x['weekday'] is not None else 'tba')) for x in recs))
+    print(Counter((x['kind'], 'dated' if x['start'] else ('sched' if x['weekday'] is not None else 'tba')) for x in recs), 'hidden:', sum(x['hidden'] for x in recs))
 
 if __name__ == '__main__':
     main()

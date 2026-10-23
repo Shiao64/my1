@@ -1329,3 +1329,11 @@ body.china-page > .nav-toggle{
   .china-filters-compact .china-type-check{padding:3px 6px!important;font-size:.68rem!important;gap:3px!important}
   .china-filters-compact .china-type-check .china-check{width:11px!important;height:11px!important;font-size:8px!important}
 }
+
+/* china63: Show all toggle (same gold-check chip, compact, own line under the date fields) */
+.china-filters-compact .china-showall{display:inline-flex!important;margin-top:5px!important;padding:2px 8px!important;font-size:.7rem!important;white-space:nowrap!important;width:auto!important}
+@media (max-width:560px){ .china-filters-compact .china-showall{padding:2px 6px!important;font-size:.66rem!important;margin-top:4px!important} }
+/* keep the filter row height unchanged: Show all hangs just below the date fields */
+.china-filters-compact .china-date-wrap{position:relative}
+.china-filters-compact .china-showall{position:absolute!important;top:100%;left:0;margin-top:3px!important;z-index:2}
+.china-filters-compact #china-date-hint{margin-top:30px}

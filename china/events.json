@@ -1,5 +1,35 @@
 [
  {
+  "id": "ECIlxVQa",
+  "kind": "event",
+  "type": "festival",
+  "name": "Oriental Tango Congress(OTC)",
+  "city": "Beijing",
+  "country": "China",
+  "region": "China",
+  "start": "2026-04-17",
+  "end": "2026-04-19",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Allen Ma (Allen y Simona Tango)",
+   "Simona Wu"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/groups/313026419422889",
+   "video": "https://www.youtube.com/watch?v=42_kT6QLtYQ",
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
   "id": "tbxuzmah",
   "kind": "event",
   "type": "event",
@@ -24,7 +54,66 @@
    "other": "http://tangoweekend.org"
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "GpOaldUV",
+  "kind": "event",
+  "type": "event",
+  "name": "As Tango",
+  "city": "Beijing",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [],
+  "links": {
+   "facebook": "https://www.facebook.com/ALLENSIMONATANGO",
+   "video": "https://www.youtube.com/watch?v=Y_ET2scfvs8",
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": true,
+  "hidden_reason": "Owner excluded: As Tango (Beijing) – no date/organizer",
+  "tba": true
+ },
+ {
+  "id": "qIDsVZoD",
+  "kind": "event",
+  "type": "marathon",
+  "name": "Beijing Tango Marathon La Ideal",
+  "city": "Beijing",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Frank Jin"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/groups/beijingtangomarathon/",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": true,
+  "hidden_reason": "Owner excluded: Beijing Tango Marathon La Ideal – no date",
+  "tba": true
  },
  {
   "id": "MGzJpcUd",
@@ -52,7 +141,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "DxlAVCru",
@@ -80,7 +172,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "vhYvwRzo",
@@ -108,7 +203,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "eRpBxkDC",
@@ -137,7 +235,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "NmkWjMxo",
@@ -166,7 +267,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "GxMrByRQ",
@@ -195,7 +299,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "GqufXmMX",
@@ -224,7 +331,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "ZujahelC",
@@ -254,7 +364,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "wSeFVkSa",
@@ -283,7 +396,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "ZicwYUeJ",
@@ -311,7 +427,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "AymclBjD",
@@ -339,7 +458,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "hYGXKiYX",
@@ -367,7 +489,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "qKSztbVi",
@@ -398,7 +523,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "ttLxDoyZ",
@@ -426,7 +554,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "XcPHGeUq",
@@ -454,7 +585,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "UiQphCjS",
@@ -482,7 +616,66 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "SvxneECE",
+  "kind": "event",
+  "type": "championship",
+  "name": "Greater China Tango Championship",
+  "city": "Chengdu",
+  "country": "China",
+  "region": "China",
+  "start": "2026-04-02",
+  "end": "2026-04-06",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [],
+  "links": {
+   "facebook": "https://www.facebook.com/groups/882061287516146",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "xcfKpfBd",
+  "kind": "event",
+  "type": "championship",
+  "name": "ICH Chengdu Tango Festival&Competition",
+  "city": "Chengdu",
+  "country": "China",
+  "region": "China",
+  "start": "2026-05-11",
+  "end": "2026-05-15",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Panda Lu (Panda and Lucia)"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/groups/669949141762769",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "jtzZIdAx",
@@ -506,7 +699,66 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "tUucFLlj",
+  "kind": "event",
+  "type": "event",
+  "name": "7th Canton Tango Festival",
+  "city": "Guangzhou",
+  "country": "China",
+  "region": "China",
+  "start": "2025-12-04",
+  "end": "2025-12-08",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [],
+  "links": {
+   "facebook": "https://www.facebook.com/share/p/19yRJUABpP/",
+   "video": "https://www.youtube.com/watch?v=gG0O6CfFaHU",
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "aojHwhuJ",
+  "kind": "event",
+  "type": "festival",
+  "name": "South China Argentine Tango Competition",
+  "city": "Guangzhou",
+  "country": "China",
+  "region": "China",
+  "start": "2026-03-19",
+  "end": "2026-03-22",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Pop & Xiao Yang"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/groups/2487840574947604",
+   "video": "https://www.youtube.com/watch?v=FqgFnibMszs",
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "ONKkPuWH",
@@ -532,7 +784,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "VGCepJDE",
@@ -556,7 +811,10 @@
    "other": "https://tango-exchange.com/"
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "MCqZtYAj",
@@ -582,7 +840,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "RDrwgcit",
@@ -608,7 +869,98 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "MAYuqvkH",
+  "kind": "event",
+  "type": "festival",
+  "name": "Nanjing Tango Festival",
+  "city": "Nanjing",
+  "country": "China",
+  "region": "China",
+  "start": "2026-05-05",
+  "end": "2026-05-07",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Wang Felicia"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/events/%E5%8D%97%E4%BA%AC%E5%B8%82%E8%89%BA%E6%9C%AF%E9%87%91%E9%99%B5%E6%96%87%E5%8C%96%E5%88%9B%E6%84%8F%E4%BA%A7%E4%B8%9A%E5%9B%AD/%E5%8D%97%E4%BA%AC%E6%8E%A2%E6%88%88%E8%8A%82nanjing-tango-festival/937915435647590/",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "SODHFOlM",
+  "kind": "event",
+  "type": "festival",
+  "name": "Tango Caravan(Sha Xi old town)",
+  "city": "ShaXi",
+  "country": "China",
+  "region": "China",
+  "start": "2026-04-10",
+  "end": "2026-04-12",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Liu Zheng",
+   "Will Fred"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/groups/828245086266330",
+   "video": "https://www.youtube.com/watch?v=kdyuQej-W88",
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "OZWgScUw",
+  "kind": "event",
+  "type": "festival",
+  "name": "Shanghai International Tango Festival",
+  "city": "Shanghai",
+  "country": "China",
+  "region": "China",
+  "start": "2026-07-24",
+  "end": "2026-07-27",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Vivan Yeh"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/Shanghaitangofest/",
+   "video": "https://www.youtube.com/watch?v=QdPkP4HwI1c",
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "JHeguuQb",
@@ -636,7 +988,10 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "WExJslMr",
@@ -664,7 +1019,351 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "mRVUOWAP",
+  "kind": "weekly",
+  "type": "milonga",
+  "name": "Essa Milonga",
+  "city": "Shanghai",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [],
+  "links": {
+   "facebook": "https://www.facebook.com/profile.php?id=61571757600926",
+   "video": "https://www.youtube.com/watch?v=rKxVwOAfBhs",
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "rccbKIYP",
+  "kind": "weekly",
+  "type": "milonga",
+  "name": "Infinity milonga",
+  "city": "Shanghai",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Irene Liu"
+  ],
+  "links": {
+   "facebook": null,
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "qpMjOerW",
+  "kind": "weekly",
+  "type": "milonga",
+  "name": "Milonga Adios",
+  "city": "Shanghai",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": "Soundcafe",
+  "venue_address": null,
+  "organizers": [],
+  "links": {
+   "facebook": "https://www.facebook.com/milonga.adios",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "ecyMAjFj",
+  "kind": "weekly",
+  "type": "milonga",
+  "name": "Shanghai Essa",
+  "city": "Shanghai",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Maggie Zhang"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/people/Shanghai-Essa/61571757600926/",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "JKQfiwMf",
+  "kind": "weekly",
+  "type": "milonga",
+  "name": "Tango Cool Shanghai",
+  "city": "Shanghai",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [],
+  "links": {
+   "facebook": "https://www.facebook.com/tangocoolshanghai",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "DFBKYdPX",
+  "kind": "weekly",
+  "type": "milonga",
+  "name": "Te Amo Tango Lounge",
+  "city": "Shanghai",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Kai Wang"
+  ],
+  "links": {
+   "facebook": null,
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "rGVIDTwb",
+  "kind": "event",
+  "type": "festival",
+  "name": "Shenyang Summer Ice & Snow Tango Weekend",
+  "city": "Shenyang",
+  "country": "China",
+  "region": "China",
+  "start": "2026-08-14",
+  "end": "2026-08-16",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Coco Feng"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/photo?fbid=122220218306570610&set=pcb.122220222062570610",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "ReJcTcDb",
+  "kind": "event",
+  "type": "festival",
+  "name": "Tango CHINA-Dapeng Tango Holiday",
+  "city": "Shenzhen",
+  "country": "China",
+  "region": "China",
+  "start": "2026-01-10",
+  "end": "2026-01-11",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [],
+  "links": {
+   "facebook": null,
+   "video": null,
+   "other": "https://www.tangomarathons.com/events/2026-tango-china-dapeng-tango-holiday-edition-1/"
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "myUOvJMl",
+  "kind": "event",
+  "type": "festival",
+  "name": "Shenzhen Tango Maracontro",
+  "city": "Shenzhen",
+  "country": "China",
+  "region": "China",
+  "start": "2026-03-27",
+  "end": "2026-03-29",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Aykut Kazanci",
+   "Miranda Xu"
+  ],
+  "links": {
+   "facebook": null,
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "uXBtrvcn",
+  "kind": "weekly",
+  "type": "milonga",
+  "name": "Luna Tango",
+  "city": "Shenzhen",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Aykut Kazanci"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/lunatangoshenzhen/",
+   "video": "https://www.youtube.com/watch?v=iQfTc9XzN6M",
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "nTUlADFZ",
+  "kind": "event",
+  "type": "festival",
+  "name": "Suzhou Tango Festival",
+  "city": "Suzhou",
+  "country": "China",
+  "region": "China",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Hao Ran Shi"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/groups/450361238889848/",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "TUHKwYQN",
+  "kind": "event",
+  "type": "festival",
+  "name": "Taichung Tango Festival",
+  "city": "Taichung",
+  "country": "Taiwan",
+  "region": "Taiwan",
+  "start": "2026-04-03",
+  "end": "2026-04-05",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Weilung Chang"
+  ],
+  "links": {
+   "facebook": null,
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "aanirocB",
@@ -691,7 +1390,10 @@
    "other": "https://www.taichungtta.com/"
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  },
  {
   "id": "HRQpAWYK",
@@ -717,6 +1419,94 @@
    "other": null
   },
   "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
+ },
+ {
+  "id": "RvOdcecU",
+  "kind": "event",
+  "type": "event",
+  "name": "Taipei Tango Weekend",
+  "city": "Taipei",
+  "country": "Taiwan",
+  "region": "Taiwan",
+  "start": null,
+  "end": null,
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Grace Liman Chan"
+  ],
+  "links": {
+   "facebook": "https://www.facebook.com/groups/352638425112464/",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": true
+ },
+ {
+  "id": "GvpiVaFb",
+  "kind": "event",
+  "type": "festival",
+  "name": "Wuhan Tango Carnival",
+  "city": "Wuhan",
+  "country": "China",
+  "region": "China",
+  "start": "2026-10-01",
+  "end": "2026-10-04",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [],
+  "links": {
+   "facebook": "https://www.facebook.com/bythewei",
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": true,
+  "hidden_reason": "Owner excluded: Wuhan",
+  "tba": false
+ },
+ {
+  "id": "nXWpXqWZ",
+  "kind": "event",
+  "type": "festival",
+  "name": "Xi-an Tango Festival",
+  "city": "Xi-an",
+  "country": "China",
+  "region": "China",
+  "start": "2026-09-24",
+  "end": "2026-09-27",
+  "weekday": null,
+  "weekdays": null,
+  "time": null,
+  "venue": null,
+  "venue_address": null,
+  "organizers": [
+   "Jezebel Dang"
+  ],
+  "links": {
+   "facebook": null,
+   "video": null,
+   "other": null
+  },
+  "source": "OnlyTangoInfo",
+  "updated": "2026-10-21",
+  "hidden": false,
+  "hidden_reason": null,
+  "tba": false
  }
 ]
