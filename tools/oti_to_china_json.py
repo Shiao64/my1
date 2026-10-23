@@ -127,6 +127,40 @@ def main():
         for k, v in o.items():
             if k == 'links': r['links'].update(v)
             else: r[k] = v
+    # Non-OTI listings the owner asked to keep (survives weekly regen)
+    MANUAL = [
+        {
+            'id': 'manual-hz-jinsha',
+            'kind': 'event',
+            'type': 'festival',
+            'name': 'Hangzhou Jinsha International Tango Festival',
+            'city': 'Hangzhou',
+            'country': 'China',
+            'region': 'China',
+            'start': '2026-11-05',
+            'end': '2026-11-09',
+            'weekday': None,
+            'weekdays': None,
+            'time': None,
+            'venue': 'Jinsha Lake Grand Theatre (金沙湖大剧院)',
+            'venue_address': '金沙湖, Hangzhou',
+            'organizers': ['Randy Chen'],
+            'links': {
+                'facebook': None,
+                'video': None,
+                'other': 'https://uzzfwntg.jsjform.com/f/NBcCOy',
+            },
+            'source': 'manual:web+wechat',
+            'updated': UPDATED,
+            'hidden': False,
+            'hidden_reason': None,
+            'tba': False,
+        },
+    ]
+    have = {r['id'] for r in recs}
+    for m in MANUAL:
+        if m['id'] not in have:
+            recs.append(m)
     # COMPLETE data set (owner 2026-10-23): nothing is dropped here; filtering is display-only on the page.
     # Owner's display decisions are kept as flags:
     HIDE_IDS = {'GpOaldUV': 'Owner excluded: As Tango (Beijing) – no date/organizer',
