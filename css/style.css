@@ -1288,3 +1288,17 @@ body.china-page > .nav-toggle{
   .china-page .china-stw-banner.china-stw-ad,
   .china-page .china-stw-ad-hposter{height:46px!important;max-height:46px!important;min-height:46px!important}
 }
+
+/* china54: OTI import, city sections with event/weekly groups */
+.china-page .china-sub-head{font-family:var(--serif);font-size:1.02rem;color:var(--ink);margin:14px 0 8px;font-weight:700}
+.china-page .china-weekly-head{font-size:1.08rem;color:var(--red-dark);margin-top:20px;border-top:1px dashed var(--line);padding-top:12px}
+.china-page .china-group.china-day .china-sub-head{font-size:.9rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px}
+.china-page .china-tw{font-family:var(--sans,inherit);font-size:.7rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:#2a6fb0;border-radius:999px;padding:2px 8px;vertical-align:middle}
+.china-page .china-links{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.china-page .china-linkbtn{display:inline-block;font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1px solid var(--red);color:var(--red)!important;text-decoration:none;word-break:normal!important}
+.china-page .china-linkbtn:hover{background:var(--red);color:#fff!important}
+.china-page .china-addr{color:var(--muted);font-size:.82rem}
+.china-page .ev-card.china-stw-highlight{border:2px solid var(--gold);background:linear-gradient(135deg,#fff8e6,#fff);box-shadow:0 0 0 3px rgba(201,162,39,.18)}
+.china-page .china-badge{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;background:var(--red);color:#fff;border-radius:999px;padding:2px 8px}
+.china-page .china-credit{text-align:center;margin-top:18px}
+.china-page .china-city-head .china-count:empty{display:none}
