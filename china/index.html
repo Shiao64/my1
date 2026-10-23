@@ -5,12 +5,12 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china51">
+<link rel="stylesheet" href="../css/style.css?v=china52">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — June 18–22, 2027">
   <span class="china-stw-ad-strip">
-    <img class="china-stw-ad-hposter" src="../images/stw-banner-h.jpg?v=51" alt="" width="1600" height="90" loading="eager">
+    <img class="china-stw-ad-hposter" src="../images/stw-banner-h.jpg?v=52" alt="" width="1600" height="90" loading="eager">
     <span class="china-stw-ad-overlay">
       <span class="china-stw-ad-title">Select Tango Weekend</span>
       <span class="china-stw-ad-date">June 18 – 22, 2027</span>
@@ -259,6 +259,13 @@
   var hint = document.getElementById('china-date-hint');
   var fromEl = document.getElementById('china-from');
   var toEl = document.getElementById('china-to');
+  // Default From = today (local)
+  (function(){
+    if (!fromEl || fromEl.value) return;
+    var n = new Date();
+    var y = n.getFullYear(), m = n.getMonth()+1, d = n.getDate();
+    fromEl.value = y + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d;
+  })();
   var searchBtn = document.getElementById('china-search');
   var MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
   var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
