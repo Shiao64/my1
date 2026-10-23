@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china21">
+<link rel="stylesheet" href="../css/style.css?v=china22">
 </head>
 <body class="china-page">
 <a class="china-stw-banner" href="../" aria-label="Beijing Select Tango Weekend — June 18–22, 2027">
@@ -32,7 +32,7 @@
 <section class="hero china-map-hero">
   <div class="wrap">
     <h1>China Tango Map</h1>
-    <p class="china-map-sub">Festival · Marathon · Milonga · Practica</p>
+    <p class="china-map-sub">Milonga · Practica · Big Event</p>
   </div>
 </section>
 <section id="filters" class="m-filters">
@@ -68,9 +68,7 @@
       <h2 class="m-label">类型 Type</h2>
       <div class="m-chips">      <label class="m-chip"><input type="checkbox" name="etype" value="milonga" checked> Milonga</label>
       <label class="m-chip"><input type="checkbox" name="etype" value="practica" checked> Practica</label>
-      <label class="m-chip"><input type="checkbox" name="etype" value="festival" checked> Festival</label>
-      <label class="m-chip"><input type="checkbox" name="etype" value="marathon" checked> Marathon</label>
-      <label class="m-chip"><input type="checkbox" name="etype" value="weekend" checked> Tango Weekend</label>
+      <label class="m-chip"><input type="checkbox" name="etype" value="big" checked> Big Event</label>
       </div>
     </div>
   </div>
@@ -415,7 +413,8 @@
       var items = b.querySelectorAll('.china-list > li');
       var shown = 0;
       items.forEach(function(li){
-        var typeOk = types.indexOf(li.getAttribute('data-type') || '') !== -1;
+        var t = li.getAttribute('data-type') || '';
+        var typeOk = types.indexOf(t) !== -1 || (types.indexOf('big') !== -1 && (t === 'festival' || t === 'marathon' || t === 'weekend'));
         var ok = regionOk && typeOk && itemMatchesDate(li);
         li.hidden = !ok;
         if (ok) shown++;
