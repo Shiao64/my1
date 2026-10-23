@@ -759,3 +759,7 @@ html{scroll-padding-top:46px}
   #prices .ribbon{font-size:.68rem;top:-9px}
   #prices .grid.g3{gap:12px 8px}
 }
+
+/* China Tango Map: smaller title, subtitle removed */
+.china-page .china-map-hero h1{font-size:clamp(1.15rem,3.2vw,1.55rem)!important;margin:0!important;letter-spacing:.02em}
+.china-page .china-map-hero .wrap{padding-top:8px!important;padding-bottom:8px!important}
