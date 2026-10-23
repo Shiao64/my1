@@ -925,3 +925,15 @@ body.china-page > .nav-toggle{
   .china-page .china-stw-ad-copy{align-items:flex-start!important}
   .china-page{padding-top:100px!important}
 }
+
+
+/* china43b: clear sticky ad so title + Type stay visible */
+.china-page{padding-top:118px!important}
+.china-page .china-map-hero{padding:14px 0 6px!important;margin:0!important}
+.china-page .china-map-hero .wrap{padding-top:0}
+@media (max-width:600px){
+  .china-page{padding-top:128px!important}
+}
+@media (min-width:901px){
+  .china-page{padding-top:110px!important}
+}
