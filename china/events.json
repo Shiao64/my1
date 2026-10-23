@@ -682,12 +682,13 @@
   "venue": null,
   "venue_address": null,
   "organizers": [
-   "Rebecca Meow"
+   "Rebecca Meow",
+   "Taichung Tango Academy"
   ],
   "links": {
    "facebook": null,
    "video": null,
-   "other": null
+   "other": "https://www.taichungtta.com/"
   },
   "source": "OnlyTangoInfo",
   "updated": "2026-10-21"

@@ -117,6 +117,19 @@ def main():
         else:
             continue  # venues, academies, lists
         recs.append(rec)
+    # Manual additions per owner (kept across weekly updates)
+    OVERRIDES = {
+        'aanirocB': {  # Tango Wonderland, Taipei
+            'organizers': ['Rebecca Meow', 'Taichung Tango Academy'],
+            'links': {'other': 'https://www.taichungtta.com/'},
+        },
+    }
+    for r in recs:
+        o = OVERRIDES.get(r['id'])
+        if not o: continue
+        for k, v in o.items():
+            if k == 'links': r['links'].update(v)
+            else: r[k] = v
     # Excluded per owner (2026-10-23): untyped/unclear entries, and anything without a type
     EXCLUDE_IDS = {'GpOaldUV', 'qIDsVZoD'}  # As Tango (Beijing), Beijing Tango Marathon La Ideal
     recs = [r for r in recs if r['id'] not in EXCLUDE_IDS and r.get('type')]

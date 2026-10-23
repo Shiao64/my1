@@ -174,7 +174,7 @@
   function linkBtns(r){
     var L = r.links || {}, out = [];
     if (L.facebook) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">Facebook</a>');
-    if (L.other) out.push('<a class="china-linkbtn" href="' + esc(L.other) + '" target="_blank" rel="noopener">' + (/^https?:\/\/(www\.)?tangoweekend\.org/.test(L.other) ? 'Website' : 'Link') + '</a>');
+    if (L.other) out.push('<a class="china-linkbtn" href="' + esc(L.other) + '" target="_blank" rel="noopener">' + 'Website' + '</a>');
     if (L.video) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">Video</a>');
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
   }
@@ -284,7 +284,7 @@
   function onSearch(){ flashSearch(); applyFilters(); }
   if (searchBtn) searchBtn.addEventListener('click', onSearch);
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china60', {cache: 'no-cache'})
+  fetch('events.json?v=china61', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
