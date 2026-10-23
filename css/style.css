@@ -587,3 +587,16 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 .china-layout{display:block}
 .china-sidebar{display:none}
 .tm-list-head{display:none}
+
+/* compact city chips (mobile) */
+.m-filters{padding:8px 0 10px}
+.m-filters-inner{gap:10px}
+.m-label{font-size:.85rem;margin:0 0 6px}
+.m-chips{gap:5px}
+.m-chip{padding:4px 9px;font-size:.78rem;gap:4px;line-height:1.2}
+.m-chip .china-side-count{font-size:.7rem}
+.m-select,.m-input{min-height:36px;padding:5px 8px}
+.m-btn{min-height:34px;padding:5px 11px;font-size:.82rem}
+/* legacy icon tiles, if any cached markup */
+.china-region-tile{min-height:0;padding:6px 8px;gap:3px}
+.china-region-icon svg{width:16px;height:16px}
