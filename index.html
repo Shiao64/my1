@@ -10,7 +10,7 @@
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/">
 <link rel="alternate" hreflang="x-default" href="https://tangoweekend.org/">
 <script>(function(){try{if(new URLSearchParams(location.search).get('lang')==='zh')location.replace('zh/'+location.hash);}catch(e){}})();</script>
-<link rel="stylesheet" href="css/style.css?v=zhh1">
+<link rel="stylesheet" href="css/style.css?v=china1">
 </head>
 <body>
 
@@ -18,7 +18,9 @@
 
 <header class="site-header">
   <div class="wrap">
-    <nav class="main-nav">
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+    <div class="header-menus">
+      <nav class="main-nav">
       <a href="#about">About</a>
       <a href="#schedule">Schedule</a>
       <a href="#prices">Passes</a>
@@ -30,11 +32,12 @@
       <a href="#contact">Contact</a>
       <a href="#registration" class="nav-cta">Register</a>
     </nav>
-    <nav class="lang-switch" aria-label="Language">
+    <nav class="lang-switch" aria-label="Language and region">
       <a href="./" hreflang="en" lang="en" aria-current="page">English</a>
       <a href="zh/" hreflang="zh-CN" lang="zh-CN">中文</a>
+      <a href="china/">China</a>
     </nav>
-    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+    </div>
   </div>
 </header>
 
@@ -387,9 +390,11 @@
   }
   tick(); setInterval(tick, 30000);
   // mobile nav
-  var btn = document.querySelector('.nav-toggle'), nav = document.querySelector('.main-nav');
-  btn.addEventListener('click', function(){ var o = nav.classList.toggle('open'); btn.setAttribute('aria-expanded', o); });
-  nav.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ nav.classList.remove('open'); }); });
+  var btn = document.querySelector('.nav-toggle'), header = document.querySelector('.site-header');
+  if (btn && header) {
+    btn.addEventListener('click', function(){ var o = header.classList.toggle('is-open'); btn.setAttribute('aria-expanded', o); });
+    header.querySelectorAll('.header-menus a').forEach(function(a){ a.addEventListener('click', function(){ header.classList.remove('is-open'); btn.setAttribute('aria-expanded', 'false'); }); });
+  }
 })();
 
 // Past-editions tabs

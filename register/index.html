@@ -15,10 +15,14 @@
 <body>
 <header class="site-header">
   <div class="wrap">
-    <nav class="lang-switch" aria-label="Language">
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+    <div class="header-menus">
+    <nav class="lang-switch" aria-label="Language and region">
       <a href="./" hreflang="en" lang="en" aria-current="page">English</a>
       <a href="../zh/register/" hreflang="zh-CN" lang="zh-CN">中文</a>
+      <a href="../china/">China</a>
     </nav>
+    </div>
   </div>
 </header>
 <section class="hero" style="min-height:calc(100vh - 64px);display:flex;align-items:center">
@@ -42,6 +46,8 @@
 </section>
 <script>
 (function(){var t=new Date('2026-12-01T00:00:00+08:00').getTime();function k(){var d=t-Date.now();document.querySelectorAll('[data-countdown]').forEach(function(e){if(d<=0){e.innerHTML='<div><b>✓</b><span>Open</span></div>';return;}e.querySelector('[data-d]').textContent=Math.floor(d/864e5);e.querySelector('[data-h]').textContent=String(Math.floor(d%864e5/36e5)).padStart(2,'0');e.querySelector('[data-m]').textContent=String(Math.floor(d%36e5/6e4)).padStart(2,'0');});}k();setInterval(k,30000);})();
+
+(function(){var btn=document.querySelector('.nav-toggle'),header=document.querySelector('.site-header');if(!btn||!header)return;btn.addEventListener('click',function(){var o=header.classList.toggle('is-open');btn.setAttribute('aria-expanded',o);});header.querySelectorAll('.header-menus a').forEach(function(a){a.addEventListener('click',function(){header.classList.remove('is-open');btn.setAttribute('aria-expanded','false');});});})();
 </script>
 </body>
 </html>
