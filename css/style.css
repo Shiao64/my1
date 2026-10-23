@@ -675,3 +675,23 @@ body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important
 .top-lang a[lang="en"]{background:#9e1020!important;color:#fff!important;font-weight:700}
 .btn.btn-reg{background:#9e1020!important;color:#fff!important;border:2px solid #e8c06a!important}
 .btn.btn-reg:hover{background:#b8152a!important}
+
+/* About the Weekend: title right under the sticky header, whole section fits one screen */
+html{scroll-padding-top:46px}
+#about{padding-top:12px!important;padding-bottom:28px!important}
+#about .sec-title{margin-bottom:12px}
+#about .sec-title h2::after{margin-top:6px}
+#about .wrap>p{margin-bottom:18px!important;line-height:1.55}
+#about .facts{gap:14px}
+#about .facts .card{padding:14px 18px}
+#about .facts .card .ico{font-size:1.5rem;margin-bottom:2px}
+#about .facts .card h3{margin:4px 0}
+#about .facts .card p{margin:0}
+@media (max-width:640px){
+  #about .wrap>p{font-size:.9rem;margin-bottom:12px!important;text-align:left!important}
+  #about .facts{gap:8px}
+  #about .facts .card{display:grid;grid-template-columns:34px 1fr;column-gap:8px;text-align:left;padding:8px 12px;align-items:center}
+  #about .facts .card .ico{grid-row:span 2;font-size:1.4rem;margin:0}
+  #about .facts .card h3{font-size:1rem;margin:0}
+  #about .facts .card p{font-size:.82rem;line-height:1.35}
+}
