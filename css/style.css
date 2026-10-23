@@ -610,3 +610,6 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 }
 .btn-china-corner{left:auto;right:6px}
 @media (max-width:640px){.draft-banner{padding-left:12px;padding-right:128px}}
+/* hamburger pinned to page's very top-left corner */
+body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important;background:var(--red-deep);padding:4px 9px}
+@media (max-width:1060px){.draft-banner{padding-left:56px}}
