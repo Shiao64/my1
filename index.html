@@ -10,7 +10,7 @@
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/">
 <link rel="alternate" hreflang="x-default" href="https://tangoweekend.org/">
 <script>(function(){try{if(new URLSearchParams(location.search).get('lang')==='zh')location.replace('zh/'+location.hash);}catch(e){}})();</script>
-<link rel="stylesheet" href="css/style.css?v=china31">
+<link rel="stylesheet" href="css/style.css?v=china32">
 </head>
 <body>
 
@@ -227,12 +227,12 @@
 <!-- ===== PAST EDITIONS ===== -->
 <section id="gallery" class="past">
   <div class="wrap">
-    <div class="sec-title"><h2>Past Editions</h2><span class="en">2024 – 2026</span></div>
-
+    <div class="past-head"><div class="sec-title"><h2>Past Editions</h2></div>
     <div class="tabs" role="tablist" aria-label="Past editions">
-      <button role="tab" id="tab-2024" aria-controls="ed-2024" aria-selected="false">2024<small>1st Edition</small></button>
-      <button role="tab" id="tab-2025" aria-controls="ed-2025" aria-selected="false">2025<small>2nd Edition</small></button>
-      <button role="tab" id="tab-2026" aria-controls="ed-2026" aria-selected="true">2026<small>3rd Edition</small></button>
+        <button role="tab" id="tab-2024" aria-controls="ed-2024" aria-selected="false">2024</button>
+        <button role="tab" id="tab-2025" aria-controls="ed-2025" aria-selected="false">2025</button>
+        <button role="tab" id="tab-2026" aria-controls="ed-2026" aria-selected="true">2026</button>
+      </div>
     </div>
 
     <!-- 2024 · 1st -->
@@ -399,6 +399,7 @@
   tabs.forEach(function(t){ t.addEventListener('click',function(){
     tabs.forEach(function(x){x.setAttribute('aria-selected', x===t);});
     panels.forEach(function(p){p.classList.toggle('active', p.id===t.getAttribute('aria-controls'));});
+    var pn=document.getElementById(t.getAttribute('aria-controls')); if(pn){ var y=pn.getBoundingClientRect().top+window.pageYOffset-60; window.scrollTo({top:y,behavior:'smooth'}); }
   });});
 })();
 // Lightbox
