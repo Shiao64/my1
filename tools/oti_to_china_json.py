@@ -121,6 +121,10 @@ def main():
     recs = [r for r in recs if r['id'] not in EXCLUDE_IDS and r.get('type')]
     # Excluded per owner (2026-10-23): entries with no date (events) or no weekday schedule (weekly)
     recs = [r for r in recs if (r['kind']=='event' and r.get('start')) or (r['kind']=='weekly' and r.get('weekday') is not None)]
+    # Drop events that ended more than one month before today (owner rule 2026-10-23)
+    import datetime as _dt
+    _t = _dt.date.today(); _cut = (_t.replace(month=_t.month-1) if _t.month > 1 else _t.replace(year=_t.year-1, month=12)).isoformat()
+    recs = [r for r in recs if not (r['kind']=='event' and r.get('start') and (r.get('end') or r['start']) < _cut)]
     kind_o = {'event': 0, 'weekly': 1}
     recs.sort(key=lambda x: (x['city'], kind_o[x['kind']], x['start'] or '9999', x['name']))
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)

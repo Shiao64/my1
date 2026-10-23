@@ -135,6 +135,16 @@
     var n = new Date(), y = n.getFullYear(), m = n.getMonth()+1, d = n.getDate();
     fromEl.value = y + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d;
   })();
+  // Rolling cutoff: one month before today. From can't go earlier; older events are hidden.
+  var CUTOFF = (function(){
+    var n = new Date(); n.setMonth(n.getMonth() - 1);
+    var m = n.getMonth()+1, d = n.getDate();
+    return n.getFullYear() + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d;
+  })();
+  if (fromEl) {
+    fromEl.min = CUTOFF;
+    fromEl.addEventListener('change', function(){ if (fromEl.value && fromEl.value < CUTOFF) fromEl.value = CUTOFF; });
+  }
   var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var DAYF = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -272,9 +282,9 @@
   function onSearch(){ flashSearch(); applyFilters(); }
   if (searchBtn) searchBtn.addEventListener('click', onSearch);
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china57', {cache: 'no-cache'})
+  fetch('events.json?v=china58', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function(data){ render(data); applyFilters(); })
+    .then(function(data){ data = data.filter(function(r){ return !(r.kind === 'event' && r.start && (r.end || r.start) < CUTOFF); }); render(data); applyFilters(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">Could not load listings (' + esc(err.message) + '). Please refresh.</p>'; });
 })();
 </script>
