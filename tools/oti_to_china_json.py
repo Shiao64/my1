@@ -119,6 +119,8 @@ def main():
     # Excluded per owner (2026-10-23): untyped/unclear entries, and anything without a type
     EXCLUDE_IDS = {'GpOaldUV', 'qIDsVZoD'}  # As Tango (Beijing), Beijing Tango Marathon La Ideal
     recs = [r for r in recs if r['id'] not in EXCLUDE_IDS and r.get('type')]
+    # Excluded per owner (2026-10-23): entries with no date (events) or no weekday schedule (weekly)
+    recs = [r for r in recs if (r['kind']=='event' and r.get('start')) or (r['kind']=='weekly' and r.get('weekday') is not None)]
     kind_o = {'event': 0, 'weekly': 1}
     recs.sort(key=lambda x: (x['city'], kind_o[x['kind']], x['start'] or '9999', x['name']))
     os.makedirs(os.path.dirname(os.path.abspath(OUT)), exist_ok=True)

@@ -272,7 +272,7 @@
   function onSearch(){ flashSearch(); applyFilters(); }
   if (searchBtn) searchBtn.addEventListener('click', onSearch);
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china56', {cache: 'no-cache'})
+  fetch('events.json?v=china57', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){ render(data); applyFilters(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">Could not load listings (' + esc(err.message) + '). Please refresh.</p>'; });
