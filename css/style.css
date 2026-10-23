@@ -937,3 +937,112 @@ body.china-page > .nav-toggle{
 @media (min-width:901px){
   .china-page{padding-top:110px!important}
 }
+
+/* china46: compact poster banner + Type/City row + From/To + Search */
+.china-page{
+  padding-top:64px!important;
+}
+.china-page .china-stw-banner.china-stw-ad{
+  position:fixed!important;top:0;left:0;right:0;z-index:100;
+  width:100%!important;max-width:none!important;margin:0!important;
+  height:56px!important;max-height:56px!important;min-height:56px!important;
+  padding:0 12px!important;overflow:hidden!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  line-height:normal!important;
+  background:
+    linear-gradient(105deg, rgba(90,10,18,.92) 0%, rgba(139,21,32,.88) 40%, rgba(74,6,9,.94) 100%),
+    radial-gradient(ellipse at 20% 50%, rgba(232,192,106,.28), transparent 55%),
+    radial-gradient(ellipse at 85% 30%, rgba(255,180,120,.18), transparent 45%),
+    url("../images/stw-banner-compact.jpg") center/cover no-repeat #5a0a12!important;
+  border-bottom:1px solid rgba(232,192,106,.55)!important;
+  box-shadow:0 2px 10px rgba(0,0,0,.35)!important;
+  filter:none!important;
+}
+.china-stw-ad-bg{display:none}
+.china-page .china-stw-ad-inner{
+  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  align-items:center!important;justify-content:center!important;
+  gap:10px 14px!important;text-align:left!important;width:100%;max-width:980px;margin:0 auto;
+  position:relative;z-index:1;
+}
+.china-page .china-stw-banner.china-stw-ad img.china-stw-ad-poster,
+.china-page .china-stw-ad-poster{
+  width:36px!important;max-width:36px!important;min-width:36px!important;
+  height:52px!important;max-height:52px!important;
+  object-fit:cover!important;object-position:top center!important;
+  border-radius:4px!important;border:1.5px solid var(--gold)!important;
+  box-shadow:0 2px 8px rgba(0,0,0,.4)!important;flex-shrink:0!important;
+}
+.china-page .china-stw-ad-copy{
+  display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;
+  align-items:center!important;gap:6px 12px!important;min-width:0;
+}
+.china-page .china-stw-ad-kicker{display:none!important}
+.china-page .china-stw-ad-title{
+  font-family:var(--serif)!important;font-size:clamp(.95rem,2.4vw,1.2rem)!important;
+  font-weight:700!important;color:#fff!important;letter-spacing:.01em;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+}
+.china-page .china-stw-ad-date{
+  font-size:clamp(.8rem,2vw,.95rem)!important;color:#f3d9c9!important;font-weight:600!important;
+  white-space:nowrap!important;
+}
+.china-page .china-stw-ad-cta{
+  display:inline-block!important;padding:4px 12px!important;border-radius:999px!important;
+  background:var(--gold)!important;color:#3a0508!important;font-size:.78rem!important;font-weight:700!important;
+  white-space:nowrap;box-shadow:0 1px 4px rgba(0,0,0,.25);
+}
+.china-page .china-map-hero{display:block!important;padding:16px 0 4px!important;margin:0!important}
+.china-page .china-map-hero h1{
+  display:block!important;font-size:clamp(1.55rem,4.5vw,2.15rem)!important;
+  animation:chinaTitlePulse 2.8s ease-in-out infinite;margin:0!important;color:var(--gold)!important;
+}
+
+/* Type + City one row; Type chips one line; Date From/To + Search */
+.china-filters-compact .china-type-city-row{
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px 18px;margin-bottom:12px;
+}
+.china-filters-compact .china-type-wrap{flex:1 1 auto;min-width:0}
+.china-filters-compact .china-city-wrap{flex:0 1 200px;min-width:140px}
+.china-filters-compact .china-type-chips{
+  display:flex!important;flex-wrap:nowrap!important;gap:6px!important;align-items:center;
+}
+.china-filters-compact .china-type-chips .m-chip{
+  flex:0 0 auto;white-space:nowrap;padding:6px 10px;font-size:.82rem;
+}
+.china-filters-compact .china-city-wrap .m-select{width:100%;min-width:140px}
+.china-date-fromto{
+  display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 10px;
+}
+.china-date-field{
+  display:flex;flex-direction:column;gap:3px;font-size:.75rem;font-weight:700;color:var(--red-dark);
+}
+.china-date-field input.m-input{min-width:132px;padding:7px 10px;font-size:.9rem}
+.china-search-btn{
+  background:var(--red)!important;color:var(--gold-soft)!important;border:1px solid var(--gold)!important;
+  padding:8px 18px!important;font-weight:700!important;align-self:flex-end;
+  transition:filter .15s, transform .15s, box-shadow .15s;
+}
+.china-search-btn:hover{filter:brightness(1.08)}
+.china-search-btn.is-flash{
+  animation:chinaSearchFlash .45s ease-out;
+}
+@keyframes chinaSearchFlash{
+  0%{box-shadow:0 0 0 0 rgba(232,192,106,.7);filter:brightness(1.25);transform:scale(1.04)}
+  100%{box-shadow:0 0 0 12px rgba(232,192,106,0);filter:brightness(1);transform:scale(1)}
+}
+@media (max-width:600px){
+  .china-page{padding-top:60px!important}
+  .china-page .china-stw-banner.china-stw-ad{height:52px!important;max-height:52px!important;min-height:52px!important;padding:0 8px!important}
+  .china-page .china-stw-ad-poster{width:32px!important;max-width:32px!important;height:46px!important;max-height:46px!important}
+  .china-page .china-stw-ad-title{font-size:.88rem!important}
+  .china-page .china-stw-ad-date{font-size:.72rem!important}
+  .china-page .china-stw-ad-cta{padding:3px 9px!important;font-size:.7rem!important}
+  .china-filters-compact .china-type-chips .m-chip{padding:5px 8px;font-size:.75rem}
+  .china-date-field input.m-input{min-width:0;width:100%}
+  .china-date-fromto{width:100%}
+  .china-date-field{flex:1 1 40%}
+}
+@media (prefers-reduced-motion:reduce){
+  .china-page .china-map-hero h1,.china-search-btn.is-flash{animation:none}
+}
