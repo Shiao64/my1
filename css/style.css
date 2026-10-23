@@ -670,3 +670,8 @@ body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important
 .ed-cover img{height:auto!important;object-fit:contain!important;display:block}
 .past-head{flex-wrap:nowrap}
 @media (max-width:480px){.past-head .sec-title h2{font-size:1.4rem;white-space:nowrap}.past-head .tabs{flex-wrap:nowrap;gap:4px}.past-head .tabs button{font-size:.82rem!important;padding:3px 9px!important}}
+
+/* English pill + hero Registration button: same dark red / white as the Register menu item */
+.top-lang a[lang="en"]{background:#9e1020!important;color:#fff!important;font-weight:700}
+.btn.btn-reg{background:#9e1020!important;color:#fff!important;border:2px solid #e8c06a!important}
+.btn.btn-reg:hover{background:#b8152a!important}
