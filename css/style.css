@@ -635,3 +635,17 @@ body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important
   .site-header .header-menus .main-nav a{font-size:.76rem!important;padding:4px 9px!important;border-radius:999px!important}
 }
 @media (max-width:1060px){.site-header.is-open{z-index:90}}
+
+/* ===== single top row: hamburger/nav left, China Tango Map + 中文/English right ===== */
+.draft-banner{padding:4px 12px!important;text-align:center!important;font-size:.78rem!important}
+.site-header .wrap{max-width:none;padding:0 6px;height:44px!important;gap:6px;justify-content:flex-start}
+.site-header .nav-toggle{position:static!important;order:0;margin:0!important;padding:3px 9px}
+.site-header .header-menus{order:1;margin-left:0;margin-right:auto}
+.site-header .top-right-bar{position:static;order:2;margin-left:auto;flex-shrink:0}
+@media (min-width:1061px){
+  .site-header .main-nav{gap:4px}
+  .site-header .main-nav a{font-size:.8rem;padding:4px 10px}
+}
+@media (max-width:1060px){
+  .site-header.is-open .header-menus{top:2px!important;left:44px!important}
+}
