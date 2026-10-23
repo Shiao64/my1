@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china39">
+<link rel="stylesheet" href="../css/style.css?v=china40">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Beijing Select Tango Weekend — June 18–22, 2027">
@@ -60,9 +60,12 @@
     </div>
     <div class="m-block">
       <h2 class="m-label">Date</h2>
-      <div class="m-date-row">
-        <label class="m-date-label">From <input type="date" id="china-date-from" class="m-input" aria-label="From date"></label>
-        <label class="m-date-label">To <input type="date" id="china-date-to" class="m-input" aria-label="To date"></label>
+      <div class="m-date-actions china-date-btns">
+        <button type="button" class="btn m-btn" id="china-btn-today" aria-pressed="false">Today</button>
+        <button type="button" class="btn m-btn" id="china-btn-week" aria-pressed="false">This Week</button>
+        <button type="button" class="btn m-btn" id="china-btn-month" aria-pressed="false">This Month</button>
+        <button type="button" class="btn m-btn" id="china-btn-pick-month" aria-pressed="false">Select Month</button>
+        <input type="month" id="china-month-pick" class="m-input china-month-pick" aria-label="Select month" hidden>
       </div>
       <p class="note" id="china-date-hint" aria-live="polite"></p>
     </div>
@@ -265,21 +268,26 @@
 <script>
 (function(){
   var citySel = document.getElementById('china-city');
-  var fromInput = document.getElementById('china-date-from');
-  var toInput = document.getElementById('china-date-to');
   var hint = document.getElementById('china-date-hint');
-
+  var monthPick = document.getElementById('china-month-pick');
+  var btns = {
+    today: document.getElementById('china-btn-today'),
+    week: document.getElementById('china-btn-week'),
+    month: document.getElementById('china-btn-month'),
+    pick: document.getElementById('china-btn-pick-month')
+  };
+  var mode = 'all';
+  var rangeStart = '', rangeEnd = '';
   var MONTHS = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
   var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   function iso(y,m,d){ return y + '-' + pad(m+1) + '-' + pad(d); }
+  function todayISO(){ var n = new Date(); return iso(n.getFullYear(), n.getMonth(), n.getDate()); }
   function parseISO(s){ var p = s.split('-'); return new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10)); }
   function formatDay(isoStr){ var d = parseISO(isoStr); return MON_SHORT[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear(); }
   function formatRange(a, b){
-    if (!a && !b) return 'all dates';
-    if (a && !b) return 'from ' + formatDay(a);
-    if (!a && b) return 'through ' + formatDay(b);
-    if (a === b) return formatDay(a);
+    if (!a) return 'all dates';
+    if (!b || a === b) return formatDay(a);
     var da = parseISO(a), db = parseISO(b);
     if (da.getFullYear() === db.getFullYear()) {
       if (da.getMonth() === db.getMonth()) return MON_SHORT[da.getMonth()] + ' ' + da.getDate() + ' – ' + db.getDate() + ', ' + da.getFullYear();
@@ -287,31 +295,34 @@
     }
     return formatDay(a) + ' – ' + formatDay(b);
   }
+  function mondayOf(d){
+    var x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    var day = x.getDay();
+    var diff = day === 0 ? -6 : 1 - day;
+    x.setDate(x.getDate() + diff);
+    return x;
+  }
+  function lastDayOfMonth(y, m0){ return new Date(y, m0 + 1, 0).getDate(); }
+  function activeRange(){ if (mode === 'all') return null; if (rangeStart) return [rangeStart, rangeEnd || rangeStart]; return null; }
+  function setPressed(active){ Object.keys(btns).forEach(function(k){ if (btns[k]) btns[k].setAttribute('aria-pressed', k === active ? 'true' : 'false'); }); }
   function parseDates(text){
-    var out = [];
-    if (!text) return out;
-    var year = 2026;
-    var ym = text.match(/\b(20\d{2})\b/);
-    if (ym) year = parseInt(ym[1], 10);
+    var out = []; if (!text) return out;
+    var year = 2026; var ym = text.match(/\b(20\d{2})\b/); if (ym) year = parseInt(ym[1], 10);
     var rangeRe = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2})\s*[-–]\s*(\d{1,2})(?:,?\s*(20\d{2}))?/gi;
     var m;
     while ((m = rangeRe.exec(text))) {
       var mo = MONTHS[m[1].slice(0,3).toLowerCase()];
       var y = m[4] ? parseInt(m[4],10) : year;
-      var a = parseInt(m[2],10), b = parseInt(m[3],10);
-      if (b < a) b = a;
+      var a = parseInt(m[2],10), b = parseInt(m[3],10); if (b < a) b = a;
       for (var d = a; d <= b; d++) out.push(iso(y, mo, d));
     }
     var singleRe = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2})(?!,?\s*\d{1,2}\s*[-–])(?:,?\s*(20\d{2}))?/gi;
     while ((m = singleRe.exec(text))) {
       var after = text.slice(m.index + m[0].length, m.index + m[0].length + 3);
       if (/^\s*[-–]/.test(after)) continue;
-      var mo2 = MONTHS[m[1].slice(0,3).toLowerCase()];
-      var y2 = m[3] ? parseInt(m[3],10) : year;
-      out.push(iso(y2, mo2, parseInt(m[2],10)));
+      out.push(iso(m[3] ? parseInt(m[3],10) : year, MONTHS[m[1].slice(0,3).toLowerCase()], parseInt(m[2],10)));
     }
-    var seen = {};
-    return out.filter(function(x){ if (seen[x]) return false; seen[x]=1; return true; }).sort();
+    var seen = {}; return out.filter(function(x){ if (seen[x]) return false; seen[x]=1; return true; }).sort();
   }
   function annotateItems(){
     document.querySelectorAll('.china-list > li').forEach(function(li){
@@ -322,18 +333,11 @@
       if (dates.length) li.setAttribute('data-sort', dates[0]);
     });
   }
-  function checkedTypes(){
-    return Array.prototype.map.call(document.querySelectorAll('input[name="etype"]:checked'), function(el){ return el.value; });
-  }
+  function checkedTypes(){ return Array.prototype.map.call(document.querySelectorAll('input[name="etype"]:checked'), function(el){ return el.value; }); }
   function itemMatchesDate(li){
     var dates = (li.getAttribute('data-dates') || '').split(',').filter(Boolean);
-    var a = fromInput && fromInput.value || '';
-    var b = toInput && toInput.value || '';
-    if (!a && !b) return true;
-    if (!dates.length) return false;
-    if (a && !b) return dates.some(function(d){ return d >= a; });
-    if (!a && b) return dates.some(function(d){ return d <= b; });
-    return dates.some(function(d){ return d >= a && d <= b; });
+    var r = activeRange(); if (!r) return true; if (!dates.length) return false;
+    return dates.some(function(d){ return d >= r[0] && d <= r[1]; });
   }
   function applyFilters(){
     var city = citySel ? citySel.value : 'all';
@@ -348,47 +352,40 @@
         var t = li.getAttribute('data-type') || '';
         var typeOk = types.indexOf(t) !== -1 || (types.indexOf('big') !== -1 && (t === 'festival' || t === 'marathon' || t === 'weekend'));
         var ok = regionOk && typeOk && itemMatchesDate(li);
-        li.hidden = !ok;
-        if (ok) shown++;
+        li.hidden = !ok; if (ok) shown++;
       });
       var empty = block.querySelector('.china-empty:not(.china-date-empty)');
-      if (empty && !items.length) {
-        block.hidden = !regionOk;
-      } else {
-        block.hidden = !regionOk || (items.length > 0 && shown === 0);
-      }
+      if (empty && !items.length) block.hidden = !regionOk;
+      else block.hidden = !regionOk || (items.length > 0 && shown === 0);
       var dyn = block.querySelector('.china-date-empty');
       if (items.length) {
         if (regionOk && shown === 0) {
-          if (!dyn) {
-            dyn = document.createElement('p');
-            dyn.className = 'china-empty note china-date-empty';
-            dyn.textContent = 'No events match these filters in this region.';
-            block.appendChild(dyn);
-          }
-          dyn.hidden = false;
-          block.hidden = false;
-        } else if (dyn) {
-          dyn.hidden = true;
-        }
+          if (!dyn) { dyn = document.createElement('p'); dyn.className = 'china-empty note china-date-empty'; dyn.textContent = 'No events match these filters in this region.'; block.appendChild(dyn); }
+          dyn.hidden = false; block.hidden = false;
+        } else if (dyn) dyn.hidden = true;
       }
       var countEl = block.querySelector('.china-count');
       if (countEl && regionOk) countEl.textContent = '(' + shown + ')';
       if (regionOk) totalVisible += shown;
     });
-    if (hint) {
-      var a = fromInput && fromInput.value || '';
-      var b = toInput && toInput.value || '';
-      hint.textContent = 'Date range: ' + formatRange(a, b) + ' · Showing ' + totalVisible + ' events.';
-    }
+    if (hint) { var r = activeRange(); hint.textContent = 'Date range: ' + (r ? formatRange(r[0], r[1]) : 'all dates') + ' · Showing ' + totalVisible + ' events.'; }
   }
+  function setToday(){ mode='day'; var t=todayISO(); rangeStart=t; rangeEnd=t; if(monthPick) monthPick.hidden=true; setPressed('today'); applyFilters(); }
+  function setWeek(){ mode='week'; var n=new Date(); var mon=mondayOf(n); var sun=new Date(mon.getFullYear(), mon.getMonth(), mon.getDate()+6); rangeStart=iso(mon.getFullYear(), mon.getMonth(), mon.getDate()); rangeEnd=iso(sun.getFullYear(), sun.getMonth(), sun.getDate()); if(monthPick) monthPick.hidden=true; setPressed('week'); applyFilters(); }
+  function setThisMonth(){ mode='month'; var n=new Date(); rangeStart=iso(n.getFullYear(), n.getMonth(), 1); rangeEnd=iso(n.getFullYear(), n.getMonth(), lastDayOfMonth(n.getFullYear(), n.getMonth())); if(monthPick) monthPick.hidden=true; setPressed('month'); applyFilters(); }
+  function openPickMonth(){ setPressed('pick'); if(!monthPick) return; monthPick.hidden=false; try{ monthPick.showPicker&&monthPick.showPicker(); }catch(e){} monthPick.focus(); }
+  function onMonthPicked(){ if(!monthPick||!monthPick.value) return; mode='pick'; var yp=monthPick.value.split('-'); var y=parseInt(yp[0],10), m0=parseInt(yp[1],10)-1; rangeStart=iso(y,m0,1); rangeEnd=iso(y,m0,lastDayOfMonth(y,m0)); setPressed('pick'); applyFilters(); }
   annotateItems();
   if (citySel) citySel.addEventListener('change', applyFilters);
-  if (fromInput) fromInput.addEventListener('change', applyFilters);
-  if (toInput) toInput.addEventListener('change', applyFilters);
+  if (btns.today) btns.today.addEventListener('click', setToday);
+  if (btns.week) btns.week.addEventListener('click', setWeek);
+  if (btns.month) btns.month.addEventListener('click', setThisMonth);
+  if (btns.pick) btns.pick.addEventListener('click', openPickMonth);
+  if (monthPick) monthPick.addEventListener('change', onMonthPicked);
   document.querySelectorAll('input[name="etype"]').forEach(function(el){ el.addEventListener('change', applyFilters); });
   applyFilters();
 })();
 </script>
+
 </body>
 </html>
