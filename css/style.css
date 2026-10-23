@@ -1321,3 +1321,11 @@ body.china-page > .nav-toggle{
   .china-filters-compact .china-date-input::-webkit-datetime-edit{font-size:13px!important}
   .china-filters-compact .china-search-btn{height:24px!important;max-height:24px!important}
 }
+
+/* china59: 4 type checkboxes (Milonga, Practica, Event, Festival) on one compact row */
+.china-filters-compact .china-type-chips{flex-wrap:nowrap!important;gap:4px!important}
+.china-filters-compact .china-type-check{white-space:nowrap!important}
+@media (max-width:560px){
+  .china-filters-compact .china-type-check{padding:3px 6px!important;font-size:.68rem!important;gap:3px!important}
+  .china-filters-compact .china-type-check .china-check{width:11px!important;height:11px!important;font-size:8px!important}
+}

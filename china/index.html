@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china55">
+<link rel="stylesheet" href="../css/style.css?v=china59">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — June 18–22, 2027">
@@ -30,7 +30,8 @@
         <div class="m-chips china-type-chips">
           <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="milonga" checked><span class="china-check" aria-hidden="true"></span> Milonga</label>
           <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="practica" checked><span class="china-check" aria-hidden="true"></span> Practica</label>
-          <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="big" checked><span class="china-check" aria-hidden="true"></span> Event</label>
+          <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="event" checked><span class="china-check" aria-hidden="true"></span> Event</label>
+          <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="festival" checked><span class="china-check" aria-hidden="true"></span> Festival</label>
         </div>
       </div>
       <div class="china-city-wrap">
@@ -72,7 +73,7 @@
 <div id="china-listings" aria-live="polite"><p class="note">Loading listings…</p></div>
 <noscript><p class="note">Listings need JavaScript. Raw data: <a href="events.json">events.json</a></p></noscript>
 <p class="china-empty note china-global-empty" hidden>No listings match these filters.</p>
-<p class="note china-credit">Event data: OnlyTangoInfo (updated Oct 21, 2026) · <a href="events.json">events.json</a></p>
+<p class="note china-credit">Event data: OnlyTangoInfo (updated <span class="china-updated">Oct 21, 2026</span>) · <a href="events.json">events.json</a></p>
   </div>
 </section>
 <section id="contact-china" class="alt">
@@ -95,7 +96,7 @@
       </div>
       <div class="china-contact-card">
         <h3>Event data</h3>
-        <p class="note">China, Hong Kong &amp; Taiwan listings imported from OnlyTangoInfo public data (updated Oct 21, 2026). Organizer contacts on each card when available; missing fields stay blank.</p>
+        <p class="note">China, Hong Kong &amp; Taiwan listings imported from OnlyTangoInfo public data (updated <span class="china-updated">Oct 21, 2026</span>). Organizer contacts on each card when available; missing fields stay blank.</p>
       </div>
     </div>
   </div>
@@ -108,7 +109,7 @@
       <a class="btn btn-gold" href="mailto:info@tangoweekend.org?subject=China%20tango%20event%20listing">info@tangoweekend.org</a>
       <a class="btn btn-ghost" href="../">Select Tango Weekend</a>
     </div>
-    <p class="note" style="margin-top:22px">Event data: OnlyTangoInfo (updated Oct 21, 2026). Not affiliated with OTI; listings may change.</p>
+    <p class="note" style="margin-top:22px">Event data: OnlyTangoInfo (updated <span class="china-updated">Oct 21, 2026</span>). Not affiliated with OTI; listings may change.</p>
   </div>
 </section>
 <footer id="contact">
@@ -137,7 +138,8 @@
   })();
   // Rolling cutoff: one month before today. From can't go earlier; older events are hidden.
   var CUTOFF = (function(){
-    var n = new Date(); n.setMonth(n.getMonth() - 1);
+    var t = new Date(), n = new Date(t.getFullYear(), t.getMonth() - 1, 1);
+    n.setDate(Math.min(t.getDate(), new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate()));
     var m = n.getMonth()+1, d = n.getDate();
     return n.getFullYear() + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d;
   })();
@@ -254,7 +256,8 @@
       var items = block.querySelectorAll('.china-list > li'), shown = 0;
       items.forEach(function(li){
         var t = li.getAttribute('data-type') || '';
-        var typeOk = types.indexOf(t) !== -1 || (types.indexOf('big') !== -1 && (t === 'festival' || t === 'marathon' || t === 'weekend' || t === 'event'));
+        var tk = (t === 'festival' || t === 'marathon' || t === 'weekend' || t === 'encuentro') ? 'festival' : t;  // Festival covers festival + marathon
+        var typeOk = types.indexOf(tk) !== -1;
         var ok = regionOk && typeOk && itemMatchesDate(li);
         li.hidden = !ok; if (ok) shown++;
       });
@@ -282,9 +285,13 @@
   function onSearch(){ flashSearch(); applyFilters(); }
   if (searchBtn) searchBtn.addEventListener('click', onSearch);
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china58', {cache: 'no-cache'})
+  fetch('events.json?v=china59', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function(data){ data = data.filter(function(r){ return !(r.kind === 'event' && r.start && (r.end || r.start) < CUTOFF); }); render(data); applyFilters(); })
+    .then(function(data){
+      var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
+      if (up) { var p = up.split('-'), lbl = MON_SHORT[+p[1]-1] + ' ' + (+p[2]) + ', ' + p[0];
+        Array.prototype.forEach.call(document.querySelectorAll('.china-updated'), function(el){ el.textContent = lbl; }); }
+      data = data.filter(function(r){ return !(r.kind === 'event' && r.start && (r.end || r.start) < CUTOFF); }); render(data); applyFilters(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">Could not load listings (' + esc(err.message) + '). Please refresh.</p>'; });
 })();
 </script>

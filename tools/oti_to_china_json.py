@@ -14,7 +14,8 @@ if '--updated' in args:
     i = args.index('--updated'); UPDATED = args[i+1]; del args[i:i+2]
 if args: SRC = args[0]
 if len(args) > 1: OUT = args[1]
-RANGE_START, RANGE_END = datetime.date(2026, 10, 1), datetime.date(2027, 12, 31)
+RANGE_START = datetime.date(2026, 10, 1)
+RANGE_END = max(datetime.date(2027, 12, 31), datetime.date.today() + datetime.timedelta(days=550))  # rolling horizon for weekly CI runs
 
 def load_rows(path):
     s = open(path, encoding='utf-8').read()
@@ -123,7 +124,9 @@ def main():
     recs = [r for r in recs if (r['kind']=='event' and r.get('start')) or (r['kind']=='weekly' and r.get('weekday') is not None)]
     # Drop events that ended more than one month before today (owner rule 2026-10-23)
     import datetime as _dt
-    _t = _dt.date.today(); _cut = (_t.replace(month=_t.month-1) if _t.month > 1 else _t.replace(year=_t.year-1, month=12)).isoformat()
+    import calendar as _cal
+    _t = _dt.date.today(); _y, _m = (_t.year, _t.month-1) if _t.month > 1 else (_t.year-1, 12)
+    _cut = _dt.date(_y, _m, min(_t.day, _cal.monthrange(_y, _m)[1])).isoformat()  # safe for e.g. Mar 31
     recs = [r for r in recs if not (r['kind']=='event' and r.get('start') and (r.get('end') or r['start']) < _cut)]
     kind_o = {'event': 0, 'weekly': 1}
     recs.sort(key=lambda x: (x['city'], kind_o[x['kind']], x['start'] or '9999', x['name']))
