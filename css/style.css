@@ -1302,3 +1302,22 @@ body.china-page > .nav-toggle{
 .china-page .china-badge{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;background:var(--red);color:#fff;border-radius:999px;padding:2px 8px}
 .china-page .china-credit{text-align:center;margin-top:18px}
 .china-page .china-city-head .china-count:empty{display:none}
+
+/* china55: larger date text, still compact */
+.china-filters-compact input[type="date"].china-date-input,
+.china-filters-compact .china-date-input{
+  width:116px!important;max-width:116px!important;
+  height:26px!important;max-height:26px!important;min-height:26px!important;
+  padding:1px 3px!important;font-size:14px!important;font-weight:600!important;
+}
+.china-filters-compact .china-date-input::-webkit-datetime-edit{padding:0!important;font-size:14px!important}
+.china-filters-compact .china-date-input::-webkit-calendar-picker-indicator{width:12px;height:12px;margin:0;padding:0}
+.china-filters-compact .china-date-field span{font-size:.72rem!important}
+.china-filters-compact .china-search-btn{height:26px!important;max-height:26px!important}
+@media (max-width:700px){
+  .china-filters-compact input[type="date"].china-date-input{
+    width:108px!important;max-width:108px!important;height:24px!important;max-height:24px!important;min-height:24px!important;font-size:13px!important;
+  }
+  .china-filters-compact .china-date-input::-webkit-datetime-edit{font-size:13px!important}
+  .china-filters-compact .china-search-btn{height:24px!important;max-height:24px!important}
+}
