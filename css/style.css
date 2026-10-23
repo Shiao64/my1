@@ -1118,3 +1118,43 @@ body.china-page > .nav-toggle{
   .china-filters-compact .china-search-btn{height:28px!important;padding:0 10px!important}
   .china-filters-compact .china-city-wrap{flex:0 0 110px;min-width:100px}
 }
+
+/* china49: readable text overlay on slim horizontal poster */
+.china-page{padding-top:38px!important}
+.china-page .china-stw-banner.china-stw-ad{
+  height:36px!important;max-height:36px!important;min-height:36px!important;
+}
+.china-page .china-stw-ad-strip{
+  display:block;position:relative;width:100%;height:100%;overflow:hidden;
+}
+.china-page .china-stw-ad-hposter{
+  display:block!important;width:100%!important;height:36px!important;max-height:36px!important;
+  object-fit:cover!important;object-position:center 45%!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  filter:saturate(1.05) contrast(1.05);
+}
+.china-page .china-stw-ad-overlay{
+  position:absolute;inset:0;display:flex!important;flex-direction:row!important;
+  flex-wrap:nowrap;align-items:center;justify-content:center;gap:10px 16px;
+  background:linear-gradient(90deg,rgba(74,6,9,.55),rgba(74,6,9,.35) 30%,rgba(74,6,9,.35) 70%,rgba(74,6,9,.55));
+  pointer-events:none;padding:0 12px;
+}
+.china-page .china-stw-ad-overlay .china-stw-ad-title{
+  display:inline!important;font-family:var(--serif)!important;
+  font-size:clamp(.85rem,2.2vw,1.05rem)!important;font-weight:700!important;
+  color:#fff8e8!important;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.55);
+  letter-spacing:.02em;
+}
+.china-page .china-stw-ad-overlay .china-stw-ad-date{
+  display:inline!important;font-size:clamp(.72rem,1.8vw,.9rem)!important;
+  font-weight:600!important;color:var(--gold)!important;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+}
+@media (max-width:700px){
+  .china-page{padding-top:34px!important}
+  .china-page .china-stw-banner.china-stw-ad,
+  .china-page .china-stw-ad-hposter{height:32px!important;max-height:32px!important;min-height:32px!important}
+  .china-page .china-stw-ad-overlay{gap:6px 10px;padding:0 8px}
+  .china-page .china-stw-ad-overlay .china-stw-ad-title{font-size:.8rem!important}
+  .china-page .china-stw-ad-overlay .china-stw-ad-date{font-size:.68rem!important}
+}
