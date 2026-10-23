@@ -410,3 +410,13 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
   .china-region-nav{top:62px}
   .china-region-nav a{font-size:.82rem;padding:7px 11px}
 }
+
+
+/* China page: image-only STW top banner */
+.china-page .china-stw-banner{
+  display:block;text-align:center;background:#111;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.08);
+}
+.china-page .china-stw-banner-img{
+  display:inline-block;height:90px;width:auto;max-width:100%;object-fit:cover;border-radius:4px;
+}
+.china-page .china-stw-banner-inner,.china-page .china-stw-banner-copy{display:none!important}
