@@ -5,12 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>China Tango Map · Select Tango Weekend</title>
 <meta name="description" content="China tango festivals, milongas and practicas — China Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china40">
+<link rel="stylesheet" href="../css/style.css?v=china41">
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Beijing Select Tango Weekend — June 18–22, 2027">
-  <span class="china-stw-ad-title">Beijing Select Tango Weekend</span>
-  <span class="china-stw-ad-date">June 18–22, 2027</span>
+  <span class="china-stw-ad-inner">
+    <span class="china-stw-ad-kicker">4th Edition · Beijing</span>
+    <span class="china-stw-ad-title">Beijing Select Tango Weekend</span>
+    <span class="china-stw-ad-date">June 18–22, 2027 · AC Embassy Hotel</span>
+    <span class="china-stw-ad-cta">View event →</span>
+  </span>
 </a>
 <header class="site-header">
   <div class="wrap">
@@ -20,11 +24,6 @@
         <a href="#events">Events</a>
         <a href="#contact-china">Contact</a>
         <a href="#submit">Submit</a>
-      </nav>
-      <nav class="lang-switch" aria-label="Language and region">
-        <a href="../" hreflang="en" lang="en">English</a>
-        <a href="../zh/" hreflang="zh-CN" lang="zh-CN">中文</a>
-        <a href="./" aria-current="page">China</a>
       </nav>
     </div>
   </div>
@@ -36,6 +35,12 @@
 </section>
 <section id="filters" class="m-filters">
   <div class="wrap m-filters-inner">
+    <div class="m-block">
+      <h2 class="m-label">Type</h2>
+      <div class="m-chips">      <label class="m-chip"><input type="checkbox" name="etype" value="milonga" checked> Milonga</label>
+      <label class="m-chip"><input type="checkbox" name="etype" value="practica" checked> Practica</label>
+      <label class="m-chip"><input type="checkbox" name="etype" value="big" checked> Event</label>
+      </div>
     <div class="m-block">
       <h2 class="m-label">City</h2>
       <select id="china-city" class="m-select m-select-city" aria-label="City">
@@ -68,13 +73,6 @@
         <input type="month" id="china-month-pick" class="m-input china-month-pick" aria-label="Select month" hidden>
       </div>
       <p class="note" id="china-date-hint" aria-live="polite"></p>
-    </div>
-    <div class="m-block">
-      <h2 class="m-label">类型 Type</h2>
-      <div class="m-chips">      <label class="m-chip"><input type="checkbox" name="etype" value="milonga" checked> Milonga</label>
-      <label class="m-chip"><input type="checkbox" name="etype" value="practica" checked> Practica</label>
-      <label class="m-chip"><input type="checkbox" name="etype" value="big" checked> Big Event</label>
-      </div>
     </div>
   </div>
 </section>

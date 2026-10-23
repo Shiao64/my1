@@ -832,3 +832,45 @@ body.china-page > .nav-toggle{
   .china-page .site-header{top:76px}
   .china-page .china-stw-banner.china-stw-ad{padding:12px 14px!important}
 }
+
+/* China Map: polished sticky ad banner; no lang switch on this page */
+.china-page .lang-switch{display:none!important}
+.china-page .china-stw-banner.china-stw-ad{
+  background:
+    radial-gradient(ellipse 80% 120% at 10% 50%,rgba(232,192,106,.28),transparent 55%),
+    radial-gradient(ellipse 60% 100% at 90% 40%,rgba(232,192,106,.18),transparent 50%),
+    linear-gradient(105deg,#3a050a 0%,#9e1020 38%,#6b0c16 62%,#3a050a 100%)!important;
+  border-bottom:3px solid var(--gold)!important;
+  box-shadow:0 6px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(232,192,106,.35)!important;
+  padding:16px 24px!important
+}
+.china-stw-ad-inner{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 22px;
+  width:100%;max-width:1100px;margin:0 auto
+}
+.china-stw-ad-kicker{
+  font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);
+  border:1px solid rgba(232,192,106,.55);border-radius:999px;padding:2px 10px;white-space:nowrap
+}
+.china-stw-ad-title{
+  font-family:var(--serif);font-size:clamp(1.35rem,4.2vw,2.15rem)!important;
+  font-weight:700;color:#fff8e7!important;text-shadow:0 2px 8px rgba(0,0,0,.35);letter-spacing:.02em
+}
+.china-stw-ad-date{font-size:clamp(.95rem,2.6vw,1.2rem)!important;color:#f3d9c9!important;font-weight:600}
+.china-stw-ad-cta{
+  font-size:.85rem;font-weight:700;color:var(--red-deep);background:var(--gold);
+  border-radius:999px;padding:6px 14px;white-space:nowrap;
+  box-shadow:0 2px 8px rgba(0,0,0,.25)
+}
+.china-page .china-stw-banner.china-stw-ad:hover .china-stw-ad-cta{filter:brightness(1.08)}
+.china-page{padding-top:78px}
+.china-page .site-header{top:78px}
+.china-page .site-header .header-menus{justify-content:flex-start}
+.china-page .m-filters-inner{display:flex;flex-direction:column;gap:14px}
+.china-page .china-date-btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+@media (max-width:600px){
+  .china-page{padding-top:110px}
+  .china-page .site-header{top:110px}
+  .china-stw-ad-inner{flex-direction:column;gap:4px;text-align:center}
+  .china-stw-ad-cta{margin-top:4px}
+}
