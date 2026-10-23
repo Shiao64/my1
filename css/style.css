@@ -353,14 +353,18 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 /* ===== China Tango Map: banner + region nav ===== */
 .china-stw-banner{
   display:block;text-decoration:none;color:inherit;line-height:0;
-  background:var(--red-deep);
-  border-bottom:2px solid var(--gold);
+  width:clamp(150px,18vw,220px);
+  max-width:18%;
+  margin:8px 0 8px 16px; /* left-aligned small strip */
+  background:transparent;
+  border-bottom:none;
 }
 .china-stw-banner img{
   display:block;width:100%;height:auto;
-  max-height:clamp(36px,9vw,48px);
-  object-fit:cover;object-position:center;
-  border-radius:0;border:0
+  max-height:none;
+  border-radius:8px;
+  border:0;
+  box-shadow:0 2px 8px rgba(74,6,9,.25)
 }
 .china-map-hero h1{margin:0 0 8px;font-family:var(--serif);font-size:clamp(2rem,5vw,3rem);color:var(--gold-soft)}
 .china-map-sub{margin:0 0 12px;font-size:1.05rem;color:#f3d9c9}
@@ -399,7 +403,7 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 .china-count{font-family:var(--sans);font-size:.85rem;color:var(--muted);font-weight:600}
 .china-empty{margin:0;padding:16px 18px;border:1px dashed var(--line);border-radius:var(--radius);background:#fff}
 @media (max-width:600px){
-  .china-stw-banner img{max-height:clamp(34px,10vw,44px)}
+  .china-stw-banner{width:clamp(140px,32vw,180px);max-width:36%;margin:6px 0 6px 12px}
   .china-region-nav{top:48px}
   .china-region-nav-inner{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
   .china-region-tile{min-height:84px;padding:10px 6px}
@@ -410,7 +414,7 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 
 
 /* China page: pull title closer to STW ad (header stays between) */
-.china-page .china-stw-banner{padding:0;margin:0}
+.china-page .china-stw-banner{padding:0}
 .china-page .site-header{margin:0}
 .china-page .site-header .wrap{height:48px}
 .china-page .china-map-hero{padding:0;margin:0}
