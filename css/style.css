@@ -366,3 +366,47 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
   .china-list .c-name{grid-area:name}
   .china-list .c-org{grid-area:org}
 }
+
+/* ===== China Tango Map: banner + region nav ===== */
+.china-stw-banner{
+  display:block;text-decoration:none;color:inherit;
+  background:linear-gradient(90deg,var(--red-deep),var(--red-dark) 55%,#5a0a10);
+  border-bottom:3px solid var(--gold);
+}
+.china-stw-banner-inner{
+  display:flex;align-items:center;gap:18px;padding:14px 20px;max-width:1120px;
+}
+.china-stw-banner img{
+  width:72px;height:96px;object-fit:cover;object-position:top;
+  border:2px solid var(--gold);border-radius:8px;flex-shrink:0;
+}
+.china-stw-banner-copy{display:flex;flex-direction:column;gap:2px;color:var(--gold-soft);min-width:0}
+.china-stw-banner-copy strong{font-family:var(--serif);font-size:1.25rem;color:var(--gold)}
+.china-stw-banner-copy span{font-size:.92rem;opacity:.95}
+.china-stw-banner-copy em{font-style:normal;font-weight:700;font-size:.85rem;color:var(--gold);margin-top:4px}
+.china-stw-banner:hover .china-stw-banner-copy em{text-decoration:underline}
+.china-map-hero h1{margin:0 0 8px;font-family:var(--serif);font-size:clamp(2rem,5vw,3rem);color:var(--gold-soft)}
+.china-map-sub{margin:0 0 12px;font-size:1.05rem;color:#f3d9c9}
+.china-region-nav{
+  position:sticky;top:62px;z-index:40;background:rgba(251,245,233,.96);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(6px)
+}
+.china-region-nav-inner{
+  display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px;justify-content:center
+}
+.china-region-nav a{
+  text-decoration:none;color:var(--red-dark);font-weight:700;font-size:.9rem;
+  padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;
+  white-space:nowrap
+}
+.china-region-nav a:hover{border-color:var(--gold);background:var(--gold-soft)}
+.china-region-nav a.is-active{background:var(--red-dark);color:var(--gold-soft);border-color:var(--red-dark)}
+.china-count{font-family:var(--sans);font-size:.85rem;color:var(--muted);font-weight:600}
+.china-empty{margin:0;padding:16px 18px;border:1px dashed var(--line);border-radius:var(--radius);background:#fff}
+@media (max-width:600px){
+  .china-stw-banner img{width:56px;height:76px}
+  .china-stw-banner-copy strong{font-size:1.05rem}
+  .china-stw-banner-copy span{font-size:.82rem}
+  .china-region-nav{top:62px}
+  .china-region-nav a{font-size:.82rem;padding:7px 11px}
+}
