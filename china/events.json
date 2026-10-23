@@ -27,56 +27,6 @@
   "updated": "2026-10-21"
  },
  {
-  "id": "GpOaldUV",
-  "kind": "event",
-  "type": "event",
-  "name": "As Tango",
-  "city": "Beijing",
-  "country": "China",
-  "region": "China",
-  "start": null,
-  "end": null,
-  "weekday": null,
-  "weekdays": null,
-  "time": null,
-  "venue": null,
-  "venue_address": null,
-  "organizers": [],
-  "links": {
-   "facebook": "https://www.facebook.com/ALLENSIMONATANGO",
-   "video": "https://www.youtube.com/watch?v=Y_ET2scfvs8",
-   "other": null
-  },
-  "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
- },
- {
-  "id": "qIDsVZoD",
-  "kind": "event",
-  "type": "marathon",
-  "name": "Beijing Tango Marathon La Ideal",
-  "city": "Beijing",
-  "country": "China",
-  "region": "China",
-  "start": null,
-  "end": null,
-  "weekday": null,
-  "weekdays": null,
-  "time": null,
-  "venue": null,
-  "venue_address": null,
-  "organizers": [
-   "Frank Jin"
-  ],
-  "links": {
-   "facebook": "https://www.facebook.com/groups/beijingtangomarathon/",
-   "video": null,
-   "other": null
-  },
-  "source": "OnlyTangoInfo",
-  "updated": "2026-10-21"
- },
- {
   "id": "MGzJpcUd",
   "kind": "weekly",
   "type": "milonga",
