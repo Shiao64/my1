@@ -650,8 +650,12 @@ body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important
   .site-header.is-open .header-menus{top:2px!important;left:44px!important}
 }
 
-/* Edition row pinned just below the top banner line */
-.hero-photo .wrap > div:first-child .edition{position:absolute;top:10px;z-index:2}
+/* Hero block (edition row + title + poster) pulled up right under the top banner */
 .hero-photo{padding-top:0!important}
-.hero-photo .wrap{padding-top:136px}
-@media (max-width:820px){.hero-photo .wrap{padding-top:94px}}
+.hero-photo .wrap{padding-top:14px!important;align-items:start;min-height:0!important}
+.hero-photo .hero-poster{margin-top:4px}
+@media (max-width:820px){.hero-photo .wrap{padding-top:12px!important}}
+
+/* Register: dark red highlight with white text, distinct from the gold English pill */
+.main-nav a.nav-cta,.site-header .main-nav a.nav-cta{background:#9e1020!important;color:#fff!important;border:1px solid #e8c06a!important;font-weight:700}
+.main-nav a.nav-cta:hover{background:#b8152a!important}
