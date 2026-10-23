@@ -874,3 +874,32 @@ body.china-page > .nav-toggle{
   .china-stw-ad-inner{flex-direction:column;gap:4px;text-align:center}
   .china-stw-ad-cta{margin-top:4px}
 }
+
+/* China Map: no header strip under ad; poster in banner; title pulse */
+.china-page .site-header,
+.china-page .lang-switch,
+.china-page nav.lang-switch{display:none!important;height:0!important;overflow:hidden!important;visibility:hidden!important}
+.china-stw-ad-inner{display:flex!important;flex-wrap:nowrap;align-items:center;justify-content:center;gap:18px 28px;text-align:left}
+.china-stw-ad-poster{
+  width:clamp(56px,12vw,96px);height:auto;aspect-ratio:2/3;object-fit:cover;object-position:top;
+  border-radius:6px;border:2px solid var(--gold);
+  box-shadow:0 4px 16px rgba(0,0,0,.45),0 0 0 1px rgba(232,192,106,.35);
+  flex-shrink:0;background:#2a0306
+}
+.china-stw-ad-copy{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
+.china-page .china-map-hero h1{
+  font-size:clamp(1.55rem,4.5vw,2.15rem)!important;
+  animation:chinaTitlePulse 2.8s ease-in-out infinite;
+}
+@keyframes chinaTitlePulse{
+  0%,100%{opacity:1;text-shadow:0 0 0 transparent}
+  50%{opacity:.82;text-shadow:0 0 14px rgba(232,192,106,.55)}
+}
+@media (prefers-reduced-motion:reduce){
+  .china-page .china-map-hero h1{animation:none}
+}
+@media (max-width:600px){
+  .china-stw-ad-inner{gap:12px}
+  .china-stw-ad-copy{align-items:flex-start}
+  .china-page{padding-top:92px}
+}
