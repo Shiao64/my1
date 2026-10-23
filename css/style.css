@@ -763,3 +763,45 @@ html{scroll-padding-top:46px}
 /* China Tango Map: smaller title, subtitle removed */
 .china-page .china-map-hero h1{font-size:clamp(1.15rem,3.2vw,1.55rem)!important;margin:0!important;letter-spacing:.02em}
 .china-page .china-map-hero .wrap{padding-top:8px!important;padding-bottom:8px!important}
+
+/* China page: sticky full-width Select Tango ad banner; no hamburger */
+.china-page{padding-top:56px}
+.china-page .china-stw-banner.china-stw-ad{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;
+  width:100%!important;max-width:none!important;margin:0!important;
+  padding:10px 16px;box-sizing:border-box;
+  background:linear-gradient(90deg,#5c0a12 0%,#9e1020 45%,#5c0a12 100%);
+  border-bottom:2px solid var(--gold);
+  text-decoration:none;color:var(--gold-soft);line-height:1.2;
+  box-shadow:0 4px 14px rgba(0,0,0,.35)
+}
+.china-page .china-stw-banner.china-stw-ad:hover{filter:brightness(1.08)}
+.china-stw-ad-title{font-family:var(--serif);font-size:clamp(1.05rem,3.2vw,1.55rem);font-weight:700;letter-spacing:.02em}
+.china-stw-ad-date{font-size:clamp(.9rem,2.4vw,1.15rem);color:#fff;font-weight:600;white-space:nowrap}
+.china-page .site-header .nav-toggle{display:none!important}
+.china-page .site-header .header-menus{
+  display:flex!important;position:static!important;flex-direction:row!important;
+  background:transparent!important;padding:0!important;border:0!important;box-shadow:none!important;
+  margin:0;width:100%;justify-content:space-between;align-items:center
+}
+.china-page .site-header .header-menus .main-nav{
+  display:flex!important;flex-direction:row!important;flex-wrap:wrap;gap:4px!important;
+  position:static!important;background:transparent!important;padding:0!important;border:0!important
+}
+.china-page .site-header .header-menus .main-nav a{font-size:.78rem!important;padding:4px 9px!important;border-radius:999px!important}
+.china-page .m-select-city{min-width:min(100%,280px);font-size:1rem;padding:8px 12px}
+.china-page .m-date-label{display:inline-flex;align-items:center;gap:8px;font-size:.9rem;color:var(--red-dark)}
+@media (max-width:600px){
+  .china-page{padding-top:64px}
+  .china-stw-ad-title,.china-stw-ad-date{text-align:center}
+  .china-page .china-stw-banner.china-stw-ad{flex-direction:column;gap:2px;padding:8px 12px}
+}
+/* China page: keep site header below the fixed STW ad banner */
+.china-page .site-header{position:sticky;top:56px;z-index:90}
+.china-page .china-map-hero{position:relative;z-index:1}
+@media (max-width:600px){
+  .china-page .site-header{top:64px}
+  .china-page .site-header .wrap{height:auto;min-height:40px;padding:6px}
+  .china-page .site-header .header-menus{flex-wrap:wrap;gap:6px}
+}
