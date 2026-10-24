@@ -486,7 +486,10 @@
     "contacts": {
       "wechat_id": "beijingtango",
       "wechat_label": "刘峥"
-    }
+    },
+    "cancelled_dates": [
+      "2026-10-24"
+    ]
   },
   {
     "id": "qKSztbVi",

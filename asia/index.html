@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china130">
+<link rel="stylesheet" href="../css/style.css?v=china131">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -278,7 +278,11 @@
     if (hl) badges += '<span class="china-badge">Our event</span>';
     if (r.status === 'paused') badges += '<span class="china-badge china-badge-paused">Paused</span>';
     else if (r.status === 'venue_change') badges += '<span class="china-badge china-badge-venue">Venue change</span>';
-    return '<li class="ev-card' + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + attrs + '>' +
+    // Cancelled: whole event (status) or one weekly occurrence (cancelled_dates, matched to the upcoming date of that weekday)
+    var cx = r.status === 'cancelled';
+    if (!cx && r.cancelled_dates && r.weekday != null) { var t0 = new Date(); t0.setHours(12,0,0,0); var nx = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + ((r.weekday - t0.getDay() + 7) % 7)); cx = r.cancelled_dates.indexOf(nx.getFullYear() + '-' + pad(nx.getMonth()+1) + '-' + pad(nx.getDate())) !== -1; }
+    var cxBar = cx ? '<div class="china-cancelled-bar">Cancelled 已取消' + (r.status !== 'cancelled' ? ' · this week' : '') + '</div>' : '';
+    return '<li class="ev-card' + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + attrs + '>' + cxBar +
       '<div class="ev-top"><span class="ev-type">' + esc(r.type) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
       '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
@@ -458,7 +462,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china130', {cache: 'no-cache'})
+  fetch('events.json?v=china131', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
