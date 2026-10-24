@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china88">
+<link rel="stylesheet" href="../css/style.css?v=china89">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -219,7 +219,11 @@
       } else { when = 'Day TBA'; attrs += ' data-tba="1"'; }
       if (r.time) body.push(line('Time', esc(r.time)));
     }
-    if (r.venue) body.push(line('Venue', esc(r.venue) + (r.venue_address ? ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>' : '')));
+    if (r.venue) {
+      var addr = r.venue_address ? ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>' : '';
+      var addrEn = r.venue_address_en ? '<div class="china-addr-en">' + esc(r.venue_address_en) + '</div>' : '';
+      body.push(line('Venue', esc(r.venue) + addr + addrEn));
+    }
     body.push(line('City', cityLabel(r)));
     if (r.organizers && r.organizers.length) body.push(line('Organizer', esc(r.organizers.join(', '))));
     return '<li class="ev-card' + (hl ? ' china-stw-highlight' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + attrs + '>' +
@@ -390,7 +394,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china88', {cache: 'no-cache'})
+  fetch('events.json?v=china89', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');

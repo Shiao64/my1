@@ -1371,3 +1371,5 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-suggest-dialog h2{margin:0 28px 16px 0;font-size:1.35rem;color:var(--ink)}
 .china-suggest-x{position:absolute;top:10px;right:12px;border:0;background:transparent;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--muted);padding:4px 8px}
 .china-suggest-x:hover{color:var(--ink)}
+
+.china-addr-en{display:block;margin-top:2px;font-size:.86em;color:var(--muted);font-weight:400;line-height:1.35}

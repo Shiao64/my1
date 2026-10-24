@@ -71,6 +71,22 @@ def links(url, f):
     other = f.get('www') or (url if url and not fb else None)
     return {'facebook': fb, 'video': f.get('vid') or None, 'other': other or None}
 
+# Stable English addresses for Chinese venue_address strings (Asia Tango Map is English UI)
+VENUE_ADDRESS_EN = {
+    "北京市海淀区大钟寺华杰大厦7C2室(大钟寺地铁站B西南口步行400米)": "Room 7C2, Huajie Building, Dazhongsi, Haidian District, Beijing (≈400 m walk from Dazhongsi Metro Exit B, SW)",
+    "北京市朝阳区建外街道东三环中路39号院建外SOHO西区17栋3层301号": "Room 301, 3F, Building 17, Jianwai SOHO West Area, Courtyard 39, East 3rd Ring Middle Road, Jianwai Subdistrict, Chaoyang District, Beijing",
+    "北京市朝阳区新源里16号": "No. 16 Xinyuanli, Chaoyang District, Beijing",
+    "北京市朝阳区东大桥路SOHO·尚都北塔B座3层2320室": "Room 2320, 3F, Tower B North, SOHO Shangdu, Dongdaqiao Road, Chaoyang District, Beijing",
+    "北京市朝阳区亮马河南路18号2层": "2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
+    "北京市海淀区知春路盈都大厦C座3单元18d": "Unit 18D, Tower C, Yingdu Building, Zhichun Road, Haidian District, Beijing",
+    "北京市朝阳区新源里西20号楼": "Building 20, Xinyuanli West, Chaoyang District, Beijing",
+    "北京市东城区东中街58号美惠大厦A座,(一单元203)(一单元203室)": "Room 203, Unit 1, Tower A, Meihui Building, No. 58 Dongzhong Street, Dongcheng District, Beijing",
+    "北京市朝阳区光熙家园2-3号楼之间下沉广场负2楼": "B2, sunken plaza between Buildings 2–3, Guangxi Jiayuan, Chaoyang District, Beijing",
+    "北京市朝阳区广渠门外大街8号": "No. 8 Guangqumen Outer Street, Chaoyang District, Beijing",
+    "金沙湖, Hangzhou": "Jinsha Lake, Hangzhou"
+}
+
+
 def main():
     rows = load_rows(SRC)
     venues = {}
@@ -117,6 +133,8 @@ def main():
                 rec.update(weekday=ds[0], weekdays=ds, time=f'{t1[:2]}:{t1[2:]}–{t2[:2]}:{t2[2:]}')
         else:
             continue  # venues, academies, people and resource lists (e.g. 'milongas de Pekín', milonga.tw) are not listings
+        if rec.get('venue_address') in VENUE_ADDRESS_EN:
+            rec['venue_address_en'] = VENUE_ADDRESS_EN[rec['venue_address']]
         recs.append(rec)
     # Manual additions per owner (kept across weekly updates)
     OVERRIDES = {
