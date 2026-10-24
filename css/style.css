@@ -1420,3 +1420,11 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page .china-filters-compact .china-showall .china-check,.china-page .china-showall .china-check{background:#fff3dc!important;background-color:#fff3dc!important;border:3px solid #e07b00!important}
 .china-page .china-filters-compact .china-showall input:checked + .china-check,.china-page .china-showall input:checked + .china-check{background:#e07b00!important;background-color:#e07b00!important}
 .china-page .china-filters-compact .china-showall .china-check,.china-page .china-showall .china-check{border:1.5px solid #e07b00!important}
+/* china125: bigger Search, subtle show-all helper below */
+.china-page .china-search-btn#china-search{font-size:1.05rem!important;padding:10px 26px!important;min-height:44px!important;border-radius:999px!important}
+.china-page .china-showall-row{flex-basis:100%;width:100%;margin-top:6px}
+.china-page .china-filters-compact .china-showall,.china-page .china-showall{background:transparent!important;border:0!important;box-shadow:none!important;color:#7a6a5a!important;font-weight:400!important;font-size:.72rem!important;padding:0!important;position:static!important;gap:5px}
+.china-page .china-filters-compact .china-showall:has(input:checked){background:transparent!important;color:#5a4a3a!important}
+.china-page .china-filters-compact .china-showall .china-check,.china-page .china-showall .china-check{width:14px!important;height:14px!important;min-width:14px!important;border:1.5px solid #e07b00!important;background:#fff3dc!important}
+.china-page .china-showall input:checked + .china-check{background:#e07b00!important}
+.china-page .china-filters-compact .china-showmode{position:static!important;margin-top:8px!important;flex-basis:100%}
