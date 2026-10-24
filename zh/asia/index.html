@@ -102,8 +102,15 @@
     <form class="china-suggest" id="china-suggest" novalidate>
       <div class="china-suggest-group">
         <label for="suggest-details">活动详情（必填）</label>
-        <textarea id="suggest-details" name="details" class="m-input" rows="10" placeholder="活动名称、城市、日期、大师/DJ/乐手" required>活动名称：&#10;日期：&#10;时间：&#10;城市：&#10;场地：&#10;主办人：&#10;微信：&#10;电话：&#10;活动性质：单次 / 常规&#10;（可选）知名 DJ / 乐手 / 大师：&#10;</textarea>
+        <textarea id="suggest-details" name="details" class="m-input" rows="9" placeholder="活动名称、城市、日期、大师/DJ/乐手" required>活动名称：&#10;日期：&#10;时间：&#10;城市：&#10;场地：&#10;主办人：&#10;微信：&#10;电话：&#10;（可选）知名 DJ / 乐手 / 大师：&#10;</textarea>
         <small class="china-suggest-help">请写明活动名称、日期、时间、城市、场地、主办人、微信、电话、活动性质（单次或常规），以及可选的大师 / DJ / 乐手。</small>
+      </div>
+      <div class="china-suggest-group">
+        <span class="china-suggest-label" id="suggest-kind-label" style="display:block;font-weight:600;margin-bottom:6px">活动性质（必填）</span>
+        <div role="radiogroup" aria-labelledby="suggest-kind-label" style="display:flex;gap:10px;flex-wrap:wrap">
+          <label class="m-chip china-type-check"><input type="radio" name="kind" value="单次" required><span class="china-check" aria-hidden="true"></span> 单次</label>
+          <label class="m-chip china-type-check"><input type="radio" name="kind" value="常规"><span class="china-check" aria-hidden="true"></span> 常规</label>
+        </div>
       </div>
       <div class="china-suggest-group">
         <label for="suggest-email">你的个人邮箱</label>
@@ -209,6 +216,7 @@ window.CHINA_UI = {
   suggestBodyUrl: '活动网站：',
   suggestReplyTo: '回复邮箱：',
   suggestWechat: '微信号：',
+  suggestKind: '活动性质：',
   suggestOrgEmail: '联络邮箱：',
   suggestOrgWechat: '联络微信：'
 };
