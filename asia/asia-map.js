@@ -351,15 +351,18 @@
   var sug=document.getElementById('china-suggest'), sugUrl=document.getElementById('suggest-url'), sugBtn=document.getElementById('suggest-submit'), sugThanks=document.getElementById('suggest-thanks');
   var sugModal=document.getElementById('china-suggest-modal'), sugOpen=document.getElementById('china-suggest-open');
   function sugUrlReq(){ return !!(sugUrl && sugUrl.required); }
-  function sugReady(){ if (sugBtn) sugBtn.disabled = sugUrlReq() && !(sugUrl && sugUrl.value.trim()); }
+  var sugDet=document.getElementById('suggest-details');
+  function sugDetOk(){ if (!sugDet || !sugDet.required) return true; var v=sugDet.value.trim(); return !!v && v!==sugDet.defaultValue.trim(); }
+  function sugReady(){ if (sugBtn) sugBtn.disabled = (sugUrlReq() && !(sugUrl && sugUrl.value.trim())) || !sugDetOk(); }
   function sugShow(on){ if (!sugModal) return; sugModal.hidden=!on; document.body.style.overflow=on?'hidden':''; if (on && sug) setTimeout(function(){ var f=sug.querySelector('.m-input'); if (f) f.focus(); }, 50); }
   if (sugOpen) sugOpen.addEventListener('click', function(){ sugShow(true); });
   document.querySelectorAll('[data-suggest-close]').forEach(function(el){ el.addEventListener('click', function(){ sugShow(false); }); });
   document.addEventListener('keydown', function(e){ if (e.key==='Escape' && sugModal && !sugModal.hidden) sugShow(false); });
+  if (sugDet) sugDet.addEventListener('input', sugReady);
   if (sugUrl) { sugUrl.addEventListener('input', sugReady); sugUrl.addEventListener('change', sugReady); }
   if (sug) sug.addEventListener('submit', function(e){
     e.preventDefault();
-    if (sugUrlReq() && !sugUrl.value.trim()) return;
+    if (sugUrlReq() && !sugUrl.value.trim()) return; if (!sugDetOk()) return;
     var details=(document.getElementById('suggest-details')||{}).value||'';
     var email=(document.getElementById('suggest-email')||{}).value||'';
     var wx=((document.getElementById('suggest-wechat')||{}).value||'').trim();
