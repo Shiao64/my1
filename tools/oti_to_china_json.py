@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Convert OnlyTangoInfo public data (decrypted `var publicEvent=[...]` JS) into china/events.json.
+"""Convert OnlyTangoInfo public data (decrypted `var publicEvent=[...]` JS) into asia/events.json.
 
-Usage: python3 tools/oti_to_china_json.py [/workspace/oti_fresh.js] [china/events.json] [--updated 2026-10-21]
+Usage: python3 tools/oti_to_china_json.py [/workspace/oti_fresh.js] [asia/events.json] [--updated 2026-10-21]
 Read-only with respect to OnlyTangoInfo: this only reads a local dump.
 """
 import json, re, sys, datetime, os
 
 SRC = '/workspace/oti_fresh.js'
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'china', 'events.json')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'asia', 'events.json')
 UPDATED = '2026-10-21'
 args = [a for a in sys.argv[1:]]
 if '--updated' in args:
@@ -106,6 +106,10 @@ def main():
         elif typ in ('milonga', 'practica'):
             t = 'practica' if re.search(r'练习|practica', name, re.I) else typ
             rec.update(kind='weekly', type=t)
+            # Owner rule: one-off items (class, master class, workshop, weekend, marathon, festival,
+            # competition, championship) are Event, never Regular, even if OTI tags them milonga/practica
+            if re.search(r'master\s*class|masterclass|class|workshop|weekend|marathon|festival|competi|championship|课|大师|工作坊|周末|马拉松|节|比赛|锦标赛', name, re.I):
+                rec.update(kind='event', type='class' if re.search(r'class|workshop|课|大师|工作坊', name, re.I) else 'event')
             if fec.startswith('REG.W.'):
                 _, _, dpart, tm = fec.split('.')
                 ds = list(range(*[int(x) + i for i, x in enumerate(dpart.split('-'))])) if '-' in dpart else [int(dpart)]

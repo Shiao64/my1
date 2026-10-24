@@ -21,17 +21,17 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install cryptography
-      - name: Fetch, decrypt and rebuild china/events.json (read-only on OTI)
+      - name: Fetch, decrypt and rebuild asia/events.json (read-only on OTI)
         env:
           OTI_KEY: ${{ secrets.OTI_KEY }}
         run: bash tools/oti_weekly_update.sh
       - name: Commit if changed
         run: |
-          cat china/events-changes.json | head -c 2000; echo
-          if git diff --quiet -- china/events.json china/events-changes.json && [ -z "$(git ls-files --others --exclude-standard china/events-changes.json)" ]; then
+          cat asia/events-changes.json | head -c 2000; echo
+          if git diff --quiet -- asia/events.json asia/events-changes.json && [ -z "$(git ls-files --others --exclude-standard asia/events-changes.json)" ]; then
             echo "No changes."; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
-          git add china/events.json china/events-changes.json
+          git add asia/events.json asia/events-changes.json
           git commit -m "OTI China weekly update $(date -u +%F)"
           git push

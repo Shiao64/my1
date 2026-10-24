@@ -350,7 +350,7 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 }
 /* china-list rules replaced below */
 
-/* ===== China Tango Map: banner + region nav ===== */
+/* ===== Asia Tango Map: banner + region nav ===== */
 .china-stw-banner{
   display:block;text-decoration:none;color:inherit;line-height:0;
   width:clamp(150px,18vw,220px);
@@ -593,7 +593,7 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 .china-region-tile{min-height:0;padding:6px 8px;gap:3px}
 .china-region-icon svg{width:16px;height:16px}
 
-/* China Tango Map button pinned to page's top-left corner */
+/* Asia Tango Map button pinned to page's top-left corner */
 .btn-china-corner{position:absolute;top:4px;left:6px;z-index:60;margin:0;padding:3px 10px;font-size:.72rem}
 @media (max-width:640px){.draft-banner{padding-left:128px}}
 
@@ -614,7 +614,7 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important;background:var(--red-deep);padding:4px 9px}
 @media (max-width:1060px){.draft-banner{padding-left:56px}}
 
-/* top-right: China Tango Map + language switch */
+/* top-right: Asia Tango Map + language switch */
 .top-right-bar{position:absolute;top:4px;right:6px;z-index:60;display:flex;align-items:center;gap:6px}
 .top-right-bar .btn-china{margin:0;padding:3px 10px;font-size:.72rem}
 .top-lang{display:flex;border:1px solid #c9a24a;border-radius:999px;overflow:hidden;background:#fff8e1}
@@ -636,7 +636,7 @@ body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important
 }
 @media (max-width:1060px){.site-header.is-open{z-index:90}}
 
-/* ===== single top row: hamburger/nav left, China Tango Map + 中文/English right ===== */
+/* ===== single top row: hamburger/nav left, Asia Tango Map + 中文/English right ===== */
 .draft-banner{padding:4px 12px!important;text-align:center!important;font-size:.78rem!important}
 .site-header .wrap{max-width:none;padding:0 6px;height:44px!important;gap:6px;justify-content:flex-start}
 .site-header .nav-toggle{position:static!important;order:0;margin:0!important;padding:3px 9px}
@@ -760,7 +760,7 @@ html{scroll-padding-top:46px}
   #prices .grid.g3{gap:12px 8px}
 }
 
-/* China Tango Map: smaller title, subtitle removed */
+/* Asia Tango Map: smaller title, subtitle removed */
 .china-page .china-map-hero h1{font-size:clamp(1.15rem,3.2vw,1.55rem)!important;margin:0!important;letter-spacing:.02em}
 .china-page .china-map-hero .wrap{padding-top:8px!important;padding-bottom:8px!important}
 

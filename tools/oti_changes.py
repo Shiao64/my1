@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write china/events-changes.json: diff between previous and new events.json.
+"""Write asia/events-changes.json: diff between previous and new events.json.
 
 Usage: python3 tools/oti_changes.py OLD.json NEW.json OUT.json [--date YYYY-MM-DD] [--source-updated YYYY-MM-DD]
 Always writes OUT (empty lists if nothing changed).
