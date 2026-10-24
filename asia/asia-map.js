@@ -362,7 +362,8 @@
     if (sugUrlReq() && !sugUrl.value.trim()) return;
     var details=(document.getElementById('suggest-details')||{}).value||'';
     var email=(document.getElementById('suggest-email')||{}).value||'';
-    var body=((sugUrl&&sugUrl.value.trim())?(UI.suggestBodyUrl||'Event website: ')+sugUrl.value.trim()+'\n\n':'')+details.trim()+(email?'\n\n'+(UI.suggestReplyTo||'Reply-to: ')+email:'');
+    var wx=((document.getElementById('suggest-wechat')||{}).value||'').trim();
+    var body=((sugUrl&&sugUrl.value.trim())?(UI.suggestBodyUrl||'Event website: ')+sugUrl.value.trim()+'\n\n':'')+details.trim()+(email?'\n\n'+(UI.suggestReplyTo||'Reply-to: ')+email:'')+(wx?'\n'+(UI.suggestWechat||'WeChat: ')+wx:'');
     var href='mailto:info@tangoweekend.org?subject='+encodeURIComponent(UI.suggestSubject||'Asia Tango Map listing')+'&body='+encodeURIComponent(body);
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
