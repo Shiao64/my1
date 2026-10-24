@@ -381,7 +381,7 @@
     if (wx) data[UI.fsWechat||'WeChat']=wx;
     if (sugUrl&&sugUrl.value.trim()) data[UI.fsUrl||'Event website']=sugUrl.value.trim();
     if (sugBtn) { sugBtn.disabled=true; sugBtn.dataset.t=sugBtn.textContent; sugBtn.textContent=UI.suggestSending||'Sending…'; }
-    fetch('https://formsubmit.co/ajax/info@tangoweekend.org',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+    fetch('https://formsubmit.co/ajax/0edcdf53a60c228d2d0dcabeee65286e',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
       .then(function(r){ return r.json().then(function(j){ if (!r.ok || String(j.success)==='false') throw new Error(j.message||'fail'); }); })
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
