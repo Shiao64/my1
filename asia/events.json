@@ -30,6 +30,106 @@
     "tba": false
   },
   {
+    "id": "manual-bj-milongav-20261020",
+    "kind": "event",
+    "type": "milonga",
+    "name": "Milonga V (探戈会)",
+    "city": "Beijing",
+    "country": "China",
+    "region": "China",
+    "start": "2026-10-20",
+    "end": "2026-10-20",
+    "weekday": null,
+    "weekdays": null,
+    "time": "20:30–23:30",
+    "venue": "白驹 Monoceros",
+    "venue_address": "三元桥京投派商业空间 B2",
+    "venue_address_en": "B2, Jingtoupai Commercial Space, Sanyuanqiao, Beijing",
+    "organizers": [
+      "Liu Zheng",
+      "刘峥"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/tangobeijing",
+      "video": null,
+      "other": null
+    },
+    "status": "venue_change",
+    "note": "Temporary venue change for Tue Oct 20 — 白驹 Monoceros art space, B2, Sanyuanqiao Jingtoupai commercial space.",
+    "source": "manual:wechat-group",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "manual-bj-milongaga-20261024",
+    "kind": "event",
+    "type": "milonga",
+    "name": "Milongaga",
+    "city": "Beijing",
+    "country": "China",
+    "region": "China",
+    "start": "2026-10-24",
+    "end": "2026-10-24",
+    "weekday": null,
+    "weekdays": null,
+    "time": "21:00–02:00",
+    "venue": "Milongaga",
+    "venue_address": "北京市朝阳区新源里西20号楼",
+    "venue_address_en": "Building 20, Xinyuanli West, Chaoyang District, Beijing",
+    "organizers": [
+      "Liu Zheng",
+      "刘峥",
+      "威士忌哥"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/tangobeijing",
+      "video": null,
+      "other": null
+    },
+    "status": "paused",
+    "note": "Paused this Saturday — AS TANGO is hosting a Gaston & Gri performance milonga.",
+    "source": "manual:wechat-group",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "manual-bj-practicav-20261024",
+    "kind": "event",
+    "type": "practica",
+    "name": "Practica V (探戈会VTango)",
+    "city": "Beijing",
+    "country": "China",
+    "region": "China",
+    "start": "2026-10-24",
+    "end": "2026-10-24",
+    "weekday": null,
+    "weekdays": null,
+    "time": "15:30–18:30",
+    "venue": "香河园街道市民活动中心",
+    "venue_address": "北京市朝阳区光熙家园2-3号楼之间下沉广场负2楼（健身/游泳区域）",
+    "venue_address_en": "Xiangheyuan Street Civic Activity Center — B2 sunken plaza between Buildings 2–3, Guangxi Jiayuan (fitness/swimming area), Chaoyang District, Beijing",
+    "organizers": [
+      "Liu Zheng",
+      "刘峥"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/tangobeijing",
+      "video": null,
+      "other": null
+    },
+    "status": null,
+    "note": "Still on this Saturday as announced — 3:30–6:30 PM.",
+    "source": "manual:wechat-group",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
     "id": "tbxuzmah",
     "kind": "event",
     "type": "event",
@@ -140,12 +240,17 @@
       "video": "https://www.youtube.com/watch?v=VIEcgbRa0xE",
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Room 7C2, Huajie Building, Dazhongsi, Haidian District, Beijing (≈400 m walk from Dazhongsi Metro Exit B, SW)"
+    "venue_address_en": "Room 7C2, Huajie Building, Dazhongsi, Haidian District, Beijing (≈400 m walk from Dazhongsi Metro Exit B, SW)",
+    "contacts": {
+      "wechat_id": "Daidai-Ater",
+      "wechat_label": "呆呆",
+      "phone": "13910807512"
+    }
   },
   {
     "id": "DxlAVCru",
@@ -183,7 +288,7 @@
     "id": "vhYvwRzo",
     "kind": "weekly",
     "type": "milonga",
-    "name": "Milonga Bando (Tango Utopia)",
+    "name": "Milonga Sino Chu（Tango Utopia）",
     "city": "Beijing",
     "country": "China",
     "region": "China",
@@ -193,9 +298,9 @@
     "weekdays": [
       5
     ],
-    "time": "21:00–23:00",
-    "venue": "Tango Utopia",
-    "venue_address": "北京市朝阳区新源里16号",
+    "time": "20:30–24:30",
+    "venue": "亮马河红酒屋一层",
+    "venue_address": "北京市亮马河南路18号",
     "organizers": [
       "李松岩"
     ],
@@ -204,12 +309,18 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "No. 16 Xinyuanli, Chaoyang District, Beijing"
+    "venue_address_en": "1F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
+    "contacts": {
+      "phone": "18511200117",
+      "wechat_id": "lisongyan001",
+      "wechat_label": "李松岩",
+      "email": "lisongyan@tangoutopia.club"
+    }
   },
   {
     "id": "eRpBxkDC",
@@ -225,7 +336,7 @@
     "weekdays": [
       6
     ],
-    "time": "20:00–23:00",
+    "time": "20:00–24:00",
     "venue": "AS Tango",
     "venue_address": "北京市朝阳区东大桥路SOHO·尚都北塔B座3层2320室",
     "organizers": [
@@ -237,12 +348,17 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Room 2320, 3F, Tower B North, SOHO Shangdu, Dongdaqiao Road, Chaoyang District, Beijing"
+    "venue_address_en": "Room 2320, 3F, Tower B North, SOHO Shangdu, Dongdaqiao Road, Chaoyang District, Beijing",
+    "contacts": {
+      "phone": "18310598617",
+      "wechat_id": "AllenSimonaTango",
+      "wechat_label": "AS Tango"
+    }
   },
   {
     "id": "NmkWjMxo",
@@ -263,19 +379,24 @@
     "venue_address": "北京市朝阳区亮马河南路18号2层",
     "organizers": [
       "Tango by Ala House",
-      "Rose (로즈)"
+      "Rose (常歌)"
     ],
     "links": {
       "facebook": null,
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing"
+    "venue_address_en": "2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
+    "contacts": {
+      "wechat_id": "Changge_chen",
+      "wechat_label": "Rose / ala_house",
+      "phone": "01085322418"
+    }
   },
   {
     "id": "GxMrByRQ",
@@ -291,9 +412,9 @@
     "weekdays": [
       6
     ],
-    "time": "20:00–23:00",
-    "venue": "Tango Union",
-    "venue_address": "北京市海淀区知春路盈都大厦C座3单元18d",
+    "time": "20:00–24:00",
+    "venue": "Tango Union West",
+    "venue_address": "北京市海淀区知春路盈都大厦C座3单元20A",
     "organizers": [
       "勾陳",
       "叶子"
@@ -303,12 +424,17 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Unit 18D, Tower C, Yingdu Building, Zhichun Road, Haidian District, Beijing"
+    "venue_address_en": "Unit 20A, Tower C, Yingdu Building, Zhichun Road, Haidian District, Beijing",
+    "contacts": {
+      "phone": "18500032123",
+      "wechat_id": "18500032123",
+      "wechat_label": "勾陳/叶子"
+    }
   },
   {
     "id": "GqufXmMX",
@@ -324,8 +450,8 @@
     "weekdays": [
       2
     ],
-    "time": "20:30–23:30",
-    "venue": "探戈会",
+    "time": "20:00–24:00",
+    "venue": "Tango by Ala House",
     "venue_address": "北京市朝阳区亮马河南路18号2层",
     "organizers": [
       "Liu Zheng",
@@ -336,14 +462,14 @@
       "video": "https://www.youtube.com/watch?v=LqmcTeo8tmM",
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
     "venue_address_en": "2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
     "contacts": {
-      "wechat_id": "tangobeijing",
+      "wechat_id": "beijingtango",
       "wechat_label": "探戈会",
       "phone": "13910989820",
       "email": "tangohui@gmail.com"
@@ -364,8 +490,8 @@
       6
     ],
     "time": "21:00–02:00",
-    "venue": "Milongaga",
-    "venue_address": "北京市朝阳区新源里西20号楼",
+    "venue": "金尚源大厦B1瑜伽舞蹈室",
+    "venue_address": "北京市朝阳区新源里西20号楼金尚源大厦B1层瑜伽舞蹈室",
     "organizers": [
       "Liu Zheng",
       "刘峥",
@@ -376,15 +502,15 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Building 20, Xinyuanli West, Chaoyang District, Beijing",
+    "venue_address_en": "B1 Yoga & Dance Studio, Jinshangyuan Building, No. 20 Xinyuanli West, Chaoyang District, Beijing",
     "contacts": {
-      "wechat_id": "tangobeijing",
-      "wechat_label": "探戈会",
+      "wechat_id": "beijingtango",
+      "wechat_label": "探戈会 / whiskyge",
       "phone": "13910989820",
       "email": "tangohui@gmail.com"
     }
@@ -415,12 +541,17 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Room 2320, 3F, Tower B North, SOHO Shangdu, Dongdaqiao Road, Chaoyang District, Beijing"
+    "venue_address_en": "Room 2320, 3F, Tower B North, SOHO Shangdu, Dongdaqiao Road, Chaoyang District, Beijing",
+    "contacts": {
+      "phone": "18310598617",
+      "wechat_id": "AllenSimonaTango",
+      "wechat_label": "AS Tango"
+    }
   },
   {
     "id": "ZicwYUeJ",
@@ -447,12 +578,17 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Room 203, Unit 1, Tower A, Meihui Building, No. 58 Dongzhong Street, Dongcheng District, Beijing"
+    "venue_address_en": "Room 203, Unit 1, Tower A, Meihui Building, No. 58 Dongzhong Street, Dongcheng District, Beijing",
+    "contacts": {
+      "phone": "13260000108",
+      "wechat_id": "nicochangro",
+      "wechat_label": "Nico张研"
+    }
   },
   {
     "id": "AymclBjD",
@@ -469,7 +605,7 @@
       6
     ],
     "time": "15:30–18:30",
-    "venue": "探戈会VTango",
+    "venue": "香河园街道市民活动中心",
     "venue_address": "北京市朝阳区光熙家园2-3号楼之间下沉广场负2楼",
     "organizers": [
       "刘峥"
@@ -479,14 +615,14 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
     "venue_address_en": "B2, sunken plaza between Buildings 2–3, Guangxi Jiayuan, Chaoyang District, Beijing",
     "contacts": {
-      "wechat_id": "tangobeijing",
+      "wechat_id": "beijingtango",
       "wechat_label": "探戈会",
       "phone": "13910989820",
       "email": "tangohui@gmail.com"
@@ -536,14 +672,11 @@
     "end": null,
     "weekday": 1,
     "weekdays": [
-      1,
-      2,
-      3,
-      4
+      1
     ],
     "time": "19:30–22:30",
-    "venue": "Tango Utopia",
-    "venue_address": "北京市朝阳区新源里16号",
+    "venue": "乌托邦探戈俱乐部",
+    "venue_address": "北京市朝阳区新东路琨莎中心3座803室",
     "organizers": [
       "李松岩"
     ],
@@ -552,13 +685,16 @@
       "video": "https://www.youtube.com/watch?v=XwHxUCV4H4w",
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "No. 16 Xinyuanli, Chaoyang District, Beijing",
+    "venue_address_en": "Room 803, Building 3, Kunsha Center, Xindong Road, Chaoyang District, Beijing",
     "contacts": {
+      "phone": "18511200117",
+      "wechat_id": "lisongyan001",
+      "wechat_label": "李松岩",
       "email": "lisongyan@tangoutopia.club"
     }
   },
@@ -576,7 +712,7 @@
     "weekdays": [
       5
     ],
-    "time": "20:00–23:00",
+    "time": "20:00–24:00",
     "venue": "VidaMia俱乐部",
     "venue_address": "北京市东城区东中街58号美惠大厦A座,(一单元203)(一单元203室)",
     "organizers": [
@@ -587,12 +723,17 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Room 203, Unit 1, Tower A, Meihui Building, No. 58 Dongzhong Street, Dongcheng District, Beijing"
+    "venue_address_en": "Room 203, Unit 1, Tower A, Meihui Building, No. 58 Dongzhong Street, Dongcheng District, Beijing",
+    "contacts": {
+      "phone": "13260000108",
+      "wechat_id": "nicochangro",
+      "wechat_label": "Nico张研"
+    }
   },
   {
     "id": "XcPHGeUq",
@@ -619,12 +760,17 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Room 203, Unit 1, Tower A, Meihui Building, No. 58 Dongzhong Street, Dongcheng District, Beijing"
+    "venue_address_en": "Room 203, Unit 1, Tower A, Meihui Building, No. 58 Dongzhong Street, Dongcheng District, Beijing",
+    "contacts": {
+      "phone": "13260000108",
+      "wechat_id": "nicochangro",
+      "wechat_label": "Nico张研"
+    }
   },
   {
     "id": "UiQphCjS",
@@ -640,7 +786,7 @@
     "weekdays": [
       1
     ],
-    "time": "20:00–23:00",
+    "time": "20:00–24:00",
     "venue": "15空间舞蹈生活馆",
     "venue_address": "北京市朝阳区建外街道东三环中路39号院建外SOHO西区17栋3层301号",
     "organizers": [
@@ -651,12 +797,16 @@
       "video": null,
       "other": null
     },
-    "source": "OnlyTangoInfo",
+    "source": "探戈会 VTANGO",
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Room 301, 3F, Building 17, Jianwai SOHO West Area, Courtyard 39, East 3rd Ring Middle Road, Jianwai Subdistrict, Chaoyang District, Beijing"
+    "venue_address_en": "Room 301, 3F, Building 17, Jianwai SOHO West Area, Courtyard 39, East 3rd Ring Middle Road, Jianwai Subdistrict, Chaoyang District, Beijing",
+    "contacts": {
+      "wechat_id": "Beijing15Space",
+      "wechat_label": "Jackie"
+    }
   },
   {
     "id": "SvxneECE",
@@ -1576,5 +1726,153 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false
+  },
+  {
+    "id": "gquWLZ9c",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "TAIFENGO MILONGA",
+    "city": "Beijing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–24:00",
+    "venue": "金尚源大厦B1身心健康工作室",
+    "venue_address": "北京市朝阳区新源里西20号楼金尚源大厦B1层瑜伽舞蹈室",
+    "organizers": [
+      "TAYFUN"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈会 VTANGO",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "venue_address_en": "B1 Yoga & Dance Studio, Jinshangyuan Building, No. 20 Xinyuanli West, Chaoyang District, Beijing",
+    "contacts": {
+      "wechat_id": "taifengo",
+      "wechat_label": "TAIFENGO"
+    }
+  },
+  {
+    "id": "3ISGrHde",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Tango Utopia (练习场)",
+    "city": "Beijing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:30–22:30",
+    "venue": "乌托邦探戈俱乐部",
+    "venue_address": "北京市朝阳区新东路琨莎中心3座803室",
+    "organizers": [
+      "李松岩"
+    ],
+    "links": {
+      "facebook": null,
+      "video": "https://www.youtube.com/watch?v=XwHxUCV4H4w",
+      "other": null
+    },
+    "source": "探戈会 VTANGO",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "venue_address_en": "Room 803, Building 3, Kunsha Center, Xindong Road, Chaoyang District, Beijing",
+    "contacts": {
+      "phone": "18511200117",
+      "wechat_id": "lisongyan001",
+      "wechat_label": "李松岩",
+      "email": "lisongyan@tangoutopia.club"
+    }
+  },
+  {
+    "id": "m0A3Rbyv",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Practica Milonga (Tango Union)",
+    "city": "Beijing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:30–23:30",
+    "venue": "Tango Union West",
+    "venue_address": "北京市海淀区知春路盈都大厦C座3单元20A",
+    "organizers": [
+      "勾陳"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈会 VTANGO",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "venue_address_en": "Unit 20A, Tower C, Yingdu Building, Zhichun Road, Haidian District, Beijing",
+    "contacts": {
+      "phone": "18500032123",
+      "wechat_id": "18500032123",
+      "wechat_label": "勾陳"
+    }
+  },
+  {
+    "id": "1hCBcWaP",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga 玩儿",
+    "city": "Beijing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "20:30–late",
+    "venue": "亮马河红酒屋一层",
+    "venue_address": "北京市亮马河南路18号",
+    "organizers": [
+      "凡凡"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈会 VTANGO",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "venue_address_en": "1F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
+    "contacts": {
+      "phone": "+86 185-1120-011",
+      "wechat_id": "fanfan18180505",
+      "wechat_label": "凡凡"
+    }
   }
 ]

@@ -1388,3 +1388,11 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page .china-contact-note{color:var(--muted);font-weight:500;font-size:.82rem}
 .china-page .china-contact-block a{color:var(--red);text-decoration:none}
 .china-page .china-contact-block a:hover{text-decoration:underline}
+
+/* china94: one-off announcement notes on dated Event cards */
+.china-page .china-announce{margin-top:6px;padding:6px 8px;background:#fff8e6;border-left:3px solid var(--gold);border-radius:0 8px 8px 0;font-size:.88rem;line-height:1.4}
+.china-page .china-announce-paused{background:#fdecee;border-left-color:#941226}
+.china-page .china-badge-paused{background:#941226}
+.china-page .china-badge-venue{background:#0e6e78}
+.china-page .ev-card.china-paused{opacity:.92}
+.china-page .ev-card.china-paused .ev-name{text-decoration:line-through;text-decoration-thickness:1px;opacity:.85}

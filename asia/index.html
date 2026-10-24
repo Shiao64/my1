@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china94">
+<link rel="stylesheet" href="../css/style.css?v=china95">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -78,6 +78,7 @@
 <noscript><p class="note">Listings need JavaScript. Raw data: <a href="events.json">events.json</a></p></noscript>
 <p class="china-empty note china-global-empty" hidden>No listings match these filters.</p>
 <p class="note china-credit">Event data: <a href="https://www.facebook.com/profile.php?id=100093497583670" target="_blank" rel="noopener">TangoWorld by KoKoTango</a> (updated: <span class="china-updated">2026/10/24</span>)</p>
+<p class="note china-credit">Beijing Regular data: 探戈会 VTANGO 北京每周Milonga/Practica日历 (updated 2026/09/23)</p>
 <p class="note china-disclaimer">Not affiliated with OTI; listings may change.</p>
   </div>
 </section>
@@ -251,8 +252,10 @@
       attrs = ' data-dates="' + dates.join(',') + '" data-sort="' + dates[0] + '"' + ((r.end || r.start) < CUTOFF ? ' data-past="1"' : '');
       when = formatRange(r.start, r.end || r.start);
       body.push(line('Dates', when));
+      if (r.time) body.push(line('Time', esc(formatTime12(r.time))));
     } else if (r.kind === 'event') {
       attrs = ' data-always="1" data-tba="1"'; when = 'Dates TBA'; body.push(line('Dates', 'TBA'));
+      if (r.time) body.push(line('Time', esc(formatTime12(r.time))));
     } else {
       attrs = ' data-always="1"';
       var ds = r.weekdays || (r.weekday != null ? [r.weekday] : null);
@@ -268,9 +271,14 @@
     }
     if (r.kind === 'event') body.push(line('City', cityLabel(r)));
     if (r.organizers && r.organizers.length) { var oe = organizersEn(r.organizers); if (oe) body.push(line('Organizer', esc(oe))); }
+    if (r.note) body.push('<div class="ev-line china-announce' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">Note</span> ' + esc(r.note) + '</div>');
     var cb = contactBlock(r); if (cb) body.push(cb);
-    return '<li class="ev-card' + (hl ? ' china-stw-highlight' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + attrs + '>' +
-      '<div class="ev-top"><span class="ev-type">' + esc(r.type) + '</span><span class="ev-when">' + esc(when) + '</span>' + (hl ? '<span class="china-badge">Our event</span>' : '') + '</div>' +
+    var badges = '';
+    if (hl) badges += '<span class="china-badge">Our event</span>';
+    if (r.status === 'paused') badges += '<span class="china-badge china-badge-paused">Paused</span>';
+    else if (r.status === 'venue_change') badges += '<span class="china-badge china-badge-venue">Venue change</span>';
+    return '<li class="ev-card' + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + attrs + '>' +
+      '<div class="ev-top"><span class="ev-type">' + esc(r.type) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
       '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
   function group(title, items, cls){
@@ -437,7 +445,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china94', {cache: 'no-cache'})
+  fetch('events.json?v=china95', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
