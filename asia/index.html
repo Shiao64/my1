@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china120">
+<link rel="stylesheet" href="../css/style.css?v=china121">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -402,13 +402,17 @@
   }
   function scrollToResults(){
     var cd = document.querySelector('.china-chrono');
-    var target = (cd && !cd.hidden) ? cd : (document.querySelector('.china-city-block:not([hidden])') || document.getElementById('china-listings'));
+    var target = (cd && !cd.hidden) ? cd : (document.querySelector('.china-city-block:not([hidden])') || document.querySelector('.china-global-empty:not([hidden])') || document.getElementById('china-listings'));
     if (!target) return;
-    var hdr = document.querySelector('.site-header'), off = (hdr && getComputedStyle(hdr).position === 'sticky') ? hdr.offsetHeight : 0;
-    var y = target.getBoundingClientRect().top + window.pageYOffset - off - 8;
-    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    // subtract every sticky bar on top (site header + the filter/search bar), not just the header
+    var off = 0;
+    ['.site-header', '.china-region-nav'].forEach(function(sel){ var el = document.querySelector(sel); if (el && getComputedStyle(el).position === 'sticky') off = Math.max(off, el.getBoundingClientRect().bottom); });
+    var y = target.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - off - 8;
+    y = Math.max(0, y);
+    try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, y); }
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); // close mobile keyboard / date picker
   }
-  function onSearch(){ flashSearch(); applyFilters(); setTimeout(scrollToResults, 60); }
+  function onSearch(){ flashSearch(); applyFilters(); setTimeout(scrollToResults, 120); }
   // English date display: native date boxes follow the browser/OS language (e.g. 2026年10月24日), so overlay an English label
   function syncDateShow(){
     document.querySelectorAll('.china-date-show').forEach(function(sp){
@@ -454,7 +458,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china120', {cache: 'no-cache'})
+  fetch('events.json?v=china121', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
