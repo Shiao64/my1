@@ -18,6 +18,7 @@
 .china-page .china-hero-bar .china-map-lang{flex:0 0 auto}
 </style>
 <style>.china-page .china-suggest-open{background:#c8102e!important;color:#fff!important;border:1px solid #c8102e!important;border-radius:999px!important;padding:5px 14px!important;font-size:.78rem!important;font-weight:700!important;cursor:pointer!important;box-shadow:0 2px 6px rgba(0,0,0,.25)!important;transition:background .15s,transform .15s!important}.china-page .china-suggest-open:hover{background:#e0213f!important;border-color:#e0213f!important;transform:translateY(-1px)!important;box-shadow:0 4px 10px rgba(0,0,0,.3)!important}</style>
+<style>#china-suggest .china-type-check{cursor:pointer;padding:6px 16px;border:1.5px solid #e2c9a0}#china-suggest .china-type-check input{position:absolute;opacity:0;pointer-events:none}#china-suggest .china-type-check:has(input:checked){background:#C8102E;border-color:#C8102E;color:#fff}</style>
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — 2027/06/18 – 2027/06/22">
@@ -97,17 +98,19 @@
   <div class="china-suggest-backdrop" data-suggest-close></div>
   <div class="china-suggest-dialog" role="dialog" aria-modal="true" aria-labelledby="china-suggest-title">
     <button type="button" class="china-suggest-x" data-suggest-close aria-label="Close">&times;</button>
-    <h2 id="china-suggest-title">Suggest new event</h2>
+    <h2 id="china-suggest-title">Add event</h2>
     <form class="china-suggest" id="china-suggest" novalidate>
       <div class="china-suggest-group">
-        <label for="suggest-url">Event website</label>
-        <input type="url" id="suggest-url" name="url" class="m-input" placeholder="http://..." required>
-        <small class="china-suggest-help">Required</small>
+        <label for="suggest-details">Event details (Required)</label>
+        <textarea id="suggest-details" name="details" class="m-input" rows="10" placeholder="Event name, date, time, city, venue, organizer, WeChat, phone, price" required>Event Name:&#10;Date:&#10;Time:&#10;City:&#10;Venue:&#10;Organizer:&#10;WeChat:&#10;Phone:&#10;Price:&#10;(Optional) Notable DJ / Musician / Maestro:&#10;</textarea>
+        <small class="china-suggest-help">Please include event name, date, time, city, venue, organizer, WeChat, phone, price, and optionally maestro / DJ / musician.</small>
       </div>
       <div class="china-suggest-group">
-        <label for="suggest-details">Event details</label>
-        <textarea id="suggest-details" name="details" class="m-input" rows="5" placeholder="Title, country and city, dates, list of maestros/DJs/musicians">Title:&#10;Dates:&#10;Country, city:&#10;(optional) list of notable DJs/musicians/maestros:&#10;</textarea>
-        <small class="china-suggest-help">Specify the event&rsquo;s title, country and city, start and end dates, and optionally notable maestros/DJs/musicians.</small>
+        <span class="china-suggest-label" id="suggest-kind-label" style="display:block;font-weight:600;margin-bottom:6px">Event Type (Required)</span>
+        <div role="radiogroup" aria-labelledby="suggest-kind-label" style="display:flex;gap:10px;flex-wrap:wrap">
+          <label class="m-chip china-type-check"><input type="radio" name="kind" value="One-time" required><span class="china-check" aria-hidden="true"></span> One-time</label>
+          <label class="m-chip china-type-check"><input type="radio" name="kind" value="Regular"><span class="china-check" aria-hidden="true"></span> Regular</label>
+        </div>
       </div>
       <div class="china-suggest-group">
         <label for="suggest-email">Your personal email</label>
@@ -116,6 +119,16 @@
           <input type="email" id="suggest-email" name="email" class="m-input" placeholder="sample@example.com">
         </div>
         <small class="china-suggest-help">Optional. We&rsquo;ll write you back when the listing is published. We&rsquo;ll never share your email.</small>
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-wechat">WeChat</label>
+        <input type="text" id="suggest-wechat" name="wechat" class="m-input" placeholder="Your WeChat ID">
+        <small class="china-suggest-help">Optional</small>
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-url">Event website</label>
+        <input type="url" id="suggest-url" name="url" class="m-input" placeholder="http://...">
+        <small class="china-suggest-help">Optional</small>
       </div>
       <div class="china-suggest-actions">
         <button type="submit" class="btn m-btn china-search-btn" id="suggest-submit" disabled>Submit</button>
@@ -179,9 +192,11 @@ window.CHINA_UI = {
   refresh: 'Please refresh.',
   suggestSubject: 'Asia Tango Map listing',
   suggestBodyUrl: 'Event website: ',
-  suggestReplyTo: 'Reply-to: '
+  suggestReplyTo: 'Reply-to: ',
+  suggestWechat: 'WeChat: ',
+  suggestKind: 'Event type: '
 };
 </script>
-<script src="asia-map.js?v=china141"></script>
+<script src="asia-map.js?v=china142"></script>
 </body>
 </html>
