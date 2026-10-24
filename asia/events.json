@@ -658,7 +658,12 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "No. 8 Guangqumen Outer Street, Chaoyang District, Beijing"
+    "venue_address_en": "No. 8 Guangqumen Outer Street, Chaoyang District, Beijing",
+    "contacts": {
+      "wechat_id": "lordof◔",
+      "wechat_label": "王萌",
+      "email": "mengtango@live.cn"
+    }
   },
   {
     "id": "qKSztbVi",
