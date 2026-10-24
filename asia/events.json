@@ -2442,5 +2442,227 @@
       "wechat_label": "Love Milonga Club",
       "phone": "18584567650 / 18623646903"
     }
+  },
+  {
+    "id": "7fjbD3jv",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango天津阿根廷探戈俱乐部 Milonga",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:00–18:00",
+    "venue": "如家富瑞玲酒店6层",
+    "venue_address": "天津市河西区徐州道1号如家富瑞玲酒店6层",
+    "organizers": [
+      "修老师"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "18618487888",
+      "wechat_label": "修老师",
+      "phone": "18618487888",
+      "email": "18618487888@163.com"
+    }
+  },
+  {
+    "id": "s041RwRO",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "蒂舞舞蹈工作室 Practica",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "19:30–21:30",
+    "venue": "港湾中心20层",
+    "venue_address": "天津市和平区港湾中心20层",
+    "organizers": [
+      "朱老师",
+      "赵老师"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "蒂舞舞蹈工作室",
+      "wechat_label": "蒂舞舞蹈工作室",
+      "phone": "18622513153 / 15122980551",
+      "email": "176961492@qq.com"
+    }
+  },
+  {
+    "id": "WPYNvSAB",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Red Dance Studio 红舞房 Practica",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "19:00–21:30",
+    "venue": "光荣道109号",
+    "venue_address": "天津市光荣道109号",
+    "organizers": [
+      "安琪/Angel"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_label": "安琪/Angel",
+      "phone": "18522545258",
+      "email": "1368670004@qq.com"
+    }
+  },
+  {
+    "id": "ZwJVD64Z",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Firebird Tango 沙龙会所 Milonga",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–24:00",
+    "venue": "恒华大厦1号楼607",
+    "venue_address": "天津市河西区恒华大厦1号楼607",
+    "organizers": [
+      "Summer夏",
+      "Kevin小钲"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "Summer-Firebird Tango",
+      "wechat_label": "Summer-Firebird Tango",
+      "phone": "13820884942 / 17695615576"
+    }
+  },
+  {
+    "id": "HvDMLBSu",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "津•Tango滨海 (每月第三个周六晚)",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–late",
+    "venue": "于家堡洲际酒店12层健身中心舞蹈室",
+    "venue_address": "天津市滨海新区于家堡洲际酒店12层健身中心舞蹈室",
+    "organizers": [
+      "朱猛"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "津 tango",
+      "wechat_label": "津•Tango滨海",
+      "phone": "18522048186",
+      "email": "176961492@qq.com"
+    }
+  },
+  {
+    "id": "t7TLcmbt",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "第三方舞会 (每月第三个周六)",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–23:00",
+    "venue": "小白楼音乐厅考卡咖啡",
+    "venue_address": "天津市和平区南京路小白楼音乐厅考卡咖啡",
+    "organizers": [
+      "江湖"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13920849123",
+      "wechat_label": "江湖",
+      "phone": "13920849123",
+      "email": "13920849123@139.com"
+    }
   }
 ]
