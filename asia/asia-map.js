@@ -350,36 +350,30 @@
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
   var sug=document.getElementById('china-suggest'), sugUrl=document.getElementById('suggest-url'), sugBtn=document.getElementById('suggest-submit'), sugThanks=document.getElementById('suggest-thanks');
   var sugModal=document.getElementById('china-suggest-modal'), sugOpen=document.getElementById('china-suggest-open');
-  function sugUrlReq(){ return !!(sugUrl && sugUrl.required); }
-  var sugDet=document.getElementById('suggest-details');
-  function sugDetOk(){ if (!sugDet || !sugDet.required) return true; var v=sugDet.value.trim(); return !!v && v!==sugDet.defaultValue.trim(); }
-  function sugKind(){ var r=sug?sug.querySelector('input[name=kind]:checked'):null; return r?r.value:''; }
-  function sugKindOk(){ var any=sug?sug.querySelector('input[name=kind]'):null; return !any || !!sugKind(); }
-  function sugReady(){ if (sugBtn) sugBtn.disabled = (sugUrlReq() && !(sugUrl && sugUrl.value.trim())) || !sugDetOk() || !sugKindOk() || !sugReqOk(); }
-  function sugReqOk(){ if (!sug) return true; var ok=true; Array.prototype.forEach.call(sug.querySelectorAll('input[required]:not([type=radio])'), function(el){ if (!el.value.trim()) ok=false; }); return ok; }
-  if (sug) Array.prototype.forEach.call(sug.querySelectorAll('input[required]:not([type=radio])'), function(el){ el.addEventListener('input', sugReady); });
-  if (sug) Array.prototype.forEach.call(sug.querySelectorAll('input[name=kind]'), function(r){ r.addEventListener('change', sugReady); });
+  function sugReqOk(){ if (!sug) return true; var ok=true; Array.prototype.forEach.call(sug.querySelectorAll('[required]'), function(el){ if (!el.value.trim()) ok=false; }); return ok; }
+  function sugReady(){ if (sugBtn) sugBtn.disabled = !sugReqOk(); }
+  if (sug) { var sugInputs=Array.prototype.slice.call(sug.querySelectorAll('input.m-input'));
+    sugInputs.forEach(function(el,i){ el.addEventListener('input', sugReady); el.addEventListener('change', sugReady);
+      el.addEventListener('keydown', function(e){ if (e.key==='Enter' && !e.isComposing && e.keyCode!==229 && i<sugInputs.length-1) { e.preventDefault(); sugInputs[i+1].focus(); } }); }); }
   function sugShow(on){ if (!sugModal) return; sugModal.hidden=!on; document.body.style.overflow=on?'hidden':''; if (on && sug) setTimeout(function(){ var f=sug.querySelector('.m-input'); if (f) f.focus(); }, 50); }
   if (sugOpen) sugOpen.addEventListener('click', function(){ sugShow(true); });
   document.querySelectorAll('[data-suggest-close]').forEach(function(el){ el.addEventListener('click', function(){ sugShow(false); }); });
   document.addEventListener('keydown', function(e){ if (e.key==='Escape' && sugModal && !sugModal.hidden) sugShow(false); });
-  if (sugDet) sugDet.addEventListener('input', sugReady);
-  if (sugUrl) { sugUrl.addEventListener('input', sugReady); sugUrl.addEventListener('change', sugReady); }
   if (sug) sug.addEventListener('submit', function(e){
     e.preventDefault();
-    if (sugUrlReq() && !sugUrl.value.trim()) return; if (!sugDetOk() || !sugKindOk() || !sugReqOk()) return;
-    var details=(document.getElementById('suggest-details')||{}).value||'';
-    var email=(document.getElementById('suggest-email')||{}).value||'';
+    if (!sugReqOk()) return;
+    var lines=[], data={};
+    Array.prototype.forEach.call(sug.querySelectorAll('.sf-field'), function(el){ var v=el.value.trim(), l=el.getAttribute('data-label'); lines.push(l+(/[\u4e00-\u9fff]/.test(l)?'：':': ')+v); data[l]=v; });
+    var email=((document.getElementById('suggest-email')||{}).value||'').trim();
     var wx=((document.getElementById('suggest-wechat')||{}).value||'').trim();
-    var oe=((document.getElementById('suggest-org-email')||{}).value||'').trim(), ow=((document.getElementById('suggest-org-wechat')||{}).value||'').trim();
-    var body=((sugUrl&&sugUrl.value.trim())?(UI.suggestBodyUrl||'Event website: ')+sugUrl.value.trim()+'\n\n':'')+(sugKind()?(UI.suggestKind||'Type: ')+sugKind()+'\n':'')+details.trim()+(email?'\n\n'+(UI.suggestReplyTo||'Reply-to: ')+email:'')+(wx?'\n'+(UI.suggestWechat||'WeChat: ')+wx:'')+(oe?'\n'+(UI.suggestOrgEmail||'Contact email: ')+oe:'')+(ow?'\n'+(UI.suggestOrgWechat||'Contact WeChat: ')+ow:'');
+    var url=(sugUrl&&sugUrl.value.trim())||'';
+    var body=lines.join('\n')+'\n\n'+(UI.suggestReplyTo||'Your email: ')+email+'\n'+(UI.suggestWechat||'Your WeChat ID: ')+wx+'\n'+(UI.suggestBodyUrl||'Event website: ')+url;
     var subj=UI.suggestSubject||'Asia Tango Map listing';
     var href='mailto:info@tangoweekend.org?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
-    var data={_subject:subj,_template:'box',_captcha:'false',message:body};
-    data[UI.fsKind||'Event type']=sugKind(); data[UI.fsDetails||'Event details']=details.trim();
-    if (email.trim()) { data.email=email.trim(); data._replyto=email.trim(); data._autoresponse=UI.suggestAutoReply||'Thanks! We received your Asia Tango Map listing and will reply when it is published. — tangoweekend.org'; }
-    if (wx) data[UI.fsWechat||'WeChat']=wx;
-    if (sugUrl&&sugUrl.value.trim()) data[UI.fsUrl||'Event website']=sugUrl.value.trim();
+    data._subject=subj; data._template='box'; data._captcha='false';
+    data[UI.fsEmail||'Your email']=email;
+    if (email) { data.email=email; data._replyto=email; data._autoresponse=UI.suggestAutoReply||'Thanks! We received your Asia Tango Map listing and will reply when it is published. — tangoweekend.org'; }
+    data[UI.fsWechat||'Your WeChat ID']=wx; data[UI.fsUrl||'Event website']=url;
     if (sugBtn) { sugBtn.disabled=true; sugBtn.dataset.t=sugBtn.textContent; sugBtn.textContent=UI.suggestSending||'Sending…'; }
     fetch('https://formsubmit.co/ajax/0edcdf53a60c228d2d0dcabeee65286e',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
       .then(function(r){ return r.json().then(function(j){ if (!r.ok || String(j.success)==='false') throw new Error(j.message||'fail'); }); })

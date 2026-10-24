@@ -18,7 +18,30 @@
 .china-page .china-hero-bar .china-map-lang{flex:0 0 auto}
 </style>
 <style>.china-page .china-suggest-open{background:#c8102e!important;color:#fff!important;border:1px solid #c8102e!important;border-radius:999px!important;padding:5px 14px!important;font-size:.78rem!important;font-weight:700!important;cursor:pointer!important;box-shadow:0 2px 6px rgba(0,0,0,.25)!important;transition:background .15s,transform .15s!important}.china-page .china-suggest-open:hover{background:#e0213f!important;border-color:#e0213f!important;transform:translateY(-1px)!important;box-shadow:0 4px 10px rgba(0,0,0,.3)!important}</style>
-<style>#china-suggest .china-type-check{cursor:pointer;padding:6px 16px;border:1.5px solid #e2c9a0}#china-suggest .china-type-check input{position:absolute;opacity:0;pointer-events:none}#china-suggest .china-type-check:has(input:checked){background:#C8102E;border-color:#C8102E;color:#fff}</style>
+<style>
+/* china145: Add event popup restyled to Asia map teal/cream palette */
+#china-suggest-modal .china-suggest-backdrop{background:rgba(6,51,58,.6)}
+#china-suggest-modal .china-suggest-dialog{background:#fbf5e9;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:18px 18px 16px;max-width:520px;box-shadow:0 16px 48px rgba(6,51,58,.35)}
+#china-suggest-modal h2{font-family:var(--serif);color:#0a4f57;font-size:1.3rem;margin:0 30px 6px 0}
+#china-suggest-modal .china-suggest-x{color:#7a6255}#china-suggest-modal .china-suggest-x:hover{color:#0a4f57}
+#china-suggest-modal .china-suggest-intro{margin:0 0 12px;padding:8px 10px;background:#fff;border:1px solid #ead9b8;border-left:3px solid #0e6e78;border-radius:8px;font-size:.86rem;line-height:1.45;color:#2a1a14}
+#china-suggest-modal .china-suggest-group{margin:0 0 9px;min-width:0}
+#china-suggest-modal .china-suggest-group label{font-size:.84rem;font-weight:700;color:#0a4f57;margin:0 0 3px;line-height:1.3}
+#china-suggest-modal .china-suggest-group label .req{color:#c8102e;font-weight:600}
+#china-suggest-modal .china-suggest-group label .opt{color:#7a6255;font-weight:500}
+#china-suggest-modal .m-input{min-height:38px;padding:6px 10px;border:1px solid #ead9b8;border-radius:8px;background:#fff;color:#2a1a14;font-size:16px;width:100%;box-sizing:border-box}
+#china-suggest-modal .m-input::placeholder{color:#a8968a}
+#china-suggest-modal .m-input:focus{outline:none;border-color:#0e6e78;box-shadow:0 0 0 3px rgba(14,110,120,.18)}
+#china-suggest-modal .china-suggest-note{margin:14px 0 6px;padding-top:10px;border-top:1px dashed #ead9b8;font-size:.84rem;color:#2a1a14;line-height:1.45}
+#china-suggest-modal .china-suggest-row{display:flex;gap:10px;flex-wrap:wrap}
+#china-suggest-modal .china-suggest-row .china-suggest-group{flex:1 1 170px}
+#china-suggest-modal .china-suggest-at{background:#f6e3b4;border-color:#ead9b8;color:#0a4f57;padding:0 10px;border-radius:8px 0 0 8px}
+#china-suggest-modal .china-suggest-email .m-input{border-radius:0 8px 8px 0;min-width:0}
+#china-suggest-modal .china-suggest-actions{margin-top:12px}
+#china-suggest-modal #suggest-submit{width:100%;min-height:44px;border-radius:999px;font-size:1rem;background:#0e6e78!important;color:#f6e3b4!important;border:1px solid #e8c06a!important}
+#china-suggest-modal #suggest-submit:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
+@media (max-width:560px){#china-suggest-modal{padding:10px}#china-suggest-modal .china-suggest-dialog{padding:14px 14px 12px;max-height:94vh}}
+</style>
 </head>
 <body class="china-page">
 <a class="china-stw-banner china-stw-ad" href="../" aria-label="Select Tango Weekend — 2027/06/18 – 2027/06/22">
@@ -100,35 +123,64 @@
     <button type="button" class="china-suggest-x" data-suggest-close aria-label="Close">&times;</button>
     <h2 id="china-suggest-title">Add event</h2>
     <form class="china-suggest" id="china-suggest" novalidate>
+      <p class="china-suggest-intro">Please state one-time or regular; for regular, give the frequency, e.g. weekly or monthly.</p>
       <div class="china-suggest-group">
-        <label for="suggest-details">Event details (Required)</label>
-        <textarea id="suggest-details" name="details" class="m-input" rows="10" placeholder="Event name, date, time, city, venue, organizer, WeChat, phone, price" required>Event Name:&#10;Date:&#10;Time:&#10;City:&#10;Venue:&#10;Organizer:&#10;WeChat:&#10;Phone:&#10;Price:&#10;(Optional) Notable DJ / Musician / Maestro:&#10;</textarea>
-        <small class="china-suggest-help">Please include event name, date, time, city, venue, organizer, WeChat, phone, price, and optionally maestro / DJ / musician.</small>
+        <label for="sf-name">Event name<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-name" class="m-input sf-field" data-label="Event name" required>
       </div>
       <div class="china-suggest-group">
-        <span class="china-suggest-label" id="suggest-kind-label" style="display:block;font-weight:600;margin-bottom:6px">Event Type (Required)</span>
-        <div role="radiogroup" aria-labelledby="suggest-kind-label" style="display:flex;gap:10px;flex-wrap:wrap">
-          <label class="m-chip china-type-check"><input type="radio" name="kind" value="One-time" required><span class="china-check" aria-hidden="true"></span> One-time</label>
-          <label class="m-chip china-type-check"><input type="radio" name="kind" value="Regular"><span class="china-check" aria-hidden="true"></span> Regular</label>
-        </div>
+        <label for="sf-date">Date<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-date" class="m-input sf-field" data-label="Date" required>
       </div>
       <div class="china-suggest-group">
-        <label for="suggest-email">Your personal email</label>
+        <label for="sf-time">Time<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-time" class="m-input sf-field" data-label="Time" required>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-city">City<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-city" class="m-input sf-field" data-label="City" required>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-venue">Venue<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-venue" class="m-input sf-field" data-label="Venue" required>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-org">Organizer<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-org" class="m-input sf-field" data-label="Organizer" required>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-owx">WeChat<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-owx" class="m-input sf-field" data-label="WeChat" required>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-phone">Phone<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-phone" class="m-input sf-field" data-label="Phone" required>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-price">Price<span class="req"> (Required)</span></label>
+        <input type="text" id="sf-price" class="m-input sf-field" data-label="Price" required>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-dj">Notable DJ / Musician / Maestro<span class="opt"> (Optional)</span></label>
+        <input type="text" id="sf-dj" class="m-input sf-field" data-label="Notable DJ / Musician / Maestro">
+      </div>
+      <p class="china-suggest-note">We&rsquo;ll reply when the listing is published and never share your email or WeChat ID.</p>
+      <div class="china-suggest-row">
+      <div class="china-suggest-group">
+        <label for="suggest-email">Your email<span class="req"> (Required)</span></label>
         <div class="china-suggest-email">
           <span class="china-suggest-at" aria-hidden="true">@</span>
-          <input type="email" id="suggest-email" name="email" class="m-input" placeholder="sample@example.com">
+          <input type="email" id="suggest-email" name="email" class="m-input" placeholder="sample@example.com" required>
         </div>
-        <small class="china-suggest-help">Optional. We&rsquo;ll write you back when the listing is published. We&rsquo;ll never share your email.</small>
       </div>
       <div class="china-suggest-group">
-        <label for="suggest-wechat">WeChat</label>
-        <input type="text" id="suggest-wechat" name="wechat" class="m-input" placeholder="Your WeChat ID">
-        <small class="china-suggest-help">Optional</small>
+        <label for="suggest-wechat">Your WeChat ID<span class="req"> (Required)</span></label>
+        <input type="text" id="suggest-wechat" name="wechat" class="m-input" placeholder="Your WeChat ID" required>
+      </div>
       </div>
       <div class="china-suggest-group">
-        <label for="suggest-url">Event website</label>
+        <label for="suggest-url">Event website<span class="opt"> (Optional)</span></label>
         <input type="url" id="suggest-url" name="url" class="m-input" placeholder="http://...">
-        <small class="china-suggest-help">Optional</small>
       </div>
       <div class="china-suggest-actions">
         <button type="submit" class="btn m-btn china-search-btn" id="suggest-submit" disabled>Submit</button>
@@ -192,11 +244,11 @@ window.CHINA_UI = {
   refresh: 'Please refresh.',
   suggestSubject: 'Asia Tango Map listing',
   suggestBodyUrl: 'Event website: ',
-  suggestReplyTo: 'Reply-to: ',
-  suggestWechat: 'WeChat: ',
-  suggestKind: 'Event type: '
+  suggestWechat: 'Your WeChat ID: ',
+  suggestReplyTo: 'Your email: ',
+  fsEmail: 'Your email', fsWechat: 'Your WeChat ID', fsUrl: 'Event website'
 };
 </script>
-<script src="asia-map.js?v=china144"></script>
+<script src="asia-map.js?v=china145"></script>
 </body>
 </html>
