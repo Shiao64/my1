@@ -366,7 +366,8 @@
     var details=(document.getElementById('suggest-details')||{}).value||'';
     var email=(document.getElementById('suggest-email')||{}).value||'';
     var wx=((document.getElementById('suggest-wechat')||{}).value||'').trim();
-    var body=((sugUrl&&sugUrl.value.trim())?(UI.suggestBodyUrl||'Event website: ')+sugUrl.value.trim()+'\n\n':'')+details.trim()+(email?'\n\n'+(UI.suggestReplyTo||'Reply-to: ')+email:'')+(wx?'\n'+(UI.suggestWechat||'WeChat: ')+wx:'');
+    var oe=((document.getElementById('suggest-org-email')||{}).value||'').trim(), ow=((document.getElementById('suggest-org-wechat')||{}).value||'').trim();
+    var body=((sugUrl&&sugUrl.value.trim())?(UI.suggestBodyUrl||'Event website: ')+sugUrl.value.trim()+'\n\n':'')+details.trim()+(email?'\n\n'+(UI.suggestReplyTo||'Reply-to: ')+email:'')+(wx?'\n'+(UI.suggestWechat||'WeChat: ')+wx:'')+(oe?'\n'+(UI.suggestOrgEmail||'Contact email: ')+oe:'')+(ow?'\n'+(UI.suggestOrgWechat||'Contact WeChat: ')+ow:'');
     var href='mailto:info@tangoweekend.org?subject='+encodeURIComponent(UI.suggestSubject||'Asia Tango Map listing')+'&body='+encodeURIComponent(body);
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
