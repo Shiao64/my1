@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china135">
+<link rel="stylesheet" href="../css/style.css?v=china136">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -177,17 +177,23 @@
   var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var DAYF = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   // Monthly sessions (nth: 1-5 = Nth weekday of month, -1 = last): show only when the upcoming date is that week
+  // Base date for Regular: the From date if chosen, else today
+  function baseDate(){
+    var f = document.getElementById('china-from'), v = f && f.value;
+    var t = v ? new Date(+v.slice(0,4), +v.slice(5,7)-1, +v.slice(8,10)) : new Date(); t.setHours(12,0,0,0); return t;
+  }
+  function occISO(wd){ var t = baseDate(), n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((wd - t.getDay() + 7) % 7)); return n.getFullYear() + '-' + pad(n.getMonth()+1) + '-' + pad(n.getDate()); }
   function nthOk(r){
     if (!r.nth) return true;
-    var t = new Date(); t.setHours(12,0,0,0);
+    var t = baseDate();
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((r.weekday - t.getDay() + 7) % 7));
     var k = Math.floor((n.getDate() - 1) / 7) + 1;
     if (r.nth === -1) return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth();
     return k === r.nth;
   }
   function weekdayHead(d){
-    var t = new Date(); t.setHours(12,0,0,0);
-    var add = (d - t.getDay() + 7) % 7; // next occurrence, today first
+    var t = baseDate();
+    var add = (d - t.getDay() + 7) % 7; // next occurrence, base date first
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + add);
     return DAYF[d] + ' ' + (n.getMonth()+1) + '/' + n.getDate();
   }
@@ -289,9 +295,9 @@
     else if (r.status === 'venue_change') badges += '<span class="china-badge china-badge-venue">Venue change</span>';
     // Cancelled: whole event (status) or one weekly occurrence (cancelled_dates, matched to the upcoming date of that weekday)
     var cx = r.status === 'cancelled';
-    if (!cx && r.cancelled_dates && r.weekday != null) { var t0 = new Date(); t0.setHours(12,0,0,0); var nx = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + ((r.weekday - t0.getDay() + 7) % 7)); cx = r.cancelled_dates.indexOf(nx.getFullYear() + '-' + pad(nx.getMonth()+1) + '-' + pad(nx.getDate())) !== -1; }
+    if (!cx && r.cancelled_dates && r.weekday != null) { var t0 = baseDate(); var nx = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + ((r.weekday - t0.getDay() + 7) % 7)); cx = r.cancelled_dates.indexOf(nx.getFullYear() + '-' + pad(nx.getMonth()+1) + '-' + pad(nx.getDate())) !== -1; }
     var cxBar = cx ? '<div class="china-cancelled-bar">Cancelled 已取消' + (r.status !== 'cancelled' ? ' · this week' : '') + '</div>' : '';
-    return '<li class="ev-card' + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + attrs + '>' + cxBar +
+    return '<li class="ev-card' + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar +
       '<div class="ev-top"><span class="ev-type">' + esc(r.type) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
       '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
@@ -330,7 +336,7 @@
       var sched = wk.filter(function(r){ return r.weekday != null && nthOk(r); }), nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
         h.push('<h3 class="china-sub-head china-weekly-head">Weekly milongas &amp; practicas</h3>');
-        [0,1,2,3,4,5,6].map(function(i){ return (new Date().getDay() + i) % 7; }).forEach(function(d){
+        [0,1,2,3,4,5,6].map(function(i){ return (baseDate().getDay() + i) % 7; }).forEach(function(d){
           h.push(group(weekdayHead(d), sched.filter(function(r){ return r.weekday === d; }).sort(function(a,b){ return (a.time||'') < (b.time||'') ? -1 : 1; }), 'china-day'));
         });
         h.push(group('Day TBA', nos, 'china-day'));
@@ -353,7 +359,7 @@
   function checkedTypes(){ return Array.prototype.map.call(document.querySelectorAll('input[name="etype"]:checked'), function(el){ return el.value; }); }
   function itemMatchesDate(li){
     var all = showAll();
-    if (li.getAttribute('data-kind') === 'weekly') return true; // Regular: weekly calendar, Day-TBA listed last in each city
+    if (li.getAttribute('data-kind') === 'weekly') { var oc = li.getAttribute('data-occ'), rr = activeRange(); return !(oc && rr && oc > rr[1]); } // weekly: 7 days from the From date, cut at To // Regular: weekly calendar, Day-TBA listed last in each city
     if (!all && (li.getAttribute('data-tba') === '1' || li.getAttribute('data-past') === '1')) return false; // default view: no TBA, no past
     if (li.getAttribute('data-always') === '1') return true; // weekly (+ TBA when Show all) pass date filter
     var dates = (li.getAttribute('data-dates') || '').split(',').filter(Boolean);
@@ -444,7 +450,7 @@
     try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, y); }
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); // close mobile keyboard / date picker
   }
-  function onSearch(){ flashSearch(); applyFilters(); setTimeout(scrollToResults, 120); }
+  function onSearch(){ flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); }
   // English date display: native date boxes follow the browser/OS language (e.g. 2026年10月24日), so overlay an English label
   function syncDateShow(){
     document.querySelectorAll('.china-date-show').forEach(function(sp){
@@ -490,7 +496,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china135', {cache: 'no-cache'})
+  fetch('events.json?v=china136', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
@@ -499,7 +505,7 @@
       data = data.filter(function(r){ return !r.hidden; });  // owner-hidden entries never shown
       if (citySel) { var have = {}; Array.prototype.forEach.call(citySel.options, function(o){ have[o.value] = 1; });
         data.forEach(function(r){ var id = cityId(r.city); if (!have[id]) { have[id] = 1; var o = document.createElement('option'); o.value = id; o.textContent = r.city; citySel.appendChild(o); } }); }
-      render(data); applyFilters(); })
+      window._chinaData = data; render(data); applyFilters(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">Could not load listings (' + esc(err.message) + '). Please refresh.</p>'; });
 })();
 </script>
