@@ -1412,3 +1412,5 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 /* Suggest event: low-key small button */
 .china-page .china-suggest-open{background:transparent!important;color:rgba(243,217,201,.85)!important;border:1px solid rgba(243,217,201,.45)!important;box-shadow:none!important;font-weight:600!important;font-size:.68rem!important;padding:3px 9px!important}
 .china-page .china-suggest-open:hover{background:rgba(255,255,255,.12)!important;color:#fff!important;border-color:rgba(255,255,255,.7)!important;box-shadow:none!important}
+.china-page .china-showall .china-check{width:16px!important;height:16px!important;min-width:16px!important;border:2.5px solid #e07b00!important;background:#fff8ec!important}
+.china-page .china-showall input:checked + .china-check{background:#e07b00!important;border-color:#e07b00!important}
