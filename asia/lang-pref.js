@@ -1,6 +1,8 @@
 /* Asia Tango Map language preference + auto-detect.
    localStorage asiaMapLang = 'en' | 'zh'
-   Any zh* browser locale (incl. zh-TW/zh-HK/zh-Hant) → Simplified Chinese page.
+   No saved preference:
+     - any zh* browser locale (incl. zh-TW/zh-HK/zh-Hant) → Simplified Chinese
+     - otherwise → English
    Explicit switch click saves preference and wins over auto-detect. */
 (function () {
   var KEY = 'asiaMapLang';
@@ -46,7 +48,7 @@
       return;
     }
   } else if (page === 'zh') {
-    if (pref === 'en') {
+    if (pref === 'en' || (!pref && !isZhBrowser())) {
       location.replace(enUrl);
       return;
     }
