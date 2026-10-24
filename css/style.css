@@ -1301,7 +1301,7 @@ body.china-page > .nav-toggle{
 .china-page .ev-card.china-stw-highlight{border:2px solid var(--gold);background:linear-gradient(135deg,#fff8e6,#fff);box-shadow:0 0 0 3px rgba(201,162,39,.18)}
 .china-page .china-badge{font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;background:var(--red);color:#fff;border-radius:999px;padding:2px 8px}
 .china-page .china-credit,
-.china-page .china-disclaimer{text-align:left;margin-bottom:0;line-height:1.4}
+.china-page .china-disclaimer{text-align:left;margin-bottom:0;line-height:1.4;font-size:.78rem}
 .china-page .china-credit{margin-top:18px}
 .china-page .china-credit + .china-credit,
 .china-page .china-credit + .china-disclaimer{margin-top:8px}
