@@ -4173,5 +4173,404 @@
       "phone": "18553533677",
       "email": "18553533677@163.com"
     }
+  },
+  {
+    "id": "77AqVERs",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "IN TANGO 西安印探戈俱乐部 Milonga",
+    "city": "Xi-an",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:30–23:30",
+    "venue": "悦熙广场3-513",
+    "venue_address": "西安市雁塔区太白南路天地源·悦熙广场3-513室",
+    "organizers": [
+      "Juli"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "XianTango",
+      "wechat_label": "IN TANGO",
+      "phone": "18192099126",
+      "email": "1243650452@qq.com"
+    }
+  },
+  {
+    "id": "07g7YHFm",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango Sang 探戈·桑 Milonga",
+    "city": "Xi-an",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–00:00",
+    "venue": "海星未来城1号楼1929",
+    "venue_address": "西安市雁塔区海星未来城1号楼1929室",
+    "organizers": [
+      "Jezebel"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "Noble-Savage",
+      "wechat_label": "Tango Sang",
+      "phone": "13474127916",
+      "email": "kemeng@hotmail.co.za"
+    }
+  },
+  {
+    "id": "K6lWt4vW",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "More Tango 练习场",
+    "city": "Xi-an",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "19:30–23:00",
+    "venue": "悦熙广场3-513",
+    "venue_address": "西安市雁塔区太白南路71号天地源·悦熙广场3号楼513室",
+    "organizers": [
+      "徐老师",
+      "虎鸣白鹿"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "18612308860 / 18602960322",
+      "wechat_label": "徐老师"
+    }
+  },
+  {
+    "id": "30SjdikE",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "玫瑰阿根廷探戈 Milonga",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:30–24:00",
+    "venue": "蓉国府B1-29",
+    "venue_address": "成都市人民南路四段12号蓉国府B1-29号",
+    "organizers": [
+      "Rosa"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "http://www.cdrosetango.com"
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "13981961961",
+      "email": "364883587@qq.com",
+      "wechat_label": "玫瑰"
+    }
+  },
+  {
+    "id": "CErapJQ8",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Leilei Tango Milonga",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–23:30",
+    "venue": "保利中心C座808",
+    "venue_address": "成都市武侯区锦绣路1号保利中心c座808",
+    "organizers": [
+      "雷雷"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "leileileilei23leilei",
+      "wechat_label": "leileitango",
+      "phone": "13438185329"
+    }
+  },
+  {
+    "id": "9n14g2Wh",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Leilei Tango Practica",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "15:00–17:30",
+    "venue": "保利中心C座808",
+    "venue_address": "成都市武侯区锦绣路1号保利中心c座808",
+    "organizers": [
+      "雷雷"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "leileileilei23leilei",
+      "wechat_label": "leileitango",
+      "phone": "13438185329"
+    }
+  },
+  {
+    "id": "uklw0xfX",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Inspiración Tango Club Milonga Inssa",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "21:00–01:00",
+    "venue": "保利星座3栋611",
+    "venue_address": "成都市高新南区荣华南路366号保利星座3栋611室",
+    "organizers": [
+      "Dahai"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "18583630466",
+      "wechat_label": "Dahai"
+    }
+  },
+  {
+    "id": "wouH6xCJ",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "TangoWay Milonga",
+    "city": "Hangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:30–23:30",
+    "venue": "诚信大厦1404",
+    "venue_address": "杭州市建国北路236号诚信大厦1404室",
+    "organizers": [
+      "Aeon"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "aeonwb",
+      "wechat_label": "hztangoway",
+      "phone": "13989483394"
+    }
+  },
+  {
+    "id": "ekVooaxd",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "InTango Milonga",
+    "city": "Hangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:30–23:30",
+    "venue": "凤起路75号303",
+    "venue_address": "杭州市凤起路75号303室",
+    "organizers": [
+      "Emily"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13806520885",
+      "wechat_label": "intango",
+      "phone": "13806520885"
+    }
+  },
+  {
+    "id": "MdkgHRGP",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Vamos Tango 万姿 Milonga",
+    "city": "Hangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "21:00–23:30",
+    "venue": "百大绿城西子国际B座904",
+    "venue_address": "浙江省杭州市上城区百大绿城西子国际B座904",
+    "organizers": [
+      "Lily Jiang"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "15658118111",
+      "wechat_label": "Vamos",
+      "phone": "15658118111",
+      "email": "jianglili198303@163.com"
+    }
+  },
+  {
+    "id": "BA4FnXmq",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango π Club Milonga",
+    "city": "Ningbo",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–22:00",
+    "venue": "环宇城B座 L3-M-18",
+    "venue_address": "宁波环宇城B座3楼L3-M-18",
+    "organizers": [
+      "蓉姐"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13600620412",
+      "wechat_label": "蓉姐",
+      "phone": "13600620412",
+      "email": "1132714304@qq.com"
+    }
   }
 ]
