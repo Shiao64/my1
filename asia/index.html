@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china84">
+<link rel="stylesheet" href="../css/style.css?v=china85">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -76,7 +76,7 @@
 <div id="china-listings" aria-live="polite"><p class="note">Loading listings…</p></div>
 <noscript><p class="note">Listings need JavaScript. Raw data: <a href="events.json">events.json</a></p></noscript>
 <p class="china-empty note china-global-empty" hidden>No listings match these filters.</p>
-<p class="note china-credit">Event data: OnlyTangoInfo (updated <span class="china-updated">Oct 21, 2026</span>) · <a href="events.json">events.json</a></p>
+<p class="note china-credit">Event data: <a href="https://www.facebook.com/profile.php?id=100093497583670" target="_blank" rel="noopener">TangoWorld by KoKoTango</a> (updated: <span class="china-updated">2026/10/24</span>)</p>
   </div>
 </section>
 <section id="contact-china" class="alt">
@@ -99,7 +99,7 @@
       </div>
       <div class="china-contact-card">
         <h3>Event data</h3>
-        <p class="note">China, Hong Kong &amp; Taiwan listings imported from OnlyTangoInfo public data (updated <span class="china-updated">Oct 21, 2026</span>). Organizer contacts on each card when available; missing fields stay blank.</p>
+        <p class="note">China, Hong Kong &amp; Taiwan listings from <a href="https://www.facebook.com/profile.php?id=100093497583670" target="_blank" rel="noopener">TangoWorld by KoKoTango</a> (updated: <span class="china-updated">2026/10/24</span>). Organizer contacts on each card when available; missing fields stay blank.</p>
       </div>
     </div>
   </div>
@@ -112,7 +112,7 @@
       <a class="btn btn-gold" href="mailto:info@tangoweekend.org?subject=Asia%20Tango%20Map%20listing">info@tangoweekend.org</a>
       <a class="btn btn-ghost" href="../">Select Tango Weekend</a>
     </div>
-    <p class="note" style="margin-top:22px">Event data: OnlyTangoInfo (updated <span class="china-updated">Oct 21, 2026</span>). Not affiliated with OTI; listings may change.</p>
+    <p class="note" style="margin-top:22px">Event data: <a href="https://www.facebook.com/profile.php?id=100093497583670" target="_blank" rel="noopener">TangoWorld by KoKoTango</a> (updated: <span class="china-updated">2026/10/24</span>). Listings may change.</p>
   </div>
 </section>
 <footer id="contact">
@@ -120,7 +120,7 @@
     <div class="cols">
       <div><h4>Contact</h4><p>Email: <a href="mailto:info@tangoweekend.org">info@tangoweekend.org</a></p></div>
       <div><h4>Select Tango Weekend</h4><p><a href="../">tangoweekend.org</a> · 2027/06/18 – 2027/06/22</p></div>
-      <div><h4>Asia Tango Map</h4><p>From OnlyTangoInfo</p></div>
+      <div><h4>Asia Tango Map</h4><p>From TangoWorld by KoKoTango</p></div>
     </div>
     <p class="copy">© Select Tango Weekend · Asia Tango Map</p>
   </div>
@@ -354,7 +354,7 @@
   }); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china84', {cache: 'no-cache'})
+  fetch('events.json?v=china85', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
