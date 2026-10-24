@@ -55,9 +55,9 @@
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + add);
     return DAYF[d] + ' ' + (n.getMonth()+1) + '/' + n.getDate();
   }
-  var CITY_ORDER = ['Beijing','Shanghai','Chongqing','Tianjin','Hong Kong','Guangzhou','Shenzhen','Xiamen','Zhongshan','Zhuhai','Haikou','Zhengzhou','Wuhan','Nanjing','Suzhou','Shenyang','Dalian','Jinan','Qingdao','Xi-an','Chengdu','Hangzhou','Ningbo','Taipei','Doulan Village'];
+  var CITY_ORDER = ['Beijing','Shanghai','Chongqing','Tianjin','Hong Kong','Guangzhou','Shenzhen','Xiamen','Zhongshan','Zhuhai','Haikou','Zhengzhou','Wuhan','Nanjing','Suzhou','Shenyang','Dalian','Jinan','Qingdao','Xi-an','Chengdu','Hangzhou','Ningbo','Taipei','Miaoli'];
   var CITY_ID = {'Beijing':'bj','Shanghai':'sh','Hong Kong':'hk','Shenzhen':'sz','Guangzhou':'gz','Suzhou':'su',
-    'Taipei':'tp','Doulan Village':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj'};
+    'Taipei':'tp','Miaoli':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj'};
   function formatTime12(t){
     if (!t) return '';
     function one(x){
