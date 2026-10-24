@@ -1359,3 +1359,15 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-suggest-actions{display:flex;justify-content:center;margin-top:8px}
 .china-suggest-actions .btn:disabled{opacity:.45;cursor:not-allowed}
 .china-suggest-thanks{text-align:center;margin-top:16px}
+
+/* Asia Tango Map — Suggest event modal (Tangocat-style) */
+.china-hero-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.china-suggest-open{flex-shrink:0;padding:7px 16px;border-radius:999px;font-weight:700;font-size:.82rem;cursor:pointer;background:transparent;color:#fff;border:2px solid rgba(255,255,255,.55);transition:background .15s,border-color .15s,color .15s}
+.china-suggest-open:hover{background:rgba(255,255,255,.12);border-color:#fff;color:#fff}
+.china-suggest-modal[hidden]{display:none!important}
+.china-suggest-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.china-suggest-backdrop{position:absolute;inset:0;background:rgba(20,30,35,.55)}
+.china-suggest-dialog{position:relative;z-index:1;width:100%;max-width:480px;max-height:90vh;overflow:auto;background:var(--cream,#fbf5e9);border-radius:14px;padding:22px 22px 18px;box-shadow:0 16px 48px rgba(0,0,0,.28);border:1px solid var(--line,#ead9b8)}
+.china-suggest-dialog h2{margin:0 28px 16px 0;font-size:1.35rem;color:var(--ink)}
+.china-suggest-x{position:absolute;top:10px;right:12px;border:0;background:transparent;font-size:1.6rem;line-height:1;cursor:pointer;color:var(--muted);padding:4px 8px}
+.china-suggest-x:hover{color:var(--ink)}

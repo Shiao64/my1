@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china87">
+<link rel="stylesheet" href="../css/style.css?v=china88">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -24,8 +24,9 @@
   </span>
 </a>
 <section class="hero china-map-hero">
-  <div class="wrap">
+  <div class="wrap china-hero-bar">
     <h1>Asia Tango Map</h1>
+    <button type="button" class="china-suggest-open" id="china-suggest-open">Suggest event</button>
   </div>
 </section>
 <section id="filters" class="m-filters">
@@ -77,6 +78,7 @@
 <noscript><p class="note">Listings need JavaScript. Raw data: <a href="events.json">events.json</a></p></noscript>
 <p class="china-empty note china-global-empty" hidden>No listings match these filters.</p>
 <p class="note china-credit">Event data: <a href="https://www.facebook.com/profile.php?id=100093497583670" target="_blank" rel="noopener">TangoWorld by KoKoTango</a> (updated: <span class="china-updated">2026/10/24</span>)</p>
+<p class="note china-disclaimer">Not affiliated with OTI; listings may change.</p>
   </div>
 </section>
 <section id="contact-china" class="alt">
@@ -100,9 +102,11 @@
     </div>
   </div>
 </section>
-<section id="submit" class="alt">
-  <div class="wrap" style="max-width:560px">
-    <div class="sec-title" style="text-align:center"><h2>Suggest new event</h2><span class="en">Or correct an existing listing</span></div>
+<div class="china-suggest-modal" id="china-suggest-modal" hidden>
+  <div class="china-suggest-backdrop" data-suggest-close></div>
+  <div class="china-suggest-dialog" role="dialog" aria-modal="true" aria-labelledby="china-suggest-title">
+    <button type="button" class="china-suggest-x" data-suggest-close aria-label="Close">&times;</button>
+    <h2 id="china-suggest-title">Suggest new event</h2>
     <form class="china-suggest" id="china-suggest" novalidate>
       <div class="china-suggest-group">
         <label for="suggest-url">Event website</label>
@@ -125,10 +129,10 @@
       <div class="china-suggest-actions">
         <button type="submit" class="btn m-btn china-search-btn" id="suggest-submit" disabled>Submit</button>
       </div>
-      <p class="note china-suggest-thanks" id="suggest-thanks" hidden>We&rsquo;ve got your suggestion. Thanks for making Asia Tango Map better! Open your email app to send it, or write us at <a href="mailto:info@tangoweekend.org">info@tangoweekend.org</a>.</p>
+      <p class="note china-suggest-thanks" id="suggest-thanks" hidden>We&rsquo;ve got your suggestion. Thanks for making Asia Tango Map better!</p>
     </form>
   </div>
-</section>
+</div>
 <footer id="contact">
   <div class="wrap">
     <div class="cols">
@@ -369,7 +373,12 @@
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
   var sug=document.getElementById('china-suggest'), sugUrl=document.getElementById('suggest-url'), sugBtn=document.getElementById('suggest-submit'), sugThanks=document.getElementById('suggest-thanks');
+  var sugModal=document.getElementById('china-suggest-modal'), sugOpen=document.getElementById('china-suggest-open');
   function sugReady(){ if (sugBtn) sugBtn.disabled = !(sugUrl && sugUrl.value.trim()); }
+  function sugShow(on){ if (!sugModal) return; sugModal.hidden=!on; document.body.style.overflow=on?'hidden':''; if (on && sugUrl) setTimeout(function(){ sugUrl.focus(); }, 50); }
+  if (sugOpen) sugOpen.addEventListener('click', function(){ sugShow(true); });
+  document.querySelectorAll('[data-suggest-close]').forEach(function(el){ el.addEventListener('click', function(){ sugShow(false); }); });
+  document.addEventListener('keydown', function(e){ if (e.key==='Escape' && sugModal && !sugModal.hidden) sugShow(false); });
   if (sugUrl) { sugUrl.addEventListener('input', sugReady); sugUrl.addEventListener('change', sugReady); }
   if (sug) sug.addEventListener('submit', function(e){
     e.preventDefault();
@@ -381,7 +390,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china87', {cache: 'no-cache'})
+  fetch('events.json?v=china88', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
