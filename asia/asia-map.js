@@ -352,7 +352,7 @@
   var sugModal=document.getElementById('china-suggest-modal'), sugOpen=document.getElementById('china-suggest-open');
   function sugUrlReq(){ return !!(sugUrl && sugUrl.required); }
   function sugReady(){ if (sugBtn) sugBtn.disabled = sugUrlReq() && !(sugUrl && sugUrl.value.trim()); }
-  function sugShow(on){ if (!sugModal) return; sugModal.hidden=!on; document.body.style.overflow=on?'hidden':''; if (on && sugUrl) setTimeout(function(){ sugUrl.focus(); }, 50); }
+  function sugShow(on){ if (!sugModal) return; sugModal.hidden=!on; document.body.style.overflow=on?'hidden':''; if (on && sug) setTimeout(function(){ var f=sug.querySelector('.m-input'); if (f) f.focus(); }, 50); }
   if (sugOpen) sugOpen.addEventListener('click', function(){ sugShow(true); });
   document.querySelectorAll('[data-suggest-close]').forEach(function(el){ el.addEventListener('click', function(){ sugShow(false); }); });
   document.addEventListener('keydown', function(e){ if (e.key==='Escape' && sugModal && !sugModal.hidden) sugShow(false); });
