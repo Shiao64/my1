@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-asia-lang="zh" data-asia-en="../../asia/" data-asia-zh="./">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>亚洲探戈地图 · 精选探戈周末</title>
+<meta name="description" content="中国、香港与台湾的探戈节、舞会与练习场 — 亚洲探戈地图">
+<link rel="canonical" href="https://tangoweekend.org/zh/asia/">
+<link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
+<link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
+<link rel="stylesheet" href="../../css/style.css?v=china137">
+<script src="../../asia/lang-pref.js?v=china137"></script>
+<style>
+.china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
+.china-date-wrap input.has-en{color:transparent}
+.china-date-wrap input.has-en::-webkit-datetime-edit{color:transparent}
+.china-date-show{font-style:normal;font-size:.78rem;position:absolute;left:7px;top:50%;transform:translateY(-50%);pointer-events:none;font:inherit;color:inherit;white-space:nowrap}
+.china-map-lang{margin-left:auto}
+.china-page .china-hero-bar .china-map-lang{flex:0 0 auto}
+</style>
+</head>
+<body class="china-page">
+<a class="china-stw-banner china-stw-ad" href="../" aria-label="精选探戈周末 — 2027/06/18 – 2027/06/22">
+  <span class="china-stw-ad-strip">
+    <img class="china-stw-ad-hposter" src="../../images/stw-banner-h.jpg?v=53" alt="" width="1600" height="90" loading="eager">
+    <span class="china-stw-ad-overlay">
+      <span class="china-stw-ad-title">精选探戈周末</span>
+      <span class="china-stw-ad-date">2027/06/18 – 2027/06/22</span>
+    </span>
+  </span>
+</a>
+<section class="hero china-map-hero">
+  <div class="wrap china-hero-bar">
+    <h1>亚洲探戈地图</h1>
+    <button type="button" class="china-suggest-open" id="china-suggest-open">推荐活动</button>
+    <nav class="top-lang china-map-lang" aria-label="语言">
+      <a href="./" hreflang="zh-CN" lang="zh-CN" aria-current="page" data-asia-lang-set="zh">中文</a>
+      <a href="../../asia/" hreflang="en" lang="en" data-asia-lang-set="en">English</a>
+    </nav>
+  </div>
+</section>
+<section id="filters" class="m-filters">
+  <div class="wrap m-filters-inner china-filters-compact">
+    <div class="m-block china-filters-row1">
+      <div class="china-type-wrap">
+        <h2 class="m-label">类型</h2>
+        <div class="m-chips china-type-chips">
+          <label class="m-chip china-type-check"><input type="radio" name="etype" value="regular" checked><span class="china-check" aria-hidden="true"></span> 常规</label>
+          <label class="m-chip china-type-check"><input type="radio" name="etype" value="event"><span class="china-check" aria-hidden="true"></span> 活动</label>
+        </div>
+      </div>
+      <div class="china-city-wrap">
+        <h2 class="m-label">城市</h2>
+        <select id="china-city" class="m-select m-select-city" aria-label="城市">
+          <option value="all">全部城市</option>
+          <option value="bj" data-en="Beijing">北京</option>
+          <option value="hk" data-en="Hong Kong">香港</option>
+          <option value="sh" data-en="Shanghai">上海</option>
+          <option value="cd" data-en="Chengdu">成都</option>
+          <option value="cq" data-en="Chongqing">重庆</option>
+          <option value="dv" data-en="Doulan Village">都兰</option>
+          <option value="gz" data-en="Guangzhou">广州</option>
+          <option value="hz" data-en="Hangzhou">杭州</option>
+          <option value="nj" data-en="Nanjing">南京</option>
+          <option value="sy" data-en="Shenyang">沈阳</option>
+          <option value="sz" data-en="Shenzhen">深圳</option>
+          <option value="su" data-en="Suzhou">苏州</option>
+          <option value="tc" data-en="Taichung">台中</option>
+          <option value="tp" data-en="Taipei">台北</option>
+          <option value="tj" data-en="Tianjin">天津</option>
+        </select>
+      </div>
+      <div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0">
+        <h2 class="m-label">日期</h2>
+        <div class="china-date-fromto">
+          <label class="china-date-field"><span>从</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-from" class="m-input china-date-input" aria-label="开始日期"><em class="china-date-show" data-for="china-from" aria-hidden="true"></em></div></label>
+          <label class="china-date-field"><span>至</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-to" class="m-input china-date-input" aria-label="结束日期"><em class="china-date-show" data-for="china-to" aria-hidden="true"></em></div></label>
+        </div>
+        <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search">搜索</button></span><div class="china-showall-row"><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> 包含过往活动与待定</label></div>
+      </div>
+    </div>
+    <p class="note" id="china-date-hint" aria-live="polite"></p>
+  </div>
+</section>
+<section id="events" class="alt">
+  <div class="wrap m-events-wrap">
+<div id="china-listings" aria-live="polite"><p class="note">正在加载活动…</p></div>
+<noscript><p class="note">查看活动列表需要启用 JavaScript。原始数据：<a href="../../asia/events.json">events.json</a></p></noscript>
+<p class="china-empty note china-global-empty" hidden>没有符合条件的活动。</p>
+<p class="note china-credit">活动数据来源：<a href="https://www.facebook.com/profile.php?id=100093497583670" target="_blank" rel="noopener">TangoWorld by KoKoTango</a>（更新：<span class="china-updated">2026/10/24</span>）</p>
+<p class="note china-credit">北京数据来源：<a href="https://www.facebook.com/tangobeijing" target="_blank" rel="noopener">VTANGO Liu Zheng</a>（更新 2026/09/23）</p>
+<p class="note china-credit">中国常规数据来源：<a href="https://www.facebook.com/profile.php?id=61556449739716" target="_blank" rel="noopener">Daidai Ater</a>（更新 2026/10/24）</p>
+<p class="note china-disclaimer">活动信息可能变更。</p>
+  </div>
+</section>
+<section id="contact-china" class="alt">
+  <div class="wrap" style="max-width:820px">
+    <div class="sec-title"><h2>联系</h2><span class="en">北京精选探戈周末 · 亚洲探戈地图</span></div>
+    <div class="china-contact-grid">
+      <div class="china-contact-card">
+        <h3>邮箱</h3>
+        <p><a href="mailto:info@tangoweekend.org">info@tangoweekend.org</a></p>
+        <p class="note">活动刊登、更正、DJ 与主办方更新欢迎邮件联系。</p>
+      </div>
+      <div class="china-contact-card">
+        <h3>微信</h3>
+        <p>群：<strong>Selectango Weekend 2027</strong></p>
+        <p class="note">北京周末详情可在群内咨询。</p>
+      </div>
+      <div class="china-contact-card">
+        <h3>Facebook</h3>
+        <p><a href="https://www.facebook.com/groups/selecttangoweekend" target="_blank" rel="noopener">Select Tango Weekend 群组</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="china-suggest-modal" id="china-suggest-modal" hidden>
+  <div class="china-suggest-backdrop" data-suggest-close></div>
+  <div class="china-suggest-dialog" role="dialog" aria-modal="true" aria-labelledby="china-suggest-title">
+    <button type="button" class="china-suggest-x" data-suggest-close aria-label="关闭">&times;</button>
+    <h2 id="china-suggest-title">推荐新活动</h2>
+    <form class="china-suggest" id="china-suggest" novalidate>
+      <div class="china-suggest-group">
+        <label for="suggest-url">活动网站</label>
+        <input type="url" id="suggest-url" name="url" class="m-input" placeholder="http://..." required>
+        <small class="china-suggest-help">必填</small>
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-details">活动详情</label>
+        <textarea id="suggest-details" name="details" class="m-input" rows="5" placeholder="标题、国家与城市、日期、知名舞师/DJ/乐手">标题：&#10;日期：&#10;国家、城市：&#10;（可选）知名 DJ / 乐手 / 舞师：&#10;</textarea>
+        <small class="china-suggest-help">请写明活动标题、国家与城市、起止日期，以及可选的知名舞师 / DJ / 乐手。</small>
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-email">你的个人邮箱</label>
+        <div class="china-suggest-email">
+          <span class="china-suggest-at" aria-hidden="true">@</span>
+          <input type="email" id="suggest-email" name="email" class="m-input" placeholder="sample@example.com">
+        </div>
+        <small class="china-suggest-help">选填。活动上线后我们会回复你。我们不会分享你的邮箱。</small>
+      </div>
+      <div class="china-suggest-actions">
+        <button type="submit" class="btn m-btn china-search-btn" id="suggest-submit" disabled>提交</button>
+      </div>
+      <p class="note china-suggest-thanks" id="suggest-thanks" hidden>已收到你的推荐，谢谢让亚洲探戈地图更完善！</p>
+    </form>
+  </div>
+</div>
+<footer id="contact">
+  <div class="wrap">
+    <div class="cols">
+      <div><h4>联系</h4><p>邮箱：<a href="mailto:info@tangoweekend.org">info@tangoweekend.org</a></p></div>
+      <div><h4>精选探戈周末</h4><p><a href="../">tangoweekend.org/zh</a> · 2027/06/18 – 2027/06/22</p></div>
+      <div><h4>亚洲探戈地图</h4><p>数据来自 TangoWorld by KoKoTango</p></div>
+    </div>
+    <p class="copy">© 精选探戈周末 · 亚洲探戈地图</p>
+  </div>
+</footer>
+<script>
+window.CHINA_UI = {
+  lang: 'zh',
+  eventsUrl: '../../asia/events.json?v=china137',
+  hideAddrEn: true,
+  keepOrganizerZh: true,
+  cityNames: {
+    'Beijing':'北京','Shanghai':'上海','Chongqing':'重庆','Guangzhou':'广州','Shenzhen':'深圳',
+    'Tianjin':'天津','Zhengzhou':'郑州','Qingdao':'青岛','Chengdu':'成都','Wuhan':'武汉',
+    'Nanjing':'南京','Xi-an':'西安','Hangzhou':'杭州','Xiamen':'厦门','Haikou':'海口',
+    'Shenyang':'沈阳','Dalian':'大连','Zhongshan':'中山','Zhuhai':'珠海','Jinan':'济南',
+    'Ningbo':'宁波','Hong Kong':'香港','Taipei':'台北','Doulan Village':'都兰','Suzhou':'苏州',
+    'Taichung':'台中','Macao':'澳门','ShaXi':'沙溪'
+  },
+  typeNames: {
+    milonga:'舞会', practica:'练习场', festival:'节庆', marathon:'马拉松',
+    encuentro:'聚会', championship:'锦标赛', weekend:'周末', event:'活动'
+  },
+  daysShort: ['日','一','二','三','四','五','六'],
+  daysFull: ['周日','周一','周二','周三','周四','周五','周六'],
+  others: '其他',
+  anyDate: '不限',
+  allDates: '不限日期',
+  fromPrefix: '从 ',
+  throughPrefix: '至 ',
+  dates: '日期',
+  time: '时间',
+  venue: '场地',
+  city: '城市',
+  organizer: '主办',
+  note: '备注',
+  wechat: '微信',
+  phone: '电话',
+  email: '邮箱',
+  website: '网站',
+  facebook: 'Facebook',
+  video: '视频',
+  ourEvent: '本站活动',
+  paused: '暂停',
+  venueChange: '场地变更',
+  cancelled: '已取消',
+  cancelledWeek: '已取消 · 本周',
+  every: '每周',
+  dayTba: '日期待定',
+  datesTba: '日期待定',
+  tba: '待定',
+  weeklyHead: '每周舞会与练习场',
+  events: '活动',
+  allCitiesChrono: '全部城市 · 按开始日期排列',
+  taiwanSuffix: ' · 台湾',
+  hkSuffix: ' · 香港',
+  taiwanLabel: '台湾',
+  noMatchCity: '该城市没有符合条件的活动。',
+  dateRangeLabel: '日期范围：',
+  showingSep: ' · 显示 ',
+  listingsWord: ' 条',
+  hintShowAll: '（含过往与待定）。',
+  hintWeekly: '（常规按周显示）。',
+  loadError: '无法加载活动列表',
+  refresh: '请刷新页面。',
+  suggestSubject: '亚洲探戈地图活动推荐',
+  suggestBodyUrl: '活动网站：',
+  suggestReplyTo: '回复邮箱：'
+};
+</script>
+<script src="../../asia/asia-map.js?v=china137"></script>
+</body>
+</html>
