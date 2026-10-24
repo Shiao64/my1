@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china86">
+<link rel="stylesheet" href="../css/style.css?v=china87">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -100,15 +100,33 @@
     </div>
   </div>
 </section>
-<section id="submit">
-  <div class="wrap" style="max-width:720px;text-align:center">
-    <div class="sec-title"><h2>Submit or correct a listing</h2></div>
-    <p>Know a milonga, festival, or teacher schedule that should appear here? Email details (city, name, time, venue, organizer, link) — we will not invent missing fields.</p>
-    <div class="btns" style="justify-content:center">
-      <a class="btn btn-gold" href="mailto:info@tangoweekend.org?subject=Asia%20Tango%20Map%20listing">info@tangoweekend.org</a>
-      <a class="btn btn-ghost" href="../">Select Tango Weekend</a>
-    </div>
-    <p class="note" style="margin-top:22px">Event data: <a href="https://www.facebook.com/profile.php?id=100093497583670" target="_blank" rel="noopener">TangoWorld by KoKoTango</a> (updated: <span class="china-updated">2026/10/24</span>). Listings may change.</p>
+<section id="submit" class="alt">
+  <div class="wrap" style="max-width:560px">
+    <div class="sec-title" style="text-align:center"><h2>Suggest new event</h2><span class="en">Or correct an existing listing</span></div>
+    <form class="china-suggest" id="china-suggest" novalidate>
+      <div class="china-suggest-group">
+        <label for="suggest-url">Event website</label>
+        <input type="url" id="suggest-url" name="url" class="m-input" placeholder="http://..." required>
+        <small class="china-suggest-help">Required</small>
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-details">Event details</label>
+        <textarea id="suggest-details" name="details" class="m-input" rows="5" placeholder="Title, country and city, dates, list of maestros/DJs/musicians">Title:&#10;Dates:&#10;Country, city:&#10;(optional) list of notable DJs/musicians/maestros:&#10;</textarea>
+        <small class="china-suggest-help">Specify the event&rsquo;s title, country and city, start and end dates, and optionally notable maestros/DJs/musicians.</small>
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-email">Your personal email</label>
+        <div class="china-suggest-email">
+          <span class="china-suggest-at" aria-hidden="true">@</span>
+          <input type="email" id="suggest-email" name="email" class="m-input" placeholder="sample@example.com">
+        </div>
+        <small class="china-suggest-help">Optional. We&rsquo;ll write you back when the listing is published. We&rsquo;ll never share your email.</small>
+      </div>
+      <div class="china-suggest-actions">
+        <button type="submit" class="btn m-btn china-search-btn" id="suggest-submit" disabled>Submit</button>
+      </div>
+      <p class="note china-suggest-thanks" id="suggest-thanks" hidden>We&rsquo;ve got your suggestion. Thanks for making Asia Tango Map better! Open your email app to send it, or write us at <a href="mailto:info@tangoweekend.org">info@tangoweekend.org</a>.</p>
+    </form>
   </div>
 </section>
 <footer id="contact">
@@ -350,7 +368,20 @@
   }); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china86', {cache: 'no-cache'})
+  var sug=document.getElementById('china-suggest'), sugUrl=document.getElementById('suggest-url'), sugBtn=document.getElementById('suggest-submit'), sugThanks=document.getElementById('suggest-thanks');
+  function sugReady(){ if (sugBtn) sugBtn.disabled = !(sugUrl && sugUrl.value.trim()); }
+  if (sugUrl) { sugUrl.addEventListener('input', sugReady); sugUrl.addEventListener('change', sugReady); }
+  if (sug) sug.addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!sugUrl || !sugUrl.value.trim()) return;
+    var details=(document.getElementById('suggest-details')||{}).value||'';
+    var email=(document.getElementById('suggest-email')||{}).value||'';
+    var body='Event website: '+sugUrl.value.trim()+'\n\n'+details.trim()+(email?'\n\nReply-to: '+email:'');
+    var href='mailto:info@tangoweekend.org?subject='+encodeURIComponent('Asia Tango Map listing')+'&body='+encodeURIComponent(body);
+    window.location.href=href;
+    if (sugThanks) sugThanks.hidden=false;
+  });
+  fetch('events.json?v=china87', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
