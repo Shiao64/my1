@@ -1057,9 +1057,7 @@
     "venue": null,
     "venue_address": null,
     "organizers": [
-      "Perni Peng",
-      "Sergiy Podbolotny",
-      "Maria Ines Bogado"
+      "Perni Peng", "Maria Ines Bogado"
     ],
     "links": {
       "facebook": "https://www.facebook.com/events/1523230772760902/1523230779427568?acontext=%7B%22event_action_history%22%3A[%7B%22surface%22%3A%22user_timeline%22%7D%2C%7B%22mechanism%22%3A%22attachment%22%2C%22surface%22%3A%22newsfeed%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
