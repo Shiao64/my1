@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china134">
+<link rel="stylesheet" href="../css/style.css?v=china135">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -306,14 +306,20 @@
     var wkCount = {}; data.forEach(function(r){ if (r.kind === 'weekly' && !r.hidden) wkCount[r.city] = (wkCount[r.city] || 0) + 1; });
     var baseIdx = cities.slice();
     cities.sort(function(a,b){ return ((wkCount[b]||0) - (wkCount[a]||0)) || (baseIdx.indexOf(a) - baseIdx.indexOf(b)); });
+    // Cities with fewer than 4 Regular listings are merged into one "Others" block
+    var OTHERS = cities.filter(function(c){ return (wkCount[c] || 0) < 4; });
+    cities = cities.filter(function(c){ return OTHERS.indexOf(c) === -1; }).concat(OTHERS.length ? ['Others'] : []);
     window._chinaCityOrder = cities.slice();
     var cs = document.getElementById('china-city');
     if (cs) { var opts = Array.prototype.slice.call(cs.options).filter(function(o){ return o.value !== 'all'; });
+      opts.forEach(function(o){ if (OTHERS.indexOf(o.textContent.trim()) !== -1) o.remove(); });
+      opts = opts.filter(function(o){ return OTHERS.indexOf(o.textContent.trim()) === -1; });
+      if (OTHERS.length && !cs.querySelector('option[value="others"]')) { var oo = document.createElement('option'); oo.value = 'others'; oo.textContent = 'Others'; opts.push(oo); }
       opts.sort(function(a,b){ var ia = cities.indexOf(a.textContent.trim()), ib = cities.indexOf(b.textContent.trim()); return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib); });
       var cur = cs.value; opts.forEach(function(o){ cs.appendChild(o); }); cs.value = cur; }
     var html = [];
     cities.forEach(function(c){
-      var rs = data.filter(function(r){ return r.city === c; });
+      var rs = data.filter(function(r){ return c === 'Others' ? OTHERS.indexOf(r.city) !== -1 : r.city === c; });
       if (!rs.length) return;
       var dated = rs.filter(function(r){ return r.kind === 'event' && r.start; }).sort(function(a,b){ return a.start < b.start ? -1 : 1; });
       var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start; });
@@ -385,7 +391,7 @@
     updateCityOptions();
     var city = citySel ? citySel.value : 'all', types = checkedTypes(), totalVisible = 0;
     // China + All cities + only Event checked: one flat list sorted by start date (soonest first)
-    var chrono = false; // Event mode keeps one block per city
+    var chrono = city === 'all' && types.length === 1 && types[0] === 'event'; // Event: one list, soonest first
     document.querySelectorAll('.china-city-block').forEach(function(block){
       var regionOk = (city === 'all' || city === block.getAttribute('data-region'));
       var items = block.querySelectorAll('.china-list > li'), shown = 0;
@@ -484,7 +490,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china134', {cache: 'no-cache'})
+  fetch('events.json?v=china135', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
