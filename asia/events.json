@@ -332,7 +332,7 @@
       "刘峥"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangobeijing",
       "video": "https://www.youtube.com/watch?v=LqmcTeo8tmM",
       "other": null
     },
@@ -341,7 +341,13 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing"
+    "venue_address_en": "2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
+    "contacts": {
+      "wechat_id": "tangobeijing",
+      "wechat_label": "探戈会",
+      "phone": "13910989820",
+      "email": "tangohui@gmail.com"
+    }
   },
   {
     "id": "ZujahelC",
@@ -366,7 +372,7 @@
       "威士忌哥"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangobeijing",
       "video": null,
       "other": null
     },
@@ -375,7 +381,13 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Building 20, Xinyuanli West, Chaoyang District, Beijing"
+    "venue_address_en": "Building 20, Xinyuanli West, Chaoyang District, Beijing",
+    "contacts": {
+      "wechat_id": "tangobeijing",
+      "wechat_label": "探戈会",
+      "phone": "13910989820",
+      "email": "tangohui@gmail.com"
+    }
   },
   {
     "id": "wSeFVkSa",
@@ -463,7 +475,7 @@
       "刘峥"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangobeijing",
       "video": null,
       "other": null
     },
@@ -472,7 +484,13 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "B2, sunken plaza between Buildings 2–3, Guangxi Jiayuan, Chaoyang District, Beijing"
+    "venue_address_en": "B2, sunken plaza between Buildings 2–3, Guangxi Jiayuan, Chaoyang District, Beijing",
+    "contacts": {
+      "wechat_id": "tangobeijing",
+      "wechat_label": "探戈会",
+      "phone": "13910989820",
+      "email": "tangohui@gmail.com"
+    }
   },
   {
     "id": "hYGXKiYX",

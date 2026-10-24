@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china92">
+<link rel="stylesheet" href="../css/style.css?v=china93">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -220,6 +220,19 @@
   }
   function cityId(c){ return CITY_ID[c] || c.toLowerCase().replace(/[^a-z]/g,'').slice(0,6); }
   function line(k, v){ return '<div class="ev-line"><span class="ev-k">' + k + '</span> ' + v + '</div>'; }
+  function contactBlock(r){
+    var C = r.contacts || {};
+    if (!C.wechat_id && !C.phone && !C.email) return '';
+    var parts = [];
+    if (C.wechat_id) {
+      var wx = esc(C.wechat_id);
+      if (C.wechat_label) wx += ' <span class="china-contact-note">(' + esc(C.wechat_label) + ')</span>';
+      parts.push(line('WeChat', wx));
+    }
+    if (C.phone) parts.push(line('Phone', '<a href="tel:' + esc(C.phone) + '">' + esc(C.phone) + '</a>'));
+    if (C.email) parts.push(line('Email', '<a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a>'));
+    return '<div class="china-contact-block">' + parts.join('') + '</div>';
+  }
   function linkBtns(r){
     var L = r.links || {}, out = [];
     if (L.facebook) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">Facebook</a>');
@@ -255,6 +268,7 @@
     }
     if (r.kind === 'event') body.push(line('City', cityLabel(r)));
     if (r.organizers && r.organizers.length) { var oe = organizersEn(r.organizers); if (oe) body.push(line('Organizer', esc(oe))); }
+    var cb = contactBlock(r); if (cb) body.push(cb);
     return '<li class="ev-card' + (hl ? ' china-stw-highlight' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + attrs + '>' +
       '<div class="ev-top"><span class="ev-type">' + esc(r.type) + '</span><span class="ev-when">' + esc(when) + '</span>' + (hl ? '<span class="china-badge">Our event</span>' : '') + '</div>' +
       '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
@@ -423,7 +437,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china92', {cache: 'no-cache'})
+  fetch('events.json?v=china93', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');

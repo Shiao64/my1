@@ -1381,3 +1381,10 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-suggest-x:hover{color:var(--ink)}
 
 .china-addr-en{display:block;margin-top:2px;font-size:.86em;color:var(--muted);font-weight:400;line-height:1.35}
+
+/* china93: organizer contact block on listing cards */
+.china-page .china-contact-block{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
+.china-page .china-contact-block .ev-line{margin:2px 0;font-size:.88rem}
+.china-page .china-contact-note{color:var(--muted);font-weight:500;font-size:.82rem}
+.china-page .china-contact-block a{color:var(--red);text-decoration:none}
+.china-page .china-contact-block a:hover{text-decoration:underline}

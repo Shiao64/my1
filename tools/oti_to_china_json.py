@@ -142,13 +142,45 @@ def main():
             'organizers': ['Rebecca Meow', 'Taichung Tango Academy'],
             'links': {'other': 'https://www.taichungtta.com/'},
         },
+        # Liu Zheng / 探戈会 organizer contacts (owner research 2026-10-24)
+        'GqufXmMX': {  # Milonga V
+            'links': {'facebook': 'https://www.facebook.com/tangobeijing'},
+            'contacts': {
+                'wechat_id': 'tangobeijing',
+                'wechat_label': '探戈会',
+                'phone': '13910989820',
+                'email': 'tangohui@gmail.com',
+            },
+        },
+        'ZujahelC': {  # Milongaga
+            'links': {'facebook': 'https://www.facebook.com/tangobeijing'},
+            'contacts': {
+                'wechat_id': 'tangobeijing',
+                'wechat_label': '探戈会',
+                'phone': '13910989820',
+                'email': 'tangohui@gmail.com',
+            },
+        },
+        'AymclBjD': {  # Practica V (探戈会VTango)
+            'links': {'facebook': 'https://www.facebook.com/tangobeijing'},
+            'contacts': {
+                'wechat_id': 'tangobeijing',
+                'wechat_label': '探戈会',
+                'phone': '13910989820',
+                'email': 'tangohui@gmail.com',
+            },
+        },
     }
     for r in recs:
         o = OVERRIDES.get(r['id'])
         if not o: continue
         for k, v in o.items():
-            if k == 'links': r['links'].update(v)
-            else: r[k] = v
+            if k == 'links':
+                r.setdefault('links', {}).update(v)
+            elif k == 'contacts':
+                r['contacts'] = v
+            else:
+                r[k] = v
     # Non-OTI listings the owner asked to keep (survives weekly regen)
     MANUAL = [
         {
