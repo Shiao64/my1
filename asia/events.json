@@ -557,7 +557,10 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "No. 16 Xinyuanli, Chaoyang District, Beijing"
+    "venue_address_en": "No. 16 Xinyuanli, Chaoyang District, Beijing",
+    "contacts": {
+      "email": "lisongyan@tangoutopia.club"
+    }
   },
   {
     "id": "ttLxDoyZ",
