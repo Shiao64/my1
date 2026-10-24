@@ -373,9 +373,18 @@
     var wx=((document.getElementById('suggest-wechat')||{}).value||'').trim();
     var oe=((document.getElementById('suggest-org-email')||{}).value||'').trim(), ow=((document.getElementById('suggest-org-wechat')||{}).value||'').trim();
     var body=((sugUrl&&sugUrl.value.trim())?(UI.suggestBodyUrl||'Event website: ')+sugUrl.value.trim()+'\n\n':'')+(sugKind()?(UI.suggestKind||'Type: ')+sugKind()+'\n':'')+details.trim()+(email?'\n\n'+(UI.suggestReplyTo||'Reply-to: ')+email:'')+(wx?'\n'+(UI.suggestWechat||'WeChat: ')+wx:'')+(oe?'\n'+(UI.suggestOrgEmail||'Contact email: ')+oe:'')+(ow?'\n'+(UI.suggestOrgWechat||'Contact WeChat: ')+ow:'');
-    var href='mailto:info@tangoweekend.org?subject='+encodeURIComponent(UI.suggestSubject||'Asia Tango Map listing')+'&body='+encodeURIComponent(body);
-    window.location.href=href;
-    if (sugThanks) sugThanks.hidden=false;
+    var subj=UI.suggestSubject||'Asia Tango Map listing';
+    var href='mailto:info@tangoweekend.org?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    var data={_subject:subj,_template:'box',_captcha:'false',message:body};
+    data[UI.fsKind||'Event type']=sugKind(); data[UI.fsDetails||'Event details']=details.trim();
+    if (email.trim()) { data.email=email.trim(); data._replyto=email.trim(); data._autoresponse=UI.suggestAutoReply||'Thanks! We received your Asia Tango Map listing and will reply when it is published. — tangoweekend.org'; }
+    if (wx) data[UI.fsWechat||'WeChat']=wx;
+    if (sugUrl&&sugUrl.value.trim()) data[UI.fsUrl||'Event website']=sugUrl.value.trim();
+    if (sugBtn) { sugBtn.disabled=true; sugBtn.dataset.t=sugBtn.textContent; sugBtn.textContent=UI.suggestSending||'Sending…'; }
+    fetch('https://formsubmit.co/ajax/info@tangoweekend.org',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+      .then(function(r){ return r.json().then(function(j){ if (!r.ok || String(j.success)==='false') throw new Error(j.message||'fail'); }); })
+      .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
+      .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
   var eventsUrl = UI.eventsUrl || 'events.json?v=china137';
   fetch(eventsUrl, {cache: 'no-cache'})
