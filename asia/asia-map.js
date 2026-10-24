@@ -206,7 +206,7 @@
       var dated = rs.filter(function(r){ return r.kind === 'event' && r.start; }).sort(function(a,b){ return a.start < b.start ? -1 : 1; });
       var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start; });
       var wk = rs.filter(function(r){ return r.kind === 'weekly'; });
-      var tw = rs[0].region === 'Taiwan';
+      var tw = c !== 'Others' && rs[0].region === 'Taiwan';
       var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head">' + esc(cityDisplay(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span></h2>'];
       h.push(group(UI.events || 'Events', dated.concat(tba)));
       var sched = wk.filter(function(r){ return r.weekday != null && nthOk(r); }), nos = wk.filter(function(r){ return r.weekday == null; });
