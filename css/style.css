@@ -1468,3 +1468,14 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
   .china-filters-compact .china-date-input{min-width:0!important;width:100%!important;max-width:100%!important}
   .china-filters-compact .china-showmode,.china-filters-compact .china-showall-row{max-width:100%!important;flex-wrap:wrap}
 }
+
+/* china151: banner shimmer also on desktop — not disabled by OS "reduce motion" (gentle, non-essential sweep);
+   wider/brighter, slower sweep on wide screens so it is noticeable */
+.china-page .china-stw-ad::after{z-index:5;animation:stwShimmer10 10s ease-in-out 0.8s infinite!important}
+.china-page .china-stw-ad .china-stw-ad-title{animation:stwGlow10 10s ease-in-out 0.8s infinite!important}
+@media (min-width:768px){
+  .china-page .china-stw-ad::after{width:22%;background:linear-gradient(100deg,transparent,rgba(255,236,170,.5),transparent);animation:stwShimmerDesk 7s ease-in-out 0.8s infinite!important}
+  .china-page .china-stw-ad .china-stw-ad-title{animation:stwGlowDesk 7s ease-in-out 0.8s infinite!important}
+}
+@keyframes stwShimmerDesk{0%{left:-30%}38%{left:115%}100%{left:115%}}
+@keyframes stwGlowDesk{0%,100%{text-shadow:0 0 0 rgba(255,215,120,0)}19%{text-shadow:0 0 10px rgba(255,215,120,.75)}40%{text-shadow:0 0 0 rgba(255,215,120,0)}}

@@ -136,7 +136,7 @@
     if (r.kind === 'event' && r.start) {
       var dates = [], d = parseISO(r.start), e = parseISO(r.end || r.start);
       while (d <= e) { dates.push(isoOf(d)); d.setDate(d.getDate()+1); }
-      attrs = ' data-dates="' + dates.join(',') + '" data-sort="' + dates[0] + '"' + ((r.end || r.start) < CUTOFF ? ' data-past="1"' : '');
+      attrs = ' data-dates="' + dates.join(',') + '" data-sort="' + dates[0] + '"' + ((r.end || r.start) < todayISO() ? ' data-past="1"' : '');
       when = formatRange(r.start, r.end || r.start);
       body.push(line(UI.dates || 'Dates', when));
       if (r.time) body.push(line(UI.time || 'Time', esc(formatTime12(r.time))));
@@ -238,7 +238,8 @@
     if (!all && (li.getAttribute('data-tba') === '1' || li.getAttribute('data-past') === '1')) return false;
     if (li.getAttribute('data-always') === '1') return true;
     var dates = (li.getAttribute('data-dates') || '').split(',').filter(Boolean);
-    var r = activeRange(); if (!r) return true; if (!dates.length) return false;
+    var r = activeRange(), tdy = todayISO(); if (!all) dates = dates.filter(function(d){ return d >= tdy; });
+    if (!r) return all || dates.length > 0; if (!dates.length) return false;
     return dates.some(function(d){ return d >= r[0] && d <= r[1]; });
   }
   function typeMatches(li, types){
