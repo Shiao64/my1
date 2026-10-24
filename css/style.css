@@ -333,11 +333,11 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
   display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;order:0;
   margin-right:12px;padding:7px 14px;border-radius:999px;font-weight:700;font-size:.82rem;
   line-height:1.2;text-decoration:none;white-space:nowrap;
-  background:#148a96;color:#fff;border:2px solid #5ed4e0;
+  background:#0e6e78;color:#fff;border:2px solid #5fb3bb;
   box-shadow:0 0 0 1px rgba(0,0,0,.15);
   transition:background .15s,border-color .15s,color .15s
 }
-.btn-china:hover{background:#1ab0bf;border-color:#9eebf2;color:#fff}
+.btn-china:hover{background:#0a4f57;border-color:#9fd3d8;color:#fff}
 @media (max-width:420px){
   .btn-china{padding:6px 10px;font-size:.72rem;margin-right:8px}
 }
