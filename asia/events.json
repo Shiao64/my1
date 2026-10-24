@@ -1256,35 +1256,6 @@
     "tba": false
   },
   {
-    "id": "uXBtrvcn",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "Luna Tango",
-    "city": "Shenzhen",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": null,
-    "weekdays": null,
-    "time": null,
-    "venue": null,
-    "venue_address": null,
-    "organizers": [
-      "Aykut Kazanci"
-    ],
-    "links": {
-      "facebook": "https://www.facebook.com/lunatangoshenzhen/",
-      "video": "https://www.youtube.com/watch?v=iQfTc9XzN6M",
-      "other": null
-    },
-    "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": true
-  },
-  {
     "id": "nTUlADFZ",
     "kind": "event",
     "type": "festival",
@@ -2663,6 +2634,669 @@
       "wechat_label": "江湖",
       "phone": "13920849123",
       "email": "13920849123@139.com"
+    }
+  },
+  {
+    "id": "CfI7owBT",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Mucho Tango 厦门沐秋探戈 Milonga",
+    "city": "Xiamen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:30–22:30",
+    "venue": "南岳山庄20号楼",
+    "venue_address": "厦门市思明区南岳山庄20号楼",
+    "organizers": [
+      "Johnny"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "MuchoTango厦门沐秋探戈",
+      "wechat_label": "MuchoTango",
+      "phone": "13063089327"
+    }
+  },
+  {
+    "id": "G4z3llqr",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Mucho Tango 厦门沐秋探戈 Practica",
+    "city": "Xiamen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:00–22:00",
+    "venue": "南岳山庄20号楼",
+    "venue_address": "厦门市思明区南岳山庄20号楼",
+    "organizers": [
+      "Johnny"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "MuchoTango厦门沐秋探戈",
+      "wechat_label": "MuchoTango",
+      "phone": "13063089327"
+    }
+  },
+  {
+    "id": "QbUzonBt",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "广州红房子探戈俱乐部 Milonga",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "21:00–00:30",
+    "venue": "名门大厦五楼红房子",
+    "venue_address": "广州花城大道六号名门大厦五楼红房子探戈俱乐部",
+    "organizers": [
+      "POP"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "13042001750",
+      "email": "renwwwei@sina.com",
+      "wechat_label": "POP"
+    }
+  },
+  {
+    "id": "N0B62sqw",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "广州红房子下午茶",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "16:00–20:00",
+    "venue": "名门大厦五楼红房子",
+    "venue_address": "广州花城大道六号名门大厦五楼红房子探戈俱乐部",
+    "organizers": [
+      "POP"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "13042001750",
+      "email": "renwwwei@sina.com",
+      "wechat_label": "POP"
+    }
+  },
+  {
+    "id": "PMNhoOSR",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "叹探戈工作坊 Milonga",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–23:00",
+    "venue": "东兴大厦1707",
+    "venue_address": "广州市越秀区环市东路488号东兴大厦1707",
+    "organizers": [
+      "Felix",
+      "Isabel"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "tan-tango",
+      "wechat_label": "叹探戈",
+      "phone": "13632480787 / 13632480796"
+    }
+  },
+  {
+    "id": "mErjGI77",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "叹探戈工作坊 Milonga",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–01:00",
+    "venue": "东兴大厦1707",
+    "venue_address": "广州市越秀区环市东路488号东兴大厦1707",
+    "organizers": [
+      "Felix",
+      "Isabel"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "tan-tango",
+      "wechat_label": "叹探戈",
+      "phone": "13632480787 / 13632480796"
+    }
+  },
+  {
+    "id": "HroRjHmr",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "叹探戈工作坊 Practica",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "19:30–21:30",
+    "venue": "东兴大厦1707",
+    "venue_address": "广州市越秀区环市东路488号东兴大厦1707",
+    "organizers": [
+      "Felix",
+      "Isabel"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "tan-tango",
+      "wechat_label": "叹探戈",
+      "phone": "13632480787 / 13632480796"
+    }
+  },
+  {
+    "id": "EDPSh1eZ",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga Cadencia",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:30–00:30",
+    "venue": "MSH音乐轰趴馆",
+    "venue_address": "广州市天河区天河路299号时尚天河商场时尚天河东一街负二层F6区（弓夫射箭馆旁）",
+    "organizers": [
+      "Alice",
+      "Kunyu"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13922334905",
+      "wechat_label": "Alice & Kunyu",
+      "phone": "13922334905"
+    }
+  },
+  {
+    "id": "RHL0Ul5a",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Legends Tango Academy 传奇探戈学院",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "16:00–20:00",
+    "venue": "明月阁1706",
+    "venue_address": "广州市越秀区明月一路明月阁1706",
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "legendstangofestival",
+      "wechat_label": "Legends",
+      "phone": "18676479599",
+      "email": "legendstango@gmail.com"
+    }
+  },
+  {
+    "id": "uXBtrvcn",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Luna Tango Milonga",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–24:00",
+    "venue": "第一世界广场B座18F",
+    "venue_address": "深圳市福田区红荔西路7002号第一世界广场B座18F",
+    "organizers": [
+      "Miranda",
+      "Aykut"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/lunatangoshenzhen/",
+      "video": "https://www.youtube.com/watch?v=iQfTc9XzN6M",
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "SZtango",
+      "wechat_label": "Luna Tango",
+      "phone": "13764672772 / 13600168796",
+      "email": "feiqiongxu@163.com"
+    }
+  },
+  {
+    "id": "RodhUNdE",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Luna Tango Practica",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–22:30",
+    "venue": "第一世界广场B座18F",
+    "venue_address": "深圳市福田区红荔西路7002号第一世界广场B座18F",
+    "organizers": [
+      "Miranda",
+      "Aykut"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/lunatangoshenzhen/",
+      "video": "https://www.youtube.com/watch?v=iQfTc9XzN6M",
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "SZtango",
+      "wechat_label": "Luna Tango",
+      "phone": "13764672772 / 13600168796",
+      "email": "feiqiongxu@163.com"
+    }
+  },
+  {
+    "id": "Czc8eerm",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango Argentino Shenzhen Academy Milonga",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "18:00–22:00",
+    "venue": "蛇口希尔顿南海酒店伊甸园酒吧",
+    "venue_address": "深圳市南山区蛇口希尔顿南海酒店伊甸园酒吧",
+    "organizers": [
+      "Cheryl",
+      "Pablo Burstein"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "562306575",
+      "wechat_label": "深圳阿根廷探戈",
+      "phone": "13632575468",
+      "email": "cheryllyu@yahoo.com"
+    }
+  },
+  {
+    "id": "tSTMn9NF",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Besos Tango Practica",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "16:00–19:00",
+    "venue": "书香门第名苑6栋401",
+    "venue_address": "深圳市龙华书香门第名苑6栋401",
+    "organizers": [
+      "Bes"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13006697779",
+      "wechat_label": "Bes",
+      "phone": "13006697779",
+      "email": "bes@mcurf.com"
+    }
+  },
+  {
+    "id": "SOu3uTpn",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Amor Tango Milonga (约双周)",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "15:00–19:00",
+    "venue": "前海黑胶唱片酒吧 Milonga Perfect Day",
+    "venue_address": "深圳市南山区前海黑胶唱片酒吧Milonga Perfect Day",
+    "organizers": [
+      "Jerry"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "Me-llamo-Lucas",
+      "wechat_label": "Jerry",
+      "phone": "18681552660",
+      "email": "jerryguo@live.cn"
+    }
+  },
+  {
+    "id": "lpuwaRvS",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Abrazo 拥抱探戈俱乐部",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:30–18:30",
+    "venue": "永新汇B1喷泉广场",
+    "venue_address": "深圳市南山区南油西站永新汇B1喷泉广场（寻洋派）",
+    "organizers": [
+      "金睿",
+      "歪西"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "humphrey0316",
+      "wechat_label": "金睿&歪西",
+      "phone": "15985134567",
+      "email": "yangky0316@163.com"
+    }
+  },
+  {
+    "id": "OCqo4ECX",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Traza 探戈传心 Milonga",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "15:00–19:00",
+    "venue": "前海卓越时代广场D栋203–207",
+    "venue_address": "深圳市宝安区海天路前海卓越时代广场D栋203–207 CheeEr-In迟允樱生活会馆",
+    "organizers": [
+      "Ken"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13543416169",
+      "wechat_label": "Ken",
+      "phone": "13543416169",
+      "email": "tangotraza@gmail.com"
+    }
+  },
+  {
+    "id": "5YZIdEnR",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "中山阿根廷探戈工作室 Practica",
+    "city": "Zhongshan",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–23:00",
+    "venue": "华森广场2314",
+    "venue_address": "中山市石岐区中山二路1号华森广场（岐江一号）2314室",
+    "organizers": [
+      "Angel Yu"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "Linglinglingyuyu",
+      "wechat_label": "Angel Yu",
+      "phone": "18510989154",
+      "email": "rabbitmami@gmail.com"
+    }
+  },
+  {
+    "id": "CKbnAX3C",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Vstar Tango 主题练习场",
+    "city": "Zhuhai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "19:30–21:30",
+    "venue": "钰海环球金融中心3楼微舞生活空间",
+    "venue_address": "珠海市香洲区吉大钰海环球金融中心3楼（微舞生活空间）",
+    "organizers": [
+      "乔治",
+      "Seema"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "15015982896 / 13535532300",
+      "wechat_label": "Vstar"
     }
   }
 ]
