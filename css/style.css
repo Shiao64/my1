@@ -367,7 +367,7 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
   box-shadow:0 2px 8px rgba(74,6,9,.25)
 }
 .china-map-hero h1{margin:0 0 8px;font-family:var(--serif);font-size:clamp(2rem,5vw,3rem);color:var(--gold-soft)}
-.china-map-sub{margin:0 0 12px;font-size:1.05rem;color:#f3d9c9}
+.china-map-sub{margin:0 0 12px;font-size:1.05rem;color:#cfe8eb}
 .china-region-nav{
   position:sticky;top:48px;z-index:40;background:rgba(251,245,233,.96);
   border-bottom:1px solid var(--line);backdrop-filter:blur(6px)
@@ -856,7 +856,7 @@ body.china-page > .nav-toggle{
   font-family:var(--serif);font-size:clamp(1.35rem,4.2vw,2.15rem)!important;
   font-weight:700;color:#fff8e7!important;text-shadow:0 2px 8px rgba(0,0,0,.35);letter-spacing:.02em
 }
-.china-stw-ad-date{font-size:clamp(.95rem,2.6vw,1.2rem)!important;color:#f3d9c9!important;font-weight:600}
+.china-stw-ad-date{font-size:clamp(.95rem,2.6vw,1.2rem)!important;color:#cfe8eb!important;font-weight:600}
 .china-stw-ad-cta{
   font-size:.85rem;font-weight:700;color:var(--red-deep);background:var(--gold);
   border-radius:999px;padding:6px 14px;white-space:nowrap;
@@ -1337,3 +1337,7 @@ body.china-page > .nav-toggle{
 .china-filters-compact .china-date-wrap{position:relative}
 .china-filters-compact .china-showall{position:absolute!important;top:100%;left:0;margin-top:3px!important;z-index:2}
 .china-filters-compact #china-date-hint{margin-top:30px}
+
+/* Asia Tango Map: teal palette (homepage red untouched; STW banner keeps brand red) */
+body.china-page{--red:#0e6e78;--red-dark:#0a4f57;--red-deep:#06333a}
+body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4a0609}
