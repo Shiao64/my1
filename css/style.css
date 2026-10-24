@@ -1458,3 +1458,13 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page .china-stw-ad::after{z-index:5;animation:stwShimmer10 10s ease-in-out 0.8s infinite}
 .china-page .china-stw-ad .china-stw-ad-title{animation:stwGlow10 10s ease-in-out 0.8s infinite}
 @media (prefers-reduced-motion:reduce){.china-page .china-stw-ad::after,.china-page .china-stw-ad .china-stw-ad-title{animation:none}}
+
+/* china146: no horizontal overflow on narrow phones (date filter row) */
+@media (max-width:560px){
+  .china-filters-compact .china-filters-row1{flex-wrap:wrap!important;min-width:0!important;max-width:100%!important}
+  .china-filters-compact .china-filters-row1 > .china-date-wrap{flex:1 1 100%!important;min-width:0!important;max-width:100%!important}
+  .china-filters-compact .china-date-fromto{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important;width:100%!important;max-width:100%!important}
+  .china-filters-compact .china-date-field,.china-filters-compact .china-date-field .china-date-wrap{min-width:0!important;width:auto!important;max-width:100%!important}
+  .china-filters-compact .china-date-input{min-width:0!important;width:100%!important;max-width:100%!important}
+  .china-filters-compact .china-showmode,.china-filters-compact .china-showall-row{max-width:100%!important;flex-wrap:wrap}
+}
