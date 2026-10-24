@@ -1452,3 +1452,5 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-cancelled-bar{margin:-4px -4px 10px;padding:7px 12px;border-radius:8px;background:#b3261e;color:#fff;font-weight:800;letter-spacing:.03em;text-align:center}
 .china-cancelled .ev-name,.china-cancelled .ev-line{opacity:.55}
 .china-cancelled .ev-name{text-decoration:line-through}
+.china-type-check input[type=radio]{position:absolute;opacity:0;pointer-events:none}
+.china-type-check .china-check{border-radius:50%!important}

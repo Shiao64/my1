@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china131">
+<link rel="stylesheet" href="../css/style.css?v=china132">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -35,8 +35,8 @@
       <div class="china-type-wrap">
         <h2 class="m-label">Type</h2>
         <div class="m-chips china-type-chips">
-          <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="regular" checked><span class="china-check" aria-hidden="true"></span> Regular</label>
-          <label class="m-chip china-type-check"><input type="checkbox" name="etype" value="event" checked><span class="china-check" aria-hidden="true"></span> Event</label>
+          <label class="m-chip china-type-check"><input type="radio" name="etype" value="regular" checked><span class="china-check" aria-hidden="true"></span> Regular</label>
+          <label class="m-chip china-type-check"><input type="radio" name="etype" value="event"><span class="china-check" aria-hidden="true"></span> Event</label>
         </div>
       </div>
       <div class="china-city-wrap">
@@ -176,6 +176,15 @@
   var MON_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var DAYF = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  // Monthly sessions (nth: 1-5 = Nth weekday of month, -1 = last): show only when the upcoming date is that week
+  function nthOk(r){
+    if (!r.nth) return true;
+    var t = new Date(); t.setHours(12,0,0,0);
+    var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((r.weekday - t.getDay() + 7) % 7));
+    var k = Math.floor((n.getDate() - 1) / 7) + 1;
+    if (r.nth === -1) return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth();
+    return k === r.nth;
+  }
   function weekdayHead(d){
     var t = new Date(); t.setHours(12,0,0,0);
     var add = (d - t.getDay() + 7) % 7; // next occurrence, today first
@@ -303,7 +312,7 @@
       var tw = rs[0].region === 'Taiwan';
       var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head">' + esc(c) + (tw ? ' <span class="china-tw">Taiwan</span>' : '') + ' <span class="china-count"></span></h2>'];
       h.push(group('Events', dated.concat(tba)));
-      var sched = wk.filter(function(r){ return r.weekday != null; }), nos = wk.filter(function(r){ return r.weekday == null; });
+      var sched = wk.filter(function(r){ return r.weekday != null && nthOk(r); }), nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
         h.push('<h3 class="china-sub-head china-weekly-head">Weekly milongas &amp; practicas</h3>');
         [0,1,2,3,4,5,6].map(function(i){ return (new Date().getDay() + i) % 7; }).forEach(function(d){
@@ -462,7 +471,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china131', {cache: 'no-cache'})
+  fetch('events.json?v=china132', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
