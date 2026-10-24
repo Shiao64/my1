@@ -2153,5 +2153,294 @@
       "wechat_label": "正中；Pauline pauline19920927",
       "email": "675247360@qq.com"
     }
+  },
+  {
+    "id": "151MP0Y2",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Elegancy Tango Milonga",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "19:30–22:30",
+    "venue": "海客瀛洲枕江阁A栋12楼1211",
+    "venue_address": "重庆市渝中区朝天门海客瀛洲枕江阁A栋12楼1211",
+    "organizers": [
+      "天天向上Tianrong"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "18983767336",
+      "wechat_label": "天天向上Tianrong",
+      "phone": "18983767336"
+    }
+  },
+  {
+    "id": "YgirJagn",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "重庆美辰工作室 MC Tango Milonga",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "19:30–22:30",
+    "venue": "紫荆商业广场三幢6--3",
+    "venue_address": "重庆市渝北区红黄路121号紫荆商业广场三幢6--3",
+    "organizers": [
+      "辰辰"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "C13708326669",
+      "wechat_label": "辰辰",
+      "phone": "13708326669"
+    }
+  },
+  {
+    "id": "H38F4RX1",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Elegancy Tango",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "19:00–22:00",
+    "venue": "海客瀛洲枕江阁A栋12楼1211",
+    "venue_address": "重庆市渝中区朝天门海客瀛洲枕江阁A栋12楼1211",
+    "organizers": [
+      "天天向上Tianrong"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "18983767336",
+      "wechat_label": "天天向上Tianrong",
+      "phone": "18983767336"
+    }
+  },
+  {
+    "id": "FyFPqhQO",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Love Milonga Club Practica",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:30–22:30",
+    "venue": "合景聚融2单元14-7",
+    "venue_address": "重庆市渝中区民生路1号合景聚融2单元14-7",
+    "organizers": [
+      "清川",
+      "盼盼"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "LMCTANGO",
+      "wechat_label": "Love Milonga Club",
+      "phone": "18584567650 / 18623646903"
+    }
+  },
+  {
+    "id": "hjXJjMuY",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "BA Tango Club Milonga",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:30–late",
+    "venue": "山顶道国宾城12栋2203",
+    "venue_address": "重庆市渝北区山顶道国宾城12栋2203",
+    "organizers": [
+      "Alfonso 村雨"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "Alfonsobatango",
+      "wechat_label": "Alfonso 村雨",
+      "phone": "15713521853"
+    }
+  },
+  {
+    "id": "OnVsNaBZ",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Poema Tango School Milonga",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "21:00–late",
+    "venue": "晶瑞大厦2栋5-15、16",
+    "venue_address": "重庆市渝北区树兰路178号晶瑞大厦2栋5-15、16",
+    "organizers": [
+      "Candy"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "guolei-candy",
+      "wechat_label": "Candy",
+      "phone": "13908301777"
+    }
+  },
+  {
+    "id": "3fjAUnRy",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "重庆黑天鹅俱乐部 Milonga",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:30–23:30",
+    "venue": "梧桐公馆D7栋15—18",
+    "venue_address": "重庆市渝北区兴盛大道63号梧桐公馆D7栋15—18",
+    "organizers": [
+      "非非"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "18523473319",
+      "wechat_label": "非非"
+    }
+  },
+  {
+    "id": "T5eb2ROG",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Love Milonga Club Milonga",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "21:00–00:00",
+    "venue": "合景聚融2单元14-7",
+    "venue_address": "重庆市渝中区民生路1号合景聚融2单元14-7",
+    "organizers": [
+      "清川",
+      "盼盼"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "LMCTANGO",
+      "wechat_label": "Love Milonga Club",
+      "phone": "18584567650 / 18623646903"
+    }
   }
 ]
