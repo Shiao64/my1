@@ -1419,3 +1419,4 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 @media (max-width:560px){ .china-page .china-showall .china-check{width:20px!important;height:20px!important;min-width:20px!important} }
 .china-page .china-filters-compact .china-showall .china-check,.china-page .china-showall .china-check{background:#fff3dc!important;background-color:#fff3dc!important;border:3px solid #e07b00!important}
 .china-page .china-filters-compact .china-showall input:checked + .china-check,.china-page .china-showall input:checked + .china-check{background:#e07b00!important;background-color:#e07b00!important}
+.china-page .china-filters-compact .china-showall .china-check,.china-page .china-showall .china-check{border:1.5px solid #e07b00!important}
