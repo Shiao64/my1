@@ -1428,3 +1428,12 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page .china-filters-compact .china-showall .china-check,.china-page .china-showall .china-check{width:14px!important;height:14px!important;min-width:14px!important;border:1.5px solid #e07b00!important;background:#fff3dc!important}
 .china-page .china-showall input:checked + .china-check{background:#e07b00!important}
 .china-page .china-filters-compact .china-showmode{position:static!important;margin-top:8px!important;flex-basis:100%}
+/* china126: premium shimmer on top ad banner */
+.china-stw-ad{position:relative;overflow:hidden}
+.china-stw-ad::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,236,170,.38),transparent);transform:skewX(-20deg);
+  animation:stwShimmer 6s ease-in-out 0.8s infinite}
+@keyframes stwShimmer{0%{left:-40%}22%{left:120%}100%{left:120%}}
+.china-stw-ad .china-stw-ad-title{animation:stwGlow 6s ease-in-out 0.8s infinite}
+@keyframes stwGlow{0%,100%{text-shadow:0 0 0 rgba(255,215,120,0)}12%{text-shadow:0 0 10px rgba(255,215,120,.75)}28%{text-shadow:0 0 0 rgba(255,215,120,0)}}
+@media (prefers-reduced-motion:reduce){.china-stw-ad::after,.china-stw-ad .china-stw-ad-title{animation:none}}
