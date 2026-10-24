@@ -1417,3 +1417,5 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page .china-showall{align-items:center!important}
 .china-page .china-showall .china-check{width:22px!important;height:22px!important;min-width:22px!important;border:3px solid #e07b00!important;border-radius:4px!important;margin-right:4px!important}
 @media (max-width:560px){ .china-page .china-showall .china-check{width:20px!important;height:20px!important;min-width:20px!important} }
+.china-page .china-filters-compact .china-showall .china-check,.china-page .china-showall .china-check{background:#fff3dc!important;background-color:#fff3dc!important;border:3px solid #e07b00!important}
+.china-page .china-filters-compact .china-showall input:checked + .china-check,.china-page .china-showall input:checked + .china-check{background:#e07b00!important;background-color:#e07b00!important}
