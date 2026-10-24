@@ -1400,3 +1400,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page .china-badge-venue{background:#0e6e78}
 .china-page .ev-card.china-paused{opacity:.92}
 .china-page .ev-card.china-paused .ev-name{text-decoration:line-through;text-decoration-thickness:1px;opacity:.85}
+.china-page .china-hero-bar{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;flex-wrap:nowrap!important}
+.china-page .china-hero-bar h1{flex:0 0 auto!important;width:auto!important}
+.china-page .china-suggest-open{flex:0 0 auto!important;width:auto!important;max-width:none!important;padding:4px 11px!important;font-size:.72rem!important;margin:0!important}
