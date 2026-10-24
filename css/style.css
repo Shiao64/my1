@@ -1403,3 +1403,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page .china-hero-bar{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important;flex-wrap:nowrap!important}
 .china-page .china-hero-bar h1{flex:0 0 auto!important;width:auto!important}
 .china-page .china-suggest-open{flex:0 0 auto!important;width:auto!important;max-width:none!important;padding:4px 11px!important;font-size:.72rem!important;margin:0!important}
+/* Show-all toggle: more noticeable, no added outline */
+.china-page .china-filters-compact .china-showall{background:#d9ecea!important;color:#0b4a4f!important;font-weight:800!important}
+.china-page .china-filters-compact .china-showall:has(input:checked){background:#0f5c62!important;color:#fff!important}
