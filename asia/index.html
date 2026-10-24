@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china83">
+<link rel="stylesheet" href="../css/style.css?v=china84">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -65,7 +65,7 @@
           <label class="china-date-field"><span>From</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-from" class="m-input china-date-input" aria-label="From date"><em class="china-date-show" data-for="china-from" aria-hidden="true"></em></div></label>
           <label class="china-date-field"><span>To</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-to" class="m-input china-date-input" aria-label="To date"><em class="china-date-show" data-for="china-to" aria-hidden="true"></em></div></label>
         </div>
-        <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search">Search</button><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> including TBA and past events</label></span>
+        <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search">Search</button><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> including past events and TBA</label></span>
       </div>
     </div>
     <p class="note" id="china-date-hint" aria-live="polite"></p>
@@ -354,7 +354,7 @@
   }); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china83', {cache: 'no-cache'})
+  fetch('events.json?v=china84', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
