@@ -1170,174 +1170,6 @@
     "tba": false
   },
   {
-    "id": "mRVUOWAP",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "Essa Milonga",
-    "city": "Shanghai",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": null,
-    "weekdays": null,
-    "time": null,
-    "venue": null,
-    "venue_address": null,
-    "organizers": [],
-    "links": {
-      "facebook": "https://www.facebook.com/profile.php?id=61571757600926",
-      "video": "https://www.youtube.com/watch?v=rKxVwOAfBhs",
-      "other": null
-    },
-    "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": true
-  },
-  {
-    "id": "rccbKIYP",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "Infinity milonga",
-    "city": "Shanghai",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": null,
-    "weekdays": null,
-    "time": null,
-    "venue": null,
-    "venue_address": null,
-    "organizers": [
-      "Irene Liu"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": null
-    },
-    "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": true
-  },
-  {
-    "id": "qpMjOerW",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "Milonga Adios",
-    "city": "Shanghai",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": null,
-    "weekdays": null,
-    "time": null,
-    "venue": "Soundcafe",
-    "venue_address": null,
-    "organizers": [],
-    "links": {
-      "facebook": "https://www.facebook.com/milonga.adios",
-      "video": null,
-      "other": null
-    },
-    "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": true
-  },
-  {
-    "id": "ecyMAjFj",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "Shanghai Essa",
-    "city": "Shanghai",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": null,
-    "weekdays": null,
-    "time": null,
-    "venue": null,
-    "venue_address": null,
-    "organizers": [
-      "Maggie Zhang"
-    ],
-    "links": {
-      "facebook": "https://www.facebook.com/people/Shanghai-Essa/61571757600926/",
-      "video": null,
-      "other": null
-    },
-    "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": true
-  },
-  {
-    "id": "JKQfiwMf",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "Tango Cool Shanghai",
-    "city": "Shanghai",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": null,
-    "weekdays": null,
-    "time": null,
-    "venue": null,
-    "venue_address": null,
-    "organizers": [],
-    "links": {
-      "facebook": "https://www.facebook.com/tangocoolshanghai",
-      "video": null,
-      "other": null
-    },
-    "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": true
-  },
-  {
-    "id": "DFBKYdPX",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "Te Amo Tango Lounge",
-    "city": "Shanghai",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": null,
-    "weekdays": null,
-    "time": null,
-    "venue": null,
-    "venue_address": null,
-    "organizers": [
-      "Kai Wang"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": null
-    },
-    "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": true
-  },
-  {
     "id": "rGVIDTwb",
     "kind": "event",
     "type": "festival",
@@ -1798,6 +1630,528 @@
     "contacts": {
       "wechat_id": "fanfan18180505",
       "wechat_label": "凡凡"
+    }
+  },
+  {
+    "id": "DFBKYdPX",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Kai's Milonga",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "20:00–24:00",
+    "venue": "Te Amo Tango Lounge",
+    "venue_address": "上海静安区余姚路583号Te Amo Tango Lounge",
+    "organizers": [
+      "Kai Wang"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13564116575",
+      "wechat_label": "Kai",
+      "phone": "13564116575",
+      "email": "kaiwang215@gmail.com"
+    }
+  },
+  {
+    "id": "bQFvmIuY",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga 1758",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:30–19:00",
+    "venue": "康铂酒店-上海静安店",
+    "venue_address": "上海市静安区乌鲁木齐北路425号（康铂酒店-上海静安店）",
+    "organizers": [
+      "Nam",
+      "Wing"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "Milonga1758",
+      "wechat_label": "Milonga 1758",
+      "phone": "13817984858 / 13564353750"
+    }
+  },
+  {
+    "id": "JKQfiwMf",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Tangocool Shanghai Practica",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:00–18:00",
+    "venue": "泛太大厦5号楼三楼",
+    "venue_address": "上海市长宁区延安西路1221号泛太大厦5号楼三楼",
+    "organizers": [
+      "Gaby",
+      "Tangocool客服"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/tangocoolshanghai",
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13022108554",
+      "wechat_label": "TangoCool",
+      "phone": "13022108554",
+      "email": "tangocool@gmail.com"
+    }
+  },
+  {
+    "id": "P2H9Sjeg",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "TangoBang 探戈帮 Practica",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "19:30–22:30",
+    "venue": "Tango Palace",
+    "venue_address": "上海市普陀区中山北路3175号2楼",
+    "organizers": [
+      "Vivian Ye"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://www.tangobang.cn"
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "Tango_China",
+      "wechat_label": "TangoBang / Vivian Ye",
+      "phone": "18621182646",
+      "email": "tangobang@aliyun.com"
+    }
+  },
+  {
+    "id": "eEHzQBzu",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "MiTango Practica",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:00–22:30",
+    "venue": "华林大楼6层",
+    "venue_address": "上海徐汇区漕溪路190号华林大楼6层",
+    "organizers": [
+      "Shelley Hou",
+      "徐老师"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://www.mitango.cn"
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "15601854223",
+      "wechat_label": "Shelley Hou / mitangosh",
+      "phone": "15601854223 / 13916428289",
+      "email": "15601854223@163.com"
+    }
+  },
+  {
+    "id": "2tbfzeS7",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Kai's Milonga",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–24:00",
+    "venue": "Te Amo Tango Lounge",
+    "venue_address": "上海静安区余姚路583号Te Amo Tango Lounge",
+    "organizers": [
+      "Kai Wang"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13564116575",
+      "wechat_label": "Kai",
+      "phone": "13564116575",
+      "email": "kaiwang215@gmail.com"
+    }
+  },
+  {
+    "id": "PaxqJfM0",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Pampa Mia Milonga",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "20:30–01:00",
+    "venue": "今潮舞荟",
+    "venue_address": "上海市虹口区四川北路989号今潮8弄，5号楼117单元二层今潮舞荟",
+    "organizers": [
+      "PIPO YANG"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "17685520642",
+      "wechat_label": "PampaMia",
+      "phone": "17685520642",
+      "email": "229726128@qq.com"
+    }
+  },
+  {
+    "id": "6Pcl1YgL",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "MiTango Milonga",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–24:00",
+    "venue": "华林大楼6层",
+    "venue_address": "上海徐汇区漕溪路190号华林大楼6层",
+    "organizers": [
+      "Shelley Hou",
+      "徐老师"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://www.mitango.cn"
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "15601854223",
+      "wechat_label": "Shelley Hou / mitangosh",
+      "phone": "15601854223 / 13916428289",
+      "email": "15601854223@163.com"
+    }
+  },
+  {
+    "id": "DIVjezcE",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "TangoBang 探戈帮 Milonga",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "21:00–01:00",
+    "venue": "永惠大厦A栋 1502室",
+    "venue_address": "上海市黄浦区西藏南路765号1502室（永惠大厦A栋，近方斜支路口）",
+    "organizers": [
+      "Vivian Ye"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://www.tangobang.cn"
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "Tango_China",
+      "wechat_label": "TangoBang / Vivian Ye",
+      "phone": "18621182646",
+      "email": "tangobang@aliyun.com"
+    }
+  },
+  {
+    "id": "rccbKIYP",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Infinity Tango / Infinitango 探戈极限",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "17:00–21:00",
+    "venue": "茂名大厦313",
+    "venue_address": "上海市永嘉路35号茂名大厦313",
+    "organizers": [
+      "Irene",
+      "Kaiser",
+      "Cindy"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_label": "Infinity Tango",
+      "phone": "13601724655"
+    }
+  },
+  {
+    "id": "R0E9XeyL",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "LosGatos Tango 猫猫探戈 (每月第一周周六)",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "14:00–18:00",
+    "venue": "W BAR",
+    "venue_address": "上海市普陀区莫干山路50号M50创意园3号楼107",
+    "organizers": [
+      "Monica"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "TangoGato",
+      "wechat_label": "LosGatos",
+      "phone": "17602118718",
+      "email": "kittyallen@163.com"
+    }
+  },
+  {
+    "id": "xXxB330r",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Pampa Mia Milonga",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:30–01:00",
+    "venue": "今潮舞荟",
+    "venue_address": "上海市虹口区四川北路989号今潮8弄，5号楼117单元二层今潮舞荟",
+    "organizers": [
+      "PIPO YANG"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "17685520642",
+      "wechat_label": "PampaMia",
+      "phone": "17685520642",
+      "email": "229726128@qq.com"
+    }
+  },
+  {
+    "id": "ecyMAjFj",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Shanghai ESSA Tango Practica",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "15:00–18:00",
+    "venue": "Tango Palace",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "organizers": [
+      "Maggie",
+      "Lydia",
+      "Marco"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/people/Shanghai-Essa/61571757600926/",
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "xiaonan191986",
+      "wechat_label": "Shanghai ESSA",
+      "email": "56010374@qq.com"
+    }
+  },
+  {
+    "id": "izAYSxss",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango Dreamers Club Milonga (每月第三个周六)",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–24:00",
+    "venue": "Tango Palace",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "organizers": [
+      "正中",
+      "Pauline"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "lzz8987",
+      "wechat_label": "正中；Pauline pauline19920927",
+      "email": "675247360@qq.com"
     }
   }
 ]
