@@ -1454,3 +1454,7 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-cancelled .ev-name{text-decoration:line-through}
 .china-type-check input[type=radio]{position:absolute;opacity:0;pointer-events:none}
 .china-type-check .china-check{border-radius:50%!important}
+/* china140: restore china127 sweep (every 10s), keep above banner layers */
+.china-page .china-stw-ad::after{z-index:5;animation:stwShimmer10 10s ease-in-out 0.8s infinite}
+.china-page .china-stw-ad .china-stw-ad-title{animation:stwGlow10 10s ease-in-out 0.8s infinite}
+@media (prefers-reduced-motion:reduce){.china-page .china-stw-ad::after,.china-page .china-stw-ad .china-stw-ad-title{animation:none}}
