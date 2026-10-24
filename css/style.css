@@ -1479,3 +1479,7 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 }
 @keyframes stwShimmerDesk{0%{left:-30%}38%{left:115%}100%{left:115%}}
 @keyframes stwGlowDesk{0%,100%{text-shadow:0 0 0 rgba(255,215,120,0)}19%{text-shadow:0 0 10px rgba(255,215,120,.75)}40%{text-shadow:0 0 0 rgba(255,215,120,0)}}
+/* suggest popup: keep title visible (mobile toolbars / short screens) */
+.china-suggest-modal{z-index:1000;align-items:flex-start;overflow-y:auto;padding-top:max(12px,env(safe-area-inset-top))}
+.china-suggest-dialog{margin:auto 0;max-height:calc(100dvh - 24px)}
+.china-suggest-dialog h2{white-space:normal;overflow:visible;line-height:1.35;padding-top:2px}
