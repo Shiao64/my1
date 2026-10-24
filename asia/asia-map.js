@@ -182,7 +182,7 @@
     var wkCount = {}; data.forEach(function(r){ if (r.kind === 'weekly' && !r.hidden) wkCount[r.city] = (wkCount[r.city] || 0) + 1; });
     var baseIdx = cities.slice();
     cities.sort(function(a,b){ return ((wkCount[b]||0) - (wkCount[a]||0)) || (baseIdx.indexOf(a) - baseIdx.indexOf(b)); });
-    var OTHERS = cities.filter(function(c){ return (wkCount[c] || 0) < 2; });
+    var OTHERS = cities.filter(function(c){ return (wkCount[c] || 0) < 1; });
     cities = cities.filter(function(c){ return OTHERS.indexOf(c) === -1; }).concat(OTHERS.length ? ['Others'] : []);
     window._chinaCityOrder = cities.slice();
     var cs = document.getElementById('china-city');
