@@ -1406,3 +1406,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 /* Show-all toggle: more noticeable, no added outline */
 .china-page .china-filters-compact .china-showall{background:#d9ecea!important;color:#0b4a4f!important;font-weight:800!important}
 .china-page .china-filters-compact .china-showall:has(input:checked){background:#0f5c62!important;color:#fff!important}
+/* Show-all checkbox: clearer square box */
+.china-page .china-showall .china-check{width:14px!important;height:14px!important;min-width:14px!important;border:2px solid #0b4a4f!important;border-radius:3px!important;background:#fff!important;box-sizing:border-box!important}
+.china-page .china-showall input:checked + .china-check{background:#e8c27a!important;border-color:#fff!important}
