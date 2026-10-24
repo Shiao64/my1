@@ -125,67 +125,69 @@
     <button type="button" class="china-suggest-x" data-suggest-close aria-label="Close">&times;</button>
     <h2 id="china-suggest-title">Add event</h2>
     <form class="china-suggest" id="china-suggest" novalidate>
-      <p class="china-suggest-intro">Please state one-time or regular; for regular, give the frequency, e.g. weekly or monthly.</p>
       <div class="china-suggest-group">
-        <label for="sf-name">Event name<span class="req"> (Required)</span></label>
-        <input type="text" id="sf-name" class="m-input sf-field" data-label="Event name" required>
+        <label for="sf-name">Event name</label>
+        <input type="text" id="sf-name" class="m-input sf-field" data-label="Event name">
       </div>
       <div class="china-suggest-pair">
       <div class="china-suggest-group">
-        <label for="sf-date">Date<span class="req"> (Required)</span></label>
-        <input type="text" id="sf-date" class="m-input sf-field" data-label="Date" required>
+        <label for="sf-date">Date</label>
+        <input type="text" id="sf-date" class="m-input sf-field" data-label="Date">
       </div>
       <div class="china-suggest-group">
-        <label for="sf-time">Time<span class="req"> (Required)</span></label>
-        <input type="text" id="sf-time" class="m-input sf-field" data-label="Time" required>
+        <label for="sf-time">Time</label>
+        <input type="text" id="sf-time" class="m-input sf-field" data-label="Time">
       </div>
       </div>
       <div class="china-suggest-pair">
       <div class="china-suggest-group">
-        <label for="sf-city">City<span class="req"> (Required)</span></label>
-        <input type="text" id="sf-city" class="m-input sf-field" data-label="City" required>
+        <label for="sf-city">City</label>
+        <input type="text" id="sf-city" class="m-input sf-field" data-label="City">
       </div>
       <div class="china-suggest-group">
-        <label for="sf-venue">Venue<span class="req"> (Required)</span></label>
-        <input type="text" id="sf-venue" class="m-input sf-field" data-label="Venue" required>
+        <label for="sf-venue">Venue</label>
+        <input type="text" id="sf-venue" class="m-input sf-field" data-label="Venue">
       </div>
       </div>
       <div class="china-suggest-group">
-        <label for="sf-address">Address<span class="opt"> (Optional)</span></label>
+        <label for="sf-address">Address</label>
         <input type="text" id="sf-address" class="m-input sf-field" data-label="Address">
       </div>
       <div class="china-suggest-group">
-        <label for="sf-org">Organizer<span class="req"> (Required)</span></label>
-        <input type="text" id="sf-org" class="m-input sf-field" data-label="Organizer" required>
+        <label for="sf-org">Organizer</label>
+        <input type="text" id="sf-org" class="m-input sf-field" data-label="Organizer">
       </div>
       <div class="china-suggest-pair">
       <div class="china-suggest-group">
-        <label for="sf-phone">Phone<span class="req"> (Required)</span></label>
-        <input type="text" id="sf-phone" class="m-input sf-field" data-label="Phone" required>
+        <label for="sf-phone">Phone</label>
+        <input type="text" id="sf-phone" class="m-input sf-field" data-label="Phone">
       </div>
       <div class="china-suggest-group">
-        <label for="sf-owx">WeChat<span class="req"> (Required)</span></label>
-        <input type="text" id="sf-owx" class="m-input sf-field" data-label="WeChat" required>
+        <label for="sf-owx">WeChat</label>
+        <input type="text" id="sf-owx" class="m-input sf-field" data-label="WeChat">
       </div>
       </div>
-      <p class="china-suggest-note">We&rsquo;ll reply when the listing is published and never share your email or WeChat ID.</p>
+      <div class="china-suggest-group">
+        <label for="sf-kind">Address &amp; Notes</label>
+        <input type="text" id="sf-kind" class="m-input sf-field" data-label="Notes" aria-label="One-time or regular" placeholder="State one-time or regular; for regular, give the frequency, e.g. weekly or monthly">
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-url">Event website</label>
+        <input type="url" id="suggest-url" name="url" class="m-input" placeholder="http://...">
+      </div>
       <div class="china-suggest-row">
       <div class="china-suggest-group">
         <label for="suggest-email">Your email<span class="req"> (Required)</span></label>
         <div class="china-suggest-email">
-          <span class="china-suggest-at" aria-hidden="true">@</span>
-          <input type="email" id="suggest-email" name="email" class="m-input" placeholder="sample@example.com" required>
+          <input type="email" id="suggest-email" name="email" class="m-input" required>
         </div>
       </div>
       <div class="china-suggest-group">
-        <label for="suggest-wechat">Your WeChat ID<span class="req"> (Required)</span></label>
-        <input type="text" id="suggest-wechat" name="wechat" class="m-input" placeholder="Your WeChat ID" required>
+        <label for="suggest-wechat">Your WeChat ID</label>
+        <input type="text" id="suggest-wechat" name="wechat" class="m-input" placeholder="Your WeChat ID">
       </div>
       </div>
-      <div class="china-suggest-group">
-        <label for="suggest-url">Event website<span class="opt"> (Optional)</span></label>
-        <input type="url" id="suggest-url" name="url" class="m-input" placeholder="http://...">
-      </div>
+      <p class="china-suggest-note" style="font-size:.8em">We&rsquo;ll let you know when the listing is published and never share your email or WeChat ID.</p>
       <div class="china-suggest-actions">
         <button type="submit" class="btn m-btn china-search-btn" id="suggest-submit" disabled>Submit</button>
       </div>
