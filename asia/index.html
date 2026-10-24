@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china128">
+<link rel="stylesheet" href="../css/style.css?v=china129">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -178,8 +178,7 @@
   var DAYF = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   function weekdayHead(d){
     var t = new Date(); t.setHours(12,0,0,0);
-    var back = (t.getDay() + 6) % 7; // days since this week's Monday (0 if today is Monday)
-    var add = -back + ((d + 6) % 7); // Mon..Sun of the current week
+    var add = (d - t.getDay() + 7) % 7; // next occurrence, today first
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + add);
     return DAYF[d] + ' ' + (n.getMonth()+1) + '/' + n.getDate();
   }
@@ -303,7 +302,7 @@
       var sched = wk.filter(function(r){ return r.weekday != null; }), nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
         h.push('<h3 class="china-sub-head china-weekly-head">Weekly milongas &amp; practicas</h3>');
-        [1,2,3,4,5,6,0].forEach(function(d){
+        [0,1,2,3,4,5,6].map(function(i){ return (new Date().getDay() + i) % 7; }).forEach(function(d){
           h.push(group(weekdayHead(d), sched.filter(function(r){ return r.weekday === d; }).sort(function(a,b){ return (a.time||'') < (b.time||'') ? -1 : 1; }), 'china-day'));
         });
         h.push(group('Day TBA', nos, 'china-day'));
@@ -459,7 +458,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china128', {cache: 'no-cache'})
+  fetch('events.json?v=china129', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
