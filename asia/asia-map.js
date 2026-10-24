@@ -355,7 +355,9 @@
   function sugDetOk(){ if (!sugDet || !sugDet.required) return true; var v=sugDet.value.trim(); return !!v && v!==sugDet.defaultValue.trim(); }
   function sugKind(){ var r=sug?sug.querySelector('input[name=kind]:checked'):null; return r?r.value:''; }
   function sugKindOk(){ var any=sug?sug.querySelector('input[name=kind]'):null; return !any || !!sugKind(); }
-  function sugReady(){ if (sugBtn) sugBtn.disabled = (sugUrlReq() && !(sugUrl && sugUrl.value.trim())) || !sugDetOk() || !sugKindOk(); }
+  function sugReady(){ if (sugBtn) sugBtn.disabled = (sugUrlReq() && !(sugUrl && sugUrl.value.trim())) || !sugDetOk() || !sugKindOk() || !sugReqOk(); }
+  function sugReqOk(){ if (!sug) return true; var ok=true; Array.prototype.forEach.call(sug.querySelectorAll('input[required]:not([type=radio])'), function(el){ if (!el.value.trim()) ok=false; }); return ok; }
+  if (sug) Array.prototype.forEach.call(sug.querySelectorAll('input[required]:not([type=radio])'), function(el){ el.addEventListener('input', sugReady); });
   if (sug) Array.prototype.forEach.call(sug.querySelectorAll('input[name=kind]'), function(r){ r.addEventListener('change', sugReady); });
   function sugShow(on){ if (!sugModal) return; sugModal.hidden=!on; document.body.style.overflow=on?'hidden':''; if (on && sug) setTimeout(function(){ var f=sug.querySelector('.m-input'); if (f) f.focus(); }, 50); }
   if (sugOpen) sugOpen.addEventListener('click', function(){ sugShow(true); });
@@ -365,7 +367,7 @@
   if (sugUrl) { sugUrl.addEventListener('input', sugReady); sugUrl.addEventListener('change', sugReady); }
   if (sug) sug.addEventListener('submit', function(e){
     e.preventDefault();
-    if (sugUrlReq() && !sugUrl.value.trim()) return; if (!sugDetOk() || !sugKindOk()) return;
+    if (sugUrlReq() && !sugUrl.value.trim()) return; if (!sugDetOk() || !sugKindOk() || !sugReqOk()) return;
     var details=(document.getElementById('suggest-details')||{}).value||'';
     var email=(document.getElementById('suggest-email')||{}).value||'';
     var wx=((document.getElementById('suggest-wechat')||{}).value||'').trim();
