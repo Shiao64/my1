@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china85">
+<link rel="stylesheet" href="../css/style.css?v=china86">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -81,7 +81,7 @@
 </section>
 <section id="contact-china" class="alt">
   <div class="wrap" style="max-width:820px">
-    <div class="sec-title"><h2>Contact</h2><span class="en">Select Tango Weekend · Asia Tango Map</span></div>
+    <div class="sec-title"><h2>Contact</h2><span class="en">Beijing Select Tango Weekend · Asia Tango Map</span></div>
     <div class="china-contact-grid">
       <div class="china-contact-card">
         <h3>Email</h3>
@@ -96,10 +96,6 @@
       <div class="china-contact-card">
         <h3>Facebook</h3>
         <p><a href="https://www.facebook.com/groups/selecttangoweekend" target="_blank" rel="noopener">Select Tango Weekend group</a></p>
-      </div>
-      <div class="china-contact-card">
-        <h3>Event data</h3>
-        <p class="note">China, Hong Kong &amp; Taiwan listings from <a href="https://www.facebook.com/profile.php?id=100093497583670" target="_blank" rel="noopener">TangoWorld by KoKoTango</a> (updated: <span class="china-updated">2026/10/24</span>). Organizer contacts on each card when available; missing fields stay blank.</p>
       </div>
     </div>
   </div>
@@ -354,7 +350,7 @@
   }); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china85', {cache: 'no-cache'})
+  fetch('events.json?v=china86', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
