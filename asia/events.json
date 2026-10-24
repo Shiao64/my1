@@ -3807,5 +3807,371 @@
       "phone": "19962021179",
       "email": "wang_tianyi2046@163.com"
     }
+  },
+  {
+    "id": "3OLeTCyc",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "沈阳阿根廷探戈 Milonga",
+    "city": "Shenyang",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:00–18:00",
+    "venue": "太原街玖伍文化城",
+    "venue_address": "沈阳市太原街玖伍文化城",
+    "organizers": [
+      "Gasol"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "jianshideguan",
+      "wechat_label": "sytango",
+      "phone": "18698860592",
+      "email": "htsh888@163.com"
+    }
+  },
+  {
+    "id": "ylpxWMT3",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Tango Coco Club Practica",
+    "city": "Shenyang",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:30–24:00",
+    "venue": "奥体万达ONE 4楼帝舞道",
+    "venue_address": "沈阳市浑南区营盘西街17号奥体万达广场ONE街区4楼帝舞道国际舞蹈",
+    "organizers": [
+      "Coco冯"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "cocomiuqq3321",
+      "wechat_label": "Coco",
+      "phone": "18640353333"
+    }
+  },
+  {
+    "id": "7LmAy21F",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Si Tango Dalian Milonga",
+    "city": "Dalian",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "16:00–20:00",
+    "venue": "万科大都会星海蓝鲸教室",
+    "venue_address": "辽宁省大连市沙河口区万科大都会星海蓝鲸教室",
+    "organizers": [
+      "存在",
+      "正新"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "SiTangoDalian",
+      "wechat_label": "Si Tango",
+      "phone": "13942815933 / 13841135883"
+    }
+  },
+  {
+    "id": "gxQ1DVFv",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Dalian TangoOn Club (每月第三个周六)",
+    "city": "Dalian",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": null,
+    "venue": "嘉汇大厦606",
+    "venue_address": "辽宁省大连市西岗区恒隆广场旁嘉汇大厦606",
+    "organizers": [
+      "方艺燃",
+      "崔本尘"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "fyrtango",
+      "wechat_label": "TangoOn",
+      "phone": "18640999125"
+    }
+  },
+  {
+    "id": "tFbKdmHw",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "济南阿根廷探戈俱乐部 Practica",
+    "city": "Jinan",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "19:00–21:00",
+    "venue": "海辰大厦B座603",
+    "venue_address": "济南市文化西路海辰大厦B座6楼603",
+    "organizers": [
+      "雨泉"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "15863176772",
+      "wechat_label": "雨泉"
+    }
+  },
+  {
+    "id": "6EwsBs3H",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "青岛 Tango Q 俱乐部 Milonga",
+    "city": "Qingdao",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–00:00",
+    "venue": "中商广场3号楼1201",
+    "venue_address": "青岛市市南区漳州二路9号中商广场3号楼1单元1201",
+    "organizers": [
+      "Jenny"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "13969712083",
+      "email": "jenny1613@163.com",
+      "wechat_label": "青岛TangoQ"
+    }
+  },
+  {
+    "id": "Ls5awDQd",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango La Vida Milonga",
+    "city": "Qingdao",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–late",
+    "venue": "海枫雅居48号网点",
+    "venue_address": "青岛市北CBD海枫雅居48号网点",
+    "organizers": [
+      "沉鱼",
+      "文莉"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "15054237733",
+      "wechat_label": "沉鱼/文莉",
+      "phone": "15806547676"
+    }
+  },
+  {
+    "id": "p0YT98Nb",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Tango La Vida Practica",
+    "city": "Qingdao",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:30–22:30",
+    "venue": "海枫雅居48号网点",
+    "venue_address": "青岛市北CBD海枫雅居48号网点",
+    "organizers": [
+      "沉鱼",
+      "文莉"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "15054237733",
+      "wechat_label": "沉鱼/文莉",
+      "phone": "15806547676"
+    }
+  },
+  {
+    "id": "2Luke1z0",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango La Vida 月度舞会 (月度周日)",
+    "city": "Qingdao",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "16:00–19:30",
+    "venue": "海枫雅居48号网点",
+    "venue_address": "青岛市北CBD海枫雅居48号网点",
+    "organizers": [
+      "沉鱼",
+      "文莉"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "15054237733",
+      "wechat_label": "沉鱼/文莉",
+      "phone": "15806547676"
+    }
+  },
+  {
+    "id": "IWhoBe19",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tangoholic Milonga",
+    "city": "Qingdao",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–23:00",
+    "venue": "古巴文化交流中心一层",
+    "venue_address": "青岛市古巴文化交流中心一层咖啡厅博山路",
+    "organizers": [
+      "小致"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "18553533677",
+      "wechat_label": "小致",
+      "phone": "18553533677",
+      "email": "18553533677@163.com"
+    }
   }
 ]
