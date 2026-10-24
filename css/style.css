@@ -1362,8 +1362,16 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 
 /* Asia Tango Map — Suggest event modal (Tangocat-style) */
 .china-hero-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.china-suggest-open{flex-shrink:0;padding:7px 16px;border-radius:999px;font-weight:700;font-size:.82rem;cursor:pointer;background:transparent;color:#fff;border:2px solid rgba(255,255,255,.55);transition:background .15s,border-color .15s,color .15s}
-.china-suggest-open:hover{background:rgba(255,255,255,.12);border-color:#fff;color:#fff}
+.china-suggest-open{
+  flex-shrink:0;padding:8px 18px;border-radius:999px;font-weight:700;font-size:.82rem;cursor:pointer;
+  background:#fffdf5;color:#941226;border:2px solid #941226;
+  box-shadow:0 0 0 3px rgba(148,18,38,.22), 0 0 0 7px rgba(255,253,245,.55);
+  transition:background .15s,border-color .15s,color .15s,box-shadow .15s
+}
+.china-suggest-open:hover{
+  background:#941226;border-color:#941226;color:#fff;
+  box-shadow:0 0 0 3px rgba(148,18,38,.35), 0 0 0 8px rgba(255,253,245,.7)
+}
 .china-suggest-modal[hidden]{display:none!important}
 .china-suggest-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
 .china-suggest-backdrop{position:absolute;inset:0;background:rgba(20,30,35,.55)}
