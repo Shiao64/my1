@@ -3298,5 +3298,514 @@
       "phone": "15015982896 / 13535532300",
       "wechat_label": "Vstar"
     }
+  },
+  {
+    "id": "dLub3zK9",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "HiTango 探戈舞蹈俱乐部 Milonga",
+    "city": "Haikou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–late",
+    "venue": "傍海小区8栋603",
+    "venue_address": "海口市龙华区玉沙横路30号傍海小区8栋603",
+    "organizers": [
+      "Calix",
+      "Momo"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "HiTangoMomo",
+      "wechat_label": "Calix / Momo",
+      "phone": "18976549120"
+    }
+  },
+  {
+    "id": "RNSobhph",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "HiTango Practica",
+    "city": "Haikou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00",
+    "venue": "傍海小区8栋603",
+    "venue_address": "海口市龙华区玉沙横路30号傍海小区8栋603",
+    "organizers": [
+      "Calix",
+      "Momo"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "HiTangoMomo",
+      "wechat_label": "Calix / Momo",
+      "phone": "18976549120"
+    }
+  },
+  {
+    "id": "5PLbOu0U",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "郑州黑猫阿根廷探戈俱乐部 Practica",
+    "city": "Zhengzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "18:00–21:00",
+    "venue": "财源大厦B座10楼071",
+    "venue_address": "郑州市金水区红专路政七街西北角财源大厦B座10楼071室",
+    "organizers": [
+      "桃子"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "13803890506",
+      "email": "122144971@qq.com",
+      "wechat_label": "桃子"
+    }
+  },
+  {
+    "id": "j31odaX9",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "LiberTango 自由探戈文化空间",
+    "city": "Zhengzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–23:00",
+    "venue": "绿地之窗尚峰座513",
+    "venue_address": "郑州市郑东新区普惠路78号绿地之窗尚峰座513（郑州东站对面）",
+    "organizers": [
+      "Cindia"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "13203729160",
+      "wechat_label": "Cindia",
+      "phone": "13203729160"
+    }
+  },
+  {
+    "id": "Z15fKpMD",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango Red 俱乐部 Milonga",
+    "city": "Zhengzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:00–23:00",
+    "venue": "紫金山百货三楼",
+    "venue_address": "郑州市紫金山百货大楼三楼",
+    "organizers": [
+      "牛静"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "17703865678",
+      "wechat_label": "牛静",
+      "phone": "17703865678"
+    }
+  },
+  {
+    "id": "9oJFdQ64",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango Red 俱乐部 Milonga",
+    "city": "Zhengzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "19:00–23:00",
+    "venue": "紫金山百货三楼",
+    "venue_address": "郑州市紫金山百货大楼三楼",
+    "organizers": [
+      "牛静"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "17703865678",
+      "wechat_label": "牛静",
+      "phone": "17703865678"
+    }
+  },
+  {
+    "id": "7WSVln2j",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Tango Red 俱乐部 Practica",
+    "city": "Zhengzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:00–18:00",
+    "venue": "紫金山百货三楼",
+    "venue_address": "郑州市紫金山百货大楼三楼",
+    "organizers": [
+      "牛静"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "17703865678",
+      "wechat_label": "牛静",
+      "phone": "17703865678"
+    }
+  },
+  {
+    "id": "IhuWWjSq",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "郑州 Moon 探戈 Milonga",
+    "city": "Zhengzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–22:30",
+    "venue": "万通国际1706",
+    "venue_address": "郑州市农业南路万通国际大厦17层1706",
+    "organizers": [
+      "苏州/Suliya"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "17513281629",
+      "wechat_label": "苏州",
+      "phone": "17513281629",
+      "email": "568190231@qq.com"
+    }
+  },
+  {
+    "id": "KmPP1v4J",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "唐影 Tangotime 俱乐部 Milonga",
+    "city": "Wuhan",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:30–24:00",
+    "venue": "华润置地公馆三楼04",
+    "venue_address": "湖北省武汉市武昌区民主路624号华润置地公馆商铺三楼04房",
+    "organizers": [
+      "唐影"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "18367185090",
+      "wechat_label": "唐影",
+      "phone": "18367185090"
+    }
+  },
+  {
+    "id": "WLiEsmzA",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Pebeta Tango Milonga",
+    "city": "Wuhan",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:30–22:30",
+    "venue": "福星商会大厦1007",
+    "venue_address": "湖北省武汉市江汉区新华路186号福星商会大厦1007",
+    "organizers": [
+      "杨千千"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "17720521994",
+      "wechat_label": "杨千千",
+      "phone": "17720521994"
+    }
+  },
+  {
+    "id": "ilVTyZQ8",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "曼罗舞蹈 Milonga",
+    "city": "Wuhan",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "21:00–00:00",
+    "venue": "阜华大厦A座6楼02",
+    "venue_address": "武汉市武昌街道口阜华大厦A座6楼02室·曼罗舞蹈",
+    "organizers": [
+      "小罗"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "18971429599",
+      "email": "1150191033@qq.com",
+      "wechat_label": "小罗"
+    }
+  },
+  {
+    "id": "36XQnOFA",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "E-Tango 逸探戈俱乐部 Milonga",
+    "city": "Nanjing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:30–22:30",
+    "venue": "建华大厦705",
+    "venue_address": "南京市秦淮区石鼓路42号建华大厦7楼705室",
+    "organizers": [
+      "Lorena",
+      "旻旻"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "南京E探戈",
+      "wechat_label": "南京E探戈",
+      "phone": "15077869922 / 13770634621",
+      "email": "njtango@126.com"
+    }
+  },
+  {
+    "id": "ygJlaT14",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "happytango Milonga",
+    "city": "Nanjing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "16:00–20:00",
+    "venue": "建华大厦705",
+    "venue_address": "南京新街口建华大厦705",
+    "organizers": [
+      "小善"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "13776689534",
+      "wechat_label": "小善"
+    }
+  },
+  {
+    "id": "IlaLAMob",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga NJ",
+    "city": "Nanjing",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–23:30",
+    "venue": "正洪大厦1102",
+    "venue_address": "南京新街口正洪大厦1102室",
+    "organizers": [
+      "Felicia"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user directory 2026-10-24",
+    "updated": "2026-10-24",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "wechat_id": "19962021179",
+      "wechat_label": "FeliciaTango",
+      "phone": "19962021179",
+      "email": "wang_tianyi2046@163.com"
+    }
   }
 ]
