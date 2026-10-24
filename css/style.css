@@ -1343,3 +1343,5 @@ body.china-page{--red:#0e6e78;--red-dark:#0a4f57;--red-deep:#06333a}
 body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4a0609}
 .china-filters-compact .china-showmode{position:absolute;top:100%;left:0;margin-top:3px;display:flex;gap:6px;z-index:2}
 .china-filters-compact .china-showmode .china-showall{position:static!important;margin-top:0!important}
+.china-filters-compact .china-showmode{align-items:center;white-space:nowrap}
+.china-filters-compact .china-showmode .china-search-btn{margin:0}

@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china81">
+<link rel="stylesheet" href="../css/style.css?v=china82">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -64,9 +64,8 @@
         <div class="china-date-fromto">
           <label class="china-date-field"><span>From</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-from" class="m-input china-date-input" aria-label="From date"><em class="china-date-show" data-for="china-from" aria-hidden="true"></em></div></label>
           <label class="china-date-field"><span>To</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-to" class="m-input china-date-input" aria-label="To date"><em class="china-date-show" data-for="china-to" aria-hidden="true"></em></div></label>
-          <button type="button" class="btn m-btn china-search-btn" id="china-search">Search</button>
         </div>
-        <span class="china-showmode"><label class="m-chip china-type-check china-showall"><input type="radio" name="showmode" id="china-show" value="upcoming" checked><span class="china-check" aria-hidden="true"></span> Show</label><label class="m-chip china-type-check china-showall"><input type="radio" name="showmode" id="china-showall" value="all"><span class="china-check" aria-hidden="true"></span> Show all</label></span>
+        <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search">Search</button><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> including TBA and past events</label></span>
       </div>
     </div>
     <p class="note" id="china-date-hint" aria-live="polite"></p>
@@ -347,7 +346,7 @@
     else { fromEl.min = CUTOFF; if (!fromEl.value || fromEl.value < CUTOFF) fromEl.value = todayISO(); }
     applyFilters();
   }
-  document.querySelectorAll('input[name="showmode"]').forEach(function(r){ r.addEventListener('change', onShowMode); });
+  if (showAllEl) showAllEl.addEventListener('change', onShowMode);
   // Regular and Event can both be checked; keep at least one checked
   Array.prototype.forEach.call(document.querySelectorAll('input[name="etype"]'), function(el){ el.addEventListener('change', function(){
     if (!el.checked && !document.querySelector('input[name="etype"]:checked')) el.checked = true;
@@ -355,7 +354,7 @@
   }); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
-  fetch('events.json?v=china81', {cache: 'no-cache'})
+  fetch('events.json?v=china82', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
