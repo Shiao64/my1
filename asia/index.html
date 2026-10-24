@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
-<link rel="stylesheet" href="../css/style.css?v=china132">
+<link rel="stylesheet" href="../css/style.css?v=china133">
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
 .china-date-wrap input.has-en{color:transparent}
@@ -362,17 +362,21 @@
       if (o.value === 'all') return;
       var off = !has[o.value]; o.hidden = off; o.disabled = off;
     });
-    if (citySel.value !== 'all' && !has[citySel.value]) citySel.value = 'all';
-    // Event only works with All cities: lock the dropdown
+    // Event: locked to All cities. Regular: exactly one city (no All), Beijing by default
     var ev = types.length === 1 && types[0] === 'event';
-    if (ev) citySel.value = 'all';
+    var allOpt = citySel.querySelector('option[value="all"]');
+    if (ev) { if (citySel.value !== 'all') citySel._lastCity = citySel.value; citySel.value = 'all'; if (allOpt) { allOpt.hidden = false; allOpt.disabled = false; } }
+    else {
+      if (allOpt) { allOpt.hidden = true; allOpt.disabled = true; }
+      if (citySel.value === 'all' || !has[citySel.value]) citySel.value = (citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : (has.bj ? 'bj' : (Object.keys(has)[0] || 'bj'));
+    }
     citySel.disabled = ev;
   }
   function applyFilters(){
     updateCityOptions();
     var city = citySel ? citySel.value : 'all', types = checkedTypes(), totalVisible = 0;
     // China + All cities + only Event checked: one flat list sorted by start date (soonest first)
-    var chrono = city === 'all' && types.length === 1 && types[0] === 'event';
+    var chrono = false; // Event mode keeps one block per city
     document.querySelectorAll('.china-city-block').forEach(function(block){
       var regionOk = (city === 'all' || city === block.getAttribute('data-region'));
       var items = block.querySelectorAll('.china-list > li'), shown = 0;
@@ -471,7 +475,7 @@
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
   });
-  fetch('events.json?v=china132', {cache: 'no-cache'})
+  fetch('events.json?v=china133', {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
