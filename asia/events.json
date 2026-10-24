@@ -709,7 +709,7 @@
     "time": null,
     "venue": null,
     "venue_address": null,
-    "organizers": [],
+    "organizers": ["Yutan Lin"],
     "links": {
       "facebook": "https://www.facebook.com/groups/1494663620822173/",
       "video": "https://www.youtube.com/watch?v=kM2IghDJa0k",
