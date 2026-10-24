@@ -1488,3 +1488,8 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 #china-suggest-modal .china-suggest-dialog{max-height:calc(100vh - 16px)!important;max-height:calc(100dvh - 16px)!important;padding-top:0!important}
 #china-suggest-modal h2{position:sticky;top:0;z-index:2;background:#fbf5e9;margin:0 -18px 6px;padding:12px 44px 8px 18px;font-size:1.2rem}
 #china-suggest-modal .china-suggest-x{z-index:3;top:6px}
+/* v3: clear mobile browser/in-app top bars */
+@media (max-width:700px){
+#china-suggest-modal.china-suggest-modal{height:100vh;height:100dvh;padding:calc(env(safe-area-inset-top) + 44px) 8px calc(env(safe-area-inset-bottom) + 8px)}
+#china-suggest-modal .china-suggest-dialog{margin:0 auto;max-height:calc(100vh - 96px)!important;max-height:calc(100dvh - 52px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
+}
