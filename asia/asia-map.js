@@ -350,7 +350,8 @@
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
   var sug=document.getElementById('china-suggest'), sugUrl=document.getElementById('suggest-url'), sugBtn=document.getElementById('suggest-submit'), sugThanks=document.getElementById('suggest-thanks');
   var sugModal=document.getElementById('china-suggest-modal'), sugOpen=document.getElementById('china-suggest-open');
-  function sugReady(){ if (sugBtn) sugBtn.disabled = !(sugUrl && sugUrl.value.trim()); }
+  function sugUrlReq(){ return !!(sugUrl && sugUrl.required); }
+  function sugReady(){ if (sugBtn) sugBtn.disabled = sugUrlReq() && !(sugUrl && sugUrl.value.trim()); }
   function sugShow(on){ if (!sugModal) return; sugModal.hidden=!on; document.body.style.overflow=on?'hidden':''; if (on && sugUrl) setTimeout(function(){ sugUrl.focus(); }, 50); }
   if (sugOpen) sugOpen.addEventListener('click', function(){ sugShow(true); });
   document.querySelectorAll('[data-suggest-close]').forEach(function(el){ el.addEventListener('click', function(){ sugShow(false); }); });
@@ -358,10 +359,10 @@
   if (sugUrl) { sugUrl.addEventListener('input', sugReady); sugUrl.addEventListener('change', sugReady); }
   if (sug) sug.addEventListener('submit', function(e){
     e.preventDefault();
-    if (!sugUrl || !sugUrl.value.trim()) return;
+    if (sugUrlReq() && !sugUrl.value.trim()) return;
     var details=(document.getElementById('suggest-details')||{}).value||'';
     var email=(document.getElementById('suggest-email')||{}).value||'';
-    var body=(UI.suggestBodyUrl||'Event website: ')+sugUrl.value.trim()+'\n\n'+details.trim()+(email?'\n\n'+(UI.suggestReplyTo||'Reply-to: ')+email:'');
+    var body=((sugUrl&&sugUrl.value.trim())?(UI.suggestBodyUrl||'Event website: ')+sugUrl.value.trim()+'\n\n':'')+details.trim()+(email?'\n\n'+(UI.suggestReplyTo||'Reply-to: ')+email:'');
     var href='mailto:info@tangoweekend.org?subject='+encodeURIComponent(UI.suggestSubject||'Asia Tango Map listing')+'&body='+encodeURIComponent(body);
     window.location.href=href;
     if (sugThanks) sugThanks.hidden=false;
