@@ -1685,3 +1685,8 @@ body.china-page #filters .china-filters-row1 > .china-date-wrap{grid-template-co
   #schedule.sched-noimg .ev{padding:9px 0;row-gap:2px}
   #schedule.sched-noimg .ev + .ev{border-top:1px solid rgba(90,26,28,.16)}
 }
+
+/* price notes under cards */
+#prices .price-notes{margin:22px 0 0;padding-left:1.1em;line-height:1.6}
+#prices .price-notes li{margin:2px 0}
+@media(max-width:820px){#prices .price-notes{font-size:.78rem;margin-top:16px}}
