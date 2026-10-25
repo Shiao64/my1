@@ -1672,3 +1672,9 @@ body.china-page #filters .china-filters-row1 > .china-date-wrap{grid-template-co
 .lang-switch a[aria-current="page"][hreflang]{display:none!important}
 /* china174: event homepages — hide deep-red top banner (already on the event) */
 .top-carousel{display:none!important}
+/* china175: event pages — Asia Tango Map button inside header row (☰ | map | lang) */
+.site-header .wrap{display:flex;align-items:center}
+.site-header a.hdr-map{order:1;margin:0 auto!important;padding:4px 14px!important;font-size:.82rem!important;line-height:1.3;min-height:0!important;white-space:nowrap;flex:none}
+.site-header .top-right-bar{margin-left:0!important}
+@media (min-width:601px){.site-header a.hdr-map{margin:0 12px 0 auto!important}}
+@media (max-width:600px){.site-header .wrap{position:relative}.site-header a.hdr-map{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0!important}}
