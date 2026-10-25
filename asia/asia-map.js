@@ -117,9 +117,9 @@
   function linkBtns(r){
     var L = r.links || {}, out = [];
     var zhReg = isZh && r.kind === 'weekly', isFb = function(u){ return /^https?:\/\/([a-z0-9-]+\.)*(facebook\.com|fb\.com|fb\.me)(\/|$)/i.test(u || ''); };
-    if (L.facebook && !zhReg) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
+    if (L.facebook && !isZh) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
     if (L.register) out.push('<a class="china-linkbtn china-linkbtn-reg" href="' + esc(L.register) + '" target="_blank" rel="noopener">' + (isZh ? '报名' : 'Register') + '</a>');
-    if (L.other && !(zhReg && isFb(L.other))) out.push('<a class="china-linkbtn" href="' + esc(/^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other)) + '" target="_blank" rel="noopener">' + (UI.website || 'Website') + '</a>');
+    if (L.other && !(isZh && isFb(L.other))) out.push('<a class="china-linkbtn" href="' + esc(/^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other)) + '" target="_blank" rel="noopener">' + (UI.website || 'Website') + '</a>');
     if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + (UI.wechat || 'WeChat') + '</a>');
     if (L.video) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">' + (UI.video || 'Video') + '</a>');
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
