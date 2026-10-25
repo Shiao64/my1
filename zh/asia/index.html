@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://tangoweekend.org/zh/asia/">
 <link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
-<link rel="stylesheet" href="../../css/style.css?v=china154">
+<link rel="stylesheet" href="../../css/style.css?v=china155">
 <script src="../../asia/lang-pref.js?v=china140"></script>
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
@@ -68,6 +68,7 @@
 </section>
 <section id="filters" class="m-filters">
   <div class="wrap m-filters-inner china-filters-compact">
+    <a class="tw-m-ad" href="../?full=1"><span class="tw-m-ad-k">精选</span>第4届北京精选探戈周末 2027/6/18–22 <span aria-hidden="true">→</span></a>
     <div class="m-block china-filters-row1">
       <div class="china-type-wrap">
         <h2 class="m-label">类型</h2>
@@ -95,7 +96,7 @@
           <option value="tc" data-en="Taichung">台中</option>
           <option value="tp" data-en="Taipei">台北</option>
           <option value="tj" data-en="Tianjin">天津</option>
-        </select>
+        </select><span class="tw-m-count" id="tw-m-count" aria-hidden="true"></span>
       </div>
       <div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0">
         <h2 class="m-label">日期</h2>
@@ -109,6 +110,7 @@
     <p class="note" id="china-date-hint" aria-live="polite"></p>
   </div>
 </section>
+<section class="tw-m-feat" aria-label="精选活动"><div class="wrap"><a class="tw-m-feat-card" href="../?full=1"><span class="tw-m-feat-k">精选活动</span><strong>第4届北京精选探戈周末</strong><span class="tw-m-feat-meta">2027年6月18–22日 · 北京 · 连续五晚舞会、探戈小院晚宴、城市漫步</span><span class="tw-m-feat-cta">日程、票价与报名 →</span></a></div></section>
 <section id="events" class="alt">
   <div class="wrap m-events-wrap">
 <div id="china-listings" aria-live="polite"><p class="note">正在加载活动…</p></div>
@@ -255,8 +257,8 @@ window.CHINA_UI = {
   taiwanLabel: '台湾',
   noMatchCity: '该城市没有符合条件的活动。',
   dateRangeLabel: '日期范围：',
-  showingSep: ' · 显示 ',
-  listingsWord: ' 条',
+  showingSep: ' · 显示',
+  listingsWord: '条',
   hintShowAll: '（含过往与待定）。',
   hintWeekly: '（常规按周显示）。',
   loadError: '无法加载活动列表',
@@ -271,5 +273,6 @@ window.CHINA_UI = {
 };
 </script>
 <script src="../../asia/asia-map.js?v=china152"></script>
+<script>(function(){var h=document.getElementById('china-date-hint'),c=document.getElementById('tw-m-count');if(!h||!c)return;function u(){var m=(h.textContent||'').match(/(\d+)\s*(条|listings)/);c.textContent=m?('显示'+m[1]+'条'):'';}u();new MutationObserver(u).observe(h,{childList:true,characterData:true,subtree:true});})();</script>
 </body>
 </html>

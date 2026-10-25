@@ -7,7 +7,7 @@
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
 <link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
-<link rel="stylesheet" href="../css/style.css?v=china154">
+<link rel="stylesheet" href="../css/style.css?v=china155">
 <script src="lang-pref.js?v=china140"></script>
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
@@ -67,6 +67,7 @@
 </section>
 <section id="filters" class="m-filters">
   <div class="wrap m-filters-inner china-filters-compact">
+    <a class="tw-m-ad" href="../?full=1"><span class="tw-m-ad-k">Featured</span> 4th Beijing Select Tango Weekend · Jun 18–22, 2027 <span aria-hidden="true">→</span></a>
     <div class="m-block china-filters-row1">
       <div class="china-type-wrap">
         <h2 class="m-label">Type</h2>
@@ -94,7 +95,7 @@
           <option value="tc" data-en="Taichung">Taichung</option>
           <option value="tp" data-en="Taipei">Taipei</option>
           <option value="tj" data-en="Tianjin">Tianjin</option>
-        </select>
+        </select><span class="tw-m-count" id="tw-m-count" aria-hidden="true"></span>
       </div>
       <div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0">
         <h2 class="m-label">Date</h2>
@@ -108,6 +109,7 @@
     <p class="note" id="china-date-hint" aria-live="polite"></p>
   </div>
 </section>
+<section class="tw-m-feat" aria-label="Featured event"><div class="wrap"><a class="tw-m-feat-card" href="../?full=1"><span class="tw-m-feat-k">Featured event</span><strong>4th Beijing Select Tango Weekend</strong><span class="tw-m-feat-meta">Jun 18–22, 2027 · Beijing · 5 milongas, Monday dinner, city walk</span><span class="tw-m-feat-cta">Schedule, prices &amp; registration →</span></a></div></section>
 <section id="events" class="alt">
   <div class="wrap m-events-wrap">
 <div id="china-listings" aria-live="polite"><p class="note">Loading listings…</p></div>
@@ -256,5 +258,6 @@ window.CHINA_UI = {
 };
 </script>
 <script src="asia-map.js?v=china152"></script>
+<script>(function(){var h=document.getElementById('china-date-hint'),c=document.getElementById('tw-m-count');if(!h||!c)return;function u(){var m=(h.textContent||'').match(/(\d+)\s*(条|listings)/);c.textContent=m?(m[1]+' listings'):'';}u();new MutationObserver(u).observe(h,{childList:true,characterData:true,subtree:true});})();</script>
 </body>
 </html>
