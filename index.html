@@ -11,7 +11,7 @@
 <link rel="alternate" hreflang="x-default" href="https://tangoweekend.org/">
 <script>(function(){try{var q=new URLSearchParams(location.search).get('lang');if(q==='en'){localStorage.setItem('twLang','en');return;}if(q==='zh'){location.replace('zh/'+location.hash);return;}var p=localStorage.getItem('twLang');if(p==='en')return;var L=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'']);var zh=String(L[0]||'').toLowerCase().indexOf('zh')===0;if(p==='zh'||(!p&&zh))location.replace('zh/'+location.hash);}catch(e){}})();</script>
 <script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.top-lang a');if(!a)return;try{localStorage.setItem('twLang',a.getAttribute('hreflang')==='en'?'en':'zh');}catch(x){}});</script>
-<link rel="stylesheet" href="css/style.css?v=china179">
+<link rel="stylesheet" href="css/style.css?v=china183">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <script>(function(){try{var q=location.search,ss=window.sessionStorage;if(/[?&]full=1/.test(q)){ss&&ss.setItem('twFull','1');return;}if(ss&&ss.getItem('twFull')==='1')return;if(location.hash)return;if(!window.matchMedia||!matchMedia('(max-width:600px)').matches)return;location.replace('asia/?from=home');}catch(e){}})();</script>
 </head>
@@ -135,42 +135,36 @@
     <div class="grid g3">
       <div class="card price-card">
         <h3>Weekend Pass</h3>
-        <div class="amt">930 <small>RMB</small></div>
+        <div class="amt">700 <small>RMB</small></div>
         <ul class="breakdown">
-          <li><span>Welcome Milonga</span><span>150</span></li>
-          <li><span>Afternoon Milongas, Sat &amp; Sun · 2 × 150</span><span>300</span></li>
-          <li><span>Evening Milongas, Sat &amp; Sun · 2 × 200</span><span>400</span></li>
-          <li><span>Farewell Milonga</span><span>80</span></li>
+          <li><span>Saturday PM Milonga</span><span>150</span></li>
+          <li><span>Saturday Night Milonga</span><span>200</span></li>
+          <li><span>Sunday PM Milonga</span><span>150</span></li>
+          <li><span>Sunday Night Milonga</span><span>200</span></li>
         </ul>
-        <p class="note">Reserves your table &amp; chair · limited quantity</p>
-        <p class="note">Does not include Monday Tango Courtyard</p>
       </div>
       <div class="card price-card featured">
-        <h3>Weekend Pass + Monday Courtyard</h3>
-        <div class="amt">1,380 <small>RMB</small></div>
-        <p>All 6 milongas + Tango Courtyard</p>
-        <ul class="breakdown">
-          <li><span>Weekend Pass</span><span>930</span></li>
-          <li><span>Monday · Tango Courtyard: BBQ dinner, folk show &amp; milonga</span><span>450</span></li>
-        </ul>
+        <h3>Weekend Package</h3>
+        <div class="amt">1,150 <small>RMB</small></div>
+        <p>Sat &amp; Sun 4 milongas + Tango Courtyard</p>
+        <p class="note">Weekend Package opens first. Buyers get first pick of the featured activities.</p>
       </div>
       <div class="card price-card">
-        <h3>Excursions</h3>
+        <h3>Featured Activities</h3>
         <ul class="breakdown">
+          <li><span>Friday Welcome Milonga</span><span>150</span></li>
           <li><span>Friday Day Trip<br><small>Temple of Heaven · Qianmen Street</small></span><span>450</span></li>
           <li><span>Monday Tango Courtyard</span><span>450</span></li>
           <li><span>Tuesday City Walk<br><small>Liangma River</small></span><span>400</span></li>
+          <li><span>Tuesday Farewell Milonga</span><span>150</span></li>
         </ul>
       </div>
     </div>
     <ul class="note price-notes">
-      <li>Each session is limited to 300 guests; once full, registration closes. The Weekend Pass is sold first.</li>
-      <li>International dancers register first. Domestic dancers have a separate quota.</li>
-      <li>Registration opens December 1st at midnight Beijing time. The Weekend Pass and Monday Tango Courtyard are on sale. Single tickets go on sale February 1st.</li>
-      <li>Registration is limited to 150 international guests.</li>
-      <li>If the Weekend Pass sells out, single tickets will no longer be available.</li>
-      <li>Single tickets do not reserve a seat and aren't guaranteed; couples have priority.</li>
-      <li>Group hotel booking opens around mid-December.</li>
+      <li>International dancers register first, starting December 1st, limited to 180.</li>
+      <li>Domestic dancers register starting February 15th, 2027.</li>
+      <li>Weekend Package register with priority.</li>
+      <li>Each event has a capacity limit. Once full, no further registrations are accepted. Capacity per event: Friday Welcome Milonga 200 · Saturday &amp; Sunday milongas 300 · Monday Tango Courtyard 120 · Tuesday Farewell Milonga 150.</li>
     </ul>
   </div>
 </section>
@@ -195,7 +189,6 @@
   <div class="wrap">
     <div class="sec-title"><h2>Registration</h2></div>
     <p class="reg-notice">Registration opens December 1, 2026</p>
-    <p class="reg-notice reg-lines" style="font-size:.95em;line-height:1.6;margin-top:4px">The Weekend Pass and Monday Tango Courtyard are on sale.<br>Single tickets go on sale February 1st.<br>Registration is limited to 150 international guests.<br>If the Weekend Pass sells out, single tickets will no longer be available.</p>
     <div class="countdown" data-countdown>
       <div><b data-d>--</b><span>days</span></div>
       <div><b data-h>--</b><span>hrs</span></div>
@@ -353,7 +346,7 @@
     <details><summary>Is there a dress code?</summary>
       <p>Elegant milonga attire is recommended — gentlemen, please no shorts or sneakers.</p></details>
     <details><summary>What does the Weekend Pass include?</summary>
-      <p>Six milongas: the Friday welcome, Saturday and Sunday afternoon and evening milongas, and the Tuesday farewell. Monday Tango Courtyard is extra (450 RMB, or choose the 1,380 RMB package).</p></details>
+      <p>Four milongas: the Saturday and Sunday afternoon and evening milongas. The Friday Welcome Milonga and Tuesday Farewell Milonga are 150 RMB each, booked separately. Monday Tango Courtyard is extra (450 RMB, or choose the 1,150 RMB Weekend Package).</p></details>
     <details><summary>How do I join the Day Trip or City Walk?</summary>
       <p>Both are optional add-ons (Day Trip 450 RMB, City Walk 400 RMB) — just tick them on the registration form.</p></details>
     <details><summary>Are refreshments provided?</summary>
