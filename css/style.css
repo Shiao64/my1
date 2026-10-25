@@ -1634,3 +1634,12 @@ body.china-page a.tw-feat-photo strong{font-family:var(--serif);font-size:1.02re
 body.china-page .tw-m-feat-k{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:#9e1020;font-weight:700}
 body.china-page .tw-m-feat-meta{font-size:.76rem;color:#7a6255;line-height:1.35}
 @media (min-width:601px){body.china-page .tw-m-feat-img{min-height:130px} body.china-page a.tw-feat-photo strong{font-size:1.2rem} body.china-page .tw-m-feat-meta{font-size:.88rem}}
+/* china170: featured card = full-bleed stage photo + dark gradient overlay (v3 mockup style) */
+body.china-page a.tw-feat-photo{position:relative;display:block!important;aspect-ratio:16/10;max-height:420px;border:0!important;border-radius:16px;overflow:hidden;background:#111;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+body.china-page a.tw-feat-photo .tw-m-feat-img{position:absolute;inset:0;width:100%!important;max-width:none!important;height:100%!important;min-height:0!important;object-fit:cover;object-position:center 35%}
+body.china-page a.tw-feat-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.75) 100%),rgba(10,60,64,.18);pointer-events:none}
+body.china-page a.tw-feat-photo .tw-m-feat-body{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:12px 16px 14px;gap:4px;background:none}
+body.china-page a.tw-feat-photo .tw-m-feat-k{align-self:flex-start;background:#fff;color:#3a2a20;border-radius:999px;padding:1px 9px;font-size:.62rem;letter-spacing:.06em}
+body.china-page a.tw-feat-photo strong{color:#fff!important;font-size:1.3rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.5)}
+body.china-page a.tw-feat-photo .tw-m-feat-meta{color:#f3ece2!important;font-size:.82rem;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+@media (min-width:601px){body.china-page a.tw-feat-photo strong{font-size:2rem} body.china-page a.tw-feat-photo .tw-m-feat-meta{font-size:1rem} body.china-page a.tw-feat-photo .tw-m-feat-body{padding:20px 26px 22px}}
