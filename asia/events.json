@@ -51,7 +51,7 @@
     "links": {
       "facebook": "https://www.facebook.com/groups/1555764581663517",
       "video": null,
-      "other": "https://tangoweekend.org/event/"
+      "other": "https://tangoweekend.org/event/beijing-2027-tango-weekend/"
     },
     "source": "OnlyTangoInfo",
     "updated": "2026-10-24",
@@ -709,7 +709,9 @@
     "time": null,
     "venue": null,
     "venue_address": null,
-    "organizers": ["Yutan Lin"],
+    "organizers": [
+      "Yutan Lin"
+    ],
     "links": {
       "facebook": "https://www.facebook.com/groups/1494663620822173/",
       "video": "https://www.youtube.com/watch?v=kM2IghDJa0k",
@@ -1057,7 +1059,8 @@
     "venue": null,
     "venue_address": null,
     "organizers": [
-      "Perni Peng", "Maria Ines Bogado"
+      "Perni Peng",
+      "Maria Ines Bogado"
     ],
     "links": {
       "facebook": "https://www.facebook.com/events/1523230772760902/1523230779427568?acontext=%7B%22event_action_history%22%3A[%7B%22surface%22%3A%22user_timeline%22%7D%2C%7B%22mechanism%22%3A%22attachment%22%2C%22surface%22%3A%22newsfeed%22%7D]%2C%22ref_notif_type%22%3Anull%7D",
@@ -4559,5 +4562,31 @@
       "phone": "13600620412",
       "email": "1132714304@qq.com"
     }
+  },
+  {
+    "id": "cwCbtm27",
+    "featured": true,
+    "kind": "event",
+    "type": "marathon",
+    "name": "8th Changwon Cherry Blossom Tango Marathon",
+    "city": "Changwon",
+    "country": "South Korea",
+    "region": "South Korea",
+    "start": "2027-03-25",
+    "end": "2027-03-29",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Munseong University Gymnasium",
+    "venue_address": "韩国庆尚南道昌原市城山区忠魂路91号",
+    "venue_address_en": "91 Chunghon-ro, Seongsan-gu, Changwon, Gyeongsangnam-do, South Korea",
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangoweekend.org/event/changwon-2027-tango-marathon/"
+    },
+    "source": "tangoweekend.org",
+    "updated": "2026-10-26"
   }
 ]
