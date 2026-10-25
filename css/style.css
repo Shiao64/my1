@@ -1582,3 +1582,10 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page .tw-m-count{display:none!important}
 .china-page .china-from-line{margin:-4px 0 10px;padding:0;text-indent:0;text-align:left;font-size:.82rem;color:#7a6255}
 @media (max-width:600px){.china-page .china-city-wrap{display:block!important}.china-page .china-city-wrap select{width:100%!important}}
+
+/* china165: Asia map pages — big banner restored on mobile, banner + green header bar sticky together; slim tw-m-ad kept below (not sticky) */
+.china-page .china-sticky-top{position:sticky;top:0;z-index:100}
+.china-page .china-sticky-top > .china-stw-banner,.china-page .china-sticky-top > .china-map-hero{position:relative!important;top:auto!important}
+@media (max-width:600px){
+  .china-page .china-sticky-top .china-stw-banner.china-stw-ad{display:flex!important}
+}

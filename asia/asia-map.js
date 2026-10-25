@@ -348,7 +348,7 @@
     var target = (cd && !cd.hidden) ? cd : (document.querySelector('.china-city-block:not([hidden])') || document.querySelector('.china-global-empty:not([hidden])') || document.getElementById('china-listings'));
     if (!target) return;
     var off = 0;
-    ['.site-header', '.china-region-nav'].forEach(function(sel){ var el = document.querySelector(sel); if (el && getComputedStyle(el).position === 'sticky') off = Math.max(off, el.getBoundingClientRect().bottom); });
+    ['.site-header', '.china-region-nav', '.china-sticky-top'].forEach(function(sel){ var el = document.querySelector(sel); if (el && getComputedStyle(el).position === 'sticky') off = Math.max(off, el.getBoundingClientRect().bottom); });
     var y = target.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop) - off - 8;
     y = Math.max(0, y);
     try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, y); }
