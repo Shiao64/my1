@@ -765,7 +765,7 @@ html{scroll-padding-top:46px}
 .china-page .china-map-hero .wrap{padding-top:8px!important;padding-bottom:8px!important}
 
 /* China page: sticky full-width Select Tango ad banner; no hamburger */
-.china-page{padding-top:56px}
+.china-page{padding-top:0}
 .china-page .china-stw-banner.china-stw-ad{
   position:fixed;top:0;left:0;right:0;z-index:100;
   display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;
@@ -1268,7 +1268,7 @@ body.china-page > .nav-toggle{
 }
 
 /* china53: banner ~just under title size; city labels without counts */
-.china-page{padding-top:56px!important}
+.china-page{padding-top:0!important}
 .china-page .china-stw-banner.china-stw-ad,
 .china-page .china-stw-ad-hposter{
   height:50px!important;max-height:50px!important;min-height:50px!important;
