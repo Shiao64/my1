@@ -1575,3 +1575,10 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
   .china-page .china-city-wrap .m-label{grid-column:1 / -1}
   .china-page .china-city-wrap select{max-width:100%!important;min-width:0!important}
 }
+
+/* china156: status line replaced by "From date" subtitle under city title; no counts */
+.china-page #china-date-hint{display:none!important}
+.china-page .china-city-head .china-count{display:none!important}
+.china-page .tw-m-count{display:none!important}
+.china-page .china-from-line{margin:-4px 0 10px;font-size:.82rem;color:#7a6255}
+@media (max-width:600px){.china-page .china-city-wrap{display:block!important}.china-page .china-city-wrap select{width:100%!important}}

@@ -302,6 +302,17 @@
       } else cd.hidden = true;
     }
     var ge = document.querySelector('.china-global-empty'); if (ge) ge.hidden = totalVisible > 0;
+    var fv = fromEl && fromEl.value ? fromEl.value.replace(/-/g,'/') : '';
+    document.querySelectorAll('.china-city-head').forEach(function(h2){
+      var fl = h2.nextElementSibling;
+      if (!fl || !fl.classList.contains('china-from-line')) { fl = document.createElement('p'); fl.className = 'china-from-line'; h2.parentNode.insertBefore(fl, h2.nextSibling); }
+      var vis = h2.parentNode.querySelectorAll('.china-list > li:not([hidden])'), n = vis.length, wk = n > 0;
+      vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') wk = false; });
+      var parts = [n + (UI.countWord || ' listings')];
+      if (wk) parts.push(UI.weeklyWord || 'weekly');
+      if (fv) parts.push((UI.fromLabel || 'from ') + fv);
+      fl.textContent = parts.join(' · '); fl.hidden = n === 0;
+    });
     if (hint) {
       var tail = showAll() ? (UI.hintShowAll || ' (Show all: incl. past & TBA).') : (UI.hintWeekly || ' (weekly always shown).');
       hint.textContent = (UI.dateRangeLabel || 'Date range: ') + formatRange(fromEl && fromEl.value, toEl && toEl.value) + (UI.showingSep || ' · Showing ') + totalVisible + (UI.listingsWord || ' listings') + tail;
