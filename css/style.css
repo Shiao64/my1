@@ -1493,7 +1493,3 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 #china-suggest-modal.china-suggest-modal{height:100vh;height:100dvh;padding:calc(env(safe-area-inset-top) + 44px) 8px calc(env(safe-area-inset-bottom) + 8px)}
 #china-suggest-modal .china-suggest-dialog{margin:0 auto;max-height:calc(100vh - 96px)!important;max-height:calc(100dvh - 52px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
 }
-
-/* Asia Tango Map: own centered row below top bar (home EN/ZH) */
-.site-header .map-row{display:flex;justify-content:center;align-items:center;width:100%;box-sizing:border-box;padding:6px 0 8px;margin:0}
-.site-header .map-row .btn-china.btn-map{margin:0;box-sizing:border-box;width:200px;max-width:calc(100% - 24px);margin:0 auto;display:block;text-align:center;padding:8px 18px;font-size:15px;line-height:1.3}
