@@ -1643,3 +1643,32 @@ body.china-page a.tw-feat-photo .tw-m-feat-k{align-self:flex-start;background:#f
 body.china-page a.tw-feat-photo strong{color:#fff!important;font-size:1.3rem;line-height:1.2;text-shadow:0 2px 6px rgba(0,0,0,.5)}
 body.china-page a.tw-feat-photo .tw-m-feat-meta{color:#f3ece2!important;font-size:.82rem;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.6)}
 @media (min-width:601px){body.china-page a.tw-feat-photo strong{font-size:2rem} body.china-page a.tw-feat-photo .tw-m-feat-meta{font-size:1rem} body.china-page a.tw-feat-photo .tw-m-feat-body{padding:20px 26px 22px}}
+/* china171: type label + buttons on one row */
+body.china-page #filters .china-type-wrap{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;flex-wrap:nowrap!important}
+body.china-page #filters .china-type-wrap .m-label{margin:0!important;flex:none;white-space:nowrap}
+body.china-page #filters .china-type-wrap .china-type-chips{flex-wrap:nowrap!important;gap:12px!important;margin:0!important}
+/* china172: inline labels with colon; city row same as type row, aligned label column */
+body.china-page #filters .china-city-wrap{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;grid-template-columns:none!important}
+body.china-page #filters .china-type-wrap .m-label,body.china-page #filters .china-city-wrap .m-label{flex:0 0 3.4em!important;width:3.4em!important;margin:0!important;white-space:nowrap;grid-column:auto!important}
+body.china-page #filters .china-city-wrap select{flex:1 1 auto!important;width:auto!important;min-width:0!important}
+/* china173: date row inline — 日期： | from – to; search + checkbox rows below span full width */
+body.china-page #filters .china-filters-row1 > .china-date-wrap{display:grid!important;grid-template-columns:3.4em minmax(0,1fr)!important;column-gap:12px!important;align-items:center!important}
+body.china-page #filters .china-filters-row1 > .china-date-wrap > .m-label{grid-column:1!important;margin:0!important;white-space:nowrap}
+body.china-page #filters .china-filters-row1 > .china-date-wrap > .china-date-fromto{grid-column:2!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;gap:6px!important;align-items:center}
+body.china-page #filters .china-filters-row1 > .china-date-wrap > .china-showmode,body.china-page #filters .china-filters-row1 > .china-date-wrap > .china-showall-row{grid-column:1 / -1!important}
+body.china-page #filters .china-date-fromto .china-date-field > span:first-child{display:none!important}
+body.china-page #filters .china-date-fromto .china-date-field:first-child{grid-column:1}
+body.china-page #filters .china-date-fromto .china-date-field:last-child{grid-column:3}
+body.china-page #filters .china-date-fromto::before{content:"–";grid-column:2;grid-row:1;color:#7a6255;font-weight:700}
+body.china-page #filters .china-date-fromto .china-date-field{grid-row:1;margin:0!important}
+body.china-page #filters .china-date-fromto input{width:100%!important;min-width:0!important;font-size:.8rem!important;padding:3px 4px!important}
+body.china-page #filters .china-date-fromto .china-date-field,body.china-page #filters .china-date-fromto .china-date-field > div{margin:0!important;padding:0!important;left:auto!important}
+body.china-page #filters .china-type-wrap .m-label,body.china-page #filters .china-city-wrap .m-label{flex:0 0 52px!important;width:52px!important}
+body.china-page #filters .china-filters-row1 > .china-date-wrap{grid-template-columns:52px minmax(0,1fr)!important}
+/* china174: language switcher shows only the other language, as one pill */
+.top-lang a[aria-current="page"]{display:none!important}
+.top-lang a:not([aria-current="page"]){border-radius:999px!important;padding:3px 12px!important;border:1px solid var(--gold,#e3bd7a)!important;background:#8b1a1f!important;color:#fff!important;font-weight:700}
+.top-lang{border:0!important;background:none!important;padding:0!important;box-shadow:none!important}
+.lang-switch a[aria-current="page"][hreflang]{display:none!important}
+/* china174: event homepages — hide deep-red top banner (already on the event) */
+.top-carousel{display:none!important}
