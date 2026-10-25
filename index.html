@@ -11,13 +11,13 @@
 <link rel="alternate" hreflang="x-default" href="https://tangoweekend.org/">
 <script>(function(){try{var q=new URLSearchParams(location.search).get('lang');if(q==='en'){localStorage.setItem('twLang','en');return;}if(q==='zh'){location.replace('zh/'+location.hash);return;}var p=localStorage.getItem('twLang');if(p==='en')return;var L=(navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||'']);var zh=String(L[0]||'').toLowerCase().indexOf('zh')===0;if(p==='zh'||(!p&&zh))location.replace('zh/'+location.hash);}catch(e){}})();</script>
 <script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.top-lang a');if(!a)return;try{localStorage.setItem('twLang',a.getAttribute('hreflang')==='en'?'en':'zh');}catch(x){}});</script>
-<link rel="stylesheet" href="css/style.css?v=china82">
+<link rel="stylesheet" href="css/style.css?v=china84">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
 <body>
 
 
-<div class="top-carousel" role="region" aria-label="Announcements" aria-live="polite"><div class="tc-slide tc-map is-on"><a href="asia/">Asia Tango Map</a></div><div class="tc-slide"><a href="#registration"><span class="tc-long">4th Beijing Select Tango Weekend</span><span class="tc-short">4th Beijing Tango Weekend</span> · June 18–22, 2027 →</a></div></div>
+<div class="top-carousel"><div class="tc-slide is-on"><a href="#registration"><span class="tc-long">4th Beijing Select Tango Weekend</span><span class="tc-short">4th Beijing Tango Weekend</span> · June 18–22, 2027 →</a></div></div>
 <header class="site-header">
   <div class="wrap">
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
@@ -38,6 +38,7 @@
     <div class="top-right-bar"><nav class="top-lang" aria-label="Language"><a href="zh/" hreflang="zh-CN" lang="zh-CN">中文</a><a href="./" hreflang="en" lang="en" aria-current="page">English</a></nav></div>
   </div>
 </header>
+<div class="map-row"><a class="btn-china btn-map" href="asia/">Asia Tango Map</a></div>
 
 <!-- ===== HERO ===== -->
 <section class="hero hero-photo" id="top">
@@ -422,6 +423,5 @@
   lb.addEventListener('touchend',function(e){ if(x0===null) return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>50) step(dx<0?1:-1); x0=null; });
 })();
 </script>
-<script>(function(){var c=document.querySelector(".top-carousel");if(!c)return;var s=c.querySelectorAll(".tc-slide"),i=0,p=false;if(s.length<2||matchMedia("(prefers-reduced-motion: reduce)").matches)return;["mouseenter","focusin"].forEach(function(e){c.addEventListener(e,function(){p=true})});["mouseleave","focusout"].forEach(function(e){c.addEventListener(e,function(){p=false})});setInterval(function(){if(p)return;s[i].classList.remove("is-on");i=(i+1)%s.length;s[i].classList.add("is-on")},4000);})();</script>
 </body>
 </html>

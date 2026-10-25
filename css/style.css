@@ -1512,3 +1512,7 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 /* map slide: teal from .btn-china (#0e6e78) */
 .top-carousel .tc-map{background:#0e6e78}
 .top-carousel .tc-map a{background:none;-webkit-text-fill-color:#fff;color:#fff;animation:none;letter-spacing:.04em;font-size:.88rem}
+/* 2026-10-25: home top bar is now static (single slide); Asia Tango Map button on own centered row below nav (not sticky) */
+.top-carousel .tc-slide{position:static;opacity:1;visibility:visible;height:28px;transition:none}
+.map-row{display:flex;justify-content:center;align-items:center;width:100%;box-sizing:border-box;padding:8px 0;margin:0}
+.map-row .btn-china.btn-map{box-sizing:border-box;width:200px;max-width:calc(100% - 24px);margin:0 auto;display:block;text-align:center;padding:8px 18px;font-size:15px;line-height:1.3;background:#0e6e78;color:#fff}
