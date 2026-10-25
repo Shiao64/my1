@@ -9,7 +9,7 @@
 <link rel="alternate" hreflang="en" href="https://tangoweekend.org/">
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/">
 <link rel="alternate" hreflang="x-default" href="https://tangoweekend.org/">
-<link rel="stylesheet" href="../css/style.css?v=china79">
+<link rel="stylesheet" href="../css/style.css?v=china81">
 <script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('.top-lang a');if(!a)return;try{localStorage.setItem('twLang',a.getAttribute('hreflang')==='en'?'en':'zh');}catch(x){}});</script>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 </head>
@@ -36,7 +36,7 @@
     <div class="top-right-bar"><nav class="top-lang" aria-label="Language"><a href="./" hreflang="zh-CN" lang="zh-CN" aria-current="page">中文</a><a href="../" hreflang="en" lang="en">English</a></nav></div>
   </div>
 </header>
-<div class="draft-banner">网站草稿 · 日程与价格以正式公布为准</div>
+<div class="top-carousel" role="region" aria-label="公告" aria-live="polite"><div class="tc-slide is-on"><a href="asia/">亚洲探戈地图 — 查找亚洲各地Milonga与活动 →</a></div><div class="tc-slide"><a href="#registration">第4届北京精选探戈周末 · 2027年6月18–22日 · 报名 →</a></div></div>
 
 <!-- ===== HERO ===== -->
 <section class="hero hero-photo" id="top">
@@ -77,7 +77,7 @@
 </section>
 
 <!-- ===== SCHEDULE ===== -->
-<section id="schedule" class="alt">
+<section id="schedule" class="alt draft-watermark" data-wm="草稿 · 以正式公布为准">
   <div class="wrap">
     <div class="about-intro sched-intro"><h2 class="about-big">日程</h2>
     <p><strong class="sched-date">2027年6月18–22日</strong> <span class="draft">草稿 · 以正式公布为准</span></p></div>
@@ -128,7 +128,7 @@
 </section>
 
 <!-- ===== PRICES ===== -->
-<section id="prices">
+<section id="prices" class="draft-watermark" data-wm="草稿 · 以正式公布为准">
   <div class="wrap">
     <div class="about-intro sched-intro"><h2 class="about-big">票价</h2>
     <p><strong class="sched-date">单位：人民币</strong> <span class="draft">草稿 · 以正式公布为准</span></p></div>
@@ -420,5 +420,6 @@
   lb.addEventListener('touchend',function(e){ if(x0===null) return; var dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>50) step(dx<0?1:-1); x0=null; });
 })();
 </script>
+<script>(function(){var c=document.querySelector(".top-carousel");if(!c)return;var s=c.querySelectorAll(".tc-slide"),i=0,p=false;if(s.length<2||matchMedia("(prefers-reduced-motion: reduce)").matches)return;["mouseenter","focusin"].forEach(function(e){c.addEventListener(e,function(){p=true})});["mouseleave","focusout"].forEach(function(e){c.addEventListener(e,function(){p=false})});setInterval(function(){if(p)return;s[i].classList.remove("is-on");i=(i+1)%s.length;s[i].classList.add("is-on")},4000);})();</script>
 </body>
 </html>

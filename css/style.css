@@ -1493,3 +1493,19 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 #china-suggest-modal.china-suggest-modal{height:100vh;height:100dvh;padding:calc(env(safe-area-inset-top) + 44px) 8px calc(env(safe-area-inset-bottom) + 8px)}
 #china-suggest-modal .china-suggest-dialog{margin:0 auto;max-height:calc(100vh - 96px)!important;max-height:calc(100dvh - 52px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
 }
+
+/* ===== 2026-10-25: homepage top carousel (replaces draft-banner on home) ===== */
+.top-carousel{position:relative;height:28px;overflow:hidden;background:linear-gradient(90deg,#5a0f14,#8b1a1f 50%,#5a0f14);border-bottom:1px solid #c9a24a;text-align:center}
+.top-carousel .tc-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 10px;opacity:0;visibility:hidden;transition:opacity .6s ease,visibility .6s}
+.top-carousel .tc-slide.is-on{opacity:1;visibility:visible}
+.top-carousel a{color:#f3d27a;font-size:.8rem;font-weight:700;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;background:linear-gradient(90deg,#f3d27a 0%,#fff4cf 50%,#f3d27a 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:tcShimmer 4s linear infinite}
+.top-carousel a:hover,.top-carousel a:focus{text-decoration:underline;text-decoration-color:#f3d27a}
+@keyframes tcShimmer{to{background-position:-200% 0}}
+@media (max-width:640px){.top-carousel a{font-size:.72rem}}
+@media (prefers-reduced-motion:reduce){.top-carousel a{animation:none}.top-carousel .tc-slide{transition:none}}
+
+/* ===== TEMP draft watermark on schedule/prices. To remove: delete this block and the class="draft-watermark"/data-wm attrs ===== */
+.draft-watermark{position:relative;overflow:hidden}
+.draft-watermark::before{content:attr(data-wm);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-24deg);font-size:clamp(1.6rem,6vw,4.2rem);font-weight:800;white-space:nowrap;color:#8b1a1f;opacity:.1;pointer-events:none;z-index:3;user-select:none}
+.top-carousel .tc-short{display:none}
+@media (max-width:480px){.top-carousel .tc-long{display:none}.top-carousel .tc-short{display:inline}}
