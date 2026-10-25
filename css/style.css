@@ -1589,3 +1589,9 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 @media (max-width:600px){
   .china-page .china-sticky-top .china-stw-banner.china-stw-ad{display:flex!important}
 }
+/* china166: hide slim tw-m-ad on Asia map; EN banner text fits on one line at 360/390 */
+.china-page .tw-m-ad{display:none!important}
+@media (max-width:600px){
+  html[lang="en"] .china-page .china-stw-ad-title,html[lang="en"] body.china-page .china-stw-ad-title{font-size:.84rem!important;letter-spacing:0!important}
+  html[lang="en"] .china-page .china-stw-ad-date,html[lang="en"] body.china-page .china-stw-ad-date{font-size:.68rem!important}
+}
