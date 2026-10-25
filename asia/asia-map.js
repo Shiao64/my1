@@ -116,8 +116,9 @@
   }
   function linkBtns(r){
     var L = r.links || {}, out = [];
-    if (L.facebook) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
-    if (L.other) out.push('<a class="china-linkbtn" href="' + esc(/^https?:\/\/(www\.)?tangoweekend\.org(\/event)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/' + (isZh ? 'zh/' : '') : L.other) + '" target="_blank" rel="noopener">' + (UI.website || 'Website') + '</a>');
+    var zhReg = isZh && r.kind === 'weekly', isFb = function(u){ return /^https?:\/\/([a-z0-9-]+\.)*(facebook\.com|fb\.com|fb\.me)(\/|$)/i.test(u || ''); };
+    if (L.facebook && !zhReg) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
+    if (L.other && !(zhReg && isFb(L.other))) out.push('<a class="china-linkbtn" href="' + esc(/^https?:\/\/(www\.)?tangoweekend\.org(\/event)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/' + (isZh ? 'zh/' : '') : L.other) + '" target="_blank" rel="noopener">' + (UI.website || 'Website') + '</a>');
     if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + (UI.wechat || 'WeChat') + '</a>');
     if (L.video) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">' + (UI.video || 'Video') + '</a>');
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
@@ -414,7 +415,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events.json?v=china137';
+  var eventsUrl = UI.eventsUrl || 'events.json?v=china138';
   fetch(eventsUrl, {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
