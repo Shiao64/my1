@@ -1602,3 +1602,35 @@ body.china-presearch #events{display:none!important}
 .china-page .china-title-sub{font-size:.62em;font-weight:600;color:#0a4f57;white-space:normal}
 .china-page .china-title-sub[hidden]{display:none}
 .china-page .china-city-block .china-from-line{border-bottom:1px dashed var(--line);padding-bottom:12px;margin-bottom:4px}
+/* china168: framed search card; rows: type / city / from|to / search centered / checkbox centered */
+body.china-page #filters .china-filters-row1{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;
+  border:1.5px solid #e3bd7a!important;border-radius:14px!important;background:#fffaf0!important;padding:12px 14px 10px!important;box-shadow:0 1px 4px rgba(90,26,28,.06);margin:0!important;max-width:760px}
+body.china-page #filters .china-filters-row1 > *{width:100%!important;max-width:none!important;flex:0 0 auto!important;margin:0!important}
+body.china-page #filters .china-type-chips{display:flex!important;gap:14px!important;flex-wrap:wrap}
+body.china-page #filters .china-city-wrap{display:block!important}
+body.china-page #filters .china-city-wrap select{width:100%!important;max-width:none!important}
+body.china-page #filters .china-date-fromto{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+body.china-page #filters .china-date-fromto .china-date-field,body.china-page #filters .china-date-fromto input{width:100%!important;min-width:0!important;box-sizing:border-box}
+body.china-page #filters .china-showmode{display:flex!important;justify-content:center!important;width:100%!important;margin:10px 0 0!important}
+body.china-page #filters #china-search{margin:0!important}
+body.china-page #filters .china-showall-row{display:flex!important;justify-content:center!important;width:100%!important;margin:6px 0 0!important}
+body.china-page #filters.m-filters{padding:10px 0 10px!important}
+@media (min-width:601px){body.china-page #filters .china-filters-row1{margin:0 auto!important}}
+@media (max-width:600px){
+  body.china-page .china-hero-bar{min-width:0}
+  body.china-page .china-hero-bar h1{font-size:1.15rem!important;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  body.china-page .china-hero-bar .china-map-lang{flex:none!important;margin-left:auto}
+  body.china-page .china-hero-bar .china-map-lang a{padding:2px 7px!important;font-size:.72rem!important}
+}
+/* china169: featured card with photo, whole card is the link, no CTA */
+body.china-page .tw-m-feat{display:block!important;background:var(--cream,#fbf5e9);padding:0 0 10px}
+body.china-page .tw-m-feat .wrap{max-width:760px}
+body.china-page a.tw-feat-photo{display:flex!important;flex-direction:row!important;align-items:stretch;gap:0!important;padding:0!important;overflow:hidden;
+  border:1px solid #ead9b8;border-left:4px solid #9e1020;border-radius:12px;background:#fff;text-decoration:none;color:#2a1a14!important}
+body.china-page .tw-m-feat-img{flex:0 0 38%;width:38%;max-width:240px;height:auto;min-height:96px;object-fit:cover;object-position:center;display:block}
+body.china-page .tw-m-feat-body{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:9px 12px;min-width:0}
+body.china-page a.tw-feat-photo:hover{box-shadow:0 2px 10px rgba(90,26,28,.15)}
+body.china-page a.tw-feat-photo strong{font-family:var(--serif);font-size:1.02rem;color:#0a4f57;line-height:1.25}
+body.china-page .tw-m-feat-k{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:#9e1020;font-weight:700}
+body.china-page .tw-m-feat-meta{font-size:.76rem;color:#7a6255;line-height:1.35}
+@media (min-width:601px){body.china-page .tw-m-feat-img{min-height:130px} body.china-page a.tw-feat-photo strong{font-size:1.2rem} body.china-page .tw-m-feat-meta{font-size:.88rem}}
