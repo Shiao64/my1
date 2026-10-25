@@ -1679,3 +1679,9 @@ body.china-page #filters .china-filters-row1 > .china-date-wrap{grid-template-co
 @media (min-width:601px){.site-header a.hdr-map{margin:0 12px 0 auto!important}}
 @media (max-width:600px){.site-header .wrap{position:relative}.site-header a.hdr-map{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0!important}}
 @media (max-width:600px){.site-header .top-right-bar{margin-left:auto!important}}
+/* 2026-10-25: mobile schedule — each entry a distinct block with light divider */
+@media (max-width:600px){
+  #schedule.sched-noimg .day{padding-top:10px;padding-bottom:10px}
+  #schedule.sched-noimg .ev{padding:9px 0;row-gap:2px}
+  #schedule.sched-noimg .ev + .ev{border-top:1px solid rgba(90,26,28,.16)}
+}
