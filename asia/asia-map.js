@@ -308,10 +308,12 @@
       if (!fl || !fl.classList.contains('china-from-line')) { fl = document.createElement('p'); fl.className = 'china-from-line'; h2.parentNode.insertBefore(fl, h2.nextSibling); }
       var vis = h2.parentNode.querySelectorAll('.china-list > li:not([hidden])'), n = vis.length, wk = n > 0;
       vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') wk = false; });
-      var parts = [n + (UI.countWord || ' listings')];
-      if (wk) parts.push(UI.weeklyWord || 'weekly');
-      if (fv) parts.push((UI.fromLabel || 'from ') + fv);
-      fl.textContent = parts.join(' · '); fl.hidden = n === 0;
+      var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim();
+      var fd = fv ? fv.split('/') : null, zh = !!UI.countWord, txt;
+      var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      if (zh) txt = cname + ' — ' + (fd ? (+fd[0]) + '年' + (+fd[1]) + '月' + (+fd[2]) + '日起，后七日' : '') + n + '项';
+      else txt = cname + ' — ' + (fd ? 'from ' + MN[+fd[1]-1] + ' ' + (+fd[2]) + ', ' + fd[0] + ', ' + n + ' listings in the next 7 days' : n + ' listings');
+      fl.textContent = txt; fl.hidden = n === 0;
     });
     if (hint) {
       var tail = showAll() ? (UI.hintShowAll || ' (Show all: incl. past & TBA).') : (UI.hintWeekly || ' (weekly always shown).');
