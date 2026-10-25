@@ -4588,5 +4588,31 @@
     },
     "source": "tangoweekend.org",
     "updated": "2026-10-26"
+  },
+  {
+    "id": "hzJinsha26",
+    "featured": true,
+    "kind": "event",
+    "type": "festival",
+    "name": "2nd Hangzhou Jinsha International Tango Festival",
+    "city": "Hangzhou",
+    "country": "China",
+    "region": "China",
+    "start": "2026-11-05",
+    "end": "2026-11-09",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Jinsha Grand Theater / Shessiney Natural Cave Wine Cellar",
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangoweekend.org/event/hangzhou-2026-tango-festival/"
+    },
+    "source": "tangoweekend.org",
+    "updated": "2026-10-26"
   }
 ]

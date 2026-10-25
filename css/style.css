@@ -1727,3 +1727,30 @@ html:has(body.cw-theme),html:has(body.sy-theme){scroll-padding-top:104px}
 .cw-topbanner a.cw-strip:hover{color:#c2306f}
 .sy-sec-head{padding:48px 0 0}
 body.sy-theme .site-header{position:sticky;top:0}
+/* Hangzhou Jinsha 2026 (scoped) */
+body.hz-theme{--red:#1d4f8f;--red-dark:#163e72;--red-deep:#0c1f3f;--gold:#e8c06a;--gold-soft:#f6e3b4;--cream:#f3f5fa;--ink:#141d2e;--muted:#4f5b70;--line:#d3dbe8}
+body.hz-theme .site-header{position:sticky;top:0;background:rgba(12,31,63,.96)}
+body.hz-theme .hero{background:radial-gradient(1200px 500px at 80% -10%,rgba(232,192,106,.22),transparent 60%),linear-gradient(160deg,#25579a 0%,#163e72 45%,#0c1f3f 100%)}
+body.hz-theme .btn-gold{color:#0c1f3f}
+html:has(body.hz-theme){scroll-padding-top:104px}
+body.hz-theme .hz-brand{font-weight:700;color:#f0d28a;text-decoration:none;margin-right:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 80px);display:inline-block;vertical-align:middle}
+.hz-posters{padding:32px 0 16px}
+.hz-pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;margin:0 auto}
+.hz-pair figure{margin:0;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(12,31,63,.25)}
+.hz-pair img{width:100%;height:auto;display:block}
+.hz-table-wrap{overflow-x:auto}
+.hz-table{width:100%;border-collapse:collapse;background:#fff}
+.hz-table th,.hz-table td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+.hz-table th{background:var(--red-deep);color:var(--gold-soft)}
+.hz-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+@media (max-width:700px){.hz-pair{grid-template-columns:1fr}.hz-table thead{display:none}.hz-table,.hz-table tbody,.hz-table tr,.hz-table td{display:block;width:100%;box-sizing:border-box}.hz-table tr{margin-bottom:12px;border:1px solid var(--line)}.hz-table td{border:0;border-bottom:1px solid var(--line)}.hz-table td:nth-child(1){font-weight:700;background:var(--cream)}}
+/* Asia Tango Map bar: first element, sticky at absolute top (Changwon, Shenyang, Hangzhou) */
+.atm-bar.atm-sticky{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box;height:32px;padding:0 12px;font-size:.88rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
+.atm-bar a{text-decoration:none;color:inherit}
+.atm-bar a.atm-map{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.atm-bar a.atm-lang{flex:none;padding:1px 10px;border:1px solid currentColor;border-radius:999px;font-size:.8rem}
+.atm-bar a:hover{opacity:.8}
+body.sy-theme .atm-bar,body.hz-theme .atm-bar{color:#F6D58E;background:radial-gradient(600px 120px at 80% -40%,rgba(232,192,106,.25),transparent 60%),linear-gradient(160deg,#0e6e78 0%,#0a4f57 60%,#06333a 100%);border-bottom:1px solid rgba(246,213,142,.35)}
+body.cw-theme .atm-bar{color:#5a1a3c;background:linear-gradient(90deg,#f5b8cf,#fde4ee 50%,#f5b8cf);border-bottom:1px solid #c2306f}
+body.cw-theme .site-header,body.sy-theme .site-header,body.hz-theme .site-header{position:sticky;top:32px}
+html:has(body.cw-theme),html:has(body.sy-theme),html:has(body.hz-theme){scroll-padding-top:136px}
