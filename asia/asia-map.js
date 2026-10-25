@@ -308,12 +308,20 @@
       if (!fl || !fl.classList.contains('china-from-line')) { fl = document.createElement('p'); fl.className = 'china-from-line'; h2.parentNode.insertBefore(fl, h2.nextSibling); }
       var vis = h2.parentNode.querySelectorAll('.china-list > li:not([hidden])'), n = vis.length, wk = n > 0;
       vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') wk = false; });
-      var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim();
+      var w0 = fv ? fv.replace(/\//g,'-') : todayISO(), wd = new Date(w0 + 'T00:00:00'); wd.setDate(wd.getDate() + 6);
+      var w1 = wd.getFullYear() + '-' + ('0' + (wd.getMonth() + 1)).slice(-2) + '-' + ('0' + wd.getDate()).slice(-2);
+      n = 0; vis.forEach(function(li){
+        if (li.getAttribute('data-kind') === 'weekly') { if (!li.getAttribute('data-tba')) n++; return; }
+        var ds = (li.getAttribute('data-dates') || '').split(',').filter(Boolean);
+        if (ds.some(function(d){ return d >= w0 && d <= w1; })) n++;
+      });
+      if (!fv) fv = w0.replace(/-/g,'/');
+      var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim().split(' · ')[0];
       var fd = fv ? fv.split('/') : null, zh = !!UI.countWord, txt;
       var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
       if (zh) txt = cname + ' — ' + (fd ? (+fd[0]) + '年' + (+fd[1]) + '月' + (+fd[2]) + '日起，后七日' : '') + n + '项';
       else txt = cname + ' — ' + (fd ? 'from ' + MN[+fd[1]-1] + ' ' + (+fd[2]) + ', ' + fd[0] + ', ' + n + ' listings in the next 7 days' : n + ' listings');
-      fl.textContent = txt; fl.hidden = n === 0;
+      fl.textContent = txt; fl.hidden = vis.length === 0;
     });
     if (hint) {
       var tail = showAll() ? (UI.hintShowAll || ' (Show all: incl. past & TBA).') : (UI.hintWeekly || ' (weekly always shown).');
