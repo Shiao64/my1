@@ -207,7 +207,7 @@
       var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start; });
       var wk = rs.filter(function(r){ return r.kind === 'weekly'; });
       var tw = c !== 'Others' && rs[0].region === 'Taiwan';
-      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head">' + esc(cityDisplay(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span></h2>'];
+      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head">' + esc(cityDisplay(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
       h.push(group(UI.events || 'Events', dated.concat(tba)));
       var sched = wk.filter(function(r){ return r.weekday != null && nthOk(r); }), nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
@@ -281,7 +281,7 @@
       });
       block.querySelectorAll('.china-group').forEach(function(g){ g.hidden = !g.querySelector('.china-list > li:not([hidden])'); });
       var wh = block.querySelector('.china-weekly-head');
-      if (wh) { var any = false; block.querySelectorAll('.china-group.china-day').forEach(function(g){ if (!g.hidden) any = true; }); wh.hidden = !any; }
+      if (wh) { var any = false; block.querySelectorAll('.china-group.china-day').forEach(function(g){ if (!g.hidden) any = true; }); wh.hidden = !any; } var ts = block.querySelector('.china-title-sub'); if (ts) ts.hidden = !(wh && !wh.hidden);
       var dyn = block.querySelector('.china-date-empty');
       if (regionOk && shown === 0) {
         if (!dyn) { dyn = document.createElement('p'); dyn.className = 'china-empty note china-date-empty'; dyn.textContent = UI.noMatchCity || 'No events match these filters in this city.'; block.appendChild(dyn); }
@@ -326,7 +326,7 @@
       var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim().split(' · ')[0];
       var zh = !!UI.countWord, txt, reg = vis.length > 0;
       vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') reg = false; });
-      var zw = reg ? '项常规' : '项大型活动', ew = reg ? ' regular events' : ' featured events';
+      var zw = reg ? '项常规活动' : '项大型活动', ew = reg ? ' regular events' : ' featured events';
       if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + zw
                        : 'from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ew;
       else txt = zh ? '从' + zhD(w0, true) + '起，后七日，共' + n + zw
@@ -354,7 +354,9 @@
     try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, y); }
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
-  function onSearch(){ flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); }
+  (function(){ var q = location.search, deep = !!location.hash || /[?&](city|type|id|event|q|from|to)=/.test(q);
+    if (!deep) document.body.classList.add('china-presearch'); })();
+  function onSearch(){ document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); }
   function syncDateShow(){
     document.querySelectorAll('.china-date-show').forEach(function(sp){
       var el = document.getElementById(sp.getAttribute('data-for'));

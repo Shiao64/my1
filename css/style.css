@@ -1595,3 +1595,10 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
   html[lang="en"] .china-page .china-stw-ad-title,html[lang="en"] body.china-page .china-stw-ad-title{font-size:.84rem!important;letter-spacing:0!important}
   html[lang="en"] .china-page .china-stw-ad-date,html[lang="en"] body.china-page .china-stw-ad-date{font-size:.68rem!important}
 }
+/* china167: hide results until first Search (deep links with #hash or ?city/type/id/event/q/from/to show immediately) */
+body.china-presearch #events{display:none!important}
+/* china167: weekly subheading moved into city title line */
+.china-page .china-weekly-head{display:none!important}
+.china-page .china-title-sub{font-size:.62em;font-weight:600;color:#0a4f57;white-space:normal}
+.china-page .china-title-sub[hidden]{display:none}
+.china-page .china-city-block .china-from-line{border-bottom:1px dashed var(--line);padding-bottom:12px;margin-bottom:4px}
