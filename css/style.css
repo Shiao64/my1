@@ -1758,3 +1758,5 @@ html:has(body.cw-theme),html:has(body.sy-theme),html:has(body.hz-theme){scroll-p
 .hz-topbanner img{display:block;width:100%;height:auto;max-width:1100px;max-height:78vh;object-fit:contain;margin:0 auto}
 .hz-pair.hz-single{grid-template-columns:1fr;max-width:560px}
 @media (max-width:700px){.hz-topbanner img{max-height:none}}
+/* Hide Facebook links on Chinese pages of Changwon, Shenyang, Hangzhou */
+html[lang^="zh"] body.cw-theme a[href*="facebook.com"],html[lang^="zh"] body.sy-theme a[href*="facebook.com"],html[lang^="zh"] body.hz-theme a[href*="facebook.com"]{display:none!important}
