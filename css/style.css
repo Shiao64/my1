@@ -1520,10 +1520,3 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 /* zh schedule without image */
 #schedule.sched-noimg .sched-solo{max-width:760px;margin:0 auto}
 #schedule.sched-noimg .sched-intro{max-width:760px;margin-left:auto;margin-right:auto}
-/* zh schedule card styled like the removed image (bg sampled #5a1a1c, gold #e3bd7a) */
-#schedule.sched-noimg .card{background:#5a1a1c;border-color:rgba(227,189,122,.35);color:#f7efe2;position:relative;z-index:1}
-#schedule.sched-noimg .day{border-bottom-color:rgba(227,189,122,.3)}
-#schedule.sched-noimg .ev + .ev{border-top-color:rgba(227,189,122,.22)}
-#schedule.sched-noimg .day-date,#schedule.sched-noimg .ev-time{color:#e3bd7a}
-#schedule.sched-noimg .note{color:#e8dcc6}
-#schedule.sched-noimg.draft-watermark::before{color:#e3bd7a;opacity:.22;z-index:4}
