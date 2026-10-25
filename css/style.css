@@ -1754,3 +1754,7 @@ body.sy-theme .atm-bar,body.hz-theme .atm-bar{color:#F6D58E;background:radial-gr
 body.cw-theme .atm-bar{color:#5a1a3c;background:linear-gradient(90deg,#f5b8cf,#fde4ee 50%,#f5b8cf);border-bottom:1px solid #c2306f}
 body.cw-theme .site-header,body.sy-theme .site-header,body.hz-theme .site-header{position:sticky;top:32px}
 html:has(body.cw-theme),html:has(body.sy-theme),html:has(body.hz-theme){scroll-padding-top:136px}
+.hz-topbanner{background:linear-gradient(180deg,#0c1f3f,#163e72)}
+.hz-topbanner img{display:block;width:100%;height:auto;max-width:1100px;max-height:78vh;object-fit:contain;margin:0 auto}
+.hz-pair.hz-single{grid-template-columns:1fr;max-width:560px}
+@media (max-width:700px){.hz-topbanner img{max-height:none}}

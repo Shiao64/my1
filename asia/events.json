@@ -829,15 +829,16 @@
     "links": {
       "facebook": null,
       "video": null,
-      "other": "https://uzzfwntg.jsjform.com/f/NBcCOy",
+      "other": "https://tangoweekend.org/event/hangzhou-2026-tango-festival/",
       "wechat": "https://mp.weixin.qq.com/s/3w6PRyzOzKG-jHIch8fGEg"
     },
     "source": "manual:web+wechat",
-    "updated": "2026-10-24",
+    "updated": "2026-10-26",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "venue_address_en": "Jinsha Lake, Hangzhou"
+    "venue_address_en": "Jinsha Lake, Hangzhou",
+    "featured": true
   },
   {
     "id": "VGCepJDE",
@@ -4585,32 +4586,6 @@
       "facebook": null,
       "video": null,
       "other": "https://tangoweekend.org/event/changwon-2027-tango-marathon/"
-    },
-    "source": "tangoweekend.org",
-    "updated": "2026-10-26"
-  },
-  {
-    "id": "hzJinsha26",
-    "featured": true,
-    "kind": "event",
-    "type": "festival",
-    "name": "2nd Hangzhou Jinsha International Tango Festival",
-    "city": "Hangzhou",
-    "country": "China",
-    "region": "China",
-    "start": "2026-11-05",
-    "end": "2026-11-09",
-    "weekday": null,
-    "weekdays": null,
-    "time": null,
-    "venue": "Jinsha Grand Theater / Shessiney Natural Cave Wine Cellar",
-    "venue_address": null,
-    "venue_address_en": null,
-    "organizers": [],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": "https://tangoweekend.org/event/hangzhou-2026-tango-festival/"
     },
     "source": "tangoweekend.org",
     "updated": "2026-10-26"
