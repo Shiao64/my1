@@ -1509,3 +1509,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .draft-watermark::before{content:attr(data-wm);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-24deg);font-size:clamp(1.6rem,6vw,4.2rem);font-weight:800;white-space:nowrap;color:#8b1a1f;opacity:.1;pointer-events:none;z-index:3;user-select:none}
 .top-carousel .tc-short{display:none}
 @media (max-width:480px){.top-carousel .tc-long{display:none}.top-carousel .tc-short{display:inline}}
+/* map slide: teal from .btn-china (#0e6e78) */
+.top-carousel .tc-map{background:#0e6e78}
+.top-carousel .tc-map a{background:none;-webkit-text-fill-color:#fff;color:#fff;animation:none;letter-spacing:.04em;font-size:.88rem}
