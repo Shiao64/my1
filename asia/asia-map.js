@@ -302,25 +302,33 @@
       } else cd.hidden = true;
     }
     var ge = document.querySelector('.china-global-empty'); if (ge) ge.hidden = totalVisible > 0;
-    var fv = fromEl && fromEl.value ? fromEl.value.replace(/-/g,'/') : '';
+    var fv = fromEl && fromEl.value ? fromEl.value : todayISO(), tv = toEl && toEl.value ? toEl.value : '';
+    function addD(iso, k){ var d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + k); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
+    var w0 = fv, w1 = tv && tv >= fv ? tv : addD(fv, 6);
+    var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    function zhD(iso, yr){ var p = iso.split('-'); return (yr ? (+p[0]) + '年' : '') + (+p[1]) + '月' + (+p[2]) + '日'; }
+    function enD(iso){ var p = iso.split('-'); return MN[+p[1]-1] + ' ' + (+p[2]) + ', ' + p[0]; }
     document.querySelectorAll('.china-city-head').forEach(function(h2){
       var fl = h2.nextElementSibling;
       if (!fl || !fl.classList.contains('china-from-line')) { fl = document.createElement('p'); fl.className = 'china-from-line'; h2.parentNode.insertBefore(fl, h2.nextSibling); }
-      var vis = h2.parentNode.querySelectorAll('.china-list > li:not([hidden])'), n = vis.length, wk = n > 0;
-      vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') wk = false; });
-      var w0 = fv ? fv.replace(/\//g,'-') : todayISO(), wd = new Date(w0 + 'T00:00:00'); wd.setDate(wd.getDate() + 6);
-      var w1 = wd.getFullYear() + '-' + ('0' + (wd.getMonth() + 1)).slice(-2) + '-' + ('0' + wd.getDate()).slice(-2);
-      n = 0; vis.forEach(function(li){
-        if (li.getAttribute('data-kind') === 'weekly') { if (!li.getAttribute('data-tba')) n++; return; }
+      var vis = h2.parentNode.querySelectorAll('.china-list > li:not([hidden])'), n = 0;
+      vis.forEach(function(li){
+        if (li.getAttribute('data-kind') === 'weekly') {
+          var oc = li.getAttribute('data-occ'); if (!oc || li.getAttribute('data-tba')) return;
+          var wdy = new Date(oc + 'T00:00:00').getDay(), s0 = new Date(w0 + 'T00:00:00');
+          var first = addD(w0, (wdy - s0.getDay() + 7) % 7);
+          for (var d = first; d <= w1; d = addD(d, 7)) n++;
+          return;
+        }
         var ds = (li.getAttribute('data-dates') || '').split(',').filter(Boolean);
         if (ds.some(function(d){ return d >= w0 && d <= w1; })) n++;
       });
-      if (!fv) fv = w0.replace(/-/g,'/');
       var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim().split(' · ')[0];
-      var fd = fv ? fv.split('/') : null, zh = !!UI.countWord, txt;
-      var MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-      if (zh) txt = cname + ' — ' + (fd ? (+fd[0]) + '年' + (+fd[1]) + '月' + (+fd[2]) + '日起，后七日' : '') + n + '项';
-      else txt = cname + ' — ' + (fd ? 'from ' + MN[+fd[1]-1] + ' ' + (+fd[2]) + ', ' + fd[0] + ', ' + n + ' listings in the next 7 days' : n + ' listings');
+      var zh = !!UI.countWord, txt;
+      if (tv) txt = zh ? cname + ' — ' + zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + '项'
+                       : cname + ' — from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ' listings';
+      else txt = zh ? cname + ' — 从' + zhD(w0, true) + '起，后七日' + n + '项'
+                    : cname + ' — from ' + enD(w0) + ', ' + n + ' listings in the next 7 days';
       fl.textContent = txt; fl.hidden = vis.length === 0;
     });
     if (hint) {

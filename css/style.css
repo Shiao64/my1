@@ -1580,5 +1580,5 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 .china-page #china-date-hint{display:none!important}
 .china-page .china-city-head .china-count{display:none!important}
 .china-page .tw-m-count{display:none!important}
-.china-page .china-from-line{margin:-4px 0 10px;font-size:.82rem;color:#7a6255}
+.china-page .china-from-line{margin:-4px 0 10px;padding:0;text-indent:0;text-align:left;font-size:.82rem;color:#7a6255}
 @media (max-width:600px){.china-page .china-city-wrap{display:block!important}.china-page .china-city-wrap select{width:100%!important}}
