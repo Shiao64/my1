@@ -1524,3 +1524,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 #schedule.sched-noimg .ev{display:grid;grid-template-columns:110px 1fr;gap:10px;justify-content:start;align-items:baseline}
 #schedule.sched-noimg .ev-time{order:-1;text-align:left}
 @media (max-width:640px){#schedule.sched-noimg .ev{grid-template-columns:96px 1fr;gap:8px}}
+/* zh schedule zebra days */
+#schedule.sched-noimg .day{padding-left:8px;padding-right:8px;border-radius:6px}
+#schedule.sched-noimg .day:nth-child(even){background:#f3eadb}
