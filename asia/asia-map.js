@@ -324,11 +324,13 @@
         if (ds.some(function(d){ return d >= w0 && d <= w1; })) n++;
       });
       var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim().split(' · ')[0];
-      var zh = !!UI.countWord, txt;
-      if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + '项活动'
-                       : 'from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ' activities';
-      else txt = zh ? '从' + zhD(w0, true) + '起，后七日，共' + n + '项活动'
-                    : 'from ' + enD(w0) + ', next 7 days, ' + n + ' activities';
+      var zh = !!UI.countWord, txt, reg = vis.length > 0;
+      vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') reg = false; });
+      var zw = reg ? '项常规活动' : '项活动', ew = reg ? ' regular events' : ' events';
+      if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + zw
+                       : 'from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ew;
+      else txt = zh ? '从' + zhD(w0, true) + '起，后七日，共' + n + zw
+                    : 'from ' + enD(w0) + ', next 7 days, ' + n + ew;
       fl.textContent = txt; fl.hidden = vis.length === 0;
     });
     if (hint) {
