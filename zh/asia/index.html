@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://tangoweekend.org/zh/asia/">
 <link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
-<link rel="stylesheet" href="../../css/style.css?v=china201">
+<link rel="stylesheet" href="../../css/style.css?v=china219">
 <script src="../../asia/lang-pref.js?v=china140"></script>
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
@@ -74,18 +74,11 @@
 <section id="filters" class="m-filters">
   <div class="wrap m-filters-inner china-filters-compact">
     <a class="tw-m-ad" href="../../event/beijing-2027-tango-weekend/zh/"><span class="tw-m-ad-k">精选</span>第4届北京精选探戈周末 2027/6/18–22 <span aria-hidden="true">→</span></a>
-    <div class="m-block china-filters-row1">
-      <div class="china-type-wrap">
-        <h2 class="m-label">类型：</h2>
-        <div class="m-chips china-type-chips">
-          <label class="m-chip china-type-check"><input type="radio" name="etype" value="regular" checked><span class="china-check" aria-hidden="true"></span> 常规</label>
-          <label class="m-chip china-type-check"><input type="radio" name="etype" value="event"><span class="china-check" aria-hidden="true"></span> 大型活动</label>
-        </div>
-      </div>
-      <div class="china-city-wrap">
-        <h2 class="m-label">城市：</h2>
-        <select id="china-city" class="m-select m-select-city" aria-label="城市">
-          <option value="all">全部城市</option>
+    <div class="m-block china-filters-row1 atm-form">
+      <div class="atm-row atm-row-ev"><label class="m-chip china-type-check"><input type="radio" name="etype" value="event" checked><span class="china-check" aria-hidden="true"></span> 大型活动</label><span class="atm-ev-note">所有城市，按时间排序</span></div>
+      <div class="atm-row atm-row-reg"><label class="m-chip china-type-check"><input type="radio" name="etype" value="regular"><span class="china-check" aria-hidden="true"></span> 常规活动</label>
+        <div class="china-city-wrap"><select id="china-city" class="m-select m-select-city" aria-label="城市">
+          <option value="all">所有城市</option>
           <option value="bj" data-en="Beijing">北京</option>
           <option value="hk" data-en="Hong Kong">香港</option>
           <option value="sh" data-en="Shanghai">上海</option>
@@ -102,13 +95,13 @@
           <option value="tp" data-en="Taipei">台北</option>
           <option value="cw" data-en="Changwon">昌原</option>
           <option value="tj" data-en="Tianjin">天津</option>
-        </select>
+        </select></div>
       </div>
-      <div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0">
+      <div class="china-date-wrap atm-row atm-row-go" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0">
         <h2 class="m-label">日期：</h2>
         <div class="china-date-fromto">
           <label class="china-date-field"><span>从</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-from" class="m-input china-date-input" aria-label="开始日期"><em class="china-date-show" data-for="china-from" aria-hidden="true"></em></div></label>
-          <label class="china-date-field"><span>至</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-to" class="m-input china-date-input" aria-label="结束日期"><em class="china-date-show" data-for="china-to" aria-hidden="true"></em></div></label>
+          
         </div>
         <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search">搜索</button></span><div class="china-showall-row"><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> 包含已结束与日期未定</label></div>
       </div>
@@ -269,7 +262,7 @@ window.CHINA_UI = {
   showingSep: ' · 显示',
   listingsWord: '条',
   hintShowAll: '（含过往与待定）。',
-  hintWeekly: '（常规按周显示）。',
+  hintWeekly: '（常规活动按周显示）。',
   loadError: '无法加载活动列表',
   refresh: '请刷新页面。',
   suggestSubject: '亚洲探戈地图活动推荐',
@@ -281,7 +274,7 @@ window.CHINA_UI = {
   suggestAutoReply: '谢谢！我们已收到你在亚洲探戈地图添加的活动，上线后会回复你。—— tangoweekend.org'
 };
 </script>
-<script src="../../asia/asia-map.js?v=china212"></script>
-<script src="../../asia/asia-intro.js?v=china217"></script>
+<script src="../../asia/asia-map.js?v=china219"></script>
+<script src="../../asia/asia-intro.js?v=china219"></script>
 </body>
 </html>

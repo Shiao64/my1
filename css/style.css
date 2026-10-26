@@ -1893,3 +1893,18 @@ body.hz-theme.cq-theme{--red:#b3122b;--red-dark:#8e0e22;--red-deep:#4a0811;--cre
 body.hz-theme.cq-theme .site-header{background:rgba(74,8,17,.96)}
 body.hz-theme.cq-theme .btn-gold{color:#4a0811}
 .cq-topbanner{background:linear-gradient(180deg,#4a0811,#8e0e22)}
+/* Asia map: city locked to All cities when type = Event */
+#china-city:disabled{opacity:.55;background-color:#ece8e1;color:#555;cursor:not-allowed;-webkit-text-fill-color:#555}
+/* Asia map: 3-row search form (Event / Regular + city / start date + Search) */
+.china-page .china-filters-row1.atm-form{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:stretch!important;gap:14px!important;max-width:520px!important}
+.china-page .atm-form .atm-row{display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important;width:100%!important;flex:0 0 auto!important;max-width:100%!important}
+.china-page .atm-form .atm-row > .m-chip{flex:0 0 auto!important;margin:0!important;padding:7px 14px!important;font-size:.9rem!important}
+.china-page .atm-form .atm-row-reg .china-city-wrap{display:block!important;flex:1 1 auto!important;min-width:0!important;max-width:none!important;width:auto!important}
+.china-page .atm-form .atm-row-reg .china-city-wrap select{width:100%!important;min-width:0!important}
+
+body.china-page #filters .china-filters-row1.atm-form > .atm-row-go{width:100%!important}
+body.china-page #filters .china-filters-row1.atm-form > .atm-row-go > .china-date-fromto{grid-template-columns:minmax(0,1fr)!important;justify-items:start!important}
+body.china-page #filters .china-filters-row1.atm-form > .atm-row-go > .china-date-fromto::before{content:none!important}
+body.china-page #filters .china-filters-row1.atm-form > .atm-row-go .china-date-field:first-child{grid-column:1!important}
+body.china-page #filters .china-filters-row1.atm-form > .atm-row-go > .china-showmode{justify-content:center!important}
+.china-page .atm-form .atm-ev-note{flex:0 1 auto;min-width:0;white-space:nowrap;font-size:.85rem;font-weight:600;color:#7a6255}

@@ -7,7 +7,7 @@
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
 <link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
-<link rel="stylesheet" href="../css/style.css?v=china201">
+<link rel="stylesheet" href="../css/style.css?v=china219">
 <script src="lang-pref.js?v=china140"></script>
 <style>
 .china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
@@ -74,17 +74,10 @@
 <section id="filters" class="m-filters">
   <div class="wrap m-filters-inner china-filters-compact">
     <a class="tw-m-ad" href="../event/beijing-2027-tango-weekend/"><span class="tw-m-ad-k">Featured</span> 4th Beijing Select Tango Weekend · Jun 18–22, 2027 <span aria-hidden="true">→</span></a>
-    <div class="m-block china-filters-row1">
-      <div class="china-type-wrap">
-        <h2 class="m-label">Type:</h2>
-        <div class="m-chips china-type-chips">
-          <label class="m-chip china-type-check"><input type="radio" name="etype" value="regular" checked><span class="china-check" aria-hidden="true"></span> Regular</label>
-          <label class="m-chip china-type-check"><input type="radio" name="etype" value="event"><span class="china-check" aria-hidden="true"></span> Featured</label>
-        </div>
-      </div>
-      <div class="china-city-wrap">
-        <h2 class="m-label">City:</h2>
-        <select id="china-city" class="m-select m-select-city" aria-label="City">
+    <div class="m-block china-filters-row1 atm-form">
+      <div class="atm-row atm-row-ev"><label class="m-chip china-type-check"><input type="radio" name="etype" value="event" checked><span class="china-check" aria-hidden="true"></span> Event</label><span class="atm-ev-note">All cities, sorted by time</span></div>
+      <div class="atm-row atm-row-reg"><label class="m-chip china-type-check"><input type="radio" name="etype" value="regular"><span class="china-check" aria-hidden="true"></span> Regular</label>
+        <div class="china-city-wrap"><select id="china-city" class="m-select m-select-city" aria-label="City">
           <option value="all">All cities</option>
           <option value="bj" data-en="Beijing">Beijing</option>
           <option value="hk" data-en="Hong Kong">Hong Kong</option>
@@ -102,13 +95,13 @@
           <option value="tp" data-en="Taipei">Taipei</option>
           <option value="cw" data-en="Changwon">Changwon</option>
           <option value="tj" data-en="Tianjin">Tianjin</option>
-        </select>
+        </select></div>
       </div>
-      <div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0">
+      <div class="china-date-wrap atm-row atm-row-go" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0">
         <h2 class="m-label">Date:</h2>
         <div class="china-date-fromto">
           <label class="china-date-field"><span>From</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-from" class="m-input china-date-input" aria-label="From date"><em class="china-date-show" data-for="china-from" aria-hidden="true"></em></div></label>
-          <label class="china-date-field"><span>To</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-to" class="m-input china-date-input" aria-label="To date"><em class="china-date-show" data-for="china-to" aria-hidden="true"></em></div></label>
+          
         </div>
         <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search">Search</button></span><div class="china-showall-row"><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> Include past &amp; TBA events</label></div>
       </div>
@@ -264,7 +257,7 @@ window.CHINA_UI = {
   fsEmail: 'Your email', fsWechat: 'Your WeChat ID', fsUrl: 'Event website'
 };
 </script>
-<script src="asia-map.js?v=china212"></script>
-<script src="asia-intro.js?v=china217"></script>
+<script src="asia-map.js?v=china219"></script>
+<script src="asia-intro.js?v=china219"></script>
 </body>
 </html>
