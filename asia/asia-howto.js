@@ -40,12 +40,12 @@
         ev = R_(document.querySelector('.atm-row-ev label')); var rg = R_(document.querySelector('.atm-row-reg label')), nt = document.querySelector('.atm-ev-note'), nr = nt ? R_(nt) : null;
         var x1 = (a.l + C.l) / 2, x2 = Math.round(Math.min(b.cx, d.l - 12)), x3 = (d.r + C.r) / 2, gp = '';
         [c.querySelector('.atm-hn'), nt, document.getElementById('china-city')].forEach(function (e) { if (!e) return; var q = R_(e); if (x2 > q.l - 3 && x2 < q.r + 3 && q.t > b.b) gp += 'V' + (q.t - 3) + 'M' + x2 + ' ' + (q.b + 3); });
-        var P = ['M' + a.l + ' ' + a.cy + 'H' + x1 + 'V' + rg.cy + 'H' + (rg.l - 2) + 'M' + x1 + ' ' + ev.cy + 'H' + (ev.l - 2),
+        var gl = Math.min(ev.l, rg.l) - 5, gt = ev.t - 4, gr = Math.max(ev.r, rg.r) + 5, gb = rg.b + 4;
+        var G = '<rect x="' + gl + '" y="' + gt + '" width="' + (gr - gl) + '" height="' + (gb - gt) + '" rx="12" fill="none" stroke="#ff3b3b" stroke-width="2.5" stroke-dasharray="7 4"/>';
+        var P = ['M' + a.l + ' ' + a.cy + 'H' + x1 + 'V' + rg.cy + 'H' + (gl - 1) + 'M' + x1 + ' ' + ev.cy + 'H' + (gl - 1),
                  'M' + x2 + ' ' + b.b + gp + 'V' + dt.cy + 'H' + (dt.r + 2),
                  'M' + d.r + ' ' + d.cy + 'H' + x3 + 'V' + sb.cy + 'H' + (sb.r + 2)];
-        var gl = Math.min(ev.l, rg.l) - 5, gt = ev.t - 4, gr = Math.max(ev.r, rg.r) + 5, gb = rg.b + 4;
-        p += '<rect x="' + gl + '" y="' + gt + '" width="' + (gr - gl) + '" height="' + (gb - gt) + '" rx="12" fill="none" stroke="#d93a3a" stroke-width="1.5" stroke-dasharray="4 3" opacity=".85"/>';
-        var H = document.documentElement.scrollHeight, W = document.documentElement.scrollWidth, m = '', p = '';
+        var H = document.documentElement.scrollHeight, W = document.documentElement.scrollWidth, m = '', p = ''; p += G;
         COL.forEach(function (col, i) {
           m += '<marker id="atmA' + i + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="' + col + '"/></marker>';
           p += '<path d="' + P[i] + '" fill="none" stroke="' + col + '" stroke-width="3" stroke-linejoin="round" marker-end="url(#atmA' + i + ')"' + (i === 0 ? ' marker-mid="url(#atmA0)"' : '') + '/>';
