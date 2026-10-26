@@ -199,7 +199,8 @@
     var box = document.querySelector('.tw-m-feat .wrap'); if (!box) return;
     
     var tdy = todayISO();
-    var ev = data.filter(function(r){ return r.kind === 'event' && !r.hidden && r.status !== 'cancelled' && (r.id === 'cwCbtm27' || (r.end || r.start || '') >= tdy) && !/Select Tango Weekend/.test(r.name); })
+    var PICK = { 'cwCbtm27': 1, 'manual-hz-jinsha': 1 };
+    var ev = data.filter(function(r){ return r.kind === 'event' && !r.hidden && r.status !== 'cancelled' && (PICK[r.id] || (r.end || r.start || '') >= tdy) && !/Select Tango Weekend/.test(r.name); })
       .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); });
     if (!ev.length) return;
     function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
@@ -216,12 +217,12 @@
     var items = [];
     ev.forEach(function(r){ var u = href(r); if (!u) return;
       var m = u.match(/\/event\/([^\/]+)\//), im = m && IMG[m[1]] || [];
-      items.push([r.id === 'cwCbtm27' ? '0' : (r.start || ''), card(u, im[0], im[1] || 'center', (isZh && m && ZHN[m[1]]) || r.name, fd(r) + ' · ' + cityDisplay(r.city))]); });
+      items.push([(PICK[r.id] ? 'P' : '') + (r.start || ''), card(u, im[0], im[1] || 'center', (isZh && m && ZHN[m[1]]) || r.name, fd(r) + ' · ' + cityDisplay(r.city))]); });
     if (bjHtml) { var br = data.filter(function(r){ return r.kind === 'event' && /Select Tango Weekend/.test(r.name) && (r.end || r.start || '') >= tdy; })
         .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); })[0];
-      items.push(['1', bjHtml]); }
+      items.push(['P' + (br && br.start || '9999'), bjHtml]); }
     items.sort(function(a,b){ return a[0].localeCompare(b[0]); });
-    var pin = items.filter(function(x){ return x[0] === '0' || x[0] === '1'; }), rest = items.filter(function(x){ return x[0] !== '0' && x[0] !== '1'; });
+    var pin = items.filter(function(x){ return x[0].charAt(0) === 'P'; }), rest = items.filter(function(x){ return x[0].charAt(0) !== 'P'; });
     grid.classList.add('tw-feat-ad');
     grid.innerHTML = pin.map(function(x){ return x[1]; }).join('');
     var head = box.querySelector('.tw-feat-head'), grid2 = box.querySelector('.tw-feat-more');
