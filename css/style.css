@@ -1908,3 +1908,7 @@ body.china-page #filters .china-filters-row1.atm-form > .atm-row-go > .china-dat
 body.china-page #filters .china-filters-row1.atm-form > .atm-row-go .china-date-field:first-child{grid-column:1!important}
 body.china-page #filters .china-filters-row1.atm-form > .atm-row-go > .china-showmode{justify-content:center!important}
 .china-page .atm-form .atm-ev-note{flex:0 1 auto;min-width:0;white-space:nowrap;font-size:.85rem;font-weight:600;color:#7a6255}
+.china-page .atm-form .atm-row-reg .china-city-wrap{position:relative}
+.china-page .atm-form select.atm-city-err{border:2px solid #c8102e!important;box-shadow:0 0 0 3px rgba(200,16,46,.18)!important}
+.china-page .atm-form .atm-city-hint{display:block;margin-top:4px;font-size:.8rem;font-weight:700;color:#c8102e}
+.china-page .atm-form .atm-city-hint[hidden]{display:none}

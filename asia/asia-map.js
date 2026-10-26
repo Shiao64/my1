@@ -3,6 +3,13 @@
   var UI = window.CHINA_UI || {};
   var isZh = UI.lang === 'zh';
   var citySel = document.getElementById('china-city');
+  var PH_TXT = /^zh/.test(document.documentElement.lang || '') ? '请选城市' : 'Please select a city';
+  if (citySel && !citySel.querySelector('option[value=""]')) { var phO = document.createElement('option'); phO.value = ''; phO.textContent = PH_TXT; citySel.insertBefore(phO, citySel.firstChild); }
+  function cityHint(on){ if (!citySel) return; var w = citySel.parentNode, h = w.querySelector('.atm-city-hint');
+    citySel.classList.toggle('atm-city-err', !!on);
+    if (on && !h) { h = document.createElement('span'); h.className = 'atm-city-hint'; h.setAttribute('role', 'alert'); h.textContent = PH_TXT; w.appendChild(h); }
+    if (h) h.hidden = !on; }
+  if (citySel) citySel.addEventListener('change', function(){ if (citySel.value) { citySel._lastCity = citySel.value; cityHint(false); } });
   var hint = document.getElementById('china-date-hint');
   var fromEl = document.getElementById('china-from');
   var toEl = document.getElementById('china-to');
@@ -290,20 +297,23 @@
       if (n) has[id] = 1;
     });
     Array.prototype.forEach.call(citySel.options, function(o){
-      if (o.value === 'all') return;
+      if (o.value === 'all' || o.value === '') return;
       var off = !has[o.value]; o.hidden = off; o.disabled = off;
     });
     var ev = types.length === 1 && types[0] === 'event';
     var allOpt = citySel.querySelector('option[value="all"]');
-    if (ev) { if (citySel.value !== 'all') citySel._lastCity = citySel.value; citySel.value = 'all'; if (allOpt) { allOpt.hidden = false; allOpt.disabled = false; } }
+    var phOpt = citySel.querySelector('option[value=""]'); if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; }
+    if (ev) { cityHint(false); if (citySel.value && citySel.value !== 'all') citySel._lastCity = citySel.value; citySel.value = 'all'; if (allOpt) { allOpt.hidden = false; allOpt.disabled = false; } }
     else {
       if (allOpt) { allOpt.hidden = true; allOpt.disabled = true; }
-      if (citySel.value === 'all' || !has[citySel.value]) citySel.value = (citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : (has.bj ? 'bj' : (Object.keys(has)[0] || 'bj'));
+      if (citySel.value === 'all' || citySel.value === '' || !has[citySel.value]) citySel.value = (citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '';
+      if (citySel.value === '' && phOpt) { phOpt.disabled = false; citySel.value = ''; }
     }
     citySel.disabled = ev;
   }
   function applyFilters(){
     updateCityOptions();
+    if (citySel && citySel.value === '') return;
     var city = citySel ? citySel.value : 'all', types = checkedTypes(), totalVisible = 0;
     var chrono = city === 'all' && types.length === 1 && types[0] === 'event';
     document.querySelectorAll('.china-city-block').forEach(function(block){
@@ -392,7 +402,7 @@
   }
   (function(){ var q = location.search, deep = !!location.hash || /[?&](city|type|id|event|q|from|to)=/.test(q);
     if (!deep) document.body.classList.add('china-presearch'); })();
-  function onSearch(){ document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); }
+  function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '') { cityHint(true); try { citySel.focus(); } catch(e){} return; } document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); }
   function syncDateShow(){
     document.querySelectorAll('.china-date-show').forEach(function(sp){
       var el = document.getElementById(sp.getAttribute('data-for'));
