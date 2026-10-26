@@ -2,6 +2,7 @@
 (function () {
   var KEY = 'atmHowtoOk';
   function run() {
+    if (window.innerWidth > 640) return; // mobile only; desktop keeps asia-intro.js
     var form = document.querySelector('.atm-form');
     if (!form || document.querySelector('.atm-howto')) return;
     var force = /[?&]intro=1/.test(location.search);

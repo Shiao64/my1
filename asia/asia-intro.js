@@ -1,6 +1,7 @@
 /* Asia Tango Map opening intro: non-blocking toast, once per session, ?intro=1 forces. */
 (function () {
   var KEY = 'asiaIntroSeen';
+  if (window.innerWidth <= 640) return; // mobile uses asia-howto.js
   var force = /[?&]intro=1(&|$)/.test(location.search);
   try { if (!force && sessionStorage.getItem(KEY)) return; } catch (e) {}
   var zh = (document.documentElement.getAttribute('lang') || '').indexOf('zh') === 0;
