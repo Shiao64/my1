@@ -1780,3 +1780,10 @@ body.tw-theme .tw-brand{font-weight:700;color:#f6c28b;text-decoration:none;margi
 @media (max-width:700px){.tw-topbanner img{max-height:none}.tw-gallery{grid-template-columns:1fr}}
 html[lang^="zh"] body.tw-theme a[href*="facebook.com"]{display:none!important}
 body.cw-theme .venue-block{text-align:center;max-width:720px;margin-left:auto;margin-right:auto}
+body.china-page .tw-m-feat-more{margin-top:10px;border:1px solid #ead9b8;border-radius:14px;background:#fff;overflow:hidden}
+body.china-page .tw-m-feat-more-h{margin:0;padding:8px 14px;font-weight:700;font-size:.85rem;color:#F6D58E;background:linear-gradient(160deg,#0e6e78 0%,#0a4f57 60%,#06333a 100%)}
+body.china-page .tw-m-feat-row{display:flex;flex-direction:column;gap:2px;padding:10px 14px;border-top:1px solid #f0e4cc;text-decoration:none}
+body.china-page .tw-m-feat-row:first-of-type{border-top:0}
+body.china-page .tw-m-feat-row strong{font-family:var(--serif);font-size:.98rem;color:#0a4f57}
+body.china-page .tw-m-feat-row span{font-size:.8rem;color:#7a6255}
+body.china-page .tw-m-feat-row:hover strong{color:#0e6e78;text-decoration:underline}

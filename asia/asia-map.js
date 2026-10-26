@@ -178,6 +178,20 @@
     if (!items.length) return '';
     return '<div class="china-group' + (cls ? ' ' + cls : '') + '"><h3 class="china-sub-head">' + title + '</h3><ul class="china-list ev-list">' + items.map(card).join('') + '</ul></div>';
   }
+  function renderFeatList(data){
+    var box = document.querySelector('.tw-m-feat .wrap'); if (!box) return;
+    var old = box.querySelector('.tw-m-feat-more'); if (old) old.remove();
+    var tdy = todayISO();
+    var ev = data.filter(function(r){ return r.featured === true && r.kind === 'event' && !r.hidden && (r.end || r.start || '') >= tdy && !/Select Tango Weekend/.test(r.name); })
+      .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); });
+    if (!ev.length) return;
+    function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
+    function href(r){ var u = (r.links && r.links.other) || ''; return isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(u) ? u + 'zh/' : u; }
+    var h = ['<div class="tw-m-feat-more"><p class="tw-m-feat-more-h">' + (isZh ? '更多精选活动' : 'More featured events') + '</p>'];
+    ev.forEach(function(r){ var u = href(r); if (!u) return;
+      h.push('<a class="tw-m-feat-row" href="' + esc(u) + '"><strong>' + esc(r.name) + '</strong><span>' + esc(fd(r)) + ' · ' + esc(cityDisplay(r.city)) + '</span></a>'); });
+    h.push('</div>'); box.insertAdjacentHTML('beforeend', h.join(''));
+  }
   function render(data){
     var cities = CITY_ORDER.slice();
     data.forEach(function(r){ if (cities.indexOf(r.city) === -1) cities.push(r.city); });
@@ -329,7 +343,8 @@
       var zh = !!UI.countWord, txt, reg = vis.length > 0;
       vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') reg = false; });
       var zw = reg ? '项常规活动' : '项大型活动', ew = reg ? ' regular events' : ' featured events';
-      if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + zw
+      if (!reg && !tv) { n = vis.length; txt = zh ? '从' + zhD(w0, true) + '起，共' + n + zw : 'from ' + enD(w0) + ' onward, ' + n + ew; }
+      else if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + zw
                        : 'from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ew;
       else txt = zh ? '从' + zhD(w0, true) + '起，后七日，共' + n + zw
                     : 'from ' + enD(w0) + ', next 7 days, ' + n + ew;
@@ -426,6 +441,6 @@
       data = data.filter(function(r){ return !r.hidden; });
       if (citySel) { var have = {}; Array.prototype.forEach.call(citySel.options, function(o){ have[o.value] = 1; });
         data.forEach(function(r){ var id = cityId(r.city); if (!have[id]) { have[id] = 1; var o = document.createElement('option'); o.value = id; o.setAttribute('data-en', r.city); o.textContent = cityDisplay(r.city); citySel.appendChild(o); } }); }
-      window._chinaData = data; render(data); applyFilters(); })
+      window._chinaData = data; render(data); renderFeatList(data); applyFilters(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">' + (UI.loadError || 'Could not load listings') + ' (' + esc(err.message) + '). ' + (UI.refresh || 'Please refresh.') + '</p>'; });
 })();
