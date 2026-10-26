@@ -5,7 +5,7 @@
   try { if (!force && sessionStorage.getItem(KEY)) return; } catch (e) {}
   var zh = (document.documentElement.getAttribute('lang') || '').indexOf('zh') === 0;
   var text = zh ? '亚洲探戈地图，帮你找阿根廷探戈' : 'Asia Tango Map — find Argentine tango across Asia';
-  var css = '.atm-intro-wrap{position:fixed;left:0;right:0;top:46px;z-index:200;display:flex;justify-content:center;pointer-events:none;padding:0 10px}' +
+  var css = '.atm-intro-wrap{position:fixed;left:0;right:0;top:46px;overflow:visible;z-index:200;display:flex;justify-content:center;pointer-events:none;padding:0 10px}' +
     '.atm-intro{pointer-events:auto;display:flex;align-items:center;gap:12px;max-width:620px;white-space:nowrap;padding:12px 14px 12px 18px;border-radius:14px;' +
     'background:linear-gradient(135deg,#0a4f57,#0e6e78);color:#fff;border:1.5px solid #e8c06a;box-shadow:0 10px 28px rgba(0,0,0,.28);' +
     'font-size:clamp(14px,3.8vw,17px);font-weight:600;line-height:1.35;opacity:0;transform:translateY(-14px);transition:opacity .45s ease,transform .45s ease}' +
@@ -16,15 +16,20 @@
     '.atm-intro-x:hover{background:#f0d28a;color:#0a4f57}' +
     '.atm-intro-pin{flex:0 0 auto;width:28px;height:34px;color:#d4af37}' +
     '.atm-intro.show .atm-intro-pin{animation:atmBob 2.8s ease-in-out .5s infinite}' +
-    '.atm-intro.show .atm-intro-mag{animation:atmSweep 2.8s ease-in-out .5s infinite;transform-origin:13px 11.6px}' +
+    '.atm-intro-pupil{transform-box:fill-box;transform-origin:center}' +
+    '.atm-intro.show .atm-intro-pupil{animation:atmScan 2.5s ease-in-out .4s both}' +
+    '.atm-intro-lid{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(0)}' +
+    '.atm-intro.show .atm-intro-lid{animation:atmBlink 2.5s linear .4s both}' +
+    '@keyframes atmScan{0%,8%{transform:translateX(0)}22%,34%{transform:translateX(-1.7px)}52%,64%{transform:translateX(1.7px)}82%,100%{transform:translateX(0)}}' +
+    '@keyframes atmBlink{0%,30%{transform:scaleY(0)}35%{transform:scaleY(1)}40%,80%{transform:scaleY(0)}85%{transform:scaleY(1)}90%,100%{transform:scaleY(0)}}' +
+    '.atm-intro.center{transition:transform .6s cubic-bezier(.3,.7,.3,1);transform:translate(var(--dx),var(--dy))}' +
     '@keyframes atmBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}' +
-    '@keyframes atmSweep{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}' +
-    '.atm-intro.burst{animation:atmBurst 1.5s cubic-bezier(.4,0,.9,.6) forwards;pointer-events:none}' +
-    '@keyframes atmBurst{0%{transform:scale(1);opacity:1;filter:none}80%{transform:scale(1.6);opacity:.55;filter:none}100%{transform:scale(1.95);opacity:0;filter:blur(4px)}}' +
+    '.atm-intro.center.burst{animation:atmBurst 1.4s cubic-bezier(.4,0,.9,.6) forwards;pointer-events:none}' +
+    '@keyframes atmBurst{0%{transform:translate(var(--dx),var(--dy)) scale(1);opacity:1;filter:none}82%{transform:translate(var(--dx),var(--dy)) scale(var(--s1));opacity:.7;filter:none}100%{transform:translate(var(--dx),var(--dy)) scale(var(--s2));opacity:0;filter:blur(5px)}}' +
     '@keyframes atmFade{to{opacity:0}}' +
     '.atm-intro-txt{display:flex;flex-direction:column;gap:2px}' +
     '.atm-intro-sub{font-size:.78em;font-weight:500;color:rgba(255,255,255,.78)}' +
-    '@media (prefers-reduced-motion:reduce){.atm-intro{transition:none;transform:none}.atm-intro.burst{animation:atmFade 1.5s ease forwards}.atm-intro.show .atm-intro-pin,.atm-intro.show .atm-intro-mag{animation:none}}';
+    '@media (prefers-reduced-motion:reduce){.atm-intro{transition:none;transform:none}.atm-intro.center{transition:none;transform:none}.atm-intro.center.burst{animation:atmFade 1.4s ease forwards}.atm-intro.show .atm-intro-pin,.atm-intro.show .atm-intro-pupil,.atm-intro.show .atm-intro-lid{animation:none}}';
   function run() {
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     var wrap = document.createElement('div'); wrap.className = 'atm-intro-wrap';
@@ -35,7 +40,7 @@
     var tx = document.createElement('span'); tx.className = 'atm-intro-txt'; tx.appendChild(msg);
     var sub = document.createElement('span'); sub.className = 'atm-intro-sub'; sub.textContent = zh ? '帮你找到身边的Milonga、探戈节和马拉松' : 'Milongas, festivals & marathons near you'; tx.appendChild(sub);
     var x = document.createElement('button'); x.type = 'button'; x.className = 'atm-intro-x'; x.setAttribute('aria-label', zh ? '关闭' : 'Close'); x.textContent = '×';
-    card.insertAdjacentHTML('afterbegin', '<svg class="atm-intro-pin" viewBox="0 0 28 34" aria-hidden="true" focusable="false"><path d="M14 1C7.4 1 2 6.2 2 12.7 2 21.5 14 33 14 33s12-11.5 12-20.3C26 6.2 20.6 1 14 1z" fill="currentColor"/><g class="atm-intro-mag"><circle cx="13" cy="11.6" r="4.6" fill="none" stroke="#0a4f57" stroke-width="2"/><path d="M16.4 15 L19.6 18.2" stroke="#0a4f57" stroke-width="2.2" stroke-linecap="round"/></g></svg>'); card.appendChild(tx); card.appendChild(x); wrap.appendChild(card); document.body.appendChild(wrap);
+    card.insertAdjacentHTML('afterbegin', '<svg class="atm-intro-pin" viewBox="0 0 28 34" aria-hidden="true" focusable="false"><path d="M14 1C7.4 1 2 6.2 2 12.7 2 21.5 14 33 14 33s12-11.5 12-20.3C26 6.2 20.6 1 14 1z" fill="currentColor"/><defs><clipPath id="atmLens"><circle cx="13" cy="11.6" r="3.7"/></clipPath></defs><g class="atm-intro-mag"><circle cx="13" cy="11.6" r="3.7" fill="#fff"/><g clip-path="url(#atmLens)"><circle class="atm-intro-pupil" cx="13" cy="11.6" r="1.7" fill="#1b1b1b"/><rect class="atm-intro-lid" x="9" y="7.6" width="8" height="8" fill="#d4af37"/></g><circle cx="13" cy="11.6" r="4.6" fill="none" stroke="#0a4f57" stroke-width="2"/><path d="M16.4 15 L19.6 18.2" stroke="#0a4f57" stroke-width="2.2" stroke-linecap="round"/></g></svg>'); card.appendChild(tx); card.appendChild(x); wrap.appendChild(card); document.body.appendChild(wrap);
     try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     requestAnimationFrame(function () { requestAnimationFrame(function () { card.classList.add('show'); }); });
@@ -46,7 +51,18 @@
       setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, reduce ? 0 : 480);
     }
     x.addEventListener('click', close);
-    var t = setTimeout(function () { card.classList.add('burst'); t = setTimeout(function () { done = true; if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 1500); }, 3500);
+    var t = setTimeout(function () {
+      var r = card.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight;
+      card.style.setProperty('--dx', Math.round(vw / 2 - (r.left + r.width / 2)) + 'px');
+      card.style.setProperty('--dy', Math.round(vh / 2 - (r.top + r.height / 2)) + 'px');
+      var fit = (vw - 12) / r.width, s1 = Math.max(1, Math.min(1.6, fit));
+      card.style.setProperty('--s1', s1.toFixed(3)); card.style.setProperty('--s2', (s1 * 1.18).toFixed(3));
+      card.classList.add('center');
+      t = setTimeout(function () {
+        card.classList.add('burst');
+        t = setTimeout(function () { done = true; if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, 1400);
+      }, reduce ? 0 : 650);
+    }, 2950);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
