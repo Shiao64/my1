@@ -1810,3 +1810,9 @@ body.cw-theme .cw-venue-sec{padding:48px 0 8px;text-align:center}
 body.cw-theme .cw-venue-sec .cw-venue-fig img{width:100%;max-width:753px;display:block;margin:0 auto;border-radius:14px}
 body.cw-theme .cw-venue-sec .venue-block{margin:14px 0 0;font-size:.95rem;line-height:1.6}
 body.cw-theme #venue{scroll-margin-top:0}
+body.cw-theme .cw-venue-sec{padding:40px 0 4px}
+body.cw-theme .cw-venue-sec .venue-block{margin:0;font-size:.95rem}
+body.cw-theme .cw-djs-fig{display:block;max-width:900px;margin:0 auto 28px}
+body.cw-theme .cw-djs-fig img{width:100%;height:auto;display:block;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+@media (max-width:600px){body.cw-theme .cw-djs-fig{margin:0 -12px 24px}body.cw-theme .cw-djs-fig img{border-radius:6px}}
+body.cw-theme .cw-venue-sec .venue-block{margin:14px 0 0}
