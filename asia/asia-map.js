@@ -199,11 +199,11 @@
     var box = document.querySelector('.tw-m-feat .wrap'); if (!box) return;
     
     var tdy = todayISO();
-    var ev = data.filter(function(r){ return r.featured === true && r.id === 'cwCbtm27' && r.kind === 'event' && !r.hidden && (r.end || r.start || '') >= tdy && !/Select Tango Weekend/.test(r.name); })
+    var ev = data.filter(function(r){ return r.kind === 'event' && !r.hidden && r.status !== 'cancelled' && (r.end || r.start || '') >= tdy && !/Select Tango Weekend/.test(r.name); })
       .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); });
     if (!ev.length) return;
     function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
-    function href(r){ var u = (r.links && r.links.other) || ''; return isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(u) ? u + 'zh/' : u; }
+    function href(r){ var L = r.links || {}, u = L.other || L.register || L.facebook || ''; return isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(u) ? u + 'zh/' : u; }
     var IMG = OWN_IMG;
     var ZHN = { 'hangzhou-2026-tango-festival': '杭州金沙国际探戈节', 'chongqing-2026-tango-festival': '2026火辣探戈周末·第九届重庆探戈节', 'miaoli-2026-tango-marathon': '台湾探戈马拉松', 'changwon-2027-tango-marathon': '2027韩国昌原樱花探戈马拉松' };
     function card(u, img, pos, name, meta){
@@ -216,10 +216,10 @@
     var items = [];
     ev.forEach(function(r){ var u = href(r); if (!u) return;
       var m = u.match(/\/event\/([^\/]+)\//), im = m && IMG[m[1]] || [];
-      items.push([r.start || '', card(u, im[0], im[1] || 'center', (isZh && m && ZHN[m[1]]) || r.name, fd(r) + ' · ' + cityDisplay(r.city))]); });
+      items.push([r.id === 'cwCbtm27' ? '0' : (r.start || ''), card(u, im[0], im[1] || 'center', (isZh && m && ZHN[m[1]]) || r.name, fd(r) + ' · ' + cityDisplay(r.city))]); });
     if (bjHtml) { var br = data.filter(function(r){ return r.kind === 'event' && /Select Tango Weekend/.test(r.name) && (r.end || r.start || '') >= tdy; })
         .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); })[0];
-      items.push([br && br.start || '9999', bjHtml]); }
+      items.push(['1', bjHtml]); }
     items.sort(function(a,b){ return a[0].localeCompare(b[0]); });
     var h = items.map(function(x){ return x[1]; });
     grid.innerHTML = h.join('');
