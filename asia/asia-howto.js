@@ -18,7 +18,7 @@
       '.atm-howto li small{font-weight:500;color:#5d7a7e;font-size:13px}' +
       '.atm-howto .atm-hn{margin:8px 2px 0;font-size:12.5px;color:#7a8a8c}' +
       '.atm-hhd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin:0 0 8px}.atm-hhd h3{margin:0!important}.atm-hbt{display:flex;align-items:center;gap:8px;margin-left:auto}.atm-howto .atm-hns{display:flex;align-items:center;gap:4px;padding:4px 2px;font-size:12.5px;color:#4d6366;cursor:pointer;margin:0}.atm-howto .atm-hns input{width:15px;height:15px;margin:0;accent-color:#0e5a5e;cursor:pointer}.atm-howto .atm-hx{border:0;background:#0e6e78;color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer}' +
-      '.atm-howto{z-index:9992}.atm-hdim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9990}.atm-hsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:9993;overflow:visible}' +
+      '.atm-howto{z-index:9992}.atm-hdim{position:absolute;left:0;top:0;background:transparent;box-shadow:0 0 0 40000px rgba(0,0,0,.8);z-index:9990}.atm-hblk{position:fixed;inset:0;z-index:9991;background:transparent}.atm-hsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:9993;overflow:visible}' +
       '.atm-hx.atm-pulse{animation:atmP .7s ease-in-out 3}@keyframes atmP{0%,100%{box-shadow:0 0 0 0 rgba(255,214,102,0)}50%{box-shadow:0 0 0 8px rgba(255,214,102,.9);transform:scale(1.08)}}' +
       '@media(min-width:700px){.atm-howto{max-width:860px;margin:0 auto 14px}.atm-howto ol{flex-direction:row}.atm-howto li{flex:1}}';
     var COL = ['#d93a3a', '#e8821e', '#2e9e4f'];
@@ -28,11 +28,12 @@
       steps.map(function (s, i) { return '<li><i style="background:' + COL[i] + '">' + (i + 1) + '</i><span>' + s + '</span></li>'; }).join('') + '</ol>' +
       '<p class="atm-hn">' + (zh ? '可加选：过期或日期未定的活动' : 'Optional: also include past or TBA events') + '</p>';
     form.parentNode.insertBefore(c, form);
-    var dim = document.createElement('div'); dim.className = 'atm-hdim'; document.body.appendChild(dim);
+    var dim = document.createElement('div'); dim.className = 'atm-hdim'; document.body.appendChild(dim); var blk = document.createElement('div'); blk.className = 'atm-hblk'; document.body.appendChild(blk);
     var bx = c.querySelector('.atm-hx'), svg = null;
-    dim.addEventListener('click', function () { bx.classList.remove('atm-pulse'); void bx.offsetWidth; bx.classList.add('atm-pulse'); });
+    [dim, blk].forEach(function (L) { L.addEventListener('click', function () { bx.classList.remove('atm-pulse'); void bx.offsetWidth; bx.classList.add('atm-pulse'); }); });
     function R_(e) { var r = e.getBoundingClientRect(); return { l: r.left + scrollX, r: r.right + scrollX, t: r.top + scrollY, b: r.bottom + scrollY, cx: r.left + scrollX + r.width / 2, cy: r.top + scrollY + r.height / 2 }; }
     function draw() {
+      var F = R_(form), fr = getComputedStyle(form).borderRadius; dim.style.left = F.l + 'px'; dim.style.top = F.t + 'px'; dim.style.width = (F.r - F.l) + 'px'; dim.style.height = (F.b - F.t) + 'px'; dim.style.borderRadius = fr;
       if (svg) svg.remove();
       try {
         var li = c.querySelectorAll('li'), C = R_(c), a = R_(li[0]), b = R_(li[1]), d = R_(li[2]);
@@ -55,7 +56,7 @@
       } catch (e) {}
     }
     draw(); addEventListener('resize', draw); setTimeout(draw, 400);
-    function close(perm) { try { (perm ? localStorage : sessionStorage).setItem(KEY, '1'); } catch (e) {} c.remove(); dim.remove(); if (svg) svg.remove(); removeEventListener('resize', draw); }
+    function close(perm) { try { (perm ? localStorage : sessionStorage).setItem(KEY, '1'); } catch (e) {} c.remove(); dim.remove(); blk.remove(); if (svg) svg.remove(); removeEventListener('resize', draw); }
     bx.addEventListener('click', function () { close(c.querySelector('.atm-hns input').checked); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
