@@ -66,7 +66,7 @@
     draw(); addEventListener('resize', draw); setTimeout(draw, 400);
     var autoT = 0; function close(perm) { clearTimeout(autoT); if (!c.isConnected) return; try { (perm ? localStorage : sessionStorage).setItem(KEY, '1'); } catch (e) {} c.remove(); s3.remove(); if (s2) { s2.remove(); t2.remove(); hn.remove(); ha.remove(); var sr2 = document.querySelector('.atm-sub'); if (sr2) sr2.classList.remove('atm-sub'); var co2 = document.querySelector('#china-city option[data-atm-txt]'); if (co2) { co2.textContent = co2.dataset.atmTxt; delete co2.dataset.atmTxt; } } dim.remove(); blk.remove(); if (svg) svg.remove(); removeEventListener('resize', draw); }
     bx.addEventListener('click', function () { close(true); });
-    autoT = setTimeout(function () { close(false); }, 5000);
+    autoT = setTimeout(function () { close(false); }, 8000);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
