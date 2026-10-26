@@ -139,6 +139,16 @@
     return esc(name) + suf;
   }
   function optionCityEn(o){ return (o.getAttribute('data-en') || o.textContent).trim(); }
+  var OWN_IMG = { 'hangzhou-2026-tango-festival': ['/images/hangzhou/poster.jpg','center 12%'],
+    'chongqing-2026-tango-festival': [isZh ? '/images/chongqing/poster.jpg' : '/images/chongqing/poster_en.jpg','center 6%'],
+    'miaoli-2026-tango-marathon': ['/images/miaoli/poster.jpg','center 10%'],
+    'changwon-2027-tango-marathon': [isZh ? '/images/changwon/schedule2027_zh.jpg?v=8' : '/images/changwon/schedule2027_en.jpg?v=7','center 40%'] };
+  var BJ_IMG = ['/images/poster4_top.jpg','center 14%'];
+  function ownCover(r){
+    var u = (r.links && r.links.other) || '', m = u.match(/^https?:\/\/(www\.)?tangoweekend\.org\/event\/([^\/]+)\//);
+    if (!m) return null;
+    return OWN_IMG[m[2]] || (/^beijing-/.test(m[2]) ? BJ_IMG : null);
+  }
   function card(r){
     var rid = cityId(r.city), attrs, when, body = [];
     var hl = /Select Tango Weekend/.test(r.name) || r.featured === true;
@@ -177,7 +187,7 @@
     var cx = r.status === 'cancelled';
     if (!cx && r.cancelled_dates && r.weekday != null) { var t0 = baseDate(); var nx = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + ((r.weekday - t0.getDay() + 7) % 7)); cx = r.cancelled_dates.indexOf(nx.getFullYear() + '-' + pad(nx.getMonth()+1) + '-' + pad(nx.getDate())) !== -1; }
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
-    return '<li class="ev-card' + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar +
+    return '<li class="ev-card' + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (function(){ var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(c[0]) + '" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
       '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
@@ -194,10 +204,7 @@
     if (!ev.length) return;
     function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
     function href(r){ var u = (r.links && r.links.other) || ''; return isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(u) ? u + 'zh/' : u; }
-    var IMG = { 'hangzhou-2026-tango-festival': ['/images/hangzhou/poster.jpg','center 12%'],
-      'chongqing-2026-tango-festival': [isZh ? '/images/chongqing/poster.jpg' : '/images/chongqing/poster_en.jpg','center 6%'],
-      'miaoli-2026-tango-marathon': ['/images/miaoli/poster.jpg','center 10%'],
-      'changwon-2027-tango-marathon': [isZh ? '/images/changwon/schedule2027_zh.jpg?v=8' : '/images/changwon/schedule2027_en.jpg?v=7','center 40%'] };
+    var IMG = OWN_IMG;
     var ZHN = { 'hangzhou-2026-tango-festival': '杭州金沙国际探戈节', 'chongqing-2026-tango-festival': '2026火辣探戈周末·第九届重庆探戈节', 'miaoli-2026-tango-marathon': '台湾探戈马拉松', 'changwon-2027-tango-marathon': '2027韩国昌原樱花探戈马拉松' };
     function card(u, img, pos, name, meta){
       return '<a class="tw-fc" href="' + esc(u) + '">' + (img ? '<span class="tw-fc-img"><img src="' + esc(img) + '" alt="" loading="lazy" style="object-position:' + pos + '"></span>' : '') +
