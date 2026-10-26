@@ -180,17 +180,35 @@
   }
   function renderFeatList(data){
     var box = document.querySelector('.tw-m-feat .wrap'); if (!box) return;
-    var old = box.querySelector('.tw-m-feat-more'); if (old) old.remove();
+    
     var tdy = todayISO();
     var ev = data.filter(function(r){ return r.featured === true && r.kind === 'event' && !r.hidden && (r.end || r.start || '') >= tdy && !/Select Tango Weekend/.test(r.name); })
       .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); });
     if (!ev.length) return;
     function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
     function href(r){ var u = (r.links && r.links.other) || ''; return isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(u) ? u + 'zh/' : u; }
-    var h = ['<div class="tw-m-feat-more"><p class="tw-m-feat-more-h">' + (isZh ? '更多精选活动' : 'More featured events') + '</p>'];
+    var IMG = { 'hangzhou-2026-tango-festival': ['/images/hangzhou/poster.jpg','center 12%'],
+      'miaoli-2026-tango-marathon': ['/images/miaoli/poster.jpg','center 10%'],
+      'changwon-2027-tango-marathon': [isZh ? '/images/changwon/schedule2027_zh.jpg?v=8' : '/images/changwon/schedule2027_en.jpg?v=7','center 40%'] };
+    var ZHN = { 'hangzhou-2026-tango-festival': '杭州金沙国际探戈节', 'miaoli-2026-tango-marathon': '台湾探戈马拉松', 'changwon-2027-tango-marathon': '2027韩国昌原樱花探戈马拉松' };
+    function card(u, img, pos, name, meta){
+      return '<a class="tw-fc" href="' + esc(u) + '">' + (img ? '<span class="tw-fc-img"><img src="' + esc(img) + '" alt="" loading="lazy" style="object-position:' + pos + '"></span>' : '') +
+        '<span class="tw-fc-body"><span class="tw-m-feat-k">' + (isZh ? '精选' : 'FEATURED') + '</span><strong>' + esc(name) + '</strong><span class="tw-fc-meta">' + esc(meta) + '</span></span></a>'; }
+    var bj = box.querySelector('a.tw-feat-photo'), bjHtml = '';
+    if (bj) { bjHtml = card(bj.getAttribute('href'), '/images/poster4_top.jpg', 'center 14%', bj.querySelector('strong').textContent, (bj.querySelector('.tw-m-feat-meta') || {}).textContent || ''); bj.style.display = 'none'; }
+    var grid = box.querySelector('.tw-m-feat-grid');
+    if (!grid) { grid = document.createElement('div'); grid.className = 'tw-m-feat-grid'; box.appendChild(grid); }
+    var items = [];
     ev.forEach(function(r){ var u = href(r); if (!u) return;
-      h.push('<a class="tw-m-feat-row" href="' + esc(u) + '"><strong>' + esc(r.name) + '</strong><span>' + esc(fd(r)) + ' · ' + esc(cityDisplay(r.city)) + '</span></a>'); });
-    h.push('</div>'); box.insertAdjacentHTML('beforeend', h.join(''));
+      var m = u.match(/\/event\/([^\/]+)\//), im = m && IMG[m[1]] || [];
+      items.push([r.start || '', card(u, im[0], im[1] || 'center', (isZh && m && ZHN[m[1]]) || r.name, fd(r) + ' · ' + cityDisplay(r.city))]); });
+    if (bjHtml) { var br = data.filter(function(r){ return r.kind === 'event' && /Select Tango Weekend/.test(r.name) && (r.end || r.start || '') >= tdy; })
+        .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); })[0];
+      items.push([br && br.start || '9999', bjHtml]); }
+    items.sort(function(a,b){ return a[0].localeCompare(b[0]); });
+    var h = items.map(function(x){ return x[1]; });
+    grid.innerHTML = h.join('');
+    box.classList.add('has-feat-grid');
   }
   function render(data){
     var cities = CITY_ORDER.slice();
