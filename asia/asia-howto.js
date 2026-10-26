@@ -1,4 +1,4 @@
-/* Asia Tango Map: simple 3-step how-to card above the search form (preview). Got it = this visit (sessionStorage), Don't show again = permanent (localStorage); ?intro=1 forces. */
+/* Asia Tango Map: simple 3-step how-to card above the search form (preview). Got it = this visit (sessionStorage), with Don't show again ticked = permanent (localStorage); ?intro=1 forces. */
 (function () {
   var KEY = 'atmHowtoOk';
   function run() {
@@ -17,14 +17,14 @@
       '.atm-howto li i{flex:0 0 28px;height:28px;border-radius:50%;background:#0e6e78;color:#fff;font:800 15px/28px sans-serif;text-align:center;font-style:normal}' +
       '.atm-howto li small{font-weight:500;color:#5d7a7e;font-size:13px}' +
       '.atm-howto .atm-hn{margin:8px 2px 0;font-size:12.5px;color:#7a8a8c}' +
-      '.atm-hhd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin:0 0 8px}.atm-hhd h3{margin:0!important}.atm-hbt{display:flex;align-items:center;gap:8px;margin-left:auto}.atm-howto .atm-hns{border:0;background:none;padding:4px 2px;font-size:12.5px;color:#6b7f82;text-decoration:underline;cursor:pointer}.atm-howto .atm-hx{border:0;background:#0e6e78;color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer}' +
+      '.atm-hhd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin:0 0 8px}.atm-hhd h3{margin:0!important}.atm-hbt{display:flex;align-items:center;gap:8px;margin-left:auto}.atm-howto .atm-hns{display:flex;align-items:center;gap:4px;padding:4px 2px;font-size:12.5px;color:#4d6366;cursor:pointer;margin:0}.atm-howto .atm-hns input{width:15px;height:15px;margin:0;accent-color:#0e5a5e;cursor:pointer}.atm-howto .atm-hx{border:0;background:#0e6e78;color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer}' +
       '.atm-howto{z-index:9992}.atm-hdim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9990}.atm-hsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:9993;overflow:visible}' +
       '.atm-hx.atm-pulse{animation:atmP .7s ease-in-out 3}@keyframes atmP{0%,100%{box-shadow:0 0 0 0 rgba(255,214,102,0)}50%{box-shadow:0 0 0 8px rgba(255,214,102,.9);transform:scale(1.08)}}' +
       '@media(min-width:700px){.atm-howto{max-width:860px;margin:0 auto 14px}.atm-howto ol{flex-direction:row}.atm-howto li{flex:1}}';
     var COL = ['#d93a3a', '#e8821e', '#2e9e4f'];
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     var c = document.createElement('div'); c.className = 'atm-howto'; c.setAttribute('role', 'note');
-    c.innerHTML = '<div class="atm-hhd"><h3>' + (zh ? '3步找到探戈活动' : 'Find tango in 3 steps') + '</h3><span class="atm-hbt"><button type="button" class="atm-hns">' + (zh ? '不再显示' : "Don't show again") + '</button><button type="button" class="atm-hx">× ' + (zh ? '我知道了' : 'Got it') + '</button></span></div><ol>' +
+    c.innerHTML = '<div class="atm-hhd"><h3>' + (zh ? '3步找到探戈活动' : 'Find tango in 3 steps') + '</h3><span class="atm-hbt"><label class="atm-hns"><input type="checkbox">' + (zh ? '不再显示' : "Don't show again") + '</label><button type="button" class="atm-hx">× ' + (zh ? '我知道了' : 'Got it') + '</button></span></div><ol>' +
       steps.map(function (s, i) { return '<li><i style="background:' + COL[i] + '">' + (i + 1) + '</i><span>' + s + '</span></li>'; }).join('') + '</ol>' +
       '<p class="atm-hn">' + (zh ? '可加选：过期或日期未定的活动' : 'Optional: also include past or TBA events') + '</p>';
     form.parentNode.insertBefore(c, form);
@@ -56,8 +56,7 @@
     }
     draw(); addEventListener('resize', draw); setTimeout(draw, 400);
     function close(perm) { try { (perm ? localStorage : sessionStorage).setItem(KEY, '1'); } catch (e) {} c.remove(); dim.remove(); if (svg) svg.remove(); removeEventListener('resize', draw); }
-    bx.addEventListener('click', function () { close(false); });
-    c.querySelector('.atm-hns').addEventListener('click', function () { close(true); });
+    bx.addEventListener('click', function () { close(c.querySelector('.atm-hns input').checked); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
