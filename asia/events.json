@@ -2724,43 +2724,6 @@
     }
   },
   {
-    "id": "N0B62sqw",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "广州红房子下午茶",
-    "city": "Guangzhou",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": 6,
-    "weekdays": [
-      6
-    ],
-    "time": "16:00–20:00",
-    "venue": "名门大厦五楼红房子",
-    "venue_address": "广州花城大道六号名门大厦五楼红房子探戈俱乐部",
-    "venue_address_en": "Red House Tango Club, 5F, Mingmen Building, No. 6 Huacheng Avenue, Guangzhou",
-    "organizers": [
-      "POP"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": null
-    },
-    "source": "user directory 2026-10-24",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": false,
-    "contacts": {
-      "phone": "13042001750",
-      "email": "renwwwei@sina.com",
-      "wechat_label": "POP"
-    }
-  },
-  {
     "id": "PMNhoOSR",
     "kind": "weekly",
     "type": "milonga",
