@@ -487,7 +487,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events.json?v=china138';
+  var eventsUrl = UI.eventsUrl || 'events.json?v=china255';
   fetch(eventsUrl, {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
