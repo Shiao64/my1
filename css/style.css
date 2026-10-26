@@ -1816,3 +1816,11 @@ body.cw-theme .cw-djs-fig{display:block;max-width:900px;margin:0 auto 28px}
 body.cw-theme .cw-djs-fig img{width:100%;height:auto;display:block;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
 @media (max-width:600px){body.cw-theme .cw-djs-fig{margin:0 -12px 24px}body.cw-theme .cw-djs-fig img{border-radius:6px}}
 body.cw-theme .cw-venue-sec .venue-block{margin:14px 0 0}
+body.cw-theme #register{scroll-margin-top:0}
+body.cw-theme .cw-fees .cw-sub{font-family:var(--serif);font-size:1.15rem;color:#8e1450;margin:22px 0 10px}
+body.cw-theme .cw-fees .cw-fees-open,body.cw-theme .cw-fees h3+p.meta{margin:0 0 12px!important;text-align:left!important}
+/* Changwon menu items as bordered buttons */
+body.cw-theme .site-header .main-nav a{border:1.5px solid rgba(240,210,138,.85)!important;border-radius:999px!important;color:#f8e6b8!important;background:rgba(255,255,255,.06)!important;text-decoration:none!important;transition:background .15s,color .15s,border-color .15s}
+body.cw-theme .site-header .main-nav a:hover,body.cw-theme .site-header .main-nav a:focus-visible{background:#f0d28a!important;color:#5a1a3c!important;border-color:#f0d28a!important;outline:none}
+body.cw-theme .site-header .main-nav a:active,body.cw-theme .site-header .main-nav a[aria-current]{background:#ffb6cf!important;color:#5a1a3c!important;border-color:#ffb6cf!important}
+body.cw-theme #fees{min-height:100vh}
