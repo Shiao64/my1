@@ -1840,3 +1840,36 @@ body.china-page .tw-fc-body strong{font-family:var(--serif);font-size:1.08rem;li
 body.china-page .tw-fc-meta{font-size:.82rem;color:#7a6255}
 @media (max-width:719px){body.china-page .tw-fc-img{aspect-ratio:16/9}}
 body.china-page .tw-m-feat .wrap.has-feat-grid > a.tw-feat-photo{display:none!important}
+/* Taiwan (Miaoli): Changwon-style structure */
+html:has(body.tw-theme){scroll-padding-top:92px}
+body.tw-theme #venue,body.tw-theme #info,body.tw-theme #register{scroll-margin-top:0}
+body.tw-theme .site-header .main-nav a{border:1.5px solid rgba(246,194,139,.9)!important;border-radius:999px!important;color:#fbe9d3!important;background:rgba(255,255,255,.06)!important;text-decoration:none!important;transition:background .15s,color .15s}
+body.tw-theme .site-header .main-nav a:hover,body.tw-theme .site-header .main-nav a:focus-visible{background:#f6c28b!important;color:#4a2a1a!important;border-color:#f6c28b!important;outline:none}
+body.tw-theme .site-header .main-nav a:active{background:#e8692f!important;color:#fff!important;border-color:#e8692f!important}
+body.tw-theme .tw-venue-sec{text-align:center}
+body.tw-theme .tw-fig,body.tw-theme .tw-venue-fig{display:block;position:relative;max-width:900px;margin:0 auto 18px}
+body.tw-theme .tw-fig img,body.tw-theme .tw-venue-fig img{width:100%;height:auto;display:block;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+body.tw-theme .tw-venue-ov{position:absolute;left:6%;right:6%;bottom:8%;padding:8px 12px;border-radius:10px;background:rgba(40,20,10,.7);color:#fff;text-align:center;font-size:clamp(11px,2.2vw,16px);line-height:1.5}
+body.tw-theme .tw-venue-ov .venue-name{display:block;font-size:clamp(14px,3vw,22px);color:#f6c28b}
+body.tw-theme .tw-venue-sec .venue-block{margin:6px 0 0;line-height:1.6}
+body.tw-theme .tw-fees .tw-sub{font-family:var(--serif);font-size:1.15rem;color:#c4511d;margin:22px 0 10px}
+body.tw-theme .tw-fees .btns{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+body.tw-theme #fees{min-height:100vh}
+@media (max-width:600px){body.tw-theme .tw-fig,body.tw-theme .tw-venue-fig{margin-left:-12px;margin-right:-12px}}
+/* Hangzhou: Changwon-style structure */
+html:has(body.hz-theme){scroll-padding-top:92px}
+body.hz-theme #venue,body.hz-theme #hotel,body.hz-theme #info,body.hz-theme #register{scroll-margin-top:0}
+body.hz-theme .site-header .main-nav a{border:1.5px solid rgba(240,210,138,.85)!important;border-radius:999px!important;text-decoration:none!important;transition:background .15s,color .15s}
+body.hz-theme .site-header .main-nav a:hover,body.hz-theme .site-header .main-nav a:focus-visible{background:#f0d28a!important;color:#2a1a10!important;border-color:#f0d28a!important;outline:none}
+body.hz-theme .site-header .main-nav a:active{background:#ffb6cf!important;color:#2a1a10!important}
+body.hz-theme .hz-venue-sec{text-align:center}
+body.hz-theme .hz-fig{display:block;max-width:560px;margin:0 auto 22px}
+body.hz-theme .hz-fig img{width:100%;height:auto;display:block;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+body.hz-theme .hz-sub{font-family:var(--serif);font-size:1.15rem;margin:26px 0 12px}
+body.hz-theme .hz-fees .btns{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0}
+body.hz-theme #fees{min-height:100vh}
+body.tw-theme #hotels{scroll-margin-top:0}
+body.tw-theme .tw-hotels .card{max-width:900px;margin:0 auto 16px}
+body.tw-theme .tw-hotels .btns{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+body.hz-theme .hz-sub4{font-size:1rem;margin:18px 0 8px}
+body.hz-theme .hz-exp{opacity:.55}body.hz-theme .hz-tag{display:inline-block;margin-left:6px;padding:0 8px;border-radius:999px;font-size:.8em;background:#ddd;color:#555}
