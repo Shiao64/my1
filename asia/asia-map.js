@@ -199,7 +199,7 @@
     var box = document.querySelector('.tw-m-feat .wrap'); if (!box) return;
     
     var tdy = todayISO();
-    var ev = data.filter(function(r){ return r.featured === true && r.kind === 'event' && !r.hidden && (r.end || r.start || '') >= tdy && !/Select Tango Weekend/.test(r.name); })
+    var ev = data.filter(function(r){ return r.featured === true && r.id === 'cwCbtm27' && r.kind === 'event' && !r.hidden && (r.end || r.start || '') >= tdy && !/Select Tango Weekend/.test(r.name); })
       .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); });
     if (!ev.length) return;
     function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
