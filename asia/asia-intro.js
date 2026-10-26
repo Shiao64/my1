@@ -43,7 +43,7 @@
       setTimeout(function () { if (wrap.parentNode) wrap.parentNode.removeChild(wrap); }, reduce ? 0 : 480);
     }
     x.addEventListener('click', close);
-    var t = setTimeout(close, 4000);
+    var t = setTimeout(close, 8000);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
