@@ -3704,44 +3704,6 @@
     }
   },
   {
-    "id": "3OLeTCyc",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "沈阳阿根廷探戈 Milonga",
-    "city": "Shenyang",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": 0,
-    "weekdays": [
-      0
-    ],
-    "time": "15:00–18:00",
-    "venue": "太原街玖伍文化城",
-    "venue_address": "沈阳市太原街玖伍文化城",
-    "venue_address_en": "Jiuwu Culture City, Taiyuan Street, Shenyang",
-    "organizers": [
-      "Gasol"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": null
-    },
-    "source": "user directory 2026-10-24",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": false,
-    "contacts": {
-      "wechat_id": "jianshideguan",
-      "wechat_label": "sytango",
-      "phone": "18698860592",
-      "email": "htsh888@163.com"
-    }
-  },
-  {
     "id": "ylpxWMT3",
     "kind": "weekly",
     "type": "practica",
