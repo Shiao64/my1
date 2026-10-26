@@ -715,13 +715,15 @@
     "links": {
       "facebook": "https://www.facebook.com/groups/1494663620822173/",
       "video": "https://www.youtube.com/watch?v=kM2IghDJa0k",
-      "other": null
+      "other": "https://tangoweekend.org/event/miaoli-2026-tango-marathon/",
+      "register": "https://docs.google.com/forms/d/e/1FAIpQLScAD4Xs5TF9a-VppwpykyMxJsSusciZkWYgXV7YYE_nXu4x_g/viewform"
     },
     "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
+    "updated": "2026-10-26",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "featured": true
   },
   {
     "id": "tUucFLlj",

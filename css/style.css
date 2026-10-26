@@ -1749,9 +1749,12 @@ body.hz-theme .hz-brand{font-weight:700;color:#f0d28a;text-decoration:none;margi
 .atm-bar a{text-decoration:none;color:inherit}
 .atm-bar a.atm-map{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .atm-bar a.atm-lang{flex:none;padding:1px 10px;border:1px solid currentColor;border-radius:999px;font-size:.8rem}
-.atm-bar a:hover{opacity:.8}
-body.sy-theme .atm-bar,body.hz-theme .atm-bar{color:#F6D58E;background:radial-gradient(600px 120px at 80% -40%,rgba(232,192,106,.25),transparent 60%),linear-gradient(160deg,#0e6e78 0%,#0a4f57 60%,#06333a 100%);border-bottom:1px solid rgba(246,213,142,.35)}
-body.cw-theme .atm-bar{color:#5a1a3c;background:linear-gradient(90deg,#f5b8cf,#fde4ee 50%,#f5b8cf);border-bottom:1px solid #c2306f}
+/* Asia Tango Map brand bar — ONE shared scheme for every site (matches asia/ .china-map-hero + .btn-china) */
+.atm-bar.atm-sticky,body .atm-bar.atm-sticky{color:#F6D58E!important;background:radial-gradient(600px 120px at 80% -40%,rgba(232,192,106,.25),transparent 60%),linear-gradient(160deg,#0e6e78 0%,#0a4f57 60%,#06333a 100%)!important;border-bottom:1px solid #5fb3bb!important}
+.atm-bar.atm-sticky a{color:#F6D58E!important}
+.atm-bar.atm-sticky a.atm-map:hover{color:#CFE8E3!important}
+.atm-bar.atm-sticky a.atm-lang{border-color:#5fb3bb!important;background:#0e6e78}
+.atm-bar.atm-sticky a.atm-lang:hover{background:#0a4f57;border-color:#9fd3d8!important;color:#fff!important}
 body.cw-theme .site-header,body.sy-theme .site-header,body.hz-theme .site-header{position:sticky;top:32px}
 html:has(body.cw-theme),html:has(body.sy-theme),html:has(body.hz-theme){scroll-padding-top:136px}
 .hz-topbanner{background:linear-gradient(180deg,#0c1f3f,#163e72)}
@@ -1760,3 +1763,20 @@ html:has(body.cw-theme),html:has(body.sy-theme),html:has(body.hz-theme){scroll-p
 @media (max-width:700px){.hz-topbanner img{max-height:none}}
 /* Hide Facebook links on Chinese pages of Changwon, Shenyang, Hangzhou */
 html[lang^="zh"] body.cw-theme a[href*="facebook.com"],html[lang^="zh"] body.sy-theme a[href*="facebook.com"],html[lang^="zh"] body.hz-theme a[href*="facebook.com"]{display:none!important}
+/* Taiwan Tango Marathon 2026, Miaoli (scoped) */
+body.tw-theme{--red:#e8692f;--red-dark:#c4511d;--red-deep:#4a2a1a;--gold:#f6c28b;--gold-soft:#fbe9d3;--cream:#fbf3e6;--ink:#2e1d12;--muted:#6e5646;--line:#ecd7c0}
+body.tw-theme .site-header{position:sticky;top:32px;background:rgba(74,42,26,.96)}
+body.tw-theme .hero{background:radial-gradient(1200px 500px at 80% -10%,rgba(246,194,139,.35),transparent 60%),linear-gradient(160deg,#f08a4b 0%,#e8692f 45%,#4a2a1a 100%)}
+body.tw-theme .btn-gold{background:#1f7f7a;border-color:#1f7f7a;color:#fff}
+body.tw-theme .sec-title,body.tw-theme .card h3{color:#4a2a1a}
+body.tw-theme .day-date{color:#1f7f7a}
+html:has(body.tw-theme){scroll-padding-top:136px}
+body.tw-theme .tw-brand{font-weight:700;color:#f6c28b;text-decoration:none;margin-right:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100vw - 80px);display:inline-block;vertical-align:middle}
+.tw-topbanner{background:linear-gradient(180deg,#fbf3e6,#f3d7b5)}
+.tw-topbanner img{display:block;width:100%;height:auto;max-width:900px;max-height:78vh;object-fit:contain;margin:0 auto}
+.tw-gallery{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.tw-gallery figure{margin:0;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(74,42,26,.2);background:#fff}
+.tw-gallery img{width:100%;height:auto;display:block}
+@media (max-width:700px){.tw-topbanner img{max-height:none}.tw-gallery{grid-template-columns:1fr}}
+html[lang^="zh"] body.tw-theme a[href*="facebook.com"]{display:none!important}
+body.cw-theme .venue-block{text-align:center;max-width:720px;margin-left:auto;margin-right:auto}
