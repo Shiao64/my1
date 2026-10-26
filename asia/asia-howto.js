@@ -18,14 +18,41 @@
       '.atm-howto li small{font-weight:500;color:#5d7a7e;font-size:13px}' +
       '.atm-howto .atm-hn{margin:8px 2px 0;font-size:12.5px;color:#7a8a8c}' +
       '.atm-howto .atm-hx{position:absolute;top:8px;right:8px;border:0;background:#0e6e78;color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer}' +
+      '.atm-howto{z-index:9992}.atm-hdim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9990}.atm-hsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:9993;overflow:visible}' +
+      '.atm-hx.atm-pulse{animation:atmP .7s ease-in-out 3}@keyframes atmP{0%,100%{box-shadow:0 0 0 0 rgba(255,214,102,0)}50%{box-shadow:0 0 0 8px rgba(255,214,102,.9);transform:scale(1.08)}}' +
       '@media(min-width:700px){.atm-howto{max-width:860px;margin:0 auto 14px}.atm-howto ol{flex-direction:row}.atm-howto li{flex:1}}';
+    var COL = ['#d93a3a', '#e8821e', '#2e9e4f'];
     var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
     var c = document.createElement('div'); c.className = 'atm-howto'; c.setAttribute('role', 'note');
     c.innerHTML = '<button type="button" class="atm-hx">× ' + (zh ? '我知道了' : 'Got it') + '</button><h3>' + (zh ? '3步找到探戈活动' : 'Find tango in 3 steps') + '</h3><ol>' +
-      steps.map(function (s, i) { return '<li><i>' + (i + 1) + '</i><span>' + s + '</span></li>'; }).join('') + '</ol>' +
+      steps.map(function (s, i) { return '<li><i style="background:' + COL[i] + '">' + (i + 1) + '</i><span>' + s + '</span></li>'; }).join('') + '</ol>' +
       '<p class="atm-hn">' + (zh ? '可加选：过期或日期未定的活动' : 'Optional: also include past or TBA events') + '</p>';
     form.parentNode.insertBefore(c, form);
-    c.querySelector('.atm-hx').addEventListener('click', function () { try { localStorage.setItem(KEY, '1'); } catch (e) {} c.remove(); });
+    var dim = document.createElement('div'); dim.className = 'atm-hdim'; document.body.appendChild(dim);
+    var bx = c.querySelector('.atm-hx'), svg = null;
+    dim.addEventListener('click', function () { bx.classList.remove('atm-pulse'); void bx.offsetWidth; bx.classList.add('atm-pulse'); });
+    function R_(e) { var r = e.getBoundingClientRect(); return { l: r.left + scrollX, r: r.right + scrollX, t: r.top + scrollY, b: r.bottom + scrollY, cx: r.left + scrollX + r.width / 2, cy: r.top + scrollY + r.height / 2 }; }
+    function draw() {
+      if (svg) svg.remove();
+      try {
+        var li = c.querySelectorAll('li'), C = R_(c), a = R_(li[0]), b = R_(li[1]), d = R_(li[2]);
+        var dt = R_(document.getElementById('china-from')), sb = R_(document.getElementById('china-search'));
+        var pill = document.querySelector('.atm-row-ev label') || document.querySelector('.atm-row-ev'); ev = R_(pill);
+        var x1 = (a.l + C.l) / 2, x2 = (b.r + C.r) / 2, x3 = Math.round(sb.cx);
+        var P = ['M' + a.l + ' ' + a.cy + 'H' + x1 + 'V' + ev.cy + 'H' + (ev.l - 2),
+                 'M' + b.r + ' ' + b.cy + 'H' + x2 + 'V' + dt.cy + 'H' + (dt.r + 2),
+                 'M' + x3 + ' ' + d.b + 'V' + (sb.t - 2)];
+        var H = document.documentElement.scrollHeight, W = document.documentElement.scrollWidth, m = '', p = '';
+        COL.forEach(function (col, i) {
+          m += '<marker id="atmA' + i + '" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="' + col + '"/></marker>';
+          p += '<path d="' + P[i] + '" fill="none" stroke="' + col + '" stroke-width="3" stroke-linejoin="round" marker-end="url(#atmA' + i + ')"/>';
+        });
+        document.body.insertAdjacentHTML('beforeend', '<svg class="atm-hsvg" width="' + W + '" height="' + H + '" aria-hidden="true"><defs>' + m + '</defs>' + p + '</svg>');
+        svg = document.body.lastElementChild;
+      } catch (e) {}
+    }
+    draw(); addEventListener('resize', draw); setTimeout(draw, 400);
+    bx.addEventListener('click', function () { try { localStorage.setItem(KEY, '1'); } catch (e) {} c.remove(); dim.remove(); if (svg) svg.remove(); removeEventListener('resize', draw); });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 })();
