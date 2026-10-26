@@ -1,8 +1,7 @@
-/* Asia Tango Map: simple 3-step how-to card above the search form (preview). Got it = this visit (sessionStorage), with Don't show again ticked = permanent (localStorage); ?intro=1 forces. */
+/* Asia Tango Map: simple 3-step how-to card above the search form. Got it = this visit (sessionStorage), with Don't show again ticked = permanent (localStorage); ?intro=1 forces. */
 (function () {
   var KEY = 'atmHowtoOk';
   function run() {
-    // PREVIEW: all widths
     var form = document.querySelector('.atm-form');
     if (!form || document.querySelector('.atm-howto')) return;
     var force = /[?&]intro=1/.test(location.search);
