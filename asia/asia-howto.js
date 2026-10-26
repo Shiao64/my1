@@ -2,7 +2,7 @@
 (function () {
   var KEY = 'atmHowtoOk';
   function run() {
-    if (window.innerWidth > 640) return; // mobile only; desktop keeps asia-intro.js
+    // PREVIEW: all widths
     var form = document.querySelector('.atm-form');
     if (!form || document.querySelector('.atm-howto')) return;
     var force = /[?&]intro=1/.test(location.search);
@@ -19,7 +19,7 @@
       '.atm-howto li small{font-weight:500;color:#5d7a7e;font-size:13px}' +
       '.atm-howto .atm-hn{margin:8px 2px 0;font-size:12.5px;color:#7a8a8c}' +
       '.atm-hhd{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;margin:0 0 8px}.atm-hhd h3{margin:0!important}.atm-hbt{display:flex;align-items:center;gap:8px;margin-left:auto}.atm-howto .atm-hns{display:flex;align-items:center;gap:4px;padding:4px 2px;font-size:12.5px;color:#4d6366;cursor:pointer;margin:0}.atm-howto .atm-hns input{width:15px;height:15px;margin:0;accent-color:#0e5a5e;cursor:pointer}.atm-howto .atm-hx{border:0;background:#0e6e78;color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;cursor:pointer}' +
-      '.atm-howto{z-index:9992}.atm-hdim{position:absolute;left:0;top:0;background:transparent;box-shadow:0 0 0 40000px rgba(0,0,0,.8);z-index:9990}.atm-hblk{position:fixed;inset:0;z-index:9991;background:transparent}.atm-hsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:9993;overflow:visible}' +
+      '.atm-howto{z-index:9992}.atm-hdim{position:absolute;left:0;top:0;background:rgba(0,0,0,.8);z-index:9990}.atm-hblk{position:fixed;inset:0;z-index:9991;background:transparent}.atm-hsvg{position:absolute;left:0;top:0;pointer-events:none;z-index:9993;overflow:visible}' +
       '.atm-hx.atm-pulse{animation:atmP .7s ease-in-out 3}@keyframes atmP{0%,100%{box-shadow:0 0 0 0 rgba(255,214,102,0)}50%{box-shadow:0 0 0 8px rgba(255,214,102,.9);transform:scale(1.08)}}' +
       '@media(min-width:700px){.atm-howto{max-width:860px;margin:0 auto 14px}.atm-howto ol{flex-direction:row}.atm-howto li{flex:1}}';
     var COL = ['#d93a3a', '#e8821e', '#2e9e4f'];
@@ -34,18 +34,20 @@
     [dim, blk].forEach(function (L) { L.addEventListener('click', function () { bx.classList.remove('atm-pulse'); void bx.offsetWidth; bx.classList.add('atm-pulse'); }); });
     function R_(e) { var r = e.getBoundingClientRect(); return { l: r.left + scrollX, r: r.right + scrollX, t: r.top + scrollY, b: r.bottom + scrollY, cx: r.left + scrollX + r.width / 2, cy: r.top + scrollY + r.height / 2 }; }
     function draw() {
-      var F = R_(form), fr = getComputedStyle(form).borderRadius; dim.style.left = F.l + 'px'; dim.style.top = F.t + 'px'; dim.style.width = (F.r - F.l) + 'px'; dim.style.height = (F.b - F.t) + 'px'; dim.style.borderRadius = fr;
+      var F = R_(form), rr = parseFloat(getComputedStyle(form).borderTopLeftRadius) || 0, DW = document.documentElement.scrollWidth, DH = document.documentElement.scrollHeight;
+      dim.style.width = DW + 'px'; dim.style.height = DH + 'px';
+      dim.style.clipPath = "path(evenodd, 'M0 0H" + DW + "V" + DH + "H0Z M" + (F.l + rr) + " " + F.t + "H" + (F.r - rr) + "A" + rr + " " + rr + " 0 0 1 " + F.r + " " + (F.t + rr) + "V" + (F.b - rr) + "A" + rr + " " + rr + " 0 0 1 " + (F.r - rr) + " " + F.b + "H" + (F.l + rr) + "A" + rr + " " + rr + " 0 0 1 " + F.l + " " + (F.b - rr) + "V" + (F.t + rr) + "A" + rr + " " + rr + " 0 0 1 " + (F.l + rr) + " " + F.t + "Z')";
       if (svg) svg.remove();
       try {
         var li = c.querySelectorAll('li'), C = R_(c), a = R_(li[0]), b = R_(li[1]), d = R_(li[2]);
         var dt = R_(document.getElementById('china-from')), sb = R_(document.getElementById('china-search'));
         ev = R_(document.querySelector('.atm-row-ev label')); var rg = R_(document.querySelector('.atm-row-reg label')), nt = document.querySelector('.atm-ev-note'), nr = nt ? R_(nt) : null;
         var x1 = (a.l + C.l) / 2, x2 = Math.round(Math.min(b.cx, d.l - 12)), x3 = (d.r + C.r) / 2, gp = '';
-        [c.querySelector('.atm-hn'), nt, document.getElementById('china-city')].forEach(function (e) { if (!e) return; var q = R_(e); if (x2 > q.l - 3 && x2 < q.r + 3 && q.t > b.b) gp += 'V' + (q.t - 3) + 'M' + x2 + ' ' + (q.b + 3); });
+        [c.querySelector('.atm-hn'), nt, document.getElementById('china-city')].forEach(function (e) { if (!e || innerWidth > 640) return; var q = R_(e); if (x2 > q.l - 3 && x2 < q.r + 3 && q.t > b.b) gp += 'V' + (q.t - 3) + 'M' + x2 + ' ' + (q.b + 3); });
         var gl = Math.min(ev.l, rg.l) - 5, gt = ev.t - 4, gr = Math.max(ev.r, rg.r) + 5, gb = rg.b + 4;
         var G = '<rect x="' + gl + '" y="' + gt + '" width="' + (gr - gl) + '" height="' + (gb - gt) + '" rx="12" fill="none" stroke="#ff3b3b" stroke-width="2.5" stroke-dasharray="7 4"/>';
         var P = ['M' + a.l + ' ' + a.cy + 'H' + x1 + 'V' + rg.cy + 'H' + (gl - 1) + 'M' + x1 + ' ' + ev.cy + 'H' + (gl - 1),
-                 'M' + x2 + ' ' + b.b + gp + (x2 >= dt.l && x2 <= dt.r ? 'V' + (dt.t - 1) : 'V' + dt.cy + 'H' + (dt.r + 2)),
+                 'M' + x2 + ' ' + b.b + gp + (x2 >= dt.l && x2 <= dt.r && innerWidth <= 640 ? 'V' + (dt.t - 1) : innerWidth > 640 ? 'V' + (F.t - 14) + 'H' + (F.r + 16) + 'V' + dt.cy + 'H' + (dt.r + 2) : 'V' + dt.cy + 'H' + (dt.r + 2)),
                  'M' + d.r + ' ' + d.cy + 'H' + x3 + 'V' + sb.cy + 'H' + (sb.r + 2)];
         var H = document.documentElement.scrollHeight, W = document.documentElement.scrollWidth, m = '', p = ''; p += G;
         COL.forEach(function (col, i) {
