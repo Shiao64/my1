@@ -844,6 +844,42 @@
     "featured": true
   },
   {
+    "id": "manual-cq-spicy-2026",
+    "kind": "event",
+    "type": "festival",
+    "name": "2026 Spicy Tango Weekend · 9th Chongqing Tango Festival",
+    "city": "Chongqing",
+    "country": "China",
+    "region": "China",
+    "start": "2026-11-05",
+    "end": "2026-11-08",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "莲花朵朵金源舞蹈俱乐部 Lianhua Duoduo Jinyuan Dance Club",
+    "venue_address": "重庆两江新区北滨一路368号金源时代购物中心",
+    "venue_address_en": "Jinyuan Times Shopping Center, No. 368 Beibin 1st Road, Liangjiang New Area, Chongqing",
+    "organizers": [
+      "LMC"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangoweekend.org/event/chongqing-2026-tango-festival/",
+      "wechat": "https://mp.weixin.qq.com/s/NzkNHbrDRWbmxM3RWrPGyg"
+    },
+    "source": "manual:poster+wechat",
+    "updated": "2026-10-26",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "featured": true,
+    "contacts": {
+      "phone": "+86 18584567650",
+      "wechat_id": "18584567650"
+    }
+  },
+  {
     "id": "VGCepJDE",
     "kind": "event",
     "type": "festival",

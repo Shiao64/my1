@@ -188,9 +188,10 @@
     function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
     function href(r){ var u = (r.links && r.links.other) || ''; return isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(u) ? u + 'zh/' : u; }
     var IMG = { 'hangzhou-2026-tango-festival': ['/images/hangzhou/poster.jpg','center 12%'],
+      'chongqing-2026-tango-festival': [isZh ? '/images/chongqing/poster.jpg' : '/images/chongqing/poster_en.jpg','center 6%'],
       'miaoli-2026-tango-marathon': ['/images/miaoli/poster.jpg','center 10%'],
       'changwon-2027-tango-marathon': [isZh ? '/images/changwon/schedule2027_zh.jpg?v=8' : '/images/changwon/schedule2027_en.jpg?v=7','center 40%'] };
-    var ZHN = { 'hangzhou-2026-tango-festival': '杭州金沙国际探戈节', 'miaoli-2026-tango-marathon': '台湾探戈马拉松', 'changwon-2027-tango-marathon': '2027韩国昌原樱花探戈马拉松' };
+    var ZHN = { 'hangzhou-2026-tango-festival': '杭州金沙国际探戈节', 'chongqing-2026-tango-festival': '2026火辣探戈周末·第九届重庆探戈节', 'miaoli-2026-tango-marathon': '台湾探戈马拉松', 'changwon-2027-tango-marathon': '2027韩国昌原樱花探戈马拉松' };
     function card(u, img, pos, name, meta){
       return '<a class="tw-fc" href="' + esc(u) + '">' + (img ? '<span class="tw-fc-img"><img src="' + esc(img) + '" alt="" loading="lazy" style="object-position:' + pos + '"></span>' : '') +
         '<span class="tw-fc-body"><span class="tw-m-feat-k">' + (isZh ? '精选' : 'FEATURED') + '</span><strong>' + esc(name) + '</strong><span class="tw-fc-meta">' + esc(meta) + '</span></span></a>'; }
