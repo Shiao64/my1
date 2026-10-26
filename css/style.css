@@ -1804,3 +1804,5 @@ body.cw-theme .cw-venue-fig img{display:block;width:100%;height:auto}
 body.cw-theme .cw-venue-ov{position:absolute;left:6%;right:6%;bottom:21%;padding:8px 12px;border-radius:10px;background:rgba(20,8,16,.66);color:#fff;text-align:center;font-size:clamp(11px,2.2vw,16px);line-height:1.45;text-shadow:0 1px 2px rgba(0,0,0,.6)}
 body.cw-theme .cw-venue-ov .venue-name{display:block;font-size:clamp(14px,3vw,22px);color:#ffd9e6;margin:0}
 @media (max-width:1060px){body:has(.atm-bar.atm-sticky) .site-header.is-open .header-menus{top:82px!important;z-index:120}}
+/* visually hidden (Changwon page h1) */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
