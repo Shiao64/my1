@@ -2,7 +2,7 @@
 """Read-only fetch of OnlyTangoInfo public data, decrypted to `var publicEvent=[...]` JS.
 
 Usage: python3 tools/oti_fetch_decrypt.py OUT.js
-Resolves https://is.gd/kokoinfo (following redirects) to https://onlytangos.github.io/info/#k=<key>;
+Resolves https://is.gd/kokoinfo (following redirects) to https://onlytangos.github.io/tangoworld/#k=<key>;
 falls back to env OTI_KEY. Prints the publicEventFecha date (or today) on stdout.
 Only performs GET requests; never writes to OTI.
 """
@@ -10,7 +10,7 @@ import base64, datetime, os, re, sys, urllib.request
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 SHORT = 'https://is.gd/kokoinfo'
-DATA = 'https://onlytangos.github.io/info/datajs/datos.cifrados.js'
+DATA = 'https://onlytangos.github.io/tangoworld/datajs/datos.cifrados.js'
 UA = {'User-Agent': 'Mozilla/5.0 (tangoweekend.org weekly read-only sync)'}
 
 def get(url):
