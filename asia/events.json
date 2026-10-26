@@ -2856,8 +2856,7 @@
     "venue_address": "广州市天河区天河路299号时尚天河商场时尚天河东一街负二层F6区（弓夫射箭馆旁）",
     "venue_address_en": "Zone F6, B2, East Street 1, Fashion Tianhe Mall, No. 299 Tianhe Road, Tianhe District, Guangzhou (next to Gongfu Archery)",
     "organizers": [
-      "Alice",
-      "Kunyu"
+      "Alice"
     ],
     "links": {
       "facebook": null,
@@ -2871,7 +2870,7 @@
     "tba": false,
     "contacts": {
       "wechat_id": "13922334905",
-      "wechat_label": "Alice & Kunyu",
+      "wechat_label": "Alice",
       "phone": "13922334905"
     }
   },
