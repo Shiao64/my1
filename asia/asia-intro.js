@@ -15,7 +15,7 @@
     '.atm-intro b{color:#f0d28a}' +
     '.atm-intro-x{flex:0 0 auto;width:28px;height:28px;border-radius:50%;border:1px solid rgba(240,210,138,.8);background:transparent;color:#f0d28a;font-size:18px;line-height:1;cursor:pointer}' +
     '.atm-intro-x:hover{background:#f0d28a;color:#0a4f57}' +
-    '.atm-intro-pin{flex:0 0 auto;width:44px;height:53px;overflow:visible;color:#d4af37}' +
+    '.atm-intro-pin{flex:0 0 auto;width:48px;height:48px;overflow:visible;color:#d4af37}' +
     '.atm-intro.show .atm-intro-pin{animation:atmBob 2.8s ease-in-out .5s infinite}' +
     '.atm-intro-pupil{transform-box:fill-box;transform-origin:center}' +
     '.atm-intro.show .atm-intro-pupil{animation:atmScan 2.5s ease-in-out .3s both}' +
@@ -44,7 +44,7 @@
     var tx = document.createElement('span'); tx.className = 'atm-intro-txt'; tx.appendChild(msg);
     var sub = document.createElement('span'); sub.className = 'atm-intro-sub'; sub.textContent = zh ? '帮你找到身边的Milonga、探戈节和马拉松' : 'Milongas, festivals & marathons near you'; tx.appendChild(sub);
     var x = document.createElement('button'); x.type = 'button'; x.className = 'atm-intro-x'; x.setAttribute('aria-label', zh ? '关闭' : 'Close'); x.textContent = '×';
-    card.insertAdjacentHTML('afterbegin', '<svg class="atm-intro-pin" viewBox="0 0 28 34" aria-hidden="true" focusable="false"><path d="M14 1C7.4 1 2 6.2 2 12.7 2 21.5 14 33 14 33s12-11.5 12-20.3C26 6.2 20.6 1 14 1z" fill="currentColor"/><defs><clipPath id="atmLens"><circle cx="13.4" cy="12" r="6.6"/></clipPath></defs><g class="atm-intro-mag"><path d="M18.4 17.2 L21.6 20.6" stroke="#0a4f57" stroke-width="2.6" stroke-linecap="round"/><circle cx="13.4" cy="12" r="6.6" fill="#fff"/><g clip-path="url(#atmLens)"><circle class="atm-intro-pupil" cx="13.4" cy="12.4" r="3" fill="#1b1b1b"/><circle class="atm-intro-pupil" cx="14.4" cy="11.2" r=".9" fill="#fff"/><rect class="atm-intro-lid" x="6.6" y="5.2" width="13.6" height="13.8" fill="#d4af37"/></g><circle class="atm-intro-ring" cx="13.4" cy="12" r="6.9" fill="none" stroke="#0a4f57" stroke-width="1.6"/></g></svg>'); card.appendChild(tx); card.appendChild(x); wrap.appendChild(card); document.body.appendChild(wrap);
+    card.insertAdjacentHTML('afterbegin', '<svg class="atm-intro-pin" viewBox="5.4 3.8 20 20" aria-hidden="true" focusable="false"><defs><clipPath id="atmLens"><circle cx="13.4" cy="12" r="6.6"/></clipPath></defs><g class="atm-intro-mag"><path d="M18.6 17.2 L23.6 22.2" stroke="#d4af37" stroke-width="2.8" stroke-linecap="round"/><circle cx="13.4" cy="12" r="6.6" fill="#fff"/><g clip-path="url(#atmLens)"><circle class="atm-intro-pupil" cx="13.4" cy="12.4" r="3" fill="#1b1b1b"/><circle class="atm-intro-pupil" cx="14.4" cy="11.2" r=".9" fill="#fff"/><rect class="atm-intro-lid" x="6.6" y="5.2" width="13.6" height="13.8" fill="#d4af37"/></g><circle class="atm-intro-ring" cx="13.4" cy="12" r="6.9" fill="none" stroke="#d4af37" stroke-width="1.6"/></g></svg>'); card.appendChild(tx); card.appendChild(x); wrap.appendChild(card); document.body.appendChild(wrap);
     try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     requestAnimationFrame(function () { requestAnimationFrame(function () { card.classList.add('show'); }); });
