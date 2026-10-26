@@ -217,6 +217,11 @@
     var h = items.map(function(x){ return x[1]; });
     grid.innerHTML = h.join('');
     box.classList.add('has-feat-grid');
+    if (!grid._drag) { grid._drag = 1; var dx = null, sl = 0, moved = 0;
+      grid.addEventListener('mousedown', function(e){ if (grid.scrollWidth <= grid.clientWidth + 1 || e.button) return; dx = e.pageX; sl = grid.scrollLeft; moved = 0; e.preventDefault(); });
+      addEventListener('mousemove', function(e){ if (dx === null) return; var d = e.pageX - dx; if (Math.abs(d) > 4) { moved = 1; grid.classList.add('tw-drag'); } grid.scrollLeft = sl - d; });
+      addEventListener('mouseup', function(){ dx = null; grid.classList.remove('tw-drag'); });
+      grid.addEventListener('click', function(e){ if (moved) { e.preventDefault(); moved = 0; } }, true); }
   }
   function render(data){
     var cities = CITY_ORDER.slice();
