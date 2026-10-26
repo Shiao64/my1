@@ -1847,6 +1847,7 @@ body.china-page .tw-fc-body strong{font-family:var(--serif);font-size:1.08rem;li
 body.china-page .tw-fc-meta{font-size:.82rem;color:#7a6255}
 @media (max-width:719px){body.china-page .tw-fc-img{aspect-ratio:16/9}}
 body.china-page .tw-m-feat .wrap.has-feat-grid > a.tw-feat-photo{display:none!important}
+body.china-page .tw-m-feat a.tw-feat-photo{display:none!important}
 /* Taiwan (Miaoli): Changwon-style structure */
 html:has(body.tw-theme){scroll-padding-top:92px}
 body.tw-theme #venue,body.tw-theme #info,body.tw-theme #register{scroll-margin-top:0}
