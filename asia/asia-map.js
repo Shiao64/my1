@@ -181,7 +181,8 @@
     if (r.note) body.push('<div class="ev-line china-announce' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> ' + esc(r.note) + '</div>');
     var cb = contactBlock(r); if (cb) body.push(cb);
     var badges = '';
-    if (hl) badges += '<span class="china-badge">' + (UI.ourEvent || 'Our event') + '</span>';
+    if (hl) { var ou = (r.links && r.links.other) || '', own = /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(ou);
+      badges += own ? '<a class="china-badge china-badge-own" href="' + esc(isZh ? ou + 'zh/' : ou) + '">' + (UI.ourEvent || 'Our event') + '</a>' : '<span class="china-badge">' + (UI.ourEvent || 'Our event') + '</span>'; }
     if (r.status === 'paused') badges += '<span class="china-badge china-badge-paused">' + (UI.paused || 'Paused') + '</span>';
     else if (r.status === 'venue_change') badges += '<span class="china-badge china-badge-venue">' + (UI.venueChange || 'Venue change') + '</span>';
     var cx = r.status === 'cancelled';
