@@ -3369,43 +3369,6 @@
     }
   },
   {
-    "id": "j31odaX9",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "LiberTango 自由探戈文化空间",
-    "city": "Zhengzhou",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": 6,
-    "weekdays": [
-      6
-    ],
-    "time": "20:00–23:00",
-    "venue": "绿地之窗尚峰座513",
-    "venue_address": "郑州市郑东新区普惠路78号绿地之窗尚峰座513（郑州东站对面）",
-    "venue_address_en": "Room 513, Shangfeng Tower, Greenland Window, No. 78 Puhui Road, Zhengdong New District, Zhengzhou (opposite Zhengzhou East Station)",
-    "organizers": [
-      "Cindia"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": null
-    },
-    "source": "user directory 2026-10-24",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": false,
-    "contacts": {
-      "wechat_id": "13203729160",
-      "wechat_label": "Cindia",
-      "phone": "13203729160"
-    }
-  },
-  {
     "id": "Z15fKpMD",
     "kind": "weekly",
     "type": "milonga",
