@@ -221,14 +221,20 @@
         .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); })[0];
       items.push(['1', bjHtml]); }
     items.sort(function(a,b){ return a[0].localeCompare(b[0]); });
-    var h = items.map(function(x){ return x[1]; });
-    grid.innerHTML = h.join('');
+    var pin = items.filter(function(x){ return x[0] === '0' || x[0] === '1'; }), rest = items.filter(function(x){ return x[0] !== '0' && x[0] !== '1'; });
+    grid.classList.add('tw-feat-ad');
+    grid.innerHTML = pin.map(function(x){ return x[1]; }).join('');
+    var head = box.querySelector('.tw-feat-head'), grid2 = box.querySelector('.tw-feat-more');
+    if (!grid2) { head = document.createElement('h2'); head.className = 'tw-feat-head'; head.textContent = isZh ? '精选活动' : 'Featured events'; box.appendChild(head);
+      grid2 = document.createElement('div'); grid2.className = 'tw-m-feat-grid tw-feat-more'; box.appendChild(grid2); }
+    grid2.innerHTML = rest.map(function(x){ return x[1]; }).join('');
+    head.hidden = grid2.hidden = !rest.length;
     box.classList.add('has-feat-grid');
-    if (!grid._drag) { grid._drag = 1; var dx = null, sl = 0, moved = 0;
+    [grid, grid2].forEach(function(grid){ if (grid._drag) return; grid._drag = 1; var dx = null, sl = 0, moved = 0;
       grid.addEventListener('mousedown', function(e){ if (grid.scrollWidth <= grid.clientWidth + 1 || e.button) return; dx = e.pageX; sl = grid.scrollLeft; moved = 0; e.preventDefault(); });
       addEventListener('mousemove', function(e){ if (dx === null) return; var d = e.pageX - dx; if (Math.abs(d) > 4) { moved = 1; grid.classList.add('tw-drag'); } grid.scrollLeft = sl - d; });
       addEventListener('mouseup', function(){ dx = null; grid.classList.remove('tw-drag'); });
-      grid.addEventListener('click', function(e){ if (moved) { e.preventDefault(); moved = 0; } }, true); }
+      grid.addEventListener('click', function(e){ if (moved) { e.preventDefault(); moved = 0; } }, true); });
   }
   function render(data){
     var cities = CITY_ORDER.slice();
