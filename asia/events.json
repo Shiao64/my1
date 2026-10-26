@@ -3480,44 +3480,6 @@
     }
   },
   {
-    "id": "IhuWWjSq",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "郑州 Moon 探戈 Milonga",
-    "city": "Zhengzhou",
-    "country": "China",
-    "region": "China",
-    "start": null,
-    "end": null,
-    "weekday": 5,
-    "weekdays": [
-      5
-    ],
-    "time": "20:00–22:30",
-    "venue": "万通国际1706",
-    "venue_address": "郑州市农业南路万通国际大厦17层1706",
-    "venue_address_en": "Room 1706, 17F, Wantong International Building, South Nongye Road, Zhengzhou",
-    "organizers": [
-      "苏州/Suliya"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": null
-    },
-    "source": "user directory 2026-10-24",
-    "updated": "2026-10-24",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": false,
-    "contacts": {
-      "wechat_id": "17513281629",
-      "wechat_label": "苏州",
-      "phone": "17513281629",
-      "email": "568190231@qq.com"
-    }
-  },
-  {
     "id": "KmPP1v4J",
     "kind": "weekly",
     "type": "milonga",
