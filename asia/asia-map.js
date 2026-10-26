@@ -9,7 +9,7 @@
     citySel.classList.toggle('atm-city-err', !!on);
     if (on && !h) { h = document.createElement('span'); h.className = 'atm-city-hint'; h.setAttribute('role', 'alert'); h.textContent = PH_TXT; w.appendChild(h); }
     if (h) h.hidden = !on; }
-  if (citySel) citySel.addEventListener('change', function(){ if (citySel.value) { citySel._lastCity = citySel.value; cityHint(false); } });
+  if (citySel) citySel.addEventListener('change', function(){ if (citySel.value) { citySel._lastCity = citySel.value; cityHint(false); } var sb = document.getElementById('china-search'); if (sb) sb.classList.toggle('atm-nocity', !citySel.disabled && citySel.value === ''); });
   var hint = document.getElementById('china-date-hint');
   var fromEl = document.getElementById('china-from');
   var toEl = document.getElementById('china-to');
@@ -229,7 +229,7 @@
     window._chinaCityOrder = cities.slice();
     var cs = document.getElementById('china-city');
     if (cs) {
-      var opts = Array.prototype.slice.call(cs.options).filter(function(o){ return o.value !== 'all'; });
+      var opts = Array.prototype.slice.call(cs.options).filter(function(o){ return o.value !== 'all' && o.value !== ''; });
       opts.forEach(function(o){ if (OTHERS.indexOf(optionCityEn(o)) !== -1) o.remove(); });
       opts = opts.filter(function(o){ return o.parentNode === cs && OTHERS.indexOf(optionCityEn(o)) === -1; });
       if (OTHERS.length && !cs.querySelector('option[value="others"]')) {
@@ -302,14 +302,19 @@
     });
     var ev = types.length === 1 && types[0] === 'event';
     var allOpt = citySel.querySelector('option[value="all"]');
-    var phOpt = citySel.querySelector('option[value=""]'); if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; }
-    if (ev) { cityHint(false); if (citySel.value && citySel.value !== 'all') citySel._lastCity = citySel.value; citySel.value = 'all'; if (allOpt) { allOpt.hidden = false; allOpt.disabled = false; } }
-    else {
+    var phOpt = citySel.querySelector('option[value=""]');
+    if (ev) {
+      cityHint(false); if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; }
+      if (citySel.value && citySel.value !== 'all') citySel._lastCity = citySel.value;
+      if (allOpt) { allOpt.hidden = false; allOpt.disabled = false; citySel.selectedIndex = allOpt.index; }
+    } else {
       if (allOpt) { allOpt.hidden = true; allOpt.disabled = true; }
-      if (citySel.value === 'all' || citySel.value === '' || !has[citySel.value]) citySel.value = (citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '';
-      if (citySel.value === '' && phOpt) { phOpt.disabled = false; citySel.value = ''; }
+      var keep = citySel.value && citySel.value !== 'all' && has[citySel.value] ? citySel.value : ((citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '');
+      if (keep) { if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; } citySel.value = keep; }
+      else if (phOpt) { phOpt.hidden = false; phOpt.disabled = false; if (citySel.options[0] !== phOpt) citySel.insertBefore(phOpt, citySel.options[0]); citySel.selectedIndex = phOpt.index; }
     }
     citySel.disabled = ev;
+    var sbtn = document.getElementById('china-search'); if (sbtn) sbtn.classList.toggle('atm-nocity', !ev && citySel.value === '');
   }
   function applyFilters(){
     updateCityOptions();
