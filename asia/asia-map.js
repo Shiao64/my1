@@ -313,14 +313,14 @@
       var off = !has[o.value]; o.hidden = off; o.disabled = off;
     });
     var ev = types.length === 1 && types[0] === 'event';
-    var allOpt = citySel.querySelector('option[value="all"]');
+    var allOpt = citySel._allOpt || (citySel._allOpt = citySel.querySelector('option[value="all"]'));
     var phOpt = citySel.querySelector('option[value=""]');
     if (ev) {
       cityHint(false); if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; }
       if (citySel.value && citySel.value !== 'all') citySel._lastCity = citySel.value;
-      if (allOpt) { allOpt.hidden = false; allOpt.disabled = false; citySel.selectedIndex = allOpt.index; }
+      if (allOpt) { if (!allOpt.parentNode) citySel.insertBefore(allOpt, phOpt ? phOpt.nextSibling : citySel.options[0]); allOpt.hidden = false; allOpt.disabled = false; citySel.selectedIndex = allOpt.index; }
     } else {
-      if (allOpt) { allOpt.hidden = true; allOpt.disabled = true; }
+      if (allOpt && allOpt.parentNode) allOpt.parentNode.removeChild(allOpt);
       var keep = citySel.value && citySel.value !== 'all' && has[citySel.value] ? citySel.value : ((citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '');
       if (keep) { if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; } citySel.value = keep; }
       else if (phOpt) { phOpt.hidden = false; phOpt.disabled = false; if (citySel.options[0] !== phOpt) citySel.insertBefore(phOpt, citySel.options[0]); citySel.selectedIndex = phOpt.index; }
