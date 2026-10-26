@@ -8,6 +8,7 @@
     var c = document.getElementById('china-city'), f = document.getElementById('china-from');
     var s = { y: window.pageYOffset || document.documentElement.scrollTop || 0,
       city: c ? c.value : '', from: f ? f.value : '',
+      etype: (document.querySelector('input[name=etype]:checked') || {}).value || '',
       searched: !document.body.classList.contains('china-presearch'), t: Date.now() };
     try { sessionStorage.setItem(KEY, JSON.stringify(s)); } catch (err) {}
   }, true);
@@ -23,16 +24,18 @@
   function tick() {
     if (userMoved) return;
     var c = document.getElementById('china-city'), f = document.getElementById('china-from');
+    if (!restoredForm && !window._chinaData && Date.now() - start < 10000) { setTimeout(tick, 100); return; }
     if (!restoredForm && c && (!s.city || c.querySelector('option[value="' + String(s.city).replace(/"/g, '') + '"]'))) {
       restoredForm = true;
-      if (s.city) { c.value = s.city; c.dispatchEvent(new Event('change', { bubbles: true })); }
+      if (s.etype) { var r = document.querySelector('input[name=etype][value="' + String(s.etype).replace(/"/g, '') + '"]'); if (r && !r.checked) { r.checked = true; r.dispatchEvent(new Event('change', { bubbles: true })); } }
+      if (s.city && s.city !== c.value) { c.value = s.city; c.dispatchEvent(new Event('change', { bubbles: true })); }
       if (f && s.from) { f.value = s.from; f.dispatchEvent(new Event('change', { bubbles: true })); }
       if (s.searched) { var b = document.getElementById('china-search'); if (b) b.click(); }
     }
     var maxY = document.documentElement.scrollHeight - window.innerHeight;
     var y = Math.min(s.y, Math.max(0, maxY));
     if (Math.abs((window.pageYOffset || 0) - y) > 2) { window.scrollTo(0, y); settled = 0; } else settled++;
-    if (Date.now() - start < 2500 || (settled < 3 && Date.now() - start < 5000) || maxY < s.y && Date.now() - start < 5000) setTimeout(tick, 100);
+    if (Date.now() - start < 2500 || (settled < 3 && Date.now() - start < 12000) || maxY < s.y && Date.now() - start < 12000) setTimeout(tick, 100);
   }
   if (document.readyState === 'complete') tick(); else window.addEventListener('load', tick);
 })();
