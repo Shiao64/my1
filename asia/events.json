@@ -2794,5 +2794,44 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false
+  },
+  {
+    "id": "E005",
+    "kind": "event",
+    "type": "festival",
+    "name": "Javier Rodriguez y Fatima Vitale 阿根廷探戈大师文化交流（Vida Mia 15周年庆）",
+    "name_zh": "Javier Rodriguez y Fatima Vitale 阿根廷探戈大师文化交流（Vida Mia 15周年庆）",
+    "city": "Beijing",
+    "country": "China",
+    "region": "China",
+    "start": "2026-11-04",
+    "end": "2026-11-09",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Vida Mia Tango Club",
+    "venue_address": "北京市东城区东中街58号美惠大厦A座一单元203室",
+    "venue_address_en": null,
+    "organizers": [
+      "VidaMia（NICO）"
+    ],
+    "contacts": {
+      "wechat_id": "1326-0000-108",
+      "phone": "1326-0000-108"
+    },
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null,
+      "wechat": "https://mp.weixin.qq.com/s/6HYcEeWKaf7PbJVUSU6QNA",
+      "wechat_label_zh": "阅读公众号文章"
+    },
+    "poster": "/images/asia/posters/E005.jpg",
+    "source": "user:wechat-article",
+    "updated": "2026-10-28",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster_pos": "center top"
   }
 ]
