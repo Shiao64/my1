@@ -184,6 +184,7 @@
     var badges = '';
     if (hl) { var ou = (r.links && r.links.other) || '', own = /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(ou);
       badges += own ? '<a class="china-badge china-badge-own" href="' + esc(isZh ? ou + 'zh/' : ou) + '">' + (UI.ourEvent || 'Our event') + '</a>' : '<span class="china-badge">' + (UI.ourEvent || 'Our event') + '</span>'; }
+    if (r.detail) badges += '<a class="china-badge china-badge-own" href="' + esc(isZh ? r.detail + 'zh/' : r.detail) + '">' + (isZh ? '活动详情' : 'Details') + '</a>';
     if (r.status === 'paused') badges += '<span class="china-badge china-badge-paused">' + (UI.paused || 'Paused') + '</span>';
     else if (r.status === 'venue_change') badges += '<span class="china-badge china-badge-venue">' + (UI.venueChange || 'Venue change') + '</span>';
     var cx = r.status === 'cancelled';
