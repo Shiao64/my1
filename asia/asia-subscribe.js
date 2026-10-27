@@ -3,16 +3,16 @@
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
   var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
   var L = zh ? {
-    btn: '✉ 新活动通知', title: '新活动通知', desc: '每周通过邮件发送新活动；微信群里不定时发布新活动。留微信号的订阅者会收到亚洲探戈地图微信群的入群邀请，活动通知会在群里发布。',
+    btn: '✉ 新活动通知', title: '新活动通知', desc: '每周通过邮件发送新活动；微信群里不定时发布新活动。留微信号的订阅者会收到亚洲探戈地图微信群的入群邀请，新活动通知会在群里发布。',
     email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '微信号和邮箱至少填一项',
     need: '请填写微信号或邮箱，至少一项。', bad: '邮箱格式不正确',
-    submit: '订阅', sending: '提交中…', ok: '已收到，谢谢！我们会把活动提醒发给您。',
+    submit: '订阅', sending: '提交中…', ok: '已收到，谢谢！我们会把新活动通知发给您。',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
   } : {
-    btn: '✉ Get event alert', title: 'New activity alerts', desc: 'We email new events every week, and post new events in our WeChat group from time to time. If you leave your WeChat ID, you\'ll get an invite to the Asia Tango Map WeChat group, where event news is posted.',
+    btn: '✉ Get event alert', title: 'New activity alerts', desc: 'We email new events every week, and post new events in our WeChat group from time to time. If you leave your WeChat ID, you\'ll get an invite to the Asia Tango Map WeChat group, where new activity alerts are posted.',
     email: 'Email', emailPh: 'name@example.com', wx: 'WeChat ID', wxPh: 'Your WeChat ID', hint: 'Fill in a WeChat ID or an email (at least one)',
     need: 'Please enter a WeChat ID or an email.', bad: 'Please check your email address.',
-    submit: 'Subscribe', sending: 'Sending…', ok: "Got it, thank you! We'll send you event alerts.",
+    submit: 'Subscribe', sending: 'Sending…', ok: "Got it, thank you! We'll send you new activity alerts.",
     fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Unsubscribe anytime. We never share your info.', close: 'Close'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
