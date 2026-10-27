@@ -402,7 +402,7 @@
       var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim().split(' · ')[0];
       var zh = !!UI.countWord, txt, reg = vis.length > 0;
       vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') reg = false; });
-      var zw = reg ? '项常规活动' : '项大型活动', ew = reg ? ' regular events' : ' featured events';
+      var zw = reg ? '项常规活动' : '项特色活动', ew = reg ? ' regular events' : ' featured events';
       if (!reg && !tv) { n = vis.length; txt = zh ? '从' + zhD(w0, true) + '起，共' + n + zw : 'from ' + enD(w0) + ' onward, ' + n + ew; }
       else if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + zw
                        : 'from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ew;
