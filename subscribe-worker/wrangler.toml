@@ -1,0 +1,17 @@
+name = "tango-subscribe"
+main = "src/index.js"
+compatibility_date = "2026-10-15"
+routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
+
+[vars]
+SENDER = "subscribe@tangoweekend.org"
+NOTIFY_TO = "selecttango@gmail.com"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tango-subscribe"
+database_id = "1b462639-75a1-4dcf-9b15-eab807e4b295"
+
+[[send_email]]
+name = "EMAIL"
+destination_address = "selecttango@gmail.com"
