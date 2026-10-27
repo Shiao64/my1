@@ -268,7 +268,9 @@
       "phone": "18500032123",
       "wechat_id": "18500032123",
       "wechat_label": "勾陳/叶子"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R011.png",
+    "poster_pos": "center top"
   },
   {
     "id": "GqufXmMX",
@@ -456,7 +458,9 @@
       "phone": "13260000108",
       "wechat_id": "nicochangro",
       "wechat_label": "Nico张研"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R007.png",
+    "poster_pos": "center top"
   },
   {
     "id": "UiQphCjS",
@@ -885,7 +889,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R061.png",
+    "poster_pos": "center top"
   },
   {
     "id": "kOcru3n3",
@@ -915,7 +921,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R064.png",
+    "poster_pos": "center top"
   },
   {
     "id": "yhBU2qgt",
@@ -947,7 +955,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R068.png",
+    "poster_pos": "center top"
   },
   {
     "id": "MAYuqvkH",
@@ -1537,7 +1547,9 @@
       "wechat_id": "Milonga1758",
       "wechat_label": "Milonga 1758",
       "phone": "13817984858 / 13564353750"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R022.png",
+    "poster_pos": "center top"
   },
   {
     "id": "JKQfiwMf",
@@ -1771,7 +1783,9 @@
     "contacts": {
       "wechat_label": "Infinity Tango",
       "phone": "13601724655"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R019.png",
+    "poster_pos": "center top"
   },
   {
     "id": "R0E9XeyL",
@@ -1810,7 +1824,9 @@
       "phone": "17602118718",
       "email": "kittyallen@163.com"
     },
-    "nth": 1
+    "nth": 1,
+    "poster": "/images/asia/posters/generated/R023.png",
+    "poster_pos": "center top"
   },
   {
     "id": "xXxB330r",
@@ -1992,7 +2008,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R026.png",
+    "poster_pos": "center top"
   },
   {
     "id": "QWdKPmum",
@@ -2057,7 +2075,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R029.png",
+    "poster_pos": "center top"
   },
   {
     "id": "WPYNvSAB",
@@ -2094,7 +2114,9 @@
       "wechat_label": "安琪/Angel",
       "phone": "18522545258",
       "email": "1368670004@qq.com"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R040.png",
+    "poster_pos": "center top"
   },
   {
     "id": "mBDeAKKW",
@@ -2202,7 +2224,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R037.png",
+    "poster_pos": "center top"
   },
   {
     "id": "3UUmjMJZ",
@@ -2232,7 +2256,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R038.png",
+    "poster_pos": "center top"
   },
   {
     "id": "QbUzonBt",
@@ -2269,7 +2295,9 @@
       "phone": "13042001750",
       "email": "renwwwei@sina.com",
       "wechat_label": "POP"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R042.png",
+    "poster_pos": "center top"
   },
   {
     "id": "EDPSh1eZ",
@@ -2375,7 +2403,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R043.png",
+    "poster_pos": "center top"
   },
   {
     "id": "n3ENukGH",
@@ -2446,7 +2476,9 @@
       "wechat_label": "Bes",
       "phone": "13006697779",
       "email": "bes@mcurf.com"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R048.png",
+    "poster_pos": "center top"
   },
   {
     "id": "SOu3uTpn",
@@ -2562,7 +2594,9 @@
       "wechat_label": "Ken",
       "phone": "13543416169",
       "email": "tangotraza@gmail.com"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R052.png",
+    "poster_pos": "center top"
   },
   {
     "id": "SGk39A4O",
@@ -2592,7 +2626,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R051.png",
+    "poster_pos": "center top"
   },
   {
     "id": "dLub3zK9",
@@ -2630,7 +2666,9 @@
       "wechat_id": "HiTangoMomo",
       "wechat_label": "Calix / Momo",
       "phone": "18976549120"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R054.png",
+    "poster_pos": "center top"
   },
   {
     "id": "KmPP1v4J",
@@ -2667,7 +2705,9 @@
       "wechat_id": "18367185090",
       "wechat_label": "唐影",
       "phone": "18367185090"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R055.png",
+    "poster_pos": "center top"
   },
   {
     "id": "ygJlaT14",
@@ -2703,7 +2743,9 @@
     "contacts": {
       "phone": "13776689534",
       "wechat_label": "小善"
-    }
+    },
+    "poster": "/images/asia/posters/generated/R056.png",
+    "poster_pos": "center top"
   },
   {
     "id": "w1RSOcni",
@@ -2736,7 +2778,9 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/generated/R053.png",
+    "poster_pos": "center top"
   },
   {
     "id": "cwCbtm27",
