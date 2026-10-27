@@ -965,6 +965,131 @@
     "tba": false
   },
   {
+    "id": "Q0Dhqqdr",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga X",
+    "city": "Hong Kong",
+    "country": "China",
+    "region": "Hong Kong",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:30–23:30",
+    "venue": "K-97",
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [
+      "carly",
+      "梁毅力"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R060 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "4nJKuVTB",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tres Amigos Milonga",
+    "city": "Hong Kong",
+    "country": "China",
+    "region": "Hong Kong",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "19:00–22:00",
+    "venue": "K-97",
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R061 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "kOcru3n3",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "La Milongaza",
+    "city": "Hong Kong",
+    "country": "China",
+    "region": "Hong Kong",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:30–24:00",
+    "venue": "SDF",
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R064 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "yhBU2qgt",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga Nuevo",
+    "city": "Hong Kong",
+    "country": "China",
+    "region": "Hong Kong",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "20:30–23:30",
+    "venue": "Dance Culture Studio",
+    "venue_address": "香港铜锣湾谢斐道496号Richmond Plaza 20楼（Dance Culture Studio）",
+    "venue_address_en": "20/F Richmond Plaza, 496 Jaffe Road, Causeway Bay, Hong Kong (Dance Culture Studio)",
+    "organizers": [
+      "Edith Ho"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R068 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
     "id": "MAYuqvkH",
     "kind": "event",
     "type": "festival",
@@ -2086,6 +2211,135 @@
     "nth": 3
   },
   {
+    "id": "juGlRrW2",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "iTango 周四练习舞会",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "19:30–22:30",
+    "venue": "Tango Palace",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "venue_address_en": "2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai (Tango Palace)",
+    "organizers": [
+      "iTango"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R025 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "LxcvweaE",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "TD House 周二练习舞会",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "19:30–22:30",
+    "venue": "Tango Palace",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "venue_address_en": "2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai (Tango Palace)",
+    "organizers": [
+      "Tango Dreamers",
+      "正中"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R026 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "QWdKPmum",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Infinitango 周四练习舞会",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "19:30–23:00",
+    "venue": "茂名大厦313",
+    "venue_address": "上海市永嘉路35号茂名大厦313",
+    "venue_address_en": "Room 313, Maoming Building, No. 35 Yongjia Road, Shanghai",
+    "organizers": [
+      "Infinity Tango"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R027 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "vhkQ2Ltw",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Los Gatos Practica",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "19:00–22:00",
+    "venue": "陕西北路1438号1309",
+    "venue_address": "上海市陕西北路1438号1309",
+    "venue_address_en": "Room 1309, No. 1438 North Shaanxi Road, Shanghai",
+    "organizers": [
+      "Los Gatos"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R029 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
     "id": "151MP0Y2",
     "kind": "weekly",
     "type": "milonga",
@@ -2650,6 +2904,68 @@
     "nth": 3
   },
   {
+    "id": "TqqsVj5K",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Firebird 周日练习场",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "14:00–17:00",
+    "venue": "恒华大厦1号楼607",
+    "venue_address": "天津市河西区恒华大厦1号楼607",
+    "venue_address_en": "Room 607, Building 1, Henghua Building, Hexi District, Tianjin",
+    "organizers": [
+      "Firebird"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R037 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "3UUmjMJZ",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "奥城周六舞会 Aocheng Saturday Milonga",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:30–22:30",
+    "venue": "时代奥城C5-401",
+    "venue_address": "天津市时代奥城C5-401",
+    "venue_address_en": "Room 401, C5, Times Aocheng, Tianjin",
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R038 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
     "id": "CfI7owBT",
     "kind": "weekly",
     "type": "milonga",
@@ -2948,6 +3264,70 @@
     }
   },
   {
+    "id": "9Nf1QY8C",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "红房子 周二练习场",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "19:30–22:30",
+    "venue": "名门大厦五楼",
+    "venue_address": "广州花城大道六号名门大厦五楼红房子探戈俱乐部",
+    "venue_address_en": "Red House Tango Club, 5F, Mingmen Building, No. 6 Huacheng Avenue, Guangzhou",
+    "organizers": [
+      "PoP_DaNcE"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R043 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "n3ENukGH",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Open Step Practica",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "20:30–22:30",
+    "venue": "南天广场皇朝阁804",
+    "venue_address": "广州市南天广场皇朝阁804",
+    "venue_address_en": "Room 804, Huangchao Ge, Nantian Plaza, Guangzhou",
+    "organizers": [
+      "Michelle"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R044 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
     "id": "uXBtrvcn",
     "kind": "weekly",
     "type": "milonga",
@@ -3216,6 +3596,36 @@
       "phone": "13543416169",
       "email": "tangotraza@gmail.com"
     }
+  },
+  {
+    "id": "SGk39A4O",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Sola 舞会",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–24:00",
+    "venue": "车公庙劲松大厦8A",
+    "venue_address": "深圳市车公庙劲松大厦8A",
+    "venue_address_en": "8A, Jinsong Building, Chegongmiao, Shenzhen",
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R051 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
   },
   {
     "id": "5YZIdEnR",
@@ -4078,6 +4488,39 @@
       "phone": "18553533677",
       "email": "18553533677@163.com"
     }
+  },
+  {
+    "id": "w1RSOcni",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "TangoQ 周二练习舞会",
+    "city": "Qingdao",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:00–late",
+    "venue": "国泰公寓1号楼401",
+    "venue_address": "青岛市漳州一路35号国泰公寓1号楼401",
+    "venue_address_en": "Room 401, Building 1, Guotai Apartments, No. 35 Zhangzhou 1st Road, Qingdao",
+    "organizers": [
+      "TangoQ",
+      "Jenny"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R053 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
   },
   {
     "id": "77AqVERs",
