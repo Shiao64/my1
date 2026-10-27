@@ -245,6 +245,9 @@
     var cities = CITY_ORDER.slice();
     data.forEach(function(r){ if (cities.indexOf(r.city) === -1) cities.push(r.city); });
     var wkCount = {}; data.forEach(function(r){ if (r.kind === 'weekly' && !r.hidden) wkCount[r.city] = (wkCount[r.city] || 0) + 1; });
+    var wkSess = {}; data.forEach(function(r){ if (r.kind !== 'weekly' || r.hidden) return; var n = (r.weekdays && r.weekdays.length) || (r.weekday != null ? 1 : 0); wkSess[r.city] = (wkSess[r.city] || 0) + n; });
+    function sessLabel(c){ var n = wkSess[c] || 0; if (!n || c === 'Others') return cityDisplay(c); return UI.countWord ? cityDisplay(c) + n + '场' : cityDisplay(c) + ' (' + n + ')'; }
+    window._chinaCitySessions = wkSess;
     var baseIdx = cities.slice();
     cities.sort(function(a,b){ return ((wkCount[b]||0) - (wkCount[a]||0)) || (baseIdx.indexOf(a) - baseIdx.indexOf(b)); });
     var OTHERS = cities.filter(function(c){ return (wkCount[c] || 0) < 1; });
@@ -262,6 +265,7 @@
         var ia = cities.indexOf(optionCityEn(a)), ib = cities.indexOf(optionCityEn(b));
         return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
       });
+      opts.forEach(function(o){ var ce = optionCityEn(o); if (wkSess[ce]) o.textContent = sessLabel(ce); });
       var cur = cs.value; opts.forEach(function(o){ cs.appendChild(o); }); cs.value = cur;
     }
     var html = [];
@@ -272,7 +276,7 @@
       var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start; });
       var wk = rs.filter(function(r){ return r.kind === 'weekly'; });
       var tw = c !== 'Others' && rs[0].region === 'Taiwan';
-      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head">' + esc(cityDisplay(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
+      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
       h.push(group(UI.events || 'Events', dated.concat(tba)));
       var sched = wk.filter(function(r){ return r.weekday != null && nthOk(r); }), nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
