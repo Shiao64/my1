@@ -1928,7 +1928,8 @@ body.china-page .atm-form #china-search.atm-nocity{cursor:not-allowed!important}
 .ev-card .ev-cover img{display:block;width:100%;height:100%;object-fit:cover}
 @media (max-width:719px){.ev-card .ev-cover{aspect-ratio:16/9}}
 
-/* Unverified stamp watermark (draft 2026-10-27) */
+/* Unverified stamp watermark (draft 2026-10-27, v2) */
 .ev-card.ev-unverified{position:relative;overflow:hidden}
-.ev-card.ev-unverified::after{content:attr(data-stamp);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-15deg);border:3px solid rgba(160,20,40,.45);border-radius:6px;padding:.15em .6em;font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:rgba(160,20,40,.32);pointer-events:none;white-space:nowrap;z-index:2;font-family:inherit}
-@media (max-width:600px){.ev-card.ev-unverified::after{font-size:1.3rem}}
+.ev-card.ev-unverified::after{content:attr(data-stamp);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-15deg);border:4px solid rgba(225,6,0,.62);border-radius:6px;padding:.12em .55em;font-size:1.6rem;font-weight:900;letter-spacing:.12em;color:rgba(225,6,0,.55);-webkit-text-stroke:.8px rgba(225,6,0,.55);pointer-events:none;white-space:nowrap;z-index:2;font-family:inherit;line-height:1.2}
+html:lang(zh) .ev-card.ev-unverified::after{font-size:3.2rem;border-width:5px;-webkit-text-stroke:1px rgba(225,6,0,.42);padding:.08em .5em;letter-spacing:.18em;color:rgba(225,6,0,.42);border-color:rgba(225,6,0,.55)}
+@media (max-width:600px){.ev-card.ev-unverified::after{font-size:1.35rem}html:lang(zh) .ev-card.ev-unverified::after{font-size:2.6rem}}
