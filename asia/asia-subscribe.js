@@ -55,8 +55,9 @@
     '<p class="tsub-foot">' + L.foot + '</p></div>';
   document.body.appendChild(m);
   var $ = function (id) { return document.getElementById(id); };
-  function open() { m.hidden = false; }
-  function close() { m.hidden = true; }
+  var tmr = null;
+  function open() { if (tmr) { clearTimeout(tmr); tmr = null; } $('tsub-ok').hidden = true; $('tsub-err').textContent = ''; m.hidden = false; }
+  function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; }
   $('tsub-open').addEventListener('click', open);
   m.addEventListener('click', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-x')) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !m.hidden) close(); });
@@ -73,7 +74,12 @@
       body: JSON.stringify({ types: ['featured', 'regular'], cities: [], email: em, wechat: wx, lang: zh ? 'zh' : 'en', website: $('tsub-hp').value }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (d.ok) { ok.textContent = L.ok; ok.hidden = false; $('tsub-f').reset(); }
+        if (d.ok) {
+          ok.textContent = L.ok; ok.hidden = false; $('tsub-f').reset();
+          // Auto-close shortly after success so the thank-you is seen; errors never auto-close.
+          if (tmr) clearTimeout(tmr);
+          tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 2000);
+        }
         else err.textContent = d.error === 'bad_email' ? L.bad : d.error === 'need_contact' ? L.need : d.error === 'rate_limited' ? L.rate : L.fail;
       })
       .catch(function () { err.textContent = L.fail; })
