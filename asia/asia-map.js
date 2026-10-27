@@ -200,6 +200,8 @@
   }
   function group(title, items, cls){
     if (!items.length) return '';
+    var hp = function(r){ return !!(r.poster || r.poster_zh || r.poster_en); };
+    items = items.filter(hp).concat(items.filter(function(r){ return !hp(r); }));
     return '<div class="china-group' + (cls ? ' ' + cls : '') + '"><h3 class="china-sub-head">' + title + '</h3><ul class="china-list ev-list">' + items.map(card).join('') + '</ul></div>';
   }
   function renderFeatList(data){
