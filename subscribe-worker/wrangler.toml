@@ -6,6 +6,9 @@ routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
 [vars]
 SENDER = "subscribe@tangoweekend.org"
 NOTIFY_TO = "selecttango@gmail.com"
+WELCOME_MODE = "test"            # off | test (log only) | live
+WELCOME_FROM = "info@tangoweekend.org"
+# secret: wrangler secret put UNSUB_SECRET
 
 [[d1_databases]]
 binding = "DB"
@@ -15,3 +18,8 @@ database_id = "1b462639-75a1-4dcf-9b15-eab807e4b295"
 [[send_email]]
 name = "EMAIL"
 destination_address = "selecttango@gmail.com"
+
+# Email Sending binding for welcome mail to subscribers (no destination restriction).
+[[send_email]]
+name = "WELCOME"
+allowed_sender_addresses = ["info@tangoweekend.org"]

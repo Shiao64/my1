@@ -3,6 +3,7 @@
 // Stores in D1 and notifies the owner through Email Routing (send_email binding with destination_address).
 // The double opt-in / unsubscribe flow is kept in ../disabled/ and is NOT active.
 import { EmailMessage } from 'cloudflare:email';
+import { welcomeEmail } from './welcome.js';
 
 const ORIGINS = ['https://tangoweekend.org', 'https://www.tangoweekend.org'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -11,6 +12,41 @@ const RATE_MAX = 5, RATE_WIN_MIN = 60;
 const cors = o => ORIGINS.includes(o) ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' } : {};
 const json = (d, s, h) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
 const b64 = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+// --- welcome email + unsubscribe (DRAFT) ---
+const API_BASE = 'https://api.tangoweekend.org';
+const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+async function unsubToken(env, id, email) {
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(env.UNSUB_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  return b64u(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(`unsub:${id}:${email}`)));
+}
+const safeEq = (a, b) => { if (a.length !== b.length) return false; let r = 0; for (let i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; };
+
+// WELCOME_MODE: 'off' (default, nothing) | 'test' (log only, never sends) | 'live' (send). Test submissions (body.test) always log only.
+async function sendWelcome(env, id, email, lang, isTest) {
+  const mode = env.WELCOME_MODE || 'off';
+  if (!email || mode === 'off') return 'skipped';
+  if (!env.UNSUB_SECRET) return 'skipped: no UNSUB_SECRET';
+  const url = `${API_BASE}/unsubscribe?id=${id}&t=${await unsubToken(env, id, email)}`;
+  const m = welcomeEmail(lang, url);
+  if (mode !== 'live' || isTest) { console.log('[welcome:test] would send', JSON.stringify({ to: email, subject: m.subject, text: m.text })); return 'logged'; }
+  try {
+    await env.WELCOME.send({ to: email, from: { email: env.WELCOME_FROM || 'info@tangoweekend.org', name: 'Asia Tango Map' }, subject: m.subject, html: m.html, text: m.text,
+      headers: { 'List-Unsubscribe': `<${url}>` } });
+    return 'sent';
+  } catch (e) { return 'fail: ' + String(e.code || '') + ' ' + String(e.message || e).slice(0, 180); }
+}
+
+async function unsubscribe(url, env) {
+  const id = Number(url.searchParams.get('id')), t = url.searchParams.get('t') || '';
+  const page = (zh, en, s) => new Response(`<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width"><body style="font-family:sans-serif;max-width:480px;margin:60px auto;padding:0 16px"><p>${zh}</p><p>${en}</p><p><a href="https://tangoweekend.org">tangoweekend.org</a></p>`, { status: s, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  const bad = () => page('退订链接无效。', 'This unsubscribe link is invalid.', 400);
+  if (!id || !t || !env.UNSUB_SECRET) return bad();
+  const row = await env.DB.prepare('SELECT email FROM subs WHERE id=?').bind(id).first();
+  if (!row || !row.email || !safeEq(t, await unsubToken(env, id, row.email))) return bad();
+  await env.DB.prepare('UPDATE subs SET unsubscribed_at=COALESCE(unsubscribed_at,?) WHERE id=?').bind(new Date().toISOString(), id).run();
+  return page('已退订，你不会再收到亚洲探戈地图的活动邮件。', "You've been unsubscribed from Asia Tango Map emails.", 200);
+}
+
 const shTime = () => new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + '（北京时间）';
 async function sha(s) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].slice(0, 12).map(b => b.toString(16).padStart(2, '0')).join(''); }
 
@@ -24,7 +60,8 @@ function mime(from, to, subject, text) {
 async function subscribe(req, env, h) {
   let b; try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400, h); }
   if (b.website) return json({ ok: true }, 200, h); // honeypot: pretend success, store nothing
-  const lang = b.lang === 'zh' ? 'zh' : 'en';
+  const langRaw = b.lang === 'zh' || b.lang === 'en' ? b.lang : ''; // unknown -> bilingual welcome
+  const lang = langRaw || 'en';
   const types = (Array.isArray(b.types) ? b.types : []).filter(t => t === 'featured' || t === 'regular');
   const email = String(b.email || '').trim().toLowerCase().slice(0, 254);
   const wechat = String(b.wechat || '').trim().slice(0, 64);
@@ -52,7 +89,8 @@ async function subscribe(req, env, h) {
   let status = 'sent';
   try { await env.EMAIL.send(new EmailMessage(env.SENDER, env.NOTIFY_TO, mime(env.SENDER, env.NOTIFY_TO, `${isTest ? '[测试] ' : ''}新订阅 #${id} ${wechat || email}`, text))); }
   catch (e) { status = 'fail: ' + String(e.message || e).slice(0, 200); console.log('notify failed', status); }
-  await env.DB.prepare('UPDATE subs SET mail_status=? WHERE id=?').bind(status, id).run();
+  const welcome = await sendWelcome(env, id, email, langRaw, isTest);
+  await env.DB.prepare('UPDATE subs SET mail_status=?, welcome_status=? WHERE id=?').bind(status, welcome, id).run();
   return json({ ok: true, id }, 200, h);
 }
 
@@ -64,6 +102,7 @@ export default {
       if (!h['Access-Control-Allow-Origin']) return json({ error: 'forbidden_origin' }, 403);
       return subscribe(req, env, h);
     }
+    if (url.pathname === '/unsubscribe' && req.method === 'GET') return unsubscribe(url, env);
     if (url.pathname === '/health') return json({ ok: true }, 200, h);
     return json({ error: 'not_found' }, 404, h);
   }
