@@ -150,7 +150,8 @@
       "phone": "18511200117",
       "wechat_id": "lisongyan001",
       "wechat_label": "李松岩"
-    }
+    },
+    "poster": "/images/asia/posters/R008.jpg"
   },
   {
     "id": "eRpBxkDC",
@@ -488,7 +489,8 @@
     "contacts": {
       "wechat_id": "Beijing15Space",
       "wechat_label": "Jackie"
-    }
+    },
+    "poster": "/images/asia/posters/R006.jpg"
   },
   {
     "id": "SvxneECE",
@@ -660,7 +662,8 @@
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/E016.jpg"
   },
   {
     "id": "manual-hz-jinsha",
@@ -693,7 +696,8 @@
     "hidden_reason": null,
     "tba": false,
     "venue_address_en": "Jinsha Lake, Hangzhou",
-    "featured": true
+    "featured": true,
+    "poster": "/images/asia/posters/E007.jpg"
   },
   {
     "id": "manual-cq-spicy-2026",
@@ -729,7 +733,8 @@
     "contacts": {
       "phone": "+86 18584567650",
       "wechat_id": "18584567650"
-    }
+    },
+    "poster": "/images/asia/posters/E006.jpg"
   },
   {
     "id": "VGCepJDE",
@@ -1203,7 +1208,8 @@
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
-    "tba": true
+    "tba": true,
+    "poster": "/images/asia/posters/E012.jpg"
   },
   {
     "id": "TUHKwYQN",
@@ -1449,7 +1455,8 @@
     "contacts": {
       "wechat_id": "fanfan18180505",
       "wechat_label": "凡凡"
-    }
+    },
+    "poster": "/images/asia/posters/R010.jpg"
   },
   {
     "id": "DFBKYdPX",
@@ -1487,7 +1494,8 @@
       "wechat_label": "Kai",
       "phone": "13564116575",
       "email": "kaiwang215@gmail.com"
-    }
+    },
+    "poster": "/images/asia/posters/R015.jpg"
   },
   {
     "id": "bQFvmIuY",
@@ -1564,7 +1572,8 @@
       "wechat_label": "TangoCool",
       "phone": "13022108554",
       "email": "tangocool@gmail.com"
-    }
+    },
+    "poster": "/images/asia/posters/R021.jpg"
   },
   {
     "id": "eEHzQBzu",
@@ -1680,7 +1689,8 @@
       "wechat_label": "Shelley Hou / mitangosh",
       "phone": "15601854223 / 13916428289",
       "email": "15601854223@163.com"
-    }
+    },
+    "poster": "/images/asia/posters/R017.jpg"
   },
   {
     "id": "DIVjezcE",
@@ -1718,7 +1728,8 @@
       "wechat_label": "TangoBang / Vivian Ye",
       "phone": "18621182646",
       "email": "tangobang@aliyun.com"
-    }
+    },
+    "poster": "/images/asia/posters/R018.jpg"
   },
   {
     "id": "rccbKIYP",
@@ -1833,7 +1844,8 @@
       "wechat_label": "PampaMia",
       "phone": "17685520642",
       "email": "229726128@qq.com"
-    }
+    },
+    "poster": "/images/asia/posters/R020.jpg"
   },
   {
     "id": "ecyMAjFj",
@@ -2008,7 +2020,8 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/R027.jpg"
   },
   {
     "id": "vhkQ2Ltw",
@@ -2152,7 +2165,8 @@
       "wechat_id": "Summer-Firebird Tango",
       "wechat_label": "Summer-Firebird Tango",
       "phone": "13820884942 / 17695615576"
-    }
+    },
+    "poster": "/images/asia/posters/R036.jpg"
   },
   {
     "id": "TqqsVj5K",
@@ -2288,7 +2302,8 @@
       "wechat_id": "13922334905",
       "wechat_label": "Alice",
       "phone": "13922334905"
-    }
+    },
+    "poster": "/images/asia/posters/R041.jpg"
   },
   {
     "id": "RHL0Ul5a",
@@ -2388,7 +2403,8 @@
     "updated": "2026-10-27",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "poster": "/images/asia/posters/R044.jpg"
   },
   {
     "id": "tSTMn9NF",
@@ -2464,7 +2480,8 @@
       "wechat_label": "Jerry",
       "phone": "18681552660",
       "email": "jerryguo@live.cn"
-    }
+    },
+    "poster": "/images/asia/posters/R049.jpg"
   },
   {
     "id": "lpuwaRvS",
