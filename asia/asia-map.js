@@ -328,15 +328,18 @@
     if (ev) {
       cityHint(false); if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; }
       if (citySel.value && citySel.value !== 'all') citySel._lastCity = citySel.value;
+      citySel._fromEv = true;
       if (allOpt) { if (!allOpt.parentNode) citySel.insertBefore(allOpt, phOpt ? phOpt.nextSibling : citySel.options[0]); allOpt.hidden = false; allOpt.disabled = false; citySel.selectedIndex = allOpt.index; }
     } else {
       var cur = citySel.value;
-      if (allOpt && allOpt.parentNode) allOpt.parentNode.removeChild(allOpt);
-      var keep = cur && cur !== 'all' && has[cur] ? cur : ((citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '');
+      if (allOpt) { if (!allOpt.parentNode) citySel.insertBefore(allOpt, phOpt ? phOpt.nextSibling : citySel.options[0]); allOpt.hidden = false; allOpt.disabled = false; }
+      var keep = (cur === 'all' && allOpt && !citySel._fromEv) ? 'all' : cur && cur !== 'all' && has[cur] ? cur : ((citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '');
       if (keep) { if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; } citySel.value = keep; }
       else if (phOpt) { phOpt.hidden = false; phOpt.disabled = false; if (citySel.options[0] !== phOpt) citySel.insertBefore(phOpt, citySel.options[0]); citySel.selectedIndex = phOpt.index; }
     }
+    if (!ev) citySel._fromEv = false;
     citySel.disabled = ev;
+    var evNote = document.querySelector('.atm-ev-note'); if (evNote) { if (evNote.dataset.evTxt == null) evNote.dataset.evTxt = evNote.textContent; evNote.textContent = ev ? evNote.dataset.evTxt : PH_TXT; }
     var sbtn = document.getElementById('china-search'); if (sbtn) sbtn.classList.toggle('atm-nocity', !ev && citySel.value === '');
   }
   function applyFilters(){
