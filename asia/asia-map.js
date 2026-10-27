@@ -185,7 +185,7 @@
     var cb = contactBlock(r); if (cb) more.push(cb);
     var lb = linkBtns(r); if (lb) more.push(lb);
     if (r.detail) more.push('<div class="ev-line china-links"><a class="china-linkbtn" href="' + esc(isZh ? r.detail + 'zh/' : r.detail) + '">' + (isZh ? '活动详情页' : 'Detail page') + '</a></div>');
-    if (r.desc) more.push('<div class="ev-desc"><h4>' + (isZh ? '活动介绍' : 'Description') + '</h4><p' + (isZh ? '' : ' lang="zh-CN"') + '>' + esc(r.desc).replace(/\n/g, '<br>') + '</p></div>');
+    if (r.desc) { var dEn = !isZh && r.desc_en; more.push('<div class="ev-desc"><h4>' + (isZh ? '活动介绍' : 'Description') + '</h4><p' + (isZh || dEn ? '' : ' lang="zh-CN"') + '>' + esc(dEn ? r.desc_en : r.desc).replace(/\n/g, '<br>') + '</p></div>'); }
     var badges = '';
     if (hl) { var ou = (r.links && r.links.other) || '', own = /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(ou);
       badges += own ? '<a class="china-badge china-badge-own" href="' + esc(isZh ? ou + 'zh/' : ou) + '">' + (UI.ourEvent || 'Our event') + '</a>' : '<span class="china-badge">' + (UI.ourEvent || 'Our event') + '</span>'; }
