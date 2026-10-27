@@ -286,7 +286,7 @@
     });
     var allDated = data.filter(function(r){ return r.kind === 'event' && r.start; }).sort(function(a,b){ return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
     var allTba = data.filter(function(r){ return r.kind === 'event' && !r.start; });
-    html.push('<div class="china-chrono" hidden><h2 class="china-city-head">' + (UI.allCitiesChrono || 'All cities · Events by start date') + ' <span class="china-count"></span></h2><ul class="china-list ev-list">' + allDated.concat(allTba).map(function(r){ return card(r); }).join('') + '</ul></div>');
+    html.push('<div class="china-chrono" hidden><h2 class="china-city-head">' + (UI.allCitiesChrono || 'All cities · Featured events by start date') + ' <span class="china-count"></span></h2><ul class="china-list ev-list">' + allDated.concat(allTba).map(function(r){ return card(r); }).join('') + '</ul></div>');
     root.innerHTML = html.join('');
   }
   function activeRange(){
