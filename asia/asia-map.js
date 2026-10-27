@@ -330,9 +330,10 @@
       if (allOpt) { if (!allOpt.parentNode) citySel.insertBefore(allOpt, phOpt ? phOpt.nextSibling : citySel.options[0]); allOpt.hidden = false; allOpt.disabled = false; citySel.selectedIndex = allOpt.index; }
     } else {
       var cur = citySel.value;
-      if (allOpt && allOpt.parentNode) allOpt.parentNode.removeChild(allOpt);
+      if (allOpt) { if (!allOpt.parentNode) citySel.insertBefore(allOpt, phOpt ? phOpt.nextSibling : citySel.options[0]); allOpt.hidden = false; allOpt.disabled = false; }
       var keep = cur && cur !== 'all' && has[cur] ? cur : ((citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '');
       if (keep) { if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; } citySel.value = keep; }
+      else if (allOpt) { if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; } citySel.selectedIndex = allOpt.index; }
       else if (phOpt) { phOpt.hidden = false; phOpt.disabled = false; if (citySel.options[0] !== phOpt) citySel.insertBefore(phOpt, citySel.options[0]); citySel.selectedIndex = phOpt.index; }
     }
     citySel.disabled = ev;
