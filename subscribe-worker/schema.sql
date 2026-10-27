@@ -1,7 +1,5 @@
-CREATE TABLE IF NOT EXISTS email_subs(
-  email TEXT PRIMARY KEY, lang TEXT, status TEXT NOT NULL DEFAULT 'pending', -- pending|active|unsubscribed
-  verify_token TEXT, verify_expires INTEGER, unsub_token TEXT NOT NULL,
-  created_at TEXT NOT NULL, verified_at TEXT, unsubscribed_at TEXT);
-CREATE TABLE IF NOT EXISTS wechat_ids(
-  id INTEGER PRIMARY KEY AUTOINCREMENT, wechat TEXT NOT NULL, lang TEXT,
-  created_at TEXT NOT NULL, reviewed INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS subs(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, created_at TEXT NOT NULL,
+  email TEXT, wechat TEXT, types TEXT NOT NULL, cities TEXT NOT NULL,
+  lang TEXT, ip_hash TEXT, is_test INTEGER NOT NULL DEFAULT 0, mail_status TEXT);
+CREATE INDEX IF NOT EXISTS subs_ip ON subs(ip_hash, created_at);

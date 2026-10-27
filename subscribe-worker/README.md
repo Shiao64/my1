@@ -1,8 +1,9 @@
-# tango-subscribe (DRAFT, not deployed)
-Cloudflare Worker + D1 + Email Sending for the Asia Tango Map subscribe form (asia/asia-subscribe.js).
-- POST /subscribe {email?, wechat?, lang} — at least one field. Email → pending + double opt-in mail (link valid 24h). WeChat → stored with timestamp for manual review.
-- GET /verify?t=… → active. GET|POST /unsubscribe?t=… (link + List-Unsubscribe one-click in every mail).
-Setup: `wrangler d1 create tango-subscribe` → put id in wrangler.toml → `wrangler d1 execute tango-subscribe --remote --file schema.sql` → onboard tangoweekend.org in Email Service (SPF/DKIM) → set SENDER → add custom domain api.tangoweekend.org (workers.dev is blocked in China) → `wrangler deploy`.
-Review WeChat IDs: `wrangler d1 execute tango-subscribe --remote --command "select * from wechat_ids where reviewed=0"`.
-Monthly summary sender: not built (planned as a routine).
-Local test: `wrangler d1 execute tango-subscribe --local --file schema.sql && wrangler dev --var API_BASE:http://localhost:8787`.
+# tango-subscribe — DEPLOYED 2026-10-27 (Workers Free)
+Collect-only "event alerts" API for the Asia map form (asia/asia-subscribe.js).
+- Endpoint: https://api.tangoweekend.org (Worker custom domain). `POST /subscribe`, `GET /health`.
+- Body: {types:['featured'|'regular'], cities:[...] (regular only, empty = all), email?, wechat?, lang, website(honeypot)}
+- Stores rows in D1 `tango-subscribe` (1b462639-75a1-4dcf-9b15-eab807e4b295), table `subs`.
+- Notifies selecttango@gmail.com via Email Routing send_email binding (destination_address), From subscribe@tangoweekend.org. No mail to subscribers.
+- CORS + Origin check: tangoweekend.org and www only. Spam: honeypot field + max 5 submissions per IP-hash per 60 min.
+- `disabled/double-optin-index.js`: earlier double opt-in/unsubscribe version, NOT deployed.
+Read rows: `wrangler d1 execute tango-subscribe --remote --command "select * from subs order by id desc"`.

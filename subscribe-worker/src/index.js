@@ -1,101 +1,70 @@
-// Asia Tango Map subscription API (draft 2026-10-27)
-// POST /subscribe {email?, wechat?, lang}  GET /verify?t=  GET /unsubscribe?t=
-const T = {
-  zh: {
-    subj: '请确认订阅亚洲探戈地图活动汇总',
-    body: l => `请在24小时内点击下面的链接确认订阅：\n${l}\n\n如果不是您本人操作，请忽略这封邮件。`,
-    ok: '订阅成功！每月初您会收到活动汇总。',
-    bad: '链接无效或已过期，请重新订阅。',
-    unsub: '已退订，您不会再收到活动汇总。',
-    unsubLine: '退订', foot: '随时可退订，不会把您的信息给别人。',
-    back: '返回亚洲探戈地图', home: 'https://tangoweekend.org/zh/asia/'
-  },
-  en: {
-    subj: 'Confirm your Asia Tango Map subscription',
-    body: l => `Click this link within 24 hours to confirm:\n${l}\n\nIf this wasn't you, just ignore this email.`,
-    ok: "You're subscribed! Expect your first summary early next month.",
-    bad: 'This link is invalid or has expired. Please subscribe again.',
-    unsub: "You're unsubscribed. You won't get any more summaries.",
-    unsubLine: 'Unsubscribe', foot: 'Unsubscribe anytime. We never share your info.',
-    back: 'Back to the Asia Tango Map', home: 'https://tangoweekend.org/asia/'
-  }
-};
+// Asia Tango Map "event alerts" collector (Workers Free).
+// POST /subscribe {types:['featured','regular'], cities:[], email?, wechat?, lang, website(honeypot), test?}
+// Stores in D1 and notifies the owner through Email Routing (send_email binding with destination_address).
+// The double opt-in / unsubscribe flow is kept in ../disabled/ and is NOT active.
+import { EmailMessage } from 'cloudflare:email';
+
+const ORIGINS = ['https://tangoweekend.org', 'https://www.tangoweekend.org'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const DAY = 86400000;
-const tok = () => [...crypto.getRandomValues(new Uint8Array(24))].map(b => b.toString(16).padStart(2, '0')).join('');
-const now = () => new Date().toISOString();
-const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const RATE_MAX = 5, RATE_WIN_MIN = 60;
 
-function cors(req, env) {
-  const o = req.headers.get('Origin') || '';
-  const ok = env.ALLOWED_ORIGINS.split(',').includes(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
-  return ok ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' } : {};
-}
+const cors = o => ORIGINS.includes(o) ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' } : {};
 const json = (d, s, h) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
-function page(lang, msg) {
-  const t = T[lang] || T.en;
-  return new Response(`<!doctype html><html lang="${lang === 'zh' ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(msg)}</title>
-<body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
-<p style="font-size:1.1rem;color:#0a4f57;font-weight:700">${esc(msg)}</p><p><a href="${t.home}" style="color:#0e6e78">${t.back}</a></p><p style="font-size:.8rem;color:#7a6255">${t.foot}</p></div></body></html>`, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
-}
+const b64 = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
+const shTime = () => new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + '（北京时间）';
+async function sha(s) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].slice(0, 12).map(b => b.toString(16).padStart(2, '0')).join(''); }
 
-async function sendVerify(env, email, lang, vtok, utok) {
-  const t = T[lang];
-  if (env.TEST_ONLY_RECIPIENT && email !== env.TEST_ONLY_RECIPIENT) throw new Error('recipient not allowed in test mode');
-  const v = `${env.API_BASE}/verify?t=${vtok}`, u = `${env.API_BASE}/unsubscribe?t=${utok}`;
-  return env.EMAIL.send({
-    from: { email: env.SENDER, name: env.SENDER_NAME }, to: email, subject: t.subj,
-    text: `${t.body(v)}\n\n${t.foot}\n${t.unsubLine}: ${u}`,
-    html: `<p>${esc(t.body('')).replace(/\n/g, '<br>')}</p><p><a href="${v}">${v}</a></p><hr><p style="font-size:12px;color:#777">${t.foot} <a href="${u}">${t.unsubLine}</a></p>`,
-    headers: { 'List-Unsubscribe': `<${u}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }
-  });
+function mime(from, to, subject, text) {
+  const id = `<${crypto.randomUUID()}@tangoweekend.org>`;
+  return [`From: Asia Tango Map <${from}>`, `To: ${to}`, `Subject: =?UTF-8?B?${b64(subject)}?=`, `Message-ID: ${id}`,
+    `Date: ${new Date().toUTCString()}`, 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: base64', '', b64(text).replace(/.{76}/g, '$&\r\n')].join('\r\n');
 }
 
 async function subscribe(req, env, h) {
   let b; try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400, h); }
+  if (b.website) return json({ ok: true }, 200, h); // honeypot: pretend success, store nothing
   const lang = b.lang === 'zh' ? 'zh' : 'en';
+  const types = (Array.isArray(b.types) ? b.types : []).filter(t => t === 'featured' || t === 'regular');
   const email = String(b.email || '').trim().toLowerCase().slice(0, 254);
   const wechat = String(b.wechat || '').trim().slice(0, 64);
-  if (!email && !wechat) return json({ error: 'need_one' }, 400, h);
+  const cities = types.includes('regular') ? (Array.isArray(b.cities) ? b.cities : []).map(c => String(c).trim().slice(0, 40)).filter(Boolean).slice(0, 40) : [];
+  if (!types.length) return json({ error: 'need_type' }, 400, h);
+  if (!email && !wechat) return json({ error: 'need_contact' }, 400, h);
   if (email && !EMAIL_RE.test(email)) return json({ error: 'bad_email' }, 400, h);
-  const res = {};
-  if (wechat) {
-    await env.DB.prepare('INSERT INTO wechat_ids(wechat,lang,created_at) VALUES(?,?,?)').bind(wechat, lang, now()).run();
-    res.wechat = 'stored';
-  }
-  if (email) {
-    const row = await env.DB.prepare('SELECT status,unsub_token FROM email_subs WHERE email=?').bind(email).first();
-    if (row && row.status === 'active') res.email = 'sent'; // don't reveal membership; no new mail
-    else {
-      const vt = tok(), ut = row?.unsub_token || tok();
-      await env.DB.prepare(`INSERT INTO email_subs(email,lang,status,verify_token,verify_expires,unsub_token,created_at) VALUES(?,?,'pending',?,?,?,?)
-        ON CONFLICT(email) DO UPDATE SET lang=excluded.lang,status='pending',verify_token=excluded.verify_token,verify_expires=excluded.verify_expires`)
-        .bind(email, lang, vt, Date.now() + DAY, ut, now()).run();
-      try { await sendVerify(env, email, lang, vt, ut); res.email = 'sent'; }
-      catch (e) { console.log('send fail', e.message); return json({ ...res, error: 'send_failed' }, 502, h); }
-    }
-  }
-  return json({ ok: true, ...res }, 200, h);
+  const isTest = b.test ? 1 : 0;
+
+  const ip = await sha((req.headers.get('CF-Connecting-IP') || '') + (env.IP_SALT || 'tw'));
+  const since = new Date(Date.now() - RATE_WIN_MIN * 60000).toISOString();
+  const n = await env.DB.prepare('SELECT COUNT(*) n FROM subs WHERE ip_hash=? AND created_at>?').bind(ip, since).first('n');
+  if (n >= RATE_MAX) return json({ error: 'rate_limited' }, 429, h);
+
+  const now = new Date().toISOString();
+  const ins = await env.DB.prepare('INSERT INTO subs(created_at,email,wechat,types,cities,lang,ip_hash,is_test) VALUES(?,?,?,?,?,?,?,?)')
+    .bind(now, email || null, wechat || null, types.join(','), cities.join(',') || 'all', lang, ip, isTest).run();
+  const id = ins.meta.last_row_id;
+
+  const typeZh = types.map(t => t === 'featured' ? '特色活动' : '常规活动').join('、');
+  const text = [`${isTest ? '【测试】' : ''}亚洲探戈地图 新订阅 #${id}`, '',
+    `邮箱：${email || '（未填）'}`, `微信名：${wechat || '（未填）'}`, `活动类型：${typeZh}`,
+    `城市：${types.includes('regular') ? (cities.join('、') || '全部城市') : '—（特色活动不分城市）'}`,
+    `时间：${shTime()}`, `页面语言：${lang === 'zh' ? '中文' : 'English'}`].join('\n');
+  let status = 'sent';
+  try { await env.EMAIL.send(new EmailMessage(env.SENDER, env.NOTIFY_TO, mime(env.SENDER, env.NOTIFY_TO, `${isTest ? '[测试] ' : ''}新订阅 #${id} ${wechat || email}`, text))); }
+  catch (e) { status = 'fail: ' + String(e.message || e).slice(0, 200); console.log('notify failed', status); }
+  await env.DB.prepare('UPDATE subs SET mail_status=? WHERE id=?').bind(status, id).run();
+  return json({ ok: true, id }, 200, h);
 }
 
 export default {
   async fetch(req, env) {
-    const url = new URL(req.url), h = cors(req, env);
+    const url = new URL(req.url), h = cors(req.headers.get('Origin') || '');
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
-    if (url.pathname === '/subscribe' && req.method === 'POST') return subscribe(req, env, h);
-    const t = url.searchParams.get('t') || '';
-    if (url.pathname === '/verify') {
-      const r = await env.DB.prepare('SELECT email,lang,verify_expires FROM email_subs WHERE verify_token=?').bind(t).first();
-      if (!t || !r || r.verify_expires < Date.now()) return page(r?.lang || 'en', T[r?.lang || 'en'].bad);
-      await env.DB.prepare("UPDATE email_subs SET status='active',verify_token=NULL,verified_at=? WHERE email=?").bind(now(), r.email).run();
-      return page(r.lang, T[r.lang].ok);
+    if (url.pathname === '/subscribe' && req.method === 'POST') {
+      if (!h['Access-Control-Allow-Origin']) return json({ error: 'forbidden_origin' }, 403);
+      return subscribe(req, env, h);
     }
-    if (url.pathname === '/unsubscribe') {
-      const r = await env.DB.prepare('SELECT email,lang FROM email_subs WHERE unsub_token=?').bind(t).first();
-      if (!t || !r) return page('en', T.en.bad);
-      await env.DB.prepare("UPDATE email_subs SET status='unsubscribed',unsubscribed_at=? WHERE email=?").bind(now(), r.email).run();
-      return page(r.lang, T[r.lang].unsub);
-    }
+    if (url.pathname === '/health') return json({ ok: true }, 200, h);
     return json({ error: 'not_found' }, 404, h);
   }
 };

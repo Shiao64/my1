@@ -1,20 +1,17 @@
 name = "tango-subscribe"
 main = "src/index.js"
-compatibility_date = "2026-05-01"
-# Custom domain is planned (workers.dev is blocked in China). Not active until DNS is approved:
-# routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
+compatibility_date = "2026-10-15"
+routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
 
 [vars]
-API_BASE = "https://api.tangoweekend.org"     # used in links inside emails
-SENDER = "subscribe@tangoweekend.org"         # TODO: owner to confirm; must be on an onboarded Email Service domain
-SENDER_NAME = "Asia Tango Map"
-ALLOWED_ORIGINS = "https://tangoweekend.org,https://www.tangoweekend.org"
-TEST_ONLY_RECIPIENT = ""                     # set to an address during tests: all other recipients are refused
+SENDER = "subscribe@tangoweekend.org"
+NOTIFY_TO = "selecttango@gmail.com"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "tango-subscribe"
-database_id = "REPLACE_AFTER_wrangler_d1_create"
+database_id = "1b462639-75a1-4dcf-9b15-eab807e4b295"
 
 [[send_email]]
 name = "EMAIL"
+destination_address = "selecttango@gmail.com"
