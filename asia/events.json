@@ -2718,6 +2718,511 @@
     "tba": false
   },
   {
+    "id": "jJF3jGTO",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Sunderland Practica",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "19:30–22:30",
+    "venue": "中山北路3175号2楼",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R028 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "rkEVJzNy",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga Iris 虹(月度)",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "14:30–19:00",
+    "venue": "余姚路583号",
+    "venue_address": "上海静安区余姚路583号Te Amo Tango Lounge",
+    "venue_address_en": null,
+    "organizers": [
+      "A.F.Mike"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R030 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "yEMeyoRB",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "MilongaCool",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": null,
+    "venue": "STP 中山北路3175号",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "venue_address_en": null,
+    "organizers": [
+      "TangoCool"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R031 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "vx4unptI",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "ESSA 周六舞会",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–23:30",
+    "venue": "STP",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "venue_address_en": null,
+    "organizers": [
+      "ESSA",
+      "Maggie"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R032 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "Xed2yn0z",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "T.A Tango 老友记舞会",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:30–00:00",
+    "venue": null,
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [
+      "王凌骏"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R033 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "aHyQ9jo9",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga de Ensueños 白日梦",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "14:30–18:30",
+    "venue": "余姚路583号 Te Amo",
+    "venue_address": "上海静安区余姚路583号Te Amo Tango Lounge",
+    "venue_address_en": null,
+    "organizers": [
+      "张真艺"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R034 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "cnKFTWhJ",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Tango Motion Lab",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:30–22:30",
+    "venue": "STP",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "venue_address_en": null,
+    "organizers": [
+      "TangoCool(Gaby)"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R035 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "7BeLTwU2",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga Mascarita",
+    "city": "Hong Kong",
+    "country": "China",
+    "region": "Hong Kong",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5,
+      6
+    ],
+    "time": "21:25–01:00",
+    "venue": "Danzstage",
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [
+      "DJ Ray"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R062 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "QTAIryfb",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Practica Mascarita",
+    "city": "Hong Kong",
+    "country": "China",
+    "region": "Hong Kong",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": null,
+    "venue": "Danzstage",
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R063 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "nnB7nBBt",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango Viva",
+    "city": "Hong Kong",
+    "country": "China",
+    "region": "Hong Kong",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": null,
+    "venue": null,
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R065 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "1IDae6jO",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "VM Viernes Milonga",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–",
+    "venue": null,
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R066 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "FtwIAl4r",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Baile del Domingo",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:00–19:00",
+    "venue": null,
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R067 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "5JxiMSv9",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "LegendsTango Practica",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": null,
+    "venue": null,
+    "venue_address": "广州市越秀区明月一路明月阁1706",
+    "venue_address_en": null,
+    "organizers": [
+      "Legends Tango"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R045 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "D5AGGc1E",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Pablo 周四练习",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": null,
+    "venue": null,
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [
+      "Pablo"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R050 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "ezLCfNin",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "CheeEr-In 周六舞会",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "15:00–19:00",
+    "venue": "前海卓越时代广场D栋203-207",
+    "venue_address": "深圳市宝安区海天路前海卓越时代广场D栋203–207",
+    "venue_address_en": null,
+    "organizers": [
+      "Ken Wong",
+      "SC Lee"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R052 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
+    "id": "0zjiFfsT",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "修老师 练习场",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": null,
+    "venue": null,
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [
+      "修老师"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "探戈雷达汇总表 R059 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
+  },
+  {
     "id": "cwCbtm27",
     "featured": true,
     "kind": "event",
