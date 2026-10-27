@@ -23,6 +23,7 @@
     var n = new Date(), y = n.getFullYear(), m = n.getMonth()+1, d = n.getDate();
     fromEl.value = y + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d;
   })();
+  (function(){ var s = document.querySelector('.atm-date-default'); if (!s || !fromEl) return; function pos(){ s.style.left = (fromEl.offsetLeft + fromEl.offsetWidth + 8) + 'px'; } pos(); window.addEventListener('resize', pos); window.addEventListener('load', pos); })();
   var CUTOFF = (function(){
     var t = new Date(), n = new Date(t.getFullYear(), t.getMonth() - 1, 1);
     n.setDate(Math.min(t.getDate(), new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate()));
