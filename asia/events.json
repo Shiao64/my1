@@ -215,10 +215,12 @@
     "links": {
       "facebook": null,
       "video": null,
-      "other": null
+      "other": null,
+      "wechat": "https://mp.weixin.qq.com/s/kl1svASJ8ET0Q_vJK1jbug",
+      "wechat_label_zh": "阅读公众号文章"
     },
     "source": "探戈会 VTANGO",
-    "updated": "2026-10-24",
+    "updated": "2026-10-28",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
@@ -227,7 +229,8 @@
       "phone": "010-8532-2418",
       "wechat_id": "Changge_chen",
       "wechat_label": "Rose 常歌 / ala_house"
-    }
+    },
+    "poster": "/images/asia/posters/R009.jpg"
   },
   {
     "id": "GxMrByRQ",
