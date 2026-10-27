@@ -2760,5 +2760,39 @@
     },
     "source": "tangoweekend.org",
     "updated": "2026-10-26"
+  },
+  {
+    "id": "E004",
+    "kind": "event",
+    "type": "milonga",
+    "name": "Infinity Tango 3rd Anniversary Grand Milonga",
+    "name_zh": "Infinity Tango 三周年 Grand Milonga",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": "2026-10-31",
+    "end": "2026-10-31",
+    "weekday": null,
+    "weekdays": null,
+    "time": "20:00–24:00",
+    "venue": "茂名大厦313",
+    "venue_address": "上海市永嘉路35号茂名大厦313",
+    "venue_address_en": "Room 313, Maoming Building, No. 35 Yongjia Road, Shanghai",
+    "organizers": [
+      "Infinity Tango"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null,
+      "wechat": "https://mp.weixin.qq.com/s/uhQ_jFK_ioJiiJeuUu_eaw",
+      "wechat_label": "Read WeChat article",
+      "wechat_label_zh": "阅读公众号文章"
+    },
+    "source": "user:wechat-article",
+    "updated": "2026-10-28",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
   }
 ]

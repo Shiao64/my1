@@ -128,7 +128,7 @@
     if (L.facebook && !isZh) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
     if (L.register) out.push('<a class="china-linkbtn china-linkbtn-reg" href="' + esc(L.register) + '" target="_blank" rel="noopener">' + (isZh ? '报名' : 'Register') + '</a>');
     if (L.other && !(isZh && isFb(L.other))) out.push('<a class="china-linkbtn" href="' + esc(/^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other)) + '" target="_blank" rel="noopener">' + (UI.website || 'Website') + '</a>');
-    if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + (UI.wechat || 'WeChat') + '</a>');
+    if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + esc((isZh ? L.wechat_label_zh : L.wechat_label) || UI.wechat || 'WeChat') + '</a>');
     if (L.video) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">' + (UI.video || 'Video') + '</a>');
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
   }
@@ -192,7 +192,7 @@
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
     return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="' + esc(pp) + '" alt="" loading="lazy" style="object-position:' + esc(r.poster_pos || 'center top') + '"></a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(c[0]) + '" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
-      '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
+      '<h3 class="ev-name">' + esc((isZh && r.name_zh) || r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
   function group(title, items, cls){
     if (!items.length) return '';
