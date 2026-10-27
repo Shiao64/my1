@@ -9,7 +9,7 @@
 <style>
 body{margin:0;background:var(--cream,#fbf5e9)}
 .r16{max-width:480px;margin:0 auto;padding:12px 12px 32px}
-.r16-poster{display:block;border-radius:16px 16px 0 0;overflow:hidden;cursor:pointer;line-height:0}
+.r16-poster{position:relative;display:block;border-radius:16px 16px 0 0;overflow:hidden;cursor:pointer;line-height:0}
 .r16-poster img{width:100%;height:auto;display:block}
 .r16-card{position:relative;z-index:2;margin-top:calc(-0.25 * 1608 / 900 * min(100vw - 24px, 456px));display:flex;flex-direction:column;gap:5px;padding:12px 14px 14px;border:1px solid #ead9b8;border-radius:16px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12);color:#2a1a14;cursor:pointer}
 .r16-k{align-self:flex-start;background:#0e6e78;color:#F6D58E;border-radius:999px;padding:1px 9px;font-size:.62rem;letter-spacing:.06em;font-weight:700}
@@ -23,18 +23,22 @@ body{margin:0;background:var(--cream,#fbf5e9)}
 .r16-box p{margin:0 0 10px;font-size:.92rem;line-height:1.65;color:#2a1a14}
 .r16-box .meta{font-size:.78rem;color:#7a6255}
 .r16-x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:1.6rem;line-height:1;cursor:pointer;color:#555}
+.r16-wm{display:none;position:absolute;top:12px;right:12px;z-index:3;padding:4px 12px;border-radius:999px;background:rgba(0,0,0,.45);color:rgba(255,255,255,.92);font-size:.85rem;font-weight:700;letter-spacing:.04em;line-height:1.4}
+.r16-stale .r16-wm{display:block}
 </style>
 </head>
-<body class="hz-theme">
+<body class="hz-theme" data-updated="2026-10-27">
 <div class="atm-bar atm-sticky"><a class="atm-map" href="../../asia/"><span aria-hidden="true">←</span> Asia Tango Map</a><a class="atm-lang" href="zh/">中文</a></div>
 <main class="r16">
-<a class="r16-poster" href="#desc" data-open><img src="../../images/asia/posters/R016.jpg" alt="MiTango Practica · Shanghai (Tuesday)" width="900" height="1608"></a>
+<a class="r16-poster" href="#desc" data-open><span class="r16-wm">No recent update</span><img src="../../images/asia/posters/R016.jpg" alt="MiTango Practica · Shanghai (Tuesday)" width="900" height="1608"></a>
 <div class="r16-card" data-open role="button" tabindex="0"><span class="r16-k">PRACTICA</span><strong>MiTango Practica</strong><ul><li>City: Shanghai</li><li>When: Every Tuesday, 8:00–10:30 PM</li><li>Venue: 6F, Hualin Building, No. 190 Caoxi Road, Xuhui District, Shanghai</li><li>Entry: ¥50</li><li>Organizers: Shelley Hou, 徐老师</li><li>WeChat / phone: 15601854223</li><li>Website: www.mitango.cn</li></ul><span class="r16-more">Read description →</span></div>
 </main>
 <div class="r16-modal" id="r16m" role="dialog" aria-modal="true" aria-label="Description (original, Chinese)"><div class="r16-box"><button class="r16-x" type="button" aria-label="Close">×</button><h2>Description (original, Chinese)</h2><p lang="zh-CN">今晚周二 MiTango的阿根廷探戈练习舞会，欢迎大家来跳跳舞，聊聊天，本舞会欢迎大家自带酒水，也提供存酒服务，喜欢喝酒的欢迎自己带酒来舞会哦，期待大家的到来哦。<br><br>⏰：周二 20:00-22:30<br>🎫：门票¥50<br><br>📍上海徐汇区漕溪路190号华林大楼6层 MiTango<br>6th floor, No. 190 Caoxi Road, Xu hui District, Shanghai | MiTango<br><br>停车：隔壁汇阳广场24小时地下停车场，10/小</p><p class="meta">Source: Tango in China WeChat group, Shelley Hou, Oct 27, 2026, 12:02</p></div></div>
 <script>(function(){var m=document.getElementById('r16m');function o(e){e&&e.preventDefault();m.classList.add('open')}function c(){m.classList.remove('open')}
 document.querySelectorAll('[data-open]').forEach(function(el){el.addEventListener('click',o)});
 document.querySelector('.r16-x').addEventListener('click',c);m.addEventListener('click',function(e){if(e.target===m)c()});document.addEventListener('keydown',function(e){if(e.key==='Escape')c()});
-if(location.hash==='#desc')o();})();</script>
+if(location.hash==='#desc')o();
+// Watermark when no new poster/description for >14 days. data-updated = last update; ?stale=1 forces demo.
+var u=document.body.getAttribute('data-updated');if(/[?&]stale=1/.test(location.search)||(u&&(Date.now()-new Date(u+'T00:00:00+08:00'))>14*864e5))document.body.classList.add('r16-stale');})();</script>
 </body>
 </html>
