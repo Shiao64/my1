@@ -178,7 +178,7 @@
     }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
     if (r.organizers && r.organizers.length) { var oe = organizersText(r.organizers); if (oe) body.push(line(UI.organizer || 'Organizer', esc(oe))); }
-    if (r.note) body.push('<div class="ev-line china-announce' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> ' + esc(r.note) + '</div>');
+    if (r.note) body.push('<div class="ev-line china-announce' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> ' + esc((!isZh && r.note_en) || r.note) + '</div>');
     var cb = contactBlock(r); if (cb) body.push(cb);
     var badges = '';
     if (hl) { var ou = (r.links && r.links.other) || '', own = /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(ou);
@@ -487,7 +487,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events.json?v=china258';
+  var eventsUrl = UI.eventsUrl || 'events.json?v=china259';
   fetch(eventsUrl, {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
