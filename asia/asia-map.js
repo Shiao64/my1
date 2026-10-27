@@ -143,6 +143,7 @@
   var OWN_IMG = { 'hangzhou-2026-tango-festival': ['/images/hangzhou/poster.jpg','center 12%'],
     'chongqing-2026-tango-festival': [isZh ? '/images/chongqing/poster.jpg' : '/images/chongqing/poster_en.jpg','center 6%'],
     'miaoli-2026-tango-marathon': ['/images/miaoli/poster.jpg','center 10%'],
+    'suzhou-2026-tango-blast-festival': ['/images/suzhou/poster.jpg','center 8%'],
     'changwon-2027-tango-marathon': [isZh ? '/images/changwon/schedule2027_zh.jpg?v=8' : '/images/changwon/schedule2027_en.jpg?v=7','center 40%'] };
   var BJ_IMG = ['/images/poster4_top.jpg','center 14%'];
   function ownCover(r){
@@ -209,7 +210,7 @@
     function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
     function href(r){ var L = r.links || {}, u = L.other || L.register || L.facebook || ''; return isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(u) ? u + 'zh/' : u; }
     var IMG = OWN_IMG;
-    var ZHN = { 'hangzhou-2026-tango-festival': '杭州金沙国际探戈节', 'chongqing-2026-tango-festival': '2026火辣探戈周末·第九届重庆探戈节', 'miaoli-2026-tango-marathon': '台湾探戈马拉松', 'changwon-2027-tango-marathon': '2027韩国昌原樱花探戈马拉松' };
+    var ZHN = { 'hangzhou-2026-tango-festival': '杭州金沙国际探戈节', 'chongqing-2026-tango-festival': '2026火辣探戈周末·第九届重庆探戈节', 'miaoli-2026-tango-marathon': '台湾探戈马拉松', 'suzhou-2026-tango-blast-festival': '2026苏州探戈节', 'changwon-2027-tango-marathon': '2027韩国昌原樱花探戈马拉松' };
     function card(u, img, pos, name, meta, tag){
       return '<a class="tw-fc" href="' + esc(u) + '">' + (img ? '<span class="tw-fc-img"><img src="' + esc(img) + '" alt="" loading="lazy" style="object-position:' + pos + '"></span>' : '') +
         '<span class="tw-fc-body"><span class="tw-m-feat-k">' + (tag || (isZh ? '收藏' : 'FAVORITES')) + '</span><strong>' + esc(name) + '</strong><span class="tw-fc-meta">' + esc(meta) + '</span></span></a>'; }

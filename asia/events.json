@@ -1185,31 +1185,32 @@
     "id": "nTUlADFZ",
     "kind": "event",
     "type": "festival",
-    "name": "Suzhou Tango Festival",
+    "name": "TangoBlast Festival Suzhou 2026",
     "city": "Suzhou",
     "country": "China",
     "region": "China",
-    "start": null,
-    "end": null,
+    "start": "2026-12-04",
+    "end": "2026-12-06",
     "weekday": null,
     "weekdays": null,
     "time": null,
     "venue": null,
     "venue_address": null,
     "organizers": [
-      "Hao Ran Shi"
+      "sam / Tango Blast"
     ],
     "links": {
       "facebook": "https://www.facebook.com/groups/450361238889848/",
       "video": null,
-      "other": null
+      "other": "https://tangoweekend.org/event/suzhou-2026-tango-blast-festival/"
     },
-    "source": "OnlyTangoInfo",
-    "updated": "2026-10-24",
+    "source": "manual:poster+wechat",
+    "updated": "2026-10-28",
     "hidden": false,
     "hidden_reason": null,
-    "tba": true,
-    "poster": "/images/asia/posters/E012.jpg"
+    "tba": false,
+    "poster": "/images/asia/posters/E012.jpg",
+    "featured": true
   },
   {
     "id": "TUHKwYQN",
