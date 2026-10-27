@@ -9,7 +9,7 @@
     submit: '订阅', sending: '提交中…', ok: '已收到，谢谢！我们会把活动提醒发给您。',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
   } : {
-    btn: '✉ New activity alerts', title: 'New activity alerts', desc: 'We email new events every week, and post new events in our WeChat group from time to time. If you leave your WeChat ID, you\'ll get an invite to the Asia Tango Map WeChat group, where event news is posted.',
+    btn: '✉ Get event alert', title: 'New activity alerts', desc: 'We email new events every week, and post new events in our WeChat group from time to time. If you leave your WeChat ID, you\'ll get an invite to the Asia Tango Map WeChat group, where event news is posted.',
     email: 'Email', emailPh: 'name@example.com', wx: 'WeChat ID', wxPh: 'Your WeChat ID', hint: 'Fill in a WeChat ID or an email (at least one)',
     need: 'Please enter a WeChat ID or an email.', bad: 'Please check your email address.',
     submit: 'Subscribe', sending: 'Sending…', ok: "Got it, thank you! We'll send you event alerts.",
