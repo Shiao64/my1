@@ -1927,3 +1927,8 @@ body.china-page .atm-form #china-search.atm-nocity{cursor:not-allowed!important}
 .ev-card .ev-cover{display:block;margin:-14px -16px 12px;aspect-ratio:4/3;overflow:hidden;border-radius:13px 13px 0 0;background:#eee}
 .ev-card .ev-cover img{display:block;width:100%;height:100%;object-fit:cover}
 @media (max-width:719px){.ev-card .ev-cover{aspect-ratio:16/9}}
+
+/* Unverified stamp watermark (draft 2026-10-27) */
+.ev-card.ev-unverified{position:relative;overflow:hidden}
+.ev-card.ev-unverified::after{content:attr(data-stamp);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-15deg);border:3px solid rgba(160,20,40,.45);border-radius:6px;padding:.15em .6em;font-size:1.6rem;font-weight:800;letter-spacing:.12em;color:rgba(160,20,40,.32);pointer-events:none;white-space:nowrap;z-index:2;font-family:inherit}
+@media (max-width:600px){.ev-card.ev-unverified::after{font-size:1.3rem}}
