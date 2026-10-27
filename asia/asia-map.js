@@ -3,7 +3,7 @@
   var UI = window.CHINA_UI || {};
   var isZh = UI.lang === 'zh';
   var citySel = document.getElementById('china-city');
-  var PH_TXT = /^zh/.test(document.documentElement.lang || '') ? '请选城市' : 'Select a city';
+  var PH_TXT = /^zh/.test(document.documentElement.lang || '') ? '城市' : 'City';
   if (citySel && !citySel.querySelector('option[value=""]')) { var phO = document.createElement('option'); phO.value = ''; phO.textContent = PH_TXT; citySel.insertBefore(phO, citySel.firstChild); }
   function cityHint(on){ if (!citySel) return; var w = citySel.parentNode, h = w.querySelector('.atm-city-hint');
     citySel.classList.toggle('atm-city-err', !!on);
