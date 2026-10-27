@@ -198,11 +198,12 @@
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
       '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + (more.length ? '<div class="ev-more-hint">' + (isZh ? '点击查看详情' : 'Tap for details') + '</div><div class="ev-more" hidden>' + more.join('') + '</div>' : '') + '</li>';
   }
+  var prevC = -1;
   function group(title, items, cls){
     if (!items.length) return '';
     var hp = function(r){ return !!(r.poster || r.poster_zh || r.poster_en); };
     items = items.filter(hp).concat(items.filter(function(r){ return !hp(r); }));
-    var prevC = -1; items.forEach(function(r){ if (hp(r)) { prevC = -1; return; } var h = 0, id = String(r.id || r.name || ''); for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; var c = h % 3; if (c === prevC) c = (c + 1) % 3; r._phc = c; prevC = c; });
+    items.forEach(function(r){ if (hp(r)) { return; } var h = 0, id = String(r.id || r.name || ''); for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0; var c = h % 3; if (c === prevC) c = (c + 1) % 3; r._phc = c; prevC = c; });
     return '<div class="china-group' + (cls ? ' ' + cls : '') + '"><h3 class="china-sub-head">' + title + '</h3><ul class="china-list ev-list">' + items.map(card).join('') + '</ul></div>';
   }
   function renderFeatList(data){
