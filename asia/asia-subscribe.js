@@ -15,8 +15,10 @@
     submit: 'Subscribe', sending: 'Sending…', ok: "Got it, thank you! We'll send you event alerts.",
     fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Unsubscribe anytime. We never share your info.', close: 'Close'
   };
-  var css = '.tsub-row{display:flex;justify-content:center;margin:10px 0 0}' +
-    '.tsub-open{background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;border-radius:999px;padding:7px 18px;font-size:.9rem;font-weight:700;cursor:pointer}.tsub-open:hover{filter:brightness(1.1)}' +
+  var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
+    '.tsub-open{background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;border-radius:999px;padding:5px 14px;font-size:.78rem;font-weight:700;line-height:1.2;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:background .15s,transform .15s}' +
+    '.tsub-open:hover{background:#128591;transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.3)}' +
+    '@media (max-width:600px){.china-hero-bar:has(.tsub-pair){flex-wrap:wrap!important;row-gap:8px}.china-hero-bar .tsub-pair{order:9;flex:1 1 100%;margin:0;justify-content:flex-start}}' +
     '#tsub-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}#tsub-modal[hidden]{display:none}' +
     '#tsub-modal .tsub-bg{position:absolute;inset:0;background:rgba(6,51,58,.6)}' +
     '#tsub-modal .tsub-dlg{position:relative;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:18px;max-width:440px;width:100%;box-sizing:border-box;box-shadow:0 16px 48px rgba(6,51,58,.35);max-height:94vh;overflow:auto}' +
@@ -33,10 +35,13 @@
     '#tsub-modal .tsub-foot{font-size:.78rem;color:#7a6255;margin:12px 0 0;padding-top:8px;border-top:1px dashed #ead9b8}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-  var row = document.createElement('div'); row.className = 'tsub-row';
-  row.innerHTML = '<button type="button" class="tsub-open" id="tsub-open">' + L.btn + '</button>';
-  var anchor = document.querySelector('#filters .wrap') || document.getElementById('filters');
-  if (anchor) anchor.appendChild(row);
+  // Sit beside the header "Add event" button (before the language switch) as a matching pill.
+  var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'tsub-open'; btn.id = 'tsub-open'; btn.textContent = L.btn;
+  var sug = document.getElementById('china-suggest-open'), lang = document.querySelector('.china-map-lang');
+  var pair = document.createElement('div'); pair.className = 'tsub-pair'; pair.appendChild(btn);
+  if (sug) { sug.parentNode.insertBefore(pair, sug); pair.appendChild(sug); sug.style.setProperty('margin-left', '0', 'important'); sug.style.setProperty('margin-right', '0', 'important'); }
+  else if (lang) lang.parentNode.insertBefore(pair, lang);
+  else { var f = document.querySelector('#filters .wrap') || document.getElementById('filters'); if (f) f.appendChild(pair); }
 
   var m = document.createElement('div'); m.id = 'tsub-modal'; m.hidden = true;
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
