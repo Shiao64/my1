@@ -2497,6 +2497,42 @@
     }
   },
   {
+    "id": "mBDeAKKW",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "奥城周三练习场 Aocheng Wednesday Practica",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:00–22:00",
+    "venue": "时代奥城写字楼C5-401",
+    "venue_address": "天津市南开区时代奥城写字楼C5-401（地铁5号线体育中心站B口）",
+    "venue_address_en": "Room 401, C5, Times Aocheng Office Tower, Nankai District, Tianjin (Metro Line 5 Tiyuzhongxin Station Exit B)",
+    "organizers": [
+      "Janisa佳慧",
+      "超然"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "G12 WeChat posters 2026-10-27",
+    "updated": "2026-10-27",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "13502035588 / 16622565678"
+    }
+  },
+  {
     "id": "ZwJVD64Z",
     "kind": "weekly",
     "type": "milonga",
