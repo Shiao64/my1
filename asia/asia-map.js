@@ -151,7 +151,7 @@
     return OWN_IMG[m[2]] || (/^beijing-/.test(m[2]) ? BJ_IMG : null);
   }
   function card(r){
-    var rid = cityId(r.city), attrs, when, body = [];
+    var rid = cityId(r.city), attrs, when, body = [], more = [];
     var hl = /Select Tango Weekend/.test(r.name) || r.featured === true;
     if (r.kind === 'event' && r.start) {
       var dates = [], d = parseISO(r.start), e = parseISO(r.end || r.start);
@@ -175,16 +175,20 @@
     if (r.venue) {
       var addr = r.venue_address ? ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>' : '';
       var addrEn = (!UI.hideAddrEn && r.venue_address_en) ? '<div class="china-addr-en">' + esc(r.venue_address_en) + '</div>' : '';
-      body.push(line(UI.venue || 'Venue', esc(r.venue) + addr + addrEn));
+      body.push(line(UI.venue || 'Venue', esc(r.venue)));
+      if (addr || addrEn) more.push(line(isZh ? '地址' : 'Address', (r.venue_address ? esc(r.venue_address) : '') + addrEn));
     }
-    if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
-    if (r.organizers && r.organizers.length) { var oe = organizersText(r.organizers); if (oe) body.push(line(UI.organizer || 'Organizer', esc(oe))); }
-    if (r.note) body.push('<div class="ev-line china-announce' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> ' + esc(r.note) + '</div>');
-    var cb = contactBlock(r); if (cb) body.push(cb);
+    var pr = isZh ? (r.price || r.price_en) : (r.price_en || r.price); if (pr) body.push(line(isZh ? '门票' : 'Entry', esc(pr)));
+    if (r.kind === 'event') more.push(line(UI.city || 'City', cityLabel(r)));
+    if (r.organizers && r.organizers.length) { var oe = organizersText(r.organizers); if (oe) more.push(line(UI.organizer || 'Organizer', esc(oe))); }
+    if (r.note) more.push('<div class="ev-line china-announce' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> ' + esc(r.note) + '</div>');
+    var cb = contactBlock(r); if (cb) more.push(cb);
+    var lb = linkBtns(r); if (lb) more.push(lb);
+    if (r.detail) more.push('<div class="ev-line china-links"><a class="china-linkbtn" href="' + esc(isZh ? r.detail + 'zh/' : r.detail) + '">' + (isZh ? '活动详情页' : 'Detail page') + '</a></div>');
+    if (r.desc) more.push('<div class="ev-desc"><h4>' + (isZh ? '活动介绍' : 'Description') + '</h4><p' + (isZh ? '' : ' lang="zh-CN"') + '>' + esc(r.desc).replace(/\n/g, '<br>') + '</p></div>');
     var badges = '';
     if (hl) { var ou = (r.links && r.links.other) || '', own = /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(ou);
       badges += own ? '<a class="china-badge china-badge-own" href="' + esc(isZh ? ou + 'zh/' : ou) + '">' + (UI.ourEvent || 'Our event') + '</a>' : '<span class="china-badge">' + (UI.ourEvent || 'Our event') + '</span>'; }
-    if (r.detail) badges += '<a class="china-badge china-badge-own" href="' + esc(isZh ? r.detail + 'zh/' : r.detail) + '">' + (isZh ? '活动详情' : 'Details') + '</a>';
     if (r.status === 'paused') badges += '<span class="china-badge china-badge-paused">' + (UI.paused || 'Paused') + '</span>';
     else if (r.status === 'venue_change') badges += '<span class="china-badge china-badge-venue">' + (UI.venueChange || 'Venue change') + '</span>';
     var cx = r.status === 'cancelled';
@@ -192,7 +196,7 @@
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
     return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '" data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img src="' + esc(pp) + '" alt="" loading="lazy" style="object-position:' + esc(r.poster_pos || 'center top') + '"></a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img src="' + esc(c[0]) + '" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
-      '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
+      '<h3 class="ev-name">' + esc(r.name) + '</h3>' + body.join('') + (more.length ? '<div class="ev-more-hint">' + (isZh ? '点击查看详情' : 'Tap for details') + '</div><div class="ev-more" hidden>' + more.join('') + '</div>' : '') + '</li>';
   }
   function group(title, items, cls){
     if (!items.length) return '';
@@ -504,4 +508,26 @@
         data.forEach(function(r){ var id = cityId(r.city); if (!have[id]) { have[id] = 1; var o = document.createElement('option'); o.value = id; o.setAttribute('data-en', r.city); o.textContent = cityDisplay(r.city); citySel.appendChild(o); } }); }
       window._chinaData = data; render(data); renderFeatList(data); applyFilters(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">' + (UI.loadError || 'Could not load listings') + ' (' + esc(err.message) + '). ' + (UI.refresh || 'Please refresh.') + '</p>'; });
+
+  // Short cards: click card/poster opens details popup
+  (function(){
+    var m = document.createElement('div'); m.className = 'ev-modal'; m.setAttribute('role','dialog'); m.setAttribute('aria-modal','true');
+    m.innerHTML = '<div class="ev-modal-box"><button type="button" class="ev-modal-x" aria-label="' + (isZh ? '关闭' : 'Close') + '">×</button><div class="ev-modal-c"></div></div>';
+    document.body.appendChild(m);
+    function close(){ m.classList.remove('open'); }
+    m.addEventListener('click', function(e){ if (e.target === m || e.target.closest('.ev-modal-x')) close(); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+    document.addEventListener('click', function(e){
+      var li = e.target.closest && e.target.closest('li.ev-card'); if (!li) return;
+      var a = e.target.closest('a'); if (a && !a.classList.contains('ev-cover')) return;
+      var mo = li.querySelector('.ev-more'); if (!mo) return;
+      e.preventDefault();
+      var top = li.querySelector('.ev-top'), nm = li.querySelector('.ev-name');
+      m.querySelector('.ev-modal-c').innerHTML = (top ? '<div class="ev-top">' + top.innerHTML + '</div>' : '') + '<h3 class="ev-name">' + (nm ? nm.innerHTML : '') + '</h3>' + Array.prototype.map.call(li.querySelectorAll(':scope > .ev-line'), function(x){ return x.outerHTML; }).join('') + mo.innerHTML;
+      m.classList.add('open');
+    });
+    var st = document.createElement('style');
+    st.textContent = 'li.ev-card{cursor:pointer}.ev-more-hint{font-size:.78rem;font-weight:700;color:#9e1020;margin-top:4px}.ev-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px}.ev-modal.open{display:flex}.ev-modal-box{position:relative;background:#fff;border-radius:16px;max-width:520px;width:100%;max-height:85vh;overflow:auto;padding:22px 20px 18px;box-shadow:0 8px 30px rgba(0,0,0,.3);color:#2a1a14}.ev-modal-x{position:absolute;top:8px;right:10px;border:0;background:none;font-size:1.7rem;line-height:1;cursor:pointer;color:#555}.ev-modal-c .ev-name{margin:6px 30px 8px 0;color:#0a4f57}.ev-modal-c .ev-line{margin:4px 0}.ev-desc h4{margin:14px 0 6px;color:#0a4f57}.ev-desc p{margin:0;line-height:1.65;font-size:.92rem}';
+    document.head.appendChild(st);
+  })();
 })();
