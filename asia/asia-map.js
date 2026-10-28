@@ -284,7 +284,7 @@
       var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start; });
       var wk = rs.filter(function(r){ return r.kind === 'weekly'; });
       var tw = c !== 'Others' && rs[0].region === 'Taiwan';
-      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head" data-cn="' + esc(cityDisplay(c)) + '">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
+      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head" data-cn="' + esc(cityDisplay(c)) + '">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub">' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
       h.push(group(UI.events || 'Events', dated.concat(tba)));
       var sched = wk.filter(function(r){ return r.weekday != null && nthOk(r); }), nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
@@ -427,8 +427,10 @@
       if (!reg && !tv) { n = vis.length; txt = zh ? '从' + zhD(w0, true) + '起，共' + n + zw : 'from ' + enD(w0) + ' onward, ' + n + ew; }
       else if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + zw
                        : 'from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ew;
-      else txt = zh ? '从' + zhD(w0, true) + '起，后七日，共' + n + zw
-                    : 'from ' + enD(w0) + ', next 7 days, ' + n + ew;
+      else { var WZ='日一二三四五六', WE=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var dz=function(d){var p=d.split('-'),x=new Date(d+'T00:00:00');return (+p[1])+'月'+(+p[2])+'日（周'+WZ[x.getDay()]+'）';};
+        var de=function(d){var p=d.split('-'),x=new Date(d+'T00:00:00');return WE[x.getDay()]+' '+MS[+p[1]-1]+' '+(+p[2]);};
+        txt = zh ? dz(w0) + ' – ' + dz(w1) + ' · 未来7天' : de(w0) + ' – ' + de(w1) + ' · next 7 days'; }
       fl.textContent = txt; fl.hidden = vis.length === 0;
     });
     if (hint) {
@@ -515,7 +517,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events.json?v=china285';
+  var eventsUrl = UI.eventsUrl || 'events.json?v=china286';
   fetch(eventsUrl, {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
