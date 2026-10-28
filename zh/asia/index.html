@@ -74,6 +74,14 @@ html{scroll-snap-type:y proximity;scroll-padding-top:calc(var(--atm-sticky,118px
 .ev-card>.atm-more[hidden]{display:none}
 .ev-card>.china-links{order:5;margin-top:6px}
 .ev-card>.ev-top{order:6;margin-top:8px;margin-bottom:12px;padding-top:8px;border-top:1px dashed #ead9b8}
+/* draft v4: 类别 = dot + text; 收藏 = teal star */
+.ev-top .ev-type{display:none!important}
+.atm-marks{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-right:10px;vertical-align:middle}
+.atm-mk{display:inline-flex;align-items:center;gap:5px;color:#2A1A14;font-size:.8rem;font-weight:600;background:none;border:0;padding:0;line-height:1.2}
+.atm-mk i{width:7px;height:7px;border-radius:50%;background:var(--c,#7A6E64);flex:0 0 7px}
+.atm-mk.atm-fav b{color:#0E6E78;font-size:.9rem;line-height:1;font-weight:400}
+.tw-m-feat-k.atm-fav-k{background:none!important;border:0!important;padding:0!important;color:#0E6E78!important;display:inline-flex!important;align-items:center;gap:4px;font-weight:700}
+.tw-m-feat-k.atm-fav-k:before{content:"\2605";font-size:1em;color:#0E6E78}
 }</style>
 </head>
 <body class="china-page">
@@ -311,6 +319,11 @@ window.CHINA_UI = {
 <script id="draft-layout-card-js">/* draft v2: wrap 活动卡片 description, add 展开/收起 */
 (function(){if(!matchMedia('(max-width:600px)').matches)return;
 function stick(){var t=document.querySelector('.china-sticky-top');if(t)document.documentElement.style.setProperty('--atm-sticky',t.offsetHeight+'px');}
+var TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',event:'#6B4C9A',marathon:'#2F6FB0',championship:'#8A6A1F',encuentro:'#7A6E64',weekend:'#7A6E64'},TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'tbxuzmah':1};
+function marks(li){var tp=li.querySelector(':scope>.ev-top');if(!tp||tp.querySelector('.atm-marks'))return;var t=li.dataset.type,ty=[];if(li.dataset.alsoRegular&&t!=='event')ty.push('event');ty.push(t);
+ var w=document.createElement('span');w.className='atm-marks';ty.forEach(function(k){var m=document.createElement('span');m.className='atm-mk';m.style.setProperty('--c',TC[k]||'#7A6E64');m.innerHTML='<i></i>';m.appendChild(document.createTextNode(TN[k]||(tp.querySelector('.ev-type')||{}).textContent||k));w.appendChild(m);});
+ if(FAV[li.dataset.id]){var f=document.createElement('span');f.className='atm-mk atm-fav';f.innerHTML='<b>\u2605</b>收藏';w.appendChild(f);}tp.insertBefore(w,tp.firstChild);}
+function favk(){document.querySelectorAll('.tw-m-feat-k').forEach(function(k){if(/收藏/.test(k.textContent))k.classList.add('atm-fav-k');});}
 function fix(li){if(li.dataset.atm)return;li.dataset.atm=1;
  if(!li.querySelector(':scope>.ev-cover')){var n=document.createElement('div');var id=li.dataset.id||'',hh=0;for(var k=0;k<id.length;k++)hh=(hh*31+id.charCodeAt(k))>>>0;n.className='atm-nocover p'+(hh%3);
  var tx=function(e){return e?e.textContent.replace(/\s+/g,' ').trim():'';},nm0=li.querySelector(':scope>.ev-name'),tp=li.querySelector(':scope>.ev-top'),tg=tp&&tp.querySelector('[class*=tag],[class*=badge],span');
@@ -330,7 +343,7 @@ function dim(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElem
  cs.forEach(function(c){var r=c.getBoundingClientRect();if(r.bottom<line+40)return;var dd=Math.abs(r.top-line);if(dd<bd){bd=dd;best=c;}});
  cs.forEach(function(c){c.classList.toggle('atm-dim',!!best&&c!==best);});}
 var rq;addEventListener('scroll',function(){if(rq)return;rq=requestAnimationFrame(function(){rq=0;dim();});},{passive:true});
-function chk(){stick();size();document.querySelectorAll('.ev-card').forEach(function(li){fix(li);if(li.classList.contains('atm-open'))return;var d=li.querySelector('.atm-desc'),b=li.querySelector('.atm-more');if(!d||!li.offsetParent)return;var ov=d.scrollHeight>d.clientHeight+2;d.classList.toggle('atm-over',ov);b.hidden=!ov;});dim();}
+function chk(){stick();favk();size();document.querySelectorAll('.ev-card').forEach(function(li){fix(li);marks(li);if(li.classList.contains('atm-open'))return;var d=li.querySelector('.atm-desc'),b=li.querySelector('.atm-more');if(!d||!li.offsetParent)return;var ov=d.scrollHeight>d.clientHeight+2;d.classList.toggle('atm-over',ov);b.hidden=!ov;});dim();}
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(chk,60);}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
 addEventListener('resize',chk);addEventListener('load',chk);})();</script>
 </body>
