@@ -430,7 +430,7 @@
                        : 'from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ew;
       else txt = zh ? '从' + zhD(w0, true) + '起，后七日，共' + n + zw
                     : 'from ' + enD(w0) + ', next 7 days, ' + n + ew;
-      fl.textContent = txt; fl.hidden = vis.length === 0;
+      fl.textContent = txt; fl.hidden = vis.length === 0 || reg;
     });
     if (hint) {
       var tail = showAll() ? (UI.hintShowAll || ' (Show all: incl. past & TBA).') : (UI.hintWeekly || ' (weekly always shown).');
