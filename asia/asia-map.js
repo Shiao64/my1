@@ -347,7 +347,7 @@
       if (keep) citySel.value = keep; else if (phOpt) citySel.selectedIndex = phOpt.index;
     }
     if (!ev) citySel._fromEv = false;
-    citySel.disabled = ev;
+    citySel.disabled = ev; document.body.classList.toggle('atm-ev', !!ev); /* v8b: hide city box in 特色 */
     var evNote = document.querySelector('.atm-ev-note'); if (evNote) { if (evNote.dataset.evTxt == null) evNote.dataset.evTxt = evNote.textContent; evNote.textContent = ev ? evNote.dataset.evTxt : PH_TXT; }
     var sbtn = document.getElementById('china-search'); if (sbtn) sbtn.classList.toggle('atm-nocity', !ev && citySel.value === '');
   }
@@ -383,7 +383,7 @@
         var cv = 0;
         cd.querySelectorAll('.china-list > li').forEach(function(li){ var ok = itemMatchesDate(li); li.hidden = !ok; if (ok) cv++; });
         cd.hidden = false; totalVisible = cv;
-        var aO = citySel && (citySel._allOpt || citySel.querySelector('option[value="all"]')); if (aO) { var aT = (isZh ? '所有城市（' : 'All cities (') + cv + (isZh ? '）' : ')'); if (aO.dataset.atmTxt != null) aO.dataset.atmTxt = aT; else aO.textContent = aT; } /* v8: 特色 total on 所有城市 (how-to card restores atmTxt on close) */
+        /* v8b: 特色 has no city box (hidden via body.atm-ev), no total on 所有城市 */
         var cc = cd.querySelector('.china-count'); if (cc) cc.textContent = '(' + cv + ')';
       } else cd.hidden = true;
     }
