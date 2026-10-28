@@ -456,9 +456,41 @@
     try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, y); }
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
-  (function(){ var q = location.search, deep = !!location.hash || /[?&](city|type|id|event|q|from|to)=/.test(q);
+  (function(){ var q = location.search, deep = !!location.hash || /[?&](city|type|id|event|q|from|to|mode)=/.test(q);
     if (!deep) document.body.classList.add('china-presearch'); })();
-  function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '' && !(checkedTypes().length === 1 && checkedTypes()[0] === 'event')) { cityHint(true); try { citySel.focus(); } catch(e){} return; } document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); }
+  function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '' && !(checkedTypes().length === 1 && checkedTypes()[0] === 'event')) { cityHint(true); try { citySel.focus(); } catch(e){} return; } document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); urlPush(); }
+  /* v9.1: URL follows the selection (?mode=regular&city=gz / ?mode=featured); Back/refresh/shared links restore it */
+  var _urlMute = false;
+  function urlQS(){
+    if (document.body.classList.contains('china-presearch')) return '';
+    var t = checkedTypes(), ev = t.length === 1 && t[0] === 'event', c = citySel ? citySel.value : '';
+    return ev ? '?mode=featured' + (c && c !== 'all' ? '&city=' + encodeURIComponent(c) : '') : (c && c !== 'all' ? '?mode=regular&city=' + encodeURIComponent(c) : '');
+  }
+  function langLinks(qs){ document.querySelectorAll('[data-asia-lang-set]').forEach(function(a){ var h = a.getAttribute('href') || ''; a.setAttribute('href', h.split('?')[0].split('#')[0] + qs); }); }
+  function urlPush(){
+    if (_urlMute || !window.history || !history.pushState) return;
+    var qs = urlQS(); langLinks(qs);
+    if (qs !== location.search) history.pushState({atm: qs}, '', location.pathname + qs);
+  }
+  function urlApply(){
+    var q = new URLSearchParams(location.search), m = q.get('mode'), c = q.get('city') || '';
+    _urlMute = true;
+    try {
+      if (m === 'featured' || m === 'regular') {
+        var r = document.querySelector('input[name="etype"][value="' + (m === 'featured' ? 'event' : 'regular') + '"]');
+        if (r) { r.checked = true; applyFilters(); }
+        if (m === 'regular' && citySel && c && citySel.querySelector('option[value="' + c.replace(/"/g, '') + '"]')) { citySel.value = c; citySel._lastCity = c; }
+        onSearch();
+      } else {
+        document.body.classList.add('china-presearch'); langLinks('');
+        try { window.scrollTo(0, 0); } catch(e){}
+      }
+    } finally { _urlMute = false; }
+    langLinks(urlQS());
+  }
+  window.addEventListener('popstate', function(){ if (window._chinaData) urlApply(); });
+  (function(){ var h = document.querySelector('.china-sticky-top h1') || document.querySelector('h1'); if (!h) return;
+    h.addEventListener('click', function(){ if (location.search && window.history && history.pushState) { history.pushState({atm: ''}, '', location.pathname); document.body.classList.add('china-presearch'); langLinks(''); } }); })(); /* v9.1: home (title) clears params */
   function syncDateShow(){
     document.querySelectorAll('.china-date-show').forEach(function(sp){
       var el = document.getElementById(sp.getAttribute('data-for'));
@@ -529,7 +561,7 @@
       data = data.filter(function(r){ return !r.hidden; });
       if (citySel) { var have = {}; Array.prototype.forEach.call(citySel.options, function(o){ have[o.value] = 1; });
         data.forEach(function(r){ var id = cityId(r.city); if (!have[id]) { have[id] = 1; var o = document.createElement('option'); o.value = id; o.setAttribute('data-en', r.city); o.textContent = cityDisplay(r.city); citySel.appendChild(o); } }); }
-      window._chinaData = data; render(data); renderFeatList(data); applyFilters(); })
+      window._chinaData = data; render(data); renderFeatList(data); applyFilters(); if (/[?&]mode=(featured|regular)/.test(location.search)) urlApply(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">' + (UI.loadError || 'Could not load listings') + ' (' + esc(err.message) + '). ' + (UI.refresh || 'Please refresh.') + '</p>'; });
   /* v8f: collapsible note (one line + More/Less) */
   (function(){
