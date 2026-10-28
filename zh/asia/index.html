@@ -373,6 +373,7 @@ h.addEventListener('click',function(){var st=document.querySelector('.china-stic
 de.style.scrollSnapType='none';window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+scrollY-off),behavior:'smooth'});
 clearTimeout(h._t);h._t=setTimeout(function(){de.style.scrollSnapType=old;},900);});})();</script>
 <style id="design-v9">/* design review v9 2026-10-28 */
+body.china-page #filters label.m-chip.china-showall{position:relative!important} /* v9: keep the 44px tap area (:after) on the label, not over 搜索 */
 /* 1 mobile featured strip: bigger cards, clearer swipe affordance */
 @media (max-width:600px){.tw-m-feat-grid.tw-feat-ad>.tw-fc{flex:0 0 66%!important;max-width:66%!important;scroll-snap-align:start}.tw-m-feat-grid.tw-feat-ad{scroll-snap-type:x mandatory}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img{height:auto!important;aspect-ratio:16/9}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img img{width:100%;height:100%!important;object-fit:cover;object-position:top}
 .atm-dots{display:flex;justify-content:center;gap:8px;padding:10px 0 2px}.atm-dots i{width:7px;height:7px;border-radius:50%;background:#D9C9A8;transition:background .2s,width .2s}.atm-dots i.on{background:#0E6E78;width:18px;border-radius:4px}}
