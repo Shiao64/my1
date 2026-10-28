@@ -2131,16 +2131,18 @@
   },
   {
     "id": "U06",
-    "kind": "event",
+    "kind": "weekly",
     "type": "milonga",
     "name": "SCORPIO Birthday Milonga 天蝎座生日舞会",
     "city": "Hangzhou",
     "country": "China",
     "region": "China",
-    "start": "2026-10-30",
-    "end": "2026-10-30",
-    "weekday": null,
-    "weekdays": null,
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
     "time": "20:00–23:00",
     "venue": "同方财富大厦-1202",
     "venue_address": "杭州凤起路334号同方财富大厦-1202",
@@ -2160,8 +2162,8 @@
     "hidden_reason": null,
     "tba": false,
     "poster_pos": "center top",
-    "note_zh": "Vamos tango 老店新开（新地址）。票价80元，学员半价，年卡、天蝎座免费；请扫码预约；有抽奖。",
-    "note": "Vamos tango reopening at a new address. ¥80; students half price; annual-card holders and Scorpios free; book via the poster QR code; lucky draw."
+    "note_zh": "海报只写10/30（周五）这一场，是否每周举办请向主办方确认。Vamos tango 老店新开（新地址）。票价80元，学员半价，年卡、天蝎座免费；请扫码预约；有抽奖。",
+    "note": "Poster only lists Fri Oct 30; please confirm with the organizer whether it is weekly. Vamos tango reopening at a new address. ¥80; students half price; annual-card holders and Scorpios free; book via the poster QR code; lucky draw."
   },
   {
     "id": "R030",
