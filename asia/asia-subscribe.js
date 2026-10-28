@@ -98,7 +98,7 @@
   var SITE_VERSION = 'v9', SITE_DESIGNER = 'By Shiao Chang';
   var css = '#contact{padding:14px 0 12px!important}#contact .wrap p{margin:0!important;font-size:13px;line-height:1.5}' +
     '#contact .tsub-bottom-wrap{padding:0 0 8px!important}' +
-    '#site-ver{display:block;text-align:center;margin:8px auto 0;font:500 10.5px/1 Georgia,"Times New Roman",serif;letter-spacing:.18em;color:#c9b48a;opacity:.85}' +
+    '#site-ver{display:block;text-align:center;margin:8px auto 0;font:500 12px/1 Georgia,"Times New Roman",serif;letter-spacing:.08em;color:#D9B56A;opacity:1}' +
     '#site-ver b{font-weight:600;color:#e2cf9f;letter-spacing:.08em}' +
     '#site-ver:before,#site-ver:after{content:"";display:inline-block;width:18px;height:1px;background:currentColor;opacity:.5;vertical-align:middle;margin:0 8px}';
   function put(){ var f = document.getElementById('contact'); if (!f || document.getElementById('site-ver')) return;
