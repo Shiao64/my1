@@ -48,7 +48,7 @@
 <style id="atm-day-center">/* v8c: 常规 weekday heading bold + divider; single card centred on desktop */body.china-page .china-group.china-day .china-sub-head{font-weight:700;color:var(--ink);padding-bottom:5px;border-bottom:1px solid #C9B48A;text-decoration:none}@media (min-width:900px){body.china-page .china-day .ev-list>.ev-card:only-child{grid-column:1/-1;justify-self:center;width:calc((100% - 14px)/2)}}@media (min-width:1060px){body.china-page .china-day .ev-list>.ev-card:only-child{grid-column:2/3;width:auto;justify-self:stretch}}@media (min-width:1060px){body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child){grid-template-columns:repeat(4,minmax(0,1fr))}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child){grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child)>.ev-card,body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child)>.ev-card{min-width:0;overflow-wrap:anywhere}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child) img,body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child) img{max-width:100%;height:auto}}@media (min-width:900px) and (max-width:1059px){body.china-page .china-day .ev-list>.ev-card:last-child:nth-child(2n+3){grid-column:1/-1;justify-self:center;width:calc((100% - 14px)/2)}}@media (min-width:1060px){body.china-page .china-day .ev-list>.ev-card:last-child:nth-child(3n+7){grid-column:2/3}}</style>
 <style id="draft-layout-card">/* draft v2 2026-10-28: 活动卡片 mobile — 1:1 cropped poster, desc (展开/收起), date+time; one card per screen */
 @media (max-width:600px){
-html{scroll-snap-type:y proximity;scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}
+html{scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}html:has(body:not(.china-presearch) .ev-list .ev-card:not([hidden])){scroll-snap-type:y proximity} /* v8d: no snap before search, so footer snap-end can't pull the search bar up */
 #contact{scroll-snap-align:end}
 .ev-card[hidden]{display:none!important} /* v8: v7 display:flex was un-hiding filtered-out cards */
 .ev-list{display:flex;flex-direction:column;gap:20px}
@@ -242,7 +242,7 @@ html{scroll-snap-type:y proximity;scroll-padding-top:calc(var(--atm-sticky,118px
 <script>
 window.CHINA_UI = {
   lang: 'en',
-  eventsUrl: 'events.json?v=china280',
+  eventsUrl: 'events.json?v=china282',
   hideAddrEn: false,
   keepOrganizerZh: false,
   daysShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
@@ -294,7 +294,7 @@ window.CHINA_UI = {
   fsEmail: 'Your email', fsWechat: 'Your WeChat ID', fsUrl: 'Event website'
 };
 </script>
-<script src="asia-map.js?v=china281"></script>
+<script src="asia-map.js?v=china282"></script>
 <script src="asia-reglist.js?v=china278"></script>
 <script src="asia-howto.js?v=china278"></script>
 <script src="lang-keep.js?v=china241"></script>
