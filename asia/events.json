@@ -1700,6 +1700,40 @@
     "poster_pos": "center top"
   },
   {
+    "id": "R059",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "探戈练习场",
+    "city": "Tianjin",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "19:00–22:00",
+    "venue": "如家酒店6F",
+    "venue_address": "天津徐州道1号如家酒店6F",
+    "venue_address_en": null,
+    "organizers": [],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user poster 2026-10-28",
+    "updated": "2026-10-28",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster": "/images/asia/posters/R059.jpg",
+    "poster_pos": "center top",
+    "note_zh": "40元。联络方式没找到，有兴趣请向组织者确认。",
+    "note": "¥40. Contact not found; please check with the organizer."
+  },
+  {
     "id": "QbUzonBt",
     "kind": "weekly",
     "type": "milonga",
@@ -2092,6 +2126,40 @@
     "hidden_reason": null,
     "tba": false,
     "poster_pos": "center top"
+  },
+  {
+    "id": "U06",
+    "kind": "event",
+    "type": "milonga",
+    "name": "SCORPIO Birthday Milonga 天蝎座生日舞会",
+    "city": "Hangzhou",
+    "country": "China",
+    "region": "China",
+    "start": "2026-10-30",
+    "end": "2026-10-30",
+    "weekday": null,
+    "weekdays": null,
+    "time": "20:00–23:00",
+    "venue": "同方财富大厦-1202",
+    "venue_address": "杭州凤起路334号同方财富大厦-1202",
+    "venue_address_en": null,
+    "organizers": [
+      "Vamos tango"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "poster": "/images/asia/posters/U06.jpg",
+    "source": "user poster 2026-10-28",
+    "updated": "2026-10-28",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster_pos": "center top",
+    "note_zh": "Vamos tango 老店新开（新地址）。票价80元，学员半价，年卡、天蝎座免费；请扫码预约；有抽奖。",
+    "note": "Vamos tango reopening at a new address. ¥80; students half price; annual-card holders and Scorpios free; book via the poster QR code; lucky draw."
   },
   {
     "id": "R030",
