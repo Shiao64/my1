@@ -349,5 +349,10 @@ var rq;addEventListener('scroll',function(){if(rq)return;rq=requestAnimationFram
 function chk(){stick();favk();size();document.querySelectorAll('.ev-card').forEach(function(li){fix(li);marks(li);if(li.classList.contains('atm-open'))return;var d=li.querySelector('.atm-desc'),b=li.querySelector('.atm-more');if(!d||!li.offsetParent)return;var ov=d.scrollHeight>d.clientHeight+2;d.classList.toggle('atm-over',ov);b.hidden=!ov;});dim();}
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(chk,60);}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
 addEventListener('resize',chk);addEventListener('load',chk);})();</script>
+<script id="draft-title-tap">/* draft: tap 亚洲探戈地图 title → smooth-scroll to 筛选区 below sticky header */
+(function(){var h=document.querySelector('.china-sticky-top h1')||document.querySelector('h1');var f=document.getElementById('filters');if(!h||!f)return;h.style.cursor='pointer';
+h.addEventListener('click',function(){var st=document.querySelector('.china-sticky-top'),off=(st&&getComputedStyle(st).position==='sticky'?st.offsetHeight:0)+10,de=document.documentElement,old=de.style.scrollSnapType;
+de.style.scrollSnapType='none';window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+scrollY-off),behavior:'smooth'});
+clearTimeout(h._t);h._t=setTimeout(function(){de.style.scrollSnapType=old;},900);});})();</script>
 </body>
 </html>

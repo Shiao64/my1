@@ -40,7 +40,7 @@
   var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'tsub-open'; btn.id = 'tsub-open'; btn.textContent = L.btn;
   var sug = document.getElementById('china-suggest-open'), lang = document.querySelector('.china-map-lang');
   var pair = document.createElement('div'); pair.className = 'tsub-pair'; pair.appendChild(btn);
-  var zhMobile = window.CHINA_UI && CHINA_UI.lang === 'zh'; /* draft: zh footer placement on all widths (was mobile only) */
+  var zhMobile = document.documentElement.getAttribute('data-asia-lang') === 'zh'; /* draft: zh footer placement on all widths (was mobile only) */
   var foot = document.getElementById('contact');
   if (zhMobile && foot) { /* draft 2026-10-28: move out of sticky header to page bottom */
     pair.className = 'tsub-pair tsub-bottom'; var fw = document.createElement('div'); fw.className = 'wrap tsub-bottom-wrap'; fw.appendChild(pair); foot.insertBefore(fw, foot.firstChild);
@@ -98,6 +98,7 @@
   var SITE_VERSION = 'v8.0', SITE_DATE = '2026-10-28', SITE_DESIGNER = 'Xiao Qian';
   function put(){ var f = document.getElementById('contact'); if (!f || document.getElementById('site-ver')) return; var p = f.querySelector('p'); if (!p) return;
     var s = document.createElement('span'); s.id = 'site-ver'; s.style.cssText = 'color:#9a9a9a;font-size:11px;margin-left:8px;white-space:nowrap';
-    s.textContent = SITE_VERSION + ' · ' + SITE_DATE + ' · Designed by ' + SITE_DESIGNER; p.appendChild(s); }
+    s.textContent = SITE_VERSION + ' · ' + SITE_DATE + ' · Designed by ' + SITE_DESIGNER; var h0 = p.offsetHeight; p.appendChild(s);
+    if (p.offsetHeight > h0 + 2) { var row = f.querySelector('.tsub-bottom-wrap'); if (row) { s.style.marginLeft = '10px'; s.style.alignSelf = 'center'; row.appendChild(s); } else { p.removeChild(s); s.style.cssText += ';display:block;margin:0;line-height:1;position:relative;top:-2px'; s.style.fontSize = '10px'; p.style.position = 'relative'; f.querySelector('.wrap').appendChild(s); } } }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put();
 })();
