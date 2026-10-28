@@ -95,7 +95,7 @@
 
 /* Footer signature line — edit these strings to bump */
 (function(){
-  var SITE_VERSION = 'V8.0', SITE_DESIGNER = 'Shiao Chang';
+  var SITE_VERSION = 'v9', SITE_DESIGNER = 'By Shiao Chang';
   var css = '#contact{padding:14px 0 12px!important}#contact .wrap p{margin:0!important;font-size:13px;line-height:1.5}' +
     '#contact .tsub-bottom-wrap{padding:0 0 8px!important}' +
     '#site-ver{display:block;text-align:center;margin:8px auto 0;font:500 10.5px/1 Georgia,"Times New Roman",serif;letter-spacing:.18em;color:#c9b48a;opacity:.85}' +
@@ -104,7 +104,7 @@
   function put(){ var f = document.getElementById('contact'); if (!f || document.getElementById('site-ver')) return;
     var st = document.createElement('style'); st.id = 'site-ver-css'; st.textContent = css; document.head.appendChild(st);
     var s = document.createElement('div'); s.id = 'site-ver';
-    s.appendChild(document.createTextNode(SITE_DESIGNER + ' ')); var b = document.createElement('b'); b.textContent = '@' + SITE_VERSION; s.appendChild(b);
+    s.appendChild(document.createTextNode(SITE_DESIGNER + ' ')); var b = document.createElement('b'); b.textContent = '· ' + SITE_VERSION; s.appendChild(b);
     var w = f.querySelectorAll('.wrap'); (w[w.length - 1] || f).appendChild(s); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put();
 })();
