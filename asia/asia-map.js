@@ -287,7 +287,7 @@
       var tw = c !== 'Others' && rs[0].region === 'Taiwan';
       var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head" data-cn="' + esc(cityDisplay(c)) + '">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
       h.push(group(UI.events || 'Events', dated.concat(tba)));
-      var sched = wk.filter(function(r){ return r.weekday != null && nthOk(r); }), nos = wk.filter(function(r){ return r.weekday == null; });
+      var sched = wk.filter(function(r){ return r.weekday != null; }) /* v9: monthly nth-weekday events always listed (labelled e.g. 2nd Sat monthly), not only in the week they fall in */, nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
         h.push('<h3 class="china-sub-head china-weekly-head">' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</h3>');
         [0,1,2,3,4,5,6].map(function(i){ return (baseDate().getDay() + i) % 7; }).forEach(function(d){
@@ -519,7 +519,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events.json?v=china288';
+  var eventsUrl = UI.eventsUrl || 'events.json?v=china289';
   fetch(eventsUrl, {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
