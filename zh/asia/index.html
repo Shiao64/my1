@@ -46,6 +46,13 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>#china-suggest-modal .china-suggest-pair{display:flex;gap:10px}#china-suggest-modal .china-suggest-pair>.china-suggest-group{flex:1 1 0;min-width:0}</style>
 <style>/* hide Add event (2026-10-27) */#china-suggest-open,.china-suggest-open,#china-suggest-modal{display:none!important}</style>
+<style id="draft-layout-card">/* draft 2026-10-28: 活动卡片 mobile format — poster, description, then date+time */
+@media (max-width:600px){
+.ev-card{display:flex;flex-direction:column}
+.ev-card>.china-cancelled-bar{order:0}.ev-card>.ev-cover{order:1}.ev-card>.ev-name{order:2}.ev-card>.ev-line,.ev-card>div:not(.ev-top){order:3}.ev-card>.ev-top{order:4;margin-top:6px;padding-top:6px;border-top:1px dashed #ead9b8}.ev-card>.china-links{order:5}
+.ev-card.ev-has-poster .ev-cover{display:flex;justify-content:center;background:#f6efe4}
+.ev-card.ev-has-poster .ev-cover img{width:auto;max-width:100%;height:auto;max-height:34svh;object-fit:contain}
+}</style>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
@@ -278,6 +285,6 @@ window.CHINA_UI = {
 <script src="../../asia/asia-map.js?v=china270"></script>
 <script src="../../asia/asia-howto.js?v=china264"></script>
 <script src="../../asia/lang-keep.js?v=china241"></script>
-<script src="../../asia/asia-subscribe.js?v=sub7"></script>
+<script src="../../asia/asia-subscribe.js?v=draftL1"></script>
 </body>
 </html>
