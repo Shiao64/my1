@@ -439,5 +439,16 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
+<style id="mockup-v9">/* MOCKUP 2026-10-28: A) mobile sticky day band  B) unified card */
+@media (max-width:600px){
+body.china-page .china-group.china-day{margin-top:24px!important}
+body.china-page .china-group.china-day .china-sub-head{position:sticky;top:calc(var(--atm-hdr) + 4px);z-index:5;display:block;background:#0E6E78!important;color:#fff!important;font-size:18px!important;font-weight:700!important;border:0!important;border-radius:8px;padding:10px 14px!important;margin:0 0 12px!important;box-shadow:0 3px 10px rgba(6,51,58,.22);letter-spacing:.02em}
+}
+html{--atm-hdr:118px}html.atm-compact{--atm-hdr:44px}
+body.china-page .ev-card,body.china-page .ev-card:not(.atm-dim){border:1px solid #D9C08A!important;border-radius:14px!important;overflow:hidden!important;background:#FFFCF5!important;box-shadow:0 4px 14px rgba(60,40,20,.10),0 1px 3px rgba(0,0,0,.05)!important}
+body.china-page .ev-card>.ev-cover{border:0!important;border-radius:0!important;border-bottom:1px solid #D9C08A!important;box-sizing:border-box}
+body.china-page .ev-card>.ev-cover:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5)!important}
+body.china-page .ev-card:not(.atm-open)>.atm-desc.atm-over:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5 85%)!important}
+</style>
 </body>
 </html>
