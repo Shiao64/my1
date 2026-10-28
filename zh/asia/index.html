@@ -420,6 +420,8 @@ html body #contact{display:flex!important;flex-wrap:wrap;justify-content:center;
 #contact .tsub-bottom-wrap{padding:0!important}
 #contact #site-ver{margin:0!important}
 }
+/* v9 desktop: 特色 results 2 per row, centred */
+@media (min-width:601px){body.china-page .china-chrono>.ev-list{grid-template-columns:repeat(2,minmax(0,460px))!important;justify-content:center!important;gap:24px!important}body.china-page .china-chrono>.ev-list>.ev-card:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:min(460px,100%)}}
 </style>
 <script id="design-v9-js">(function(){
 var D=document,B=D.body;
