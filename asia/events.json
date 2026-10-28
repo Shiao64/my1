@@ -2244,6 +2244,46 @@
     "poster": "/images/asia/posters/R045.jpg"
   },
   {
+    "id": "rSFJaHtm",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Sunset Milonga",
+    "city": "Guangzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "16:00–20:00",
+    "venue": "Legends Tango Academy",
+    "venue_address": "广州市越秀区明月一路明月阁1706",
+    "venue_address_en": "Room 1706, 17F, Mingyuege, No.20 Mingyueyilu, Yuexiu District, Guangzhou, China",
+    "organizers": [
+      "Legends Tango（Antimo y Sunny）"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "user poster 2026-10-28",
+    "updated": "2026-10-28",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "18676479599",
+      "wechat_id": "18676479599"
+    },
+    "note_zh": "80元，含小吃饮品。",
+    "note": "¥80, snacks and drinks included.",
+    "poster": "/images/asia/posters/rSFJaHtm.jpg",
+    "poster_pos": "center top"
+  },
+  {
     "id": "R034",
     "kind": "weekly",
     "type": "milonga",
