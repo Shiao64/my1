@@ -276,7 +276,7 @@
       var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start; });
       var wk = rs.filter(function(r){ return r.kind === 'weekly'; });
       var tw = c !== 'Others' && rs[0].region === 'Taiwan';
-      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
+      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head" data-cn="' + esc(cityDisplay(c)) + '">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
       h.push(group(UI.events || 'Events', dated.concat(tba)));
       var sched = wk.filter(function(r){ return r.weekday != null && nthOk(r); }), nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
@@ -375,6 +375,7 @@
         dyn.hidden = false;
       } else if (dyn) dyn.hidden = true;
       block.hidden = !regionOk || chrono || (city === 'all' && shown === 0);
+      var chh = block.querySelector('.china-city-head[data-cn]'); if (chh && regionOk && shown && chh.firstChild && chh.firstChild.nodeType === 3 && block.getAttribute('data-region') !== 'others') { var cn = chh.getAttribute('data-cn'); chh.firstChild.textContent = UI.countWord ? cn + shown + '场' : cn + ' (' + shown + ')'; } /* v8f: heading count = results shown */
       var countEl = block.querySelector('.china-count');
       if (countEl) countEl.textContent = regionOk ? '(' + shown + ')' : '';
       if (regionOk) totalVisible += shown;
