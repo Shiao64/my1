@@ -408,6 +408,7 @@
     document.querySelectorAll('.china-city-head').forEach(function(h2){
       var fl = h2.nextElementSibling;
       if (!fl || !fl.classList.contains('china-from-line')) { fl = document.createElement('p'); fl.className = 'china-from-line'; h2.parentNode.insertBefore(fl, h2.nextSibling); }
+      fl.hidden = !!h2.parentNode.querySelector('.china-list > li[data-kind="weekly"]'); /* v9: no from-line in 常规 weekly view */
       var vis = h2.parentNode.querySelectorAll('.china-list > li:not([hidden])'), n = 0;
       vis.forEach(function(li){
         if (li.getAttribute('data-kind') === 'weekly') {
@@ -515,7 +516,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events.json?v=china285';
+  var eventsUrl = UI.eventsUrl || 'events.json?v=china287';
   fetch(eventsUrl, {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
