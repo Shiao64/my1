@@ -409,7 +409,7 @@
     "id": "UiQphCjS",
     "kind": "weekly",
     "type": "practica",
-    "name": "Practica del Paraiso", "name_zh": "练习舞会 15空间舞蹈生活馆",
+    "name": "Práctica del Paraíso", "name_zh": "练习舞会 15空间舞蹈生活馆",
     "city": "Beijing",
     "country": "China",
     "region": "China",
@@ -420,7 +420,7 @@
       1
     ],
     "time": "20:00–24:00",
-    "venue": "15空间舞蹈生活馆（金尚源B1层）",
+    "venue": "15空间舞蹈生活馆（金尚源B1层身心健康工作室）",
     "venue_address": null,
     "organizers": [
       "Jackie"
@@ -441,8 +441,8 @@
       "wechat_label": "Jackie"
     },
     "poster": "/images/asia/posters/R006.jpg",
-    "note_zh": "10/28起场地改到金尚源B1层，新地址我没找到，有兴趣请向组织者Jackie确认。",
-    "note": "Moved to Jinshangyuan B1 from Oct 28; I couldn't find the new address. Please confirm with the organizer Jackie."
+    "note_zh": "60元/人，酒水零食水果自助。场地已改到金尚源B1层，新地址我没找到，有兴趣请向组织者Jackie确认。",
+    "note": "60 RMB per person, self-serve drinks, snacks and fruit. Moved to Jinshangyuan B1; I couldn't find the new address. Please confirm with the organizer Jackie."
   },
   {
     "id": "jtzZIdAx",
