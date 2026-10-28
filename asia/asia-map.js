@@ -64,9 +64,9 @@
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + add);
     return DAYF[d] + ' ' + (n.getMonth()+1) + '/' + n.getDate();
   }
-  var CITY_ORDER = ['Beijing','Shanghai','Chongqing','Tianjin','Hong Kong','Guangzhou','Shenzhen','Xiamen','Zhongshan','Zhuhai','Haikou','Zhengzhou','Wuhan','Nanjing','Suzhou','Shenyang','Dalian','Jinan','Qingdao','Xi-an','Chengdu','Hangzhou','Ningbo','Taipei','Miaoli','Changwon'];
+  var CITY_ORDER = ['Beijing','Shanghai','Chongqing','Tianjin','Hong Kong','Guangzhou','Shenzhen','Xiamen','Zhongshan','Zhuhai','Haikou','Zhengzhou','Wuhan','Nanjing','Suzhou','Shenyang','Dalian','Jinan','Qingdao','Xi-an','Chengdu','Hangzhou','Ningbo','Taipei','Miaoli','Changwon','Kuala Lumpur'];
   var CITY_ID = {'Beijing':'bj','Shanghai':'sh','Hong Kong':'hk','Shenzhen':'sz','Guangzhou':'gz','Suzhou':'su',
-    'Taipei':'tp','Miaoli':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj','Changwon':'cw'};
+    'Taipei':'tp','Miaoli':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj','Changwon':'cw','Kuala Lumpur':'kl'};
   function formatTime12(t){
     if (!t) return '';
     function one(x){
@@ -192,7 +192,7 @@
       var vName = r.venue, usedAddrEn = false; /* v8g: en page — English venue name when available */
       if (!isZh && /[\u4e00-\u9fff]/.test(r.venue)) { if (r.venue_en) vName = r.venue_en; else if (!/[A-Za-z]{3,}/.test(r.venue) && r.venue_address_en) { vName = r.venue_address_en; usedAddrEn = true; } }
       var addr = r.venue_address ? ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>' : '';
-      var addrEn = (!UI.hideAddrEn && r.venue_address_en && !usedAddrEn) ? '<div class="china-addr-en">' + esc(r.venue_address_en) + '</div>' : '';
+      var addrEn = ((!UI.hideAddrEn || r.addr_en_zh) && r.venue_address_en && !usedAddrEn) ? '<div class="china-addr-en">' + esc(r.venue_address_en) + '</div>' : '';
       body.push(line(UI.venue || 'Venue', esc(vName) + addr + addrEn));
     }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));

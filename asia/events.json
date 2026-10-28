@@ -2167,6 +2167,47 @@
     "note": "Halloween costume milonga, DJ Oscar (Spain). ¥40 incl. fruit and drinks. Address and contact not found; please check with the organizer."
   },
   {
+    "id": "E042",
+    "kind": "event",
+    "type": "festival",
+    "name": "The Return 2026 · Javier Rodríguez in Kuala Lumpur",
+    "city": "Kuala Lumpur",
+    "country": "Malaysia",
+    "region": "Malaysia",
+    "start": "2026-11-19",
+    "end": "2026-11-23",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Ceylon House, Ramada Hotel",
+    "venue_address": null,
+    "venue_address_en": "1 Lorong Ceylon, Bukit Ceylon, 50200 Kuala Lumpur",
+    "addr_en_zh": true,
+    "organizers": [
+      "Cristopher Wibowo & Michelle Ng",
+      "EL PISO Dance Academy"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/wibowoymichelle/posts/pfbid02DcuuCEXLu6iKU5AZFywPJfYVusFF4hKCUXWqDLBZrA5ScEMyquHj66GGToB8XqJ2l",
+      "video": null,
+      "other": "https://www.love2tango.com",
+      "register": "https://forms.gle/8ibbzHr6Em4a5MM46"
+    },
+    "contacts": {
+      "phone": "+6012 333 5311",
+      "email": "wibowoymichelle@love2tango.com"
+    },
+    "source": "Facebook Page wibowoymichelle (F23)",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster": "/images/asia/posters/E042.jpg",
+    "poster_pos": "center top",
+    "note_zh": "Gala Milonga「Milonga El Arrabal」11/21 18:00 起至深夜（含自助餐、表演），地点 Ceylon House（Ramada 酒店）。表演：Javier Rodríguez & Sandra Mok；DJ Andy “El Oso”（台湾）。工作坊在 KLPAC（Jalan Sultan Azlan Shah, Sentul, 51000 Kuala Lumpur）。价格：Gala 含自助餐 RM220（常规价），不含自助餐现场入场 RM150；舞会通票 RM328；工作坊全套 RM1260；全包 RM1520。Welcome Milonga 日期未公布。WhatsApp：Michelle +6012 333 5311。",
+    "note": "Gala Milonga \"Milonga El Arrabal\" 21 Nov, 18:00 till late (buffet, show) at Ceylon House, Ramada Hotel. Performers Javier Rodríguez & Sandra Mok; DJ Andy \"El Oso\" (Taiwan). Workshops at KLPAC, Jalan Sultan Azlan Shah, Sentul, 51000 Kuala Lumpur. Prices: Gala with buffet RM220 (regular), walk-in without buffet RM150; milonga pass RM328; full workshops RM1260; all-inclusive RM1520. Welcome Milonga date not announced. WhatsApp Michelle +6012 333 5311."
+  },
+  {
     "id": "U06",
     "kind": "weekly",
     "type": "milonga",
