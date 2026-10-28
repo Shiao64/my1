@@ -1716,8 +1716,10 @@
     "time": "19:00–22:00",
     "venue": "如家酒店6F",
     "venue_address": "天津徐州道1号如家酒店6F",
-    "venue_address_en": null,
-    "organizers": [],
+    "venue_address_en": "6F, Home Inn, No.1 Xuzhou Road, Tianjin",
+    "organizers": [
+      "修老师"
+    ],
     "links": {
       "facebook": null,
       "video": null,
@@ -1730,8 +1732,8 @@
     "tba": false,
     "poster": "/images/asia/posters/R059.jpg",
     "poster_pos": "center top",
-    "note_zh": "40元。联络方式没找到，有兴趣请向组织者确认。",
-    "note": "¥40. Contact not found; please check with the organizer."
+    "note_zh": "40元。联络方式没找到，有兴趣请向组织者修老师确认。",
+    "note": "¥40. Contact not found; please check with the organizer 修老师 (Teacher Xiu)."
   },
   {
     "id": "QbUzonBt",
@@ -2104,7 +2106,7 @@
     "time": null,
     "venue": "Vida Mia Tango Club",
     "venue_address": "北京市东城区东中街58号美惠大厦A座一单元203室",
-    "venue_address_en": null,
+    "venue_address_en": "Room 203, Unit 1, Block A, Meihui Building, No.58 Dongzhong Street, Dongcheng District, Beijing",
     "organizers": [
       "VidaMia（NICO）"
     ],
@@ -2142,7 +2144,7 @@
     "time": "20:00–23:00",
     "venue": "同方财富大厦-1202",
     "venue_address": "杭州凤起路334号同方财富大厦-1202",
-    "venue_address_en": null,
+    "venue_address_en": "Room 1202, Tongfang Wealth Building, No.334 Fengqi Road, Hangzhou",
     "organizers": [
       "Vamos tango"
     ],
