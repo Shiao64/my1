@@ -869,7 +869,8 @@
       "phone": "18500032123",
       "wechat_id": "18500032123",
       "wechat_label": "勾陳"
-    }
+    },
+    "poster": "/images/asia/posters/tango_union_wed.jpg"
   },
   {
     "id": "1hCBcWaP",
@@ -2199,7 +2200,8 @@
     "hidden_reason": null,
     "tba": false,
     "note_zh": "10/31（周六）有一场；是否每周或固定周期举办我没找到，请向组织者张真艺确认。DJ小北（无锡）。联络方式没找到。",
-    "note": "One on Sat Oct 31; I couldn't find whether it repeats weekly or on a set schedule. Please confirm with the organizer Zhang Zhenyi. DJ Xiaobei (Wuxi). I couldn't find a contact."
+    "note": "One on Sat Oct 31; I couldn't find whether it repeats weekly or on a set schedule. Please confirm with the organizer Zhang Zhenyi. DJ Xiaobei (Wuxi). I couldn't find a contact.",
+    "poster": "/images/asia/posters/R034.jpg"
   },
   {
     "id": "R073",
@@ -2233,6 +2235,7 @@
     "hidden_reason": null,
     "tba": false,
     "note_zh": "联络方式没找到，有兴趣请向组织者Tayfun 台风确认。",
-    "note": "I couldn't find a contact; please ask the organizer Tayfun."
+    "note": "I couldn't find a contact; please ask the organizer Tayfun.",
+    "poster": "/images/asia/posters/R073.jpg"
   }
 ]
