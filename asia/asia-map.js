@@ -182,7 +182,9 @@
         if (r.nth && ds.length === 1) when = nthLabel(r.nth, ds[0]) + (r.time ? ' · ' + formatTime12(r.time) : ''); /* v8g: monthly nth weekday */
         else when = every + (ds.length > 1 ? DAYS[ds[0]] + '–' + DAYS[ds[ds.length-1]] : DAYS[ds[0]]) + (r.time ? ' · ' + formatTime12(r.time) : '');
       } else { when = UI.dayTba || 'Day TBA'; attrs += ' data-tba="1"'; }
-      if (r.time) body.push(line(UI.time || 'Time', esc(formatTime12(r.time))));
+      var unconf = r.confirmed_until && r.weekday != null && occISO(r.weekday) > r.confirmed_until; /* v9.4: no poster for this week */
+      if (unconf) { when = when.replace(/ · .*$/, '') + ' · No'; body.push(line(UI.time || 'Time', '<span class="atm-unconfirmed" style="color:#9b1c1c;font-weight:700">' + (isZh ? 'No · 未确定，请联络组织者' : 'No · Not confirmed, please contact the organizer') + '</span>')); }
+      else if (r.time) body.push(line(UI.time || 'Time', esc(formatTime12(r.time))));
     }
     if (r.venue) {
       var vName = r.venue, usedAddrEn = false; /* v8g: en page — English venue name when available */

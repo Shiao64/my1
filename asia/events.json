@@ -2162,8 +2162,9 @@
     "hidden_reason": null,
     "tba": false,
     "poster_pos": "center top",
-    "note_zh": "海报只写10/30（周五）这一场，是否每周举办请向主办方确认。Vamos tango 老店新开（新地址）。票价80元，学员半价，年卡、天蝎座免费；请扫码预约；有抽奖。",
-    "note": "Poster only lists Fri Oct 30; please confirm with the organizer whether it is weekly. Vamos tango reopening at a new address. ¥80; students half price; annual-card holders and Scorpios free; book via the poster QR code; lucky draw."
+    "note_zh": "目前海报只写10/30（周五）这一场；之后的周五没有新海报就显示「No」，请联络组织者确认。Vamos tango 老店新开（新地址）。票价80元，学员半价，年卡、天蝎座免费；请扫码预约；有抽奖。",
+    "note": "The poster only covers Fri Oct 30; later Fridays show \"No\" until a new poster appears, so please confirm with the organizer. Vamos tango reopening at a new address. ¥80; students half price; annual-card holders and Scorpios free; book via the poster QR code; lucky draw.",
+    "confirmed_until": "2026-10-30"
   },
   {
     "id": "R030",
