@@ -123,7 +123,7 @@
   var cur = 0;
   function fit(){ var f = document.getElementById('contact'); if (!f) return;
     var want = 0;
-    if (window.innerWidth <= 600) { var top = f.getBoundingClientRect().top + window.scrollY - cur; want = Math.max(0, Math.ceil(window.innerHeight + 8 - top)); }
+    if (true) { var top = f.getBoundingClientRect().top + window.scrollY - cur; want = Math.max(0, Math.ceil(window.innerHeight + 8 - top)); }
     if (want !== cur) { cur = want; f.style.marginTop = want ? want + 'px' : ''; } }
   window.addEventListener('load', function(){ fit(); setTimeout(fit, 500); setTimeout(fit, 1500); }); window.addEventListener('resize', fit); document.addEventListener('DOMContentLoaded', fit);
   if (window.ResizeObserver) document.addEventListener('DOMContentLoaded', function(){ new ResizeObserver(function(){ fit(); }).observe(document.body); });
