@@ -93,12 +93,38 @@
   });
 })();
 
-/* Footer version line — edit these strings to bump */
+/* Footer signature line — edit these strings to bump */
 (function(){
-  var SITE_VERSION = 'v8.0', SITE_DATE = '2026-10-28', SITE_DESIGNER = 'Shiao Chang';
-  function put(){ var f = document.getElementById('contact'); if (!f || document.getElementById('site-ver')) return; var p = f.querySelector('p'); if (!p) return;
-    var s = document.createElement('span'); s.id = 'site-ver'; s.style.cssText = 'color:#9a9a9a;font-size:11px;margin-left:8px;white-space:nowrap';
-    s.textContent = SITE_VERSION + ' · ' + SITE_DATE + ' · By ' + SITE_DESIGNER; var h0 = p.offsetHeight; p.appendChild(s);
-    if (p.offsetHeight > h0 + 2) { var row = f.querySelector('.tsub-bottom-wrap'); if (row) { s.style.marginLeft = '10px'; s.style.alignSelf = 'center'; row.appendChild(s); } else { p.removeChild(s); s.style.cssText += ';display:block;margin:0;line-height:1;position:relative;top:-2px'; s.style.fontSize = '10px'; p.style.position = 'relative'; f.querySelector('.wrap').appendChild(s); } } }
+  var SITE_VERSION = 'V8.0', SITE_DESIGNER = 'Shiao Chang';
+  var css = '#contact{padding:14px 0 12px!important}#contact .wrap p{margin:0!important;font-size:13px;line-height:1.5}' +
+    '#contact .tsub-bottom-wrap{padding:0 0 8px!important}' +
+    '#site-ver{display:block;text-align:center;margin:8px auto 0;font:500 10.5px/1 Georgia,"Times New Roman",serif;letter-spacing:.18em;color:#c9b48a;opacity:.85}' +
+    '#site-ver b{font-weight:600;color:#e2cf9f;letter-spacing:.08em}' +
+    '#site-ver:before,#site-ver:after{content:"";display:inline-block;width:18px;height:1px;background:currentColor;opacity:.5;vertical-align:middle;margin:0 8px}';
+  function put(){ var f = document.getElementById('contact'); if (!f || document.getElementById('site-ver')) return;
+    var st = document.createElement('style'); st.id = 'site-ver-css'; st.textContent = css; document.head.appendChild(st);
+    var s = document.createElement('div'); s.id = 'site-ver';
+    s.appendChild(document.createTextNode(SITE_DESIGNER + ' ')); var b = document.createElement('b'); b.textContent = '@' + SITE_VERSION; s.appendChild(b);
+    var w = f.querySelectorAll('.wrap'); (w[w.length - 1] || f).appendChild(s); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put();
+})();
+
+/* Open at top: don't restore an old scroll position (e.g. footer) on reload */
+(function(){
+  if (location.hash) return;
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+  function top(){ if (!location.hash) window.scrollTo(0, 0); }
+  top(); window.addEventListener('load', function(){ top(); setTimeout(top, 60); });
+  window.addEventListener('pageshow', function(e){ if (e.persisted) top(); });
+})();
+
+/* Mobile: keep footer below the first screen (only seen after scrolling down) */
+(function(){
+  var cur = 0;
+  function fit(){ var f = document.getElementById('contact'); if (!f) return;
+    var want = 0;
+    if (window.innerWidth <= 600) { var top = f.getBoundingClientRect().top + window.scrollY - cur; want = Math.max(0, Math.ceil(window.innerHeight + 8 - top)); }
+    if (want !== cur) { cur = want; f.style.marginTop = want ? want + 'px' : ''; } }
+  window.addEventListener('load', function(){ fit(); setTimeout(fit, 500); setTimeout(fit, 1500); }); window.addEventListener('resize', fit); document.addEventListener('DOMContentLoaded', fit);
+  if (window.ResizeObserver) document.addEventListener('DOMContentLoaded', function(){ new ResizeObserver(function(){ fit(); }).observe(document.body); });
 })();
