@@ -49,6 +49,7 @@
 <style id="draft-layout-card">/* draft v2 2026-10-28: 活动卡片 mobile — 1:1 cropped poster, desc (展开/收起), date+time; one card per screen */
 @media (max-width:600px){
 html{scroll-snap-type:y proximity;scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}
+#contact{scroll-snap-align:end}
 .ev-list{display:flex;flex-direction:column;gap:20px}
 .ev-list>.ev-card{margin:0!important}
 .ev-card{display:flex;flex-direction:column;box-sizing:border-box;height:calc(100svh - var(--atm-sticky,118px) - var(--atm-cut,70px));padding:0!important;overflow:hidden;border:1px solid #c9b48a!important;border-radius:12px!important;box-shadow:0 2px 8px rgba(6,51,58,.08)!important;background:#fff!important;scroll-snap-align:start}
