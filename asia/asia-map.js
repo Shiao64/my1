@@ -180,7 +180,7 @@
     }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
     if (r.organizers && r.organizers.length) { var oe = organizersText(r.organizers); if (oe) body.push(line(UI.organizer || 'Organizer', esc(oe))); }
-    if (r.note) body.push('<div class="ev-line china-announce' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> ' + esc((isZh && r.note_zh) || r.note) + '</div>');
+    if (r.note) body.push('<div class="ev-line china-announce atm-note-c' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> <span class="atm-note-t">' + esc((isZh && r.note_zh) || r.note) + '</span><button type="button" class="atm-note-tg" hidden>' + (isZh ? '更多' : 'More') + '</button></div>');
     var cb = contactBlock(r); if (cb) body.push(cb);
     var badges = '';
     if (hl) { var ou = (r.links && r.links.other) || '', own = /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(ou);
@@ -518,4 +518,18 @@
         data.forEach(function(r){ var id = cityId(r.city); if (!have[id]) { have[id] = 1; var o = document.createElement('option'); o.value = id; o.setAttribute('data-en', r.city); o.textContent = cityDisplay(r.city); citySel.appendChild(o); } }); }
       window._chinaData = data; render(data); renderFeatList(data); applyFilters(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">' + (UI.loadError || 'Could not load listings') + ' (' + esc(err.message) + '). ' + (UI.refresh || 'Please refresh.') + '</p>'; });
+  /* v8f: collapsible note (one line + More/Less) */
+  (function(){
+    var st = document.createElement('style');
+    st.textContent = '.atm-note-c:not(.open){display:flex;align-items:baseline;gap:4px}.atm-note-c:not(.open) .ev-k{flex:0 0 auto}.atm-note-c:not(.open) .atm-note-t{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.atm-note-tg{flex:0 0 auto;background:none;border:0;padding:0 0 0 4px;margin:0;font:inherit;font-size:.9em;color:#0f5c63;text-decoration:underline;cursor:pointer;white-space:nowrap}.atm-note-tg[hidden]{display:none}';
+    document.head.appendChild(st);
+    function chk(t){ var box = t.parentNode, b = box.querySelector('.atm-note-tg'); if (!b || box.classList.contains('open') || !t.clientWidth) return; b.hidden = t.scrollWidth <= t.clientWidth + 1; }
+    var ro = window.ResizeObserver ? new ResizeObserver(function(es){ es.forEach(function(e){ chk(e.target); }); }) : null;
+    function scan(){ Array.prototype.forEach.call(document.querySelectorAll('.atm-note-t'), function(t){ if (ro && !t._ro) { t._ro = 1; ro.observe(t); } chk(t); }); }
+    new MutationObserver(scan).observe(document.body, {childList:true, subtree:true});
+    window.addEventListener('resize', scan); scan();
+    document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('.atm-note-tg'); if (!b) return;
+      e.preventDefault(); e.stopPropagation(); var box = b.parentNode, o = box.classList.toggle('open');
+      b.textContent = o ? (isZh ? '收起' : 'Less') : (isZh ? '更多' : 'More'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); }, true);
+  })();
 })();
