@@ -75,15 +75,24 @@ html{scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}html:has(body:not(.
 .ev-card>.atm-more[hidden]{display:none}
 .ev-card>.china-links{order:5;margin-top:6px}
 .ev-card>.ev-top{order:6;margin-top:8px;margin-bottom:12px;padding-top:8px;border-top:1px dashed #ead9b8}
-/* draft v4: 类别 = dot + text; 收藏 = gold heart (#C9A227) + red outline/text (#9E1020) */
+/* draft v4: 类别 = dot + text; 收藏 = solid red heart (#C8102E) */
 .ev-top .ev-type{display:none!important}
 .atm-marks{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-right:10px;vertical-align:middle}
 .atm-mk{display:inline-flex;align-items:center;gap:5px;color:#2A1A14;font-size:.8rem;font-weight:600;background:none;border:0;padding:0;line-height:1.2}
 .atm-mk i{width:7px;height:7px;border-radius:50%;background:var(--c,#7A6E64);flex:0 0 7px}
 .atm-mk.atm-fav{color:#9E1020}.atm-mk.atm-fav svg{display:block;flex:0 0 13px}
 .tw-m-feat-k.atm-fav-k{background:none!important;border:0!important;padding:0!important;color:#9E1020!important;display:inline-flex!important;align-items:center;gap:4px;font-weight:700}
-.tw-m-feat-k.atm-fav-k.tw-m-feat-k.atm-fav-k:before{content:"";width:13px;height:13px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 width=%2713%27 height=%2713%27%3E%3Cpath d=%27M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z%27 fill=%27%23C9A227%27 stroke=%27%239E1020%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/contain no-repeat}
-}</style>
+.tw-m-feat-k.atm-fav-k.tw-m-feat-k.atm-fav-k:before{content:"";width:13px;height:13px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 width=%2713%27 height=%2713%27%3E%3Cpath d=%27M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z%27 fill=%27%23C8102E%27 stroke=%27%23C8102E%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/contain no-repeat}
+}
+/* all widths: category dot + red heart */
+.ev-top .ev-type{display:none!important}
+.atm-marks{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-right:10px;vertical-align:middle}
+.atm-mk{display:inline-flex;align-items:center;gap:5px;color:#2A1A14;font-size:.8rem;font-weight:600;background:none;border:0;padding:0;line-height:1.2}
+.atm-mk i{width:7px;height:7px;border-radius:50%;background:var(--c,#7A6E64);flex:0 0 7px}
+.atm-mk.atm-fav{color:#C8102E}.atm-mk.atm-fav svg{display:block;flex:0 0 13px}
+.tw-m-feat-k.atm-fav-k{background:none!important;border:0!important;padding:0!important;color:#C8102E!important;display:inline-flex!important;align-items:center;gap:4px;font-weight:700}
+.tw-m-feat-k.atm-fav-k.tw-m-feat-k.atm-fav-k:before{content:"";width:13px;height:13px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 width=%2713%27 height=%2713%27%3E%3Cpath d=%27M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z%27 fill=%27%23C8102E%27 stroke=%27%23C8102E%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/contain no-repeat}
+</style>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
@@ -301,13 +310,19 @@ window.CHINA_UI = {
 <script src="asia-subscribe.js?v=sub11"></script>
 <style id="draft-fav-hover">/* draft 2026-10-28: 收藏 活动卡片 hover scale-up, mouse only */@media (hover:hover) and (pointer:fine){.ev-card,.atm-fav-card{transition:transform .2s ease}.ev-card:not(.atm-fav-card):hover{transform:scale(1.05);position:relative;z-index:1}.atm-fav-card:hover{transform:scale(1.1);position:relative;z-index:1}}</style>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,tbxuzmah:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏|FAVORITES/i.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
+<script id="draft-marks-all">(function(){var TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',event:'#6B4C9A',marathon:'#2F6FB0',championship:'#8A6A1F',encuentro:'#7A6E64',weekend:'#7A6E64'},TN={milonga:'Milonga',practica:'Práctica',festival:'Festival',event:'Event',marathon:'Marathon',championship:'Championship',encuentro:'Encuentro',weekend:'Weekend'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'tbxuzmah':1};
+function marks(li){var tp=li.querySelector(':scope>.ev-top');if(!tp||tp.querySelector('.atm-marks'))return;var t=li.dataset.type,ty=[];if(li.dataset.alsoRegular&&t!=='event')ty.push('event');ty.push(t);
+ var w=document.createElement('span');w.className='atm-marks';ty.forEach(function(k){var m=document.createElement('span');m.className='atm-mk';m.style.setProperty('--c',TC[k]||'#7A6E64');m.innerHTML='<i></i>';m.appendChild(document.createTextNode(TN[k]||(tp.querySelector('.ev-type')||{}).textContent||k));w.appendChild(m);});
+ if(FAV[li.dataset.id]){var f=document.createElement('span');f.className='atm-mk atm-fav';f.innerHTML="<svg viewBox='0 0 24 24' width='13' height='13' aria-hidden='true'><path d='M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z' fill='#C8102E' stroke='#C8102E' stroke-width='1.6' stroke-linejoin='round'/></svg>"+'Favorites';w.appendChild(f);}tp.insertBefore(w,tp.firstChild);}
+function favk(){document.querySelectorAll('.tw-m-feat-k').forEach(function(k){if(/收藏|FAVORITES/i.test(k.textContent))k.classList.add('atm-fav-k');});}
+function run(){document.querySelectorAll(".ev-card").forEach(marks);favk();}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",run);})();</script>
 <script id="draft-layout-card-js">/* ported from zh: wrap card description, add More/Less */
 (function(){if(!matchMedia('(max-width:600px)').matches)return;
 function stick(){var t=document.querySelector('.china-sticky-top');if(t)document.documentElement.style.setProperty('--atm-sticky',t.offsetHeight+'px');}
 var TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',event:'#6B4C9A',marathon:'#2F6FB0',championship:'#8A6A1F',encuentro:'#7A6E64',weekend:'#7A6E64'},TN={milonga:'Milonga',practica:'Práctica',festival:'Festival',event:'Event',marathon:'Marathon',championship:'Championship',encuentro:'Encuentro',weekend:'Weekend'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'tbxuzmah':1};
 function marks(li){var tp=li.querySelector(':scope>.ev-top');if(!tp||tp.querySelector('.atm-marks'))return;var t=li.dataset.type,ty=[];if(li.dataset.alsoRegular&&t!=='event')ty.push('event');ty.push(t);
  var w=document.createElement('span');w.className='atm-marks';ty.forEach(function(k){var m=document.createElement('span');m.className='atm-mk';m.style.setProperty('--c',TC[k]||'#7A6E64');m.innerHTML='<i></i>';m.appendChild(document.createTextNode(TN[k]||(tp.querySelector('.ev-type')||{}).textContent||k));w.appendChild(m);});
- if(FAV[li.dataset.id]){var f=document.createElement('span');f.className='atm-mk atm-fav';f.innerHTML="<svg viewBox='0 0 24 24' width='13' height='13' aria-hidden='true'><path d='M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z' fill='#C9A227' stroke='#9E1020' stroke-width='1.6' stroke-linejoin='round'/></svg>"+'Favorites';w.appendChild(f);}tp.insertBefore(w,tp.firstChild);}
+ if(FAV[li.dataset.id]){var f=document.createElement('span');f.className='atm-mk atm-fav';f.innerHTML="<svg viewBox='0 0 24 24' width='13' height='13' aria-hidden='true'><path d='M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z' fill='#C8102E' stroke='#C8102E' stroke-width='1.6' stroke-linejoin='round'/></svg>"+'Favorites';w.appendChild(f);}tp.insertBefore(w,tp.firstChild);}
 function favk(){document.querySelectorAll('.tw-m-feat-k').forEach(function(k){if(/收藏|FAVORITES/i.test(k.textContent))k.classList.add('atm-fav-k');});}
 function fix(li){if(li.dataset.atm)return;li.dataset.atm=1;
  if(!li.querySelector(':scope>.ev-cover')){var n=document.createElement('div');var id=li.dataset.id||'',hh=0;for(var k=0;k<id.length;k++)hh=(hh*31+id.charCodeAt(k))>>>0;n.className='atm-nocover p'+(hh%3);
