@@ -488,7 +488,55 @@
     } finally { _urlMute = false; }
     langLinks(urlQS());
   }
-  window.addEventListener('popstate', function(){ if (window._chinaData) urlApply(); });
+  window.addEventListener('popstate', function(){ if (pvClose()) return; if (window._chinaData) urlApply(); });
+  /* v9.1: in-page poster viewer (no new tab); sticky bar = collapsed header; Back / Esc / outside click close */
+  var pv = null, pvHome = false, pvY = 0;
+  function pvBuild(){
+    if (pv) return pv;
+    var st = document.createElement('style');
+    st.textContent = '.atm-pv{position:fixed;inset:0;z-index:10050;background:rgba(6,20,24,.92);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.atm-pv[hidden]{display:none}' +
+      '.atm-pv-bar{position:sticky;top:0;z-index:2;height:44px;display:flex;align-items:center;box-sizing:border-box;border-bottom:1px solid #5fb3bb}' +
+      '.atm-pv-bar .wrap{width:100%;display:flex;align-items:center;height:44px}' +
+      '.atm-pv-t{display:inline-flex;align-items:center;gap:.35em;min-height:44px;margin:0;padding:0;border:0;background:none;cursor:pointer;font-weight:700;font-size:19px;line-height:44px;color:#F6D58E;text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap}' +
+      '.atm-pv-t::before{content:"";flex:0 0 auto;width:.95em;height:.95em;background-color:#F6D58E;-webkit-mask:var(--atm-mag) center/contain no-repeat;mask:var(--atm-mag) center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}' +
+      '.atm-pv-img{display:block;margin:0 auto;max-width:100%;height:auto;cursor:default}' +
+      'body.china-page .ev-card>.ev-cover{cursor:pointer!important}';
+    st.textContent = st.textContent.replace(/var\(--atm-mag\)/g, 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'black\' stroke-width=\'2.6\' stroke-linecap=\'round\'%3E%3Ccircle cx=\'10.5\' cy=\'10.5\' r=\'6.5\'/%3E%3Cpath d=\'M15.5 15.5L21 21\'/%3E%3C/svg%3E")');
+    document.head.appendChild(st);
+    pv = document.createElement('div'); pv.className = 'atm-pv'; pv.hidden = true; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-modal', 'true');
+    var h1 = document.querySelector('.china-map-hero h1'), hero = document.querySelector('.china-map-hero'), bar0 = document.querySelector('.china-hero-bar');
+    var bar = document.createElement('div'); bar.className = 'atm-pv-bar';
+    if (hero) { var cs = getComputedStyle(hero); bar.style.backgroundColor = cs.backgroundColor; bar.style.backgroundImage = cs.backgroundImage; }
+    if (!bar.style.backgroundImage || bar.style.backgroundImage === 'none') bar.style.background = 'linear-gradient(160deg,#0e6e78 0%,#0a4f57 60%,#06333a 100%)';
+    var w = document.createElement('div'); w.className = 'wrap';
+    if (bar0) { var bs = getComputedStyle(bar0); w.style.paddingLeft = bs.paddingLeft; w.style.paddingRight = bs.paddingRight; w.style.maxWidth = bs.maxWidth; w.style.margin = '0 auto'; }
+    var t = document.createElement('button'); t.type = 'button'; t.className = 'atm-pv-t'; t.innerHTML = h1 ? h1.innerHTML : 'Asia Tango Map';
+    if (h1) t.style.fontFamily = getComputedStyle(h1).fontFamily;
+    w.appendChild(t); bar.appendChild(w); pv.appendChild(bar);
+    var img = document.createElement('img'); img.className = 'atm-pv-img'; img.alt = ''; pv.appendChild(img);
+    document.body.appendChild(pv);
+    t.addEventListener('click', function(e){ e.stopPropagation(); pvHome = true; history.back(); });
+    pv.addEventListener('click', function(e){ if (e.target === img) return; history.back(); });
+    return pv;
+  }
+  function pvOpen(src){
+    pvBuild(); var img = pv.querySelector('.atm-pv-img'); img.src = src; pv.scrollTop = 0; pvY = window.scrollY; pv.hidden = false;
+    document.documentElement.style.overflow = 'hidden';
+    history.pushState({atmPv: 1}, '', location.href);
+  }
+  function pvClose(){
+    if (!pv || pv.hidden) return false;
+    pv.hidden = true; document.documentElement.style.overflow = ''; if (!pvHome) window.scrollTo(0, pvY);
+    if (pvHome) { pvHome = false; var compact = document.documentElement.classList.contains('atm-compact'), h = document.querySelector('.china-map-hero h1');
+      if (!compact) document.documentElement.classList.add('atm-compact'); if (h) h.click(); }
+    return true;
+  }
+  document.addEventListener('click', function(e){
+    var cv = e.target.closest && e.target.closest('.ev-card > .ev-cover'); if (!cv) return;
+    var im = cv.querySelector('img'); if (!im) return;
+    e.preventDefault(); e.stopPropagation(); pvOpen(im.currentSrc || im.src);
+  }, true);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && pv && !pv.hidden) history.back(); });
   (function(){ var h = document.querySelector('.china-sticky-top h1') || document.querySelector('h1'); if (!h) return;
     h.addEventListener('click', function(){ if (location.search && window.history && history.pushState) { history.pushState({atm: ''}, '', location.pathname); document.body.classList.add('china-presearch'); langLinks(''); } }); })(); /* v9.1: home (title) clears params */
   function syncDateShow(){
