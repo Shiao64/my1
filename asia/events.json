@@ -2148,7 +2148,7 @@
     "time": "20:30–23:30",
     "venue": "Legends Tango Academy",
     "venue_address": "广州市越秀区明月一路明月阁1706",
-    "venue_address_en": "Room 1706, Mingyue Pavilion, Mingyue 1st Road, Yuexiu District, Guangzhou",
+    "venue_address_en": "Room 1706, 17F, Mingyuege, No.20 Mingyueyilu, Yuexiu District, Guangzhou",
     "organizers": [
       "Legends Tango（Antimo y Sunny）"
     ],
@@ -2157,7 +2157,7 @@
       "video": null,
       "other": null
     },
-    "source": "探戈雷达汇总表 R045 / WeChat G06 2026-10-28",
+    "source": "探戈雷达汇总表 R045 / WeChat G06 2026-10-28 / poster 2026-10-28",
     "updated": "2026-10-28",
     "hidden": false,
     "hidden_reason": null,
@@ -2167,7 +2167,8 @@
       "wechat_id": "18676479599"
     },
     "note_zh": "60元；19:30–20:30另有课程。",
-    "note": "¥60. Class 19:30–20:30 before the practica."
+    "note": "¥60. Class 19:30–20:30 before the practica.",
+    "poster": "/images/asia/posters/R045.jpg"
   },
   {
     "id": "R034",
