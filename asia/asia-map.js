@@ -475,7 +475,7 @@
   function onShowMode(){
     if (!fromEl) { applyFilters(); return; }
     if (showAll()) { fromEl.removeAttribute('min'); fromEl.value = pastISO(7); } /* v9: 常规 range starts today-7 */
-    else { fromEl.min = CUTOFF; if (!fromEl.value || fromEl.value < CUTOFF) fromEl.value = todayISO(); }
+    else { fromEl.min = CUTOFF; if (!fromEl.value || fromEl.value < CUTOFF || fromEl.value === pastISO(7)) fromEl.value = todayISO(); } /* v9: untick restores today */
     applyFilters();
   }
   if (showAllEl) showAllEl.addEventListener('change', onShowMode);
@@ -519,7 +519,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events.json?v=china289';
+  var eventsUrl = UI.eventsUrl || 'events.json?v=china290';
   fetch(eventsUrl, {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
