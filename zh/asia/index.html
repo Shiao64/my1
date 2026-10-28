@@ -320,14 +320,15 @@ window.CHINA_UI = {
   suggestAutoReply: '谢谢！我们已收到你在亚洲探戈地图添加的活动，上线后会回复你。—— tangoweekend.org'
 };
 </script>
-<script src="../../asia/asia-map.js?v=china283"></script>
+<script src="../../asia/asia-map.js?v=china287"></script>
 <script src="../../asia/asia-reglist.js?v=china278"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="../../asia/asia-howto.js?v=china278"></script> -->
 <script src="../../asia/lang-keep.js?v=china241"></script>
-<script src="../../asia/asia-subscribe.js?v=sub11"></script>
+<script src="../../asia/asia-subscribe.js?v=sub12"></script>
+<script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <style id="draft-fav-hover">/* draft 2026-10-28: 收藏 活动卡片 hover scale-up, mouse only */@media (hover:hover) and (pointer:fine){.ev-card,.atm-fav-card{transition:transform .2s ease}.ev-card:not(.atm-fav-card):hover{transform:scale(1.05);position:relative;z-index:1}.atm-fav-card:hover{transform:scale(1.1);position:relative;z-index:1}a.tw-fc{transition:transform .2s ease,box-shadow .2s ease}a.tw-fc:hover{transform:scale(1.08);position:relative;z-index:2;box-shadow:0 10px 24px rgba(0,0,0,.25)}}</style>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,tbxuzmah:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏/.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
-<script id="draft-marks-all">(function(){var TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',event:'#6B4C9A',marathon:'#2F6FB0',championship:'#8A6A1F',encuentro:'#7A6E64',weekend:'#7A6E64'},TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'tbxuzmah':1};
+<script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'tbxuzmah':1};
 function marks(li){var tp=li.querySelector(':scope>.ev-top');if(!tp||tp.querySelector('.atm-marks'))return;var t=li.dataset.type,ty=[];if(li.dataset.alsoRegular&&t!=='event')ty.push('event');ty.push(t);
  var w=document.createElement('span');w.className='atm-marks';ty.forEach(function(k){var m=document.createElement('span');m.className='atm-mk';m.style.setProperty('--c',TC[k]||'#7A6E64');m.innerHTML='<i></i>';m.appendChild(document.createTextNode(TN[k]||(tp.querySelector('.ev-type')||{}).textContent||k));w.appendChild(m);});
  if(FAV[li.dataset.id]){var f=document.createElement('span');f.className='atm-mk atm-fav';f.innerHTML="<svg viewBox='0 0 24 24' width='13' height='13' aria-hidden='true'><path d='M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z' fill='#C8102E' stroke='#C8102E' stroke-width='1.6' stroke-linejoin='round'/></svg>"+'收藏';w.appendChild(f);}tp.insertBefore(w,tp.firstChild);}
@@ -336,7 +337,7 @@ function run(){document.querySelectorAll(".ev-card").forEach(marks);favk();}var 
 <script id="draft-layout-card-js">/* draft v2: wrap 活动卡片 description, add 展开/收起 */
 (function(){if(!matchMedia('(max-width:600px)').matches)return;
 function stick(){var t=document.querySelector('.china-sticky-top');if(t)document.documentElement.style.setProperty('--atm-sticky',t.offsetHeight+'px');}
-var TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',event:'#6B4C9A',marathon:'#2F6FB0',championship:'#8A6A1F',encuentro:'#7A6E64',weekend:'#7A6E64'},TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'tbxuzmah':1};
+var TC=window.ATM_TC,TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'tbxuzmah':1};
 function marks(li){var tp=li.querySelector(':scope>.ev-top');if(!tp||tp.querySelector('.atm-marks'))return;var t=li.dataset.type,ty=[];if(li.dataset.alsoRegular&&t!=='event')ty.push('event');ty.push(t);
  var w=document.createElement('span');w.className='atm-marks';ty.forEach(function(k){var m=document.createElement('span');m.className='atm-mk';m.style.setProperty('--c',TC[k]||'#7A6E64');m.innerHTML='<i></i>';m.appendChild(document.createTextNode(TN[k]||(tp.querySelector('.ev-type')||{}).textContent||k));w.appendChild(m);});
  if(FAV[li.dataset.id]){var f=document.createElement('span');f.className='atm-mk atm-fav';f.innerHTML="<svg viewBox='0 0 24 24' width='13' height='13' aria-hidden='true'><path d='M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z' fill='#C8102E' stroke='#C8102E' stroke-width='1.6' stroke-linejoin='round'/></svg>"+'收藏';w.appendChild(f);}tp.insertBefore(w,tp.firstChild);}
@@ -371,5 +372,59 @@ addEventListener('resize',chk);addEventListener('load',chk);})();</script>
 h.addEventListener('click',function(){var st=document.querySelector('.china-sticky-top'),off=(st&&getComputedStyle(st).position==='sticky'?st.offsetHeight:0)+10,de=document.documentElement,old=de.style.scrollSnapType;
 de.style.scrollSnapType='none';window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+scrollY-off),behavior:'smooth'});
 clearTimeout(h._t);h._t=setTimeout(function(){de.style.scrollSnapType=old;},900);});})();</script>
+<style id="design-v9">/* design review v9 2026-10-28 */
+/* 1 mobile featured strip: bigger cards, clearer swipe affordance */
+@media (max-width:600px){.tw-m-feat-grid.tw-feat-ad>.tw-fc{flex:0 0 66%!important;max-width:66%!important;scroll-snap-align:start}.tw-m-feat-grid.tw-feat-ad{scroll-snap-type:x mandatory}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img{height:auto!important;aspect-ratio:16/9}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img img{width:100%;height:100%!important;object-fit:cover;object-position:top}
+.atm-dots{display:flex;justify-content:center;gap:8px;padding:10px 0 2px}.atm-dots i{width:7px;height:7px;border-radius:50%;background:#D9C9A8;transition:background .2s,width .2s}.atm-dots i.on{background:#0E6E78;width:18px;border-radius:4px}}
+/* 2 tap targets ≥44px (visual size kept, hit area extended) */
+label.m-chip.china-type-check{min-height:44px;box-sizing:border-box}
+.tsub-open{min-height:44px!important;padding-top:0!important;padding-bottom:0!important;display:inline-flex!important;align-items:center;justify-content:center}
+.atm-note-tg,.atm-more,.china-links a,.ev-line a,.top-lang a,.china-showall,.china-addr a{position:relative}
+.atm-note-tg:after,.atm-more:after,.china-links a:after,.ev-line a:after,.top-lang a:after,.china-showall:after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:44px;transform:translateY(-50%)}
+.top-lang a{min-width:44px;min-height:32px;display:inline-flex!important;align-items:center;justify-content:center;box-sizing:border-box}
+/* 3 category/schedule line above title at all widths */
+.ev-card>.ev-top{order:1!important;border-top:0!important;padding-top:0!important;margin-top:12px!important;margin-bottom:2px!important}
+/* 4 note fade: only the last line fades */
+.ev-card:not(.atm-open)>.atm-desc.atm-over:after{height:1.1em!important;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 85%)!important}
+.atm-desc .ev-k{color:#7A5F3E}
+/* 5 venue: name own line, address 13px */
+.ev-line .china-addr{display:block;font-size:13px;line-height:1.4;margin-top:2px}.ev-line .china-addr-en{font-size:13px;line-height:1.4;margin-top:4px}
+/* 6 poster 4:3, top aligned; tap opens full image (existing link) */
+@media (max-width:600px){.ev-card>.ev-cover{padding-top:75%!important}.ev-card>.atm-nocover{padding-top:75%!important}}
+@media (min-width:601px){.ev-card>.ev-cover{display:block;aspect-ratio:4/3!important;height:auto!important;max-height:none!important;overflow:hidden}.ev-card>.ev-cover img{width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important}}
+.ev-card>.ev-cover img{object-position:center top!important}.ev-card>.ev-cover{cursor:zoom-in}
+/* 7 compact header on scroll */
+.china-stw-banner,.china-map-hero,.china-map-hero h1,.china-map-sub{transition:all .2s ease}
+html.atm-compact{--atm-sticky:var(--atm-sticky-full,118px)!important}
+html.atm-compact .china-page .china-sticky-top .china-stw-banner.china-stw-ad{display:none!important}
+html.atm-compact .china-map-hero{padding-top:0!important;padding-bottom:0!important;min-height:0!important}
+html.atm-compact .china-hero-bar{min-height:44px;height:44px;padding-top:0!important;padding-bottom:0!important;align-items:center}
+html.atm-compact .china-map-sub{display:none!important}
+html.atm-compact .china-map-hero h1{font-size:19px!important;margin:0!important;line-height:44px!important;cursor:pointer}
+/* 8 type switch: equal-size segment buttons */
+label.m-chip.china-type-check:not(.china-showall){min-width:132px;box-sizing:border-box;padding-left:14px!important;padding-right:14px!important;justify-content:center;display:inline-flex!important;align-items:center;border:1.5px solid #0E6E78!important;border-radius:22px!important}
+/* 10 desktop: 2-card weekday rows centred */
+@media (min-width:1060px){body.china-page .china-day .ev-list:has(>.ev-card:nth-child(2):last-child){grid-template-columns:repeat(2,calc((100% - 28px)/3))!important;justify-content:center}}
+/* 11 dots 8px */
+.atm-mk i{width:8px!important;height:8px!important;flex:0 0 8px!important}
+/* 12 weekday heading */
+body.china-page .china-group.china-day .china-sub-head{font-size:15px!important;font-weight:700;margin-top:24px!important}
+</style>
+<script id="design-v9-js">(function(){
+var D=document,B=D.body;
+function setStick(){var t=D.querySelector('.china-sticky-top');if(t&&!D.documentElement.classList.contains('atm-compact'))D.documentElement.style.setProperty('--atm-sticky-full',t.offsetHeight+'px');}
+var on=false;function sc(){setStick();var c=scrollY>80;if(c!==on){on=c;D.documentElement.classList.toggle("atm-compact",c);}}
+addEventListener('scroll',sc,{passive:true});sc();
+D.addEventListener('click',function(e){if(!D.documentElement.classList.contains("atm-compact"))return;var h=e.target.closest&&e.target.closest('.china-map-hero h1');if(!h)return;var f=D.getElementById('filters');if(f)scrollTo({top:0,behavior:'smooth'});});
+function cards(){D.querySelectorAll('.ev-card').forEach(function(li){if(li.dataset.v9)return;li.dataset.v9=1;
+ var w=li.querySelector(':scope>.ev-top .ev-when');var hasT=[].some.call(li.querySelectorAll('.ev-line .ev-k'),function(k){return /^(时间|Time)$/i.test(k.textContent.trim())});
+ if(w&&hasT&&w.textContent.indexOf(' · ')>0)w.textContent=w.textContent.split(' · ')[0];
+ li.querySelectorAll('.china-addr').forEach(function(a){var n=a.firstChild;if(n&&n.nodeType===3)n.nodeValue=n.nodeValue.replace(/^\s*·\s*/,'');});});}
+function dots(){var g=D.querySelector('.tw-m-feat-grid.tw-feat-ad');if(!g||g._d||!matchMedia('(max-width:600px)').matches)return;var n=g.children.length;if(n<2)return;g._d=1;var d=D.createElement('div');d.className='atm-dots';d.setAttribute('aria-hidden','true');for(var i=0;i<n;i++)d.appendChild(D.createElement('i'));g.parentNode.insertBefore(d,g.nextSibling);
+ function u(){var c=g.children[0],w=c?c.offsetWidth+10:1,k=Math.min(n-1,Math.round(g.scrollLeft/w));if(g.scrollLeft+g.clientWidth>=g.scrollWidth-4)k=n-1;[].forEach.call(d.children,function(x,j){x.classList.toggle('on',j===k)});}g.addEventListener('scroll',u,{passive:true});u();}
+var t;function run(){cards();dots();setStick();}new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,80)}).observe(D.body,{childList:true,subtree:true});addEventListener('load',run);run();
+new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
+})();</script>
+
 </body>
 </html>
