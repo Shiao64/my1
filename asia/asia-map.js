@@ -79,6 +79,11 @@
     if (parts.length === 2) return one(parts[0]) + '–' + one(parts[1]);
     return one(t);
   }
+  function nthLabel(n, d){
+    if (isZh) return '每月' + (n === -1 ? '最后一个' : '第' + ['','一','二','三','四','五'][n] + '个') + '周' + ['日','一','二','三','四','五','六'][d];
+    var dn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d];
+    return (n === -1 ? 'Last' : ['','1st','2nd','3rd','4th','5th'][n]) + ' ' + dn + ' monthly';
+  }
   function organizersText(list){
     if (!list || !list.length) return '';
     if (UI.keepOrganizerZh) {
@@ -91,7 +96,7 @@
     }
     var out = [];
     list.forEach(function(o){
-      var s = String(o || '').replace(/[\u4e00-\u9fff]+/g, ' ').replace(/\s+/g, ' ').trim();
+      var s = String(o || '').replace(/[\u4e00-\u9fff]+/g, ' ').replace(/[（(]\s*[）)]/g, ' ').replace(/\s+/g, ' ').trim(); /* v8g: drop emptied brackets */
       if (/[A-Za-z]/.test(s) && out.indexOf(s) === -1) out.push(s);
     });
     return out.join(', ');
@@ -169,14 +174,17 @@
       var ds = r.weekdays || (r.weekday != null ? [r.weekday] : null);
       if (ds) {
         var every = UI.every || 'Every ';
-        when = every + (ds.length > 1 ? DAYS[ds[0]] + '–' + DAYS[ds[ds.length-1]] : DAYS[ds[0]]) + (r.time ? ' · ' + formatTime12(r.time) : '');
+        if (r.nth && ds.length === 1) when = nthLabel(r.nth, ds[0]) + (r.time ? ' · ' + formatTime12(r.time) : ''); /* v8g: monthly nth weekday */
+        else when = every + (ds.length > 1 ? DAYS[ds[0]] + '–' + DAYS[ds[ds.length-1]] : DAYS[ds[0]]) + (r.time ? ' · ' + formatTime12(r.time) : '');
       } else { when = UI.dayTba || 'Day TBA'; attrs += ' data-tba="1"'; }
       if (r.time) body.push(line(UI.time || 'Time', esc(formatTime12(r.time))));
     }
     if (r.venue) {
+      var vName = r.venue, usedAddrEn = false; /* v8g: en page — English venue name when available */
+      if (!isZh && /[\u4e00-\u9fff]/.test(r.venue)) { if (r.venue_en) vName = r.venue_en; else if (!/[A-Za-z]{3,}/.test(r.venue) && r.venue_address_en) { vName = r.venue_address_en; usedAddrEn = true; } }
       var addr = r.venue_address ? ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>' : '';
-      var addrEn = (!UI.hideAddrEn && r.venue_address_en) ? '<div class="china-addr-en">' + esc(r.venue_address_en) + '</div>' : '';
-      body.push(line(UI.venue || 'Venue', esc(r.venue) + addr + addrEn));
+      var addrEn = (!UI.hideAddrEn && r.venue_address_en && !usedAddrEn) ? '<div class="china-addr-en">' + esc(r.venue_address_en) + '</div>' : '';
+      body.push(line(UI.venue || 'Venue', esc(vName) + addr + addrEn));
     }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
     if (r.organizers && r.organizers.length) { var oe = organizersText(r.organizers); if (oe) body.push(line(UI.organizer || 'Organizer', esc(oe))); }
@@ -456,6 +464,7 @@
     });
   }
   ['china-from','china-to'].forEach(function(id){ var el = document.getElementById(id); if (el) { el.addEventListener('input', syncDateShow); el.addEventListener('change', syncDateShow);
+    el.addEventListener('change', function(){ if (window._chinaData) { render(window._chinaData); applyFilters(); } }); /* v8g: nth events depend on the week — recount cities */
     el.addEventListener('click', function(){ try { el.showPicker(); } catch(e){} }); } });
   var _af = applyFilters; applyFilters = function(){ syncDateShow(); _af(); };
   if (searchBtn) searchBtn.addEventListener('click', onSearch);
