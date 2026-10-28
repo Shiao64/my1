@@ -17,6 +17,7 @@
   var root = document.getElementById('china-listings');
   var showAllEl = document.getElementById('china-showall');
   function showAll(){ return !!(showAllEl && showAllEl.checked); }
+  function pastISO(days, months){ var n = new Date(); n = new Date(n.getFullYear(), n.getMonth() - (months||0), n.getDate() - (days||0)); var m = n.getMonth()+1, d = n.getDate(); return n.getFullYear() + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d; }
   function todayISO(){ var n = new Date(), m = n.getMonth()+1, d = n.getDate(); return n.getFullYear() + '-' + (m<10?'0':'') + m + '-' + (d<10?'0':'') + d; }
   (function(){
     if (!fromEl || fromEl.value) return;
@@ -315,9 +316,11 @@
     if (!all && (li.getAttribute('data-tba') === '1' || li.getAttribute('data-past') === '1')) return false;
     if (li.getAttribute('data-always') === '1') return true;
     var dates = (li.getAttribute('data-dates') || '').split(',').filter(Boolean);
+    if (all && li.getAttribute('data-tba') === '1') return true; /* v9: 日期未定 unchanged — shown when ticked */
     var r = activeRange(), tdy = todayISO(); if (!all) dates = dates.filter(function(d){ return d >= tdy; });
     if (!r) return all || dates.length > 0; if (!dates.length) return false;
-    return dates.some(function(d){ return d >= r[0] && d <= r[1]; });
+    var lo = r[0]; if (all) { var p3 = pastISO(0, 3); if (p3 < lo) lo = p3; dates = dates.filter(function(d){ return d >= p3; }); } /* v9: 包含已结束 = featured ended within past 3 months */
+    return dates.some(function(d){ return d >= lo && d <= r[1]; });
   }
   function typeMatches(li, types){
     var isEvent = li.getAttribute('data-kind') === 'event';
@@ -471,7 +474,7 @@
   if (searchBtn) searchBtn.addEventListener('click', onSearch);
   function onShowMode(){
     if (!fromEl) { applyFilters(); return; }
-    if (showAll()) { fromEl.removeAttribute('min'); fromEl.value = ''; }
+    if (showAll()) { fromEl.removeAttribute('min'); fromEl.value = pastISO(7); } /* v9: 常规 range starts today-7 */
     else { fromEl.min = CUTOFF; if (!fromEl.value || fromEl.value < CUTOFF) fromEl.value = todayISO(); }
     applyFilters();
   }
@@ -516,7 +519,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events.json?v=china287';
+  var eventsUrl = UI.eventsUrl || 'events.json?v=china288';
   fetch(eventsUrl, {cache: 'no-cache'})
     .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){

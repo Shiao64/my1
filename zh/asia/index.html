@@ -152,7 +152,7 @@ html{scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}html:has(body:not(.
           <label class="china-date-field"><span>从</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-from" class="m-input china-date-input" aria-label="开始日期"><em class="china-date-show" data-for="china-from" aria-hidden="true"></em><span class="atm-date-default" style="position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:12px;color:#8a7a66;white-space:nowrap">默认今天</span></div></label>
           
         </div>
-        <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search">搜索</button></span><div class="china-showall-row"><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> 包含已结束与日期未定</label></div>
+        <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search">搜索</button></span><div class="china-showall-row"><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> 包含已结束</label></div>
       </div>
     </div>
     <p class="note" id="china-date-hint" aria-live="polite"></p>
@@ -307,7 +307,7 @@ window.CHINA_UI = {
   weeklyWord: '每周',
   showingSep: ' · 显示',
   listingsWord: '条',
-  hintShowAll: '（含过往与待定）。',
+  hintShowAll: '（含已结束）。',
   hintWeekly: '（常规活动按周显示）。',
   loadError: '无法加载活动列表',
   refresh: '请刷新页面。',
@@ -320,7 +320,7 @@ window.CHINA_UI = {
   suggestAutoReply: '谢谢！我们已收到你在亚洲探戈地图添加的活动，上线后会回复你。—— tangoweekend.org'
 };
 </script>
-<script src="../../asia/asia-map.js?v=china287"></script>
+<script src="../../asia/asia-map.js?v=china288"></script>
 <script src="../../asia/asia-reglist.js?v=china278"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="../../asia/asia-howto.js?v=china278"></script> -->
 <script src="../../asia/lang-keep.js?v=china241"></script>
