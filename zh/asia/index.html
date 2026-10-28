@@ -320,7 +320,8 @@ function fix(li){if(li.dataset.atm)return;li.dataset.atm=1;
  [].slice.call(li.children).forEach(function(c){if(c.matches('div:not(.ev-top):not(.atm-nocover):not(.china-cancelled-bar):not(.china-links)'))d.appendChild(c);});
  li.insertBefore(d,nm?nm.nextSibling:null);
  var b=document.createElement('button');b.type='button';b.className='atm-more';b.textContent='展开';b.hidden=true;li.insertBefore(b,d.nextSibling);
- b.addEventListener('click',function(e){e.stopPropagation();var o=li.classList.toggle('atm-open');if(!o)size();b.textContent=o?'收起':'展开';});}
+ b.addEventListener('click',function(e){e.stopPropagation();var o=li.classList.toggle('atm-open');if(!o)size();b.textContent=o?'收起':'展开';});
+ li.addEventListener('click',function(e){var cv=e.target.closest&&e.target.closest('.ev-cover,.atm-nocover');if(!cv||cv.parentNode!==li)return;e.preventDefault();e.stopPropagation();b.click();},true);}
 var PEEK=30,GAP=10;
 function vis(){return [].slice.call(document.querySelectorAll('.ev-card')).filter(function(c){return c.offsetParent&&!c.closest('[hidden]');});}
 function size(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--atm-sticky'))||118,av=innerHeight-sh-GAP;
