@@ -352,7 +352,7 @@
   }
   function applyFilters(){
     updateCityOptions();
-    if (citySel && citySel.value === '') return;
+    if (citySel && citySel.value === '') { document.body.classList.add('china-presearch'); return; } /* v8: 常规 without a city shows nothing (no stale 特色 results) */
     var city = citySel ? citySel.value : 'all', types = checkedTypes(), totalVisible = 0;
     var chrono = city === 'all' && types.length === 1 && types[0] === 'event';
     document.querySelectorAll('.china-city-block').forEach(function(block){

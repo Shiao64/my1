@@ -40,7 +40,7 @@
   var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'tsub-open'; btn.id = 'tsub-open'; btn.textContent = L.btn;
   var sug = document.getElementById('china-suggest-open'), lang = document.querySelector('.china-map-lang');
   var pair = document.createElement('div'); pair.className = 'tsub-pair'; pair.appendChild(btn);
-  var zhMobile = document.documentElement.getAttribute('data-asia-lang') === 'zh'; /* draft: zh footer placement on all widths (was mobile only) */
+  var zhMobile = true; /* v8: 新活动通知 in footer on zh and en, all widths */ /* draft: zh footer placement on all widths (was mobile only) */
   var foot = document.getElementById('contact');
   if (zhMobile && foot) { /* draft 2026-10-28: move out of sticky header to page bottom */
     pair.className = 'tsub-pair tsub-bottom'; var fw = document.createElement('div'); fw.className = 'wrap tsub-bottom-wrap'; fw.appendChild(pair); foot.insertBefore(fw, foot.firstChild);
