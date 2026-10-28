@@ -2077,5 +2077,44 @@
     "hidden_reason": null,
     "tba": false,
     "poster_pos": "center top"
+  },
+  {
+    "id": "R030",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga Iris",
+    "name_zh": "Milonga 虹",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "nth": 2,
+    "time": "14:30–19:00",
+    "venue": "余姚路583号",
+    "venue_address": "上海市余姚路583号",
+    "venue_address_en": "No. 583 Yuyao Road, Shanghai",
+    "organizers": [
+      "A.F.Mike（麦克的探戈世界）"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null,
+      "wechat": "https://mp.weixin.qq.com/s/Ld5PGba4gcWnS7uoUB5Wbg",
+      "wechat_label": "Read WeChat article",
+      "wechat_label_zh": "阅读公众号文章"
+    },
+    "note": "Listed as 2nd Saturday, but the first was Oct 17. Please confirm dates with the organizer.",
+    "note_zh": "海报写每月第二个周六，首场却是10/17，日期请向主办方确认。",
+    "source": "wechat groups G03/G10/G13 + official account article (麦克的探戈世界); 14:30–15:00 intro class, 15:00–19:00 milonga; class+milonga ¥120, milonga only ¥80, incl. one drink",
+    "updated": "2026-10-28",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false
   }
 ]
