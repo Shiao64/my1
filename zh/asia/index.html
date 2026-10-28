@@ -53,8 +53,8 @@ html{scroll-snap-type:y proximity;scroll-padding-top:calc(var(--atm-sticky,118px
 .ev-list{display:flex;flex-direction:column;gap:20px}
 .ev-list>.ev-card{margin:0!important}
 .ev-card{display:flex;flex-direction:column;box-sizing:border-box;height:calc(100svh - var(--atm-sticky,118px) - var(--atm-cut,70px));padding:0!important;overflow:hidden;border:1px solid #c9b48a!important;border-radius:12px!important;box-shadow:0 2px 8px rgba(6,51,58,.08)!important;background:#fff!important;scroll-snap-align:start}
-.ev-card{transition:filter .35s ease,opacity .35s ease}
-.ev-card>*{transition:filter .35s ease,opacity .35s ease}.ev-card.atm-dim{position:relative;background:#FBF6EC!important;border-color:#C9B48A!important;box-shadow:0 2px 8px rgba(6,51,58,.08),0 -1px 5px rgba(6,51,58,.07)!important}.ev-card.atm-dim>*{filter:blur(1.5px) saturate(.65) contrast(.88);opacity:.8}.atm-dim-h,.ev-list>:not(.ev-card){transition:filter .35s ease,opacity .35s ease}.atm-dim-h{filter:blur(1.5px) saturate(.65) contrast(.88);opacity:.8}.ev-card.atm-dim::after{content:'';position:absolute;inset:0;background:rgba(251,246,236,.28);border-radius:inherit;pointer-events:none;z-index:5}
+.ev-card{transition:filter .12s ease,opacity .12s ease}
+.ev-card>*{transition:filter .12s ease,opacity .12s ease}.ev-card.atm-dim{position:relative;background:#FBF6EC!important;border-color:#C9B48A!important;box-shadow:0 2px 8px rgba(6,51,58,.08),0 -1px 5px rgba(6,51,58,.07)!important}.ev-card.atm-dim>*{filter:blur(1.5px) saturate(.65) contrast(.88);opacity:.8}.atm-dim-h,.ev-list>:not(.ev-card){transition:filter .12s ease,opacity .12s ease}.atm-dim-h{filter:blur(1.5px) saturate(.65) contrast(.88);opacity:.8}.ev-card.atm-dim::after{content:'';position:absolute;inset:0;background:rgba(251,246,236,.28);border-radius:inherit;pointer-events:none;z-index:5}
 .ev-card.atm-open{height:auto!important;min-height:calc(100svh - var(--atm-sticky,118px) - var(--atm-cut,70px))}
 .ev-card>*{margin-left:14px;margin-right:14px}
 .ev-card>.china-cancelled-bar{order:0;margin:0}
@@ -339,8 +339,10 @@ var PEEK=50,GAP=10;
 function vis(){return [].slice.call(document.querySelectorAll('.ev-card')).filter(function(c){return c.offsetParent&&!c.closest('[hidden]');});}
 function size(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--atm-sticky'))||118,av=innerHeight-sh-GAP;
  cs.forEach(function(c,i){if(c.classList.contains('atm-open'))return;var n=cs[i+1],d=20;if(n){d=n.getBoundingClientRect().top-c.getBoundingClientRect().bottom;}var h=Math.round(av-d-PEEK)+'px';if(c.style.height!==h)c.style.height=h;});}
-function dim(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--atm-sticky'))||118,line=sh+GAP,best=null,bd=1e9;
- cs.forEach(function(c){var r=c.getBoundingClientRect();if(r.bottom<line+40)return;var dd=Math.abs(r.top-line);if(dd<bd){bd=dd;best=c;}});
+var lastY=scrollY,up=false;
+function dim(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--atm-sticky'))||118,line=sh+GAP,best=null,bd=1e9;var y=scrollY;if(y!==lastY){up=y<lastY;lastY=y;}
+ if(up){for(var i=0;i<cs.length;i++){var r0=cs[i].getBoundingClientRect();if(r0.bottom>line+120){best=cs[i];break;}}}
+ if(!best)cs.forEach(function(c){var r=c.getBoundingClientRect();if(r.bottom<line+40)return;var dd=Math.abs(r.top-line);if(dd<bd){bd=dd;best=c;}});
  cs.forEach(function(c){c.classList.toggle('atm-dim',!!best&&c!==best);});
  var hs=[].slice.call(document.querySelectorAll('.ev-list>:not(.ev-card)'));document.querySelectorAll('.ev-list').forEach(function(l){var q=l.previousElementSibling;if(q)hs.push(q);});hs.forEach(function(h){var x=h.nextElementSibling;if(x&&x.classList.contains('ev-list'))x=x.querySelector('.ev-card');while(x&&!x.classList.contains('ev-card'))x=x.nextElementSibling;h.classList.toggle('atm-dim-h',!!best&&!!x&&x.classList.contains('atm-dim')&&!!(best.compareDocumentPosition(h)&4));});}
 var rq;addEventListener('scroll',function(){if(rq)return;rq=requestAnimationFrame(function(){rq=0;dim();});},{passive:true});
