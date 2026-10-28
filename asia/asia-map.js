@@ -4,12 +4,12 @@
   var isZh = UI.lang === 'zh';
   var citySel = document.getElementById('china-city');
   var PH_TXT = /^zh/.test(document.documentElement.lang || '') ? '请选城市' : 'Select a city';
-  if (citySel && !citySel.querySelector('option[value=""]')) { var phO = document.createElement('option'); phO.value = ''; phO.textContent = PH_TXT; citySel.insertBefore(phO, citySel.firstChild); }
+  if (citySel && !citySel.querySelector('option[value=""]')) { var phO = document.createElement('option'); phO.value = ''; phO.textContent = isZh || /^zh/.test(document.documentElement.lang || '') ? '城市' : 'City'; citySel.insertBefore(phO, citySel.firstChild); }
   function cityHint(on){ if (!citySel) return; var w = citySel.parentNode, h = w.querySelector('.atm-city-hint');
     citySel.classList.toggle('atm-city-err', !!on);
     if (on && !h) { h = document.createElement('span'); h.className = 'atm-city-hint'; h.setAttribute('role', 'alert'); h.textContent = PH_TXT; w.appendChild(h); }
     if (h) h.hidden = !on; }
-  if (citySel) citySel.addEventListener('change', function(){ if (citySel.value) { citySel._lastCity = citySel.value; cityHint(false); } var sb = document.getElementById('china-search'); if (sb) sb.classList.toggle('atm-nocity', !citySel.disabled && citySel.value === ''); });
+  if (citySel) citySel.addEventListener('change', function(){ if (citySel.value) { citySel._lastCity = citySel.value; cityHint(false); if (!citySel.disabled && citySel.value !== 'all' && typeof onSearch === 'function') setTimeout(onSearch, 0); } var sb = document.getElementById('china-search'); if (sb) sb.classList.toggle('atm-nocity', !citySel.disabled && citySel.value === ''); });
   var hint = document.getElementById('china-date-hint');
   var fromEl = document.getElementById('china-from');
   var toEl = document.getElementById('china-to');
@@ -313,7 +313,7 @@
   }
   function typeMatches(li, types){
     var isEvent = li.getAttribute('data-kind') === 'event';
-    if (isEvent && li.getAttribute('data-also-regular') === '1' && types.indexOf('regular') !== -1) return true;
+    /* v8: 常规 and 特色 fully separate — also_regular events no longer appear in 常规 */
     return isEvent ? types.indexOf('event') !== -1 : types.indexOf('regular') !== -1;
   }
   function updateCityOptions(){
@@ -322,11 +322,13 @@
     document.querySelectorAll('.china-city-block').forEach(function(block){
       var id = block.getAttribute('data-region'), n = 0;
       block.querySelectorAll('.china-list > li').forEach(function(li){ if (typeMatches(li, types) && itemMatchesDate(li)) n++; });
-      if (n) has[id] = 1;
+      if (n) has[id] = n;
     });
     Array.prototype.forEach.call(citySel.options, function(o){
       if (o.value === 'all' || o.value === '') return;
       var off = !has[o.value]; o.hidden = off; o.disabled = off;
+      var base = o.getAttribute('data-en') ? cityDisplay(o.getAttribute('data-en')) : o.textContent.replace(/\d+场$|\s*[（(]\d+[）)]$/, '');
+      o.textContent = has[o.value] ? base + (isZh ? '（' + has[o.value] + '）' : ' (' + has[o.value] + ')') : base;
     });
     var ev = types.length === 1 && types[0] === 'event';
     var allOpt = citySel._allOpt || (citySel._allOpt = citySel.querySelector('option[value="all"]'));
@@ -338,10 +340,10 @@
       if (allOpt) { if (!allOpt.parentNode) citySel.insertBefore(allOpt, phOpt ? phOpt.nextSibling : citySel.options[0]); allOpt.hidden = false; allOpt.disabled = false; citySel.selectedIndex = allOpt.index; }
     } else {
       var cur = citySel.value;
-      if (allOpt) { if (!allOpt.parentNode) citySel.insertBefore(allOpt, phOpt ? phOpt.nextSibling : citySel.options[0]); allOpt.hidden = false; allOpt.disabled = false; }
-      var keep = (cur === 'all' && allOpt && !citySel._fromEv) ? 'all' : cur && cur !== 'all' && has[cur] ? cur : ((citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '');
-      if (keep) { if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; } citySel.value = keep; }
-      else if (phOpt) { phOpt.hidden = false; phOpt.disabled = false; if (citySel.options[0] !== phOpt) citySel.insertBefore(phOpt, citySel.options[0]); citySel.selectedIndex = phOpt.index; }
+      if (allOpt && allOpt.parentNode) allOpt.parentNode.removeChild(allOpt); /* v8: 常规 has no 所有城市 */
+      var keep = cur && cur !== 'all' && has[cur] ? cur : ((citySel._lastCity && has[citySel._lastCity]) ? citySel._lastCity : '');
+      if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; if (citySel.options[0] !== phOpt) citySel.insertBefore(phOpt, citySel.options[0]); } /* placeholder shows in closed box only, not selectable */
+      if (keep) citySel.value = keep; else if (phOpt) citySel.selectedIndex = phOpt.index;
     }
     if (!ev) citySel._fromEv = false;
     citySel.disabled = ev;
@@ -462,7 +464,9 @@
   Array.prototype.forEach.call(document.querySelectorAll('input[name="etype"]'), function(el){ el.addEventListener('change', function(){
     if (!el.checked && !document.querySelector('input[name="etype"]:checked')) el.checked = true;
     applyFilters();
-  }); });
+  });
+  if (el.value === 'event') el.addEventListener('click', function(){ setTimeout(function(){ if (el.checked) onSearch(); }, 0); }); /* v8: tapping 特色 (even if already selected) searches immediately */
+  });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('change', updateCityOptions); });
   [fromEl, toEl].forEach(function(el){ if (el) el.addEventListener('keydown', function(e){ if (e.key === 'Enter') onSearch(); }); });
   var sug=document.getElementById('china-suggest'), sugUrl=document.getElementById('suggest-url'), sugBtn=document.getElementById('suggest-submit'), sugThanks=document.getElementById('suggest-thanks');

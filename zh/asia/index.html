@@ -50,6 +50,7 @@
 @media (max-width:600px){
 html{scroll-snap-type:y proximity;scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}
 #contact{scroll-snap-align:end}
+.ev-card[hidden]{display:none!important} /* v8: v7 display:flex was un-hiding filtered-out cards */
 .ev-list{display:flex;flex-direction:column;gap:20px}
 .ev-list>.ev-card{margin:0!important}
 .ev-card{display:flex;flex-direction:column;box-sizing:border-box;height:calc(100svh - var(--atm-sticky,118px) - var(--atm-cut,70px));padding:0!important;overflow:hidden;border:1px solid #c9b48a!important;border-radius:12px!important;box-shadow:0 2px 8px rgba(6,51,58,.08)!important;background:#fff!important;scroll-snap-align:start}
@@ -309,7 +310,7 @@ window.CHINA_UI = {
   suggestAutoReply: '谢谢！我们已收到你在亚洲探戈地图添加的活动，上线后会回复你。—— tangoweekend.org'
 };
 </script>
-<script src="../../asia/asia-map.js?v=china271"></script>
+<script src="../../asia/asia-map.js?v=china272"></script>
 <script src="../../asia/asia-howto.js?v=china264"></script>
 <script src="../../asia/lang-keep.js?v=china241"></script>
 <script src="../../asia/asia-subscribe.js?v=draftL3"></script>
