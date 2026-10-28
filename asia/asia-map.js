@@ -462,6 +462,13 @@
     try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch(e) { window.scrollTo(0, y); }
     if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
+  /* v9.6: back from an on-site event page (banner / 「← 亚洲探戈地图」 link, no params) -> same mode+city results and scroll */
+  var _atmRestoreY = null;
+  (function(){ var L = null; try { L = JSON.parse(sessionStorage.getItem('atmLast') || 'null'); sessionStorage.removeItem('atmLast'); } catch(e){}
+    if (!L || Date.now() - L.t > 3600000 || L.p !== location.pathname || !/^\?mode=/.test(L.q || '')) return;
+    var r = document.referrer || '', fromEv = r.indexOf(location.origin + '/event/') === 0;
+    if (!location.search && !location.hash && fromEv && window.history && history.replaceState) history.replaceState(null, '', location.pathname + L.q);
+    if (location.search === L.q) { _atmRestoreY = L.y; try { history.scrollRestoration = 'manual'; } catch(e){} } })();
   (function(){ var q = location.search, deep = !!location.hash || /[?&](city|type|id|event|q|from|to|mode)=/.test(q);
     if (!deep) document.body.classList.add('china-presearch'); })();
   function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '' && !(checkedTypes().length === 1 && checkedTypes()[0] === 'event')) { cityHint(true); try { citySel.focus(); } catch(e){} return; } document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); urlPush(); }
@@ -478,6 +485,8 @@
     var qs = urlQS(); langLinks(qs);
     if (qs !== location.search) history.pushState({atm: qs}, '', location.pathname + qs);
   }
+  function atmRestoreScroll(){ if (_atmRestoreY == null) return; var y = _atmRestoreY, n = 0; _atmRestoreY = null; setTimeout(function(){
+    (function go(){ window.scrollTo(0, Math.min(y, document.documentElement.scrollHeight - window.innerHeight)); if (++n < 12 && Math.abs(window.pageYOffset - y) > 2) setTimeout(go, 150); })(); }, 500); }
   function urlApply(){
     var q = new URLSearchParams(location.search), m = q.get('mode'), c = q.get('city') || '';
     _urlMute = true;
@@ -521,7 +530,7 @@
     w.appendChild(t); bar.appendChild(w); pv.appendChild(bar);
     var img = document.createElement('img'); img.className = 'atm-pv-img'; img.alt = ''; pv.appendChild(img);
     document.body.appendChild(pv);
-    t.addEventListener('click', function(e){ e.stopPropagation(); pvHome = true; history.back(); });
+    t.addEventListener('click', function(e){ e.stopPropagation(); history.back(); }); /* v9.6: title in viewer = back to the same results + scroll (was: home/clear search) */
     pv.addEventListener('click', function(e){ if (e.target === img) return; history.back(); });
     return pv;
   }
@@ -540,7 +549,7 @@
   document.addEventListener('click', function(e){
     var cv = e.target.closest && e.target.closest('.ev-card > .ev-cover'); if (!cv) return;
     var own = cv.parentNode && cv.parentNode.getAttribute('data-own');
-    if (own) { e.preventDefault(); e.stopPropagation(); location.assign(own); return; }
+    if (own) { e.preventDefault(); e.stopPropagation(); try { if (location.search) sessionStorage.setItem('atmLast', JSON.stringify({p: location.pathname, q: location.search, y: window.pageYOffset || 0, t: Date.now()})); } catch(err){} location.assign(own); return; }
     var im = cv.querySelector('img'); if (!im) return;
     e.preventDefault(); e.stopPropagation(); pvOpen(im.currentSrc || im.src);
   }, true);
@@ -617,7 +626,7 @@
       data = data.filter(function(r){ return !r.hidden; });
       if (citySel) { var have = {}; Array.prototype.forEach.call(citySel.options, function(o){ have[o.value] = 1; });
         data.forEach(function(r){ var id = cityId(r.city); if (!have[id]) { have[id] = 1; var o = document.createElement('option'); o.value = id; o.setAttribute('data-en', r.city); o.textContent = cityDisplay(r.city); citySel.appendChild(o); } }); }
-      window._chinaData = data; render(data); renderFeatList(data); applyFilters(); if (/[?&]mode=(featured|regular)/.test(location.search)) urlApply(); })
+      window._chinaData = data; render(data); renderFeatList(data); applyFilters(); if (/[?&]mode=(featured|regular)/.test(location.search)) urlApply(); atmRestoreScroll(); })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">' + (UI.loadError || 'Could not load listings') + ' (' + esc(err.message) + '). ' + (UI.refresh || 'Please refresh.') + '</p>'; });
   /* v8f: collapsible note (one line + More/Less) */
   (function(){

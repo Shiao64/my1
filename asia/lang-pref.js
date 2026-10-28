@@ -44,12 +44,12 @@
   var pref = saved();
   if (page === 'en') {
     if (pref === 'zh' || (!pref && isZhBrowser())) {
-      location.replace(zhUrl);
+      location.replace(zhUrl + location.search + location.hash); /* v9.6: keep ?mode=&city= */
       return;
     }
   } else if (page === 'zh') {
     if (pref === 'en' || (!pref && !isZhBrowser())) {
-      location.replace(enUrl);
+      location.replace(enUrl + location.search + location.hash); /* v9.6: keep ?mode=&city= */
       return;
     }
   }
