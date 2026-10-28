@@ -133,7 +133,9 @@
     var zhReg = isZh && r.kind === 'weekly', isFb = function(u){ return /^https?:\/\/([a-z0-9-]+\.)*(facebook\.com|fb\.com|fb\.me)(\/|$)/i.test(u || ''); };
     if (L.facebook && !isZh) out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
     if (L.register) out.push('<a class="china-linkbtn china-linkbtn-reg" href="' + esc(L.register) + '" target="_blank" rel="noopener">' + (isZh ? '报名' : 'Register') + '</a>');
-    if (L.other && !(isZh && isFb(L.other))) out.push('<a class="china-linkbtn" href="' + esc(/^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other)) + '" target="_blank" rel="noopener">' + (UI.website || 'Website') + '</a>');
+    if (L.other && !(isZh && isFb(L.other))) { var wh = /^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other);
+      var wOwn = wh.match(/^https?:\/\/(www\.)?tangoweekend\.org(\/event\/.*)$/); /* v9.7: on-site page opens in the same tab so Back / 「← 亚洲探戈地图」 return to the same results */
+      out.push('<a class="china-linkbtn" href="' + esc(wOwn ? wOwn[2] : wh) + '"' + (wOwn ? '' : ' target="_blank" rel="noopener"') + '>' + (wOwn && /^(cwCbtm27|manual-hz-jinsha|manual-cq-spicy-2026)$/.test(r.id) ? (isZh ? '详情' : 'Details') : (UI.website || 'Website')) + '</a>'); } /* v9.7: Changwon / Hangzhou Jinsha / Chongqing -> 详情 / Details */
     if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + esc((isZh ? L.wechat_label_zh : L.wechat_label) || UI.wechat || 'WeChat') + '</a>');
     if (L.video && !isZh) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">' + (UI.video || 'Video') + '</a>');
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
@@ -553,6 +555,10 @@
     var im = cv.querySelector('img'); if (!im) return;
     e.preventDefault(); e.stopPropagation(); pvOpen(im.currentSrc || im.src);
   }, true);
+  /* v9.7: any link from the results to an on-site page (网站 / poster / title links) remembers mode+city+scroll for the way back */
+  document.addEventListener('click', function(e){ var a = e.target.closest && e.target.closest('a[href]'); if (!a || !location.search) return;
+    try { var u = new URL(a.href, location.href); if ((u.origin !== location.origin && !/^(www\.)?tangoweekend\.org$/.test(u.hostname)) || u.pathname.indexOf('/event/') !== 0) return;
+      sessionStorage.setItem('atmLast', JSON.stringify({p: location.pathname, q: location.search, y: window.pageYOffset || 0, t: Date.now()})); } catch(err){} }, true);
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && pv && !pv.hidden) history.back(); });
   (function(){ var h = document.querySelector('.china-sticky-top h1') || document.querySelector('h1'); if (!h) return;
     h.addEventListener('click', function(){ if (location.search && window.history && history.pushState) { history.pushState({atm: ''}, '', location.pathname); document.body.classList.add('china-presearch'); langLinks(''); } }); })(); /* v9.1: home (title) clears params */
