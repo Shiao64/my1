@@ -2218,9 +2218,9 @@
       3
     ],
     "time": "20:30–00:00",
-    "venue": "身心健康工作室",
-    "venue_address": "北京市朝阳区新东路新源里20号楼金尚首层109",
-    "venue_address_en": "Room 109, 1F, Jinshang, Building 20, Xinyuanli, Xindong Road, Chaoyang District, Beijing",
+    "venue": "身心健康工作室（JinShang Wellness Studio）",
+    "venue_address": "北京市朝阳区新东路新源里西20号楼金尚首层109",
+    "venue_address_en": "JinShang Wellness Studio, Room 109, 1F, Jinshang, Building 20, Xinyuanli West, Xindong Road, Chaoyang District, Beijing",
     "organizers": [
       "Tayfun 台风"
     ],
@@ -2234,8 +2234,8 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到，有兴趣请向组织者Tayfun 台风确认。",
-    "note": "I couldn't find a contact; please ask the organizer Tayfun.",
+    "note_zh": "80元，含一杯饮品；DJ Tayfun。联络方式没找到，有兴趣请向组织者Tayfun 台风确认。",
+    "note": "80 RMB incl. 1 drink; DJ Tayfun. I couldn't find a contact; please ask the organizer Tayfun.",
     "poster": "/images/asia/posters/R073.jpg"
   }
 ]
