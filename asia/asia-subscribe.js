@@ -92,3 +92,12 @@
       .then(function () { go.disabled = false; go.textContent = L.submit; });
   });
 })();
+
+/* Footer version line — edit these strings to bump */
+(function(){
+  var SITE_VERSION = 'v8.0', SITE_DATE = '2026-10-28', SITE_DESIGNER = 'Xiao Qian';
+  function put(){ var f = document.getElementById('contact'); if (!f || document.getElementById('site-ver')) return; var p = f.querySelector('p'); if (!p) return;
+    var s = document.createElement('span'); s.id = 'site-ver'; s.style.cssText = 'color:#9a9a9a;font-size:11px;margin-left:8px;white-space:nowrap';
+    s.textContent = SITE_VERSION + ' · ' + SITE_DATE + ' · Designed by ' + SITE_DESIGNER; p.appendChild(s); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put();
+})();
