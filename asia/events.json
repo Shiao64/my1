@@ -2130,6 +2130,43 @@
     "poster_pos": "center top"
   },
   {
+    "id": "U11",
+    "kind": "event",
+    "type": "milonga",
+    "name": "小善的下午茶 Milonga 万圣节化妆舞会",
+    "city": "Nanjing",
+    "country": "China",
+    "region": "China",
+    "start": "2026-11-01",
+    "end": "2026-11-01",
+    "weekday": null,
+    "weekdays": null,
+    "time": "16:00–20:00",
+    "venue": null,
+    "venue_address": null,
+    "venue_address_en": null,
+    "organizers": [
+      "小善与探戈"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null,
+      "wechat": "https://mp.weixin.qq.com/s/LMVKwpJgVJeaCfwh79sBpQ",
+      "wechat_label": "Read WeChat article",
+      "wechat_label_zh": "阅读公众号文章"
+    },
+    "poster": "/images/asia/posters/U11.jpg",
+    "source": "WeChat article 小善与探戈 2026-10-28",
+    "updated": "2026-10-28",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster_pos": "center top",
+    "note_zh": "万圣节化妆舞会，DJ Oscar（西班牙）。40元，含水果、饮料。地址和联络方式没找到，请向主办方确认。",
+    "note": "Halloween costume milonga, DJ Oscar (Spain). ¥40 incl. fruit and drinks. Address and contact not found; please check with the organizer."
+  },
+  {
     "id": "U06",
     "kind": "weekly",
     "type": "milonga",
