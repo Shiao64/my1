@@ -8,8 +8,8 @@
     try { if (!force && (localStorage.getItem(KEY) || sessionStorage.getItem(KEY))) return; } catch (e) {}
     var zh = (document.documentElement.lang || '').toLowerCase().indexOf('zh') === 0;
     var steps = zh
-      ? ['特色活动：活动按时间排序<br>常规活动：列出城市每周活动', '可选日期<small>（默认今天）</small>', '点「搜索」']
-      : ['Featured: sorted by time<br>Regular: weekly schedule', 'Date is optional<small> (today by default)</small>', 'Tap <b>Search</b>'];
+      ? ['特色活动：活动按时间排序<br>常规活动：点选城市看每周活动', '可选日期<small>（默认今天）</small>', '点「搜索」']
+      : ['Featured: sorted by time<br>Regular: pick a city, weekly', 'Date is optional<small> (today by default)</small>', 'Tap <b>Search</b>'];
     var css = '.atm-howto{position:relative;margin:0 0 12px;padding:12px 14px 10px;border:2px solid #e8c06a;border-radius:14px;background:#fff8e6;color:#0a4f57;font-size:15px;line-height:1.35;box-shadow:0 2px 8px rgba(0,0,0,.08)}' +
       '.atm-howto h3{margin:0 0 8px!important;font-size:16px!important;color:#0a4f57!important;font-weight:800}' +
       '.atm-howto ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}' +

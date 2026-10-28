@@ -9,7 +9,7 @@
     citySel.classList.toggle('atm-city-err', !!on);
     if (on && !h) { h = document.createElement('span'); h.className = 'atm-city-hint'; h.setAttribute('role', 'alert'); h.textContent = PH_TXT; w.appendChild(h); }
     if (h) h.hidden = !on; }
-  if (citySel) citySel.addEventListener('change', function(){ if (citySel.value) { citySel._lastCity = citySel.value; cityHint(false); if (!citySel.disabled && citySel.value !== 'all' && typeof onSearch === 'function') setTimeout(onSearch, 0); } var sb = document.getElementById('china-search'); if (sb) sb.classList.toggle('atm-nocity', !citySel.disabled && citySel.value === ''); });
+  if (citySel) citySel.addEventListener('change', function(){ if (citySel.value && citySel.value !== 'all') { var rg = document.querySelector('input[name="etype"][value="regular"]'); if (rg && !rg.checked) { var pick = citySel.value; rg.checked = true; citySel._lastCity = pick; applyFilters(); if (citySel.value !== pick) citySel.value = pick; } } /* v8d: picking a city in 特色 switches to 常规 */ if (citySel.value) { citySel._lastCity = citySel.value; cityHint(false); if (!citySel.disabled && citySel.value !== 'all' && typeof onSearch === 'function') setTimeout(onSearch, 0); } var sb = document.getElementById('china-search'); if (sb) sb.classList.toggle('atm-nocity', !citySel.disabled && citySel.value === ''); });
   var hint = document.getElementById('china-date-hint');
   var fromEl = document.getElementById('china-from');
   var toEl = document.getElementById('china-to');
@@ -316,29 +316,30 @@
     /* v8: 常规 and 特色 fully separate — also_regular events no longer appear in 常规 */
     return isEvent ? types.indexOf('event') !== -1 : types.indexOf('regular') !== -1;
   }
+  window.updateCityOptions = updateCityOptions; /* v8e: used by asia-reglist.js */
   function updateCityOptions(){
     if (!citySel) return;
     var types = checkedTypes(), has = {};
     document.querySelectorAll('.china-city-block').forEach(function(block){
       var id = block.getAttribute('data-region'), n = 0;
-      block.querySelectorAll('.china-list > li').forEach(function(li){ if (typeMatches(li, types) && itemMatchesDate(li)) n++; });
+      block.querySelectorAll('.china-list > li').forEach(function(li){ if (typeMatches(li, ['regular']) && itemMatchesDate(li)) n++; }); /* v8d: city list always shows 常规 counts (also in 特色) */
       if (n) has[id] = n;
     });
     Array.prototype.forEach.call(citySel.options, function(o){
       if (o.value === 'all' || o.value === '') return;
       var off = !has[o.value]; o.hidden = off; o.disabled = off;
       var base = o.getAttribute('data-en') ? cityDisplay(o.getAttribute('data-en')) : o.textContent.replace(/\d+场$|\s*[（(]\d+[）)]$/, '');
-      var evMode = types.length === 1 && types[0] === 'event'; /* v8: 特色 shows only the total on 所有城市, no per-city counts */
-      o.textContent = (has[o.value] && !evMode) ? base + (isZh ? '（' + has[o.value] + '）' : ' (' + has[o.value] + ')') : base;
+      o.textContent = has[o.value] ? base + (isZh ? '（' + has[o.value] + '）' : ' (' + has[o.value] + ')') : base;
     });
     var ev = types.length === 1 && types[0] === 'event';
     var allOpt = citySel._allOpt || (citySel._allOpt = citySel.querySelector('option[value="all"]'));
     var phOpt = citySel.querySelector('option[value=""]');
-    if (ev) {
-      cityHint(false); if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; }
+    if (ev) { /* v8d: 特色 — enabled city box, placeholder 城市/City, 常规 list; picking a city switches to 常规 */
+      cityHint(false);
       if (citySel.value && citySel.value !== 'all') citySel._lastCity = citySel.value;
       citySel._fromEv = true;
-      if (allOpt) { if (!allOpt.parentNode) citySel.insertBefore(allOpt, phOpt ? phOpt.nextSibling : citySel.options[0]); allOpt.hidden = false; allOpt.disabled = false; citySel.selectedIndex = allOpt.index; }
+      if (allOpt && allOpt.parentNode) allOpt.parentNode.removeChild(allOpt);
+      if (phOpt) { phOpt.hidden = true; phOpt.disabled = true; if (citySel.options[0] !== phOpt) citySel.insertBefore(phOpt, citySel.options[0]); citySel.selectedIndex = phOpt.index; }
     } else {
       var cur = citySel.value;
       if (allOpt && allOpt.parentNode) allOpt.parentNode.removeChild(allOpt); /* v8: 常规 has no 所有城市 */
@@ -347,14 +348,15 @@
       if (keep) citySel.value = keep; else if (phOpt) citySel.selectedIndex = phOpt.index;
     }
     if (!ev) citySel._fromEv = false;
-    citySel.disabled = ev; document.body.classList.toggle('atm-ev', !!ev); /* v8b: hide city box in 特色 */
-    var evNote = document.querySelector('.atm-ev-note'); if (evNote) { if (evNote.dataset.evTxt == null) evNote.dataset.evTxt = evNote.textContent; evNote.textContent = ev ? evNote.dataset.evTxt : PH_TXT; }
+    citySel.disabled = false; /* v8d: never locked */
+    var evNote = document.querySelector('.atm-ev-note'); if (evNote) { if (evNote.dataset.evTxt == null) evNote.dataset.evTxt = evNote.textContent; evNote.textContent = evNote.dataset.evTxt; /* v8e: notes are static (no city box) */ }
     var sbtn = document.getElementById('china-search'); if (sbtn) sbtn.classList.toggle('atm-nocity', !ev && citySel.value === '');
   }
   function applyFilters(){
     updateCityOptions();
-    if (citySel && citySel.value === '') { document.body.classList.add('china-presearch'); return; } /* v8: 常规 without a city shows nothing (no stale 特色 results) */
-    var city = citySel ? citySel.value : 'all', types = checkedTypes(), totalVisible = 0;
+    var types = checkedTypes(), evM = types.length === 1 && types[0] === 'event';
+    if (!evM && citySel && citySel.value === '') { document.body.classList.add('china-presearch'); return; } /* v8: 常规 without a city shows nothing (no stale 特色 results) */
+    var city = evM ? 'all' : (citySel ? citySel.value : 'all'), totalVisible = 0; /* v8d: 特色 is always all cities */
     var chrono = city === 'all' && types.length === 1 && types[0] === 'event';
     document.querySelectorAll('.china-city-block').forEach(function(block){
       var regionOk = (city === 'all' || city === block.getAttribute('data-region'));
@@ -383,7 +385,7 @@
         var cv = 0;
         cd.querySelectorAll('.china-list > li').forEach(function(li){ var ok = itemMatchesDate(li); li.hidden = !ok; if (ok) cv++; });
         cd.hidden = false; totalVisible = cv;
-        /* v8b: 特色 has no city box (hidden via body.atm-ev), no total on 所有城市 */
+        /* v8d: no total on 所有城市 (city box shows 常规 list) */
         var cc = cd.querySelector('.china-count'); if (cc) cc.textContent = '(' + cv + ')';
       } else cd.hidden = true;
     }
@@ -443,7 +445,7 @@
   }
   (function(){ var q = location.search, deep = !!location.hash || /[?&](city|type|id|event|q|from|to)=/.test(q);
     if (!deep) document.body.classList.add('china-presearch'); })();
-  function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '') { cityHint(true); try { citySel.focus(); } catch(e){} return; } document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); }
+  function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '' && !(checkedTypes().length === 1 && checkedTypes()[0] === 'event')) { cityHint(true); try { citySel.focus(); } catch(e){} return; } document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); }
   function syncDateShow(){
     document.querySelectorAll('.china-date-show').forEach(function(sp){
       var el = document.getElementById(sp.getAttribute('data-for'));

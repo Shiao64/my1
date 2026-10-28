@@ -46,7 +46,6 @@
 <style>#china-suggest-modal .china-suggest-pair{display:flex;gap:10px}#china-suggest-modal .china-suggest-pair>.china-suggest-group{flex:1 1 0;min-width:0}</style>
 <style>/* hide Add event (2026-10-27) */#china-suggest-open,.china-suggest-open,#china-suggest-modal{display:none!important}</style>
 <style id="atm-day-center">/* v8c: 常规 weekday heading bold + divider; single card centred on desktop */body.china-page .china-group.china-day .china-sub-head{font-weight:700;color:var(--ink);padding-bottom:5px;border-bottom:1px solid #C9B48A;text-decoration:none}@media (min-width:900px){body.china-page .china-day .ev-list>.ev-card:only-child{grid-column:1/-1;justify-self:center;width:calc((100% - 14px)/2)}}@media (min-width:1060px){body.china-page .china-day .ev-list>.ev-card:only-child{grid-column:2/3;width:auto;justify-self:stretch}}@media (min-width:1060px){body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child){grid-template-columns:repeat(4,minmax(0,1fr))}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child){grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child)>.ev-card,body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child)>.ev-card{min-width:0;overflow-wrap:anywhere}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child) img,body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child) img{max-width:100%;height:auto}}@media (min-width:900px) and (max-width:1059px){body.china-page .china-day .ev-list>.ev-card:last-child:nth-child(2n+3){grid-column:1/-1;justify-self:center;width:calc((100% - 14px)/2)}}@media (min-width:1060px){body.china-page .china-day .ev-list>.ev-card:last-child:nth-child(3n+7){grid-column:2/3}}</style>
-<style id="atm-ev-nocity">/* v8b: 特色 mode has no city box */body.atm-ev .atm-row-reg .china-city-wrap,body.china-page.atm-ev #filters .atm-row-reg .china-city-wrap{display:none!important}</style>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
@@ -79,7 +78,7 @@
     <a class="tw-m-ad" href="../event/beijing-2027-tango-weekend/"><span class="tw-m-ad-k">Favorites</span> 4th Beijing Select Tango Weekend · Jun 18–22, 2027 <span aria-hidden="true">→</span></a>
     <div class="m-block china-filters-row1 atm-form">
       <div class="atm-row atm-row-ev"><label class="m-chip china-type-check"><input type="radio" name="etype" value="event" checked><span class="china-check" aria-hidden="true"></span> Featured</label><span class="atm-ev-note">All cities, sorted by time</span></div>
-      <div class="atm-row atm-row-reg"><label class="m-chip china-type-check"><input type="radio" name="etype" value="regular"><span class="china-check" aria-hidden="true"></span> Regular</label>
+      <div class="atm-row atm-row-reg"><label class="m-chip china-type-check"><input type="radio" name="etype" value="regular"><span class="china-check" aria-hidden="true"></span> Regular</label><span class="atm-ev-note atm-reg-note">Pick a city, see the week</span>
         <div class="china-city-wrap"><select id="china-city" class="m-select m-select-city" aria-label="City">
           <option value="all">All cities</option>
           <option value="bj" data-en="Beijing">Beijing</option>
@@ -257,8 +256,9 @@ window.CHINA_UI = {
   fsEmail: 'Your email', fsWechat: 'Your WeChat ID', fsUrl: 'Event website'
 };
 </script>
-<script src="asia-map.js?v=china276"></script>
-<script src="asia-howto.js?v=china264"></script>
+<script src="asia-map.js?v=china278"></script>
+<script src="asia-reglist.js?v=china278"></script>
+<script src="asia-howto.js?v=china278"></script>
 <script src="lang-keep.js?v=china241"></script>
 <script src="asia-subscribe.js?v=sub9"></script>
 </body>
