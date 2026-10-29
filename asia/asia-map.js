@@ -100,9 +100,11 @@
     }
     var out = [];
     list.forEach(function(o){
+      var s0 = String(o || '').replace(/\s+/g, ' ').trim(); if (/^[A-Za-z][A-Za-z .'-]* [\u4e00-\u9fff]{2,3}$/.test(s0)) { if (out.indexOf(s0) === -1) out.push(s0); return; } /* cardB: "Rose 常歌" = one person's English + Chinese name, keep whole on en */
       var s = String(o || '').replace(/[\u4e00-\u9fff]+/g, ' ').replace(/[（(]\s*[）)]/g, ' ').replace(/\s+/g, ' ').trim(); /* v8g: drop emptied brackets */
       if (/[A-Za-z]/.test(s) && out.indexOf(s) === -1) out.push(s);
     });
+    if (!out.length) list.forEach(function(o){ var s = String(o || '').replace(/\s+/g, ' ').trim(); if (s && out.indexOf(s) === -1) out.push(s); }); /* cardB: Chinese-only organizer names still shown on en (Chinese mixed ok) */
     return out.join(', ');
   }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -118,6 +120,9 @@
   }
   function cardDate(a, b){ /* v9.9: one card date format on zh+en, e.g. "June 18–22, 2027" */
     if (!a) return ''; b = b || a;
+    if (isZh) { /* v10.6: zh pages show 2026/10/31 (YYYY/MM/DD); ranges 2026/11/05–09, 2026/10/28–11/02, 2026/12/30–2027/01/02 */
+      var p2 = function(n){ return (n < 10 ? '0' : '') + n; }, X = a.split('-').map(Number), Y = b.split('-').map(Number), s0 = X[0] + '/' + p2(X[1]) + '/' + p2(X[2]);
+      if (a === b) return s0; return s0 + '–' + Y[0] + '/' + p2(Y[1]) + '/' + p2(Y[2]); } /* cardB: full YYYY/MM/DD on both ends, same as cards */
     var M = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     var A = a.split('-').map(Number), B = b.split('-').map(Number), ma = M[A[1]-1], mb = M[B[1]-1];
     if (a === b) return ma + ' ' + A[2] + ', ' + A[0];
@@ -220,7 +225,7 @@
     var cx = r.status === 'cancelled';
     if (!cx && r.cancelled_dates && r.weekday != null) { var t0 = baseDate(); var nx = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + ((r.weekday - t0.getDay() + 7) % 7)); cx = r.cancelled_dates.indexOf(nx.getFullYear() + '-' + pad(nx.getMonth()+1) + '-' + pad(nx.getDate())) !== -1; }
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
-    return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + (r.also_regular ? ' data-also-regular="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img' + thImg(pp) + ' alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"></a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img' + thImg(c[0]) + ' decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
+    return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + ((r.region === 'Taiwan' || r.region === 'Hong Kong' || r.country === 'Taiwan' || r.country === 'Hong Kong') ? ' data-hant="1"' : '') + (r.also_regular ? ' data-also-regular="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img' + thImg(pp) + ' alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"></a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img' + thImg(c[0]) + ' decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
       '<h3 class="ev-name">' + esc((isZh && r.name_zh) || r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
@@ -546,7 +551,10 @@
       '.atm-pv-t{display:inline-flex;align-items:center;gap:.35em;min-height:44px;margin:0;padding:0;border:0;background:none;cursor:pointer;font-weight:700;font-size:19px;line-height:44px;color:#F6D58E;text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap}' +
       '.atm-pv-t::before{content:"";flex:0 0 auto;width:.95em;height:.95em;background-color:#F6D58E;-webkit-mask:var(--atm-mag) center/contain no-repeat;mask:var(--atm-mag) center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}' +
       '.atm-pv-img{display:block;margin:0 auto;max-width:100%;height:auto;cursor:default}' +
-      'body.china-page .ev-card>.ev-cover{cursor:pointer!important}';
+      'body.china-page .ev-card>.ev-cover{cursor:pointer!important}' +
+      '.atm-pv-x{position:fixed;top:52px;right:10px;z-index:3;width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.55);color:#fff;font:400 30px/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}' +
+      '.atm-pv-back{display:block;margin:18px auto 40px;min-width:180px;min-height:52px;padding:12px 28px;border-radius:999px;border:0;background:#F6D58E;color:#06333a;font:700 17px/1.2 inherit;cursor:pointer}' +
+      '.ev-card.atm-ring{outline:3px solid #F6B93B!important;outline-offset:3px;transition:outline-color .9s ease}.ev-card.atm-ring-off{outline-color:rgba(246,185,59,0)!important}';
     st.textContent = st.textContent.replace(/var\(--atm-mag\)/g, 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'black\' stroke-width=\'2.6\' stroke-linecap=\'round\'%3E%3Ccircle cx=\'10.5\' cy=\'10.5\' r=\'6.5\'/%3E%3Cpath d=\'M15.5 15.5L21 21\'/%3E%3C/svg%3E")');
     document.head.appendChild(st);
     pv = document.createElement('div'); pv.className = 'atm-pv'; pv.hidden = true; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-modal', 'true');
@@ -560,11 +568,18 @@
     if (h1) t.style.fontFamily = getComputedStyle(h1).fontFamily;
     w.appendChild(t); bar.appendChild(w); pv.appendChild(bar);
     var img = document.createElement('img'); img.className = 'atm-pv-img'; img.alt = ''; pv.appendChild(img);
+    /* v10.6 option A: way back to the card — big ✕, bottom 返回卡片/Back, swipe down; all go through history.back() so the phone back gesture works the same */
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'atm-pv-x'; x.setAttribute('aria-label', isZh ? '关闭' : 'Close'); x.textContent = '\u2715'; pv.appendChild(x);
+    var bk = document.createElement('button'); bk.type = 'button'; bk.className = 'atm-pv-back'; bk.textContent = isZh ? '返回卡片' : 'Back'; pv.appendChild(bk);
+    [x, bk].forEach(function(n){ n.addEventListener('click', function(e){ e.stopPropagation(); history.back(); }); });
+    var ty = null; pv.addEventListener('touchstart', function(e){ ty = pv.scrollTop <= 0 && e.touches.length === 1 ? e.touches[0].clientY : null; }, {passive: true});
+    pv.addEventListener('touchend', function(e){ if (ty == null) return; var dy = e.changedTouches[0].clientY - ty; ty = null; if (dy > 90 && pv.scrollTop <= 0) history.back(); }, {passive: true});
     document.body.appendChild(pv);
     t.addEventListener('click', function(e){ e.stopPropagation(); history.back(); }); /* v9.6: title in viewer = back to the same results + scroll (was: home/clear search) */
     pv.addEventListener('click', function(e){ if (e.target === img) return; history.back(); });
     return pv;
   }
+  var pvCard = null, pvTop = 0;
   function pvOpen(src){
     pvBuild(); var img = pv.querySelector('.atm-pv-img'); img.src = src; pv.scrollTop = 0; pvY = window.scrollY; pv.hidden = false;
     document.documentElement.style.overflow = 'hidden';
@@ -573,16 +588,17 @@
   function pvClose(){
     if (!pv || pv.hidden) return false;
     pv.hidden = true; document.documentElement.style.overflow = ''; if (!pvHome) window.scrollTo(0, pvY);
+    var rc = pvCard; pvCard = null; if (rc && !rc.isConnected) { var q = rc.getAttribute('data-id'), o = rc.getAttribute('data-occ'); rc = [].filter.call(document.querySelectorAll('.ev-card[data-id="' + q + '"]'), function(n){ return n.offsetParent && (!o || n.getAttribute('data-occ') === o) && !n.closest('.atm-recent'); })[0] || null; } if (rc && !pvHome) { var fixY = function(){ var d = rc.getBoundingClientRect().top - pvTop; if (Math.abs(d) > 1) window.scrollBy(0, d); }; fixY(); requestAnimationFrame(fixY); setTimeout(fixY, 250); rc.classList.remove('atm-ring-off'); rc.classList.add('atm-ring'); setTimeout(function(){ rc.classList.add('atm-ring-off'); }, 700); setTimeout(function(){ rc.classList.remove('atm-ring', 'atm-ring-off'); }, 1700); }
     if (pvHome) { pvHome = false; var compact = document.documentElement.classList.contains('atm-compact'), h = document.querySelector('.china-map-hero h1');
       if (!compact) document.documentElement.classList.add('atm-compact'); if (h) h.click(); }
     return true;
   }
   document.addEventListener('click', function(e){
-    var cv = e.target.closest && e.target.closest('.ev-card > .ev-cover'); if (!cv) return;
-    var own = cv.parentNode && cv.parentNode.getAttribute('data-own');
+    var cv = e.target.closest && e.target.closest('.ev-card .ev-cover'); if (!cv) return;
+    var own = cv.closest('.ev-card') && cv.closest('.ev-card').getAttribute('data-own');
     if (own) { e.preventDefault(); e.stopPropagation(); try { if (location.search) sessionStorage.setItem('atmLast', JSON.stringify({p: location.pathname, q: location.search, y: window.pageYOffset || 0, t: Date.now()})); } catch(err){} location.assign(own); return; }
     var im = cv.querySelector('img'); if (!im) return;
-    e.preventDefault(); e.stopPropagation(); pvOpen(im.getAttribute('data-full') || cv.getAttribute('href') && /\.(jpe?g|png|webp)(\?|$)/i.test(cv.getAttribute('href')) && cv.getAttribute('href') || im.currentSrc || im.src);
+    e.preventDefault(); e.stopPropagation(); pvCard = cv.closest('.ev-card'); pvTop = pvCard.getBoundingClientRect().top; pvOpen(im.getAttribute('data-full') || cv.getAttribute('href') && /\.(jpe?g|png|webp)(\?|$)/i.test(cv.getAttribute('href')) && cv.getAttribute('href') || im.currentSrc || im.src);
   }, true);
   /* v10.5: card links that open a new tab (公众号 / poster / website) failed in browsers that block or swallow target=_blank (favorites-strip links are same-tab and worked).
      On-site poster images open in the in-page viewer like the cover; other new-tab links fall back to the same tab if no window opened. */
