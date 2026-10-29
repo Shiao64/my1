@@ -5632,36 +5632,37 @@
     "city": "Ulsan",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "Ulsan Tango Sociedad",
-    "venue_address": null,
-    "venue_address_en": "Ulsan Tango Sociedad, Ulsan, South Korea",
-    "addr_en_zh": true,
+    "venue": "델루나 (Ulsan Tango Sociedad milonga)",
+    "venue_address": "울산 남구 왕생로45번길 8, 6층",
+    "venue_address_en": "6F, 8, Wangsaeng-ro 45beon-gil, Nam-gu, Ulsan",
+    "addr_en_zh": false,
     "organizers": [
-      "Ulsan Tango Sociedad"
+      "Ulsan Tango Sociedad",
+      "최라미"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/groups/920426911358893/",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
       "phone": null,
       "email": null
     },
-    "source": "ktnow.kr (F32) week 2026-10-29–11-01",
+    "source": "Facebook group 울산탱고 Ulsan Tango Sociedad https://www.facebook.com/groups/920426911358893/",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "联络方式没找到。入场费10,000韩元（带食物分享5,000韩元）。19:30–20:30有初学者课。时间：8시30분부터 11시30분 +@。资料来自Facebook群组울산탱고 Ulsan Tango Sociedad（https://www.facebook.com/groups/920426911358893/），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Entry 10,000 KRW (5,000 KRW if you bring food to share). Beginner class 19:30–20:30. Post says \"8시30분부터 11시30분 +@\". Info from Facebook group 울산탱고 Ulsan Tango Sociedad (https://www.facebook.com/groups/920426911358893/); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 4,
     "weekdays": [
       4
     ],
-    "time": "20:30–24:00",
+    "time": "20:30–23:30",
     "poster": "/images/korea/ktnow/ulsan_tango_sociedad.jpg"
   },
   {
