@@ -3024,7 +3024,8 @@
     "weekdays": [
       4
     ],
-    "time": "16:00–19:00"
+    "time": "16:00–19:00",
+    "poster": "/images/korea/ktnow/studio_ocho_ab_practica.webp"
   },
   {
     "id": "R087",
@@ -3063,7 +3064,8 @@
     "weekdays": [
       4
     ],
-    "time": "19:30–23:30"
+    "time": "19:30–23:30",
+    "poster": "/images/korea/ktnow/andante.jpeg"
   },
   {
     "id": "R088",
@@ -3142,7 +3144,8 @@
     "weekdays": [
       4
     ],
-    "time": "20:00–24:00"
+    "time": "20:00–24:00",
+    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
   },
   {
     "id": "R090",
@@ -3260,7 +3263,8 @@
     "weekdays": [
       5
     ],
-    "time": "20:00–02:00"
+    "time": "20:00–02:00",
+    "poster": "/images/korea/ktnow/andante.jpeg"
   },
   {
     "id": "R093",
@@ -3338,7 +3342,8 @@
     "weekdays": [
       5
     ],
-    "time": "21:00–02:00"
+    "time": "21:00–02:00",
+    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
   },
   {
     "id": "R095",
@@ -3377,7 +3382,8 @@
     "weekdays": [
       6
     ],
-    "time": "13:00–17:00"
+    "time": "13:00–17:00",
+    "poster": "/images/korea/ktnow/studio_ocho.jpg"
   },
   {
     "id": "R096",
@@ -3495,7 +3501,8 @@
     "weekdays": [
       6
     ],
-    "time": "16:00–20:00"
+    "time": "16:00–20:00",
+    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
   },
   {
     "id": "R099",
@@ -3534,7 +3541,8 @@
     "weekdays": [
       6
     ],
-    "time": "17:00–23:00"
+    "time": "17:00–23:00",
+    "poster": "/images/korea/ktnow/andante.jpeg"
   },
   {
     "id": "R100",
@@ -3573,7 +3581,8 @@
     "weekdays": [
       6
     ],
-    "time": "17:00–19:30"
+    "time": "17:00–19:30",
+    "poster": "/images/korea/ktnow/studio_ocho.jpg"
   },
   {
     "id": "E047",
@@ -3689,7 +3698,8 @@
     "weekdays": [
       6
     ],
-    "time": "19:00–21:00"
+    "time": "19:00–21:00",
+    "poster": "/images/korea/ktnow/club_troilo.jpg"
   },
   {
     "id": "R103",
@@ -3728,7 +3738,8 @@
     "weekdays": [
       6
     ],
-    "time": "19:30–23:00"
+    "time": "19:30–23:00",
+    "poster": "/images/korea/ktnow/otra.jpeg"
   },
   {
     "id": "R104",
@@ -3807,7 +3818,8 @@
     "weekdays": [
       6
     ],
-    "time": "20:00–23:00"
+    "time": "20:00–23:00",
+    "poster": "/images/korea/ktnow/solo_tango.png"
   },
   {
     "id": "R106",
@@ -3846,7 +3858,8 @@
     "weekdays": [
       6
     ],
-    "time": "21:00–03:00"
+    "time": "21:00–03:00",
+    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
   },
   {
     "id": "R107",
@@ -3924,7 +3937,8 @@
     "weekdays": [
       0
     ],
-    "time": "11:00–13:00"
+    "time": "11:00–13:00",
+    "poster": "/images/korea/ktnow/studio_ocho.jpg"
   },
   {
     "id": "R109",
@@ -3963,7 +3977,8 @@
     "weekdays": [
       0
     ],
-    "time": "14:00–18:00"
+    "time": "14:00–18:00",
+    "poster": "/images/korea/ktnow/andante.jpeg"
   },
   {
     "id": "R110",
@@ -4081,7 +4096,8 @@
     "weekdays": [
       0
     ],
-    "time": "15:00–18:00"
+    "time": "15:00–18:00",
+    "poster": "/images/korea/ktnow/bailamos_tango.jpeg"
   },
   {
     "id": "R113",
@@ -4120,7 +4136,8 @@
     "weekdays": [
       0
     ],
-    "time": "15:00–17:00"
+    "time": "15:00–17:00",
+    "poster": "/images/korea/ktnow/bonita.jpg"
   },
   {
     "id": "R114",
@@ -4159,7 +4176,8 @@
     "weekdays": [
       0
     ],
-    "time": "15:00–17:30"
+    "time": "15:00–17:30",
+    "poster": "/images/korea/ktnow/hengyat_hwai_guide_practica.webp"
   },
   {
     "id": "R115",
@@ -4198,7 +4216,8 @@
     "weekdays": [
       0
     ],
-    "time": "19:00–23:00"
+    "time": "19:00–23:00",
+    "poster": "/images/korea/ktnow/andante_la_melodia_poster.jpg"
   },
   {
     "id": "R116",
@@ -4237,7 +4256,8 @@
     "weekdays": [
       0
     ],
-    "time": "19:00–24:00"
+    "time": "19:00–24:00",
+    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
   },
   {
     "id": "R117",
@@ -4316,7 +4336,8 @@
     "weekdays": [
       5
     ],
-    "time": "14:00–17:00"
+    "time": "14:00–17:00",
+    "poster": "/images/korea/ktnow/en_paz_studio.png"
   },
   {
     "id": "R119",
@@ -4355,7 +4376,8 @@
     "weekdays": [
       5
     ],
-    "time": "19:00–23:00"
+    "time": "19:00–23:00",
+    "poster": "/images/korea/ktnow/en_paz_studio.png"
   },
   {
     "id": "R120",
@@ -4394,7 +4416,8 @@
     "weekdays": [
       5
     ],
-    "time": "19:30–22:00"
+    "time": "19:30–22:00",
+    "poster": "/images/korea/ktnow/la_vida_studio.jpg"
   },
   {
     "id": "R121",
@@ -4433,7 +4456,8 @@
     "weekdays": [
       6
     ],
-    "time": "18:00–21:00"
+    "time": "18:00–21:00",
+    "poster": "/images/korea/ktnow/todotango.jpg"
   },
   {
     "id": "R122",
@@ -4472,7 +4496,8 @@
     "weekdays": [
       6
     ],
-    "time": "19:00–21:30"
+    "time": "19:00–21:30",
+    "poster": "/images/korea/ktnow/la_vida_studio.jpg"
   },
   {
     "id": "R123",
@@ -4511,7 +4536,8 @@
     "weekdays": [
       6
     ],
-    "time": "19:00–23:00"
+    "time": "19:00–23:00",
+    "poster": "/images/korea/ktnow/el_tango.jpeg"
   },
   {
     "id": "R124",
@@ -4550,7 +4576,8 @@
     "weekdays": [
       0
     ],
-    "time": "11:00–14:00"
+    "time": "11:00–14:00",
+    "poster": "/images/korea/ktnow/el_tango.jpeg"
   },
   {
     "id": "R125",
@@ -4589,7 +4616,8 @@
     "weekdays": [
       0
     ],
-    "time": "18:00–20:00"
+    "time": "18:00–20:00",
+    "poster": "/images/korea/ktnow/el_tango.jpeg"
   },
   {
     "id": "R126",
@@ -4628,7 +4656,8 @@
     "weekdays": [
       0
     ],
-    "time": "18:00–22:00"
+    "time": "18:00–22:00",
+    "poster": "/images/korea/ktnow/en_paz_studio.png"
   },
   {
     "id": "R127",
@@ -4667,7 +4696,8 @@
     "weekdays": [
       4
     ],
-    "time": "19:30–23:00"
+    "time": "19:30–23:00",
+    "poster": "/images/korea/ktnow/amigo_practica.png"
   },
   {
     "id": "R128",
@@ -4706,7 +4736,8 @@
     "weekdays": [
       4
     ],
-    "time": "20:30–23:30"
+    "time": "20:30–23:30",
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
   },
   {
     "id": "R129",
@@ -4748,7 +4779,8 @@
     "time": "20:30–23:30",
     "cancelled_dates": [
       "2026-10-29"
-    ]
+    ],
+    "poster": "/images/korea/ktnow/studio_242.jpg"
   },
   {
     "id": "R130",
@@ -4787,7 +4819,8 @@
     "weekdays": [
       5
     ],
-    "time": "21:00–24:00"
+    "time": "21:00–24:00",
+    "poster": "/images/korea/ktnow/detango.png"
   },
   {
     "id": "R131",
@@ -4826,7 +4859,8 @@
     "weekdays": [
       6
     ],
-    "time": "14:30–18:30"
+    "time": "14:30–18:30",
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
   },
   {
     "id": "R132",
@@ -4865,7 +4899,8 @@
     "weekdays": [
       6
     ],
-    "time": "19:00–23:00"
+    "time": "19:00–23:00",
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
   },
   {
     "id": "R133",
@@ -4904,7 +4939,8 @@
     "weekdays": [
       6
     ],
-    "time": "19:30–23:30"
+    "time": "19:30–23:30",
+    "poster": "/images/korea/ktnow/amigo_milonga.jpeg"
   },
   {
     "id": "R134",
@@ -4943,7 +4979,8 @@
     "weekdays": [
       6
     ],
-    "time": "20:00–24:00"
+    "time": "20:00–24:00",
+    "poster": "/images/korea/ktnow/studio_242.jpg"
   },
   {
     "id": "R135",
@@ -4982,7 +5019,8 @@
     "weekdays": [
       6
     ],
-    "time": "21:30–01:30"
+    "time": "21:30–01:30",
+    "poster": "/images/korea/ktnow/tango_mio.jpeg"
   },
   {
     "id": "R136",
@@ -5021,7 +5059,8 @@
     "weekdays": [
       0
     ],
-    "time": "16:00–20:00"
+    "time": "16:00–20:00",
+    "poster": "/images/korea/ktnow/detango.png"
   },
   {
     "id": "R137",
@@ -5060,7 +5099,8 @@
     "weekdays": [
       0
     ],
-    "time": "18:00–22:00"
+    "time": "18:00–22:00",
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
   },
   {
     "id": "R138",
@@ -5099,7 +5139,8 @@
     "weekdays": [
       4
     ],
-    "time": "19:00–23:00"
+    "time": "19:00–23:00",
+    "poster": "/images/korea/ktnow/laboom.webp"
   },
   {
     "id": "R139",
@@ -5138,7 +5179,8 @@
     "weekdays": [
       5
     ],
-    "time": "21:00–02:00"
+    "time": "21:00–02:00",
+    "poster": "/images/korea/ktnow/daejeon_tango_onada.png"
   },
   {
     "id": "R140",
@@ -5177,7 +5219,8 @@
     "weekdays": [
       6
     ],
-    "time": "21:00–02:00"
+    "time": "21:00–02:00",
+    "poster": "/images/korea/ktnow/daejeon_tango_onada.png"
   },
   {
     "id": "R141",
@@ -5216,7 +5259,8 @@
     "weekdays": [
       0
     ],
-    "time": "19:00–22:30"
+    "time": "19:00–22:30",
+    "poster": "/images/korea/ktnow/azucar.png"
   },
   {
     "id": "R142",
@@ -5255,7 +5299,8 @@
     "weekdays": [
       5
     ],
-    "time": "21:00–23:00"
+    "time": "21:00–23:00",
+    "poster": "/images/korea/ktnow/mi_vida_tango_studio.jpeg"
   },
   {
     "id": "R143",
@@ -5294,7 +5339,8 @@
     "weekdays": [
       5
     ],
-    "time": "21:00–24:00"
+    "time": "21:00–24:00",
+    "poster": "/images/korea/ktnow/con_tango.webp"
   },
   {
     "id": "R144",
@@ -5333,7 +5379,8 @@
     "weekdays": [
       0
     ],
-    "time": "15:00–19:00"
+    "time": "15:00–19:00",
+    "poster": "/images/korea/ktnow/con_tango.webp"
   },
   {
     "id": "R145",
@@ -5372,7 +5419,8 @@
     "weekdays": [
       0
     ],
-    "time": "15:00–19:00"
+    "time": "15:00–19:00",
+    "poster": "/images/korea/ktnow/abrazos.jpg"
   },
   {
     "id": "R146",
@@ -5411,7 +5459,8 @@
     "weekdays": [
       5
     ],
-    "time": "20:30–24:00"
+    "time": "20:30–24:00",
+    "poster": "/images/korea/ktnow/tango_club_mi_noche.jpeg"
   },
   {
     "id": "R147",
@@ -5450,7 +5499,8 @@
     "weekdays": [
       4
     ],
-    "time": "20:30–23:30"
+    "time": "20:30–23:30",
+    "poster": "/images/korea/ktnow/studioaura.png"
   },
   {
     "id": "R148",
@@ -5489,7 +5539,8 @@
     "weekdays": [
       4
     ],
-    "time": "20:00–23:00"
+    "time": "20:00–23:00",
+    "poster": "/images/korea/ktnow/jinju_tango_people.jpg"
   },
   {
     "id": "R149",
@@ -5528,7 +5579,8 @@
     "weekdays": [
       5
     ],
-    "time": "20:30–23:30"
+    "time": "20:30–23:30",
+    "poster": "/images/korea/ktnow/postango.jpg"
   },
   {
     "id": "R150",
@@ -5607,7 +5659,8 @@
       3,
       5
     ],
-    "time": "15:00–18:00"
+    "time": "15:00–18:00",
+    "poster": "/images/korea/ktnow/studio_ocho.jpg"
   },
   {
     "id": "R152",
@@ -5646,7 +5699,8 @@
     "weekdays": [
       4
     ],
-    "time": "20:30–24:00"
+    "time": "20:30–24:00",
+    "poster": "/images/korea/ktnow/ulsan_tango_sociedad.jpg"
   },
   {
     "id": "R153",
@@ -5685,7 +5739,8 @@
     "weekdays": [
       1
     ],
-    "time": "20:00–00:30"
+    "time": "20:00–00:30",
+    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
   },
   {
     "id": "R154",
@@ -5763,7 +5818,8 @@
     "weekdays": [
       1
     ],
-    "time": "21:00–23:30"
+    "time": "21:00–23:30",
+    "poster": "/images/korea/ktnow/abrazos.jpg"
   },
   {
     "id": "R156",
@@ -5880,7 +5936,8 @@
     "weekdays": [
       1
     ],
-    "time": "19:30–23:30"
+    "time": "19:30–23:30",
+    "poster": "/images/korea/ktnow/otra.jpeg"
   },
   {
     "id": "R159",
@@ -5919,7 +5976,8 @@
     "weekdays": [
       1
     ],
-    "time": "20:00–23:00"
+    "time": "20:00–23:00",
+    "poster": "/images/korea/ktnow/studio_ocho_moonlight.webp"
   },
   {
     "id": "R160",
@@ -5959,7 +6017,8 @@
       1,
       2
     ],
-    "time": "20:00"
+    "time": "20:00",
+    "poster": "/images/korea/ktnow/postango.jpg"
   },
   {
     "id": "R161",
@@ -5998,7 +6057,8 @@
     "weekdays": [
       1
     ],
-    "time": "20:00–23:00"
+    "time": "20:00–23:00",
+    "poster": "/images/korea/ktnow/studio_242.jpg"
   },
   {
     "id": "R162",
@@ -6037,7 +6097,8 @@
     "weekdays": [
       1
     ],
-    "time": "20:00–22:40"
+    "time": "20:00–22:40",
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
   },
   {
     "id": "R163",
@@ -6076,7 +6137,8 @@
     "weekdays": [
       1
     ],
-    "time": "21:00–23:00"
+    "time": "21:00–23:00",
+    "poster": "/images/korea/ktnow/azucar.png"
   },
   {
     "id": "R164",
@@ -6115,7 +6177,8 @@
     "weekdays": [
       2
     ],
-    "time": "19:30–24:00"
+    "time": "19:30–24:00",
+    "poster": "/images/korea/ktnow/andante_orange_poster.webp"
   },
   {
     "id": "R165",
@@ -6193,7 +6256,8 @@
     "weekdays": [
       2
     ],
-    "time": "20:00–23:30"
+    "time": "20:00–23:30",
+    "poster": "/images/korea/ktnow/solo_tango.png"
   },
   {
     "id": "R167",
@@ -6232,7 +6296,8 @@
     "weekdays": [
       2
     ],
-    "time": "20:30–24:00"
+    "time": "20:30–24:00",
+    "poster": "/images/korea/ktnow/la_ventana_tango_fire.webp"
   },
   {
     "id": "R168",
@@ -6271,7 +6336,8 @@
     "weekdays": [
       2
     ],
-    "time": "20:30–23:30"
+    "time": "20:30–23:30",
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
   },
   {
     "id": "R169",
@@ -6310,7 +6376,8 @@
     "weekdays": [
       2
     ],
-    "time": "20:00–23:30"
+    "time": "20:00–23:30",
+    "poster": "/images/korea/ktnow/laboom.webp"
   },
   {
     "id": "R170",
@@ -6388,7 +6455,8 @@
     "weekdays": [
       2
     ],
-    "time": "21:00–23:00"
+    "time": "21:00–23:00",
+    "poster": "/images/korea/ktnow/club_troilo_eg.jpg"
   },
   {
     "id": "R172",
@@ -6427,7 +6495,8 @@
     "weekdays": [
       2
     ],
-    "time": "21:00–24:00"
+    "time": "21:00–24:00",
+    "poster": "/images/korea/ktnow/studio_ocho.jpg"
   },
   {
     "id": "R173",
@@ -6466,7 +6535,8 @@
     "weekdays": [
       2
     ],
-    "time": "20:00–22:00"
+    "time": "20:00–22:00",
+    "poster": "/images/korea/ktnow/mi_vida_tango_studio.jpeg"
   },
   {
     "id": "R174",
@@ -6544,7 +6614,8 @@
     "weekdays": [
       3
     ],
-    "time": "20:00–24:00"
+    "time": "20:00–24:00",
+    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
   },
   {
     "id": "R176",
@@ -6583,7 +6654,8 @@
     "weekdays": [
       3
     ],
-    "time": "13:00–16:00"
+    "time": "13:00–16:00",
+    "poster": "/images/korea/ktnow/todotango.jpg"
   },
   {
     "id": "R177",
@@ -6622,7 +6694,8 @@
     "weekdays": [
       3
     ],
-    "time": "19:30–23:30"
+    "time": "19:30–23:30",
+    "poster": "/images/korea/ktnow/en_paz_studio.png"
   },
   {
     "id": "R178",
@@ -6661,7 +6734,8 @@
     "weekdays": [
       3
     ],
-    "time": "21:15–23:15"
+    "time": "21:15–23:15",
+    "poster": "/images/korea/ktnow/amigo_milonga.jpeg"
   },
   {
     "id": "R179",
@@ -6700,7 +6774,8 @@
     "weekdays": [
       3
     ],
-    "time": "20:30–23:30"
+    "time": "20:30–23:30",
+    "poster": "/images/korea/ktnow/azucar.png"
   },
   {
     "id": "R180",
@@ -6739,7 +6814,8 @@
     "weekdays": [
       3
     ],
-    "time": "20:30–23:30"
+    "time": "20:30–23:30",
+    "poster": "/images/korea/ktnow/cheongju_tango_urquiza.jpg"
   },
   {
     "id": "R181",
@@ -6817,7 +6893,8 @@
     "weekdays": [
       3
     ],
-    "time": "20:00–23:00"
+    "time": "20:00–23:00",
+    "poster": "/images/korea/ktnow/solo_tango.png"
   },
   {
     "id": "R183",
@@ -6856,7 +6933,8 @@
     "weekdays": [
       3
     ],
-    "time": "20:00–23:00"
+    "time": "20:00–23:00",
+    "poster": "/images/korea/ktnow/jinju_tango_people.jpg"
   },
   {
     "id": "R184",
@@ -6895,7 +6973,8 @@
     "weekdays": [
       3
     ],
-    "time": "20:30–23:00"
+    "time": "20:30–23:00",
+    "poster": "/images/korea/ktnow/con_tango.webp"
   },
   {
     "id": "R185",
@@ -6973,7 +7052,8 @@
     "weekdays": [
       0
     ],
-    "time": "19:00–23:00"
+    "time": "19:00–23:00",
+    "poster": "/images/korea/ktnow/la_ventana_sueno_dulce.jpg"
   },
   {
     "id": "R187",
