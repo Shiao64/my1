@@ -383,29 +383,6 @@
     var evNote = document.querySelector('.atm-ev-note'); if (evNote) { if (evNote.dataset.evTxt == null) evNote.dataset.evTxt = evNote.textContent; evNote.textContent = evNote.dataset.evTxt; /* v8e: notes are static (no city box) */ }
     var sbtn = document.getElementById('china-search'); if (sbtn) sbtn.classList.toggle('atm-nocity', !ev && citySel.value === '');
   }
-  /* v10: default images for imageless cards — shuffled per view, no repeat within a cycle of 8, no identical neighbours; decoration only */
-  var DFLT = [1,2,3,4,5,6,7,8].map(function(i){ return '/images/asia/defaults/default' + i + '.jpg'; });
-  function atmAssignDefaults(){
-    var cards = Array.prototype.filter.call(document.querySelectorAll('.ev-card'), function(li){
-      if (li.closest('[hidden]')) return false;
-      var c = li.querySelector(':scope > .ev-cover'); return !c || c.classList.contains('atm-dflt'); });
-    var seq = [], last = null;
-    while (seq.length < cards.length) {
-      var b = DFLT.slice();
-      for (var i = b.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = b[i]; b[i] = b[j]; b[j] = t; }
-      if (b[0] === last) { var t2 = b[0]; b[0] = b[b.length - 1]; b[b.length - 1] = t2; }
-      seq = seq.concat(b); last = b[b.length - 1];
-    }
-    cards.forEach(function(li, k){
-      var c = li.querySelector(':scope > .ev-cover.atm-dflt');
-      if (!c) { c = document.createElement('div'); c.className = 'ev-cover atm-dflt'; c.setAttribute('aria-hidden', 'true');
-        var im = document.createElement('img'); im.alt = ''; im.loading = 'lazy'; im.decoding = 'async'; c.appendChild(im);
-        var nc = li.querySelector(':scope > .atm-nocover'); if (nc) nc.remove();
-        var cx = li.querySelector(':scope > .china-cancelled-bar'); li.insertBefore(c, cx ? cx.nextSibling : li.firstChild); }
-      var img = c.querySelector('img'); if (img.getAttribute('src') !== seq[k]) img.setAttribute('src', seq[k]);
-    });
-  }
-  window.atmAssignDefaults = atmAssignDefaults;
   function applyFilters(){
     updateCityOptions();
     var types = checkedTypes(), evM = types.length === 1 && types[0] === 'event';
@@ -445,7 +422,6 @@
       } else cd.hidden = true;
     }
     var ge = document.querySelector('.china-global-empty'); if (ge) ge.hidden = totalVisible > 0;
-    try { atmAssignDefaults(); } catch(e){}
     var fv = fromEl && fromEl.value ? fromEl.value : todayISO(), tv = toEl && toEl.value ? toEl.value : '';
     function addD(iso, k){ var d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + k); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
     var w0 = fv, w1 = tv && tv >= fv ? tv : addD(fv, 6);
@@ -566,7 +542,7 @@
       '.atm-pv-t{display:inline-flex;align-items:center;gap:.35em;min-height:44px;margin:0;padding:0;border:0;background:none;cursor:pointer;font-weight:700;font-size:19px;line-height:44px;color:#F6D58E;text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap}' +
       '.atm-pv-t::before{content:"";flex:0 0 auto;width:.95em;height:.95em;background-color:#F6D58E;-webkit-mask:var(--atm-mag) center/contain no-repeat;mask:var(--atm-mag) center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}' +
       '.atm-pv-img{display:block;margin:0 auto;max-width:100%;height:auto;cursor:default}' +
-      'body.china-page .ev-card>.ev-cover{cursor:pointer!important}body.china-page .ev-card>.ev-cover.atm-dflt{cursor:default!important}';
+      'body.china-page .ev-card>.ev-cover{cursor:pointer!important}';
     st.textContent = st.textContent.replace(/var\(--atm-mag\)/g, 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'black\' stroke-width=\'2.6\' stroke-linecap=\'round\'%3E%3Ccircle cx=\'10.5\' cy=\'10.5\' r=\'6.5\'/%3E%3Cpath d=\'M15.5 15.5L21 21\'/%3E%3C/svg%3E")');
     document.head.appendChild(st);
     pv = document.createElement('div'); pv.className = 'atm-pv'; pv.hidden = true; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-modal', 'true');
@@ -598,7 +574,7 @@
     return true;
   }
   document.addEventListener('click', function(e){
-    var cv = e.target.closest && e.target.closest('.ev-card > .ev-cover'); if (!cv) return; if (cv.classList.contains('atm-dflt')) return; /* v10: default image is decoration, not a poster */
+    var cv = e.target.closest && e.target.closest('.ev-card > .ev-cover'); if (!cv) return;
     var own = cv.parentNode && cv.parentNode.getAttribute('data-own');
     if (own) { e.preventDefault(); e.stopPropagation(); try { if (location.search) sessionStorage.setItem('atmLast', JSON.stringify({p: location.pathname, q: location.search, y: window.pageYOffset || 0, t: Date.now()})); } catch(err){} location.assign(own); return; }
     var im = cv.querySelector('img'); if (!im) return;

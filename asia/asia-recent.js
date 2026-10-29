@@ -79,7 +79,7 @@
   }, true);
 
   var lst = document.getElementById('china-listings'), busy = false, tm = null;
-  function refresh() { busy = true; try { reorder(); drawRow(); if (window.atmAssignDefaults) window.atmAssignDefaults(); } finally { busy = false; } }
+  function refresh() { busy = true; try { reorder(); drawRow(); } finally { busy = false; } }
   if (lst && window.MutationObserver) new MutationObserver(function () { if (busy) return; clearTimeout(tm); tm = setTimeout(function () { refresh(); deep(); }, 60); }).observe(lst, { childList: true, subtree: true });
   function deep() { var m = /^#v-(.+)$/.exec(location.hash); if (!m) return; var el = document.querySelector('#china-listings .ev-card[data-id="' + decodeURIComponent(m[1]) + '"]'); if (el && el.offsetParent) { history.replaceState(history.state, '', location.pathname + location.search); setTimeout(function () { flash(el); }, 300); } }
   var n = 0; (function wait() { if (window._chinaData) return refresh(); if (++n < 100) setTimeout(wait, 100); })();
