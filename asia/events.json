@@ -3118,7 +3118,7 @@
     "region": "South Korea",
     "venue": "TANGO o nada",
     "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
-    "venue_address_en": "B1, 193, Donggyo-ro, Mapo-gu, Seoul",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
       "TANGO o nada"
@@ -3129,16 +3129,16 @@
       "other": "https://ktnow.kr/?lang=en"
     },
     "contacts": {
-      "phone": null,
-      "email": null
+      "phone": "01091373710",
+      "email": "uccessk@hanmail.net"
     },
     "source": "ktnow.kr (F32) week 2026-10-29–11-01",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 4,
