@@ -2208,6 +2208,125 @@
     "note": "Gala Milonga \"Milonga El Arrabal\" 21 Nov, 18:00 till late (buffet, show) at Ceylon House, Ramada Hotel. Performers Javier Rodríguez & Sandra Mok; DJ Andy \"El Oso\" (Taiwan). Workshops at KLPAC, Jalan Sultan Azlan Shah, Sentul, 51000 Kuala Lumpur. Prices: Gala with buffet RM220 (regular), walk-in without buffet RM150; milonga pass RM328; full workshops RM1260; all-inclusive RM1520. Welcome Milonga date not announced. WhatsApp Michelle +6012 333 5311."
   },
   {
+    "id": "E043",
+    "kind": "event",
+    "type": "event",
+    "name": "Camila Ameglio & René-Marie Meignan: The Joy of Social Tango",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "region": "Hong Kong",
+    "start": "2026-11-02",
+    "end": "2026-11-05",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Dance Concept",
+    "venue_address": null,
+    "venue_address_en": "7/F, Great Smart Tower, 230 Wanchai Road, Wanchai, Hong Kong",
+    "addr_en_zh": true,
+    "organizers": [
+      "Tango Escencia (Daisy Tsang)"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/19VZxXs6gT/",
+      "video": null,
+      "other": "https://www.hongkongtango.com/programs/45"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "hongkongtango.com (F27)",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster": null,
+    "poster_pos": null,
+    "note_zh": "信息来自 hongkongtango.com。工作坊。11/2 21:00–24:00 引导练习（HK$100）；11/3、11/4 20:30–23:00 工作坊 1、2（各 HK$460）；11/5 20:30–23:00 工作坊 3（HK$260）。全套 HK$1,200（6.5 小时工作坊 + 引导练习）。中文地址未找到，以上为英文地址。联络方式没找到。",
+    "note": "Info from hongkongtango.com. Workshops. 2 Nov 21:00–24:00 guided practica (HK$100); 3 & 4 Nov 20:30–23:00 Workshops 1 & 2 (HK$460 each); 5 Nov 20:30–23:00 Workshop 3 (HK$260). Full pass HK$1,200 (6.5 h workshops + guided practica). Contact not found."
+  },
+  {
+    "id": "E044",
+    "kind": "event",
+    "type": "marathon",
+    "name": "Hong Kong Tango Marathon 2026",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "region": "Hong Kong",
+    "start": "2026-11-06",
+    "end": "2026-11-08",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Studio 9",
+    "venue_address": null,
+    "venue_address_en": "8/F, 9 Des Voeux Road Central, Hong Kong",
+    "addr_en_zh": true,
+    "organizers": [
+      "Tango Escencia (Daisy Tsang)"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://www.hongkongtango.com/programs/34",
+      "register": "https://forms.gle/8Ujr6vctqJA5xbiQ8"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "hongkongtango.com (F27)",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster": null,
+    "poster_pos": null,
+    "note_zh": "信息来自 hongkongtango.com。5 场舞会：11/6 21:00–02:00（DJ Kaiyu Liu，香港）；11/7 14:00–18:30（DJ Ferrol Matthew，雅加达）、21:00–03:00（DJ Miguel Calvo，阿根廷，现场乐队 Tango en Vivo）；11/8 15:00–19:00（DJ Lung-Kuei Lin，台北）在 Studio 9；11/8 21:00–01:30 第 5 场改在 Danzstage（20/F, 148 Electric Road, Tin Hau），DJ Jin Epitone（首尔）。价格未公布。备注：hongkongtango.com 写 Studio 9 地址为「9 Des Voeux Road, Sheung Wan」，Tango City 写「9 Des Voeux Rd Central, Central」，请以主办方为准。中文地址未找到。联络方式没找到。",
+    "note": "Info from hongkongtango.com. 5 milongas: 6 Nov 21:00–02:00 (DJ Kaiyu Liu, HK); 7 Nov 14:00–18:30 (DJ Ferrol Matthew, Jakarta), 21:00–03:00 (DJ Miguel Calvo, Argentina, live music Tango en Vivo); 8 Nov 15:00–19:00 (DJ Lung-Kuei Lin, Taipei) at Studio 9; 8 Nov 21:00–01:30 Session 5 at Danzstage, 20/F, 148 Electric Road, Tin Hau, DJ Jin Epitone (Seoul). Prices not published. Note: hongkongtango.com gives Studio 9 as '9 Des Voeux Road, Sheung Wan'; Tango City gives '9 Des Voeux Rd Central, Central'. Contact not found."
+  },
+  {
+    "id": "E045",
+    "kind": "event",
+    "type": "event",
+    "name": "Volver! Javier Rodriguez",
+    "city": "Hong Kong",
+    "country": "Hong Kong",
+    "region": "Hong Kong",
+    "start": "2026-11-26",
+    "end": "2026-11-30",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Danzstage",
+    "venue_address": null,
+    "venue_address_en": "20/F, 148 Electric Road, Tin Hau, Hong Kong",
+    "addr_en_zh": true,
+    "organizers": [
+      "Sandrini Tango (Sandra Mok)"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://www.hongkongtango.com/programs/36",
+      "register": "https://forms.gle/6ei9WfkL39uJ8rqF7"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "hongkongtango.com (F27)",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster": null,
+    "poster_pos": null,
+    "note_zh": "信息来自 hongkongtango.com。Javier Rodriguez 工作坊。11/26 20:35 Back to Basics；11/27 19:35 Attitude vs Technique；11/28 13:05、14:35 两节课在 Dance Concept（7/F, Great Smart Tower, 230 Wanchai Road, Wanchai）；11/28 21:30–02:00 Milonga「Volver!」（DJ Anthony Miller，表演 Javier Rodriguez & Sandra Mok）；11/29 16:05、17:35 两节课；11/30 20:30–22:30 练习。其余在 Danzstage。价格未公布。备注：活动页写 11/25–11/30，列表写 11/26–11/30，首节课为 11/26。中文地址未找到。联络方式没找到。",
+    "note": "Info from hongkongtango.com. Javier Rodriguez workshops. 26 Nov 20:35 Back to Basics; 27 Nov 19:35 Attitude vs Technique; 28 Nov 13:05 & 14:35 classes at Dance Concept, 7/F, Great Smart Tower, 230 Wanchai Road, Wanchai; 28 Nov 21:30–02:00 Milonga \"Volver!\" (DJ Anthony Miller; performance Javier Rodriguez & Sandra Mok); 29 Nov 16:05 & 17:35 classes; 30 Nov 20:30–22:30 practica. Others at Danzstage. Prices not published. Note: event page says 25–30 Nov, list says 26–30 Nov; first class 26 Nov. Contact not found."
+  },
+  {
     "id": "U06",
     "kind": "weekly",
     "type": "milonga",
@@ -2430,5 +2549,356 @@
     "note_zh": "80元，含一杯饮品；DJ Tayfun。联络方式没找到，有兴趣请向组织者Tayfun 台风确认。",
     "note": "80 RMB incl. 1 drink; DJ Tayfun. I couldn't find a contact; please ask the organizer Tayfun.",
     "poster": "/images/asia/posters/R073.jpg"
+  },
+  {
+    "id": "R075",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "RADA Studio Milonga",
+    "city": "Tokyo",
+    "country": "Japan",
+    "region": "Japan",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:15",
+    "venue": "Rada",
+    "venue_address": null,
+    "venue_address_en": "2-min walk from Mitsukoshimae Station (Exit B5), Nihonbashi, Tokyo",
+    "organizers": [
+      "Rada"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://sites.google.com/tokyotango.jp/milonga-information/visitors"
+    },
+    "source": "tokyotango.jp Visitors page (sites.google.com/tokyotango.jp/milonga-information/visitors) / 探戈雷达 F28 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "19:15课程，20:15舞会；课加舞会3000日元。联络方式没找到。资料来自tokyotango.jp，时间与价钱可能变动，出发前请向主办方确认。",
+    "note": "19:15 lesson, 20:15 milonga; ¥3000 lesson+milonga. I couldn't find a contact. Info from tokyotango.jp; times and prices may vary, please check with the organizer before going.",
+    "addr_en_zh": true
+  },
+  {
+    "id": "R076",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "David & Belén's Milonga",
+    "city": "Tokyo",
+    "country": "Japan",
+    "region": "Japan",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–23:00",
+    "venue": "Argentine Tango Association (3F)",
+    "venue_address": null,
+    "venue_address_en": "About 7-min walk from Higashi-Ginza Station, Ginza, Tokyo (same building as Tango Origin, 7F)",
+    "organizers": [
+      "David & Belén"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://sites.google.com/tokyotango.jp/milonga-information/visitors"
+    },
+    "source": "tokyotango.jp Visitors page (sites.google.com/tokyotango.jp/milonga-information/visitors) / 探戈雷达 F28 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "19:00–20:00课程，20:00–23:00舞会；课加舞会4000日元，舞会3000日元。联络方式没找到。资料来自tokyotango.jp，时间与价钱可能变动，出发前请向主办方确认。",
+    "note": "Lesson 19:00–20:00, milonga 20:00–23:00; lesson & milonga ¥4,000, milonga ¥3,000. I couldn't find a contact. Info from tokyotango.jp; times and prices may vary, please check with the organizer before going.",
+    "addr_en_zh": true
+  },
+  {
+    "id": "R077",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Jueves Milonga by Leonel & Natalia",
+    "city": "Tokyo",
+    "country": "Japan",
+    "region": "Japan",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "12:00–13:00",
+    "venue": "Argentine Tango Association (3F)",
+    "venue_address": null,
+    "venue_address_en": "About 7-min walk from Higashi-Ginza Station, Ginza, Tokyo (same building as Tango Origin, 7F)",
+    "organizers": [
+      "Leonel & Natalia"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://sites.google.com/tokyotango.jp/milonga-information/visitors"
+    },
+    "source": "tokyotango.jp Visitors page (sites.google.com/tokyotango.jp/milonga-information/visitors) / 探戈雷达 F28 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "11:00–12:00课程（各级），12:00–13:00舞会；课2000日元，舞会2000日元，课加舞会3000日元。联络方式没找到。资料来自tokyotango.jp，时间与价钱可能变动，出发前请向主办方确认。",
+    "note": "Lesson 11:00–12:00 (all levels), milonga 12:00–13:00; lesson ¥2,000, milonga ¥2,000, both ¥3,000. I couldn't find a contact. Info from tokyotango.jp; times and prices may vary, please check with the organizer before going.",
+    "addr_en_zh": true
+  },
+  {
+    "id": "R078",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Parkside Milonga",
+    "city": "Tokyo",
+    "country": "Japan",
+    "region": "Japan",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "19:00–23:00",
+    "venue": "Zita",
+    "venue_address": null,
+    "venue_address_en": "Across the street from JR Meguro Station, 4F & 5F (no elevator), Meguro, Tokyo",
+    "organizers": [
+      "Noriko"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://sites.google.com/tokyotango.jp/milonga-information/visitors"
+    },
+    "source": "tokyotango.jp Visitors page (sites.google.com/tokyotango.jp/milonga-information/visitors) / 探戈雷达 F28 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "2000日元（22:00后1000日元）。联络：parksidemilonga@gmail.com；Instagram：parksidemilonga。资料来自tokyotango.jp，时间与价钱可能变动，出发前请向主办方确认。",
+    "note": "¥2,000 (¥1,000 after 22:00). Contact: parksidemilonga@gmail.com; Instagram: parksidemilonga. Info from tokyotango.jp; times and prices may vary, please check with the organizer before going.",
+    "addr_en_zh": true
+  },
+  {
+    "id": "R079",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Viernes Milonga by Carol Lin",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "20:00–24:00",
+    "venue": "Tanguisimo Tango Space",
+    "venue_address": null,
+    "venue_address_en": "7F-4, No.169, Sec.4, Zhongxiao East Road, Taipei",
+    "organizers": [
+      "Tanguisimo Tango Space"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangodori.com/taiwan-milongas"
+    },
+    "source": "tangodori.com/taiwan-milongas (F29) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "350台币。中文地址未找到。资料来自tangodori.com（https://tangodori.com/taiwan-milongas），时间请以主办方最新通知为准。联络方式没找到。",
+    "note": "NT$350. Info from tangodori.com (https://tangodori.com/taiwan-milongas); please check the organizer's latest notice. Contact not found.",
+    "addr_en_zh": true
+  },
+  {
+    "id": "R080",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "TTA Milonga",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:30–23:30",
+    "venue": "TTA Taichung Tango Academy 台中探戈學院",
+    "venue_address": "台中市西屯區重慶路99號五樓之二",
+    "venue_address_en": null,
+    "organizers": [
+      "TTA Taichung Tango Academy 台中探戈學院"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangodori.com/taiwan-milongas"
+    },
+    "source": "tangodori.com/taiwan-milongas (F29) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "价钱没写。资料来自tangodori.com（https://tangodori.com/taiwan-milongas），时间请以主办方最新通知为准。联络方式没找到。",
+    "note": "Price not stated. Info from tangodori.com (https://tangodori.com/taiwan-milongas); please check the organizer's latest notice. Contact not found."
+  },
+  {
+    "id": "R081",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tanguísimo Saturday Milonga",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:30–00:30",
+    "venue": "Tanguísimo",
+    "venue_address": null,
+    "venue_address_en": "7F-4, No.169, Sec.4, Zhongxiao East Road, Taipei",
+    "organizers": [
+      "Tanguísimo"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangodori.com/taiwan-milongas"
+    },
+    "source": "tangodori.com/taiwan-milongas (F29) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "350台币。中文地址未找到。资料来自tangodori.com（https://tangodori.com/taiwan-milongas），时间请以主办方最新通知为准。联络方式没找到。",
+    "note": "NT$350. Info from tangodori.com (https://tangodori.com/taiwan-milongas); please check the organizer's latest notice. Contact not found.",
+    "addr_en_zh": true
+  },
+  {
+    "id": "R082",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Taipei_Corazon Milonga",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "20:00–22:30",
+    "venue": "Corazon Tango Studio",
+    "venue_address": "台北市大安區復興南路一段63號4樓之2",
+    "venue_address_en": null,
+    "organizers": [
+      "Corazon Tango Studio"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangodori.com/taiwan-milongas"
+    },
+    "source": "tangodori.com/taiwan-milongas (F29) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "250台币。资料来自tangodori.com（https://tangodori.com/taiwan-milongas），时间请以主办方最新通知为准。联络方式没找到。",
+    "note": "NT$250. Info from tangodori.com (https://tangodori.com/taiwan-milongas); please check the organizer's latest notice. Contact not found."
+  },
+  {
+    "id": "R083",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Baile del Domingo",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:00–19:00",
+    "venue": "Bailemos tango school",
+    "venue_address": null,
+    "venue_address_en": "8F-3, No.41, Sec.2, Roosevelt Road, Taipei",
+    "organizers": [
+      "Bailemos tango school"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangodori.com/taiwan-milongas"
+    },
+    "source": "tangodori.com/taiwan-milongas (F29) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "350台币。中文地址未找到。资料来自tangodori.com（https://tangodori.com/taiwan-milongas），时间请以主办方最新通知为准。联络方式没找到。",
+    "note": "NT$350. Info from tangodori.com (https://tangodori.com/taiwan-milongas); please check the organizer's latest notice. Contact not found.",
+    "addr_en_zh": true
+  },
+  {
+    "id": "E046",
+    "kind": "event",
+    "type": "event",
+    "name": "Birthday Milonga",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": "2026-11-07",
+    "end": "2026-11-07",
+    "weekday": null,
+    "weekdays": null,
+    "time": "20:00–24:00",
+    "venue": "Tango.two 兩兩阿根廷探戈",
+    "venue_address": "台中市西區美村路一段743號三樓",
+    "venue_address_en": null,
+    "organizers": [
+      "Tango.two 兩兩阿根廷探戈"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangodori.com/taiwan-milongas"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "tangodori.com/taiwan-milongas (F29) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "poster": null,
+    "poster_pos": null,
+    "note_zh": "500台币；DJ TJ 一哥。资料来自tangodori.com（https://tangodori.com/taiwan-milongas），时间请以主办方最新通知为准。联络方式没找到。",
+    "note": "NT$500; DJ TJ 一哥. Info from tangodori.com (https://tangodori.com/taiwan-milongas); please check the organizer's latest notice. Contact not found."
   }
 ]
