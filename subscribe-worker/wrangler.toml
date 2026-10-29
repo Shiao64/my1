@@ -6,7 +6,7 @@ routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
 [vars]
 SENDER = "subscribe@tangoweekend.org"
 SENDER_NAME = "Asia Tango Map"
-NOTIFY_TO = "selecttango@gmail.com"
+NOTIFY_TO = "selecttango@gmail.com,guazong@mail.grokbot.com"
 API_BASE = "https://api.tangoweekend.org"
 # Subscriber mail provider: 'gmail' (default; Gmail SMTP as GMAIL_USER via TCP sockets, From "Asia Tango Map <selecttango@gmail.com>").
 #   REQUIRED at release time, before deploy:  npx wrangler secret put GMAIL_APP_PASSWORD   (16-char Google app password)

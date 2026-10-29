@@ -3,7 +3,7 @@
 import { connect } from 'cloudflare:sockets';
 import { buildMime, b64utf8 } from './mime.js';
 
-export async function sendGmail(env, { to, subject, text, html, headers }) {
+export async function sendGmail(env, { to, cc, subject, text, html, headers }) {
   const user = env.GMAIL_USER || 'selecttango@gmail.com';
   if (!env.GMAIL_APP_PASSWORD) throw new Error('GMAIL_APP_PASSWORD secret not set');
   const raw = buildMime({ fromName: env.SENDER_NAME || 'Asia Tango Map', fromEmail: user, to, subject, text, html, headers });
@@ -30,6 +30,7 @@ export async function sendGmail(env, { to, subject, text, html, headers }) {
     await cmd('AUTH PLAIN ' + b64utf8(`\0${user}\0${env.GMAIL_APP_PASSWORD}`), 235);
     await cmd(`MAIL FROM:<${user}>`, 250);
     await cmd(`RCPT TO:<${to}>`, 250);
+    if (cc) await cmd(`RCPT TO:<${cc}>`, 250);
     await cmd('DATA', 354);
     const body = raw.replace(/\r?\n/g, '\r\n').replace(/^\./gm, '..'); // dot-stuffing
     await cmd(body + '\r\n.', 250);

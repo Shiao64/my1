@@ -9,6 +9,7 @@ import { EmailMessage } from 'cloudflare:email';
 
 const ORIGINS = ['https://tangoweekend.org', 'https://www.tangoweekend.org'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const SUB_CC = 'guazong@mail.grokbot.com'; // CC on every subscriber-facing email (confirm + welcome)
 const RATE_MAX = 5, RATE_WIN_MIN = 60, PENDING_DAYS = 7, DAY = 86400000;
 
 const T = {
@@ -55,12 +56,14 @@ function page(lang, msg, status = 200) {
 async function sendToSubscriber(env, to, subject, text, html, unsubUrl) {
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT) throw new Error('recipient not allowed in test mode');
   const headers = unsubUrl ? { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' } : {};
+  const cc = SUB_CC && SUB_CC !== to ? SUB_CC : '';
+  if (cc) headers.Cc = `<${cc}>`;
   const p = env.MAIL_PROVIDER || 'log';
   if (p === 'cloudflare') {
     await env.SUB_MAIL.send({ from: { email: env.SENDER, name: env.SENDER_NAME || 'Asia Tango Map' }, to, subject, text, html, headers });
   } else if (p === 'gmail') {
     const { sendGmail } = await import('./gmail.js');
-    await sendGmail(env, { to, subject, text, html, headers });
+    await sendGmail(env, { to, cc, subject, text, html, headers });
   } else if (p === 'resend') {
     const r = await fetch('https://api.resend.com/emails', { method: 'POST',
       headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
@@ -78,10 +81,24 @@ function mailHtml(lines, link, t, unsub) {
 }
 // Owner notification via the existing Email Routing binding (fixed destination, works on Workers Free).
 async function notifyOwner(env, subject, text) {
-  if (!env.EMAIL || !env.NOTIFY_TO) { console.log('[owner:log]', subject, text); return 'log'; }
-  const raw = [`From: Asia Tango Map <${env.SENDER}>`, `To: ${env.NOTIFY_TO}`, `Subject: =?UTF-8?B?${b64(subject)}?=`, `Message-ID: <${crypto.randomUUID()}@tangoweekend.org>`,
-    `Date: ${new Date().toUTCString()}`, 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', b64(text).replace(/.{76}/g, '$&\r\n')].join('\r\n');
-  try { await env.EMAIL.send(new EmailMessage(env.SENDER, env.NOTIFY_TO, raw)); return 'sent'; } catch (e) { return 'fail: ' + String(e.message || e).slice(0, 150); }
+  const list = String(env.NOTIFY_TO || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (!list.length) { console.log('[owner:log]', subject, text); return 'log'; }
+  const out = [];
+  for (const to of list) {
+    try {
+      if (env.EMAIL && to === 'selecttango@gmail.com') { // Email Routing binding: fixed verified destination
+        const raw = [`From: Asia Tango Map <${env.SENDER}>`, `To: ${to}`, `Subject: =?UTF-8?B?${b64(subject)}?=`, `Message-ID: <${crypto.randomUUID()}@tangoweekend.org>`,
+          `Date: ${new Date().toUTCString()}`, 'MIME-Version: 1.0', 'Content-Type: text/plain; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', b64(text).replace(/.{76}/g, '$&\r\n')].join('\r\n');
+        await env.EMAIL.send(new EmailMessage(env.SENDER, to, raw));
+      } else { // other owner addresses via Gmail SMTP (GMAIL_USER)
+        const { sendGmail } = await import('./gmail.js');
+        await sendGmail(env, { to, subject, text });
+      }
+      out.push(to + ':sent');
+    } catch (e) { out.push(to + ':fail: ' + String(e.message || e).slice(0, 150)); }
+  }
+  console.log('[owner]', out.join(' | '));
+  return out.join(' | ');
 }
 
 async function subscribe(req, env, h) {
