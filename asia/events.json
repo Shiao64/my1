@@ -169,7 +169,7 @@
     "tba": false,
     "venue_address_en": "2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
     "contacts": {
-      "phone": "010-8532-2418",
+      "phone": null,
       "wechat_id": "Changge_chen",
       "wechat_label": "Rose 常歌 / ala_house"
     },
@@ -247,7 +247,7 @@
     "tba": false,
     "venue_address_en": "2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
     "contacts": {
-      "phone": "010-8532-2418",
+      "phone": null,
       "wechat_id": "beijingtango",
       "wechat_label": "刘峥"
     },
