@@ -8451,5 +8451,47 @@
     "weekdays": null,
     "time": "19:00–23:00",
     "poster": "/images/korea/ktnow/laboom.webp"
+  },
+  {
+    "id": "E086",
+    "kind": "event",
+    "type": "marathon",
+    "name": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+    "name_zh": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+    "city": "Da Nang",
+    "country": "Vietnam",
+    "region": "Vietnam",
+    "start": "2026-12-03",
+    "end": "2026-12-06",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Furama Resort Da Nang",
+    "venue_address": null,
+    "venue_address_en": "105 Vo Nguyen Giap, Ngu Hanh Son, Da Nang",
+    "addr_en_zh": true,
+    "organizers": [
+      "Ms. Lala"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/profile.php?id=61594878976540",
+      "video": null,
+      "other": null,
+      "register": "https://forms.gle/cq5E2KJZDoo66EyW7"
+    },
+    "contacts": {
+      "phone": "+84906220584",
+      "wechat_id": "+84906220584",
+      "wechat_label": "Ms. Lala",
+      "email": null
+    },
+    "source": "email from tangohealingdanang@gmail.com (fwd selecttango@gmail.com) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "featured": true,
+    "note_zh": "日程：12月3日（周四）M1 19:00–24:00，地点Webe Coffee（14-16 Nguyen Huu Thong, An Hai, Da Nang）；12月4日（周五）M2 16:00–20:00、M3 21:00–02:00；12月5日（周六）特别舞会12:00–15:00，地点The Holiday Beach Club & Dining（300 Vo Nguyen Giap, Ngu Hanh Son, Da Nang），M4 16:00–20:00、M5 21:00–02:00；12月6日（周日）锦标赛10:00–15:00，M6 16:00–20:00，20:00–20:30 Cabeceo乐队现场演奏，20:30–21:00颁奖及冠军表演，M7 21:00–02:30。M2–M7在Furama Resort。DJ：Che Tango（越南）、Lorena（韩国）、Yutaka & Miki（日本）、Fiona（香港）、刘峥（北京）、Gianluca（韩国）、Odysseus Dada（韩国）、Tu Duong（多伦多）。现场乐队：Cabeceo（越南）。表演：Angel Tango、Todo Tango、Angel & Lorena、Misun & Odysseus Dada（韩国），Yutaka & Miki（日本）。通票：超早鸟（10月31日前）110美元，早鸟（11月1–30日）130美元，11月30日后150美元；单日票55美元。联络：Ms. Lala，WhatsApp/微信/Kakao/Zalo +84906220584。另一个Facebook：https://www.facebook.com/chu.du.75/",
+    "note": "Schedule: Dec 3 (Thu) M1 19:00–24:00 at Webe Coffee (14-16 Nguyen Huu Thong, An Hai, Da Nang); Dec 4 (Fri) M2 16:00–20:00, M3 21:00–02:00; Dec 5 (Sat) Special Milonga 12:00–15:00 at The Holiday Beach Club & Dining (300 Vo Nguyen Giap, Ngu Hanh Son, Da Nang), M4 16:00–20:00, M5 21:00–02:00; Dec 6 (Sun) Championship 10:00–15:00, M6 16:00–20:00, 20:00–20:30 live music by Cabeceo Band, 20:30–21:00 awards ceremony & winners' performance, M7 21:00–02:30. M2–M7 at Furama Resort. DJs: Che Tango (VN), Lorena (KR), Yutaka & Miki (JP), Fiona (HK), Liu Zheng (Beijing), Gianluca (KR), Odysseus Dada (KR), Tu Duong (Toronto). Live orchestra: Cabeceo (VN). Performers: Angel Tango, Todo Tango, Angel & Lorena, Misun & Odysseus Dada (KR); Yutaka & Miki (JP). Full pass: Super Early Bird (to Oct 31) USD 110, Early Bird (Nov 1–30) USD 130, after Nov 30 USD 150; One-Day Pass USD 55. Contact: Ms. Lala, WhatsApp/WeChat/Kakao/Zalo +84906220584. Also on Facebook: https://www.facebook.com/chu.du.75/"
   }
 ]

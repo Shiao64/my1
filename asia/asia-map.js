@@ -64,9 +64,9 @@
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + add);
     return DAYF[d] + ' ' + (n.getMonth()+1) + '/' + n.getDate();
   }
-  var CITY_ORDER = ['Beijing','Shanghai','Chongqing','Tianjin','Hong Kong','Guangzhou','Shenzhen','Xiamen','Zhongshan','Zhuhai','Haikou','Zhengzhou','Wuhan','Nanjing','Suzhou','Shenyang','Dalian','Jinan','Qingdao','Xi-an','Chengdu','Hangzhou','Ningbo','Taipei','Taichung','Miaoli','Seoul','Busan','Daejeon','Daegu','Gwangju','Ulsan','Changwon','Cheongju','Jinju','Pohang','Kuala Lumpur','Tokyo'];
+  var CITY_ORDER = ['Beijing','Shanghai','Chongqing','Tianjin','Hong Kong','Guangzhou','Shenzhen','Xiamen','Zhongshan','Zhuhai','Haikou','Zhengzhou','Wuhan','Nanjing','Suzhou','Shenyang','Dalian','Jinan','Qingdao','Xi-an','Chengdu','Hangzhou','Ningbo','Taipei','Taichung','Miaoli','Seoul','Busan','Daejeon','Daegu','Gwangju','Ulsan','Changwon','Cheongju','Jinju','Pohang','Kuala Lumpur','Da Nang','Tokyo'];
   var CITY_ID = {'Beijing':'bj','Shanghai':'sh','Hong Kong':'hk','Shenzhen':'sz','Guangzhou':'gz','Suzhou':'su',
-    'Taipei':'tp','Miaoli':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj','Changwon':'cw','Kuala Lumpur':'kl','Tokyo':'tk','Seoul':'se','Busan':'bs','Daejeon':'dj','Gwangju':'gj','Daegu':'dg','Cheongju':'cj','Jinju':'jj','Pohang':'ph','Ulsan':'us'};
+    'Taipei':'tp','Miaoli':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj','Changwon':'cw','Kuala Lumpur':'kl','Da Nang':'dn','Tokyo':'tk','Seoul':'se','Busan':'bs','Daejeon':'dj','Gwangju':'gj','Daegu':'dg','Cheongju':'cj','Jinju':'jj','Pohang':'ph','Ulsan':'us'};
   function formatTime12(t){
     if (!t) return '';
     function one(x){
