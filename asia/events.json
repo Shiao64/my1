@@ -9243,5 +9243,47 @@
     "tba": false,
     "note_zh": "350台币。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
     "note": "NT$350. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "E093",
+    "kind": "event",
+    "type": "marathon",
+    "name": "Gunsan Sunset Tango Marathon 2027",
+    "name_zh": "2027 群山日落探戈马拉松",
+    "city": "Gunsan",
+    "country": "South Korea",
+    "region": "South Korea",
+    "start": "2027-05-21",
+    "end": "2027-05-23",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Gunsan Beerport",
+    "venue_address": "전북특별자치도 군산시 해망로 146-24",
+    "venue_address_en": "146-24 Haemang-ro, Gunsan-si, Jeonbuk State, South Korea",
+    "addr_en_zh": true,
+    "organizers": [
+      "IF"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/share/1UjeM3nFCS/",
+      "video": null,
+      "other": "https://tangoweekend.org/event/gunsan-2027-sunset-tango-marathon/"
+    },
+    "contacts": {
+      "phone": null,
+      "wechat_id": "IFkim88",
+      "wechat_label": "IF",
+      "email": "j.hoon0820@gmail.com"
+    },
+    "source": "email from j.hoon0820@gmail.com (fwd selecttango@gmail.com) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "featured": true,
+    "poster": "/images/asia/posters/E093.jpg",
+    "note_zh": "三个舞池：Signature主舞池（1楼）、Sensual屋顶舞池（3楼）、Sunset户外日落舞池（1楼）。日程（韩国时间）：5月21日（周五）M1 16:00–20:00 Sunset DJ Chris Han，M2 22:00–03:00 Signature DJ Nacho，M3 03:00–06:00 Signature DJ Lucila，M4 22:00–03:00 Sensual DJ Kwon；5月22日（周六）M5 16:00–20:00 Sunset DJ Rafael，M6 22:00–03:00 Signature DJ Stone，M7 03:00–06:00 Signature DJ Eugène，M8 22:00–03:00 Sensual DJ Alex；5月23日（周日）M9 14:00–20:00 Signature DJ Ban A，M10 22:00–03:00（至5月24日周一）Signature DJ Gerardo，M11 14:00–19:00 Sensual DJ Hoon。DJ共11位：Chris Han（澳大利亚）、Rafael（阿根廷）及韩国DJ Nacho、Lucila、Kwon、Stone、Eugène、Alex、Ban A、Gerardo、Hoon。演出：现场演唱Hanna；探戈表演Luna Kim & Okiz Baek、Irene & Kaiser；影像艺术L、Son，摄影Chino。限100人（男女步各50）。票价：超早鸟170,000韩元（2026年11月11日11:00韩国时间开放报名，名额有限）；早鸟200,000韩元（2026年11月17日–12月30日）；全通票230,000韩元（2027年1月5日–4月30日）。报名链接、住宿和交通资料将于2026年11月17日后公布。主办方Facebook：https://www.facebook.com/johwan.kim.77",
+    "note": "Three milonga spaces: Signature main milonga (1F), Sensual rooftop milonga (3F), Sunset outdoor milonga (1F). Schedule (KST): Fri May 21 M1 16:00–20:00 Sunset DJ Chris Han, M2 22:00–03:00 Signature DJ Nacho, M3 03:00–06:00 Signature DJ Lucila, M4 22:00–03:00 Sensual DJ Kwon; Sat May 22 M5 16:00–20:00 Sunset DJ Rafael, M6 22:00–03:00 Signature DJ Stone, M7 03:00–06:00 Signature DJ Eugène, M8 22:00–03:00 Sensual DJ Alex; Sun May 23 M9 14:00–20:00 Signature DJ Ban A, M10 22:00–03:00 (to Mon May 24) Signature DJ Gerardo, M11 14:00–19:00 Sensual DJ Hoon. 11 DJs: Chris Han (Australia), Rafael (Argentina), and Korean DJs Nacho, Lucila, Kwon, Stone, Eugène, Alex, Ban A, Gerardo, Hoon. Performances: live singing by Hanna; tango performances by Luna Kim & Okiz Baek and Irene & Kaiser; video art by L and Son, photography by Chino. Limited to 100 participants (50 leaders / 50 followers). Tickets: Super Early Bird KRW 170,000 (registration opens Nov 11, 2026, 11:00 KST, limited); Early Bird KRW 200,000 (Nov 17–Dec 30, 2026); Full Package KRW 230,000 (Jan 5–Apr 30, 2027). Registration link, accommodation and transport info to be announced after Nov 17, 2026. Organizer Facebook: https://www.facebook.com/johwan.kim.77"
   }
 ]
