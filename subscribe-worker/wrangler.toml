@@ -5,7 +5,16 @@ routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
 
 [vars]
 SENDER = "subscribe@tangoweekend.org"
+SENDER_NAME = "Asia Tango Map"
 NOTIFY_TO = "selecttango@gmail.com"
+API_BASE = "https://api.tangoweekend.org"
+# 'log' = print only (safe default, nothing sent to subscribers). Set to 'cloudflare' (Email Sending, Workers Paid)
+# or 'resend' (secret RESEND_API_KEY) when going live. TEST_ONLY_RECIPIENT (optional) limits sends to one address.
+MAIL_PROVIDER = "log"
+
+# Daily cleanup of pending (unconfirmed) rows older than 7 days.
+[triggers]
+crons = ["17 3 * * *"]
 
 [[d1_databases]]
 binding = "DB"
@@ -15,3 +24,9 @@ database_id = "1b462639-75a1-4dcf-9b15-eab807e4b295"
 [[send_email]]
 name = "EMAIL"
 destination_address = "selecttango@gmail.com"
+
+# Subscriber mail via Cloudflare Email Sending (needs tangoweekend.org onboarded to Email Sending + Workers Paid).
+# Only used when MAIL_PROVIDER = "cloudflare".
+[[send_email]]
+name = "SUB_MAIL"
+allowed_sender_addresses = ["subscribe@tangoweekend.org"]
