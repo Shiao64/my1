@@ -932,7 +932,7 @@
     "weekdays": [
       0
     ],
-    "time": "20:30–late",
+    "time": "20:00–late",
     "venue": "亮马河红酒屋一层",
     "venue_address": "北京市亮马河南路18号",
     "organizers": [
@@ -943,8 +943,8 @@
       "video": null,
       "other": null
     },
-    "source": "探戈会 VTANGO",
-    "updated": "2026-10-24",
+    "source": "探戈会 VTANGO; WeChat G08/G13 poster 2026-10-25 (20:00–late)",
+    "updated": "2026-10-30",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
@@ -1166,7 +1166,7 @@
     "weekdays": [
       5
     ],
-    "time": "20:00–24:00",
+    "time": "20:30–24:00",
     "venue": "华林大楼6层",
     "venue_address": "上海徐汇区漕溪路190号华林大楼6层",
     "venue_address_en": "6F, Hualin Building, No. 190 Caoxi Road, Xuhui District, Shanghai",
@@ -1179,8 +1179,8 @@
       "video": null,
       "other": "https://www.mitango.cn"
     },
-    "source": "user directory 2026-10-24",
-    "updated": "2026-10-24",
+    "source": "user directory 2026-10-24; WeChat G04/G06/G17 poster 2026-10-29 (20:30–24:00)",
+    "updated": "2026-10-30",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
@@ -1656,7 +1656,7 @@
     "weekdays": [
       5
     ],
-    "time": "20:00–24:00",
+    "time": "20:00–23:00",
     "venue": "恒华大厦1号楼607",
     "venue_address": "天津市河西区恒华大厦1号楼607",
     "venue_address_en": "Room 607, Building 1, Henghua Building, Hexi District, Tianjin",
@@ -1669,8 +1669,8 @@
       "video": null,
       "other": null
     },
-    "source": "user directory 2026-10-24",
-    "updated": "2026-10-24",
+    "source": "user directory 2026-10-24; WeChat G09/G12/G17 posters 2026-10-16/10-23 (20:00–23:00)",
+    "updated": "2026-10-30",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
@@ -9285,5 +9285,124 @@
     "poster": "/images/asia/posters/E093.jpg",
     "note_zh": "三个舞池：Signature主舞池（1楼）、Sensual屋顶舞池（3楼）、Sunset户外日落舞池（1楼）。日程（韩国时间）：5月21日（周五）M1 16:00–20:00 Sunset DJ Chris Han，M2 22:00–03:00 Signature DJ Nacho，M3 03:00–06:00 Signature DJ Lucila，M4 22:00–03:00 Sensual DJ Kwon；5月22日（周六）M5 16:00–20:00 Sunset DJ Rafael，M6 22:00–03:00 Signature DJ Stone，M7 03:00–06:00 Signature DJ Eugène，M8 22:00–03:00 Sensual DJ Alex；5月23日（周日）M9 14:00–20:00 Signature DJ Ban A，M10 22:00–03:00（至5月24日周一）Signature DJ Gerardo，M11 14:00–19:00 Sensual DJ Hoon。DJ共11位：Chris Han（澳大利亚）、Rafael（阿根廷）及韩国DJ Nacho、Lucila、Kwon、Stone、Eugène、Alex、Ban A、Gerardo、Hoon。演出：现场演唱Hanna；探戈表演Luna Kim & Okiz Baek、Irene & Kaiser；影像艺术L、Son，摄影Chino。限100人（男女步各50）。票价：超早鸟170,000韩元（2026年11月11日11:00韩国时间开放报名，名额有限）；早鸟200,000韩元（2026年11月17日–12月30日）；全通票230,000韩元（2027年1月5日–4月30日）。报名链接、住宿和交通资料将于2026年11月17日后公布。主办方Facebook：https://www.facebook.com/johwan.kim.77",
     "note": "Three milonga spaces: Signature main milonga (1F), Sensual rooftop milonga (3F), Sunset outdoor milonga (1F). Schedule (KST): Fri May 21 M1 16:00–20:00 Sunset DJ Chris Han, M2 22:00–03:00 Signature DJ Nacho, M3 03:00–06:00 Signature DJ Lucila, M4 22:00–03:00 Sensual DJ Kwon; Sat May 22 M5 16:00–20:00 Sunset DJ Rafael, M6 22:00–03:00 Signature DJ Stone, M7 03:00–06:00 Signature DJ Eugène, M8 22:00–03:00 Sensual DJ Alex; Sun May 23 M9 14:00–20:00 Signature DJ Ban A, M10 22:00–03:00 (to Mon May 24) Signature DJ Gerardo, M11 14:00–19:00 Sensual DJ Hoon. 11 DJs: Chris Han (Australia), Rafael (Argentina), and Korean DJs Nacho, Lucila, Kwon, Stone, Eugène, Alex, Ban A, Gerardo, Hoon. Performances: live singing by Hanna; tango performances by Luna Kim & Okiz Baek and Irene & Kaiser; video art by L and Son, photography by Chino. Limited to 100 participants (50 leaders / 50 followers). Tickets: Super Early Bird KRW 170,000 (registration opens Nov 11, 2026, 11:00 KST, limited); Early Bird KRW 200,000 (Nov 17–Dec 30, 2026); Full Package KRW 230,000 (Jan 5–Apr 30, 2027). Registration link, accommodation and transport info to be announced after Nov 17, 2026. Organizer Facebook: https://www.facebook.com/johwan.kim.77"
+  },
+  {
+    "id": "9oJFdQ64",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tango Red 常规舞会",
+    "city": "Zhengzhou",
+    "country": "China",
+    "region": "China",
+    "start": null,
+    "end": null,
+    "weekday": 5,
+    "weekdays": [
+      5
+    ],
+    "time": "19:30–22:00",
+    "venue": "紫金山百货大楼三楼",
+    "venue_address": "郑州市紫金山百货大楼一号门（奥斯卡影院）上三楼右转",
+    "venue_address_en": "3F (Gate 1, Oscar Cinema, turn right), Zijinshan Department Store, Zhengzhou",
+    "organizers": [
+      "牛静",
+      "王勇"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "source": "WeChat G14 ad 2026-10-23 (探戈雷达汇总表 R073)",
+    "updated": "2026-10-30",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "contacts": {
+      "phone": "17703865678 / 18339258100",
+      "wechat_label": "牛静 / 王勇"
+    },
+    "note_zh": "18:30–19:30 舞会前一小时老师免费教学。48元，免费茶水水果。DJ 平凡。九点后走紫金山路东门步梯。老会员可带一位新人，新人第一次免费。",
+    "note": "Free lesson 18:30–19:30 before the milonga. ¥48, free tea and fruit. DJ 平凡. After 21:00 use the east-gate stairs on Zijinshan Road. Members may bring one newcomer; first visit free for newcomers."
+  },
+  {
+    "id": "manual-cd-ezequiel-2026",
+    "kind": "event",
+    "type": "event",
+    "name": "Ezequiel Workshop Chengdu Tango weekend",
+    "name_zh": "Ezequiel Workshop 成都探戈小周末",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": "2026-11-26",
+    "end": "2026-11-29",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "Chengdu LeileiTango",
+    "venue_address": "成都市武侯区锦绣路1号保利中心C座808",
+    "venue_address_en": "Room 808, Tower C, Poly Center, No. 1 Jinxiu Road, Wuhou District, Chengdu",
+    "organizers": [
+      "雷雷 (Chengdu LeileiTango)"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangoweekend.org/event/chengdu-2026-ezequiel-tango-weekend/"
+    },
+    "contacts": {
+      "phone": "13438185329",
+      "wechat_label": "雷雷"
+    },
+    "source": "WeChat poster (G04/G06) 2026-10",
+    "updated": "2026-10-30",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "featured": true,
+    "poster": "/images/asia/posters/manual-cd-ezequiel-2026.jpg",
+    "poster_pos": "center top",
+    "note_zh": "6节集训课（每节280元）+ 3场舞会（每场188元）：11/27 欢迎舞会 DJ 昊天（北京），11/28 大舞会 DJ 王为（上海），11/29 欢送舞会 DJ Danger（重庆）。套票：6节课1560元（早鸟1440），3场舞会500元（早鸟420），6课+3舞会1600元；早鸟截止2026/10/31。",
+    "note": "6 workshops (¥280 each) + 3 milongas (¥188 each): Nov 27 welcome milonga DJ Haotian (Beijing), Nov 28 grand milonga DJ Wang Wei (Shanghai), Nov 29 farewell milonga DJ Danger (Chongqing). Packages: 6 workshops ¥1,560 (early bird ¥1,440), 3 milongas ¥500 (early bird ¥420), 6 workshops + 3 milongas ¥1,600; early bird until Oct 31, 2026."
+  },
+  {
+    "id": "manual-cd-spitel-2027",
+    "kind": "event",
+    "type": "event",
+    "name": "Jonathan Spitel y Betsabet Flores",
+    "name_zh": "Jonathan Spitel y Betsabet Flores",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": "2027-02-20",
+    "end": "2027-02-28",
+    "weekday": null,
+    "weekdays": null,
+    "time": null,
+    "venue": "成都玫瑰探戈俱乐部",
+    "venue_address": "四川省成都市武侯区人民南路四段12号华宇蓉国府美乐街负一楼成都玫瑰探戈俱乐部",
+    "venue_address_en": "Tango Rosa Chengdu, B1, Meile Street, Huayu Rongguofu, No. 12, Section 4, Renmin South Road, Wuhou District, Chengdu, Sichuan",
+    "organizers": [
+      "成都玫瑰 Tango Rosa"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://tangoweekend.org/event/chengdu-2027-jonathan-betsabet/"
+    },
+    "contacts": {
+      "phone": "139-8196-1961",
+      "wechat_label": "Rosa"
+    },
+    "source": "WeChat poster (G01/G04/G07/G17) 2026-10",
+    "updated": "2026-10-30",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "featured": true,
+    "poster": "/images/asia/posters/manual-cd-spitel-2027.jpg",
+    "poster_pos": "center top",
+    "note_zh": "2009舞台探戈世界冠军，2026年世界锦标赛总决赛裁判。课程安排和价格我没找到，请联系主办方。",
+    "note": "2009 World Tango Stage champions; judges at the 2026 World Championship final. Class schedule and prices not found; please contact the organizer."
   }
 ]
