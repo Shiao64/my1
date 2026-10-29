@@ -95,7 +95,7 @@
 
 /* Footer signature line — edit these strings to bump */
 (function(){
-  var SITE_VERSION = 'v9.8', SITE_DESIGNER = 'By Shiao Chang';
+  var SITE_VERSION = 'v9.9', SITE_DESIGNER = 'By Shiao Chang';
   var css = '#contact{padding:14px 0 12px!important}#contact .wrap p{margin:0!important;font-size:13px;line-height:1.5}' +
     '#contact .tsub-bottom-wrap{padding:0 0 8px!important}' +
     '#site-ver{display:block;text-align:center;margin:8px auto 0;font:500 12px/1 Georgia,"Times New Roman",serif;letter-spacing:.08em;color:#D9B56A;opacity:1}' +
