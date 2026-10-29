@@ -51,13 +51,16 @@ function page(lang, msg, status = 200) {
 }
 
 // Subscriber mail. Provider chosen by env.MAIL_PROVIDER: 'cloudflare' (Email Sending binding SUB_MAIL, Workers Paid),
-// 'resend' (RESEND_API_KEY secret), or 'log' (default: print only, nothing is sent).
+// 'gmail' (Gmail SMTP as selecttango@gmail.com, secret GMAIL_APP_PASSWORD), 'resend' (RESEND_API_KEY secret), or 'log' (default: print only, nothing is sent).
 async function sendToSubscriber(env, to, subject, text, html, unsubUrl) {
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT) throw new Error('recipient not allowed in test mode');
   const headers = unsubUrl ? { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' } : {};
   const p = env.MAIL_PROVIDER || 'log';
   if (p === 'cloudflare') {
     await env.SUB_MAIL.send({ from: { email: env.SENDER, name: env.SENDER_NAME || 'Asia Tango Map' }, to, subject, text, html, headers });
+  } else if (p === 'gmail') {
+    const { sendGmail } = await import('./gmail.js');
+    await sendGmail(env, { to, subject, text, html, headers });
   } else if (p === 'resend') {
     const r = await fetch('https://api.resend.com/emails', { method: 'POST',
       headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },

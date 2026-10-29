@@ -28,3 +28,11 @@ npx wrangler d1 execute tango-subscribe --remote --file=migrations/0002_double_o
 npx wrangler deploy
 ```
 Local test (no deploy, no sending): `node test/smoke.mjs` (Node ≥22, uses node:sqlite and a mocked env), or `npx wrangler dev`.
+
+## Subscriber mail via Gmail (MAIL_PROVIDER = "gmail", default)
+Confirmation and welcome mails are sent through smtp.gmail.com:465 (TLS, AUTH PLAIN) as
+`Asia Tango Map <selecttango@gmail.com>` using `cloudflare:sockets`. At release time:
+1. `npx wrangler secret put GMAIL_APP_PASSWORD` (Google app password of selecttango@gmail.com)
+2. `npx wrangler d1 migrations apply tango-subscribe --remote` (migration 0002)
+3. `npx wrangler deploy`
+Gmail consumer limit is about 500 recipients per day. Set MAIL_PROVIDER = "log" to send nothing.

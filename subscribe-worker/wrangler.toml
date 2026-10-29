@@ -8,9 +8,13 @@ SENDER = "subscribe@tangoweekend.org"
 SENDER_NAME = "Asia Tango Map"
 NOTIFY_TO = "selecttango@gmail.com"
 API_BASE = "https://api.tangoweekend.org"
-# 'log' = print only (safe default, nothing sent to subscribers). Set to 'cloudflare' (Email Sending, Workers Paid)
-# or 'resend' (secret RESEND_API_KEY) when going live. TEST_ONLY_RECIPIENT (optional) limits sends to one address.
-MAIL_PROVIDER = "log"
+# Subscriber mail provider: 'gmail' (default; Gmail SMTP as GMAIL_USER via TCP sockets, From "Asia Tango Map <selecttango@gmail.com>").
+#   REQUIRED at release time, before deploy:  npx wrangler secret put GMAIL_APP_PASSWORD   (16-char Google app password)
+#   Gmail limit: ~500 recipients/day for a consumer account.
+# Others: 'log' (print only), 'cloudflare' (Email Sending, Workers Paid), 'resend' (secret RESEND_API_KEY).
+# TEST_ONLY_RECIPIENT (optional) limits sends to one address.
+MAIL_PROVIDER = "gmail"
+GMAIL_USER = "selecttango@gmail.com"
 
 # Daily cleanup of pending (unconfirmed) rows older than 7 days.
 [triggers]
