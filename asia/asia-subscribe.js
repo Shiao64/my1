@@ -1,18 +1,18 @@
-/* Asia map "event alerts" form (draft). Collect only: POST to api.tangoweekend.org, which stores in D1 and notifies the owner. */
+/* Asia map "event alerts" form (draft). Double opt-in: POST to api.tangoweekend.org stores the email as PENDING and sends a confirmation link; only confirmed emails join the list. Email required; WeChat ID optional. */
 (function () {
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
   var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
   var L = zh ? {
     btn: '✉ 新活动通知', title: '新活动通知', desc: '每周通过邮件发送新活动；微信群里不定时发布新活动。留微信号的订阅者会收到亚洲探戈地图微信群的入群邀请，新活动通知会在群里发布。',
-    email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '微信号和邮箱至少填一项',
-    need: '请填写微信号或邮箱，至少一项。', bad: '邮箱格式不正确',
-    submit: '订阅', sending: '提交中…', ok: '已收到，谢谢！我们会把新活动通知发给您。',
+    email: '邮箱（必填）', emailPh: 'name@example.com', wx: '微信号（选填）', wxPh: '您的微信号', hint: '新活动通知只能通过邮件发送，所以邮箱必填。提交后请到邮箱点击确认链接，7天内未确认会自动删除。',
+    need: '请填写邮箱。微信收不到通知，邮箱必填。', bad: '邮箱格式不正确', sendfail: '确认邮件发送失败，请检查邮箱地址或稍后再试。',
+    submit: '订阅', sending: '提交中…', ok: '确认邮件已发出！请到邮箱点击链接完成订阅（7天内有效，没收到请查看垃圾邮件）。',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
   } : {
     btn: '✉ Get event alert', title: 'New activity alerts', desc: 'We email new events every week, and post new events in our WeChat group from time to time. If you leave your WeChat ID, you\'ll get an invite to the Asia Tango Map WeChat group, where new activity alerts are posted.',
-    email: 'Email', emailPh: 'name@example.com', wx: 'WeChat ID', wxPh: 'Your WeChat ID', hint: 'Fill in a WeChat ID or an email (at least one)',
-    need: 'Please enter a WeChat ID or an email.', bad: 'Please check your email address.',
-    submit: 'Subscribe', sending: 'Sending…', ok: "Got it, thank you! We'll send you new activity alerts.",
+    email: 'Email (required)', emailPh: 'name@example.com', wx: 'WeChat ID (optional)', wxPh: 'Your WeChat ID', hint: 'Event alerts are sent by email only, so an email is required. After submitting, click the confirmation link in your inbox; unconfirmed sign-ups are deleted after 7 days.',
+    need: 'Please enter your email. Alerts can’t be sent to WeChat, so email is required.', sendfail: 'We couldn’t send the confirmation email. Please check the address or try again later.', bad: 'Please check your email address.',
+    submit: 'Subscribe', sending: 'Sending…', ok: "Almost done! Check your inbox and click the confirmation link (valid 7 days; check spam if you don't see it).",
     fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Unsubscribe anytime. We never share your info.', close: 'Close'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
@@ -54,7 +54,7 @@
     '<button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button><h2 id="tsub-t">' + L.title + '</h2><p class="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate>' +
     '<label class="tsub-lbl" for="tsub-w">' + L.wx + '</label><input type="text" class="tsub-in" id="tsub-w" autocomplete="off" placeholder="' + L.wxPh + '">' +
-    '<label class="tsub-lbl" for="tsub-e">' + L.email + '</label><input type="email" class="tsub-in" id="tsub-e" autocomplete="email" placeholder="' + L.emailPh + '">' +
+    '<label class="tsub-lbl" for="tsub-e">' + L.email + '</label><input type="email" class="tsub-in" id="tsub-e" required aria-required="true" autocomplete="email" placeholder="' + L.emailPh + '">' +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
     '<p class="tsub-hint">' + L.hint + '</p><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
     '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
@@ -73,8 +73,8 @@
     e.preventDefault();
     var em = $('tsub-e').value.trim(), wx = $('tsub-w').value.trim(), err = $('tsub-err'), ok = $('tsub-ok'), go = $('tsub-go');
     err.textContent = ''; ok.hidden = true;
-    if (!em && !wx) { err.textContent = L.need; return; }
-    if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
+    if (!em) { err.textContent = L.need; $('tsub-e').focus(); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
     go.disabled = true; go.textContent = L.sending;
     fetch(API + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ types: ['featured', 'regular'], cities: [], email: em, wechat: wx, lang: zh ? 'zh' : 'en', website: $('tsub-hp').value }) })
@@ -84,9 +84,9 @@
           ok.textContent = L.ok; ok.hidden = false; $('tsub-f').reset();
           // Auto-close shortly after success so the thank-you is seen; errors never auto-close.
           if (tmr) clearTimeout(tmr);
-          tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 2000);
+          tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 6000);
         }
-        else err.textContent = d.error === 'bad_email' ? L.bad : d.error === 'need_contact' ? L.need : d.error === 'rate_limited' ? L.rate : L.fail;
+        else err.textContent = d.error === 'bad_email' ? L.bad : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : L.fail;
       })
       .catch(function () { err.textContent = L.fail; })
       .then(function () { go.disabled = false; go.textContent = L.submit; });

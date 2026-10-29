@@ -64,9 +64,9 @@
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + add);
     return DAYF[d] + ' ' + (n.getMonth()+1) + '/' + n.getDate();
   }
-  var CITY_ORDER = ['Beijing','Shanghai','Chongqing','Tianjin','Hong Kong','Guangzhou','Shenzhen','Xiamen','Zhongshan','Zhuhai','Haikou','Zhengzhou','Wuhan','Nanjing','Suzhou','Shenyang','Dalian','Jinan','Qingdao','Xi-an','Chengdu','Hangzhou','Ningbo','Taipei','Taichung','Miaoli','Seoul','Busan','Daejeon','Daegu','Gwangju','Ulsan','Changwon','Cheongju','Jinju','Pohang','Kuala Lumpur','Tokyo'];
+  var CITY_ORDER = ['Beijing','Shanghai','Chongqing','Tianjin','Hong Kong','Guangzhou','Shenzhen','Xiamen','Zhongshan','Zhuhai','Haikou','Zhengzhou','Wuhan','Nanjing','Suzhou','Shenyang','Dalian','Jinan','Qingdao','Xi-an','Chengdu','Hangzhou','Ningbo','Taipei','Taichung','Miaoli','Seoul','Busan','Daejeon','Daegu','Gwangju','Ulsan','Changwon','Cheongju','Jinju','Pohang','Kuala Lumpur','Da Nang','Tokyo'];
   var CITY_ID = {'Beijing':'bj','Shanghai':'sh','Hong Kong':'hk','Shenzhen':'sz','Guangzhou':'gz','Suzhou':'su',
-    'Taipei':'tp','Miaoli':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj','Changwon':'cw','Kuala Lumpur':'kl','Tokyo':'tk','Seoul':'se','Busan':'bs','Daejeon':'dj','Gwangju':'gj','Daegu':'dg','Cheongju':'cj','Jinju':'jj','Pohang':'ph','Ulsan':'us'};
+    'Taipei':'tp','Miaoli':'dv','Taichung':'tc','Chengdu':'cd','Chongqing':'cq','Hangzhou':'hz','Nanjing':'nj','Shenyang':'sy','Tianjin':'tj','Changwon':'cw','Kuala Lumpur':'kl','Da Nang':'dn','Tokyo':'tk','Seoul':'se','Busan':'bs','Daejeon':'dj','Gwangju':'gj','Daegu':'dg','Cheongju':'cj','Jinju':'jj','Pohang':'ph','Ulsan':'us'};
   function formatTime12(t){
     if (!t) return '';
     function one(x){
@@ -113,6 +113,15 @@
     if (a === b) return formatDay(a);
     return formatDay(a) + ' – ' + formatDay(b);
   }
+  function cardDate(a, b){ /* v9.9: one card date format on zh+en, e.g. "June 18–22, 2027" */
+    if (!a) return ''; b = b || a;
+    var M = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    var A = a.split('-').map(Number), B = b.split('-').map(Number), ma = M[A[1]-1], mb = M[B[1]-1];
+    if (a === b) return ma + ' ' + A[2] + ', ' + A[0];
+    if (A[0] !== B[0]) return ma + ' ' + A[2] + ', ' + A[0] + ' – ' + mb + ' ' + B[2] + ', ' + B[0];
+    if (A[1] !== B[1]) return ma + ' ' + A[2] + ' – ' + mb + ' ' + B[2] + ', ' + B[0];
+    return ma + ' ' + A[2] + '–' + B[2] + ', ' + A[0];
+  }
   function cityId(c){ return CITY_ID[c] || c.toLowerCase().replace(/[^a-z]/g,'').slice(0,6); }
   function line(k, v){ return '<div class="ev-line"><span class="ev-k">' + k + '</span> ' + v + '</div>'; }
   function contactBlock(r){
@@ -129,11 +138,11 @@
     return '<div class="china-contact-block">' + parts.join('') + '</div>';
   }
   function linkBtns(r){
-    var L = r.links || {}, out = [];
+    var L = r.links || {}, out = [], FB_ZH_OFF = {'China':1,'Hong Kong':1,'Taiwan':1,'Macao':1,'Japan':1,'Malaysia':1};
     var zhReg = isZh && r.kind === 'weekly', isFb = function(u){ return /^https?:\/\/([a-z0-9-]+\.)*(facebook\.com|fb\.com|fb\.me)(\/|$)/i.test(u || ''); };
-    if (L.facebook && (!isZh || r.country === 'South Korea')) /* v9.8: Korea shows FB on zh */ out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
+    if (L.facebook && (!isZh || !FB_ZH_OFF[r.country])) /* v9.9: zh hides FB only for these existing countries; new countries (e.g. Vietnam) show FB */ out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
     if (L.register) out.push('<a class="china-linkbtn china-linkbtn-reg" href="' + esc(L.register) + '" target="_blank" rel="noopener">' + (isZh ? '报名' : 'Register') + '</a>');
-    if (L.other && !(isZh && isFb(L.other) && r.country !== 'South Korea')) { var wh = /^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other);
+    if (L.other && !(isZh && isFb(L.other) && FB_ZH_OFF[r.country])) { var wh = /^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other);
       var wOwn = wh.match(/^https?:\/\/(www\.)?tangoweekend\.org(\/event\/.*)$/); /* v9.7: on-site page opens in the same tab so Back / 「← 亚洲探戈地图」 return to the same results */
       out.push('<a class="china-linkbtn" href="' + esc(wOwn ? wOwn[2] : wh) + '"' + (wOwn ? '' : ' target="_blank" rel="noopener"') + '>' + (wOwn && /^(cwCbtm27|manual-hz-jinsha|manual-cq-spicy-2026)$/.test(r.id) ? (isZh ? '详情' : 'Details') : (UI.website || 'Website')) + '</a>'); } /* v9.7: Changwon / Hangzhou Jinsha / Chongqing -> 详情 / Details */
     if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + esc((isZh ? L.wechat_label_zh : L.wechat_label) || UI.wechat || 'WeChat') + '</a>');
@@ -170,7 +179,7 @@
       var dates = [], d = parseISO(r.start), e = parseISO(r.end || r.start);
       while (d <= e) { dates.push(isoOf(d)); d.setDate(d.getDate()+1); }
       attrs = ' data-dates="' + dates.join(',') + '" data-sort="' + dates[0] + '"' + ((r.end || r.start) < todayISO() ? ' data-past="1"' : '');
-      when = formatRange(r.start, r.end || r.start);
+      when = cardDate(r.start, r.end || r.start);
       body.push(line(UI.dates || 'Dates', when));
       if (r.time) body.push(line(UI.time || 'Time', esc(formatTime12(r.time))));
     } else if (r.kind === 'event') {
@@ -192,7 +201,7 @@
       var vName = r.venue, usedAddrEn = false; /* v8g: en page — English venue name when available */
       if (!isZh && /[\u4e00-\u9fff]/.test(r.venue)) { if (r.venue_en) vName = r.venue_en; else if (!/[A-Za-z]{3,}/.test(r.venue) && r.venue_address_en) { vName = r.venue_address_en; usedAddrEn = true; } }
       var addr = r.venue_address ? ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>' : '';
-      var addrEn = ((!UI.hideAddrEn || r.addr_en_zh) && r.venue_address_en && !usedAddrEn) ? '<div class="china-addr-en">' + esc(r.venue_address_en) + '</div>' : '';
+      var addrEn = ((!UI.hideAddrEn || r.addr_en_zh) && r.venue_address_en && !usedAddrEn) ? '<div class="china-addr-en">' + esc((isZh && /^Address not found$/i.test(r.venue_address_en)) ? '不确定' : r.venue_address_en) + '</div>' : '';
       body.push(line(UI.venue || 'Venue', esc(vName) + addr + addrEn));
     }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
@@ -224,7 +233,7 @@
     var ev = data.filter(function(r){ return r.kind === 'event' && !r.hidden && r.status !== 'cancelled' && (PICK[r.id] || (REC[r.id] && (r.end || r.start || '') >= tdy)) && !/Select Tango Weekend/.test(r.name); })
       .sort(function(a,b){ return (a.start || '').localeCompare(b.start || ''); });
     if (!ev.length) return;
-    function fd(r){ var a = (r.start || '').replace(/-/g,'/'), b = (r.end || '').replace(/-/g,'/'); return b && b !== a ? a + ' – ' + b : a; }
+    function fd(r){ return cardDate(r.start, r.end); }
     function href(r){ var L = r.links || {}, u = L.other || L.register || L.facebook || ''; return isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(u) ? u + 'zh/' : u; }
     var IMG = OWN_IMG;
     var ZHN = { 'hangzhou-2026-tango-festival': '杭州金沙国际探戈节', 'chongqing-2026-tango-festival': '2026火辣探戈周末·第九届重庆探戈节', 'miaoli-2026-tango-marathon': '台湾探戈马拉松', 'suzhou-2026-tango-blast-festival': '2026苏州探戈节', 'changwon-2027-tango-marathon': '2027韩国昌原樱花探戈马拉松' };
@@ -266,7 +275,10 @@
     function sessLabel(c){ var n = wkSess[c] || 0; if (!n || c === 'Others') return cityDisplay(c); return UI.countWord ? cityDisplay(c) + n + '场' : cityDisplay(c) + ' (' + n + ')'; }
     window._chinaCitySessions = wkSess;
     var baseIdx = cities.slice();
-    cities.sort(function(a,b){ return ((wkCount[b]||0) - (wkCount[a]||0)) || (baseIdx.indexOf(a) - baseIdx.indexOf(b)); });
+    var cCountry = {}; data.forEach(function(r){ if (r.city && !cCountry[r.city]) cCountry[r.city] = r.country; });
+    function regRank(c){ var k = (c === 'Hong Kong' || c === 'Macao' || c === 'Macau') ? 'Hong Kong' : (cCountry[c] || ''); return k === 'China' ? 0 : (k === 'Hong Kong' || k === 'Taiwan' || k === 'Macao' || k === 'Macau') ? 1 : (k === 'South Korea' || k === 'Korea') ? 2 : k === 'Japan' ? 4 : 3; }
+    /* v9.9: region first (China > HK/Taiwan/Macao > Korea > others > Japan), then regular sessions desc, then name */
+    cities.sort(function(a,b){ return (regRank(a) - regRank(b)) || ((wkSess[b]||0) - (wkSess[a]||0)) || cityDisplay(a).localeCompare(cityDisplay(b), isZh ? 'zh' : 'en'); });
     var OTHERS = cities.filter(function(c){ return (wkCount[c] || 0) < 1; });
     cities = cities.filter(function(c){ return OTHERS.indexOf(c) === -1; }).concat(OTHERS.length ? ['Others'] : []);
     window._chinaCityOrder = cities.slice();
@@ -293,7 +305,7 @@
       var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start; });
       var wk = rs.filter(function(r){ return r.kind === 'weekly'; });
       var tw = c !== 'Others' && rs[0].region === 'Taiwan';
-      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head" data-cn="' + esc(cityDisplay(c)) + '">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + ' <span class="china-count"></span>' + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
+      var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head" data-cn="' + esc(cityDisplay(c)) + '">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
       h.push(group(UI.events || 'Events', dated.concat(tba)));
       var sched = wk.filter(function(r){ return r.weekday != null; }) /* v9: monthly nth-weekday events always listed (labelled e.g. 2nd Sat monthly), not only in the week they fall in */, nos = wk.filter(function(r){ return r.weekday == null; });
       if (sched.length) {
@@ -479,8 +491,20 @@
   function urlQS(){
     if (document.body.classList.contains('china-presearch')) return '';
     var t = checkedTypes(), ev = t.length === 1 && t[0] === 'event', c = citySel ? citySel.value : '';
-    return ev ? '?mode=featured' + (c && c !== 'all' ? '&city=' + encodeURIComponent(c) : '') : (c && c !== 'all' ? '?mode=regular&city=' + encodeURIComponent(c) : '');
+    var qs = ev ? '?mode=featured' + (c && c !== 'all' ? '&city=' + encodeURIComponent(c) : '') : (c && c !== 'all' ? '?mode=regular&city=' + encodeURIComponent(c) : '');
+    if (qs) { /* v9.9: date filter in shareable links */
+      var fv = fromEl && fromEl.value, tv = toEl && toEl.value;
+      if (fv && fv !== _dateDef.f) qs += '&date=' + fv;
+      if (tv && tv !== _dateDef.t) qs += '&to=' + tv;
+    }
+    return qs;
   }
+  var _dateDef = { f: fromEl ? fromEl.value : '', t: toEl ? toEl.value : '' };
+  function urlDates(q){ var re = /^\d{4}-\d{2}-\d{2}$/;
+    [[fromEl, q.get('date') || q.get('from')], [toEl, q.get('to')]].forEach(function(x){ var el = x[0], v = x[1]; if (!el) return;
+      var want = v && re.test(v) ? v : (el === fromEl ? _dateDef.f : _dateDef.t);
+      if (el.value !== want) { el.value = want; el.dispatchEvent(new Event('change', { bubbles: true })); } }); }
+  ['china-from','china-to'].forEach(function(id){ var el = document.getElementById(id); if (el) el.addEventListener('change', function(){ setTimeout(urlPush, 0); }); });
   function langLinks(qs){ document.querySelectorAll('[data-asia-lang-set]').forEach(function(a){ var h = a.getAttribute('href') || ''; a.setAttribute('href', h.split('?')[0].split('#')[0] + qs); }); }
   function urlPush(){
     if (_urlMute || !window.history || !history.pushState) return;
@@ -493,6 +517,7 @@
     var q = new URLSearchParams(location.search), m = q.get('mode'), c = q.get('city') || '';
     _urlMute = true;
     try {
+      urlDates(q);
       if (m === 'featured' || m === 'regular') {
         var r = document.querySelector('input[name="etype"][value="' + (m === 'featured' ? 'event' : 'regular') + '"]');
         if (r) { r.checked = true; applyFilters(); }

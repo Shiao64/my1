@@ -1,0 +1,27 @@
+// Smoke test: first run  sed "s#import { EmailMessage } from .cloudflare:email.;#class EmailMessage{constructor(a,b){this.a=a;this.b=b}}#" src/index.js > /tmp/swt/w.mjs
+import { DatabaseSync } from 'node:sqlite'; import fs from 'node:fs';
+import W, { cleanup } from '/tmp/swt/w.mjs';
+const db=new DatabaseSync(':memory:');
+db.exec(fs.readFileSync('/workspace/wt-layout/subscribe-worker/schema.sql','utf8'));db.exec(fs.readFileSync('/workspace/wt-layout/subscribe-worker/migrations/0002_double_optin.sql','utf8'));
+db.exec("INSERT INTO subs(created_at,email,types,cities) VALUES('2026-10-27','old@x.com','featured','all')");
+const D1={prepare(sql){let args=[];const st=db.prepare(sql);return{bind(...a){args=a;return this},first(c){const r=st.get(...args);return c?r?.[c]:r??null},run(){const r=st.run(...args);return{meta:{changes:r.changes,last_row_id:r.lastInsertRowid}}}}}};
+const mails=[];const env={DB:D1,API_BASE:'https://api.x',SENDER:'s@x',MAIL_PROVIDER:'log',NOTIFY_TO:'o@x',EMAIL:{send:async m=>mails.push(['owner',m.b])}};
+const ol=console.log;console.log=(...a)=>{if(String(a[0]).startsWith('[mail:log]'))mails.push(a[0]);};
+const post=b=>W.fetch(new Request('https://api.x/subscribe',{method:'POST',headers:{Origin:'https://tangoweekend.org','Content-Type':'application/json'},body:JSON.stringify(b)}),env);
+const r=[];
+r.push(['no email',(await post({wechat:'wx',lang:'zh'})).status]);
+r.push(['bad email',(await (await post({email:'bad',lang:'zh'})).json())]);
+r.push(['ok',(await (await post({email:'A@b.com',wechat:'wx1',lang:'zh'})).json())]);
+r.push(['row',db.prepare('select status,confirm_hash is not null h from email_subs').get()]);
+const tk=mails.at(-1).match(/t=([0-9a-f]{48})/)[1];
+r.push(['bad tok',(await W.fetch(new Request('https://api.x/confirm?t='+'0'.repeat(48)),env)).status]);
+r.push(['confirm',(await W.fetch(new Request('https://api.x/confirm?t='+tk),env)).status, db.prepare('select status,welcome_mail_status w from email_subs').get()]);
+r.push(['reuse tok',(await W.fetch(new Request('https://api.x/confirm?t='+tk),env)).status]);
+r.push(['resub active',(await (await post({email:'a@b.com',lang:'en'})).json()), mails.length]);
+await post({email:'p@b.com',lang:'en'});db.exec("update email_subs set pending_since='2026-10-01T00:00:00Z' where email='p@b.com'");
+await post({email:'q@b.com',lang:'en'});
+r.push(['cleanup',await cleanup(env), db.prepare('select email,status from email_subs').all()]);
+r.push(['old subs intact',db.prepare('select count(*) n from subs').get()]);
+const u=db.prepare("select unsub_token u from email_subs where email='a@b.com'").get().u;
+r.push(['unsub',(await W.fetch(new Request('https://api.x/unsubscribe?t='+u),env)).status,db.prepare("select status from email_subs where email='a@b.com'").get()]);
+ol(JSON.stringify(r,null,0).replace(/\],\[/g,'],\n['));ol('mails',mails.length);ol(mails[0].slice(0,300));
