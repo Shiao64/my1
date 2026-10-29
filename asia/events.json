@@ -1420,7 +1420,7 @@
     "id": "LxcvweaE",
     "kind": "weekly",
     "type": "practica",
-    "name": "TD House 周二练习舞会",
+    "name": "TD House 周二练习舞会（Practice Alone·Practice A Lot）",
     "city": "Shanghai",
     "country": "China",
     "region": "China",
@@ -1435,6 +1435,7 @@
     "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
     "venue_address_en": "2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai (Tango Palace)",
     "organizers": [
+      "TD House",
       "Tango Dreamers",
       "正中"
     ],
@@ -1443,13 +1444,15 @@
       "video": null,
       "other": null
     },
-    "source": "探戈雷达汇总表 R026 2026-10-27",
-    "updated": "2026-10-27",
+    "source": "探戈雷达汇总表 R026 2026-10-27；微信 2026-10-29",
+    "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
     "poster": "/images/asia/posters/generated/R026.png",
-    "poster_pos": "center top"
+    "poster_pos": "center top",
+    "note_zh": "门票40元/人（大众点评搜Tango Dreamers购买券30元）。场地分两半：靠近DJ台半场为单人练习区/讨论区，靠近洗手间半场为舞会区；Tanda+cortina组合播放。老师驻场指导，需要帮助请举手，不举手不打扰。",
+    "note": "Entry ¥40 per person (¥30 voucher on Dianping: search \"Tango Dreamers\"). The floor is split in two: the half near the DJ booth is for solo practice/discussion, the half near the restrooms is for social dancing; music in tandas with cortinas. A teacher is on site — raise your hand if you want help; otherwise you won't be disturbed."
   },
   {
     "id": "QWdKPmum",
