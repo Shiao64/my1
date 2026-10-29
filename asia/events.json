@@ -2934,8 +2934,10 @@
     "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": null,
     "end": null,
-    "weekday": 4,
+    "weekday": 2,
     "weekdays": [
+      2,
+      3,
       4
     ],
     "time": "14:00–18:00"
@@ -2973,8 +2975,11 @@
     "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": null,
     "end": null,
-    "weekday": 4,
+    "weekday": 1,
     "weekdays": [
+      1,
+      2,
+      3,
       4
     ],
     "time": "15:00–18:00"
@@ -5587,8 +5592,9 @@
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": null,
     "end": null,
-    "weekday": 5,
+    "weekday": 3,
     "weekdays": [
+      3,
       5
     ],
     "time": "15:00–18:00"
@@ -5631,5 +5637,1371 @@
       4
     ],
     "time": "20:30–24:00"
+  },
+  {
+    "id": "R153",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Monday o nada Milonga",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "TANGO o nada",
+    "venue_address": "서울특별시 마포구 동교동 동교로 193",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
+    "addr_en_zh": true,
+    "organizers": [
+      "TANGO o nada"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "20:00–00:30"
+  },
+  {
+    "id": "R154",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "MUCHO Milonga",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "OCHO",
+    "venue_address": "서울 마포구 월드컵북로2길 57 지하1층",
+    "venue_address_en": "B1, 57, world cup buk-ro 2-gil, Seogyo-dong, Mapo-gu, Seoul",
+    "addr_en_zh": true,
+    "organizers": [
+      "OCHO"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "20:00–24:00"
+  },
+  {
+    "id": "R155",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "abrazo milonga",
+    "city": "Daegu",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "아브라쏘",
+    "venue_address": "대구 중구 동덕로 36길 24 2층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "아브라쏘"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "21:00–23:30"
+  },
+  {
+    "id": "R156",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "PISTA Practica(no guide)",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "PISTA",
+    "venue_address": "서울 월드컵북로6길 49 지하1층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "PISTA"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "14:00–18:00"
+  },
+  {
+    "id": "R157",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Practica(no guide)",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "PISTA",
+    "venue_address": "서울 월드컵북로6길 49 지하1층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "PISTA"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "19:00–24:00"
+  },
+  {
+    "id": "R158",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Practica M",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "OTRA",
+    "venue_address": "마포구 홍익로 5안길 20 재강빌딩 지하 1층",
+    "venue_address_en": "B1, 20, Hongik-ro 5an-gil, Mapo-gu, Seoul, Republic of Korea",
+    "addr_en_zh": true,
+    "organizers": [
+      "OTRA"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "19:30–23:30"
+  },
+  {
+    "id": "R159",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "MOONLIGHT PRACTICA",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Studio Ocho",
+    "venue_address": "서울 마포구 월드컵북로2길 57 지하1층",
+    "venue_address_en": "B1, 57, world cup buk-ro 2-gil, Seogyo-dong, Mapo-gu, Seoul",
+    "addr_en_zh": true,
+    "organizers": [
+      "Studio Ocho"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "20:00–23:00"
+  },
+  {
+    "id": "R160",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Práctica",
+    "city": "Pohang",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "posTango",
+    "venue_address": "포항시 남구 중앙로 83, 3층 프스탱고",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "posTango"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1,
+      2
+    ],
+    "time": "20:00"
+  },
+  {
+    "id": "R161",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Monday Practica",
+    "city": "Busan",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Studio 242",
+    "venue_address": "부산광역시 부산진구 부전동 242-32, 4층",
+    "venue_address_en": "4th floor, 242-32, Bujeon-dong, Busanjin-gu, Busan",
+    "addr_en_zh": true,
+    "organizers": [
+      "Studio 242"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "地址来自Beto Kim的Facebook图片。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Address from Beto Kim's Facebook image. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "20:00–23:00"
+  },
+  {
+    "id": "R162",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Gato Open Practica",
+    "city": "Busan",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Ideal Tango Cafe",
+    "venue_address": "부산광역시 부산진구 부전동 241-41, 3층",
+    "venue_address_en": "3rd floor, 241-41, Bujeon-dong, Busanjin-gu, Busan",
+    "addr_en_zh": true,
+    "organizers": [
+      "Ideal Tango Cafe"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "地址来自Beto Kim的Facebook图片。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Address from Beto Kim's Facebook image. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "20:00–22:40"
+  },
+  {
+    "id": "R163",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Practica",
+    "city": "Daejeon",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Azucar",
+    "venue_address": "대전 유성구 대학로 127-1. B1",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Azucar"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "21:00–23:00"
+  },
+  {
+    "id": "R164",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "ORANGE",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Andante",
+    "venue_address": "서울시 마포구 양화로 12길 24 선진빌딩 B1(합정역 3번 출구)",
+    "venue_address_en": "B1, Sun Jin Bldg, 24, yanghwa-ro 12-gil, Mapo-gu, Seoul",
+    "addr_en_zh": true,
+    "organizers": [
+      "Andante"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "19:30–24:00"
+  },
+  {
+    "id": "R165",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "CASA Milonga",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "OCHO",
+    "venue_address": "서울 마포구 월드컵북로2길 57 지하1층",
+    "venue_address_en": "B1, 57, world cup buk-ro 2-gil, Seogyo-dong, Mapo-gu, Seoul",
+    "addr_en_zh": true,
+    "organizers": [
+      "OCHO"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:00–24:00"
+  },
+  {
+    "id": "R166",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Solo Tango Tue Meet",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "TANGO o nada",
+    "venue_address": "서울특별시 마포구 동교동 동교로 193",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
+    "addr_en_zh": true,
+    "organizers": [
+      "TANGO o nada"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:00–23:30"
+  },
+  {
+    "id": "R167",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "TANGO FIRE",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "La Ventana",
+    "venue_address": "마포구 잔다리로 48, 정원빌딩 2층",
+    "venue_address_en": "48, Jandari-ro, Mapo-gu, Seoul, Republic of Korea",
+    "addr_en_zh": true,
+    "organizers": [
+      "La Ventana"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:30–24:00"
+  },
+  {
+    "id": "R168",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "BUSAN TANGO FIRE",
+    "city": "Busan",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Ideal Tango Cafe",
+    "venue_address": "부산광역시 부산진구 부전동 241-41, 3층",
+    "venue_address_en": "3rd floor, 241-41, Bujeon-dong, Busanjin-gu, Busan",
+    "addr_en_zh": true,
+    "organizers": [
+      "Ideal Tango Cafe"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "地址来自Beto Kim的Facebook图片。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Address from Beto Kim's Facebook image. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:30–23:30"
+  },
+  {
+    "id": "R169",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Daejeon Tango Regular Milonga",
+    "city": "Daejeon",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "LaBoom",
+    "venue_address": "대전 유성구 대학로81번길 32-11 덕일빌딩 B1",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "LaBoom"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:00–23:30"
+  },
+  {
+    "id": "R170",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Melo Open Practica",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "PISTA",
+    "venue_address": "서울 월드컵북로6길 49 지하1층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "PISTA"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "19:00–24:00"
+  },
+  {
+    "id": "R171",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "EG Practica",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Club Troilo",
+    "venue_address": "마포구 연남로9 지하 1층",
+    "venue_address_en": "B1, 9 Yeonnam-ro, Mapo-gu, Seoul",
+    "addr_en_zh": true,
+    "organizers": [
+      "Club Troilo"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "21:00–23:00"
+  },
+  {
+    "id": "R172",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Manner Practica",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Studio Ocho",
+    "venue_address": "서울 마포구 월드컵북로2길 57 지하1층",
+    "venue_address_en": "B1, 57, world cup buk-ro 2-gil, Seogyo-dong, Mapo-gu, Seoul",
+    "addr_en_zh": true,
+    "organizers": [
+      "Studio Ocho"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "21:00–24:00"
+  },
+  {
+    "id": "R173",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Práctica",
+    "city": "Gwangju",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Mi Vida tango studio",
+    "venue_address": "광주 동구 중앙로 162-1 5층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Mi Vida tango studio"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "20:00–22:00"
+  },
+  {
+    "id": "R174",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "WEDNESDAY SWEET / WEDNESDAY! RUN!",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "OCHO",
+    "venue_address": "서울 마포구 월드컵북로2길 57 지하1층",
+    "venue_address_en": "B1, 57, world cup buk-ro 2-gil, Seogyo-dong, Mapo-gu, Seoul",
+    "addr_en_zh": true,
+    "organizers": [
+      "OCHO"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–24:00"
+  },
+  {
+    "id": "R175",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Uno / In the mood for Tango",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "TANGO o nada",
+    "venue_address": "서울특별시 마포구 동교동 동교로 193",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
+    "addr_en_zh": true,
+    "organizers": [
+      "TANGO o nada"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–24:00"
+  },
+  {
+    "id": "R176",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga Siempre",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "todotango",
+    "venue_address": null,
+    "venue_address_en": "todotango, Gangnam, Seoul, South Korea",
+    "addr_en_zh": true,
+    "organizers": [
+      "todotango"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "13:00–16:00"
+  },
+  {
+    "id": "R177",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "CAMELIA",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "En Paz Studio",
+    "venue_address": "서초구 반포대로 30길 82 우서빌딩 B1. 엔빠스",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "En Paz Studio"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:30–23:30"
+  },
+  {
+    "id": "R178",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Pronga",
+    "city": "Busan",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Amigo",
+    "venue_address": "부산광역시 부산진구 부전로 34(황제 주차장 B/D 2층)",
+    "venue_address_en": "2nd floor, 34, Bujeon-ro, Busanjin-gu, Busan",
+    "addr_en_zh": true,
+    "organizers": [
+      "Amigo"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "地址来自Beto Kim的Facebook图片。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Address from Beto Kim's Facebook image. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "21:15–23:15"
+  },
+  {
+    "id": "R179",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Tangenmi Regular Milonga",
+    "city": "Daejeon",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Azucar",
+    "venue_address": "대전 유성구 대학로 127-1. B1",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Azucar"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:30–23:30"
+  },
+  {
+    "id": "R180",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonga Urquiza",
+    "city": "Cheongju",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Cheongju Tango Urquiza",
+    "venue_address": null,
+    "venue_address_en": "Cheongju Tango Urquiza, Cheongju, South Korea",
+    "addr_en_zh": true,
+    "organizers": [
+      "Cheongju Tango Urquiza"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:30–23:30"
+  },
+  {
+    "id": "R181",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Pie Practica",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "PISTA",
+    "venue_address": "서울 월드컵북로6길 49 지하1층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "PISTA"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:00–23:00"
+  },
+  {
+    "id": "R182",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Solo Tango Wed Practica",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "SOLO TANGO",
+    "venue_address": "서울 마포구 홍익로5길 57 지하 1층 (서울 마포구 서교동 370-14 지하 1층)",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "SOLO TANGO"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–23:00"
+  },
+  {
+    "id": "R183",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Jinju Wed Práctica",
+    "city": "Jinju",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "Jinju Tango People",
+    "venue_address": "진주시 평거로7 3층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Jinju Tango People"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:00–23:00"
+  },
+  {
+    "id": "R184",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Class & Práctica",
+    "city": "Gwangju",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "CON TANGO",
+    "venue_address": "광주 서구 화정동 825-12 4층 (S댄스 아카데미)",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "CON TANGO"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:30–23:00"
+  },
+  {
+    "id": "R185",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "The PISTA",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "PISTA",
+    "venue_address": "서울 월드컵북로6길 49 지하1층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "PISTA"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:00–23:00"
+  },
+  {
+    "id": "R186",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Sueño dulce",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "La Ventana",
+    "venue_address": "마포구 잔다리로 48, 정원빌딩 2층",
+    "venue_address_en": "48, Jandari-ro, Mapo-gu, Seoul, Republic of Korea",
+    "addr_en_zh": true,
+    "organizers": [
+      "La Ventana"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "19:00–23:00"
+  },
+  {
+    "id": "R187",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Autonomous Afternoon Practica",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "venue": "PISTA",
+    "venue_address": "서울 월드컵북로6길 49 지하1층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "PISTA"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://ktnow.kr/?lang=en"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "ktnow.kr (F32) November 2026 pattern",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "英文地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
+    "note": "English address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "10:00–13:00, 13:00–16:00"
   }
 ]
