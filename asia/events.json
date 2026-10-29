@@ -9094,17 +9094,19 @@
     "nth": 2
   },
   {
-    "id": "E087",
-    "kind": "event",
+    "id": "R202",
+    "kind": "weekly",
     "type": "practica",
     "name": "Cheek to Cheek guided practica",
     "city": "Taichung",
     "country": "Taiwan",
     "region": "Taiwan",
-    "start": "2026-10-31",
-    "end": "2026-10-31",
-    "weekday": null,
-    "weekdays": null,
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
     "time": "13:00–16:30",
     "venue": "陽晴心理諮商所_永春館",
     "venue_address": "臺中市南屯區永春東路283號",
@@ -9128,81 +9130,8 @@
     "hidden_reason": null,
     "tba": false,
     "note_zh": "隔周周六。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
-    "note": "Every other Saturday. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
-  },
-  {
-    "id": "E088",
-    "kind": "event",
-    "type": "practica",
-    "name": "Cheek to Cheek guided practica",
-    "city": "Taichung",
-    "country": "Taiwan",
-    "region": "Taiwan",
-    "start": "2026-11-14",
-    "end": "2026-11-14",
-    "weekday": null,
-    "weekdays": null,
-    "time": "13:00–16:30",
-    "venue": "陽晴心理諮商所_永春館",
-    "venue_address": "臺中市南屯區永春東路283號",
-    "venue_address_en": "Address not found",
-    "addr_en_zh": true,
-    "organizers": [
-      "Cheek to Cheek"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": null
-    },
-    "contacts": {
-      "phone": null,
-      "email": null
-    },
-    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
-    "updated": "2026-10-29",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": false,
-    "note_zh": "隔周周六。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
-    "note": "Every other Saturday. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
-  },
-  {
-    "id": "E089",
-    "kind": "event",
-    "type": "practica",
-    "name": "Cheek to Cheek guided practica",
-    "city": "Taichung",
-    "country": "Taiwan",
-    "region": "Taiwan",
-    "start": "2026-11-28",
-    "end": "2026-11-28",
-    "weekday": null,
-    "weekdays": null,
-    "time": "13:00–16:30",
-    "venue": "陽晴心理諮商所_永春館",
-    "venue_address": "臺中市南屯區永春東路283號",
-    "venue_address_en": "Address not found",
-    "addr_en_zh": true,
-    "organizers": [
-      "Cheek to Cheek"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": null
-    },
-    "contacts": {
-      "phone": null,
-      "email": null
-    },
-    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
-    "updated": "2026-10-29",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": false,
-    "note_zh": "隔周周六。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
-    "note": "Every other Saturday. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+    "note": "Every other Saturday. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice.",
+    "every": 2
   },
   {
     "id": "E090",

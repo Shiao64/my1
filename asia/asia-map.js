@@ -190,7 +190,8 @@
       var ds = r.weekdays || (r.weekday != null ? [r.weekday] : null);
       if (ds) {
         var every = UI.every || 'Every ';
-        if (r.nth && ds.length === 1) when = nthLabel(r.nth, ds[0]) + (r.time ? ' · ' + formatTime12(r.time) : ''); /* v8g: monthly nth weekday */
+        if (r.every === 2 && ds.length === 1) when = (isZh ? '隔周周' + ['日','一','二','三','四','五','六'][ds[0]] : 'Every other ' + ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][ds[0]]) + (r.time ? ' · ' + formatTime12(r.time) : ''); /* v10.2: biweekly */
+        else if (r.nth && ds.length === 1) when = nthLabel(r.nth, ds[0]) + (r.time ? ' · ' + formatTime12(r.time) : ''); /* v8g: monthly nth weekday */
         else when = every + (ds.length > 1 ? DAYS[ds[0]] + '–' + DAYS[ds[ds.length-1]] : DAYS[ds[0]]) + (r.time ? ' · ' + formatTime12(r.time) : '');
       } else { when = UI.dayTba || 'Day TBA'; attrs += ' data-tba="1"'; }
       var unconf = r.confirmed_until && r.weekday != null && occISO(r.weekday) > r.confirmed_until; /* v9.4: no poster for this week */

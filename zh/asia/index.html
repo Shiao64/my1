@@ -94,6 +94,80 @@ html{scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}html:has(body:not(.
 .tw-m-feat-k.atm-fav-k{background:none!important;border:0!important;padding:0!important;color:#C8102E!important;display:inline-flex!important;align-items:center;gap:4px;font-weight:700}
 .tw-m-feat-k.atm-fav-k.tw-m-feat-k.atm-fav-k:before{content:"";width:13px;height:13px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 width=%2713%27 height=%2713%27%3E%3Cpath d=%27M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z%27 fill=%27%23C8102E%27 stroke=%27%23C8102E%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/contain no-repeat}
 </style>
+<style id="v102-noshift">.china-stw-banner,.china-map-hero,.china-map-hero h1,.china-map-sub{transition:none!important}
+.china-map-hero h1 .atm-beta{font-size:50%;font-weight:inherit;white-space:nowrap}
+/* v10.2: reserve space for JS-rendered blocks so the page does not jump on load */
+body.china-page nav.top-lang.china-map-lang{min-height:32px;box-sizing:border-box}
+body.china-page .tw-m-feat:not([hidden]){min-height:405px}
+@media (max-width:600px){body.china-page .tw-m-feat:not([hidden]){min-height:322px}body.china-page .atm-row.atm-row-reg{min-height:44px}}
+body.china-page #events:not(:has(.ev-card)){min-height:100vh}
+</style>
+<!-- v10.2: body <style> blocks moved here (same order) so first paint uses final styles -->
+<style id="draft-fav-hover">/* draft 2026-10-28: 收藏 活动卡片 hover scale-up, mouse only */@media (hover:hover) and (pointer:fine){.ev-card,.atm-fav-card{position:relative;z-index:0;transform:translateZ(0);backface-visibility:hidden;will-change:transform;transition:transform .2s ease}.ev-card:not(.atm-fav-card):hover{transform:translateZ(0) scale(1.05);z-index:2}.atm-fav-card:hover{transform:translateZ(0) scale(1.1);z-index:2}a.tw-fc{transition:transform .2s ease,box-shadow .2s ease}a.tw-fc:hover{transform:scale(1.08);position:relative;z-index:2;box-shadow:0 10px 24px rgba(0,0,0,.25)}}</style>
+<style id="design-v9">/* design review v9 2026-10-28 */
+body.china-page #filters label.m-chip.china-showall{position:relative!important} /* v9: keep the 44px tap area (:after) on the label, not over 搜索 */
+/* 1 mobile featured strip: bigger cards, clearer swipe affordance */
+@media (max-width:600px){.tw-m-feat-grid.tw-feat-ad>.tw-fc{flex:0 0 66%!important;max-width:66%!important;scroll-snap-align:start}.tw-m-feat-grid.tw-feat-ad{scroll-snap-type:x mandatory}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img{height:auto!important;aspect-ratio:16/9}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img img{width:100%;height:100%!important;object-fit:cover;object-position:top}
+.atm-dots{display:flex;justify-content:center;gap:8px;padding:10px 0 2px}.atm-dots i{width:7px;height:7px;border-radius:50%;background:#D9C9A8;transition:background .2s,width .2s}.atm-dots i.on{background:#0E6E78;width:18px;border-radius:4px}}
+/* 2 tap targets ≥44px (visual size kept, hit area extended) */
+label.m-chip.china-type-check{min-height:44px;box-sizing:border-box}
+.tsub-open{min-height:44px!important;padding-top:0!important;padding-bottom:0!important;display:inline-flex!important;align-items:center;justify-content:center}
+.atm-note-tg,.atm-more,.china-links a,.ev-line a,.top-lang a,.china-showall,.china-addr a{position:relative}
+.atm-note-tg:after,.atm-more:after,.china-links a:after,.ev-line a:after,.top-lang a:after,.china-showall:after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:44px;transform:translateY(-50%)}
+.top-lang a{min-width:44px;min-height:32px;display:inline-flex!important;align-items:center;justify-content:center;box-sizing:border-box}
+/* 3 category/schedule line above title at all widths */
+.ev-card>.ev-top{order:1!important;border-top:0!important;padding-top:0!important;margin-top:12px!important;margin-bottom:2px!important}
+/* 4 note fade: only the last line fades */
+.ev-card:not(.atm-open)>.atm-desc.atm-over:after{height:1.1em!important;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 85%)!important}
+.atm-desc .ev-k{color:#7A5F3E}
+/* 5 venue: name own line, address 13px */
+.ev-line .china-addr{display:block;font-size:13px;line-height:1.4;margin-top:2px}.ev-line .china-addr-en{font-size:13px;line-height:1.4;margin-top:4px}
+/* 6 poster 4:3, top aligned; tap opens full image (existing link) */
+@media (max-width:600px){.ev-card>.ev-cover{padding-top:75%!important}.ev-card>.atm-nocover{padding-top:75%!important}}
+@media (min-width:601px){.ev-card>.ev-cover{display:block;aspect-ratio:4/3!important;height:auto!important;max-height:none!important;overflow:hidden}.ev-card>.ev-cover img{width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important}}
+.ev-card>.ev-cover img{object-position:center top!important}.ev-card>.ev-cover{cursor:pointer}
+/* 7 compact header on scroll */
+.china-stw-banner,.china-map-hero,.china-map-hero h1,.china-map-sub{transition:all .2s ease}
+html.atm-compact{--atm-sticky:var(--atm-sticky-full,118px)!important}
+html.atm-compact .china-page .china-sticky-top .china-stw-banner.china-stw-ad{display:none!important}
+html.atm-compact .china-map-hero{padding-top:0!important;padding-bottom:0!important;min-height:0!important}
+html.atm-compact .china-hero-bar{min-height:44px;height:44px;padding-top:0!important;padding-bottom:0!important;align-items:center}
+html.atm-compact .china-map-sub{display:none!important}
+html.atm-compact .china-map-hero h1{font-size:19px!important;margin:0!important;line-height:44px!important;cursor:pointer}
+html.atm-compact .china-map-hero h1{display:inline-flex!important;align-items:center;gap:.35em;min-height:44px} html.atm-compact .china-map-hero h1::before{content:"";flex:0 0 auto;width:.95em;height:.95em;background-color:#F6D58E;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))} /* v9.1: search icon when header collapsed */
+/* 8 type switch: equal-size segment buttons */
+label.m-chip.china-type-check:not(.china-showall){min-width:132px;box-sizing:border-box;padding-left:14px!important;padding-right:14px!important;justify-content:center;display:inline-flex!important;align-items:center;border:1.5px solid #0E6E78!important;border-radius:22px!important}
+/* 10 desktop: 2-card weekday rows centred */
+@media (min-width:1060px){body.china-page .china-day .ev-list:has(>.ev-card:nth-child(2):last-child){grid-template-columns:repeat(2,calc((100% - 28px)/3))!important;justify-content:center}}
+/* 11 dots 8px */
+.atm-mk i{width:8px!important;height:8px!important;flex:0 0 8px!important}
+/* 12 weekday heading */
+body.china-page .china-group.china-day .china-sub-head{font-size:15px!important;font-weight:700;margin-top:24px!important}
+/* v9 desktop: compact hero, bigger 收藏 cards, slim footer band */
+@media (min-width:601px){
+body.china-page .china-map-hero{padding-top:8px!important;padding-bottom:4px!important}
+body.china-page #filters{padding-top:8px!important;padding-bottom:8px!important}
+body.china-page .tw-m-feat-grid.tw-feat-ad{padding:16px 24px 18px!important;margin:-6px 0 0;overflow-y:visible}
+body.china-page .tw-m-feat-grid.tw-feat-ad>.tw-fc{flex:0 0 320px!important;max-width:320px!important}
+html body #contact{display:flex!important;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 28px;padding:22px 20px!important;min-height:94px;box-sizing:border-box}
+#contact>.wrap{margin:0!important;padding:0!important;width:auto!important;max-width:none!important;display:flex;align-items:center;gap:22px}
+#contact .tsub-bottom-wrap{padding:0!important}
+#contact #site-ver{margin:0!important}
+}
+/* v9 desktop: 特色 results 2 per row, centred */
+@media (min-width:601px){body.china-page .china-chrono>.ev-list{grid-template-columns:repeat(2,minmax(0,460px))!important;justify-content:center!important;gap:24px!important}body.china-page .china-chrono>.ev-list>.ev-card:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:min(460px,100%)}}
+</style>
+<style id="mockup-v9">/* MOCKUP 2026-10-28: A) mobile sticky day band  B) unified card */
+@media (max-width:600px){
+body.china-page .china-group.china-day{margin-top:24px!important}
+body.china-page .china-group.china-day .china-sub-head{position:sticky;top:calc(var(--atm-hdr) + 4px);z-index:5;display:block;background:#0E6E78!important;color:#fff!important;font-size:18px!important;font-weight:700!important;border:0!important;border-radius:8px;padding:10px 14px!important;margin:0 0 12px!important;box-shadow:0 3px 10px rgba(6,51,58,.22);letter-spacing:.02em}
+}
+html{--atm-hdr:118px}html.atm-compact{--atm-hdr:44px}
+body.china-page .ev-card,body.china-page .ev-card:not(.atm-dim){border:2px solid #C9A96A!important;border-radius:14px!important;overflow:hidden!important;background:#FFFCF5!important;box-shadow:0 8px 22px rgba(60,40,20,.18),0 2px 6px rgba(0,0,0,.08)!important}
+body.china-page .ev-card>.ev-cover{border:0!important;border-radius:0!important;border-bottom:1px solid #D9C08A!important;box-sizing:border-box}
+body.china-page .ev-card>.ev-cover:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5)!important}
+body.china-page .ev-card:not(.atm-open)>.atm-desc.atm-over:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5 85%)!important}
+</style>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
@@ -109,7 +183,7 @@ html{scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}html:has(body:not(.
 <section class="hero china-map-hero">
   <div class="wrap china-hero-bar">
     <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
-      <h1 style="color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)"><span style="font-size:.88em">亚洲探戈地图 测试版</span></h1>
+      <h1 style="color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)"><span style="font-size:.88em">亚洲探戈地图<span class="atm-beta">（测试版）</span></span></h1>
       <p class="china-map-sub" style="margin:0;font-size:clamp(15px,1.4vw,18px);white-space:normal;line-height:1.2;color:#CFE8E3;font-weight:400;letter-spacing:.01em">帮你找阿根廷探戈活动</p>
     </div>
     <button type="button" class="china-suggest-open" id="china-suggest-open" hidden style="margin-left:auto!important;margin-right:6px!important">添加活动</button>
@@ -263,7 +337,7 @@ html{scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}html:has(body:not(.
 <script>
 window.CHINA_UI = {
   lang: 'zh',
-  eventsUrl: '../../asia/events.json?v=china315',
+  eventsUrl: '../../asia/events.json?v=china316',
   hideAddrEn: true,
   keepOrganizerZh: true,
   cityNames: {
@@ -332,14 +406,13 @@ window.CHINA_UI = {
   suggestAutoReply: '谢谢！我们已收到你在亚洲探戈地图添加的活动，上线后会回复你。—— tangoweekend.org'
 };
 </script>
-<script src="../../asia/asia-map.js?v=china304"></script>
+<script src="../../asia/asia-map.js?v=china305"></script>
 <script src="../../asia/asia-reglist.js?v=china278"></script>
 <script src="../../asia/asia-recent.js?v=rv1"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="../../asia/asia-howto.js?v=china278"></script> -->
 <script src="../../asia/lang-keep.js?v=china241"></script>
-<script src="../../asia/asia-subscribe.js?v=sub24"></script>
+<script src="../../asia/asia-subscribe.js?v=sub25"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
-<style id="draft-fav-hover">/* draft 2026-10-28: 收藏 活动卡片 hover scale-up, mouse only */@media (hover:hover) and (pointer:fine){.ev-card,.atm-fav-card{position:relative;z-index:0;transform:translateZ(0);backface-visibility:hidden;will-change:transform;transition:transform .2s ease}.ev-card:not(.atm-fav-card):hover{transform:translateZ(0) scale(1.05);z-index:2}.atm-fav-card:hover{transform:translateZ(0) scale(1.1);z-index:2}a.tw-fc{transition:transform .2s ease,box-shadow .2s ease}a.tw-fc:hover{transform:scale(1.08);position:relative;z-index:2;box-shadow:0 10px 24px rgba(0,0,0,.25)}}</style>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,tbxuzmah:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏/.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'tbxuzmah':1};
 function marks(li){var tp=li.querySelector(':scope>.ev-top');if(!tp||tp.querySelector('.atm-marks'))return;var t=li.dataset.type,ty=[];if(li.dataset.alsoRegular&&t!=='event')ty.push('event');ty.push(t);
@@ -385,63 +458,10 @@ addEventListener('resize',chk);addEventListener('load',chk);})();</script>
 h.addEventListener('click',function(){var st=document.querySelector('.china-sticky-top'),off=(st&&getComputedStyle(st).position==='sticky'?st.offsetHeight:0)+10,de=document.documentElement,old=de.style.scrollSnapType;
 de.style.scrollSnapType='none';window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+scrollY-off),behavior:'smooth'});
 clearTimeout(h._t);h._t=setTimeout(function(){de.style.scrollSnapType=old;},900);});})();</script>
-<style id="design-v9">/* design review v9 2026-10-28 */
-body.china-page #filters label.m-chip.china-showall{position:relative!important} /* v9: keep the 44px tap area (:after) on the label, not over 搜索 */
-/* 1 mobile featured strip: bigger cards, clearer swipe affordance */
-@media (max-width:600px){.tw-m-feat-grid.tw-feat-ad>.tw-fc{flex:0 0 66%!important;max-width:66%!important;scroll-snap-align:start}.tw-m-feat-grid.tw-feat-ad{scroll-snap-type:x mandatory}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img{height:auto!important;aspect-ratio:16/9}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img img{width:100%;height:100%!important;object-fit:cover;object-position:top}
-.atm-dots{display:flex;justify-content:center;gap:8px;padding:10px 0 2px}.atm-dots i{width:7px;height:7px;border-radius:50%;background:#D9C9A8;transition:background .2s,width .2s}.atm-dots i.on{background:#0E6E78;width:18px;border-radius:4px}}
-/* 2 tap targets ≥44px (visual size kept, hit area extended) */
-label.m-chip.china-type-check{min-height:44px;box-sizing:border-box}
-.tsub-open{min-height:44px!important;padding-top:0!important;padding-bottom:0!important;display:inline-flex!important;align-items:center;justify-content:center}
-.atm-note-tg,.atm-more,.china-links a,.ev-line a,.top-lang a,.china-showall,.china-addr a{position:relative}
-.atm-note-tg:after,.atm-more:after,.china-links a:after,.ev-line a:after,.top-lang a:after,.china-showall:after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:44px;transform:translateY(-50%)}
-.top-lang a{min-width:44px;min-height:32px;display:inline-flex!important;align-items:center;justify-content:center;box-sizing:border-box}
-/* 3 category/schedule line above title at all widths */
-.ev-card>.ev-top{order:1!important;border-top:0!important;padding-top:0!important;margin-top:12px!important;margin-bottom:2px!important}
-/* 4 note fade: only the last line fades */
-.ev-card:not(.atm-open)>.atm-desc.atm-over:after{height:1.1em!important;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 85%)!important}
-.atm-desc .ev-k{color:#7A5F3E}
-/* 5 venue: name own line, address 13px */
-.ev-line .china-addr{display:block;font-size:13px;line-height:1.4;margin-top:2px}.ev-line .china-addr-en{font-size:13px;line-height:1.4;margin-top:4px}
-/* 6 poster 4:3, top aligned; tap opens full image (existing link) */
-@media (max-width:600px){.ev-card>.ev-cover{padding-top:75%!important}.ev-card>.atm-nocover{padding-top:75%!important}}
-@media (min-width:601px){.ev-card>.ev-cover{display:block;aspect-ratio:4/3!important;height:auto!important;max-height:none!important;overflow:hidden}.ev-card>.ev-cover img{width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important}}
-.ev-card>.ev-cover img{object-position:center top!important}.ev-card>.ev-cover{cursor:pointer}
-/* 7 compact header on scroll */
-.china-stw-banner,.china-map-hero,.china-map-hero h1,.china-map-sub{transition:all .2s ease}
-html.atm-compact{--atm-sticky:var(--atm-sticky-full,118px)!important}
-html.atm-compact .china-page .china-sticky-top .china-stw-banner.china-stw-ad{display:none!important}
-html.atm-compact .china-map-hero{padding-top:0!important;padding-bottom:0!important;min-height:0!important}
-html.atm-compact .china-hero-bar{min-height:44px;height:44px;padding-top:0!important;padding-bottom:0!important;align-items:center}
-html.atm-compact .china-map-sub{display:none!important}
-html.atm-compact .china-map-hero h1{font-size:19px!important;margin:0!important;line-height:44px!important;cursor:pointer}
-html.atm-compact .china-map-hero h1{display:inline-flex!important;align-items:center;gap:.35em;min-height:44px} html.atm-compact .china-map-hero h1::before{content:"";flex:0 0 auto;width:.95em;height:.95em;background-color:#F6D58E;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))} /* v9.1: search icon when header collapsed */
-/* 8 type switch: equal-size segment buttons */
-label.m-chip.china-type-check:not(.china-showall){min-width:132px;box-sizing:border-box;padding-left:14px!important;padding-right:14px!important;justify-content:center;display:inline-flex!important;align-items:center;border:1.5px solid #0E6E78!important;border-radius:22px!important}
-/* 10 desktop: 2-card weekday rows centred */
-@media (min-width:1060px){body.china-page .china-day .ev-list:has(>.ev-card:nth-child(2):last-child){grid-template-columns:repeat(2,calc((100% - 28px)/3))!important;justify-content:center}}
-/* 11 dots 8px */
-.atm-mk i{width:8px!important;height:8px!important;flex:0 0 8px!important}
-/* 12 weekday heading */
-body.china-page .china-group.china-day .china-sub-head{font-size:15px!important;font-weight:700;margin-top:24px!important}
-/* v9 desktop: compact hero, bigger 收藏 cards, slim footer band */
-@media (min-width:601px){
-body.china-page .china-map-hero{padding-top:8px!important;padding-bottom:4px!important}
-body.china-page #filters{padding-top:8px!important;padding-bottom:8px!important}
-body.china-page .tw-m-feat-grid.tw-feat-ad{padding:16px 24px 18px!important;margin:-6px 0 0;overflow-y:visible}
-body.china-page .tw-m-feat-grid.tw-feat-ad>.tw-fc{flex:0 0 320px!important;max-width:320px!important}
-html body #contact{display:flex!important;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 28px;padding:22px 20px!important;min-height:94px;box-sizing:border-box}
-#contact>.wrap{margin:0!important;padding:0!important;width:auto!important;max-width:none!important;display:flex;align-items:center;gap:22px}
-#contact .tsub-bottom-wrap{padding:0!important}
-#contact #site-ver{margin:0!important}
-}
-/* v9 desktop: 特色 results 2 per row, centred */
-@media (min-width:601px){body.china-page .china-chrono>.ev-list{grid-template-columns:repeat(2,minmax(0,460px))!important;justify-content:center!important;gap:24px!important}body.china-page .china-chrono>.ev-list>.ev-card:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:min(460px,100%)}}
-</style>
 <script id="design-v9-js">(function(){
 var D=document,B=D.body;
 function setStick(){var t=D.querySelector('.china-sticky-top');if(t&&!D.documentElement.classList.contains('atm-compact'))D.documentElement.style.setProperty('--atm-sticky-full',t.offsetHeight+'px');}
-var on=false;function sc(){setStick();var t=D.querySelector('.china-sticky-top'),dl=t?Math.max(0,t.offsetHeight-44):0,room=D.documentElement.scrollHeight-innerHeight;var c=on?scrollY>20:(scrollY>80&&room-dl>140);if(c!==on){on=c;D.documentElement.classList.toggle("atm-compact",c);}}
+var on=false;function sc(){setStick();var t=D.querySelector('.china-sticky-top'),dl=t?Math.max(0,t.offsetHeight-44):0,room=D.documentElement.scrollHeight-innerHeight;var c=on?scrollY>20:(scrollY>80&&room-dl>140);if(c!==on){on=c;var h0=t?t.offsetHeight:0;if(t)t.style.marginBottom='';D.documentElement.classList.toggle("atm-compact",c);if(t&&c){var g=h0-t.offsetHeight;if(g>0)t.style.marginBottom=g+'px';}}} /* v10.2: keep the in-flow height constant when the header collapses so the page does not jump */
 addEventListener('scroll',sc,{passive:true});sc();
 D.addEventListener('click',function(e){if(!D.documentElement.classList.contains("atm-compact"))return;var h=e.target.closest&&e.target.closest('.china-map-hero h1');if(!h)return;var f=D.getElementById('filters');if(f)scrollTo({top:0,behavior:'smooth'});});
 function cards(){D.querySelectorAll('.ev-card').forEach(function(li){if(li.dataset.v9)return;li.dataset.v9=1;
@@ -454,16 +474,5 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<style id="mockup-v9">/* MOCKUP 2026-10-28: A) mobile sticky day band  B) unified card */
-@media (max-width:600px){
-body.china-page .china-group.china-day{margin-top:24px!important}
-body.china-page .china-group.china-day .china-sub-head{position:sticky;top:calc(var(--atm-hdr) + 4px);z-index:5;display:block;background:#0E6E78!important;color:#fff!important;font-size:18px!important;font-weight:700!important;border:0!important;border-radius:8px;padding:10px 14px!important;margin:0 0 12px!important;box-shadow:0 3px 10px rgba(6,51,58,.22);letter-spacing:.02em}
-}
-html{--atm-hdr:118px}html.atm-compact{--atm-hdr:44px}
-body.china-page .ev-card,body.china-page .ev-card:not(.atm-dim){border:2px solid #C9A96A!important;border-radius:14px!important;overflow:hidden!important;background:#FFFCF5!important;box-shadow:0 8px 22px rgba(60,40,20,.18),0 2px 6px rgba(0,0,0,.08)!important}
-body.china-page .ev-card>.ev-cover{border:0!important;border-radius:0!important;border-bottom:1px solid #D9C08A!important;box-sizing:border-box}
-body.china-page .ev-card>.ev-cover:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5)!important}
-body.china-page .ev-card:not(.atm-open)>.atm-desc.atm-over:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5 85%)!important}
-</style>
 </body>
 </html>
