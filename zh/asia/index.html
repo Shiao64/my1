@@ -94,11 +94,14 @@ html{scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}html:has(body:not(.
 .tw-m-feat-k.atm-fav-k{background:none!important;border:0!important;padding:0!important;color:#C8102E!important;display:inline-flex!important;align-items:center;gap:4px;font-weight:700}
 .tw-m-feat-k.atm-fav-k.tw-m-feat-k.atm-fav-k:before{content:"";width:13px;height:13px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 width=%2713%27 height=%2713%27%3E%3Cpath d=%27M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z%27 fill=%27%23C8102E%27 stroke=%27%23C8102E%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/contain no-repeat}
 </style>
-<style id="v102-noshift">/* v10.4: card links: 44px-tall invisible hit areas overlapped the next line (tap on Phone opened Email, etc.) — extend only 4px up/down so every link owns its own line */
+<style id="v102-noshift">/* v10.5: hovered card keeps its own compositing layer (identity transform = no size change, no jitter) as before v10.3; click/tap on a card lifts it above neighbours with no reflow */
+body.china-page .ev-card.atm-lift,body.china-page .ev-card.atm-lift:hover{transform:translateZ(0) scale(1.04)!important;z-index:5!important;box-shadow:0 14px 34px rgba(0,0,0,.28),0 0 0 2px rgba(14,110,120,.6)!important;transition:transform .18s ease,box-shadow .18s ease!important}
+@media (prefers-reduced-motion:reduce){body.china-page .ev-card.atm-lift{transform:translateZ(0)!important}}
+/* v10.4: card links: 44px-tall invisible hit areas overlapped the next line (tap on Phone opened Email, etc.) — extend only 4px up/down so every link owns its own line */
 body.china-page .ev-card .china-links a:after,body.china-page .ev-card .ev-line a:after{top:-4px!important;bottom:-4px!important;height:auto!important;transform:none!important}
 /* v10.3: list cards never change geometry on hover (was scale 1.05/1.1 → neighbours overlapped and cards pulsed as the mouse moved = 抖). Hover = shadow + border only. */
 @media (hover:hover) and (pointer:fine){body.china-page .ev-card,body.china-page .atm-fav-card{transform:none!important;will-change:auto!important;backface-visibility:visible!important;transition:box-shadow .15s ease,border-color .15s ease!important}
-body.china-page .ev-card:hover,body.china-page .atm-fav-card:hover{transform:none!important;box-shadow:0 8px 22px rgba(0,0,0,.18),0 0 0 2px rgba(14,110,120,.55)!important}}
+body.china-page .ev-card:hover,body.china-page .atm-fav-card:hover{transform:translateZ(0)!important;box-shadow:0 8px 22px rgba(0,0,0,.18),0 0 0 2px rgba(14,110,120,.55)!important}}
 .china-stw-banner,.china-map-hero,.china-map-hero h1,.china-map-sub{transition:none!important}
 .china-map-hero h1 .atm-beta{font-size:50%;font-weight:inherit;white-space:nowrap}
 /* v10.2: reserve space for JS-rendered blocks so the page does not jump on load */
@@ -411,9 +414,9 @@ window.CHINA_UI = {
   suggestAutoReply: '谢谢！我们已收到你在亚洲探戈地图添加的活动，上线后会回复你。—— tangoweekend.org'
 };
 </script>
-<script src="../../asia/asia-map.js?v=china305"></script>
+<script src="../../asia/asia-map.js?v=china306"></script>
 <script src="../../asia/asia-reglist.js?v=china278"></script>
-<script src="../../asia/asia-recent.js?v=rv1"></script>
+<script src="../../asia/asia-recent.js?v=rv4"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="../../asia/asia-howto.js?v=china278"></script> -->
 <script src="../../asia/lang-keep.js?v=china241"></script>
 <script src="../../asia/asia-subscribe.js?v=sub27"></script>
@@ -447,7 +450,7 @@ function fix(li){if(li.dataset.atm)return;li.dataset.atm=1;
 var PEEK=50,GAP=10;
 function vis(){return [].slice.call(document.querySelectorAll('.ev-card')).filter(function(c){return c.offsetParent&&!c.closest('[hidden]');});}
 function size(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--atm-sticky'))||118,av=innerHeight-sh-GAP;
- cs.forEach(function(c,i){if(c.classList.contains('atm-open'))return;var n=cs[i+1],d=20;if(n){d=n.getBoundingClientRect().top-c.getBoundingClientRect().bottom;}var h=Math.round(av-d-PEEK)+'px';if(c.style.height!==h)c.style.height=h;});}
+ cs.forEach(function(c,i){if(c.classList.contains('atm-open'))return;var n=cs[i+1],d=20;if(n){d=(n.offsetParent&&n.offsetParent===c.offsetParent)?n.offsetTop-(c.offsetTop+c.offsetHeight):n.getBoundingClientRect().top-c.getBoundingClientRect().bottom;}/* v10.5: layout gap, not the transformed rect — a lifted (scaled) card must not resize the others */var h=Math.round(av-d-PEEK)+'px';if(c.style.height!==h)c.style.height=h;});}
 var lastY=scrollY,up=false;
 function dim(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--atm-sticky'))||118,line=sh+GAP,best=null,bd=1e9;var y=scrollY;if(y!==lastY){up=y<lastY;lastY=y;}
  if(up){for(var i=0;i<cs.length;i++){var r0=cs[i].getBoundingClientRect();if(r0.bottom>line+120){best=cs[i];break;}}}

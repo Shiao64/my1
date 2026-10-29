@@ -18,6 +18,7 @@
     '.atm-recent-row{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 0 4px;scrollbar-width:thin}' +
     '.atm-recent-row a{flex:0 0 auto;max-width:200px;display:block;padding:4px 10px;border:1px solid #ead9b8;border-radius:999px;background:#fff;color:#2a1a14;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem;line-height:1.4}' +
     '.atm-recent-row a span{color:#8a7563;margin-left:4px}.atm-recent.atm-collapsed .atm-recent-row{display:none}' +
+    '.ev-card>.atm-viewed-abs{position:absolute;top:8px;right:8px;margin:0;z-index:3;box-shadow:0 1px 3px rgba(0,0,0,.18);pointer-events:none}' +
     '.ev-card.atm-flash{box-shadow:0 0 0 3px #0e6e78;transition:box-shadow .3s}';
   document.head.appendChild(css);
 
@@ -55,7 +56,7 @@
     document.querySelectorAll('#china-listings .ev-card[data-id]').forEach(function (li) {
       var on = rank[li.getAttribute('data-id')] != null, mk = li.querySelector('.atm-viewed-mark');
       li.classList.toggle('atm-viewed', on);
-      if (on && !mk) { var top = li.querySelector('.ev-top'); if (top) { mk = document.createElement('span'); mk.className = 'atm-viewed-mark'; mk.textContent = T.mark; top.appendChild(mk); } }
+      if (on && !mk) { mk = document.createElement('span'); mk.className = 'atm-viewed-mark atm-viewed-abs'; mk.textContent = T.mark; li.appendChild(mk); } /* v10.5: badge is absolutely positioned — adding it never changes the card height */
       else if (!on && mk) mk.remove();
     });
     return rank;
@@ -73,14 +74,15 @@
   }
   function firstCard(ul) { for (var c = ul.firstChild; c; c = c.nextSibling) if (c.classList && c.classList.contains('ev-card')) return c; return null; }
 
-  function record(id) { var a = load().filter(function (x) { return x !== id; }); a.unshift(id); save(a); mark(); drawRow(); } /* no reorder on tap: cards don't jump under the finger */
+  function record(id) { var a = load().filter(function (x) { return x !== id; }); a.unshift(id); save(a); busy = true; try { mark(); drawRow(); } finally { busy = false; } if (mo) mo.takeRecords(); } /* v10.5: drop our own mutations — before, the observer saw the new 看过 mark and re-sorted 60ms later, so the clicked card jumped to the front of the list under the mouse */ /* no reorder on tap: cards don't jump under the finger */
   document.addEventListener('click', function (e) {
-    var li = e.target.closest && e.target.closest('.ev-card[data-id]'); if (li) record(li.getAttribute('data-id'));
+    var li = e.target.closest && e.target.closest('.ev-card[data-id]'); if (li) { var y0 = li.getBoundingClientRect().top; record(li.getAttribute('data-id')); var dy = li.getBoundingClientRect().top - y0; if (Math.abs(dy) > 0.5) window.scrollBy(0, dy); } /* v10.5: the 最近看过 row can appear above the list on the first tap — keep the tapped card exactly where it was */
   }, true);
 
   var lst = document.getElementById('china-listings'), busy = false, tm = null;
-  function refresh() { busy = true; try { reorder(); drawRow(); } finally { busy = false; } }
-  if (lst && window.MutationObserver) new MutationObserver(function () { if (busy) return; clearTimeout(tm); tm = setTimeout(function () { refresh(); deep(); }, 60); }).observe(lst, { childList: true, subtree: true });
+  function refresh() { busy = true; try { reorder(); drawRow(); } finally { busy = false; } if (mo) mo.takeRecords(); }
+  var mo = null;
+  if (lst && window.MutationObserver) (mo = new MutationObserver(function () { if (busy) return; clearTimeout(tm); tm = setTimeout(function () { refresh(); deep(); }, 60); })).observe(lst, { childList: true, subtree: true });
   function deep() { var m = /^#v-(.+)$/.exec(location.hash); if (!m) return; var el = document.querySelector('#china-listings .ev-card[data-id="' + decodeURIComponent(m[1]) + '"]'); if (el && el.offsetParent) { history.replaceState(history.state, '', location.pathname + location.search); setTimeout(function () { flash(el); }, 300); } }
   var n = 0; (function wait() { if (window._chinaData) return refresh(); if (++n < 100) setTimeout(wait, 100); })();
 })();

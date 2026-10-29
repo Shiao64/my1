@@ -581,6 +581,30 @@
     var im = cv.querySelector('img'); if (!im) return;
     e.preventDefault(); e.stopPropagation(); pvOpen(im.currentSrc || im.src);
   }, true);
+  /* v10.5: card links that open a new tab (公众号 / poster / website) failed in browsers that block or swallow target=_blank (favorites-strip links are same-tab and worked).
+     On-site poster images open in the in-page viewer like the cover; other new-tab links fall back to the same tab if no window opened. */
+  document.addEventListener('click', function(e){
+    if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest('.ev-card a[href]'); if (!a) return;
+    var h = a.getAttribute('href') || ''; if (/^(tel|mailto|sms|javascript):/i.test(h)) return;
+    var u; try { u = new URL(a.href, location.href); } catch(err){ return; }
+    var own = u.origin === location.origin || /^(www\.)?tangoweekend\.org$/.test(u.hostname);
+    if (own && /\.(jpe?g|png|webp|gif)$/i.test(u.pathname)) { e.preventDefault(); pvOpen(u.href); return; }
+    if (a.target !== '_blank') return;
+    e.preventDefault(); var w = null;
+    try { w = window.open(u.href, '_blank'); } catch(err){}
+    if (w) { try { w.opener = null; } catch(err){} } else { location.href = u.href; }
+  }, false);
+  /* v10.5: click/tap on a list card body (not a link/button/poster) lifts it like the favorites cards; click again or elsewhere to drop. Transform only = neighbours never move. */
+  document.addEventListener('click', function(e){
+    var t = e.target; if (!t.closest) return;
+    var c = t.closest('.ev-card'); var cur = document.querySelectorAll('.ev-card.atm-lift');
+    if (c && t.closest('a,button,input,label,select,.ev-cover,.atm-pv')) { return; }
+    for (var i = 0; i < cur.length; i++) if (cur[i] !== c) cur[i].classList.remove('atm-lift');
+    if (c) c.classList.toggle('atm-lift');
+  }, false);
+  window.addEventListener('scroll', function(){ var cur = document.querySelectorAll('.ev-card.atm-lift'); if (!cur.length) return; var vh = innerHeight;
+    for (var i = 0; i < cur.length; i++) { var r = cur[i].getBoundingClientRect(); if (r.bottom < 0 || r.top > vh) cur[i].classList.remove('atm-lift'); } }, {passive:true});
   /* v9.7: any link from the results to an on-site page (网站 / poster / title links) remembers mode+city+scroll for the way back */
   document.addEventListener('click', function(e){ var a = e.target.closest && e.target.closest('a[href]'); if (!a || !location.search) return;
     try { var u = new URL(a.href, location.href); if ((u.origin !== location.origin && !/^(www\.)?tangoweekend\.org$/.test(u.hostname)) || u.pathname.indexOf('/event/') !== 0) return;
