@@ -138,11 +138,11 @@
     return '<div class="china-contact-block">' + parts.join('') + '</div>';
   }
   function linkBtns(r){
-    var L = r.links || {}, out = [];
+    var L = r.links || {}, out = [], FB_ZH_OFF = {'China':1,'Hong Kong':1,'Taiwan':1,'Macao':1,'Japan':1,'Malaysia':1};
     var zhReg = isZh && r.kind === 'weekly', isFb = function(u){ return /^https?:\/\/([a-z0-9-]+\.)*(facebook\.com|fb\.com|fb\.me)(\/|$)/i.test(u || ''); };
-    if (L.facebook && (!isZh || r.country === 'South Korea')) /* v9.8: Korea shows FB on zh */ out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
+    if (L.facebook && (!isZh || !FB_ZH_OFF[r.country])) /* v9.9: zh hides FB only for these existing countries; new countries (e.g. Vietnam) show FB */ out.push('<a class="china-linkbtn" href="' + esc(L.facebook) + '" target="_blank" rel="noopener">' + (UI.facebook || 'Facebook') + '</a>');
     if (L.register) out.push('<a class="china-linkbtn china-linkbtn-reg" href="' + esc(L.register) + '" target="_blank" rel="noopener">' + (isZh ? '报名' : 'Register') + '</a>');
-    if (L.other && !(isZh && isFb(L.other) && r.country !== 'South Korea')) { var wh = /^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other);
+    if (L.other && !(isZh && isFb(L.other) && FB_ZH_OFF[r.country])) { var wh = /^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other);
       var wOwn = wh.match(/^https?:\/\/(www\.)?tangoweekend\.org(\/event\/.*)$/); /* v9.7: on-site page opens in the same tab so Back / 「← 亚洲探戈地图」 return to the same results */
       out.push('<a class="china-linkbtn" href="' + esc(wOwn ? wOwn[2] : wh) + '"' + (wOwn ? '' : ' target="_blank" rel="noopener"') + '>' + (wOwn && /^(cwCbtm27|manual-hz-jinsha|manual-cq-spicy-2026)$/.test(r.id) ? (isZh ? '详情' : 'Details') : (UI.website || 'Website')) + '</a>'); } /* v9.7: Changwon / Hangzhou Jinsha / Chongqing -> 详情 / Details */
     if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + esc((isZh ? L.wechat_label_zh : L.wechat_label) || UI.wechat || 'WeChat') + '</a>');
