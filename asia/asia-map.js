@@ -275,7 +275,10 @@
     function sessLabel(c){ var n = wkSess[c] || 0; if (!n || c === 'Others') return cityDisplay(c); return UI.countWord ? cityDisplay(c) + n + '场' : cityDisplay(c) + ' (' + n + ')'; }
     window._chinaCitySessions = wkSess;
     var baseIdx = cities.slice();
-    cities.sort(function(a,b){ return ((wkCount[b]||0) - (wkCount[a]||0)) || (baseIdx.indexOf(a) - baseIdx.indexOf(b)); });
+    var cCountry = {}; data.forEach(function(r){ if (r.city && !cCountry[r.city]) cCountry[r.city] = r.country; });
+    function regRank(c){ var k = (c === 'Hong Kong' || c === 'Macao' || c === 'Macau') ? 'Hong Kong' : (cCountry[c] || ''); return k === 'China' ? 0 : (k === 'Hong Kong' || k === 'Taiwan' || k === 'Macao' || k === 'Macau') ? 1 : (k === 'South Korea' || k === 'Korea') ? 2 : k === 'Japan' ? 4 : 3; }
+    /* v9.9: region first (China > HK/Taiwan/Macao > Korea > others > Japan), then regular sessions desc, then name */
+    cities.sort(function(a,b){ return (regRank(a) - regRank(b)) || ((wkSess[b]||0) - (wkSess[a]||0)) || cityDisplay(a).localeCompare(cityDisplay(b), isZh ? 'zh' : 'en'); });
     var OTHERS = cities.filter(function(c){ return (wkCount[c] || 0) < 1; });
     cities = cities.filter(function(c){ return OTHERS.indexOf(c) === -1; }).concat(OTHERS.length ? ['Others'] : []);
     window._chinaCityOrder = cities.slice();
