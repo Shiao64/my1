@@ -794,15 +794,16 @@
       "video": null,
       "other": "https://tangoweekend.org/event/suzhou-2026-tango-blast-festival/"
     },
-    "source": "manual:poster+wechat",
-    "updated": "2026-10-28",
+    "source": "manual:poster+wechat；微信 2026-10-29",
+    "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
     "poster": "/images/asia/posters/E012.jpg",
     "featured": true,
-    "note_zh": "课程：Sebastian Arce & Anna Arce；表演：Sergey & Anna、Adrien & Iro；6场主题舞会。早鸟980元/团购880元，截止11/1。",
-    "note": "Classes: Sebastian Arce & Anna Arce; shows: Sergey & Anna, Adrien & Iro; 6 themed milongas. Early bird ¥980 / group ¥880 until Nov 1."
+    "note_zh": "通票早鸟价980元，团购880元（3人成团），截止11月1日。课程+表演：Sebastián Arce & Anna Arce；表演：Sergey & Anna、Adrien & Iro；中国Tango Blast舞团团舞展演，六对国内嘉宾老师。6场苏州主题舞会，韩国等国内外DJ；大闸蟹探戈派对+阿根廷大饺子；苏州园林漫步。",
+    "note": "Full pass early bird ¥980, group ¥880 (groups of 3), until Nov 1. Classes + show: Sebastián Arce & Anna Arce; shows: Sergey & Anna, Adrien & Iro; group performance by China's Tango Blast company, six pairs of guest teachers from China. 6 Suzhou-themed milongas with DJs from Korea and elsewhere in China and abroad; hairy-crab tango party with Argentine empanadas; a walk through Suzhou's classical gardens.",
+    "name_zh": "苏州探戈节"
   },
   {
     "id": "aanirocB",
