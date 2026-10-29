@@ -3152,33 +3152,34 @@
     "id": "R089",
     "kind": "weekly",
     "type": "milonga",
-    "name": "You",
+    "name": "Tú",
     "city": "Seoul",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "TANGO o nada",
-    "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
+    "venue": "TANGO o nada (YOW/Onada)",
+    "venue_address": "서울 마포구 동교동 200-29 B1",
     "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
-      "TANGO o nada"
+      "TANGO o nada",
+      "미키 엘핀"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangoonada",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
-      "phone": "01091373710",
+      "phone": "010-9137-3710",
       "email": "uccessk@hanmail.net"
     },
-    "source": "ktnow.kr (F32) week 2026-10-29–11-01",
+    "source": "TANGO o nada poster 10/29–11/4 + Facebook https://www.facebook.com/tangoonada",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "资料来自TANGO o nada海报（10月29日–11月4日）和Facebook（https://www.facebook.com/tangoonada），时间请以主办方最新通知为准。",
+    "note": "Info from the TANGO o nada poster (Oct 29–Nov 4) and Facebook (https://www.facebook.com/tangoonada); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 4,
@@ -3186,7 +3187,7 @@
       4
     ],
     "time": "20:00–24:00",
-    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
+    "poster": "/images/korea/tango_o_nada_20261029.png"
   },
   {
     "id": "R090",
@@ -3354,29 +3355,30 @@
     "city": "Seoul",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "TANGO o nada",
-    "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
-    "venue_address_en": "B1, 193, Donggyo-ro, Mapo-gu, Seoul",
+    "venue": "TANGO o nada (YOW/Onada)",
+    "venue_address": "서울 마포구 동교동 200-29 B1",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
-      "TANGO o nada"
+      "TANGO o nada",
+      "소피아"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangoonada",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
-      "phone": null,
+      "phone": "010-9137-3710",
       "email": null
     },
-    "source": "ktnow.kr (F32) week 2026-10-29–11-01",
+    "source": "TANGO o nada poster 10/29–11/4 + Facebook https://www.facebook.com/tangoonada",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "资料来自TANGO o nada海报（10月29日–11月4日）和Facebook（https://www.facebook.com/tangoonada），时间请以主办方最新通知为准。",
+    "note": "Info from the TANGO o nada poster (Oct 29–Nov 4) and Facebook (https://www.facebook.com/tangoonada); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 5,
@@ -3384,7 +3386,7 @@
       5
     ],
     "time": "21:00–02:00",
-    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
+    "poster": "/images/korea/tango_o_nada_20261029.png"
   },
   {
     "id": "R095",
@@ -3513,29 +3515,30 @@
     "city": "Seoul",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "TANGO o nada",
-    "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
-    "venue_address_en": "B1, 193, Donggyo-ro, Mapo-gu, Seoul",
+    "venue": "TANGO o nada (YOW/Onada)",
+    "venue_address": "서울 마포구 동교동 200-29 B1",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
-      "TANGO o nada"
+      "TANGO o nada",
+      "쭌 씨네"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangoonada",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
-      "phone": null,
+      "phone": "010-9137-3710",
       "email": null
     },
-    "source": "ktnow.kr (F32) week 2026-10-29–11-01",
+    "source": "TANGO o nada poster 10/29–11/4 + Facebook https://www.facebook.com/tangoonada",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "海报上写着“동교동”。资料来自TANGO o nada海报（10月29日–11月4日）和Facebook（https://www.facebook.com/tangoonada），时间请以主办方最新通知为准。",
+    "note": "Poster notes \"동교동\". Info from the TANGO o nada poster (Oct 29–Nov 4) and Facebook (https://www.facebook.com/tangoonada); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 6,
@@ -3543,7 +3546,7 @@
       6
     ],
     "time": "16:00–20:00",
-    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
+    "poster": "/images/korea/tango_o_nada_20261029.png"
   },
   {
     "id": "R099",
@@ -3866,33 +3869,33 @@
     "id": "R106",
     "kind": "weekly",
     "type": "milonga",
-    "name": "Saturday o nada Milonga",
+    "name": "토나다 (Saturday o nada Milonga)",
     "city": "Seoul",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "TANGO o nada",
-    "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
-    "venue_address_en": "B1, 193, Donggyo-ro, Mapo-gu, Seoul",
+    "venue": "TANGO o nada (YOW/Onada)",
+    "venue_address": "서울 마포구 동교동 200-29 B1",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
       "TANGO o nada"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangoonada",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
-      "phone": null,
+      "phone": "010-9137-3710",
       "email": null
     },
-    "source": "ktnow.kr (F32) week 2026-10-29–11-01",
+    "source": "TANGO o nada poster 10/29–11/4 + Facebook https://www.facebook.com/tangoonada",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "资料来自TANGO o nada海报（10月29日–11月4日）和Facebook（https://www.facebook.com/tangoonada），时间请以主办方最新通知为准。",
+    "note": "Info from the TANGO o nada poster (Oct 29–Nov 4) and Facebook (https://www.facebook.com/tangoonada); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 6,
@@ -3900,7 +3903,7 @@
       6
     ],
     "time": "21:00–03:00",
-    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
+    "poster": "/images/korea/tango_o_nada_20261029.png"
   },
   {
     "id": "R107",
@@ -4264,33 +4267,34 @@
     "id": "R116",
     "kind": "weekly",
     "type": "milonga",
-    "name": "MilMil Milonga",
+    "name": "밀밀 (MilMil Milonga)",
     "city": "Seoul",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "TANGO o nada",
-    "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
-    "venue_address_en": "B1, 193, Donggyo-ro, Mapo-gu, Seoul",
+    "venue": "TANGO o nada (YOW/Onada)",
+    "venue_address": "서울 마포구 동교동 200-29 B1",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
-      "TANGO o nada"
+      "TANGO o nada",
+      "스테이시"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangoonada",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
-      "phone": null,
+      "phone": "010-9137-3710",
       "email": null
     },
-    "source": "ktnow.kr (F32) week 2026-10-29–11-01",
+    "source": "TANGO o nada poster 10/29–11/4 + Facebook https://www.facebook.com/tangoonada",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "资料来自TANGO o nada海报（10月29日–11月4日）和Facebook（https://www.facebook.com/tangoonada），时间请以主办方最新通知为准。",
+    "note": "Info from the TANGO o nada poster (Oct 29–Nov 4) and Facebook (https://www.facebook.com/tangoonada); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 0,
@@ -4298,7 +4302,7 @@
       0
     ],
     "time": "19:00–24:00",
-    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
+    "poster": "/images/korea/tango_o_nada_20261029.png"
   },
   {
     "id": "R117",
@@ -5709,33 +5713,33 @@
     "id": "R153",
     "kind": "weekly",
     "type": "milonga",
-    "name": "Monday o nada Milonga",
+    "name": "월나다 (Monday o nada Milonga)",
     "city": "Seoul",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "TANGO o nada",
-    "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
-    "venue_address_en": "B1, 193, Donggyo-ro, Mapo-gu, Seoul",
+    "venue": "TANGO o nada (YOW/Onada)",
+    "venue_address": "서울 마포구 동교동 200-29 B1",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
       "TANGO o nada"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangoonada",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
-      "phone": null,
+      "phone": "010-9137-3710",
       "email": null
     },
-    "source": "ktnow.kr (F32) November 2026 pattern",
+    "source": "TANGO o nada poster 10/29–11/4 + Facebook https://www.facebook.com/tangoonada",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "资料来自TANGO o nada海报（10月29日–11月4日）和Facebook（https://www.facebook.com/tangoonada），时间请以主办方最新通知为准。",
+    "note": "Info from the TANGO o nada poster (Oct 29–Nov 4) and Facebook (https://www.facebook.com/tangoonada); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 1,
@@ -5743,7 +5747,7 @@
       1
     ],
     "time": "20:00–00:30",
-    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
+    "poster": "/images/korea/tango_o_nada_20261029.png"
   },
   {
     "id": "R154",
@@ -6227,33 +6231,34 @@
     "id": "R166",
     "kind": "weekly",
     "type": "milonga",
-    "name": "Solo Tango Tue Meet",
+    "name": "쏠땅화정 (Solo Tango)",
     "city": "Seoul",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "TANGO o nada",
-    "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
-    "venue_address_en": "B1, 193, Donggyo-ro, Mapo-gu, Seoul",
+    "venue": "TANGO o nada (YOW/Onada)",
+    "venue_address": "서울 마포구 동교동 200-29 B1",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
-      "TANGO o nada"
+      "TANGO o nada",
+      "솔로땅고"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangoonada",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
-      "phone": null,
+      "phone": "010-9137-3710",
       "email": null
     },
-    "source": "ktnow.kr (F32) November 2026 pattern",
+    "source": "TANGO o nada poster 10/29–11/4 + Facebook https://www.facebook.com/tangoonada",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "资料来自TANGO o nada海报（10月29日–11月4日）和Facebook（https://www.facebook.com/tangoonada），时间请以主办方最新通知为准。",
+    "note": "Info from the TANGO o nada poster (Oct 29–Nov 4) and Facebook (https://www.facebook.com/tangoonada); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 2,
@@ -6261,7 +6266,7 @@
       2
     ],
     "time": "20:00–23:30",
-    "poster": "/images/korea/ktnow/solo_tango.png"
+    "poster": "/images/korea/tango_o_nada_20261029.png"
   },
   {
     "id": "R167",
@@ -6585,33 +6590,34 @@
     "id": "R175",
     "kind": "weekly",
     "type": "milonga",
-    "name": "Uno / In the mood for Tango",
+    "name": "Uno",
     "city": "Seoul",
     "country": "South Korea",
     "region": "South Korea",
-    "venue": "TANGO o nada",
-    "venue_address": "서울시 마포구 동교로 193 동진빌딩 지하 1층",
-    "venue_address_en": "B1, 193, Donggyo-ro, Mapo-gu, Seoul",
+    "venue": "TANGO o nada (YOW/Onada)",
+    "venue_address": "서울 마포구 동교동 200-29 B1",
+    "venue_address_en": "Donggyo-dong 200-29 B1, Mapo-gu, Seoul 03981",
     "addr_en_zh": true,
     "organizers": [
-      "TANGO o nada"
+      "TANGO o nada",
+      "태양 실버"
     ],
     "links": {
-      "facebook": null,
+      "facebook": "https://www.facebook.com/tangoonada",
       "video": null,
-      "other": "https://ktnow.kr/?lang=en"
+      "other": null
     },
     "contacts": {
-      "phone": null,
+      "phone": "010-9137-3710",
       "email": null
     },
-    "source": "ktnow.kr (F32) November 2026 pattern",
+    "source": "TANGO o nada poster 10/29–11/4 + Facebook https://www.facebook.com/tangoonada",
     "updated": "2026-10-29",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
+    "note_zh": "资料来自TANGO o nada海报（10月29日–11月4日）和Facebook（https://www.facebook.com/tangoonada），时间请以主办方最新通知为准。",
+    "note": "Info from the TANGO o nada poster (Oct 29–Nov 4) and Facebook (https://www.facebook.com/tangoonada); please check the organizer's latest notice.",
     "start": null,
     "end": null,
     "weekday": 3,
@@ -6619,7 +6625,7 @@
       3
     ],
     "time": "20:00–24:00",
-    "poster": "/images/korea/ktnow/tango_o_nada.jpeg"
+    "poster": "/images/korea/tango_o_nada_20261029.png"
   },
   {
     "id": "R176",
