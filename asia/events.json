@@ -5584,45 +5584,6 @@
     "poster": "/images/korea/ktnow/postango.jpg"
   },
   {
-    "id": "R150",
-    "kind": "weekly",
-    "type": "milonga",
-    "name": "Hola milonga",
-    "city": "Seoul",
-    "country": "South Korea",
-    "region": "South Korea",
-    "venue": "The Grounds",
-    "venue_address": null,
-    "venue_address_en": "The Grounds, Sadang, Seoul, South Korea",
-    "addr_en_zh": true,
-    "organizers": [
-      "The Grounds"
-    ],
-    "links": {
-      "facebook": null,
-      "video": null,
-      "other": "https://ktnow.kr/?lang=en"
-    },
-    "contacts": {
-      "phone": null,
-      "email": null
-    },
-    "source": "ktnow.kr (F32) week 2026-10-29–11-01",
-    "updated": "2026-10-29",
-    "hidden": false,
-    "hidden_reason": null,
-    "tba": false,
-    "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
-    "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
-    "start": null,
-    "end": null,
-    "weekday": 4,
-    "weekdays": [
-      4
-    ],
-    "time": "18:30–21:30"
-  },
-  {
     "id": "R151",
     "kind": "weekly",
     "type": "practica",
