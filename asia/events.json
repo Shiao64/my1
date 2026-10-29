@@ -8539,5 +8539,776 @@
     "featured": true,
     "note_zh": "日程：12月3日（周四）M1 19:00–24:00，地点Webe Coffee（14-16 Nguyen Huu Thong, An Hai, Da Nang）；12月4日（周五）M2 16:00–20:00、M3 21:00–02:00；12月5日（周六）特别舞会12:00–15:00，地点The Holiday Beach Club & Dining（300 Vo Nguyen Giap, Ngu Hanh Son, Da Nang），M4 16:00–20:00、M5 21:00–02:00；12月6日（周日）锦标赛10:00–15:00，M6 16:00–20:00，20:00–20:30 Cabeceo乐队现场演奏，20:30–21:00颁奖及冠军表演，M7 21:00–02:30。M2–M7在Furama Resort。DJ：Che Tango（越南）、Lorena（韩国）、Yutaka & Miki（日本）、Fiona（香港）、刘峥（北京）、Gianluca（韩国）、Odysseus Dada（韩国）、Tu Duong（多伦多）。现场乐队：Cabeceo（越南）。表演：Angel Tango、Todo Tango、Angel & Lorena、Misun & Odysseus Dada（韩国），Yutaka & Miki（日本）。通票：超早鸟（10月31日前）110美元，早鸟（11月1–30日）130美元，11月30日后150美元；单日票55美元。联络：Ms. Lala，WhatsApp/微信/Kakao/Zalo +84906220584。另一个Facebook：https://www.facebook.com/chu.du.75/",
     "note": "Schedule: Dec 3 (Thu) M1 19:00–24:00 at Webe Coffee (14-16 Nguyen Huu Thong, An Hai, Da Nang); Dec 4 (Fri) M2 16:00–20:00, M3 21:00–02:00; Dec 5 (Sat) Special Milonga 12:00–15:00 at The Holiday Beach Club & Dining (300 Vo Nguyen Giap, Ngu Hanh Son, Da Nang), M4 16:00–20:00, M5 21:00–02:00; Dec 6 (Sun) Championship 10:00–15:00, M6 16:00–20:00, 20:00–20:30 live music by Cabeceo Band, 20:30–21:00 awards ceremony & winners' performance, M7 21:00–02:30. M2–M7 at Furama Resort. DJs: Che Tango (VN), Lorena (KR), Yutaka & Miki (JP), Fiona (HK), Liu Zheng (Beijing), Gianluca (KR), Odysseus Dada (KR), Tu Duong (Toronto). Live orchestra: Cabeceo (VN). Performers: Angel Tango, Todo Tango, Angel & Lorena, Misun & Odysseus Dada (KR); Yutaka & Miki (JP). Full pass: Super Early Bird (to Oct 31) USD 110, Early Bird (Nov 1–30) USD 130, after Nov 30 USD 150; One-Day Pass USD 55. Contact: Ms. Lala, WhatsApp/WeChat/Kakao/Zalo +84906220584. Also on Facebook: https://www.facebook.com/chu.du.75/"
+  },
+  {
+    "id": "R188",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "A Practilonga",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "21:00–23:00",
+    "venue": "Sport King",
+    "venue_address": "台北市大安區忠孝東路四段112號8F之6",
+    "venue_address_en": "8F-6, No.112, Sec.4, ZhongXiao E. Rd., Taipei",
+    "addr_en_zh": false,
+    "organizers": [
+      "A Practilonga"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/groups/Apractilonga/",
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "150台币。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$150. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R189",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Tanguísimo Sunday Práctica",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "14:30–18:00",
+    "venue": "Tanguísimo Tango Space",
+    "venue_address": null,
+    "venue_address_en": "7F-4, No.169, Sec.4, Zhongxiao East Road, Taipei",
+    "addr_en_zh": false,
+    "organizers": [
+      "Tanguísimo"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/taipeitango",
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "250台币。中文地址未找到。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$250. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R190",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Práctica Tango y Alcohol",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:30–23:00",
+    "venue": "Tanguísimo Tango Space",
+    "venue_address": null,
+    "venue_address_en": "7F-4, No.169, Sec.4, Zhongxiao East Road, Taipei",
+    "addr_en_zh": false,
+    "organizers": [
+      "Tanguísimo"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/taipeitango",
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "250台币。中文地址未找到。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$250. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R191",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Práctica el Sur in Tainan",
+    "city": "Tainan",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 1,
+    "weekdays": [
+      1
+    ],
+    "time": "20:30–22:00",
+    "venue": "裕農社區活動中心 3F",
+    "venue_address": "臺南市東區裕農里裕農路379號",
+    "venue_address_en": "3F, Yunong Community Center, No. 379, Yunong Rd., East Dist., Tainan City",
+    "addr_en_zh": false,
+    "organizers": [
+      "台南探戈幫 Tainan Tango Gang"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "50台币，自带饮料。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$50, bring your own drinks. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R192",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Bailemos Practica",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "19:00–22:00",
+    "venue": "Bailemos #起舞",
+    "venue_address": "台北市中正區羅斯福路二段41號8F-3",
+    "venue_address_en": "8F-3, No.41, Sec.2, Roosevelt Road, Taipei",
+    "addr_en_zh": false,
+    "organizers": [
+      "Bailemos"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/HsinDaTango",
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "教室学员200台币，非学员250台币。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$200 for students, NT$250 for others. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R193",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Friendly Practica 友善練習會",
+    "city": "Tainan",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 2,
+    "weekdays": [
+      2
+    ],
+    "time": "19:30–22:30",
+    "venue": "友善的探戈",
+    "venue_address": "台南市永康區中華路200-7號（慶茂大樓6樓）",
+    "venue_address_en": "200-7, Zhonghua Road, Yongkang Dist., Tainan City",
+    "addr_en_zh": false,
+    "organizers": [
+      "友善的探戈 TangoFriendly"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/tangofriendly/",
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "150台币。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$150. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R194",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Tango.two Practica",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "19:00–22:00",
+    "venue": "Tango.two 兩兩阿根廷探戈",
+    "venue_address": "台中市西區美村路一段743號三樓",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Tango.two 兩兩阿根廷探戈"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "200台币。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$200. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R195",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "TTA Práctica",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 3,
+    "weekdays": [
+      3
+    ],
+    "time": "20:30–22:30",
+    "venue": "TTA Taichung Tango Academy 台中探戈學院",
+    "venue_address": "台中市西屯區重慶路99號五樓之二",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "TTA Taichung Tango Academy 台中探戈學院"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "会员制，访客请先联络预约。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "Membership required; visitors please make an appointment first. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R196",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Cheek to Cheek Práctica",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 4,
+    "weekdays": [
+      4
+    ],
+    "time": "20:00–23:00",
+    "venue": "台中香榭驪舍大飯店 2F",
+    "venue_address": "台中市北區五權路377號",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Cheek to Cheek"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/cheektocheektw/",
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "600台币（含指导）。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$600 (includes instruction). Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R197",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Taipei_Corazon Practica",
+    "city": "Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "14:30–15:30",
+    "venue": "Corazon Tango Studio",
+    "venue_address": "台北市大安區復興南路一段63號4樓之2",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Corazon Tango School"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "150台币；非会员请先LINE预约。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$150; non-members please book via LINE first. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R198",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Mi Rincón Del Tango Sunshine Practica",
+    "city": "New Taipei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "14:30–17:00",
+    "venue": "維寧的探戈角落",
+    "venue_address": "新北市永和區文化路9巷16弄22號3樓",
+    "venue_address_en": "3F., No. 22, Aly. 16, Ln. 9, Wenhua Rd., Yonghe Dist., New Taipei City",
+    "addr_en_zh": false,
+    "organizers": [
+      "陳維寧 Weining Chen"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "100台币。日历上10月31日、11月14日没有。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$100. Not listed on Oct 31 and Nov 14. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "R199",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Milonguita 微舞會",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 6,
+    "weekdays": [
+      6
+    ],
+    "time": "19:00–22:30",
+    "venue": "Tango.FelipeH 菲利佩探戈教室",
+    "venue_address": "台中市西屯區大信街56號8F-1",
+    "venue_address_en": "8F-1, No. 56, Daxin St, Xitun District, Taichung City",
+    "addr_en_zh": false,
+    "organizers": [
+      "Tango.FelipeH 菲利佩探戈教室"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://www.malevos-tango.com/MilongaInTangoTaichung"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "每月第四个周六。预先登记350台币，现场380台币。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "4th Saturday monthly. NT$350 pre-registered, NT$380 at the door. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice.",
+    "nth": 4
+  },
+  {
+    "id": "R200",
+    "kind": "weekly",
+    "type": "milonga",
+    "name": "Abrazo Milonga",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "16:00–20:00",
+    "venue": "Tango.two 兩兩阿根廷探戈",
+    "venue_address": "台中市西區美村路一段743號三樓",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Tango.two 兩兩阿根廷探戈"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "每月最后一个周日。400台币，含一杯饮料。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "Last Sunday monthly. NT$400 with one drink. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice.",
+    "nth": -1
+  },
+  {
+    "id": "R201",
+    "kind": "weekly",
+    "type": "practica",
+    "name": "Open Practica 公開練習會",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": null,
+    "end": null,
+    "weekday": 0,
+    "weekdays": [
+      0
+    ],
+    "time": "15:00–17:30",
+    "venue": "Tango.FelipeH 菲利佩探戈教室",
+    "venue_address": "台中市西屯區大信街56號8F-1",
+    "venue_address_en": "8F-1, No. 56, Daxin St, Xitun District, Taichung City",
+    "addr_en_zh": false,
+    "organizers": [
+      "Tango.FelipeH 菲利佩探戈教室"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": "https://www.malevos-tango.com/MilongaInTangoTaichung"
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "每月第二个周日。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "2nd Sunday monthly. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice.",
+    "nth": 2
+  },
+  {
+    "id": "E087",
+    "kind": "event",
+    "type": "practica",
+    "name": "Cheek to Cheek guided practica",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": "2026-10-31",
+    "end": "2026-10-31",
+    "weekday": null,
+    "weekdays": null,
+    "time": "13:00–16:30",
+    "venue": "陽晴心理諮商所_永春館",
+    "venue_address": "臺中市南屯區永春東路283號",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Cheek to Cheek"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "隔周周六。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "Every other Saturday. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "E088",
+    "kind": "event",
+    "type": "practica",
+    "name": "Cheek to Cheek guided practica",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": "2026-11-14",
+    "end": "2026-11-14",
+    "weekday": null,
+    "weekdays": null,
+    "time": "13:00–16:30",
+    "venue": "陽晴心理諮商所_永春館",
+    "venue_address": "臺中市南屯區永春東路283號",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Cheek to Cheek"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "隔周周六。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "Every other Saturday. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "E089",
+    "kind": "event",
+    "type": "practica",
+    "name": "Cheek to Cheek guided practica",
+    "city": "Taichung",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": "2026-11-28",
+    "end": "2026-11-28",
+    "weekday": null,
+    "weekdays": null,
+    "time": "13:00–16:30",
+    "venue": "陽晴心理諮商所_永春館",
+    "venue_address": "臺中市南屯區永春東路283號",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Cheek to Cheek"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "隔周周六。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "Every other Saturday. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "E090",
+    "kind": "event",
+    "type": "practica",
+    "name": "Tango al Rio Practica",
+    "city": "Zhubei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": "2026-11-10",
+    "end": "2026-11-10",
+    "weekday": null,
+    "weekdays": null,
+    "time": "19:00–21:30",
+    "venue": "竹北大河戀社區",
+    "venue_address": null,
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Curtis Tsai"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "隔周周二。100台币，含点心饮料。地址没找到。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "Every other Tuesday. NT$100 with snacks & drinks. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "E091",
+    "kind": "event",
+    "type": "practica",
+    "name": "Tango al Rio Practica",
+    "city": "Zhubei",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": "2026-11-24",
+    "end": "2026-11-24",
+    "weekday": null,
+    "weekdays": null,
+    "time": "19:00–21:30",
+    "venue": "竹北大河戀社區",
+    "venue_address": null,
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "Curtis Tsai"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "隔周周二。100台币，含点心饮料。地址没找到。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "Every other Tuesday. NT$100 with snacks & drinks. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+  },
+  {
+    "id": "E092",
+    "kind": "event",
+    "type": "milonga",
+    "name": "Tainan Milonga @ WindArt Coffee",
+    "city": "Tainan",
+    "country": "Taiwan",
+    "region": "Taiwan",
+    "start": "2026-11-15",
+    "end": "2026-11-15",
+    "weekday": null,
+    "weekdays": null,
+    "time": "13:30–17:30",
+    "venue": "藏風藝文咖啡",
+    "venue_address": "台南市中西區衛民街67號",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "台南探戈幫 Tainan Tango Gang"
+    ],
+    "links": {
+      "facebook": null,
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Google Calendar herecomesuna (Taiwan) 2026-10-29",
+    "updated": "2026-10-29",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "note_zh": "350台币。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
+    "note": "NT$350. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
   }
 ]
