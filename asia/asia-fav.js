@@ -21,7 +21,7 @@
     '.atm-favbar b{font-weight:700;color:#C8102E;font-size:.95rem}.atm-favbar .atm-hint{font-size:.78rem;color:#8a7563;font-weight:400}' +
     '.atm-favbar.atm-on{cursor:pointer;justify-content:space-between}.atm-favbar .atm-car{color:#b8913a;font-size:.9rem}' +
     '.atm-noimg{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:120px;background:linear-gradient(135deg,#0e6e78,#2a1a14);color:#F6D58E;font-weight:700;font-size:1.3rem;letter-spacing:.1em}' +
-    '.atm-favgrid[hidden]{display:none!important}.atm-favfc{position:relative}.atm-favfc .atm-heart{top:8px;right:8px}' +
+    '.atm-favgrid{transition:max-height .2s ease,opacity .2s ease,margin .2s ease,padding .2s ease;overflow-y:hidden}html body.china-page .wrap .tw-m-feat-grid.tw-feat-ad.atm-favgrid.atm-fold{opacity:0;max-height:0!important;min-height:0!important;border-width:0!important;margin-top:0!important;margin-bottom:0!important;padding-top:0!important;padding-bottom:0!important;pointer-events:none}'+'.atm-favgrid[hidden]{display:none!important}.atm-favfc{position:relative}.atm-favfc .atm-heart{top:8px;right:8px}' +
     'html.atm-has-fav .tw-m-feat-grid.tw-feat-ad:not(.atm-favgrid),html.atm-has-fav .tw-m-feat-grid:not(.atm-favgrid)+.atm-dots,html.atm-has-fav .atm-mk.atm-fav,html.atm-has-fav .tw-m-ad{display:none!important}' +
     '.atm-mk.atm-fav,.tw-m-feat-k.atm-fav-k,.tw-m-ad-k{display:none!important}.tw-fc.atm-hostfc{position:relative}.tw-fc.atm-hostfc .atm-heart{top:8px;right:8px}' +
     '.atm-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:10000;background:rgba(42,26,20,.92);color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:opacity .4s;pointer-events:none}.atm-toast.atm-toast-out{opacity:0}';
@@ -66,10 +66,16 @@
     var m = byId(), c = getC(), n = ids.filter(function (id) { return m[id]; }).length;
     bar.classList.toggle('atm-on', n > 0);
     if (!n) { bar.innerHTML = '<b>\u2661 ' + T.title + '</b><span class="atm-hint">' + T2.hint + '</span>'; bar.removeAttribute('aria-expanded'); bar.tabIndex = -1; }
-    else { bar.innerHTML = '<b>\u2764\uFE0E ' + T.title + (zh ? '（' + n + '）' : ' (' + n + ')') + '</b><span class="atm-car">' + (c ? '\u25BE' : '\u25B4') + '</span>'; bar.setAttribute('aria-expanded', String(!c)); bar.tabIndex = 0; }
+    else { bar.innerHTML = '<b>\u2764\uFE0E ' + T.title + (zh ? '（' + n + '）' : ' (' + n + ')') + '</b><span class="atm-car">' + (c ? '\u25B8' : '\u25BE') + '</span>'; bar.setAttribute('aria-expanded', String(!c)); bar.tabIndex = 0; }
     var key = ids.join(',');
     if (grid._k !== key) { grid._k = key; grid.innerHTML = ''; ids.forEach(function (id) { if (m[id]) grid.appendChild(card(m[id])); }); }
-    grid.hidden = !n || c;
+    grid.hidden = !n;
+    if (n) { var was = grid.classList.contains('atm-fold');
+      if (grid._init && was !== c) { grid.style.maxHeight = grid.scrollHeight + 'px'; void grid.offsetHeight; }
+      grid.classList.toggle('atm-fold', c);
+      if (!c) { grid.style.maxHeight = grid._init ? grid.scrollHeight + 'px' : 'none'; clearTimeout(grid._tm); grid._tm = setTimeout(function () { if (!grid.classList.contains('atm-fold')) grid.style.maxHeight = 'none'; }, 260); }
+      else grid.style.maxHeight = '0px';
+      grid._init = 1; }
   }
   function toast() {
     var t = document.createElement('div'); t.className = 'atm-toast'; t.setAttribute('role', 'status'); t.textContent = T2.toast; document.body.appendChild(t);
