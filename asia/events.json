@@ -3,7 +3,7 @@
     "id": "tbxuzmah",
     "poster": "/images/asia/posters/tbxuzmah.jpg",
     "kind": "event",
-    "type": "event",
+    "type": "marathon",
     "name": "4th Beijing Select Tango Weekend",
     "city": "Beijing",
     "country": "China",
@@ -552,7 +552,7 @@
   {
     "id": "manual-cq-spicy-2026",
     "kind": "event",
-    "type": "festival",
+    "type": "marathon",
     "name": "2026 Spicy Tango Weekend · 9th Chongqing Tango Festival",
     "city": "Chongqing",
     "country": "China",
