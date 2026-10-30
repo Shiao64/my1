@@ -664,11 +664,30 @@ function cnt(){var c=D.getElementById('china-city'),v=c&&c.value,h=null;if(v){va
 if(!h)return null;var fl=h.parentNode.querySelector('.china-from-line'),t=(fl&&fl.textContent)||'',m=t.match(/共(\d+)项|(\d+) featured/)||h.textContent.match(/[（(](\d+)[)）]/);return m?+(m[1]||m[2]):null}
 function reg(){var r=D.querySelector('input[name=etype][value=regular]');return r&&r.checked}
 function upd(){var fb=D.querySelector('.atm-favbar'),sec=fb&&fb.parentNode;if(!sec)return;var hd=sec.querySelector('.tw-feat-head');if(hd){if(s.nextSibling!==hd)sec.insertBefore(s,hd)}else if(s.parentNode!==sec||s.nextSibling)sec.appendChild(s);
-var n=cnt();if(n==null||reg()){if(!s.hidden){s.hidden=true;dispatchEvent(new Event('resize'))}return}var zh=(D.documentElement.getAttribute('data-asia-lang')||D.documentElement.lang||'').indexOf('zh')===0;var t=zh?'特色活动 '+n+' 场 \u25BE':n+' featured events \u25BE';var ch=s.hidden||s.textContent!==t;if(s.textContent!==t)s.textContent=t;s.hidden=false;if(ch)dispatchEvent(new Event('resize'))}
+var n=cnt();if(n==null||reg()){if(!s.hidden){s.hidden=true;dispatchEvent(new Event('resize'))}return}var zh=(D.documentElement.getAttribute('data-asia-lang')||D.documentElement.lang||'').indexOf('zh')===0;var t=zh?'特色活动共 '+n+' 项 \u25BE':n+' featured event'+(n===1?'':'s')+' \u25BE';var ch=s.hidden||s.textContent!==t;if(s.textContent!==t)s.textContent=t;s.hidden=false;if(ch)dispatchEvent(new Event('resize'))}
 s.addEventListener('click',function(){var b=D.getElementById('china-search');if(b)b.click()});
-function collapsedFirst(){try{if(localStorage.getItem('atm_fav_collapsed_v1')!=='1')return}catch(e){return}var fg=D.querySelector('.atm-favgrid');if(!fg||fg.hidden||!D.body.classList.contains('china-presearch'))return;var b=D.getElementById('china-search');if(b){var R=D.documentElement;R.classList.add('atm-nosnap');var un=function(){R.classList.remove('atm-nosnap');removeEventListener('touchstart',un);removeEventListener('wheel',un);removeEventListener('keydown',un)};addEventListener('touchstart',un,{passive:true});addEventListener('wheel',un,{passive:true});addEventListener('keydown',un);b.click();[60,400,900,1400,2000].forEach(function(ms){setTimeout(function(){scrollTo(0,0)},ms)})}}
+function collapsedFirst(){if(!matchMedia('(max-width:600px)').matches)return;try{if(localStorage.getItem('atm_fav_collapsed_v1')!=='1')return}catch(e){return}var fg=D.querySelector('.atm-favgrid');if(!fg||fg.hidden||!D.body.classList.contains('china-presearch'))return;var b=D.getElementById('china-search');if(b){var R=D.documentElement;R.classList.add('atm-nosnap');var un=function(){R.classList.remove('atm-nosnap');removeEventListener('touchstart',un);removeEventListener('wheel',un);removeEventListener('keydown',un)};addEventListener('touchstart',un,{passive:true});addEventListener('wheel',un,{passive:true});addEventListener('keydown',un);b.click();[60,400,900,1400,2000].forEach(function(ms){setTimeout(function(){scrollTo(0,0)},ms)})}}
 D.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.atm-favbar'))setTimeout(collapsedFirst,260)});
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(upd,120)}).observe(D.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});D.addEventListener('change',function(){setTimeout(upd,150)});
 addEventListener('load',function(){upd();setTimeout(function(){upd();collapsedFirst()},900)})})();</script>
+<style id="draft-onehead">/* draft 2026-10-31: one-line list heading 「特色活动共 X 项」 */
+.atm-oh-hide{display:none!important}
+.atm-onehead{display:flex;align-items:baseline;gap:8px;flex-wrap:nowrap;white-space:nowrap;overflow:hidden;margin:14px 0 10px;padding:0 0 8px;border-bottom:2px solid #E3C98C;color:#0E6E78;font-weight:700;font-size:1.12rem;line-height:1.3}
+.atm-onehead .atm-oh-city{color:#5a3e2b}.atm-onehead .atm-oh-n{color:#C8102E}.atm-onehead .atm-oh-from{margin-left:auto;font-size:.78rem;font-weight:500;color:#8a7563;flex:0 0 auto}
+</style>
+<script id="draft-onehead-js">(function(){var D=document;function zh(){return (D.documentElement.getAttribute('data-asia-lang')||D.documentElement.lang||'').indexOf('zh')===0}
+function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function run(){var Z=zh(),fe=D.querySelector('input[type=date]'),fv=fe&&fe.value||'',td=today();
+D.querySelectorAll('.china-city-head').forEach(function(h){var p=h.parentNode,t=h.textContent,m=t.match(/[（(](\d+)[)）]|(\d+)\s*场/);if(!m)return;var n=+(m[1]||m[2]);
+var reg=!!p.querySelector('.china-list > li[data-kind="weekly"]:not([hidden])')||/每周|Weekly/.test(t),chrono=p.classList.contains('china-chrono');
+var city=chrono?'':t.split(/[（(]|\d+\s*场| — /)[0].trim();
+var from='';if(!reg&&fv&&fv!==td){var q=fv.split('-');from=Z?(+q[1])+'/'+(+q[2])+' 起':'from '+MN[+q[1]-1]+' '+(+q[2])}
+var lab=Z?(reg?'常规活动':'特色活动')+'共 <span class="atm-oh-n">'+n+'</span> 项':'<span class="atm-oh-n">'+n+'</span> '+(reg?'regular':'featured')+' event'+(n===1?'':'s');
+var html=(city?'<span class="atm-oh-city">'+esc(city)+' ·</span>':'')+'<span>'+lab+'</span>'+(from?'<span class="atm-oh-from">'+from+'</span>':'');
+var o=h.previousElementSibling;if(!o||!o.classList.contains('atm-onehead')){o=D.createElement('div');o.className='atm-onehead';o.setAttribute('role','heading');o.setAttribute('aria-level','2');p.insertBefore(o,h)}
+if(o._h!==html){o._h=html;o.innerHTML=html}if(!h.classList.contains('atm-oh-hide'))h.classList.add('atm-oh-hide');var fl=h.nextElementSibling;if(fl&&fl.classList.contains('china-from-line')&&!fl.classList.contains('atm-oh-hide'))fl.classList.add('atm-oh-hide')})}
+var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).observe(D.body,{childList:true,subtree:true,characterData:true});addEventListener('load',run);D.addEventListener('change',function(){setTimeout(run,120)})})();</script>
 </body>
 </html>
