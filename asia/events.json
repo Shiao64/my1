@@ -2801,7 +2801,7 @@
     "time": "19:30–23:30",
     "venue": "TTA Taichung Tango Academy 台中探戈學院",
     "venue_address": "台中市西屯區重慶路99號五樓之二",
-    "venue_address_en": null,
+    "venue_address_en": "5F.-2, No. 99, Chongqing Rd., Xitun Dist., Taichung City",
     "organizers": [
       "TTA Taichung Tango Academy 台中探戈學院"
     ],
@@ -2869,8 +2869,8 @@
     ],
     "time": "20:00–22:30",
     "venue": "Corazon Tango Studio",
-    "venue_address": "台北市大安區復興南路一段63號4樓之2",
-    "venue_address_en": null,
+    "venue_address": "台北市復興南路一段63號4樓之2",
+    "venue_address_en": "4F.-2, No. 63, Sec. 1, Fuxing S. Rd., Taipei City",
     "organizers": [
       "Corazon Tango Studio"
     ],
@@ -8847,7 +8847,7 @@
     "time": "20:30–22:30",
     "venue": "TTA Taichung Tango Academy 台中探戈學院",
     "venue_address": "台中市西屯區重慶路99號五樓之二",
-    "venue_address_en": "Address not found",
+    "venue_address_en": "5F.-2, No. 99, Chongqing Rd., Xitun Dist., Taichung City",
     "addr_en_zh": true,
     "organizers": [
       "TTA Taichung Tango Academy 台中探戈學院"
@@ -8886,7 +8886,7 @@
     "time": "20:00–23:00",
     "venue": "台中香榭驪舍大飯店 2F",
     "venue_address": "台中市北區五權路377號",
-    "venue_address_en": "Address not found",
+    "venue_address_en": "2F, No. 377, Wuquan Rd., North Dist., Taichung City 404",
     "addr_en_zh": true,
     "organizers": [
       "Cheek to Cheek"
@@ -8925,7 +8925,7 @@
     "time": "14:30–15:30",
     "venue": "Corazon Tango Studio",
     "venue_address": "台北市大安區復興南路一段63號4樓之2",
-    "venue_address_en": "Address not found",
+    "venue_address_en": "4F.-2, No. 63, Sec. 1, Fuxing S. Rd., Taipei City",
     "addr_en_zh": true,
     "organizers": [
       "Corazon Tango School"
@@ -9123,7 +9123,7 @@
     "time": "13:00–16:30",
     "venue": "陽晴心理諮商所_永春館",
     "venue_address": "臺中市南屯區永春東路283號",
-    "venue_address_en": "Address not found",
+    "venue_address_en": "1F-2F, No. 283, Yongchun E. Rd., Nantun Dist., Taichung City 408",
     "addr_en_zh": true,
     "organizers": [
       "Cheek to Cheek"
