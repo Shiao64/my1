@@ -168,7 +168,8 @@ html body #contact{display:flex!important;flex-wrap:wrap;justify-content:center;
 <style id="mockup-v9">/* MOCKUP 2026-10-28: A) mobile sticky day band  B) unified card */
 @media (max-width:600px){
 body.china-page .china-group.china-day{margin-top:24px!important}
-body.china-page .china-group.china-day .china-sub-head{position:sticky;top:var(--atm-hdr);z-index:5;display:block;background:#0E6E78!important;color:#fff!important;font-size:18px!important;font-weight:700!important;border:0!important;border-radius:0 0 8px 8px;padding:10px 14px!important;margin:0 0 12px!important;box-shadow:0 3px 10px rgba(6,51,58,.22);letter-spacing:.02em}
+body.china-page .china-group.china-day .china-sub-head{position:sticky;top:calc(var(--atm-hdr) + 2px);z-index:5;display:block;background:#0E6E78!important;color:#fff!important;font-size:18px!important;font-weight:700!important;border:0!important;border-radius:8px;padding:10px 14px!important;margin:0 0 12px!important;box-shadow:0 3px 10px rgba(6,51,58,.22);letter-spacing:.02em}
+body.china-page .china-sticky-top::after{content:"";position:absolute;left:0;right:0;top:100%;height:2px;background:#FBF5E9;pointer-events:none} /* v10.8: 2px beige gap under top bar, hides scrolling text */
 }
 html{--atm-hdr:118px}html.atm-compact{--atm-hdr:44px}
 body.china-page .ev-card,body.china-page .ev-card:not(.atm-dim){border:2px solid #C9A96A!important;border-radius:14px!important;overflow:hidden!important;background:#FFFCF5!important;box-shadow:0 8px 22px rgba(60,40,20,.18),0 2px 6px rgba(0,0,0,.08)!important}
