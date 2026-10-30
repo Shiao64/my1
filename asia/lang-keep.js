@@ -5,12 +5,26 @@
     var t = e.target;
     while (t && t !== document && !(t.getAttribute && t.getAttribute('data-asia-lang-set'))) t = t.parentNode;
     if (!t || t === document || t.getAttribute('aria-current') === 'page') return;
+    /* v10.8: carry the current card (#v-ID / ?id= / last opened card) so the deep-link code scrolls + rings it */
+    var m = /^#v-(.+)$/.exec(location.hash) || /[?&]id=([^&#]+)/.exec(location.search), id = window._atmLastCard || (m ? decodeURIComponent(m[1]) : '');
+    if (id) {
+      var h = (t.getAttribute('href') || '').split('#')[0], qi = /[?&]id=/.test(location.search) && !/[?&]id=/.test(h);
+      if (qi) h += (h.indexOf('?') < 0 ? '?' : '&') + 'id=' + encodeURIComponent(id);
+      t.setAttribute('href', h + '#v-' + encodeURIComponent(id));
+      try { sessionStorage.removeItem(KEY); } catch (err) {}
+      return;
+    }
     var c = document.getElementById('china-city'), f = document.getElementById('china-from');
     var s = { y: window.pageYOffset || document.documentElement.scrollTop || 0,
       city: c ? c.value : '', from: f ? f.value : '',
       etype: (document.querySelector('input[name=etype]:checked') || {}).value || '',
       searched: !document.body.classList.contains('china-presearch'), t: Date.now() };
     try { sessionStorage.setItem(KEY, JSON.stringify(s)); } catch (err) {}
+  }, true);
+
+  document.addEventListener('click', function (e) {
+    var c = e.target && e.target.closest && e.target.closest('.ev-card[data-id]');
+    if (c && !c.closest('.atm-recent')) window._atmLastCard = c.getAttribute('data-id');
   }, true);
 
   var s = null;
