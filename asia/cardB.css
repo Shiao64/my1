@@ -29,3 +29,15 @@ html body .ev-card.b-card .atm-viewed-mark{display:none!important}html body .ev-
 html body .ev-card.b-card .b-head{border:0!important;padding:0!important;margin:0!important}
 html body .ev-card.b-card .b-head .atm-marks{order:3;margin:0 0 0 auto!important;gap:4px 8px!important;font-size:.72rem;color:#8a84a8}
 html body .ev-card.b-card .b-head .atm-mk{font-size:.72rem}
+
+/* v10.7 draft card: dots only on top, one merged label, More box, 3-line notes */
+html body .ev-card.b-card .b-head .atm-marks{margin:0!important;order:0}
+html body .ev-card.b-card .b-head .atm-mk:not(.atm-fav){font-size:0!important;gap:0!important}
+html body .ev-card.b-card .b-head .atm-mk i{width:10px;height:10px;flex:0 0 10px}
+html body .ev-card.b-card .b-label{order:-2;font-weight:800;font-size:.95rem;color:var(--b);margin-top:-4px!important}
+html body .ev-card.b-card .b-head{order:-3!important}
+.b-in .b-note{grid-template-columns:1fr}.b-in .b-note>b{display:none}
+.b-in .b-note>span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;white-space:pre-line}
+.b-in .b-note>span.b-open{display:block;-webkit-line-clamp:unset}
+.b-note-tg{justify-self:start;background:none;border:0;padding:2px 0;color:var(--b);font-weight:800;font-size:.85rem;cursor:pointer}
+html body .ev-card.b-card .b-head{justify-content:flex-start!important;text-align:left!important}html body .ev-card.b-card .b-head .atm-marks{margin:0!important;justify-content:flex-start!important}html body .ev-card.b-card .b-label{text-align:left!important;align-self:flex-start}
