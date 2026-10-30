@@ -152,7 +152,7 @@ def main():
                 'email': 'tangohui@gmail.com',
             },
         },
-        'ZujahelC': {  # Milongaga
+        'R202': {  # Milongaga (OTI source id ZujahelC)
             'links': {'facebook': 'https://www.facebook.com/tangobeijing'},
             'contacts': {
                 'wechat_id': 'tangobeijing',
@@ -171,6 +171,12 @@ def main():
             },
         },
     }
+    # Radar sheet IDs are the truth (owner 2026-10-30): map OTI source ids to radar ids before anything keyed by id.
+    ID_MAP = {'ZujahelC': 'R202',   # Beijing MILONGAGA
+              'tbxuzmah': 'E093'}   # 4th Beijing Select Tango Weekend
+    for r in recs:
+        if r['id'] in ID_MAP:
+            r['source_id'] = r['id']; r['id'] = ID_MAP[r['id']]
     for r in recs:
         o = OVERRIDES.get(r['id'])
         if not o: continue
