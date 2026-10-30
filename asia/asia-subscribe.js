@@ -101,11 +101,13 @@
     '#site-ver{display:block;text-align:center;margin:8px auto 0;font:500 12px/1 Georgia,"Times New Roman",serif;letter-spacing:.08em;color:#D9B56A;opacity:1}' +
     '#site-ver b{font-weight:600;color:#e2cf9f;letter-spacing:.08em}' +
     '#site-ver:before,#site-ver:after{content:"";display:inline-block;width:18px;height:1px;background:currentColor;opacity:.5;vertical-align:middle;margin:0 8px}';
-  function put(){ var f = document.getElementById('contact'); if (!f || document.getElementById('site-ver')) return;
+  /* v11.1: version line lives at the bottom of the ☰ menu (#atm-menu .atm-mp), no longer in the hidden page-bottom #contact */
+  css += '#atm-menu #site-ver{color:#8a6d2f;margin:18px auto 4px}#atm-menu #site-ver b{color:#6b5220}';
+  function put(){ if (document.getElementById('site-ver')) return; var f = document.querySelector('#atm-menu .atm-mp'); if (!f) return;
     var st = document.createElement('style'); st.id = 'site-ver-css'; st.textContent = css; document.head.appendChild(st);
     var s = document.createElement('div'); s.id = 'site-ver';
     s.appendChild(document.createTextNode(SITE_DESIGNER + ' ')); var b = document.createElement('b'); b.textContent = '· ' + SITE_VERSION; s.appendChild(b);
-    var w = f.querySelectorAll('.wrap'); (w[w.length - 1] || f).appendChild(s); }
+    f.appendChild(s); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put();
 })();
 
