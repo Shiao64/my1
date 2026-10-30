@@ -17,6 +17,7 @@
     '.atm-heart svg{width:20px;height:20px;display:block}.atm-heart path{fill:none;stroke:#C8102E;stroke-width:2;stroke-linejoin:round}' +
     '.atm-heart[aria-pressed="true"] path{fill:#C8102E}.atm-heart:focus-visible{outline:2px solid #0e6e78;outline-offset:1px}' +
     '.ev-card>.atm-viewed-abs{right:46px!important;top:13px!important}.ev-card{position:relative}' +
+    '.atm-recent{max-width:1100px;margin:6px auto 0;padding:0 12px;box-sizing:border-box;font-size:.82rem;color:#5b4636}.atm-recent[hidden]{display:none}.atm-recent-h{display:flex;align-items:center;gap:8px;margin:0 0 4px}.atm-recent-h b{font-weight:700;color:#0a4f57}.atm-recent-h button{border:0;background:none;padding:2px 4px;font:inherit;font-size:.76rem;color:#0e6e78;cursor:pointer;text-decoration:underline}.atm-recent-row{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:0 0 4px;scrollbar-width:thin}.atm-recent-row a{flex:0 0 auto;max-width:200px;display:block;padding:4px 10px;border:1px solid #ead9b8;border-radius:999px;background:#fff;color:#2a1a14;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.78rem;line-height:1.4}.atm-recent-row a span{color:#8a7563;margin-left:4px}' +
     '.atm-favrow .atm-recent-h b{color:#C8102E}' +
     'html.atm-has-fav .atm-mk.atm-fav,html.atm-has-fav .tw-m-feat,html.atm-has-fav .tw-m-ad{display:none!important}';
   document.head.appendChild(css);
