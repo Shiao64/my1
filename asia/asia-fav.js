@@ -23,6 +23,7 @@
     '.atm-noimg{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:120px;background:linear-gradient(135deg,#0e6e78,#2a1a14);color:#F6D58E;font-weight:700;font-size:1.3rem;letter-spacing:.1em}' +
     '.atm-favgrid[hidden]{display:none!important}.atm-favfc{position:relative}.atm-favfc .atm-heart{top:8px;right:8px}' +
     'html.atm-has-fav .tw-m-feat-grid.tw-feat-ad:not(.atm-favgrid),html.atm-has-fav .tw-m-feat-grid:not(.atm-favgrid)+.atm-dots,html.atm-has-fav .atm-mk.atm-fav,html.atm-has-fav .tw-m-ad{display:none!important}' +
+    '.atm-mk.atm-fav,.tw-m-feat-k.atm-fav-k,.tw-m-ad-k{display:none!important}.tw-fc.atm-hostfc{position:relative}.tw-fc.atm-hostfc .atm-heart{top:8px;right:8px}' +
     '.atm-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:10000;background:rgba(42,26,20,.92);color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:opacity .4s;pointer-events:none}.atm-toast.atm-toast-out{opacity:0}';
   document.head.appendChild(css);
 
@@ -84,10 +85,22 @@
       if (b.getAttribute('aria-pressed') !== String(f)) { b.setAttribute('aria-pressed', String(f)); b.setAttribute('aria-label', f ? T.del : T.add); b.title = f ? T.del : T.add; }
     });
   }
+  var HOST = [['hangzhou', 'manual-hz-jinsha'], ['changwon', 'cwCbtm27'], ['beijing', 'E093']];
+  function hostHearts(on) {
+    var g = hostGrid(); if (!g) return;
+    g.querySelectorAll('a.tw-fc').forEach(function (a) {
+      var id = a.getAttribute('data-fid');
+      if (!id) { var h = a.getAttribute('href') || ''; HOST.forEach(function (p) { if (!id && h.indexOf(p[0]) >= 0) id = p[1]; }); if (!id) return; a.setAttribute('data-fid', id); a.classList.add('atm-hostfc'); }
+      var b = a.querySelector(':scope>.atm-heart');
+      if (!b) { b = document.createElement('span'); b.className = 'atm-heart'; b.setAttribute('role', 'button'); b.tabIndex = 0; b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + HP + '"/></svg>'; a.appendChild(b); }
+      var f = !!on[id];
+      if (b.getAttribute('aria-pressed') !== String(f)) { b.setAttribute('aria-pressed', String(f)); b.setAttribute('aria-label', f ? T.del : T.add); b.title = f ? T.del : T.add; }
+    });
+  }
   var busy = false, mo = null, tm = null;
-  function refresh() { busy = true; try { place(); var ids = valid(); document.documentElement.classList.toggle('atm-has-fav', ids.length > 0); hearts(ids); drawRow(ids); } finally { busy = false; } if (mo) mo.takeRecords(); }
+  function refresh() { busy = true; try { place(); var ids = valid(); document.documentElement.classList.toggle('atm-has-fav', ids.length > 0); hearts(ids); var on = {}; ids.forEach(function (x) { on[x] = 1; }); hostHearts(on); drawRow(ids); } finally { busy = false; } if (mo) mo.takeRecords(); }
   function toggle(id) { var a = load(), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else { a.unshift(id); firstToast(); } save(a); refresh(); }
-  document.addEventListener('keydown', function (e) { var b = e.target.closest && e.target.closest('.atm-favfc .atm-heart'); if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); b.click(); } }, true);
+  document.addEventListener('keydown', function (e) { var b = e.target.closest && e.target.closest('.atm-favfc .atm-heart,.atm-hostfc .atm-heart'); if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); b.click(); } }, true);
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('.atm-heart'); if (!b) return;
     e.preventDefault(); e.stopPropagation(); var li = b.closest('.ev-card[data-id]'); if (li) toggle(li.getAttribute('data-id')); else if ((li = b.closest('[data-fid]'))) toggle(li.getAttribute('data-fid'));
