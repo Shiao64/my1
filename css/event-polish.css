@@ -1,0 +1,29 @@
+/* Event page polish: type scale + spacing (opt-in via body.ev-polish) */
+body.ev-polish{font-size:16px;line-height:1.65}
+body.ev-polish section{padding:36px 0 !important}
+body.ev-polish section .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+body.ev-polish .ev-hero{padding:28px 0 8px !important;text-align:center}
+body.ev-polish .ev-hero h1{font-size:clamp(26px,4.2vw,38px);line-height:1.25;margin:0 0 10px;font-weight:700;letter-spacing:.01em}
+body.ev-polish .ev-hero .ev-sub{font-size:clamp(15px,2vw,17px);opacity:.75;margin:0 0 14px}
+body.ev-polish .ev-facts{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0;padding:0;list-style:none}
+body.ev-polish .ev-facts li{font-size:15px;padding:6px 14px;border-radius:999px;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.08)}
+body.ev-polish .ev-facts b{font-weight:700}
+body.ev-polish .sec-title{font-size:clamp(21px,2.6vw,26px) !important;line-height:1.3;margin:0 0 18px !important;text-align:center}
+body.ev-polish h3{font-size:18px !important;margin:0 0 10px !important}
+body.ev-polish p,body.ev-polish li,body.ev-polish td{font-size:16px !important;line-height:1.65}
+body.ev-polish ul.note,body.ev-polish ol.note{max-width:680px;margin:0 auto;padding-left:1.3em}
+body.ev-polish ul.note li,body.ev-polish ol.note li{margin:6px 0}
+body.ev-polish .hz-cards{gap:16px}
+body.ev-polish .card{padding:18px 20px !important}
+body.ev-polish .card ul{padding-left:1.2em;margin:0}
+body.ev-polish .card li{margin:4px 0}
+body.ev-polish .venue-block{text-align:center;margin:0}
+body.ev-polish .venue-name{font-size:18px}
+body.ev-polish p.meta{font-size:14px !important;opacity:.7;text-align:center;max-width:680px;margin:16px auto 0}
+body.ev-polish .ev-lead{max-width:680px;margin:0 auto 12px;text-align:center}
+body.ev-polish .day-date{font-size:16px !important;font-weight:700}
+body.ev-polish .ev,body.ev-polish .ev-time{font-size:15px !important}
+body.ev-polish .hz-topbanner img,body.ev-polish .cw-topbanner img{max-width:min(100%,520px) !important;height:auto;border-radius:6px;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+body.ev-polish .hz-topbanner,body.ev-polish .cw-topbanner{padding:20px 12px !important}
+body.ev-polish .atm-lang{font-size:14px;font-weight:600;padding:4px 12px;border-radius:999px;border:1px solid currentColor;text-decoration:none}
+@media (max-width:600px){body.ev-polish section{padding:26px 0 !important}body.ev-polish .ev-facts li{font-size:14px}}
