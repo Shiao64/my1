@@ -178,6 +178,15 @@ body.china-page .ev-card>.ev-cover:after{background:linear-gradient(to bottom,rg
 body.china-page .ev-card:not(.atm-open)>.atm-desc.atm-over:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5 85%)!important}
 </style>
 <style>@media (min-width:768px){body.china-page .china-disclaimer{font-size:11px}} /* v10.7: desktop footer source note smaller */</style>
+<style id="atm-type-colors">/* draft 2026-10-30: card color by type — milonga red, practica teal, featured (festival/marathon/event) gold */
+body .ev-card[data-type="milonga"]{--b:#C8102E!important}
+body .ev-card[data-type="practica"]{--b:#0E6E78!important}
+body .ev-card[data-type="festival"],body .ev-card[data-type="marathon"],body .ev-card[data-type="event"],body .ev-card[data-type="encuentro"]{--b:#9A6E00!important}
+body .ev-card[data-type="milonga"] .atm-mk{--c:#C8102E!important;color:#C8102E!important}
+body .ev-card[data-type="practica"] .atm-mk{--c:#0E6E78!important;color:#0E6E78!important}
+body .ev-card:is([data-type="festival"],[data-type="marathon"],[data-type="event"],[data-type="encuentro"]) .atm-mk:not(.atm-fav){--c:#9A6E00!important;color:#9A6E00!important}
+body .ev-card[data-type] .b-label{color:var(--b)!important}
+</style>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
