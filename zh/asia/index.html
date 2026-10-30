@@ -442,7 +442,7 @@ D.addEventListener('click',function(e){var s=e.target.closest&&e.target.closest(
 <script>
 window.CHINA_UI = {
   lang: 'zh',
-  eventsUrl: '../../asia/events.json?v=china326',
+  eventsUrl: '../../asia/events.json?v=china327',
   hideAddrEn: true,
   keepOrganizerZh: true,
   cityNames: {
@@ -511,13 +511,13 @@ window.CHINA_UI = {
   suggestAutoReply: '谢谢！我们已收到你在亚洲探戈地图添加的活动，上线后会回复你。—— tangoweekend.org'
 };
 </script>
-<script src="../../asia/asia-map.js?v=china326"></script>
+<script src="../../asia/asia-map.js?v=china327"></script>
 <script src="../../asia/asia-reglist.js?v=china278"></script>
 <script src="../../asia/asia-fav.js?v=fav5"></script>
 <script src="../../asia/atm-menu.js?v=m7"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="../../asia/asia-howto.js?v=china278"></script> -->
 <script src="../../asia/lang-keep.js?v=china242"></script>
-<script src="../../asia/asia-subscribe.js?v=sub32"></script>
+<script src="../../asia/asia-subscribe.js?v=sub33"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏/.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
@@ -618,7 +618,12 @@ body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc .tw-fc-body{flex:0 0 aut
 var g=[].find.call(D.querySelectorAll('.tw-m-feat-grid.tw-feat-ad'),function(x){return x.offsetParent&&(x.classList.contains('atm-fold')||x.getBoundingClientRect().height>0)});if(!g||!g.firstElementChild)return;var top=g.getBoundingClientRect().top+scrollY,dots=g.nextElementSibling&&g.nextElementSibling.classList.contains('atm-dots')?g.nextElementSibling.offsetHeight+16:12;var fs=D.querySelector('.atm-featstrip');if(fs&&!fs.hidden)dots+=fs.offsetHeight+14;
 var h=Math.round(innerHeight-top-dots-16);if(h<228)h=228;if(h>640)h=640;R.style.setProperty('--atm-favh',h+'px')}
 var t;function q(){clearTimeout(t);t=setTimeout(fit,80)}addEventListener('load',q);D.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.atm-favbar'))setTimeout(fit,0)});addEventListener('resize',q);new MutationObserver(q).observe(D.body,{attributes:true,attributeFilter:['class']});setTimeout(fit,600);setTimeout(fit,1800)})();</script>
-<style id="draft-oneline">/* draft 2026-10-30: mobile search bar always one-line (also after search) */
+<style id="draft-oneline">
+html.atm-compact body.china-page .china-map-hero h1 .atm-back{min-width:44px;min-height:44px;justify-content:flex-start;box-sizing:border-box}
+
+/* v11.0: snap point at page top so proximity snap cannot pull a short header onto the first card */
+html body.china-page::before{content:"";display:block;height:0;scroll-snap-align:start;scroll-margin-top:400px}
+/* draft 2026-10-30: mobile search bar always one-line (also after search) */
 @media (max-width:600px){
 html body.china-page.atm-1l #filters .china-filters-row1.atm-form { grid-template-columns: repeat(4, minmax(0px, 1fr)); gap: 8px 6px; position: relative; display: grid !important; padding: 0px !important; margin: 0px !important; background: transparent !important; border: 0px !important; box-shadow: none !important; }
 html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap.atm-row-go { display: contents !important; }
@@ -665,10 +670,10 @@ function reg(){var r=D.querySelector('input[name=etype][value=regular]');return 
 function upd(){var fb=D.querySelector('.atm-favbar'),sec=fb&&fb.parentNode;if(!sec)return;var hd=sec.querySelector('.tw-feat-head');if(hd){if(s.nextSibling!==hd)sec.insertBefore(s,hd)}else if(s.parentNode!==sec||s.nextSibling)sec.appendChild(s);
 var n=cnt();if(n==null||reg()){if(!s.hidden){s.hidden=true;dispatchEvent(new Event('resize'))}return}var zh=(D.documentElement.getAttribute('data-asia-lang')||D.documentElement.lang||'').indexOf('zh')===0;var t=zh?'特色活动共 '+n+' 项 \u25BE':n+' featured event'+(n===1?'':'s')+' \u25BE';var hh=zh?'<span>特色活动共 <span class="atm-oh-n">'+n+'</span> 项</span><span class="atm-oh-car">\u25BE</span>':'<span><span class="atm-oh-n">'+n+'</span> featured event'+(n===1?'':'s')+'</span><span class="atm-oh-car">\u25BE</span>';var ch=s.hidden||s._h!==hh;if(s._h!==hh){s._h=hh;s.innerHTML=hh}s.hidden=false;if(ch)dispatchEvent(new Event('resize'))}
 s.addEventListener('click',function(){var b=D.getElementById('china-search');if(b)b.click()});
-function collapsedFirst(){if(!matchMedia('(max-width:600px)').matches)return;try{if(localStorage.getItem('atm_fav_collapsed_v1')!=='1')return}catch(e){return}var fg=D.querySelector('.atm-favgrid');if(!fg||fg.hidden||!D.body.classList.contains('china-presearch'))return;var b=D.getElementById('china-search');if(b){var R=D.documentElement;R.classList.add('atm-nosnap');var un=function(){R.classList.remove('atm-nosnap');removeEventListener('touchstart',un);removeEventListener('wheel',un);removeEventListener('keydown',un)};addEventListener('touchstart',un,{passive:true});addEventListener('wheel',un,{passive:true});addEventListener('keydown',un);b.click();[60,400,900,1400,2000].forEach(function(ms){setTimeout(function(){scrollTo(0,0)},ms)})}}
+function collapsedFirst(){if(!matchMedia('(max-width:600px)').matches)return;try{if(localStorage.getItem('atm_fav_collapsed_v1')!=='1')return}catch(e){return}var fg=D.querySelector('.atm-favgrid');if(!fg||fg.hidden)return;if(!D.body.classList.contains('china-presearch')){if(arguments[0]==='load'){var R0=D.documentElement;R0.classList.add('atm-nosnap');var u0=function(){R0.classList.remove('atm-nosnap');removeEventListener('touchstart',u0);removeEventListener('wheel',u0);removeEventListener('keydown',u0)};addEventListener('touchstart',u0,{passive:true});addEventListener('wheel',u0,{passive:true});addEventListener('keydown',u0);[0,300,800].forEach(function(ms){setTimeout(function(){scrollTo(0,0)},ms)})}return}var b=D.getElementById('china-search');if(b){var R=D.documentElement;R.classList.add('atm-nosnap');var un=function(){R.classList.remove('atm-nosnap');removeEventListener('touchstart',un);removeEventListener('wheel',un);removeEventListener('keydown',un)};addEventListener('touchstart',un,{passive:true});addEventListener('wheel',un,{passive:true});addEventListener('keydown',un);b.click();[60,400,900,1400,2000].forEach(function(ms){setTimeout(function(){scrollTo(0,0)},ms)})}}
 D.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.atm-favbar'))setTimeout(collapsedFirst,260)});
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(upd,120)}).observe(D.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});D.addEventListener('change',function(){setTimeout(upd,150)});
-addEventListener('load',function(){upd();setTimeout(function(){upd();collapsedFirst()},900)})})();</script>
+addEventListener('load',function(){upd();setTimeout(function(){upd();collapsedFirst('load')},900)})})();</script>
 <style id="draft-onehead">/* draft 2026-10-31: unified one-line heading (list head + first-load strip) */
 .atm-oh-hide{display:none!important}
 html body.china-page .atm-onehead{display:flex;align-items:baseline;gap:8px;flex-wrap:nowrap;white-space:nowrap;overflow:hidden;box-sizing:border-box;width:100%;margin:14px 0 10px;padding:4px 2px 8px;border:0;border-bottom:2px solid #E3C98C;border-radius:0;background:transparent;color:#0E6E78;font:inherit;font-weight:700;font-size:18px;line-height:1.35;text-align:left;box-shadow:none}
