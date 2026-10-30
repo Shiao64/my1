@@ -225,7 +225,7 @@
     var cx = r.status === 'cancelled';
     if (!cx && r.cancelled_dates && r.weekday != null) { var t0 = baseDate(); var nx = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + ((r.weekday - t0.getDay() + 7) % 7)); cx = r.cancelled_dates.indexOf(nx.getFullYear() + '-' + pad(nx.getMonth()+1) + '-' + pad(nx.getDate())) !== -1; }
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
-    return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + ((r.region === 'Taiwan' || r.region === 'Hong Kong' || r.country === 'Taiwan' || r.country === 'Hong Kong') ? ' data-hant="1"' : '') + (r.also_regular ? ' data-also-regular="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img' + thImg(pp) + ' alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"></a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img' + thImg(c[0]) + ' decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
+    return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + ((r.region === 'Taiwan' || r.region === 'Hong Kong' || r.country === 'Taiwan' || r.country === 'Hong Kong') ? ' data-hant="1"' : '') + (r.also_regular ? ' data-also-regular="1"' : '') + (r.regular_oneoff ? ' data-oneoff="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img' + thImg(pp) + ' alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"></a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img' + thImg(c[0]) + ' decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
       '<h3 class="ev-name">' + esc((isZh && r.name_zh) || r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
@@ -310,25 +310,27 @@
     cities.forEach(function(c){
       var rs = data.filter(function(r){ return c === 'Others' ? OTHERS.indexOf(r.city) !== -1 : r.city === c; });
       if (!rs.length) return;
-      var dated = rs.filter(function(r){ return r.kind === 'event' && r.start; }).sort(function(a,b){ return a.start < b.start ? -1 : 1; });
-      var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start; });
+      var oneoff = rs.filter(function(r){ return r.regular_oneoff && r.start && !r.hidden; });
+      var dated = rs.filter(function(r){ return r.kind === 'event' && r.start && !r.regular_oneoff; }).sort(function(a,b){ return a.start < b.start ? -1 : 1; });
+      var tba = rs.filter(function(r){ return r.kind === 'event' && !r.start && !r.regular_oneoff; });
       var wk = rs.filter(function(r){ return r.kind === 'weekly'; });
       var tw = c !== 'Others' && rs[0].region === 'Taiwan';
       var h = ['<div class="china-city-block" id="region-' + cityId(c) + '" data-region="' + cityId(c) + '"><h2 class="china-city-head" data-cn="' + esc(cityDisplay(c)) + '">' + esc(sessLabel(c)) + (tw ? ' <span class="china-tw">' + (UI.taiwanLabel || 'Taiwan') + '</span>' : '') + (wk.length ? '<span class="china-title-sub"> — ' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</span>' : '') + '</h2>'];
       h.push(group(UI.events || 'Events', dated.concat(tba)));
       var sched = wk.filter(function(r){ return r.weekday != null; }) /* v9: monthly nth-weekday events always listed (labelled e.g. 2nd Sat monthly), not only in the week they fall in */, nos = wk.filter(function(r){ return r.weekday == null; });
-      if (sched.length) {
+      function owd(r){ return parseISO(r.start).getDay(); }
+      if (sched.length || oneoff.length) {
         h.push('<h3 class="china-sub-head china-weekly-head">' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</h3>');
         [0,1,2,3,4,5,6].map(function(i){ return (baseDate().getDay() + i) % 7; }).forEach(function(d){
-          h.push(group(weekdayHead(d), sched.filter(function(r){ return r.weekday === d; }).sort(function(a,b){ return (a.time||'') < (b.time||'') ? -1 : 1; }), 'china-day'));
+          h.push(group(weekdayHead(d), sched.filter(function(r){ return r.weekday === d; }).concat(oneoff.filter(function(r){ return owd(r) === d; })).sort(function(a,b){ return (a.time||'') < (b.time||'') ? -1 : 1; }), 'china-day'));
         });
         h.push(group(UI.dayTba || 'Day TBA', nos, 'china-day'));
       } else h.push(group((UI.weeklyHead || 'Weekly milongas &amp; practicas') + ' · ' + (UI.dayTba || 'Day TBA'), nos));
       h.push('</div>');
       html.push(h.join(''));
     });
-    var allDated = data.filter(function(r){ return r.kind === 'event' && r.start; }).sort(function(a,b){ return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
-    var allTba = data.filter(function(r){ return r.kind === 'event' && !r.start; });
+    var allDated = data.filter(function(r){ return r.kind === 'event' && r.start && !r.regular_oneoff; }).sort(function(a,b){ return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
+    var allTba = data.filter(function(r){ return r.kind === 'event' && !r.start && !r.regular_oneoff; });
     html.push('<div class="china-chrono" hidden><h2 class="china-city-head">' + (UI.allCitiesChrono || 'All cities · Featured events by start date') + ' <span class="china-count"></span></h2><ul class="china-list ev-list">' + allDated.concat(allTba).map(function(r){ return card(r); }).join('') + '</ul></div>');
     root.innerHTML = html.join('');
   }
@@ -342,6 +344,7 @@
   function itemMatchesDate(li){
     var all = showAll();
     if (li.getAttribute('data-kind') === 'weekly') { var oc = li.getAttribute('data-occ'), rr = activeRange(); return !(oc && rr && oc > rr[1]); }
+    if (li.getAttribute('data-oneoff') === '1') { var od = (li.getAttribute('data-dates') || '').split(',').filter(Boolean), rq = activeRange(), t0 = todayISO(), lo0 = rq ? (rq[0] > t0 ? rq[0] : t0) : t0, hi0 = (toEl && toEl.value) ? rq[1] : (function(){ var x = baseDate(); x.setDate(x.getDate() + 6); return x.getFullYear() + '-' + pad(x.getMonth()+1) + '-' + pad(x.getDate()); })(); return od.some(function(d){ return d >= lo0 && d <= hi0; }); } /* v10.8: one-off in 常规 = shown on its date's weekday within the 7-day / chosen window, hidden once past */
     if (!all && (li.getAttribute('data-tba') === '1' || li.getAttribute('data-past') === '1')) return false;
     if (li.getAttribute('data-always') === '1') return true;
     var dates = (li.getAttribute('data-dates') || '').split(',').filter(Boolean);
@@ -352,7 +355,7 @@
     return dates.some(function(d){ return d >= lo && d <= r[1]; });
   }
   function typeMatches(li, types){
-    var isEvent = li.getAttribute('data-kind') === 'event';
+    var isEvent = li.getAttribute('data-kind') === 'event' && li.getAttribute('data-oneoff') !== '1'; /* v10.8: dated one-off milongas/practicas belong to 常规 */
     /* v8: 常规 and 特色 fully separate — also_regular events no longer appear in 常规 */
     return isEvent ? types.indexOf('event') !== -1 : types.indexOf('regular') !== -1;
   }
@@ -455,7 +458,7 @@
       });
       var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim().split(' · ')[0];
       var zh = !!UI.countWord, txt, reg = vis.length > 0;
-      vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly') reg = false; });
+      vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly' && li.getAttribute('data-oneoff') !== '1') reg = false; });
       var zw = reg ? '项常规活动' : '项特色活动', ew = reg ? ' regular events' : ' featured events';
       if (!reg && !tv) { n = vis.length; txt = zh ? '从' + zhD(w0, true) + '起，共' + n + zw : 'from ' + enD(w0) + ' onward, ' + n + ew; }
       else if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + zw

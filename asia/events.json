@@ -28,7 +28,8 @@
     "updated": "2026-10-24",
     "hidden": false,
     "hidden_reason": null,
-    "tba": false
+    "tba": false,
+    "name_zh": "第4届北京精选探戈周末"
   },
   {
     "id": "GpOaldUV",
@@ -55,7 +56,8 @@
     "updated": "2026-10-24",
     "hidden": true,
     "hidden_reason": "Owner excluded: As Tango (Beijing) – no date/organizer",
-    "tba": true
+    "tba": true,
+    "regular_oneoff": true
   },
   {
     "id": "vhYvwRzo",
@@ -834,7 +836,9 @@
     "time": null,
     "venue": null,
     "venue_address": null,
-    "contacts": {"wechat_id": "samuelseer"},
+    "contacts": {
+      "wechat_id": "samuelseer"
+    },
     "organizers": [
       "Sam / Tango Blast"
     ],
@@ -857,7 +861,7 @@
   {
     "id": "aanirocB",
     "kind": "event",
-    "type": "event",
+    "type": "festival",
     "name": "Tango Wonderland",
     "city": "Taipei",
     "country": "Taiwan",
@@ -2141,12 +2145,13 @@
     "hidden_reason": null,
     "tba": false,
     "note_zh": "希腊文化周嘉宾：Katerina y Giorgos。",
-    "note": "Greek culture week guests: Katerina y Giorgos."
+    "note": "Greek culture week guests: Katerina y Giorgos.",
+    "regular_oneoff": true
   },
   {
     "id": "E005",
     "kind": "event",
-    "type": "festival",
+    "type": "event",
     "name": "Javier Rodriguez y Fatima Vitale 阿根廷探戈大师文化交流（Vida Mia 15周年庆）",
     "name_zh": "Javier Rodriguez y Fatima Vitale 阿根廷探戈大师文化交流（Vida Mia 15周年庆）",
     "city": "Beijing",
@@ -2217,12 +2222,13 @@
     "tba": false,
     "poster_pos": "center top",
     "note_zh": "万圣节化妆舞会，DJ Oscar（西班牙）。40元，含水果、饮料。地址和联络方式没找到，请向主办方确认。",
-    "note": "Halloween costume milonga, DJ Oscar (Spain). ¥40 incl. fruit and drinks. Address and contact not found; please check with the organizer."
+    "note": "Halloween costume milonga, DJ Oscar (Spain). ¥40 incl. fruit and drinks. Address and contact not found; please check with the organizer.",
+    "regular_oneoff": true
   },
   {
     "id": "E042",
     "kind": "event",
-    "type": "festival",
+    "type": "event",
     "name": "The Return 2026 · Javier Rodríguez in Kuala Lumpur",
     "city": "Kuala Lumpur",
     "country": "Malaysia",
@@ -2952,7 +2958,8 @@
     "poster": null,
     "poster_pos": null,
     "note_zh": "500台币；DJ TJ 一哥。资料来自tangodori.com（https://tangodori.com/taiwan-milongas），时间请以主办方最新通知为准。联络方式没找到。",
-    "note": "NT$500; DJ TJ 一哥. Info from tangodori.com (https://tangodori.com/taiwan-milongas); please check the organizer's latest notice. Contact not found."
+    "note": "NT$500; DJ TJ 一哥. Info from tangodori.com (https://tangodori.com/taiwan-milongas); please check the organizer's latest notice. Contact not found.",
+    "regular_oneoff": true
   },
   {
     "id": "R084",
@@ -3673,7 +3680,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–23:00",
-    "poster": "/images/korea/ktnow/E047_pista_halloween.jpg"
+    "poster": "/images/korea/ktnow/E047_pista_halloween.jpg",
+    "regular_oneoff": true
   },
   {
     "id": "R101",
@@ -7102,7 +7110,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-06",
@@ -7110,7 +7117,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "20:00–01:00",
-    "poster": "/images/korea/ktnow/andante.jpeg"
+    "poster": "/images/korea/ktnow/andante.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E049",
@@ -7141,14 +7149,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-06",
     "end": "2026-11-06",
     "weekday": null,
     "weekdays": null,
-    "time": "20:00–01:00"
+    "time": "20:00–01:00",
+    "regular_oneoff": true
   },
   {
     "id": "E050",
@@ -7179,7 +7187,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-07",
@@ -7187,7 +7194,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–23:00",
-    "poster": "/images/korea/ktnow/el_tango.jpeg"
+    "poster": "/images/korea/ktnow/el_tango.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E051",
@@ -7218,7 +7226,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-07",
@@ -7226,7 +7233,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–23:00",
-    "poster": "/images/korea/ktnow/en_paz_studio.png"
+    "poster": "/images/korea/ktnow/en_paz_studio.png",
+    "regular_oneoff": true
   },
   {
     "id": "E052",
@@ -7257,7 +7265,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-07",
@@ -7265,7 +7272,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–23:00",
-    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png",
+    "regular_oneoff": true
   },
   {
     "id": "E053",
@@ -7296,7 +7304,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-07",
@@ -7304,7 +7311,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "20:00–24:00",
-    "poster": "/images/korea/ktnow/studio_242.jpg"
+    "poster": "/images/korea/ktnow/studio_242.jpg",
+    "regular_oneoff": true
   },
   {
     "id": "E054",
@@ -7335,7 +7343,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-07",
@@ -7343,7 +7350,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–23:00",
-    "poster": "/images/korea/ktnow/daejeon_tango_academy_caminito.jpg"
+    "poster": "/images/korea/ktnow/daejeon_tango_academy_caminito.jpg",
+    "regular_oneoff": true
   },
   {
     "id": "E055",
@@ -7374,7 +7382,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-07",
@@ -7382,7 +7389,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "21:00–03:00",
-    "poster": "/images/korea/ktnow/daejeon_tango_onada.png"
+    "poster": "/images/korea/ktnow/daejeon_tango_onada.png",
+    "regular_oneoff": true
   },
   {
     "id": "E056",
@@ -7413,7 +7421,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-08",
@@ -7421,7 +7428,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–24:00",
-    "poster": "/images/korea/ktnow/ocho_logo.jpeg"
+    "poster": "/images/korea/ktnow/ocho_logo.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E057",
@@ -7452,7 +7460,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-08",
@@ -7460,7 +7467,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "14:30–17:30",
-    "poster": "/images/korea/ktnow/amigo_milonga.jpeg"
+    "poster": "/images/korea/ktnow/amigo_milonga.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E058",
@@ -7491,7 +7499,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-08",
@@ -7499,7 +7506,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "14:00–18:00",
-    "poster": "/images/korea/ktnow/laboom_lavista.png"
+    "poster": "/images/korea/ktnow/laboom_lavista.png",
+    "regular_oneoff": true
   },
   {
     "id": "E059",
@@ -7530,7 +7538,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-08",
@@ -7538,7 +7545,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "15:00–19:00",
-    "poster": "/images/korea/ktnow/marine_tango.jpeg"
+    "poster": "/images/korea/ktnow/marine_tango.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E060",
@@ -7569,7 +7577,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-13",
@@ -7577,7 +7584,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–23:00",
-    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png",
+    "regular_oneoff": true
   },
   {
     "id": "E061",
@@ -7608,14 +7616,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-13",
     "end": "2026-11-13",
     "weekday": null,
     "weekdays": null,
-    "time": "19:30–24:00"
+    "time": "19:30–24:00",
+    "regular_oneoff": true
   },
   {
     "id": "E062",
@@ -7646,14 +7654,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-13",
     "end": "2026-11-13",
     "weekday": null,
     "weekdays": null,
-    "time": "20:00–24:00"
+    "time": "20:00–24:00",
+    "regular_oneoff": true
   },
   {
     "id": "E063",
@@ -7684,7 +7692,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-14",
@@ -7692,7 +7699,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "21:00–02:00",
-    "poster": "/images/korea/ktnow/azucar.png"
+    "poster": "/images/korea/ktnow/azucar.png",
+    "regular_oneoff": true
   },
   {
     "id": "E064",
@@ -7723,7 +7731,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-15",
@@ -7731,7 +7738,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–24:00",
-    "poster": "/images/korea/ktnow/ocho_logo.jpeg"
+    "poster": "/images/korea/ktnow/ocho_logo.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E065",
@@ -7762,14 +7770,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-15",
     "end": "2026-11-15",
     "weekday": null,
     "weekdays": null,
-    "time": "18:30–22:30"
+    "time": "18:30–22:30",
+    "regular_oneoff": true
   },
   {
     "id": "E067",
@@ -7800,7 +7808,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-15",
@@ -7808,7 +7815,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "18:00–22:00",
-    "poster": "/images/korea/ktnow/en_paz_studio.png"
+    "poster": "/images/korea/ktnow/en_paz_studio.png",
+    "regular_oneoff": true
   },
   {
     "id": "E068",
@@ -7839,7 +7847,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-15",
@@ -7847,7 +7854,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "14:00–18:00",
-    "poster": "/images/korea/ktnow/studioaura.png"
+    "poster": "/images/korea/ktnow/studioaura.png",
+    "regular_oneoff": true
   },
   {
     "id": "E069",
@@ -7878,7 +7886,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-15",
@@ -7886,7 +7893,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "14:00–18:00",
-    "poster": "/images/korea/ktnow/tango_cafe_dia_viento.jpeg"
+    "poster": "/images/korea/ktnow/tango_cafe_dia_viento.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E070",
@@ -7917,7 +7925,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-15",
@@ -7925,7 +7932,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "15:00–19:00",
-    "poster": "/images/korea/ktnow/mariposa.jpg"
+    "poster": "/images/korea/ktnow/mariposa.jpg",
+    "regular_oneoff": true
   },
   {
     "id": "E071",
@@ -7956,14 +7964,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-20",
     "end": "2026-11-20",
     "weekday": null,
     "weekdays": null,
-    "time": "20:00–24:00"
+    "time": "20:00–24:00",
+    "regular_oneoff": true
   },
   {
     "id": "E072",
@@ -7994,14 +8002,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-20",
     "end": "2026-11-20",
     "weekday": null,
     "weekdays": null,
-    "time": "20:00–24:30"
+    "time": "20:00–24:30",
+    "regular_oneoff": true
   },
   {
     "id": "E073",
@@ -8032,7 +8040,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-20",
@@ -8040,7 +8047,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "20:00–01:00",
-    "poster": "/images/korea/ktnow/andante.jpeg"
+    "poster": "/images/korea/ktnow/andante.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E074",
@@ -8071,7 +8079,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-21",
@@ -8079,7 +8086,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "21:00–02:00",
-    "poster": "/images/korea/ktnow/daejeon_tango_onada.png"
+    "poster": "/images/korea/ktnow/daejeon_tango_onada.png",
+    "regular_oneoff": true
   },
   {
     "id": "E075",
@@ -8110,14 +8118,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-22",
     "end": "2026-11-22",
     "weekday": null,
     "weekdays": null,
-    "time": "19:30–23:30"
+    "time": "19:30–23:30",
+    "regular_oneoff": true
   },
   {
     "id": "E076",
@@ -8148,7 +8156,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-22",
@@ -8156,7 +8163,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "15:00–19:00",
-    "poster": "/images/korea/ktnow/park_mi_tango.jpg"
+    "poster": "/images/korea/ktnow/park_mi_tango.jpg",
+    "regular_oneoff": true
   },
   {
     "id": "E077",
@@ -8187,7 +8195,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "地址没找到。联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Address not found. Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-22",
@@ -8195,7 +8202,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "15:00–19:00",
-    "poster": "/images/korea/ktnow/tango_cafe_dia.jpeg"
+    "poster": "/images/korea/ktnow/tango_cafe_dia.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E078",
@@ -8226,7 +8234,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-25",
@@ -8234,7 +8241,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "13:00–16:00",
-    "poster": "/images/korea/ktnow/el_tango.jpeg"
+    "poster": "/images/korea/ktnow/el_tango.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E079",
@@ -8265,14 +8273,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-27",
     "end": "2026-11-27",
     "weekday": null,
     "weekdays": null,
-    "time": "20:00–24:00"
+    "time": "20:00–24:00",
+    "regular_oneoff": true
   },
   {
     "id": "E080",
@@ -8303,14 +8311,14 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-27",
     "end": "2026-11-27",
     "weekday": null,
     "weekdays": null,
-    "time": "20:00–00:30"
+    "time": "20:00–00:30",
+    "regular_oneoff": true
   },
   {
     "id": "E081",
@@ -8341,7 +8349,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-27",
@@ -8349,7 +8356,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:30–24:00",
-    "poster": "/images/korea/ktnow/andante.jpeg"
+    "poster": "/images/korea/ktnow/andante.jpeg",
+    "regular_oneoff": true
   },
   {
     "id": "E082",
@@ -8380,7 +8388,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-28",
@@ -8388,7 +8395,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "18:30–22:30",
-    "poster": "/images/korea/ktnow/en_paz_studio.png"
+    "poster": "/images/korea/ktnow/en_paz_studio.png",
+    "regular_oneoff": true
   },
   {
     "id": "E083",
@@ -8419,7 +8427,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-28",
@@ -8427,7 +8434,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "14:30–18:30",
-    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png",
+    "regular_oneoff": true
   },
   {
     "id": "E084",
@@ -8458,7 +8466,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-28",
@@ -8466,7 +8473,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–23:00",
-    "poster": "/images/korea/ktnow/ideal_tango_cafe.png"
+    "poster": "/images/korea/ktnow/ideal_tango_cafe.png",
+    "regular_oneoff": true
   },
   {
     "id": "E085",
@@ -8497,7 +8505,6 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
-    "featured": true,
     "note_zh": "联络方式没找到。资料来自ktnow.kr（https://ktnow.kr/?lang=en），时间请以主办方最新通知为准。",
     "note": "Contact not found. Info from ktnow.kr (https://ktnow.kr/?lang=en); please check the organizer's latest notice.",
     "start": "2026-11-28",
@@ -8505,7 +8512,8 @@
     "weekday": null,
     "weekdays": null,
     "time": "19:00–23:00",
-    "poster": "/images/korea/ktnow/laboom.webp"
+    "poster": "/images/korea/ktnow/laboom.webp",
+    "regular_oneoff": true
   },
   {
     "id": "E086",
@@ -9173,7 +9181,8 @@
     "hidden_reason": null,
     "tba": false,
     "note_zh": "隔周周二。100台币，含点心饮料。地址没找到。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
-    "note": "Every other Tuesday. NT$100 with snacks & drinks. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+    "note": "Every other Tuesday. NT$100 with snacks & drinks. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice.",
+    "regular_oneoff": true
   },
   {
     "id": "E091",
@@ -9210,7 +9219,8 @@
     "hidden_reason": null,
     "tba": false,
     "note_zh": "隔周周二。100台币，含点心饮料。地址没找到。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
-    "note": "Every other Tuesday. NT$100 with snacks & drinks. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+    "note": "Every other Tuesday. NT$100 with snacks & drinks. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice.",
+    "regular_oneoff": true
   },
   {
     "id": "E092",
@@ -9247,7 +9257,8 @@
     "hidden_reason": null,
     "tba": false,
     "note_zh": "350台币。联络方式没找到。资料来自Google日历herecomesuna（台湾），时间请以主办方最新通知为准。",
-    "note": "NT$350. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice."
+    "note": "NT$350. Contact not found. Info from Google Calendar herecomesuna (Taiwan); please check the organizer's latest notice.",
+    "regular_oneoff": true
   },
   {
     "id": "E093",
