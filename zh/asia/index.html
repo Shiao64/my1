@@ -248,13 +248,21 @@ html body.china-page #filters input.china-date-input[type=date]{height:44px!impo
 }
 </style>
 <script id="atm-header-v2-js">(function(){function f(){var h=document.querySelector('.china-sticky-top');if(h)document.documentElement.style.setProperty('--atm-hh',h.offsetHeight+'px')}addEventListener('resize',f);addEventListener('load',f);document.addEventListener('DOMContentLoaded',f);setTimeout(f,800)})();</script>
+<style id="atm-back-css">/* draft: iOS-style back chevron + title → site home */
+.china-map-hero h1 .atm-back{display:inline-flex;align-items:center;gap:.22em;min-height:44px;color:inherit!important;text-decoration:none!important;-webkit-tap-highlight-color:transparent}
+.china-map-hero h1 .atm-back-chev{flex:0 0 auto;width:.5em;height:1.3em;stroke:currentColor;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));transition:transform .15s}
+.china-map-hero h1 .atm-back:hover .atm-back-chev{transform:translateX(-2px)}
+html.atm-compact .china-map-hero h1::before{display:none!important}
+.atm-pv-t .atm-back{pointer-events:none;color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:.28em}.atm-pv-t .atm-back-chev{width:.5em;height:1.3em}
+</style>
+<script id="atm-back-js">document.addEventListener('DOMContentLoaded',function(){var a=document.querySelector('.china-map-hero h1 .atm-back');if(a)a.addEventListener('click',function(e){if(e.button||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();var r='';try{r=document.referrer?new URL(document.referrer).pathname:''}catch(x){}var same=/\/asia\/?$/.test(r);if(r&&!same&&history.length>1){e.stopPropagation();history.back();}/* else: no previous page (opened directly; site root redirects here) → existing title behaviour: clear search + back to top */});});</script>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
 <section class="hero china-map-hero">
   <div class="wrap china-hero-bar">
     <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
-      <h1 style="color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)"><span style="font-size:.88em">亚洲探戈地图<span class="atm-beta">（测试版）</span></span></h1>
+      <h1 style="color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)"><a class="atm-back" href="./" aria-label="返回"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="font-size:.88em">亚洲探戈地图<span class="atm-beta">（测试版）</span></span></a></h1>
       <p class="china-map-sub" style="margin:0;font-size:clamp(15px,1.4vw,18px);white-space:normal;line-height:1.2;color:#CFE8E3;font-weight:400;letter-spacing:.01em">帮你找阿根廷探戈活动</p>
     </div>
     <button type="button" class="china-suggest-open" id="china-suggest-open" hidden style="margin-left:auto!important;margin-right:6px!important">添加活动</button>
