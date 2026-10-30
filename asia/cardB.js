@@ -33,7 +33,7 @@ function fix(li){ if(li.dataset.b)return; li.dataset.b='1'; li.classList.add('b-
  li.style.setProperty('--b',pal[h%pal.length]);
  var row=function(ic,lab,v){return v?'<div class="b-m"><i>'+ic+'</i><span class="b-l">'+lab+'</span><span class="b-v">'+v+'</span></div>':''};
  var dl=zh&&li.dataset.kind==='event'&&li.dataset.dates?li.dataset.dates.split(','):null; if(dl){var f=function(x){return x.replace(/-/g,'/')}; when=f(dl[0])+(dl.length>1?'–'+f(dl[dl.length-1]):'');}
- var html=(cx?cx.outerHTML:'')+'<div class="ev-top b-head">'+badges+'<span class="b-label">'+(function(w,t){w=w.replace(/ · .*$/,'').trim();t=t.trim();if(!w)return t;if(!t)return w;return zh?(li.dataset.kind==='weekly'?w+t:w+' '+t):w+' · '+t.charAt(0).toUpperCase()+t.slice(1)})(when,type)+'</span></div>'+
+ var html=(cx?cx.outerHTML:'')+'<div class="ev-top b-head">'+badges+'<span class="b-label">'+(function(w,t){w=w.replace(/ · .*$/,'').trim();t=t.trim();if(li.dataset.kind==='weekly'&&w){var tr=/[週個們]/.test(w+t);w=/每月|monthly/i.test(w)?(zh?'每月':'Monthly'):/隔[周週]|每两周|每兩週|every other|biweekly/i.test(w)?(zh?(tr?'每兩週':'每两周'):'Biweekly'):(zh?(tr?'每週':'每周'):'Weekly');if(zh)return w+t;} /* v10.8: frequency + type only, no weekday */if(!w)return t;if(!t)return w;return zh?(li.dataset.kind==='weekly'?w+t:w+' '+t):w+' · '+t.charAt(0).toUpperCase()+t.slice(1)})(when,type)+'</span></div>'+
   '<h3 class="ev-name b-name">'+name.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</h3><div class="b-meta">'+
   row('🕗',zh?'时间':'Time',meta.time||(when.indexOf(' · ')>0?when.split(' · ').slice(1).join(' · '):''))+row('📍',zh?'场地':'Venue',meta.venue)+row('🎪',zh?'主办':'ORG',meta.org)+'</div>'+
   (cover?'<div class="b-poster"></div>':'')+
