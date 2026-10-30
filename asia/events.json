@@ -485,7 +485,8 @@
     "id": "ONKkPuWH",
     "kind": "event",
     "type": "festival",
-    "name": "GuangZhou Tango Festival",
+    "name": "Guangzhou Tango Festival 2027",
+    "name_zh": "广州探戈节 2027",
     "city": "Guangzhou",
     "country": "China",
     "region": "China",
@@ -494,8 +495,9 @@
     "weekday": null,
     "weekdays": null,
     "time": null,
-    "venue": null,
-    "venue_address": null,
+    "venue": "旧梦录 Old Dream",
+    "venue_address": "广州市海珠区昌岗中路130号",
+    "venue_address_en": "No.130, Changgang Middle Road, Haizhu District, Guangzhou",
     "organizers": [
       "Tango Pig"
     ],
@@ -509,6 +511,8 @@
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
+    "note_zh": "大师：Alejandro Larenas y Marisol Morales。7场舞会（3场下午茶 + 4场夜晚大舞会），8节团体大师交流课。详细信息待主办方公布。",
+    "note": "Maestros: Alejandro Larenas y Marisol Morales. Seven milongas (3 afternoon + 4 evening gala) and 8 group classes with the maestros. Full details to be announced.",
     "poster": "/images/asia/posters/E097_gz2027.jpg"
   },
   {
