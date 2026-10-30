@@ -207,10 +207,16 @@
       else if (r.time) body.push(line(UI.time || 'Time', esc(formatTime12(r.time))));
     }
     if (r.venue) {
-      var vName = r.venue, usedAddrEn = false; /* v8g: en page — English venue name when available */
-      if (!isZh && /[\u4e00-\u9fff]/.test(r.venue)) { if (r.venue_en) vName = r.venue_en; else if (!/[A-Za-z]{3,}/.test(r.venue) && r.venue_address_en) { vName = r.venue_address_en; usedAddrEn = true; } }
-      var addr = r.venue_address ? ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>' : '';
-      var addrEn = ((!UI.hideAddrEn || r.addr_en_zh) && r.venue_address_en && !usedAddrEn) ? '<div class="china-addr-en">' + esc((isZh && /^Address not found$/i.test(r.venue_address_en)) ? '不确定' : r.venue_address_en) + '</div>' : '';
+      var vName = r.venue; /* v10.9 address rule: en always English addr; zh mainland Chinese; zh overseas Chinese + English */
+      var aEn = (r.venue_address_en && !/^\s*Address not found\s*$/i.test(r.venue_address_en)) ? r.venue_address_en : '';
+      var mainland = r.country === 'China' && (r.region || 'China') === 'China';
+      if (!isZh && /[\u4e00-\u9fff]/.test(r.venue) && r.venue_en) vName = r.venue_en;
+      var addr = '', addrEn = '';
+      if (!isZh) { var aShow = aEn || r.venue_address; if (aShow) addr = ' <span class="china-addr">· ' + esc(aShow) + '</span>'; }
+      else {
+        if (r.venue_address) addr = ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>';
+        if (aEn && aEn !== r.venue_address && (!mainland || r.addr_en_zh || !r.venue_address)) addrEn = '<div class="china-addr-en">' + esc(aEn) + '</div>';
+      }
       body.push(line(UI.venue || 'Venue', esc(vName) + addr + addrEn));
     }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
