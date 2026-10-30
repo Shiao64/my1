@@ -340,7 +340,7 @@ D.addEventListener('click',function(e){var s=e.target.closest&&e.target.closest(
       <div class="china-date-wrap atm-row atm-row-go" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0">
         <h2 class="m-label">日期：</h2>
         <div class="china-date-fromto">
-          <label class="china-date-field"><span>从</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-from" class="m-input china-date-input" aria-label="开始日期"><em class="china-date-show" data-for="china-from" aria-hidden="true"></em><span class="atm-date-default" style="position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:12px;color:#8a7a66;white-space:nowrap">默认今天</span></div></label>
+          <label class="china-date-field"><span>从</span><div class="china-date-wrap" style="position:relative;display:block;flex:0 0 auto;height:auto;min-height:0;padding:0;margin:0"><input type="date" id="china-from" class="m-input china-date-input" aria-label="开始日期"><em class="china-date-show" data-for="china-from" aria-hidden="true"></em></div></label>
           
         </div>
         <span class="china-showmode"><button type="button" class="btn m-btn china-search-btn" id="china-search" aria-label="搜索">搜索</button></span><div class="china-showall-row" hidden style="display:none!important"><label class="m-chip china-type-check china-showall"><input type="checkbox" id="china-showall"><span class="china-check" aria-hidden="true"></span> 包含已结束</label></div>
@@ -442,7 +442,7 @@ D.addEventListener('click',function(e){var s=e.target.closest&&e.target.closest(
 <script>
 window.CHINA_UI = {
   lang: 'zh',
-  eventsUrl: '../../asia/events.json?v=china325',
+  eventsUrl: '../../asia/events.json?v=china326',
   hideAddrEn: true,
   keepOrganizerZh: true,
   cityNames: {
@@ -511,13 +511,13 @@ window.CHINA_UI = {
   suggestAutoReply: '谢谢！我们已收到你在亚洲探戈地图添加的活动，上线后会回复你。—— tangoweekend.org'
 };
 </script>
-<script src="../../asia/asia-map.js?v=china324"></script>
+<script src="../../asia/asia-map.js?v=china326"></script>
 <script src="../../asia/asia-reglist.js?v=china278"></script>
 <script src="../../asia/asia-fav.js?v=fav4"></script>
 <script src="../../asia/atm-menu.js?v=m7"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="../../asia/asia-howto.js?v=china278"></script> -->
 <script src="../../asia/lang-keep.js?v=china242"></script>
-<script src="../../asia/asia-subscribe.js?v=sub31"></script>
+<script src="../../asia/asia-subscribe.js?v=sub32"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏/.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
