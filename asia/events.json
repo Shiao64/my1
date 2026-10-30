@@ -830,6 +830,7 @@
     "time": null,
     "venue": null,
     "venue_address": null,
+    "contacts": {"wechat_id": "samuelseer"},
     "organizers": [
       "Sam / Tango Blast"
     ],
