@@ -181,15 +181,6 @@ body.china-page .ev-card:not(.atm-open)>.atm-desc.atm-over:after{background:line
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
-<a class="china-stw-banner china-stw-ad" href="../event/beijing-2027-tango-weekend/" aria-label="Beijing Select Tango Weekend — 2027/06/18 – 2027/06/22">
-  <span class="china-stw-ad-strip">
-    <img class="china-stw-ad-hposter" src="../images/stw-banner-h.jpg?v=53" alt="" width="1600" height="90" loading="eager">
-    <span class="china-stw-ad-overlay">
-      <span class="china-stw-ad-title">Beijing Select Tango Weekend</span>
-      <span class="china-stw-ad-date">2027/06/18 – 2027/06/22</span>
-    </span>
-  </span>
-</a>
 <section class="hero china-map-hero">
   <div class="wrap china-hero-bar">
     <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
@@ -469,5 +460,28 @@ new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentEle
 })();</script>
 
 <link rel="stylesheet" href="/asia/cardB.css?v=cb7"><script src="/asia/cardB.js?v=cb12"></script>
+<!-- atm-stw-popup v3 (entry ad = site's own E093 card) -->
+<style>
+#atm-pop{position:fixed;inset:0;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.55);padding:16px;box-sizing:border-box}
+#atm-pop.on{display:flex}
+#atm-pop .ap-wrap{position:relative;width:min(360px,88vw);max-height:calc(100vh - 110px);overflow:auto;border-radius:18px;box-shadow:0 14px 40px rgba(0,0,0,.45);background:#fff;-webkit-overflow-scrolling:touch}
+#atm-pop .ap-wrap ul{list-style:none;margin:0;padding:0;display:block!important;columns:auto!important;width:100%!important}
+#atm-pop .ap-wrap .ev-card{margin:0!important;width:auto!important;max-width:none!important;transform:none!important}
+#atm-pop .ap-wrap .atm-heart,#atm-pop .ap-wrap .atm-viewed-mark{display:none!important}
+#atm-pop .ap-ad{position:sticky;bottom:0;display:block;text-align:right;padding:2px 12px 6px;font:500 12px system-ui,sans-serif;color:#8a7563;background:linear-gradient(rgba(255,255,255,0),#fff 40%)}
+#atm-pop .ap-x{flex:0 0 auto;width:40px;height:40px;border-radius:50%;border:2px solid #fff;background:rgba(0,0,0,.25);color:#fff;font-size:24px;line-height:34px;padding:0;cursor:pointer}
+#atm-pop .ap-x:focus-visible{outline:3px solid #F6D58E;outline-offset:2px}
+</style>
+<div id="atm-pop" role="dialog" aria-modal="true" aria-label="4th Beijing Select Tango Weekend"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">Ad</span></div><button type="button" class="ap-x" aria-label="Close">&times;</button></div>
+<script>(function(){var K='atm_stw_popup_dismissed_until_v2',D=7*864e5,ID='E093',p=document.getElementById('atm-pop');if(!p)return;var ls=null;try{localStorage.setItem('__atm_t','1');localStorage.removeItem('__atm_t');ls=localStorage}catch(e){}
+if(ls){var u=+ls.getItem(K)||0;if(Date.now()<u)return}
+var x=p.querySelector('.ap-x'),ul=p.querySelector('ul'),n=0;
+function close(){p.classList.remove('on');document.removeEventListener('keydown',kd);if(ls){try{ls.setItem(K,String(Date.now()+D))}catch(e){}}}
+function kd(e){if(e.key==='Escape'||e.key==='Esc')close();else if(e.key==='Tab'){var f=[].slice.call(p.querySelectorAll('a[href],button')).filter(function(z){return z.offsetParent});var i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?f.length-1:1))%f.length].focus()}}
+x.addEventListener('click',close);p.addEventListener('click',function(e){if(e.target===p)close()});
+function show(){var src=document.querySelector('#china-listings .ev-card[data-id="'+ID+'"]');if(!src){if(++n<80)return setTimeout(show,100);return}
+ setTimeout(function(){var c=src.cloneNode(true);c.removeAttribute('id');c.classList.remove('atm-flash','atm-viewed');c.querySelectorAll('[id]').forEach(function(z){z.removeAttribute('id')});c.querySelectorAll('img[loading="lazy"]').forEach(function(z){z.loading='eager'});ul.appendChild(c);
+ p.classList.add('on');document.addEventListener('keydown',kd);try{x.focus({preventScroll:true})}catch(e){}},250)}
+show()})();</script>
 </body>
 </html>
