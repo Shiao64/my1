@@ -83,6 +83,19 @@
   function refresh() { busy = true; try { reorder(); drawRow(); } finally { busy = false; } if (mo) mo.takeRecords(); }
   var mo = null;
   if (lst && window.MutationObserver) (mo = new MutationObserver(function () { if (busy) return; clearTimeout(tm); tm = setTimeout(function () { refresh(); deep(); }, 60); })).observe(lst, { childList: true, subtree: true });
-  function deep() { var m = /^#v-(.+)$/.exec(location.hash); if (!m) return; var el = document.querySelector('#china-listings .ev-card[data-id="' + decodeURIComponent(m[1]) + '"]'); if (el && el.offsetParent) { history.replaceState(history.state, '', location.pathname + location.search); setTimeout(function () { flash(el); }, 300); } }
+  /* v10.7 deep link #v-ID (or ?id=ID if an in-app browser drops the hash): wait for async render, open hidden/collapsed parents, scroll below sticky headers, re-scroll after late image layout, then ring */
+  var dl = (function () { var m = /^#v-(.+)$/.exec(location.hash) || /[?&]id=([^&#]+)/.exec(location.search); return m ? decodeURIComponent(m[1]) : null; })(), dlDone = false, dlUser = false;
+  ['touchstart', 'wheel', 'keydown'].forEach(function (t) { window.addEventListener(t, function () { if (dlDone) dlUser = true; }, { passive: true }); });
+  function dlFind() { return [].filter.call(document.querySelectorAll('#china-listings .ev-card[data-id="' + dl.replace(/"/g, '') + '"]'), function (n) { return !n.closest('.atm-recent'); }); }
+  function dlOpen(el) { for (var p = el.parentElement; p && p !== document.body; p = p.parentElement) { if (p.tagName === 'DETAILS' && !p.open) p.open = true; if (p.hidden && p.closest('#china-listings') && !p.classList.contains('china-chrono')) p.hidden = false; } }
+  function dlOff(el) { var off = 0; if (el) [].forEach.call(document.querySelectorAll('#china-listings h2, #china-listings h3, #china-listings h4, #china-listings [class*="head"], #china-listings [class*="day"]'), function (h) { if (h.contains(el) || !h.parentElement.contains(el) || !h.offsetParent) return; var cs = getComputedStyle(h); if (cs.position === 'sticky') off = Math.max(off, (parseFloat(cs.top) || 0) + h.offsetHeight); }); ['.site-header', '.china-region-nav', '.china-sticky-top'].forEach(function (s) { var e = document.querySelector(s); if (e) { var cs = getComputedStyle(e); if (cs.position === 'sticky' || cs.position === 'fixed') off = Math.max(off, e.getBoundingClientRect().bottom); } }); return off; }
+  function dlScroll(el, smooth) { var y = Math.max(0, el.getBoundingClientRect().top + window.pageYOffset - dlOff(el) - 12); try { window.scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' }); } catch (e) { window.scrollTo(0, y); } }
+  function deep() { if (!dl || dlDone) return; var c = dlFind(), el = c.filter(function (n) { return n.offsetParent; })[0]; if (!el && c[0]) { dlOpen(c[0]); el = c[0].offsetParent ? c[0] : null; } if (!el) return;
+    dlDone = true; window._atmDeepEl = el; dlScroll(el, false);
+    [250, 600, 1200, 2000, 3200].forEach(function (t) { setTimeout(function () { if (!dlUser && el.isConnected) dlScroll(el, false); }, t); });
+    el.querySelectorAll('img').forEach(function (i) { if (!i.complete) i.addEventListener('load', function () { if (!dlUser) dlScroll(el, false); }); });
+    window.addEventListener('load', function () { if (!dlUser) dlScroll(el, false); });
+    setTimeout(function () { el.classList.add('atm-flash', 'atm-ring'); setTimeout(function () { el.classList.add('atm-ring-off'); }, 2200); setTimeout(function () { el.classList.remove('atm-flash', 'atm-ring', 'atm-ring-off'); }, 3200); }, 400); }
+  (function dlWait(k) { if (!dl || dlDone) return; deep(); if (!dlDone && k < 80) setTimeout(function () { dlWait(k + 1); }, 100); })(0);
   var n = 0; (function wait() { if (window._chinaData) return refresh(); if (++n < 100) setTimeout(wait, 100); })();
 })();
