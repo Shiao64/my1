@@ -587,5 +587,54 @@ function show(){var src=document.querySelector('#china-listings .ev-card[data-id
  setTimeout(function(){var c=src.cloneNode(true);c.removeAttribute('id');c.classList.remove('atm-flash','atm-viewed');c.querySelectorAll('[id]').forEach(function(z){z.removeAttribute('id')});c.querySelectorAll('img[loading="lazy"]').forEach(function(z){z.loading='eager'});ul.appendChild(c);
  p.classList.add('on');document.addEventListener('keydown',kd);try{x.focus({preventScroll:true})}catch(e){}},250)}
 show()})();</script>
+<style id="draft-favtall">/* draft 2026-10-30: mobile first-load 收藏 cards fill viewport; compact header = back chevron only */
+@media (max-width:600px){
+body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc{height:var(--atm-favh,auto)!important;max-height:none!important}
+body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc .tw-fc-img{flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important}
+body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc .tw-fc-img img{height:100%!important;width:100%!important;object-fit:cover}
+html.atm-compact body.china-page section.china-map-hero .china-hero-bar .atm-back>span,html.atm-compact body.china-page section.china-map-hero .china-hero-bar nav.top-lang,html.atm-compact body.china-page section.china-map-hero .china-hero-bar a.atm-langbtn,html.atm-compact body.china-page section.china-map-hero .china-hero-bar button.atm-burger,html.atm-compact body.china-page section.china-map-hero .china-hero-bar button.china-suggest-open{display:none!important}
+html.atm-compact body.china-page section.china-map-hero .china-hero-bar .atm-back{font-size:0!important;gap:0!important}html.atm-compact body.china-page section.china-map-hero .china-hero-bar .atm-back .atm-beta{display:none!important}
+html.atm-compact body.china-page section.china-map-hero .china-hero-bar .atm-back-chev{height:32px!important;width:auto!important}
+body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc .tw-fc-body{flex:0 0 auto!important}
+}</style>
+<script id="draft-favtall-js">(function(){var D=document;function fit(){var R=D.documentElement;if(!matchMedia('(max-width:600px)').matches||!D.body.classList.contains('china-presearch')){R.style.removeProperty('--atm-favh');return}
+var g=[].find.call(D.querySelectorAll('.tw-m-feat-grid.tw-feat-ad'),function(x){return x.offsetParent&&x.getBoundingClientRect().height>0});if(!g||!g.firstElementChild)return;var top=g.getBoundingClientRect().top+scrollY,dots=g.nextElementSibling&&g.nextElementSibling.classList.contains('atm-dots')?g.nextElementSibling.offsetHeight+16:12;
+var h=Math.round(innerHeight-top-dots-16);if(h<228)h=228;if(h>640)h=640;R.style.setProperty('--atm-favh',h+'px')}
+var t;function q(){clearTimeout(t);t=setTimeout(fit,80)}addEventListener('load',q);addEventListener('resize',q);new MutationObserver(q).observe(D.body,{attributes:true,attributeFilter:['class']});setTimeout(fit,600);setTimeout(fit,1800)})();</script>
+<style id="draft-oneline">/* draft 2026-10-30: mobile search bar always one-line (also after search) */
+@media (max-width:600px){
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form { grid-template-columns: repeat(4, minmax(0px, 1fr)); gap: 8px 6px; position: relative; display: grid !important; padding: 0px !important; margin: 0px !important; background: transparent !important; border: 0px !important; box-shadow: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap.atm-row-go { display: contents !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev { grid-area: 1 / 1 / auto / 3 !important; margin: 0px !important; min-height: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { grid-area: 1 / 3 / auto / 5 !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev > label, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { min-height: 44px; justify-content: center; box-sizing: border-box; width: 100% !important; margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .atm-ev-note, html body.china-page.atm-1l #filters .china-filters-row1.atm-form .atm-row-go .m-label { display: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form::after { content: ""; border: 1.5px solid rgb(14, 110, 120); border-radius: 999px; background: rgb(255, 255, 255); pointer-events: none; grid-area: 2 / 1 / auto / -1 !important; align-self: stretch !important; z-index: 0 !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-city-wrap { grid-area: 2 / 1 / auto / 2 !important; z-index: 1 !important; align-self: center !important; margin: 0px 0px 0px 10px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-city-wrap select { min-height: 44px; width: 100% !important; border: 0px !important; background-color: transparent !important; padding-left: 4px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap > .china-date-fromto { grid-area: 2 / 1 / auto / 4 !important; z-index: 1 !important; align-self: center !important; margin: 0px 0px 0px 16px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form:has(input[value="regular"]:checked) .china-date-fromto { grid-column: 2 / 4 !important; margin-left: 6px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap > .china-showmode { padding: 3px; grid-area: 2 / 4 / auto / 5 !important; z-index: 1 !important; place-self: center end !important; margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form #china-search { width: auto !important; min-width: 76px !important; padding: 0px 12px !important; margin: 0px !important; border-radius: 999px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form { display: flex !important; flex-flow: row !important; align-items: center !important; gap: 6px !important; width: auto !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form::after { display: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap.atm-row-go { display: contents !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev { display: contents !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { order: 2; flex: 0 0 auto !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev > label, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { width: auto !important; min-width: 0px !important; flex: 0 0 auto !important; min-height: 44px !important; padding: 0px 10px !important; font-size: 14px !important; white-space: nowrap !important; margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev > label { order: 1; border-radius: 999px 0px 0px 999px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { border-radius: 0px 999px 999px 0px !important; margin-left: -6px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-check { display: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-city-wrap { order: 3; border: 1.5px solid rgb(14, 110, 120); border-radius: 999px; background: rgb(255, 255, 255); overflow: hidden; flex: 0 1 84px !important; min-width: 64px !important; margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-city-wrap select { min-height: 41px !important; font-size: 14px !important; padding: 0px 2px 0px 8px !important; width: 100% !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap > .china-date-fromto { order: 4; border: 1.5px solid rgb(14, 110, 120); border-radius: 999px; background: rgb(255, 255, 255); min-height: 41px; align-items: center; overflow: hidden; flex: 1 1 0px !important; min-width: 0px !important; margin: 0px !important; padding: 0px 8px !important; display: flex !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form:has(input[value="regular"]:checked) .china-date-fromto { margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-date-fromto .china-date-field, html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-date-fromto .china-date-wrap { display: flex !important; align-items: center !important; height: 41px !important; width: 100% !important; min-width: 0px !important; border: 0px !important; padding: 0px !important; margin: 0px !important; background: transparent !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-date-fromto input { width: 100% !important; min-width: 0px !important; border: 0px !important; font-size: 13px !important; padding: 0px !important; min-height: 38px !important; background: transparent !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .atm-date-default { display: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap > .china-showmode { order: 5; flex: 0 0 44px !important; margin: 0px !important; padding: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form #china-search { width: 44px !important; min-width: 44px !important; height: 44px !important; padding: 0px !important; margin: 0px !important; border-radius: 50% !important; font-size: 0px !important; color: transparent !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F6D58E' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: center center !important; background-size: 22px auto !important; }
+}</style>
+<script id="draft-oneline-js">document.body.classList.add("atm-1l");</script>
 </body>
 </html>
