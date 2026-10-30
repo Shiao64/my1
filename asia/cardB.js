@@ -11,7 +11,7 @@ document.addEventListener('toggle',function(ev){ var dt=ev.target; if(!dt.classL
 function k(l){return (l.querySelector('.ev-k')||{}).textContent||''}
 function fix(li){ if(li.dataset.b)return; li.dataset.b='1'; li.classList.add('b-card');
  var q=function(s){return li.querySelector(s)};
- var KO={E076:'박미 Tango 巨嘴鸟 Milonga',R094:'火热星期五',R098:'午后 Milonga',R114:'헝얏 & 화이 周日弘大引导 Práctica',R124:'둘리 引导 Práctica',R143:'定期聚会 Con Milonga',E105:'第5周特别场 BIG LUMINOSO Milonga',E106:'양헬 Tango 13周年派对',E107:'The Pista Milonga',E108:'16周年派对',R249:'周一 Luminoso',R106:'Saturday o nada Milonga',R116:'MilMil Milonga',R153:'Monday o nada Milonga',R166:'Solo Tango',E049:'Happy G Milonga',E085:'Tora Milonga',R142:'周五 Vida'};
+ var KO={E105:'第5周特别场 BIG LUMINOSO Milonga',E106:'양헬 Tango 13周年派对',E107:'The Pista Milonga',E108:'16周年派对',R249:'周一 Luminoso'};
  var cover=q('.ev-cover'), when=(q('.ev-when')||{}).textContent||'', type=(q('.ev-type')||{}).textContent||'';
  var nameEl=q('.ev-name'), name=nameEl?nameEl.textContent:''; var koN=zh&&KO[li.dataset.id]; if(koN) name=koN;
  var lines=[].slice.call(li.querySelectorAll(':scope>.ev-line:not(.china-links), :scope>.china-contact-block, .atm-desc>*'));
