@@ -153,7 +153,7 @@
     if (L.other && r.id !== 'nTUlADFZ' /* v10.8: Suzhou TangoBlast - poster/dot already open the event page; no 网站 row */ && !(isZh && isFb(L.other) && FB_ZH_OFF[r.country])) { var wh = /^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other);
       var wOwn = wh.match(/^https?:\/\/(www\.)?tangoweekend\.org(\/event\/.*)$/); /* v9.7: on-site page opens in the same tab so Back / 「← 亚洲探戈地图」 return to the same results */
       out.push('<a class="china-linkbtn" href="' + esc(wOwn ? wOwn[2] : wh) + '"' + (wOwn ? '' : ' target="_blank" rel="noopener"') + '>' + (wOwn && /^(cwCbtm27|manual-hz-jinsha|manual-cq-spicy-2026)$/.test(r.id) ? (isZh ? '详情' : 'Details') : (UI.website || 'Website')) + '</a>'); } /* v9.7: Changwon / Hangzhou Jinsha / Chongqing -> 详情 / Details */
-    if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + esc(isZh ? (L.wechat_label_zh || UI.wechat || 'WeChat') : 'WeChat article') + '</a>');
+    if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + (isZh ? '微信文章' : 'WeChat Article') /* v11.1: one label for all WeChat article links */ + '</a>');
     if (L.video && !isZh) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">' + (UI.video || 'Video') + '</a>');
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
   }
