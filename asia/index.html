@@ -266,6 +266,23 @@ html.atm-compact body.china-page .china-map-hero h1{font-size:19px!important}
 @media (max-width:380px){html body.china-page .china-map-hero h1{font-size:19px!important}}
 </style>
 <script id="atm-back-js">document.addEventListener('DOMContentLoaded',function(){var a=document.querySelector('.china-map-hero h1 .atm-back');if(a)a.addEventListener('click',function(e){if(e.button||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();var r='';try{r=document.referrer?new URL(document.referrer).pathname:''}catch(x){}var same=/\/asia\/?$/.test(r);if(r&&!same&&history.length>1){e.stopPropagation();history.back();}/* else: no previous page (opened directly; site root redirects here) → existing title behaviour: clear search + back to top */});});</script>
+<style id="atm-more-fix">/* draft 2026-10-30: 更多/More without jumps. Desktop grid: rows keep one height (stretch), 更多 sits at the card bottom and opens as a floating panel = no other card moves. Mobile: card grows downward, its top stays fixed. */
+@media (min-width:700px){
+ html body li.ev-card.b-card .b-more{margin-top:auto!important;position:relative}
+ html body li.ev-card.b-card .b-more[open]{z-index:30}
+ html body li.ev-card.b-card .b-more[open]>.b-in{position:absolute;left:-16px;right:-16px;top:calc(100% + 6px);max-height:60vh;overflow:auto;background:#fff;border:1px solid #d9cfee;border-radius:18px;box-shadow:0 10px 28px rgba(29,22,64,.22);padding:12px 16px!important}
+ html body li.ev-card.b-card:has(.b-more[open]){overflow:visible!important;z-index:30}
+}
+</style>
+<script id="atm-more-anchor">/* draft: keep the tapped card's top fixed when 更多 opens/closes (scroll-snap re-snap + card-lift caused the jump) */
+(function(){var D=document,de=D.documentElement;
+D.addEventListener('click',function(e){var s=e.target.closest&&e.target.closest('details.b-more>summary');if(!s)return;
+ e.stopPropagation(); /* not a card-lift tap */
+ D.querySelectorAll('.ev-card.atm-lift').forEach(function(c){c.classList.remove('atm-lift')});
+ var c=s.closest('.ev-card')||s,t0=c.getBoundingClientRect().top,end=Date.now()+900;
+ de.style.scrollSnapType='none';
+ (function fix(){var d=c.getBoundingClientRect().top-t0;if(Math.abs(d)>.5)scrollBy(0,d);if(Date.now()<end)requestAnimationFrame(fix);else if(!D.querySelector('details.b-more[open]'))de.style.scrollSnapType='';})();
+},true);})();</script>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
