@@ -1,6 +1,6 @@
 [
   {
-    "id": "tbxuzmah",
+    "id": "E093",
     "poster": "/images/asia/posters/tbxuzmah.jpg",
     "kind": "event",
     "type": "marathon",
@@ -2925,7 +2925,7 @@
   {
     "id": "E046",
     "kind": "event",
-    "type": "event",
+    "type": "milonga",
     "name": "Birthday Milonga",
     "city": "Taichung",
     "country": "Taiwan",
@@ -9261,7 +9261,7 @@
     "regular_oneoff": true
   },
   {
-    "id": "E093",
+    "id": "E116",
     "kind": "event",
     "type": "marathon",
     "name": "Gunsan Sunset Tango Marathon 2027",
