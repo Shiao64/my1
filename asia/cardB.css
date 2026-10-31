@@ -58,3 +58,8 @@ html body .ev-card.b-card[data-kind=event] .b-head .atm-marks{display:contents!i
 #atm-single:has(details.b-more[open]) > .atm-det{display:none}
 .b-more .b-row a.b-map{color:inherit;text-decoration:underline dotted;text-underline-offset:3px}
 .b-more .b-row.b-links a{display:inline-block;padding:2px 0;font-weight:700}
+/* draft 11/01: 链接 row — items inline on one line, clearly links */
+.b-links .b-v,.b-links>span:last-child{margin-top:-8px;display:flex;flex-wrap:wrap;align-items:center;gap:2px 4px}
+.b-links a{display:inline-flex!important;align-items:center;min-height:36px!important;padding:4px 2px!important;box-sizing:border-box;color:#0e6e78;text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.b-links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none;display:inline-block}
+.b-links .b-lsep{color:#999}

@@ -35,7 +35,7 @@ function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in
  if(L.other&&!/tangoweekend\.org\/event\//.test(L.other)) A(L.other, zh?'网站':'Website');
  if(L.register) A(L.register, zh?'报名':'Register');
  if(L.video) A(L.video, zh?'视频':'Video');
- row(zh?'链接':'Links', lk.join('<br>'), 'b-links');
+ row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links');
  inn.innerHTML=R.join(''); }
 document.addEventListener('toggle',function(ev){ var dt=ev.target; if(!dt.classList||!dt.classList.contains('b-more')) return; var inn=dt.querySelector('.b-in')||dt;
  if(dt.open){ rebuild(dt); dt.querySelectorAll('.b-note>span').forEach(function(sp){ sp.classList.add('b-open'); }); if(!inn.querySelector(':scope>.b-less')){ var b=document.createElement('button'); b.type='button'; b.className='b-less'; b.textContent=zh?'收起':'Less'; b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); dt.open=false; var c=dt.closest('.ev-card')||dt, r=c.getBoundingClientRect(); if(r.top<0) c.scrollIntoView({block:'start'}); }); inn.appendChild(b); var li=dt.closest('.ev-card'), e=EV&&li&&EV[li.dataset.id], m=e&&((e.detail&&('https://tangoweekend.org'+e.detail))||(e.links&&e.links.other)||'').match(/^https?:\/\/(www\.)?tangoweekend\.org\/event\/([^\/]+)\/$/); if(m){ var a=document.createElement('a'); a.className='b-det'; a.href='/event/'+m[2]+'/'+(zh?'zh/':'')+'?from='+encodeURIComponent(li.dataset.id); a.textContent=zh?'活动详情':'Event details'; inn.insertBefore(a,b); } } }
