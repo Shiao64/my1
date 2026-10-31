@@ -39,7 +39,7 @@ def page(e, slug, zh):
     title = name
     secs, nav = [], []
     meta = ' · '.join(x for x in [t, dates(e['start'], e.get('end'), zh), city] if x)
-    vn = '' if bad(e.get('venue')) else e['venue']
+    vn = '' if bad(e.get('venue')) else ((e.get('venue_zh') if zh else None) or e['venue'])
     a1 = '' if bad(e.get('venue_address')) else e['venue_address']
     a2 = '' if bad(e.get('venue_address_en')) else e['venue_address_en']
     ad = ([x for x in [a1] if x] + ([a2] if a2 and a2 != a1 and (e.get('country') != 'China' or not a1) else [])) if zh else ([a2 or a1] if (a2 or a1) else [])
@@ -85,7 +85,7 @@ def page(e, slug, zh):
 <link rel="stylesheet" href="{pre}css/style.css?v=china292">
 <link rel="stylesheet" href="{pre}css/event-polish.css?v=1">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="stylesheet" href="{pre}css/atm-detail.css?v=d7">
+<link rel="stylesheet" href="{pre}css/atm-detail.css?v=d9">
 </head>
 <body class="cw-theme ev-polish">
 <div class="atm-bar atm-sticky"><a class="atm-map" href="{pre}{'zh/asia/' if zh else 'asia/'}"><span class="atm-ico" aria-hidden="true"></span>{'亚洲探戈地图' if zh else 'Asia Tango Map'}</a><a class="atm-lang" href="{'../' if zh else 'zh/'}" hreflang="{'en' if zh else 'zh-CN'}">{'EN' if zh else '中文'}</a></div>
@@ -103,7 +103,7 @@ def page(e, slug, zh):
 <section class="alt"><div class="wrap"><p class="meta" style="text-align:center">{E(meta)}</p><h2 class="sec-title" style="text-align:center">{E(title)}</h2></div></section>{''.join(secs)}
 <footer><div class="wrap"></div></footer>
 <script>(function(){{var btn=document.querySelector('.nav-toggle'),header=document.querySelector('.site-header');if(!btn||!header)return;btn.addEventListener('click',function(){{var o=header.classList.toggle('is-open');btn.setAttribute('aria-expanded',o);}});header.querySelectorAll('.main-nav a').forEach(function(a){{a.addEventListener('click',function(){{header.classList.remove('is-open');btn.setAttribute('aria-expanded',false);}});}});}})();</script>
-<script src="{pre}asia/atm-detail.js?v=d3"></script>
+<script src="{pre}asia/atm-detail.js?v=d6"></script>
 </body>
 </html>
 '''
@@ -112,7 +112,9 @@ def main():
     full = json.load(open(os.path.join(ROOT, files[0])))
     by = {e['id']: e for e in full}
     n = 0
+    only = set(sys.argv[1:])
     for i, slug in SLUGS.items():
+        if only and i not in only: continue
         e = by.get(i)
         if not e: print('missing', i); continue
         for zh in (False, True):
