@@ -52,7 +52,9 @@
   addEventListener('pageshow', function () { D.body.classList.remove('atm-closing'); });
   var x = D.createElement('a'); x.className = 'atm-dclose'; x.href = back.href; x.setAttribute('aria-label', zh ? '关闭' : 'Close');
   x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
-  x.addEventListener('click', close); bar.appendChild(x);
+  x.addEventListener('click', close); D.body.appendChild(x); /* draft 11/01: floating X on top layer, below the sticky bars, never inside them */
+  function placeX() { var b = 0; [bar, D.querySelector('.site-header')].forEach(function (h) { if (h) { var r = h.getBoundingClientRect(); if (r.height && r.top < 160 && r.bottom > b) b = r.bottom; } }); x.style.top = Math.max(8, Math.round(b) + 10) + 'px'; }
+  placeX(); window.addEventListener('resize', placeX); window.addEventListener('scroll', function () { if (!placeX._r) { placeX._r = 1; requestAnimationFrame(function () { placeX._r = 0; placeX(); }); } }, { passive: true }); window.addEventListener('load', placeX);
   var bt = D.createElement('div'); bt.className = 'atm-dfoot';
   bt.innerHTML = '<a class="atm-dlist" href="' + back.href + '">' + (zh ? '返回列表' : 'Back to list') + '</a>';
   bt.firstChild.addEventListener('click', close);

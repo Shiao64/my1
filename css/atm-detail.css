@@ -45,3 +45,8 @@ body.atm-dhb .atm-bar.atm-sticky .atm-dburger{margin-right:0}
 body.atm-detail{transition:transform .28s ease-in,opacity .28s ease-in}
 body.atm-detail.atm-closing{transform:translateY(100vh);opacity:.3}
 @media (max-width:600px){#prices .price-card.featured::after{right:-6px}} /* stamp poked past the screen on phones -> page laid out 413px wide */
+
+/* draft 11/01: X floats on the top layer (fixed, right, below the bars; JS sets top). Bar keeps ☰ in its original spot. */
+a.atm-dclose{position:fixed;right:calc(12px + env(safe-area-inset-right,0px));top:calc(100px + env(safe-area-inset-top,0px));z-index:2147483000;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:0;border-radius:50%;background:#9A6E00;color:#fff!important;box-shadow:0 3px 12px rgba(0,0,0,.32);border:2px solid rgba(255,255,255,.85);box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+a.atm-dclose svg{width:22px;height:22px}
+body.atm-dhb .atm-bar.atm-sticky .atm-dburger{margin-right:-6px}
