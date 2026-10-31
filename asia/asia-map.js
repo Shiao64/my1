@@ -753,7 +753,7 @@
         var rc = r.recap || {}, ph = (rc.photos || []).slice(0, 8), SOC = {youtube:['YouTube','#FF0000','▶'], bilibili:[isZh?'B站':'Bilibili','#00A1D6','▶'], douyin:[isZh?'抖音':'Douyin','#111','♪'], tiktok:['TikTok','#111','♪'], instagram:['Instagram','#C13584','◎'], xiaohongshu:['小红书','#FF2442','书'], facebook:[isZh?'脸书':'Facebook','#1877F2','f'], wechat:[isZh?'微信文章':'WeChat article','#07C160','✆']};
         function vt(u){ return /youtu\.?be/i.test(u) ? 'youtube' : /bilibili|b23\.tv/i.test(u) ? 'bilibili' : /douyin/i.test(u) ? 'douyin' : /tiktok/i.test(u) ? 'tiktok' : 'youtube'; }
         var socs = (rc.videos || []).map(function(u){ return {type: vt(u), url: u}; }).concat((rc.social || []).filter(function(x){ return x && x.url && SOC[x.type]; }));
-        var recapH = (ph.length || socs.length) ? '<section class="atm-recap"><h3>' + (isZh ? '📷 活动回顾' : '📷 Recap') + '</h3>' +
+        var recapH = (ph.length || socs.length) ? '<section class="atm-recap"><h3>' + (isZh ? '🎬 活动回顾' : '🎬 Recap') + '</h3>' +
           (ph.length ? '<div class="atm-recap-ph">' + ph.map(function(u){ return '<a href="' + esc(u) + '" class="atm-recap-a"><img src="' + esc(u) + '" alt="" loading="lazy" decoding="async"></a>'; }).join('') + '</div>' : '') +
           (socs.length ? '<div class="atm-recap-soc">' + socs.map(function(x){ var d = SOC[x.type]; return '<a href="' + esc(x.url) + '" target="_blank" rel="noopener"><i style="background:' + d[1] + '">' + d[2] + '</i>' + esc(d[0]) + '</a>'; }).join('') + '</div>' : '') +
           (rc.credit ? '<p class="atm-recap-cr">' + (isZh ? '图片：' : 'Photos: ') + esc(rc.credit) + '</p>' : '') + '</section>' : '';
