@@ -323,7 +323,7 @@ html body.china-page .atm-onehead.atm-oh-reg{display:none!important}
 </style>
 <script id="atm-wx-title-js">(function(){var D=document,R=D.documentElement,el,raf=0;
 function zh(){return (R.getAttribute('data-asia-lang')||R.lang||'').indexOf('zh')===0}
-function lab(reg,n,city){var Z=zh();if(reg)return Z?(city||'')+'常规活动共'+n+'项':(city?city+' · ':'')+n+' Regular Event'+(n===1?'':'s');return Z?(city||'')+'特色活动共'+n+'项':(city?city+' · ':'')+n+' Featured Event'+(n===1?'':'s')}
+function lab(reg,n,city){var Z=zh();if(reg)return Z?(city||'')+'本周'+n+'项活动':(city?city+' · ':'')+n+' event'+(n===1?'':'s')+' this week';return Z?(city||'')+'特色活动共'+n+'项':(city?city+' · ':'')+n+' Featured Event'+(n===1?'':'s')}
 function upd(){raf=0;var bar=D.querySelector('.china-map-hero');if(!bar)return;if(!el){var b=bar.querySelector('.china-hero-bar');if(!b)return;el=D.createElement('div');el.className='atm-wx-ttl';el.setAttribute('aria-hidden','true');b.appendChild(el)}
 var sc=(scrollY||D.documentElement.scrollTop||0)>4;R.classList.toggle('atm-wx-s',sc);
 var hs=[].filter.call(D.querySelectorAll('.atm-onehead'),function(h){if(h.hidden)return false;if(h.classList.contains('atm-oh-reg'))return !!(h.parentNode&&h.parentNode.offsetHeight&&!h.parentNode.hidden);return !!h.offsetHeight}),t='';
