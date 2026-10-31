@@ -1,6 +1,6 @@
 /* Card design B (young/fresh) — draft only */
 (function(){
-var zh=document.documentElement.lang.indexOf('zh')===0||location.pathname.indexOf('/zh/')===0;
+var zh=location.pathname.indexOf('/zh/')===0; /* page language = path only */
 var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
 var EV=null; fetch('/asia/events.json').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj)}).catch(function(){});
 /* DJ row only when the event's own note names exactly one DJ (never invented); several DJs -> notes only */

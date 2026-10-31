@@ -44,3 +44,4 @@ body.atm-dhb .atm-bar.atm-sticky .atm-dburger{margin-right:0}
 .atm-dfoot a.atm-dlist{display:flex;align-items:center;justify-content:center;max-width:480px;margin:0 auto;min-height:54px;border-radius:14px;background:#0E6E78;color:#fff!important;font-weight:800;font-size:1.08rem;text-decoration:none;box-shadow:0 6px 18px rgba(14,110,120,.3)}
 body.atm-detail{transition:transform .28s ease-in,opacity .28s ease-in}
 body.atm-detail.atm-closing{transform:translateY(100vh);opacity:.3}
+@media (max-width:600px){#prices .price-card.featured::after{right:-6px}} /* stamp poked past the screen on phones -> page laid out 413px wide */
