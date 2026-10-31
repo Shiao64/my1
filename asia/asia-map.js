@@ -640,7 +640,7 @@
       sessionStorage.setItem('atmLast', JSON.stringify({p: location.pathname, q: location.search, y: window.pageYOffset || 0, t: Date.now()})); } catch(err){} }, true);
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && pv && !pv.hidden) history.back(); });
   (function(){ var h = document.querySelector('.china-sticky-top h1') || document.querySelector('h1'); if (!h) return;
-    h.addEventListener('click', function(){ if (location.search && window.history && history.pushState) { history.pushState({atm: ''}, '', location.pathname); document.body.classList.add('china-presearch'); langLinks(''); } }); })(); /* v9.1: home (title) clears params */
+    h.addEventListener('click', function(e){ if (/[?&]card=/.test(location.search) || document.getElementById('atm-single')) { if (e) e.preventDefault(); location.assign(location.pathname); return; } if (location.search && window.history && history.pushState) { history.pushState({atm: ''}, '', location.pathname); document.body.classList.add('china-presearch'); langLinks(''); } }); })(); /* v9.1: home (title) clears params */
   function syncDateShow(){
     document.querySelectorAll('.china-date-show').forEach(function(sp){
       var el = document.getElementById(sp.getAttribute('data-for'));
