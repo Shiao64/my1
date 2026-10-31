@@ -502,6 +502,9 @@
     var r = document.referrer || '', fromEv = r.indexOf(location.origin + '/event/') === 0;
     if (!location.search && !location.hash && fromEv && window.history && history.replaceState) history.replaceState(null, '', location.pathname + L.q);
     if (location.search === L.q) { _atmRestoreY = L.y; try { history.scrollRestoration = 'manual'; } catch(e){} } })();
+  (function(){ if (!/[?&]search=1/.test(location.search)) return; try { history.replaceState(null, '', location.pathname); } catch(e){} /* draft 2026-11-01: from single-card magnifier */
+    function go(){ window.scrollTo(0, 0); var f = document.getElementById('filters'); var c = document.getElementById('china-city'); if (c && c.disabled) c = document.getElementById('china-search'); try { (c || f).focus({preventScroll: true}); } catch(e){} if (f) { f.classList.add('atm-sfocus'); setTimeout(function(){ f.classList.remove('atm-sfocus'); }, 1600); } }
+    if (document.readyState === 'complete') setTimeout(go, 50); else addEventListener('load', function(){ setTimeout(go, 50); }); })();
   (function(){ var q = location.search, deep = !!location.hash || /[?&](city|type|id|event|q|from|to|mode)=/.test(q);
     if (!deep) document.body.classList.add('china-presearch'); })();
   function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '' && !(checkedTypes().length === 1 && checkedTypes()[0] === 'event')) { cityHint(true); try { citySel.focus(); } catch(e){} return; } document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); urlPush(); }
@@ -710,6 +713,19 @@
   (function(){
     var cid = new URLSearchParams(location.search).get('card'); if (!cid) return;
     var R = document.documentElement; R.classList.add('atm-card-mode');
+    /* draft 2026-11-01: single-card header = only white ‹ (back) + magnifier (search). Logo / lang / ☰ hidden on this page only. */
+    (function(){ var zhP = /\/zh\//.test(location.pathname), list = location.pathname;
+      var cs = document.createElement('style'); cs.textContent = 'html.atm-card-mode body .china-hero-bar>*:not(.atm-c1),html.atm-card-mode body.china-page nav.top-lang.china-map-lang,html.atm-card-mode body .china-hero-bar .atm-burger{display:none!important}html.atm-card-mode body .china-hero-bar{display:flex!important;align-items:center!important}html.atm-card-mode body .china-hero-bar .atm-c1-search{margin-left:auto!important}' +
+        '.atm-c1{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;margin:0;border:0;background:transparent;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;flex:none}.atm-c1 svg{display:block}.atm-c1:active{opacity:.6}';
+      document.head.appendChild(cs);
+      function mk(cls, label, svg, fn){ var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-c1 ' + cls; b.setAttribute('aria-label', label); b.innerHTML = svg; b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); fn(); }); return b; }
+      function fromList(){ try { var r = new URL(document.referrer); return r.origin === location.origin && r.pathname === list && !/[?&]card=/.test(r.search) && history.length > 1; } catch(e){ return false; } }
+      var back = mk('atm-c1-back', zhP ? '返回' : 'Back', '<svg width="14" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        function(){ if (fromList()) history.back(); else location.assign(list + '#v-' + encodeURIComponent(cid)); });
+      var srch = mk('atm-c1-search', zhP ? '搜索' : 'Search', '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.8" fill="none" stroke="#FFFFFF" stroke-width="2.6"/><path d="M15.6 15.6L21 21" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/></svg>',
+        function(){ location.assign(list + '?search=1'); });
+      function put(){ var bar = document.querySelector('.china-hero-bar'); if (!bar) return; if (!bar.querySelector('.atm-c1-back')) bar.insertBefore(back, bar.firstChild); if (!bar.querySelector('.atm-c1-search')) bar.appendChild(srch); }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put(); })();
     var st = document.createElement('style');
     st.textContent = 'html.atm-card-mode body>#filters,html.atm-card-mode body>.tw-m-feat,html.atm-card-mode body>#atm-skel,html.atm-card-mode body>#events,html.atm-card-mode body>.atm-reglist,html.atm-card-mode #atm-pop,html.atm-card-mode .atm-featstrip,html.atm-card-mode .china-sticky-top .china-stw-banner{display:none!important}' +
       '#atm-single{max-width:560px;margin:14px auto 40px;padding:0 14px;box-sizing:border-box}#atm-single ul{list-style:none;margin:0;padding:0}#atm-single .ev-card{margin:0}' +
