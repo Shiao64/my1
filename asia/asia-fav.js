@@ -41,7 +41,8 @@
   function place() { var g = hostGrid(); if (!g) return false; if (bar.parentNode !== g.parentNode || bar.nextSibling !== g) { g.parentNode.insertBefore(bar, g); g.parentNode.insertBefore(grid, g); } return true; }
   bar.addEventListener('click', function () { if (!valid().length) return; setC(!getC()); refresh(); });
   function cityName(r) { var o = document.querySelector('#china-city option[data-en="' + r.city + '"]'); return o ? (o.textContent || '').replace(/[（(]\d+[)）]|\d+场/g, '').trim() : r.city; }
-  function go(r) {
+  function go(r) { /* draft 10/31: favorite -> single-card view ?card=ID (was: full list filtered + #v-ID) */
+    location.href = location.pathname + '?card=' + encodeURIComponent(r.id); return;
     var qs;
     if (r.kind === 'weekly') { var o = document.querySelector('#china-city option[data-en="' + r.city + '"]'); qs = '?mode=regular&city=' + encodeURIComponent(o ? o.value : r.city); }
     else qs = '?mode=featured' + (r.start ? '&date=' + r.start : '');
@@ -57,8 +58,8 @@
   function card(r) {
     var a = document.createElement('a'); a.className = 'tw-fc atm-favfc'; a.setAttribute('data-fid', r.id);
     var li = document.querySelector('#china-listings .ev-card[data-id="' + r.id + '"] a[href*="/event/"]');
-    a.href = li ? li.getAttribute('href') : '#';
-    if (!li) a.addEventListener('click', function (e) { if (e.target.closest('.atm-heart')) return; e.preventDefault(); go(r); });
+    a.href = location.pathname + '?card=' + encodeURIComponent(r.id); /* draft 10/31: always the single-card view (was: own detail page if any, else list #v-ID) */
+    a.addEventListener('click', function (e) { if (e.target.closest('.atm-heart')) return; e.preventDefault(); go(r); });
     var lim = document.querySelector('#china-listings .ev-card[data-id="' + r.id + '"] img'), ls = lim && (lim.getAttribute('data-src') || lim.getAttribute('src'));
     var pos = r.poster || ls || '', th = r.poster ? '/images/thumb' + pos.replace(/\.(jpe?g|png)$/i, '.webp') : pos;
     a.innerHTML = '<span class="tw-fc-img">' + (pos ? '<img src="' + esc(th) + '" data-full="' + esc(pos) + '" onerror="if(this.dataset.full&&this.src.indexOf(this.dataset.full)<0)this.src=this.dataset.full" decoding="async" alt="" loading="eager" style="object-position:center 20%">' : '<span class="atm-noimg">' + esc(cityName(r)) + '</span>') + '</span>' +

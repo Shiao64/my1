@@ -705,6 +705,43 @@
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
+  /* draft 2026-10-31: single-card view ?card=ID (core, else events-more). Shows only that card + 查看全部活动 / View all events (opens the full page on its tab/city, scrolled to the card via #v-ID). #v-ID / ?id= unchanged. */
+  (function(){
+    var cid = new URLSearchParams(location.search).get('card'); if (!cid) return;
+    var R = document.documentElement; R.classList.add('atm-card-mode');
+    var st = document.createElement('style');
+    st.textContent = 'html.atm-card-mode body>#filters,html.atm-card-mode body>.tw-m-feat,html.atm-card-mode body>#atm-skel,html.atm-card-mode body>#events,html.atm-card-mode body>.atm-reglist,html.atm-card-mode #atm-pop,html.atm-card-mode .atm-featstrip,html.atm-card-mode .china-sticky-top .china-stw-banner{display:none!important}' +
+      '#atm-single{max-width:560px;margin:14px auto 40px;padding:0 14px;box-sizing:border-box}#atm-single ul{list-style:none;margin:0;padding:0}#atm-single .ev-card{margin:0}' +
+      '#atm-single .atm-all{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:54px;margin:18px 0 0;border-radius:14px;background:#0e6e78;color:#fff;font-weight:800;font-size:1.08rem;text-decoration:none;box-shadow:0 6px 18px rgba(14,110,120,.28);box-sizing:border-box}#atm-single .atm-all:active{transform:translateY(1px)}' +
+      '#atm-single .atm-det{display:flex;align-items:center;justify-content:center;width:100%;min-height:50px;margin:16px 0 0;border-radius:14px;border:2px solid #0e6e78;color:#0e6e78;background:#fff;font-weight:800;font-size:1.02rem;text-decoration:none;box-sizing:border-box}#atm-single .atm-det+.atm-all{margin-top:10px}' +
+            '#atm-single .atm-nf{padding:28px 6px 4px;text-align:center;color:#2a1a14;font-size:1.05rem;line-height:1.6}';
+    document.head.appendChild(st);
+    var box = document.createElement('div'); box.id = 'atm-single';
+    var top = document.querySelector('.china-sticky-top'); (top && top.parentNode ? top.parentNode.insertBefore(box, top.nextSibling) : document.body.insertBefore(box, document.body.firstChild));
+    var allTxt = isZh ? '查看全部活动' : 'View all events';
+    function allBtn(h){ return '<a class="atm-all" href="' + esc(h) + '">' + allTxt + ' <span aria-hidden="true">→</span></a>'; }
+    function keepLang(){ Array.prototype.forEach.call(document.querySelectorAll('a.atm-langbtn,#atm-menu a.atm-mlang'), function(a){ try { var u = new URL(a.getAttribute('href'), location.href); u.search = '?card=' + encodeURIComponent(cid); u.hash = ''; a.setAttribute('href', u.pathname + u.search); } catch(e){} }); }
+    var fullUrl = eventsUrl.replace('events-core.json', 'events.json');
+    function get(u){ return fetch(u).then(function(x){ return x.ok ? x.json() : []; }).catch(function(){ return []; }); }
+    Promise.all([get(eventsUrl), get(moreUrl)]).then(function(a){
+      var core = a[0] || [], more = a[1] || [], all = core.concat(more);
+      var f = function(L){ return (L || []).filter(function(r){ return r.id === cid && !r.hidden; })[0]; };
+      var r = f(core), inMore = false; if (!r) { r = f(more); inMore = !!r; }
+      if (r) return [r, inMore, all];
+      return get(fullUrl).then(function(F){ return [f(F), false, all]; }); /* fallback: full file still holds rows dropped from core/more */
+    }).then(function(res){
+      var r = res[0], more = res[1], all = res[2], T = todayISO();
+      function ended(x){ return !!(x.start && (x.kind === 'event' || x.regular_oneoff) && (x.end || x.start) < T) || x.status === 'ended'; }
+      var cy = r && r.city ? '&city=' + encodeURIComponent(cityId(r.city)) : '', kr = r && (more || !/^(China|Taiwan|Hong Kong)$/.test(r.country || r.region || '')) ? '&k=Seoul' : '';
+      if (!r || ended(r)) { box.innerHTML = '<p class="atm-nf">' + (isZh ? '活动已结束或已移除' : 'This event has ended or been removed') + '</p>' + allBtn(location.pathname + (r && r.city ? '?mode=regular' + cy + kr : '')); keepLang(); return; }
+      var feat = r.kind === 'event' && !r.regular_oneoff;
+      var q = (feat ? '?mode=featured' + kr : '?mode=regular' + cy + kr) + '&via=card#v-' + encodeURIComponent(r.id); /* via=card: no ad popup on arrival */
+      var om = ((r.links && r.links.other) || '').match(/^https?:\/\/(www\.)?tangoweekend\.org\/event\/([^\/]+)\/$/), det = om ? '<a class="atm-det" href="/event/' + esc(om[2]) + '/' + (isZh ? 'zh/' : '') + '?from=' + encodeURIComponent(r.id) + '">' + (isZh ? '活动详情' : 'Event details') + '</a>' : '';
+      box.innerHTML = '<ul class="china-list ev-list">' + card(r) + '</ul>' + det + allBtn(location.pathname + q);
+      try { document.title = ((isZh && r.name_zh) || r.name) + ' · ' + document.title; } catch(e){}
+      keepLang(); setTimeout(keepLang, 1500);
+    });
+  })();
   /* china332: first-paint loads events-core (~CN/TW/HK regular + all featured); ?k=Seoul also loads events-more (KR/JP/… regular). Full asia/events.json kept for detail pages/tools. */
   (unlockKr ? Promise.all([fetch(eventsUrl).then(atmJson), fetch(moreUrl).then(function(r){ return r.ok ? r.json() : []; })]).then(function(a){ return a[0].concat(a[1] || []); })
             : fetch(eventsUrl).then(atmJson))

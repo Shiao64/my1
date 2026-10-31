@@ -105,7 +105,7 @@ function first(c){reset();act=c;c.classList.add('atm-tapsel');c.classList.remove
 function second(c){var h=detail(c);if(!h)return;if(window.atmFromUrl)h=window.atmFromUrl(h,c.getAttribute('data-id')||'');reset();if(h){if(c.matches('a.atm-favfc'))location.href=h;else{var w=null;try{w=open(h,'_blank')}catch(x){}if(w){try{w.opener=null}catch(x){}}else location.href=h}}}
 D.addEventListener('click',function(e){var t=e.target;if(!t.closest||t.closest('#atm-pop,#atm-wx-sheet,.china-map-hero'))return;var c=t.closest('a.atm-favfc,li.ev-card');
  if(!c){return}
- if(t.closest('.atm-heart,details.b-more,.atm-more,button,input,label,select'))return;if(c.matches('li.ev-card')&&t.closest('a'))return;
+ if(t.closest('.atm-heart,details.b-more,.atm-more,button,input,label,select'))return;if(c.matches('li.ev-card')&&t.closest('a'))return;if(c.matches('a.atm-favfc'))return;/* draft 10/31: favorite tap -> ?card single view (asia-fav.js) */
  e.preventDefault();e.stopPropagation();if(c===act)second(c);else first(c)},true);
 window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 </head>
@@ -322,7 +322,7 @@ window.CHINA_UI = {
 </script>
 <script src="asia-map.js?v=china335"></script>
 <script defer src="asia-reglist.js?v=china278"></script>
-<script defer src="asia-fav.js?v=fav6"></script>
+<script defer src="asia-fav.js?v=fav7"></script>
 <script defer src="atm-menu.js?v=m8"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="asia-howto.js?v=china278"></script> -->
 <script defer src="lang-keep.js?v=china242"></script>
@@ -393,7 +393,7 @@ new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentEle
 <!-- atm-stw-popup v3 (entry ad = site's own E093 card) -->
 
 <div id="atm-pop" role="dialog" aria-modal="true" aria-label="4th Beijing Select Tango Weekend"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">Ad</span></div><button type="button" class="ap-x" aria-label="Close">&times;</button></div>
-<script>(function(){var K='atm_stw_popup_dismissed_until_v2',D=7*864e5,ID='E093',p=document.getElementById('atm-pop');if(!p)return;var ls=null;try{localStorage.setItem('__atm_t','1');localStorage.removeItem('__atm_t');ls=localStorage}catch(e){}
+<script>(function(){var K='atm_stw_popup_dismissed_until_v2',D=7*864e5,ID='E093',p=document.getElementById('atm-pop');if(!p)return;if(/[?&](card|via)=/.test(location.search))return;var ls=null;try{localStorage.setItem('__atm_t','1');localStorage.removeItem('__atm_t');ls=localStorage}catch(e){}
 if(ls){var u=+ls.getItem(K)||0;if(Date.now()<u)return}
 var x=p.querySelector('.ap-x'),ul=p.querySelector('ul'),n=0;
 function close(){p.classList.remove('on');document.removeEventListener('keydown',kd);if(ls){try{ls.setItem(K,String(Date.now()+D))}catch(e){}}}
