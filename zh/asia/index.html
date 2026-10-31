@@ -334,7 +334,7 @@ else{var lim=bar.getBoundingClientRect().bottom,pick=null;hs.forEach(function(h)
 if(t&&sc){if(el.textContent!==t)el.textContent=t;R.classList.add('atm-wx-t')}else R.classList.remove('atm-wx-t')}
 function q(){if(!raf)raf=requestAnimationFrame(upd)}addEventListener('scroll',q,{passive:true});addEventListener('resize',q);D.addEventListener('DOMContentLoaded',q);addEventListener('load',q);
 new MutationObserver(q).observe(D.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','data-n','data-asia-lang','lang']});})();</script>
-<style id="atm-cardpv">/* draft 2026-10-31 v2: tap card -> scroll it under the white bar + expand (no overlay); 2nd tap -> detail link, or ··· sheet with card #v-ID */
+<style id="atm-cardpv">/* draft 2026-10-31 v2: tap card -> scroll it under the white bar + expand (no overlay); 2nd tap -> detail link; no link -> nothing (stays expanded; ··· only from top-bar button) */
 body.china-page .atm-tapsel{box-shadow:0 0 0 2px #07c160,0 10px 26px rgba(0,0,0,.18)!important}
 </style>
 <script id="atm-cardpv-js">(function(){var D=document,R=D.documentElement,act=null,opened=null;
@@ -344,7 +344,7 @@ function barB(){var b=D.querySelector('.china-sticky-top')||D.querySelector('.ch
 function first(c){reset();act=c;c.classList.add('atm-tapsel');c.classList.remove('atm-lift');var d=c.querySelector('details.b-more');if(d&&!d.open){d.open=true;opened=d}
  R.style.scrollSnapType='none';var go=function(){var y=scrollY+c.getBoundingClientRect().top-barB()-8;scrollTo({top:Math.max(0,y),behavior:'smooth'})};go();setTimeout(go,450);setTimeout(function(){R.style.scrollSnapType=''},1200);
  if(c.matches('a.atm-favfc'))try{c.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}catch(x){}}
-function second(c){var h=detail(c),id=c.getAttribute('data-id')||'';reset();if(h){if(c.matches('a.atm-favfc'))location.href=h;else{var w=null;try{w=open(h,'_blank')}catch(x){}if(w){try{w.opener=null}catch(x){}}else location.href=h}}else if(window.atmWxSheet)window.atmWxSheet(location.origin+location.pathname+(id?'#v-'+id:''))}
+function second(c){var h=detail(c);if(!h)return;reset();if(h){if(c.matches('a.atm-favfc'))location.href=h;else{var w=null;try{w=open(h,'_blank')}catch(x){}if(w){try{w.opener=null}catch(x){}}else location.href=h}}}
 D.addEventListener('click',function(e){var t=e.target;if(!t.closest||t.closest('#atm-pop,#atm-wx-sheet,.china-map-hero'))return;var c=t.closest('a.atm-favfc,li.ev-card');
  if(!c){return}
  if(t.closest('.atm-heart,details.b-more,.atm-more,button,input,label,select'))return;if(c.matches('li.ev-card')&&t.closest('a'))return;
