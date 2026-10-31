@@ -1,7 +1,7 @@
 /* draft 2026-10-31: unified back arrow on event detail pages.
    Came from the map (or, with data-back, from any page of this site) -> history.back(); otherwise go to the map in the same language with #v-<cardID>. */
 (function () {
-  var D = document, H = D.documentElement, zh = /^zh/i.test(H.lang || ''), bar = D.querySelector('.atm-bar');
+  var D = document, H = D.documentElement, zh = /\/zh\//.test(location.pathname) || (!/\/event\//.test(location.pathname) && /^zh/i.test(H.lang || '')), bar = D.querySelector('.atm-bar');
   if (!bar) return;
   D.body.classList.add('atm-detail');
   var KEY = 'atm_from_' + location.pathname, q = new URLSearchParams(location.search), from = q.get('from') || '';
