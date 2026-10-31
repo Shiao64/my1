@@ -607,6 +607,7 @@
     var cv = e.target.closest && e.target.closest('.ev-card .ev-cover'); if (!cv) return;
     var own = cv.closest('.ev-card') && cv.closest('.ev-card').getAttribute('data-own');
     if (own) { e.preventDefault(); e.stopPropagation(); try { if (location.search) sessionStorage.setItem('atmLast', JSON.stringify({p: location.pathname, q: location.search, y: window.pageYOffset || 0, t: Date.now()})); } catch(err){} location.assign(own); return; }
+    var dm = cv.closest('.ev-card').querySelector('details.b-more'); if (dm && !dm.open) { e.preventDefault(); e.stopPropagation(); dm.open = true; return; } /* draft 2026-11-01: collapsed card: poster tap expands it; full-screen poster only once expanded */
     var im = cv.querySelector('img'); if (!im) return;
     e.preventDefault(); e.stopPropagation(); pvCard = cv.closest('.ev-card'); pvTop = pvCard.getBoundingClientRect().top; pvOpen(im.getAttribute('data-full') || cv.getAttribute('href') && /\.(jpe?g|png|webp)(\?|$)/i.test(cv.getAttribute('href')) && cv.getAttribute('href') || im.currentSrc || im.src);
   }, true);
