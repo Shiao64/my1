@@ -701,7 +701,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china335';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china339';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
@@ -780,7 +780,7 @@
         keepLang(); setTimeout(keepLang, 1500); return; }
       var feat = r.kind === 'event' && !r.regular_oneoff;
       var q = (feat ? '?mode=featured' + kr : '?mode=regular' + cy + kr) + '&via=card#v-' + encodeURIComponent(r.id); /* via=card: no ad popup on arrival */
-      var om = ((r.links && r.links.other) || '').match(/^https?:\/\/(www\.)?tangoweekend\.org\/event\/([^\/]+)\/$/), det = om ? '<a class="atm-det" href="/event/' + esc(om[2]) + '/' + (isZh ? 'zh/' : '') + '?from=' + encodeURIComponent(r.id) + '">' + (isZh ? '活动详情' : 'Event details') + '</a>' : '';
+      var om = ((r.detail && ('https://tangoweekend.org' + r.detail)) || (r.links && r.links.other) || '').match(/^https?:\/\/(www\.)?tangoweekend\.org\/event\/([^\/]+)\/$/), det = om ? '<a class="atm-det" href="/event/' + esc(om[2]) + '/' + (isZh ? 'zh/' : '') + '?from=' + encodeURIComponent(r.id) + '">' + (isZh ? '活动详情' : 'Event details') + '</a>' : '';
       box.innerHTML = '<ul class="china-list ev-list">' + card(r) + '</ul>' + det + allBtn(location.pathname + q);
       try { document.title = ((isZh && r.name_zh) || r.name) + ' · ' + document.title; } catch(e){}
       keepLang(); setTimeout(keepLang, 1500);
