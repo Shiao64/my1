@@ -28,7 +28,7 @@
   document.head.appendChild(css);
   var nav = document.querySelector('nav.top-lang'); if (!nav) return;
   var other = nav.querySelector('a:not([aria-current])');
-  if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', zh ? 'English' : '中文'); other.title = zh ? 'English' : '中文'; other.textContent = zh ? 'ENG' : '中'; }
+  if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', zh ? 'English' : '中文'); other.title = zh ? 'English' : '中文'; other.textContent = zh ? 'EN' : '中文'; }
   var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-burger'; b.setAttribute('aria-label', L.menu); b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
   nav.parentNode.insertBefore(b, nav.nextSibling);

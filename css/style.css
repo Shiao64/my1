@@ -245,7 +245,6 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 }
 @media (max-width:420px){ .pair{grid-template-columns:1fr} .lb-prev,.lb-next{top:auto;bottom:16px;transform:none} }
 
-/* ===== language versions: English (/) and 中文 (/zh/) as separate pages ===== */
 .lang-switch{display:flex;border:1px solid var(--gold);border-radius:999px;overflow:hidden;margin-left:12px;flex-shrink:0}
 .lang-switch a{font-size:.82rem;line-height:1;padding:7px 12px;color:var(--gold-soft);text-decoration:none;white-space:nowrap}
 .lang-switch a+a{border-left:1px solid rgba(232,192,106,.5)}
@@ -278,7 +277,6 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 @media (max-width:1060px){html[lang="en"] .main-nav a{border-radius:10px;font-size:.95rem;padding:9px 14px}}
 @media (min-width:821px){.videos .featured-video{grid-row:span 2}}
 .hero h1.one-line-zh{white-space:nowrap;font-size:clamp(1.45rem,5.6vw,3.1rem);letter-spacing:.04em}
-
 
 /* ===== china nav: hamburger wraps lang-switch ===== */
 .header-menus{display:flex;align-items:center;gap:0;margin-left:auto;min-width:0}
@@ -409,9 +407,6 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
   .china-region-tile{min-height:84px;padding:10px 6px}
   .china-region-label{font-size:.72rem}
 }
-
-
-
 
 /* China page: pull title closer to STW ad (header stays between) */
 .china-page .china-stw-banner{padding:0}
@@ -597,7 +592,6 @@ footer h4{color:var(--gold-soft);font-family:var(--serif);margin:0 0 8px}
 .btn-china-corner{position:absolute;top:4px;left:6px;z-index:60;margin:0;padding:3px 10px;font-size:.72rem}
 @media (max-width:640px){.draft-banner{padding-left:128px}}
 
-/* ===== 2026-10-23: tighter edition row; menu top-left; China button top-right ===== */
 .edition{letter-spacing:.02em;padding:2px 10px;font-size:.8rem;white-space:nowrap;max-width:100%;width:fit-content}
 .site-header .nav-toggle{order:-1;margin-left:0!important;margin-right:auto}
 .header-menus{margin-left:0;margin-right:auto}
@@ -636,7 +630,6 @@ body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important
 }
 @media (max-width:1060px){.site-header.is-open{z-index:90}}
 
-/* ===== single top row: hamburger/nav left, Asia Tango Map + 中文/English right ===== */
 .draft-banner{padding:4px 12px!important;text-align:center!important;font-size:.78rem!important}
 .site-header .wrap{max-width:none;padding:0 6px;height:44px!important;gap:6px;justify-content:flex-start}
 .site-header .nav-toggle{position:static!important;order:0;margin:0!important;padding:3px 9px}
@@ -650,17 +643,14 @@ body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important
   .site-header.is-open .header-menus{top:2px!important;left:44px!important}
 }
 
-/* Hero block (edition row + title + poster) pulled up right under the top banner */
 .hero-photo{padding-top:0!important}
 .hero-photo .wrap{padding-top:14px!important;align-items:start;min-height:0!important}
 .hero-photo .hero-poster{margin-top:4px}
 @media (max-width:820px){.hero-photo .wrap{padding-top:12px!important}}
 
-/* Register: dark red highlight with white text, distinct from the gold English pill */
 .main-nav a.nav-cta,.site-header .main-nav a.nav-cta{background:#9e1020!important;color:#fff!important;border:1px solid #e8c06a!important;font-weight:700}
 .main-nav a.nav-cta:hover{background:#b8152a!important}
 
-/* Past Editions: heading left, compact year buttons right on the same row; full covers */
 .past-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
 .past-head .sec-title{text-align:left;margin:0}
 .past-head .sec-title h2::after{margin:8px 0 0}
@@ -671,12 +661,10 @@ body > .nav-toggle{position:fixed;top:4px;left:4px;z-index:70;margin:0!important
 .past-head{flex-wrap:nowrap}
 @media (max-width:480px){.past-head .sec-title h2{font-size:1.4rem;white-space:nowrap}.past-head .tabs{flex-wrap:nowrap;gap:4px}.past-head .tabs button{font-size:.82rem!important;padding:3px 9px!important}}
 
-/* English pill + hero Registration button: same dark red / white as the Register menu item */
 .top-lang a[lang="en"]{background:#9e1020!important;color:#fff!important;font-weight:700}
 .btn.btn-reg{background:#9e1020!important;color:#fff!important;border:2px solid #e8c06a!important}
 .btn.btn-reg:hover{background:#b8152a!important}
 
-/* About the Weekend: title right under the sticky header, whole section fits one screen */
 html{scroll-padding-top:46px}
 #about{padding-top:12px!important;padding-bottom:28px!important}
 #about .sec-title{margin-bottom:12px}
@@ -897,7 +885,6 @@ body.china-page > .nav-toggle{
   .china-page{padding-top:92px}
 }
 
-
 /* china42b: keep poster thumb small inside full-width sticky ad */
 .china-page .china-stw-banner.china-stw-ad{
   width:100%!important;max-width:none!important;margin:0!important;
@@ -918,7 +905,6 @@ body.china-page > .nav-toggle{
   .china-page .china-stw-ad-copy{align-items:flex-start!important}
   .china-page{padding-top:100px!important}
 }
-
 
 /* china43b: clear sticky ad so title + Type stay visible */
 .china-page{padding-top:118px!important}
@@ -1320,7 +1306,6 @@ body.china-page > .nav-toggle{
   .china-filters-compact .china-search-btn{height:24px!important;max-height:24px!important}
 }
 
-/* china59: 4 type checkboxes (Milonga, Practica, Event, Festival) on one compact row */
 .china-filters-compact .china-type-chips{flex-wrap:nowrap!important;gap:4px!important}
 .china-filters-compact .china-type-check{white-space:nowrap!important}
 @media (max-width:560px){
@@ -1328,15 +1313,13 @@ body.china-page > .nav-toggle{
   .china-filters-compact .china-type-check .china-check{width:11px!important;height:11px!important;font-size:8px!important}
 }
 
-/* china63: Show all toggle (same gold-check chip, compact, own line under the date fields) */
 .china-filters-compact .china-showall{display:inline-flex!important;margin-top:5px!important;padding:2px 8px!important;font-size:.7rem!important;white-space:nowrap!important;width:auto!important}
 @media (max-width:560px){ .china-filters-compact .china-showall{padding:2px 6px!important;font-size:.66rem!important;margin-top:4px!important} }
-/* keep the filter row height unchanged: Show all hangs just below the date fields */
+
 .china-filters-compact .china-date-wrap{position:relative}
 .china-filters-compact .china-showall{position:absolute!important;top:100%;left:0;margin-top:3px!important;z-index:2}
 .china-filters-compact #china-date-hint{margin-top:30px}
 
-/* Asia Tango Map: teal palette (homepage red untouched; STW banner keeps brand red) */
 body.china-page{--red:#0e6e78;--red-dark:#0a4f57;--red-deep:#06333a}
 body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4a0609}
 .china-filters-compact .china-showmode{position:absolute;top:100%;left:0;margin-top:3px;display:flex;gap:6px;z-index:2}
@@ -1463,8 +1446,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
   .china-filters-compact .china-showmode,.china-filters-compact .china-showall-row{max-width:100%!important;flex-wrap:wrap}
 }
 
-/* china151: banner shimmer also on desktop — not disabled by OS "reduce motion" (gentle, non-essential sweep);
-   wider/brighter, slower sweep on wide screens so it is noticeable */
 .china-page .china-stw-ad::after{z-index:5;animation:stwShimmer10 10s ease-in-out 0.8s infinite!important}
 .china-page .china-stw-ad .china-stw-ad-title{animation:stwGlow10 10s ease-in-out 0.8s infinite!important}
 @media (min-width:768px){
@@ -1488,7 +1469,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 #china-suggest-modal .china-suggest-dialog{margin:0 auto;max-height:calc(100vh - 96px)!important;max-height:calc(100dvh - 52px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important}
 }
 
-/* ===== 2026-10-25: homepage top carousel (replaces draft-banner on home) ===== */
 .top-carousel{position:relative;height:28px;overflow:hidden;background:linear-gradient(90deg,#5a0f14,#8b1a1f 50%,#5a0f14);border-bottom:1px solid #c9a24a;text-align:center}
 .top-carousel .tc-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:0 10px;opacity:0;visibility:hidden;transition:opacity .6s ease,visibility .6s}
 .top-carousel .tc-slide.is-on{opacity:1;visibility:visible}
@@ -1498,7 +1478,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 @media (max-width:640px){.top-carousel a{font-size:.72rem}}
 @media (prefers-reduced-motion:reduce){.top-carousel a{animation:none}.top-carousel .tc-slide{transition:none}}
 
-/* ===== TEMP draft watermark on schedule/prices. To remove: delete this block and the class="draft-watermark"/data-wm attrs ===== */
 .draft-watermark{position:relative;overflow:hidden}
 .draft-watermark::before{content:attr(data-wm);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-24deg);font-size:clamp(1.6rem,6vw,4.2rem);font-weight:800;white-space:nowrap;color:#8b1a1f;opacity:.1;pointer-events:none;z-index:3;user-select:none}
 .top-carousel .tc-short{display:none}
@@ -1506,7 +1485,7 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 /* map slide: teal from .btn-china (#0e6e78) */
 .top-carousel .tc-map{background:#0e6e78}
 .top-carousel .tc-map a{background:none;-webkit-text-fill-color:#fff;color:#fff;animation:none;letter-spacing:.04em;font-size:.88rem}
-/* 2026-10-25: home top bar is now static (single slide); Asia Tango Map button on own centered row below nav (not sticky) */
+
 .top-carousel .tc-slide{position:static;opacity:1;visibility:visible;height:28px;transition:none}
 .map-row{display:flex;justify-content:center;align-items:center;width:100%;box-sizing:border-box;padding:8px 0;margin:0}
 .map-row .btn-china.btn-map{box-sizing:border-box;width:200px;max-width:calc(100% - 24px);margin:0 auto;display:block;text-align:center;padding:8px 18px;font-size:15px;line-height:1.3;background:#0e6e78;color:#fff}
@@ -1522,7 +1501,6 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
 #schedule.sched-noimg .day{padding-left:8px;padding-right:8px;border-radius:6px}
 #schedule.sched-noimg .day:nth-child(even){background:#f3eadb}
 
-/* china155: mobile homepage = Asia Tango Map; slim ad + featured card (mobile only, no fixed header) */
 .tw-m-ad,.tw-m-feat{display:none}
 @media (max-width:600px){
   .china-page,body.china-page{padding-top:0!important}
@@ -1570,33 +1548,31 @@ body.china-page .china-stw-banner{--red:#b3121b;--red-dark:#7a0a10;--red-deep:#4
   .china-page .china-city-wrap select{max-width:100%!important;min-width:0!important}
 }
 
-/* china156: status line replaced by "From date" subtitle under city title; no counts */
 .china-page #china-date-hint{display:none!important}
 .china-page .china-city-head .china-count{display:none!important}
 .china-page .tw-m-count{display:none!important}
 .china-page .china-from-line{margin:-4px 0 10px;padding:0;text-indent:0;text-align:left;font-size:.82rem;color:#7a6255}
 @media (max-width:600px){.china-page .china-city-wrap{display:block!important}.china-page .china-city-wrap select{width:100%!important}}
 
-/* china165: Asia map pages — big banner restored on mobile, banner + green header bar sticky together; slim tw-m-ad kept below (not sticky) */
 .china-page .china-sticky-top{position:sticky;top:0;z-index:100}
 .china-page .china-sticky-top > .china-stw-banner,.china-page .china-sticky-top > .china-map-hero{position:relative!important;top:auto!important}
 @media (max-width:600px){
   .china-page .china-sticky-top .china-stw-banner.china-stw-ad{display:flex!important}
 }
-/* china166: hide slim tw-m-ad on Asia map; EN banner text fits on one line at 360/390 */
+
 .china-page .tw-m-ad{display:none!important}
 @media (max-width:600px){
   html[lang="en"] .china-page .china-stw-ad-title,html[lang="en"] body.china-page .china-stw-ad-title{font-size:.84rem!important;letter-spacing:0!important}
   html[lang="en"] .china-page .china-stw-ad-date,html[lang="en"] body.china-page .china-stw-ad-date{font-size:.68rem!important}
 }
-/* china167: hide results until first Search (deep links with #hash or ?city/type/id/event/q/from/to show immediately) */
+
 body.china-presearch #events{display:none!important}
 /* china167: weekly subheading moved into city title line */
 .china-page .china-weekly-head{display:none!important}
 .china-page .china-title-sub{font-size:.62em;font-weight:600;color:#0a4f57;white-space:normal}
 .china-page .china-title-sub[hidden]{display:none}
 .china-page .china-city-block .china-from-line{border-bottom:1px dashed var(--line);padding-bottom:12px;margin-bottom:4px}
-/* china168: framed search card; rows: type / city / from|to / search centered / checkbox centered */
+
 body.china-page #filters .china-filters-row1{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;
   border:1.5px solid #e3bd7a!important;border-radius:14px!important;background:#fffaf0!important;padding:12px 14px 10px!important;box-shadow:0 1px 4px rgba(90,26,28,.06);margin:0!important;max-width:760px}
 body.china-page #filters .china-filters-row1 > *{width:100%!important;max-width:none!important;flex:0 0 auto!important;margin:0!important}
@@ -1628,7 +1604,7 @@ body.china-page a.tw-feat-photo strong{font-family:var(--serif);font-size:1.02re
 body.china-page .tw-m-feat-k{font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:#9e1020;font-weight:700}
 body.china-page .tw-m-feat-meta{font-size:.76rem;color:#7a6255;line-height:1.35}
 @media (min-width:601px){body.china-page .tw-m-feat-img{min-height:130px} body.china-page a.tw-feat-photo strong{font-size:1.2rem} body.china-page .tw-m-feat-meta{font-size:.88rem}}
-/* china170: featured card = full-bleed stage photo + dark gradient overlay (v3 mockup style) */
+
 body.china-page a.tw-feat-photo{position:relative;display:block!important;aspect-ratio:16/10;max-height:420px;border:0!important;border-radius:16px;overflow:hidden;background:#111;box-shadow:0 4px 16px rgba(0,0,0,.18)}
 body.china-page a.tw-feat-photo .tw-m-feat-img{position:absolute;inset:0;width:100%!important;max-width:none!important;height:100%!important;min-height:0!important;object-fit:cover;object-position:center 35%}
 body.china-page a.tw-feat-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.75) 100%),rgba(10,60,64,.18);pointer-events:none}
@@ -1641,11 +1617,11 @@ body.china-page a.tw-feat-photo .tw-m-feat-meta{color:#f3ece2!important;font-siz
 body.china-page #filters .china-type-wrap{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;flex-wrap:nowrap!important}
 body.china-page #filters .china-type-wrap .m-label{margin:0!important;flex:none;white-space:nowrap}
 body.china-page #filters .china-type-wrap .china-type-chips{flex-wrap:nowrap!important;gap:12px!important;margin:0!important}
-/* china172: inline labels with colon; city row same as type row, aligned label column */
+
 body.china-page #filters .china-city-wrap{display:flex!important;flex-direction:row!important;align-items:center!important;gap:12px!important;grid-template-columns:none!important}
 body.china-page #filters .china-type-wrap .m-label,body.china-page #filters .china-city-wrap .m-label{flex:0 0 3.4em!important;width:3.4em!important;margin:0!important;white-space:nowrap;grid-column:auto!important}
 body.china-page #filters .china-city-wrap select{flex:1 1 auto!important;width:auto!important;min-width:0!important}
-/* china173: date row inline — 日期： | from – to; search + checkbox rows below span full width */
+
 body.china-page #filters .china-filters-row1 > .china-date-wrap{display:grid!important;grid-template-columns:3.4em minmax(0,1fr)!important;column-gap:12px!important;align-items:center!important}
 body.china-page #filters .china-filters-row1 > .china-date-wrap > .m-label{grid-column:1!important;margin:0!important;white-space:nowrap}
 body.china-page #filters .china-filters-row1 > .china-date-wrap > .china-date-fromto{grid-column:2!important;display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;gap:6px!important;align-items:center}
@@ -1664,16 +1640,16 @@ body.china-page #filters .china-filters-row1 > .china-date-wrap{grid-template-co
 .top-lang a:not([aria-current="page"]){border-radius:999px!important;padding:3px 12px!important;border:1px solid var(--gold,#e3bd7a)!important;background:#8b1a1f!important;color:#fff!important;font-weight:700}
 .top-lang{border:0!important;background:none!important;padding:0!important;box-shadow:none!important}
 .lang-switch a[aria-current="page"][hreflang]{display:none!important}
-/* china174: event homepages — hide deep-red top banner (already on the event) */
+
 .top-carousel{display:none!important}
-/* china175: event pages — Asia Tango Map button inside header row (☰ | map | lang) */
+
 .site-header .wrap{display:flex;align-items:center}
 .site-header a.hdr-map{order:1;margin:0 auto!important;padding:4px 14px!important;font-size:.82rem!important;line-height:1.3;min-height:0!important;white-space:nowrap;flex:none}
 .site-header .top-right-bar{margin-left:0!important}
 @media (min-width:601px){.site-header a.hdr-map{margin:0 12px 0 auto!important}}
 @media (max-width:600px){.site-header .wrap{position:relative}.site-header a.hdr-map{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin:0!important}}
 @media (max-width:600px){.site-header .top-right-bar{margin-left:auto!important}}
-/* 2026-10-25: mobile schedule — each entry a distinct block with light divider */
+
 @media (max-width:600px){
   #schedule.sched-noimg .day{padding-top:10px;padding-bottom:10px}
   #schedule.sched-noimg .ev{padding:9px 0;row-gap:2px}
@@ -1745,12 +1721,12 @@ body.hz-theme .hz-brand{font-weight:700;color:#f0d28a;text-decoration:none;margi
 .hz-table th{background:var(--red-deep);color:var(--gold-soft)}
 .hz-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
 @media (max-width:700px){.hz-pair{grid-template-columns:1fr}.hz-table thead{display:none}.hz-table,.hz-table tbody,.hz-table tr,.hz-table td{display:block;width:100%;box-sizing:border-box}.hz-table tr{margin-bottom:12px;border:1px solid var(--line)}.hz-table td{border:0;border-bottom:1px solid var(--line)}.hz-table td:nth-child(1){font-weight:700;background:var(--cream)}}
-/* Asia Tango Map bar: first element, sticky at absolute top (Changwon, Shenyang, Hangzhou) */
+
 .atm-bar.atm-sticky{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;box-sizing:border-box;height:32px;padding:0 12px;font-size:.88rem;font-weight:600;letter-spacing:.02em;white-space:nowrap}
 .atm-bar a{text-decoration:none;color:inherit}
 .atm-bar a.atm-map{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .atm-bar a.atm-lang{flex:none;padding:1px 10px;border:1px solid currentColor;border-radius:999px;font-size:.8rem}
-/* Asia Tango Map brand bar — ONE shared scheme for every site (matches asia/ .china-map-hero + .btn-china) */
+
 .atm-bar.atm-sticky,body .atm-bar.atm-sticky{color:#F6D58E!important;background:radial-gradient(600px 120px at 80% -40%,rgba(232,192,106,.25),transparent 60%),linear-gradient(160deg,#0e6e78 0%,#0a4f57 60%,#06333a 100%)!important;border-bottom:1px solid #5fb3bb!important}
 .atm-bar.atm-sticky a{color:#F6D58E!important}
 .atm-bar.atm-sticky a.atm-map:hover{color:#CFE8E3!important}
@@ -1903,7 +1879,7 @@ body.hz-theme.cq-theme .btn-gold{color:#4a0811}
 .cq-topbanner{background:linear-gradient(180deg,#4a0811,#8e0e22)}
 /* Asia map: city locked to All cities when type = Event */
 #china-city:disabled{opacity:.55;background-color:#ece8e1;color:#555;cursor:not-allowed;-webkit-text-fill-color:#555}
-/* Asia map: 3-row search form (Event / Regular + city / start date + Search) */
+
 .china-page .china-filters-row1.atm-form{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:stretch!important;gap:14px!important;max-width:520px!important}
 .china-page .atm-form .atm-row{display:flex!important;align-items:center!important;gap:10px!important;min-width:0!important;width:100%!important;flex:0 0 auto!important;max-width:100%!important}
 .china-page .atm-form .atm-row > .m-chip{flex:0 0 auto!important;margin:0!important;padding:7px 14px!important;font-size:.9rem!important}
@@ -1929,7 +1905,6 @@ body.china-page .atm-form #china-search.atm-nocity{cursor:not-allowed!important}
 @media (max-width:719px){.ev-card .ev-cover{aspect-ratio:16/9}}
 .ev-card.ev-has-poster .ev-cover{aspect-ratio:auto}.ev-card.ev-has-poster .ev-cover img{height:auto}
 
-/* v9.1: back link = search icon + map title, same type as the collapsed Asia map header */
 .atm-bar.atm-sticky a.atm-map{display:inline-flex;align-items:center;gap:.35em;position:relative;overflow:visible;font-family:"Noto Serif SC","Noto Serif CJK SC","Songti SC",STSong,Georgia,serif;font-size:18.4px;font-weight:700;letter-spacing:.02em;line-height:1;color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .atm-bar.atm-sticky a.atm-map:after{content:"";position:absolute;left:-8px;right:-8px;top:50%;height:44px;transform:translateY(-50%)}
 .atm-bar.atm-sticky a.atm-map .atm-ico{flex:0 0 auto;width:.95em;height:.95em;background-color:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}

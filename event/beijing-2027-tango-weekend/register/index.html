@@ -12,10 +12,13 @@
 <script>(function(){try{if(new URLSearchParams(location.search).get('lang')==='zh')location.replace('../zh/register/'+location.hash);}catch(e){}})();</script>
 <link rel="stylesheet" href="../../../css/style.css?v=zhh2">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="../../../css/atm-detail.css?v=d4">
 </head>
 <body>
+<div class="atm-bar atm-sticky" data-back="../"><a class="atm-map" href="/asia/"><span class="atm-ico" aria-hidden="true"></span>Asia Tango Map</a><a class="atm-lang" href="../zh/register/" hreflang="zh-CN">中文</a></div>
 <header class="site-header">
   <div class="wrap">
+    <a class="brand" href="../">Select Tango Weekend</a>
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
     <div class="header-menus">
     <nav class="lang-switch" aria-label="Language and region">
@@ -42,7 +45,6 @@
       <a class="btn btn-ghost" href="mailto:info@tangoweekend.org">info@tangoweekend.org</a>
     </div>
     <p class="meta">WeChat group “Selectango Weekend 2027”</p>
-    <p style="margin-top:30px"><a class="btn btn-ghost" href="../">← Back to home</a></p>
   </div>
 </section>
 <script>
@@ -50,5 +52,6 @@
 
 (function(){var btn=document.querySelector('.nav-toggle'),header=document.querySelector('.site-header');if(!btn||!header)return;btn.addEventListener('click',function(){var o=header.classList.toggle('is-open');btn.setAttribute('aria-expanded',o);});header.querySelectorAll('.header-menus a').forEach(function(a){a.addEventListener('click',function(){header.classList.remove('is-open');btn.setAttribute('aria-expanded','false');});});})();
 </script>
+<script src="../../../asia/atm-detail.js?v=d1"></script>
 </body>
 </html>

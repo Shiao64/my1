@@ -1,0 +1,28 @@
+/* draft 2026-10-31 design fixes for event detail pages: unified back arrow in the green map bar, 44px tap targets, type scale, single language label */
+.atm-bar.atm-sticky{justify-content:flex-start!important}
+.atm-bar.atm-sticky a.atm-lang{margin-left:auto;position:relative}
+.atm-bar.atm-sticky a.atm-dback{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:44px;height:32px;margin:0 -8px 0 -12px;color:inherit!important;-webkit-tap-highlight-color:transparent}
+.atm-dback svg{width:11px;height:22px;display:block}
+.atm-dback::before{content:"";position:absolute;left:0;right:0;top:50%;height:44px;transform:translateY(-50%)}
+.atm-bar.atm-sticky a.atm-lang::before,.site-header .nav-toggle::before,body.atm-detail section a:not([class])::before,body.atm-detail .note a:not([class])::before,body.atm-detail footer a:not([class])::before,body.atm-detail .top-lang a::before,body.atm-detail .lang-switch a::before{content:"";position:absolute;left:50%;top:50%;width:max(calc(100% + 8px),44px);height:44px;transform:translate(-50%,-50%)}
+.site-header .nav-toggle,body.atm-detail section a:not([class]),body.atm-detail .note a:not([class]),body.atm-detail footer a:not([class]),body.atm-detail .top-lang a,body.atm-detail .lang-switch a{position:relative}
+/* one language label: only the other language is shown */
+body.atm-detail .top-lang a[aria-current],body.atm-detail .lang-switch a[aria-current]{display:none!important}
+/* type scale: h1 28 / h2 22 / h3 18 / body 16 / secondary 14 */
+html body.atm-detail h1:not(.sr-only){font-size:28px!important;line-height:1.25!important}
+html body.atm-detail h2,html body.atm-detail.ev-polish h2.sec-title{font-size:22px!important;line-height:1.3!important}
+html body.atm-detail h3{font-size:18px!important;line-height:1.35!important}
+html body.atm-detail section p,html body.atm-detail section li,html body.atm-detail .venue-block{font-size:16px!important}
+html body.atm-detail .meta,html body.atm-detail small,html body.atm-detail .note li,html body.atm-detail .hz-tag,html body.atm-detail .day-date{font-size:14px!important}
+/* the green map bar now carries the map link + language label: hide the duplicates inside the event header */
+body.atm-detail .site-header .hdr-map,body.atm-detail .site-header .top-right-bar{display:none!important}
+body.atm-detail .site-header .lang-switch a[href*="/asia/"]{display:none!important}
+/* 44px real tap size for the header menu toggle; one language label on pages whose header has its own switch */
+html body.atm-detail .site-header .nav-toggle{min-width:44px!important;min-height:44px!important;display:inline-flex;align-items:center;justify-content:center}
+html body.atm-detail .site-header .nav-toggle::before{display:none}
+body.atm-detail .atm-bar.atm-sticky ~ * .site-header .lang-switch a[hreflang],body.atm-detail .atm-bar.atm-sticky ~ .site-header .lang-switch a[hreflang]{display:none!important}
+/* green bar is 44px tall on detail pages so the back arrow / map / language targets are real 44px and don't overlap the header below */
+html body.atm-detail .atm-bar.atm-sticky{height:44px!important}
+html body.atm-detail .site-header[style*="sticky"],html body.atm-detail.cw-theme .site-header,html body.atm-detail.sy-theme .site-header,html body.atm-detail.hz-theme .site-header,html body.atm-detail.tw-theme .site-header{top:44px!important}
+.atm-dback::before{display:none}
+html body.atm-detail .atm-bar.atm-sticky a.atm-dback{height:44px;margin:0 0 0 -12px}

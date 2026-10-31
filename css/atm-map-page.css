@@ -1,0 +1,352 @@
+/* from asia map page inline */
+.china-date-wrap{position:relative;display:block;flex:none!important;height:auto;min-height:0;padding:0;margin:0}
+.china-date-wrap input.has-en{color:transparent}
+.china-date-wrap input.has-en::-webkit-datetime-edit{color:transparent}
+.china-date-show{font-style:normal;font-size:.78rem;position:absolute;left:7px;top:50%;transform:translateY(-50%);pointer-events:none;font:inherit;color:inherit;white-space:nowrap}
+.china-map-lang{margin-left:auto}
+.china-page .china-hero-bar .china-map-lang{flex:0 0 auto}
+/* from asia map page inline */
+.china-page .china-suggest-open{background:#c8102e!important;color:#fff!important;border:1px solid #c8102e!important;border-radius:999px!important;padding:5px 14px!important;font-size:.78rem!important;font-weight:700!important;cursor:pointer!important;box-shadow:0 2px 6px rgba(0,0,0,.25)!important;transition:background .15s,transform .15s!important}.china-page .china-suggest-open:hover{background:#e0213f!important;border-color:#e0213f!important;transform:translateY(-1px)!important;box-shadow:0 4px 10px rgba(0,0,0,.3)!important}
+/* from asia map page inline */
+#china-suggest-modal .china-suggest-pair{display:flex;gap:10px}#china-suggest-modal .china-suggest-pair>.china-suggest-group{flex:1 1 0;min-width:0}
+/* from asia map page inline */
+/* hide Add event (2026-10-27) */#china-suggest-open,.china-suggest-open,#china-suggest-modal{display:none!important}
+/* from asia map page inline */
+/* v8c: 常规 weekday heading bold + divider; single card centred on desktop */body.china-page .china-group.china-day .china-sub-head{font-weight:700;color:var(--ink);padding-bottom:5px;border-bottom:1px solid #C9B48A;text-decoration:none}@media (min-width:900px){body.china-page .china-day .ev-list>.ev-card:only-child{grid-column:1/-1;justify-self:center;width:calc((100% - 14px)/2)}}@media (min-width:1060px){body.china-page .china-day .ev-list>.ev-card:only-child{grid-column:2/3;width:auto;justify-self:stretch}}@media (min-width:1060px){body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child){grid-template-columns:repeat(4,minmax(0,1fr))}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child){grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child)>.ev-card,body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child)>.ev-card{min-width:0;overflow-wrap:anywhere}body.china-page .china-day .ev-list:has(>.ev-card:nth-child(4):last-child) img,body.china-page .china-day .ev-list:has(>.ev-card:nth-child(5):last-child) img{max-width:100%;height:auto}}@media (min-width:900px) and (max-width:1059px){body.china-page .china-day .ev-list>.ev-card:last-child:nth-child(2n+3){grid-column:1/-1;justify-self:center;width:calc((100% - 14px)/2)}}@media (min-width:1060px){body.china-page .china-day .ev-list>.ev-card:last-child:nth-child(3n+7){grid-column:2/3}}@media (min-width:900px){body.china-page .ev-list>.ev-card{min-width:0;overflow-wrap:anywhere}}
+/* from asia map page inline */
+/* draft v2 2026-10-28: 活动卡片 mobile — 1:1 cropped poster, desc (展开/收起), date+time; one card per screen */
+@media (max-width:600px){
+html{scroll-padding-top:calc(var(--atm-sticky,118px) + 10px)}html:has(body:not(.china-presearch) .ev-list .ev-card:not([hidden])){scroll-snap-type:y proximity} /* v8d: no snap before search, so footer snap-end can't pull the search bar up */
+#contact{scroll-snap-align:end}
+.ev-card[hidden]{display:none!important} /* v8: v7 display:flex was un-hiding filtered-out cards */
+.ev-list{display:flex;flex-direction:column;gap:20px}
+.ev-list>.ev-card{margin:0!important}
+.ev-card{display:flex;flex-direction:column;box-sizing:border-box;height:calc(100svh - var(--atm-sticky,118px) - var(--atm-cut,70px));padding:0!important;overflow:hidden;border:1px solid #c9b48a!important;border-radius:12px!important;box-shadow:0 2px 8px rgba(6,51,58,.08)!important;background:#fff!important;scroll-snap-align:start}
+.ev-card:not(.atm-dim){border:2px solid #B89C68!important;box-shadow:0 6px 18px rgba(60,40,20,.18),0 1px 3px rgba(0,0,0,.08)!important}.ev-card.atm-dim{background:#FBF6EC!important;border:1px solid #C9B48A!important;box-shadow:0 2px 8px rgba(6,51,58,.08),0 -1px 5px rgba(6,51,58,.07)!important}
+.ev-card.atm-open{height:auto!important;min-height:calc(100svh - var(--atm-sticky,118px) - var(--atm-cut,70px))}
+.ev-card>*{margin-left:14px;margin-right:14px}
+.ev-card>.china-cancelled-bar{order:0;margin:0}
+.ev-card>.ev-cover{order:1;position:relative!important;display:block!important;margin:0!important;width:100%!important;height:0!important;max-height:none!important;padding:100% 0 0!important;flex:0 0 auto;border-radius:0!important;overflow:hidden!important;background:#f6efe4}
+.ev-card>.ev-cover img{position:absolute!important;inset:0;display:block;width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important;border-radius:0!important}
+.ev-card>.ev-cover:after{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff);pointer-events:none}
+.ev-card>.atm-nocover{order:1;margin:0;width:100%;height:0;padding-top:100%;flex:0 0 auto;background:#D9C28F;position:relative;overflow:hidden}
+.ev-card>.atm-nocover.p1{background:#E4E4E1}.ev-card>.atm-nocover.p2{background:#F2E1DA}
+.ev-card>.atm-nocover:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 110% 115%,transparent 38%,rgba(14,110,120,.16) 38.5%,rgba(14,110,120,.16) 39.5%,transparent 40%,transparent 50%,rgba(14,110,120,.12) 50.5%,rgba(14,110,120,.12) 51.3%,transparent 51.8%,transparent 62%,rgba(14,110,120,.09) 62.5%,rgba(14,110,120,.09) 63.2%,transparent 63.7%)}
+.atm-nocover .atm-pt{position:absolute;left:20px;right:20px;top:24px;z-index:1;color:#3a2a1c}
+.atm-pt b{display:block;font-size:1.75rem;line-height:1.2;font-weight:800;margin-bottom:12px}.atm-pt span{display:block;font-size:1.15rem;line-height:1.4;font-weight:600;margin-top:4px}
+.ev-card>.atm-nocover:after{content:"";position:absolute;left:0;right:0;bottom:0;height:22%;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff)}
+.ev-card>.ev-name{order:2;margin-top:4px}
+.ev-card>.atm-desc{order:3;flex:0 1 auto;max-height:136px;min-height:0;overflow:hidden;position:relative}.ev-card.atm-open>.atm-desc{max-height:none}.ev-card>.china-links{margin-bottom:auto}
+.ev-card.atm-open>.atm-desc{overflow:visible}
+.ev-card:not(.atm-open)>.atm-desc.atm-over:after{content:"";position:absolute;left:0;right:0;bottom:0;height:28px;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff)}
+.ev-card>.atm-more{order:4;align-self:flex-start;background:none;border:0;padding:2px 0;color:#0e6e78;font-weight:700;font-size:.85rem;cursor:pointer}
+.ev-card>.atm-more[hidden]{display:none}
+.ev-card>.china-links{order:5;margin-top:6px}
+.ev-card>.ev-top{order:6;margin-top:8px;margin-bottom:12px;padding-top:8px;border-top:1px dashed #ead9b8}
+/* draft v4: 类别 = dot + text; 收藏 = solid red heart (#C8102E) */
+.ev-top .ev-type{display:none!important}
+.atm-marks{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-right:10px;vertical-align:middle}
+.atm-mk{display:inline-flex;align-items:center;gap:5px;color:#2A1A14;font-size:.8rem;font-weight:600;background:none;border:0;padding:0;line-height:1.2}
+.atm-mk i{width:7px;height:7px;border-radius:50%;background:var(--c,#7A6E64);flex:0 0 7px}
+.atm-mk.atm-fav{color:#9E1020}.atm-mk.atm-fav svg{display:block;flex:0 0 13px}
+.tw-m-feat-k.atm-fav-k{background:none!important;border:0!important;padding:0!important;color:#9E1020!important;display:inline-flex!important;align-items:center;gap:4px;font-weight:700}
+.tw-m-feat-k.atm-fav-k.tw-m-feat-k.atm-fav-k:before{content:"";width:13px;height:13px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 width=%2713%27 height=%2713%27%3E%3Cpath d=%27M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z%27 fill=%27%23C8102E%27 stroke=%27%23C8102E%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/contain no-repeat}
+}
+/* all widths: category dot + red heart */
+.ev-top .ev-type{display:none!important}
+.atm-marks{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px 12px;margin-right:10px;vertical-align:middle}
+.atm-mk{display:inline-flex;align-items:center;gap:5px;color:#2A1A14;font-size:.8rem;font-weight:600;background:none;border:0;padding:0;line-height:1.2}
+.atm-mk i{width:7px;height:7px;border-radius:50%;background:var(--c,#7A6E64);flex:0 0 7px}
+.atm-mk.atm-fav{color:#C8102E}.atm-mk.atm-fav svg{display:block;flex:0 0 13px}
+.tw-m-feat-k.atm-fav-k{background:none!important;border:0!important;padding:0!important;color:#C8102E!important;display:inline-flex!important;align-items:center;gap:4px;font-weight:700}
+.tw-m-feat-k.atm-fav-k.tw-m-feat-k.atm-fav-k:before{content:"";width:13px;height:13px;background:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 width=%2713%27 height=%2713%27%3E%3Cpath d=%27M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z%27 fill=%27%23C8102E%27 stroke=%27%23C8102E%27 stroke-width=%271.6%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E") center/contain no-repeat}
+/* from asia map page inline */
+/* v10.5: hovered card keeps its own compositing layer (identity transform = no size change, no jitter) as before v10.3; click/tap on a card lifts it above neighbours with no reflow */
+body.china-page .ev-card.atm-lift,body.china-page .ev-card.atm-lift:hover{transform:translateZ(0) scale(1.04)!important;z-index:5!important;box-shadow:0 14px 34px rgba(0,0,0,.28),0 0 0 2px rgba(14,110,120,.6)!important;transition:transform .18s ease,box-shadow .18s ease!important}
+@media (prefers-reduced-motion:reduce){body.china-page .ev-card.atm-lift{transform:translateZ(0)!important}}
+/* v10.4: card links: 44px-tall invisible hit areas overlapped the next line (tap on Phone opened Email, etc.) — extend only 4px up/down so every link owns its own line */
+body.china-page .ev-card .china-links a:after,body.china-page .ev-card .ev-line a:after{top:-4px!important;bottom:-4px!important;height:auto!important;transform:none!important}
+/* v10.3: list cards never change geometry on hover (was scale 1.05/1.1 → neighbours overlapped and cards pulsed as the mouse moved = 抖). Hover = shadow + border only. */
+@media (hover:hover) and (pointer:fine){body.china-page .ev-card,body.china-page .atm-fav-card{transform:none!important;will-change:auto!important;backface-visibility:visible!important;transition:box-shadow .15s ease,border-color .15s ease!important}
+body.china-page .ev-card:hover,body.china-page .atm-fav-card:hover{transform:translateZ(0)!important;box-shadow:0 8px 22px rgba(0,0,0,.18),0 0 0 2px rgba(14,110,120,.55)!important}}
+.china-stw-banner,.china-map-hero,.china-map-hero h1,.china-map-sub{transition:none!important}
+.china-map-hero h1 .atm-beta{font-size:50%;font-weight:inherit;white-space:nowrap}
+/* v10.2: reserve space for JS-rendered blocks so the page does not jump on load */
+body.china-page nav.top-lang.china-map-lang{min-height:32px;box-sizing:border-box}
+body.china-page .tw-m-feat:not([hidden]){min-height:405px}
+@media (max-width:600px){body.china-page .tw-m-feat:not([hidden]){min-height:322px}body.china-page .atm-row.atm-row-reg{min-height:44px}}
+body.china-page #events:not(:has(.ev-card)){min-height:100vh}
+/* from asia map page inline */
+/* design review v9 2026-10-28 */
+body.china-page #filters label.m-chip.china-showall{position:relative!important} /* v9: keep the 44px tap area (:after) on the label, not over 搜索 */
+/* 1 mobile featured strip: bigger cards, clearer swipe affordance */
+@media (max-width:600px){.tw-m-feat-grid.tw-feat-ad>.tw-fc{flex:0 0 66%!important;max-width:66%!important;scroll-snap-align:start}.tw-m-feat-grid.tw-feat-ad{scroll-snap-type:x mandatory}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img{height:auto!important;aspect-ratio:16/9}.tw-m-feat-grid.tw-feat-ad>.tw-fc .tw-fc-img img{width:100%;height:100%!important;object-fit:cover;object-position:top}
+.atm-dots{display:flex;justify-content:center;gap:8px;padding:10px 0 2px}.atm-dots i{width:7px;height:7px;border-radius:50%;background:#D9C9A8;transition:background .2s,width .2s}.atm-dots i.on{background:#0E6E78;width:18px;border-radius:4px}}
+/* 2 tap targets ≥44px (visual size kept, hit area extended) */
+label.m-chip.china-type-check{min-height:44px;box-sizing:border-box}
+.tsub-open{min-height:44px!important;padding-top:0!important;padding-bottom:0!important;display:inline-flex!important;align-items:center;justify-content:center}
+.atm-note-tg,.atm-more,.china-links a,.ev-line a,.top-lang a,.china-showall,.china-addr a{position:relative}
+.atm-note-tg:after,.atm-more:after,.china-links a:after,.ev-line a:after,.top-lang a:after,.china-showall:after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:44px;transform:translateY(-50%)}
+.top-lang a{min-width:44px;min-height:32px;display:inline-flex!important;align-items:center;justify-content:center;box-sizing:border-box}
+/* 3 category/schedule line above title at all widths */
+.ev-card>.ev-top{order:1!important;border-top:0!important;padding-top:0!important;margin-top:12px!important;margin-bottom:2px!important}
+/* 4 note fade: only the last line fades */
+.ev-card:not(.atm-open)>.atm-desc.atm-over:after{height:1.1em!important;background:linear-gradient(to bottom,rgba(255,255,255,0),#fff 85%)!important}
+.atm-desc .ev-k{color:#7A5F3E}
+/* 5 venue: name own line, address 13px */
+.ev-line .china-addr{display:block;font-size:13px;line-height:1.4;margin-top:2px}.ev-line .china-addr-en{font-size:13px;line-height:1.4;margin-top:4px}
+/* 6 poster 4:3, top aligned; tap opens full image (existing link) */
+@media (max-width:600px){.ev-card>.ev-cover{padding-top:75%!important}.ev-card>.atm-nocover{padding-top:75%!important}}
+@media (min-width:601px){.ev-card>.ev-cover{display:block;aspect-ratio:4/3!important;height:auto!important;max-height:none!important;overflow:hidden}.ev-card>.ev-cover img{width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important}}
+.ev-card>.ev-cover img{object-position:center top!important}.ev-card>.ev-cover{cursor:pointer}
+/* 7 compact header on scroll */
+.china-stw-banner,.china-map-hero,.china-map-hero h1,.china-map-sub{transition:all .2s ease}
+html.atm-compact{--atm-sticky:var(--atm-sticky-full,118px)!important}
+html.atm-compact .china-page .china-sticky-top .china-stw-banner.china-stw-ad{display:none!important}
+html.atm-compact .china-map-hero{padding-top:0!important;padding-bottom:0!important;min-height:0!important}
+html.atm-compact .china-hero-bar{min-height:44px;height:44px;padding-top:0!important;padding-bottom:0!important;align-items:center}
+html.atm-compact .china-map-sub{display:none!important}
+html.atm-compact .china-map-hero h1{font-size:19px!important;margin:0!important;line-height:44px!important;cursor:pointer}
+html.atm-compact .china-map-hero h1{display:inline-flex!important;align-items:center;gap:.35em;min-height:44px} html.atm-compact .china-map-hero h1::before{content:"";flex:0 0 auto;width:.95em;height:.95em;background-color:#F6D58E;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))} /* v9.1: search icon when header collapsed */
+/* 8 type switch: equal-size segment buttons */
+label.m-chip.china-type-check:not(.china-showall){min-width:132px;box-sizing:border-box;padding-left:14px!important;padding-right:14px!important;justify-content:center;display:inline-flex!important;align-items:center;border:1.5px solid #0E6E78!important;border-radius:22px!important}
+/* 10 desktop: 2-card weekday rows centred */
+@media (min-width:1060px){body.china-page .china-day .ev-list:has(>.ev-card:nth-child(2):last-child){grid-template-columns:repeat(2,calc((100% - 28px)/3))!important;justify-content:center}}
+/* 11 dots 8px */
+.atm-mk i{width:8px!important;height:8px!important;flex:0 0 8px!important}
+/* 12 weekday heading */
+body.china-page .china-group.china-day .china-sub-head{font-size:15px!important;font-weight:700;margin-top:24px!important}
+/* v9 desktop: compact hero, bigger 收藏 cards, slim footer band */
+@media (min-width:601px){
+body.china-page .china-map-hero{padding-top:8px!important;padding-bottom:4px!important}
+body.china-page #filters{padding-top:8px!important;padding-bottom:8px!important}
+body.china-page .tw-m-feat-grid.tw-feat-ad{padding:16px 24px 18px!important;margin:-6px 0 0;overflow-y:visible}
+body.china-page .tw-m-feat-grid.tw-feat-ad>.tw-fc{flex:0 0 320px!important;max-width:320px!important}
+html body #contact{display:flex!important;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 28px;padding:22px 20px!important;min-height:94px;box-sizing:border-box}
+#contact>.wrap{margin:0!important;padding:0!important;width:auto!important;max-width:none!important;display:flex;align-items:center;gap:22px}
+#contact .tsub-bottom-wrap{padding:0!important}
+#contact #site-ver{margin:0!important}
+}
+/* v9 desktop: 特色 results 2 per row, centred */
+@media (min-width:601px){body.china-page .china-chrono>.ev-list{grid-template-columns:repeat(2,minmax(0,460px))!important;justify-content:center!important;gap:24px!important}body.china-page .china-chrono>.ev-list>.ev-card:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:min(460px,100%)}}
+/* from asia map page inline */
+/* MOCKUP 2026-10-28: A) mobile sticky day band  B) unified card */
+@media (max-width:600px){
+body.china-page .china-group.china-day{margin-top:24px!important}
+body.china-page .china-group.china-day .china-sub-head{position:sticky;top:calc(var(--atm-hdr) + 2px);z-index:5;display:block;background:#0E6E78!important;color:#fff!important;font-size:18px!important;font-weight:700!important;border:0!important;border-radius:8px;padding:10px 14px!important;margin:0 0 12px!important;box-shadow:0 3px 10px rgba(6,51,58,.22);letter-spacing:.02em}
+body.china-page .china-sticky-top::after{content:"";position:absolute;left:0;right:0;top:100%;height:2px;background:#FBF5E9;pointer-events:none} /* v10.8: 2px beige gap under top bar, hides scrolling text */
+}
+html{--atm-hdr:118px}html.atm-compact{--atm-hdr:44px}
+body.china-page .ev-card,body.china-page .ev-card:not(.atm-dim){border:2px solid #C9A96A!important;border-radius:14px!important;overflow:hidden!important;background:#FFFCF5!important;box-shadow:0 8px 22px rgba(60,40,20,.18),0 2px 6px rgba(0,0,0,.08)!important}
+body.china-page .ev-card>.ev-cover{border:0!important;border-radius:0!important;border-bottom:1px solid #D9C08A!important;box-sizing:border-box}
+body.china-page .ev-card>.ev-cover:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5)!important}
+body.china-page .ev-card:not(.atm-open)>.atm-desc.atm-over:after{background:linear-gradient(to bottom,rgba(255,252,245,0),#FFFCF5 85%)!important}
+/* from asia map page inline */
+@media (min-width:768px){body.china-page .china-disclaimer{font-size:11px}} /* v10.7: desktop footer source note smaller */
+/* from asia map page inline */
+/* draft 2026-10-30: card color by type — milonga red, practica teal, featured (festival/marathon/event) gold */
+body .ev-card[data-type="milonga"]{--b:#C8102E!important}
+body .ev-card[data-type="practica"]{--b:#0E6E78!important}
+body .ev-card[data-type="festival"],body .ev-card[data-type="marathon"],body .ev-card[data-type="event"],body .ev-card[data-type="encuentro"]{--b:#9A6E00!important}
+body .ev-card[data-type="milonga"] .atm-mk{--c:#C8102E!important;color:#C8102E!important}
+body .ev-card[data-type="practica"] .atm-mk{--c:#0E6E78!important;color:#0E6E78!important}
+body .ev-card:is([data-type="festival"],[data-type="marathon"],[data-type="event"],[data-type="encuentro"]) .atm-mk:not(.atm-fav){--c:#9A6E00!important;color:#9A6E00!important}
+body .ev-card[data-type] .b-label{color:var(--b)!important}
+/* from asia map page inline */
+/* draft 2026-10-30 quickfix: contrast, tap targets, no generated poster */
+body.china-page .ev-card .b-l{color:#6B6390!important}
+body.china-page .ev-card .b-more summary:after{color:inherit!important;opacity:.85}
+body.china-page .ev-card:is([data-type="festival"],[data-type="marathon"],[data-type="event"],[data-type="encuentro"]) .b-more summary{color:#7A5700!important}
+.atm-favbar .atm-hint{color:#6F5D4F!important}
+body.china-page .ev-card>.atm-nocover{display:none!important}
+.atm-heart:before{content:"";position:absolute;inset:-5px;border-radius:50%}
+.top-lang a{position:relative}.top-lang a:before{content:"";position:absolute;left:-2px;right:-2px;top:50%;height:44px;transform:translateY(-50%)}
+body.china-page .ev-card .china-links a:after{top:-7px!important;bottom:-7px!important}
+body.china-page .ev-card .china-links{row-gap:14px!important}
+body.china-page .ev-card .b-in a[href^="tel:"],body.china-page .ev-card .b-in a[href^="mailto:"]{display:inline-flex;align-items:center;min-height:44px}
+body.china-page .ev-card:has(.b-poster img[src*="/posters/generated/"]){height:auto!important}
+body.china-page .ev-card .b-poster:has(img[src*="/posters/generated/"]){height:80px!important;min-height:0!important;max-height:80px!important;overflow:hidden;border-radius:14px;background:linear-gradient(90deg,var(--b),color-mix(in srgb,var(--b) 35%,#fff))}
+body.china-page .ev-card .b-poster:has(img[src*="/posters/generated/"])>*{display:none!important}
+html body.china-page #filters input.china-date-input[type=date]{height:44px!important;max-height:none!important;margin-top:-10px!important;margin-bottom:-10px!important}
+/* from asia map page inline */
+/* draft 2026-10-30: header redesign (presearch). Desktop: one wide bar = title left + search right. Mobile: compact title, segmented 特色/常规, rounded search box, sticky. */
+@media (min-width:1200px){
+ html body.china-presearch #filters{position:fixed;top:0;left:0;right:0;height:var(--atm-hh,93px);background:transparent!important;border:0!important;z-index:1000!important;pointer-events:none;padding:0!important;margin:0!important}
+ html body.china-presearch #filters>.wrap{height:100%;position:relative;max-width:none!important;padding:0!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form{pointer-events:auto;position:absolute;top:50%;right:max(130px,calc((100vw - 1100px)/2 + 120px));transform:translateY(-50%);display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center;gap:8px;width:auto!important;padding:6px 6px 6px 8px!important;margin:0!important;border-radius:16px!important;background:#FFFAF0!important;box-shadow:0 2px 10px rgba(0,0,0,.18)!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.atm-row-reg,html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap.atm-row-go{display:contents!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.atm-row-ev{margin:0!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form .atm-ev-note,html body.china-presearch #filters .china-filters-row1.atm-form .atm-row-go .m-label,html body.china-presearch #filters .china-filters-row1.atm-form .atm-date-default+*{display:none!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form .atm-ev-note{display:none!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form .m-chip.china-type-check{min-height:44px;margin:0!important;width:auto!important;padding:0 16px!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.atm-row-ev{width:auto!important;flex:0 0 auto!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form{max-width:none!important;min-width:0!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-date-fromto{max-width:124px!important;overflow:visible}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-date-fromto,html body.china-presearch #filters .china-filters-row1.atm-form .china-date-field{width:auto!important;flex:0 0 auto!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-date-fromto{display:flex!important;width:auto!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-showmode{width:auto!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form .china-city-wrap select{min-height:44px}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-date-fromto{margin:0!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form #china-search{margin:0!important;min-width:0!important;width:auto!important;padding:0 22px!important;min-height:44px;border-radius:999px!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-showmode{flex:0 0 auto!important;width:auto!important;position:static!important;margin:0!important;padding:0!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form .atm-date-default{display:none!important}
+ body.china-presearch .china-sticky-top{position:sticky}
+ body.china-presearch .tw-m-feat{padding-top:12px}
+}
+@media (max-width:600px){
+ body.china-page .china-map-sub{display:none!important}
+ body.china-page .china-hero-bar{min-height:0!important;padding-top:8px!important;padding-bottom:8px!important}
+ html body.china-presearch #filters{position:sticky;top:var(--atm-hh,48px);z-index:40!important;padding:6px 0 8px!important;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+ html body.china-presearch #filters .china-filters-row1.atm-form{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 6px;padding:0!important;margin:0!important;background:transparent!important;border:0!important;box-shadow:none!important;position:relative}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.atm-row-reg,html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap.atm-row-go{display:contents!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.atm-row-ev{grid-row:1!important;grid-column:1/3!important;margin:0!important;min-height:0!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.atm-row-reg>label{grid-row:1!important;grid-column:3/5!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.atm-row-ev>label,html body.china-presearch #filters .china-filters-row1.atm-form>.atm-row-reg>label{width:100%!important;min-height:44px;margin:0!important;justify-content:center;box-sizing:border-box}
+ html body.china-presearch #filters .china-filters-row1.atm-form .atm-ev-note,html body.china-presearch #filters .china-filters-row1.atm-form .atm-row-go .m-label{display:none!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form:after{content:"";grid-row:2!important;grid-column:1/-1!important;align-self:stretch!important;border:1.5px solid #0E6E78;border-radius:999px;background:#fff;z-index:0!important;pointer-events:none}
+ html body.china-presearch #filters .china-filters-row1.atm-form .china-city-wrap{grid-row:2!important;grid-column:1/2!important;z-index:1!important;align-self:center!important;margin:0 0 0 10px!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form .china-city-wrap select{width:100%!important;min-height:44px;border:0!important;background-color:transparent!important;padding-left:4px!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-date-fromto{grid-row:2!important;grid-column:1/4!important;z-index:1!important;align-self:center!important;margin:0 0 0 16px!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form:has(input[value=regular]:checked) .china-date-fromto{grid-column:2/4!important;margin-left:6px!important}
+ html body.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-showmode{grid-row:2!important;grid-column:4/5!important;z-index:1!important;justify-self:end!important;align-self:center!important;margin:0!important;padding:3px}
+ html body.china-presearch #filters .china-filters-row1.atm-form #china-search{width:auto!important;min-width:76px!important;padding:0 12px!important;margin-right:4px!important;margin:0!important;border-radius:999px!important}
+ body.china-presearch .tw-m-feat{padding-top:6px!important}
+}
+/* from asia map page inline */
+/* draft: iOS-style back chevron + title → site home */
+.china-map-hero h1 .atm-back{display:inline-flex;align-items:center;gap:.22em;min-height:44px;color:inherit!important;text-decoration:none!important;-webkit-tap-highlight-color:transparent}
+.china-map-hero h1 .atm-back-chev{flex:0 0 auto;width:.5em;height:1.3em;stroke:currentColor;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35));transition:transform .15s}
+.china-map-hero h1 .atm-back:hover .atm-back-chev{transform:translateX(-2px)}
+html.atm-compact .china-map-hero h1::before{display:none!important}
+.atm-pv-t .atm-back{pointer-events:none;color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:.28em}.atm-pv-t .atm-back-chev{width:.5em;height:1.3em}
+/* B header (2026-10-30): thin ‹ + large bold title + gold outline beta tag, no tagline; desktop search bar centred */
+html body.china-page .china-map-hero .china-map-sub{display:none!important}
+html body.china-page .china-map-hero h1{font-weight:800!important;margin:0!important;line-height:1.1!important;font-size:21px!important;white-space:nowrap}
+html body.china-page .china-map-hero h1 .atm-back>span{font-size:1em!important}
+html body.china-page .china-map-hero h1 .atm-back-chev{height:1.25em!important;width:.55em!important}
+html body.china-page .china-map-hero h1 .atm-back .atm-beta,html body.china-page .china-map-hero h1 .atm-beta{font-size:11px!important;font-weight:500!important;vertical-align:4px;border:1px solid rgba(246,213,142,.6);border-radius:6px;padding:0 5px;margin-left:6px;line-height:1.5;white-space:nowrap}
+@media (min-width:1200px){html body.china-page .china-map-hero h1{font-size:24px!important} html body.china-page .china-map-hero .china-hero-bar{max-width:none!important;padding-left:28px!important;padding-right:28px!important} html body.china-presearch #filters .china-filters-row1.atm-form{right:auto!important;left:50%!important;transform:translate(-50%,-50%)!important}}
+html.atm-compact body.china-page .china-map-hero h1{font-size:19px!important}
+@media (max-width:600px){html body.china-page .china-map-hero .china-hero-bar{padding-top:6px!important;padding-bottom:6px!important;padding-left:10px!important;padding-right:10px!important;gap:6px!important;flex-wrap:nowrap!important;min-height:56px!important}html body.china-page .china-map-hero .china-title-wrap{min-width:0!important;overflow:hidden}html body.china-page .china-map-hero h1 .atm-back{gap:.18em}html body.china-page .china-map-hero h1 .atm-back .atm-beta,html body.china-page .china-map-hero h1 .atm-beta{font-size:10px!important;padding:0 4px!important;margin-left:4px!important}}@media (max-width:600px){html body.china-page.china-presearch #filters .china-filters-row1.atm-form{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;gap:6px!important;width:auto!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form:after{display:none!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.atm-row-reg,html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap.atm-row-go{display:contents!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.atm-row-ev{display:contents!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.atm-row-reg>label{order:2;flex:0 0 auto!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.atm-row-ev>label,html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.atm-row-reg>label{width:auto!important;min-width:0!important;flex:0 0 auto!important;min-height:44px!important;padding:0 10px!important;font-size:14px!important;white-space:nowrap!important;margin:0!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.atm-row-ev>label{order:1;border-radius:999px 0 0 999px!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.atm-row-reg>label{border-radius:0 999px 999px 0!important;margin-left:-6px!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form .china-check{display:none!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form .china-city-wrap{order:3;flex:0 1 84px!important;min-width:64px!important;margin:0!important;border:1.5px solid #0E6E78;border-radius:999px;background:#fff;overflow:hidden}html body.china-page.china-presearch #filters .china-filters-row1.atm-form .china-city-wrap select{min-height:41px!important;font-size:14px!important;padding:0 2px 0 8px!important;width:100%!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-date-fromto{order:4;flex:1 1 0!important;min-width:0!important;margin:0!important;border:1.5px solid #0E6E78;border-radius:999px;background:#fff;padding:0 8px!important;min-height:41px;display:flex!important;align-items:center;overflow:hidden}html body.china-page.china-presearch #filters .china-filters-row1.atm-form:has(input[value=regular]:checked) .china-date-fromto{margin:0!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form .china-date-fromto .china-date-field,html body.china-page.china-presearch #filters .china-filters-row1.atm-form .china-date-fromto .china-date-wrap{display:flex!important;align-items:center!important;height:41px!important;width:100%!important;min-width:0!important;border:0!important;padding:0!important;margin:0!important;background:transparent!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form .china-date-fromto input{width:100%!important;min-width:0!important;border:0!important;font-size:13px!important;padding:0!important;min-height:38px!important;background:transparent!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form .atm-date-default{display:none!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form>.china-date-wrap>.china-showmode{order:5;flex:0 0 44px!important;margin:0!important;padding:0!important}html body.china-page.china-presearch #filters .china-filters-row1.atm-form #china-search{width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;margin:0!important;border-radius:50%!important;font-size:0!important;color:transparent!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F6D58E' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:center!important;background-size:22px!important}}
+@media (max-width:380px){html body.china-page .china-map-hero h1{font-size:19px!important}}
+/* from asia map page inline */
+/* draft 2026-10-31: tap targets >=44px without changing the look */
+html.atm-noback body.china-page .china-map-hero h1 .atm-back-chev{display:none!important}
+html body.china-page .atm-heart::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%)}
+html body #atm-pop .ap-x{width:48px!important;height:48px!important;line-height:42px!important}
+html body.china-page .china-linkbtn{position:relative!important;z-index:1}html body.china-page .china-linkbtn::before{content:"";position:absolute;left:50%;top:50%;width:max(calc(100% + 4px),44px);height:44px;transform:translate(-50%,-50%)}
+/* from asia map page inline */
+/* draft 2026-10-30: 更多/More without jumps. Desktop grid: rows keep one height (stretch), 更多 sits at the card bottom and opens as a floating panel = no other card moves. Mobile: card grows downward, its top stays fixed. */
+@media (min-width:700px){
+ html body li.ev-card.b-card .b-more{margin-top:auto!important;position:relative}
+ html body li.ev-card.b-card .b-more[open]{z-index:30}
+ html body li.ev-card.b-card .b-more[open]>.b-in{position:absolute;left:-16px;right:-16px;top:calc(100% + 6px);max-height:60vh;overflow:auto;background:#fff;border:1px solid #d9cfee;border-radius:18px;box-shadow:0 10px 28px rgba(29,22,64,.22);padding:12px 16px!important}
+ html body li.ev-card.b-card:has(.b-more[open]){overflow:visible!important;z-index:30}
+}
+/* from asia map page inline */
+/* draft 2026-10-31 v2: original green bar at top; WeChat-style white bar only when scrolled (html.atm-wx-s) (was teal radial-gradient .china-map-hero) + ··· sheet */
+html.atm-wx-s body.china-page .china-map-hero{background:#fff!important;background-image:none!important;color:#191919!important;border-bottom:1px solid #e5e5e5!important;box-shadow:none!important}
+html.atm-wx-s body.china-page .china-map-hero:before,html.atm-wx-s body.china-page .china-map-hero:after{display:none!important}
+html.atm-wx-s body.china-page .china-map-hero h1,html.atm-wx-s body.china-page .china-map-hero h1 a{color:#191919!important;text-shadow:none!important}
+html.atm-wx-s body.china-page .china-map-hero h1 .atm-back-chev{filter:none!important}
+html.atm-wx-s body.china-page .china-map-hero h1 .atm-beta{color:#576b95!important;border-color:#c8d0e0!important}
+html.atm-compact.atm-wx-s body.china-page .china-map-hero h1::before{background-color:#191919!important}
+html.atm-wx-s body.china-page .china-map-hero .atm-langbtn,html.atm-wx-s body.china-page .china-map-hero .atm-burger{color:#191919!important;border-color:#d6d6d6!important;background:#fff!important}
+html.atm-wx-s body.china-page .china-map-hero .china-suggest-open{background:#f2f2f2!important;color:#191919!important;border-color:#d6d6d6!important}
+.atm-wx-more{flex:0 0 auto;width:44px;height:44px;margin:0 -6px 0 2px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;padding:0;color:inherit;font:700 22px/1 system-ui,sans-serif;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#atm-wx-sheet{position:fixed;inset:0;z-index:100000;display:none;background:rgba(0,0,0,.4)}
+#atm-wx-sheet.open{display:block}
+#atm-wx-sheet .sh{position:absolute;left:0;right:0;bottom:0;background:#f7f7f7;border-radius:12px 12px 0 0;padding:8px 0 calc(8px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto}
+#atm-wx-sheet button{display:block;width:100%;min-height:52px;background:#fff;border:0;border-bottom:1px solid #e5e5e5;font:500 17px system-ui,sans-serif;color:#191919;cursor:pointer}
+#atm-wx-sheet button.x{margin-top:8px;border:0}
+#atm-wx-toast{position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);z-index:100001;background:rgba(17,17,17,.82);color:#fff;padding:12px 20px;border-radius:8px;font:15px system-ui,sans-serif;display:none}
+html.atm-wx-s .atm-wx-more{color:#191919}
+/* from asia map page inline */
+/* draft 2026-10-31 v2: count title centered in the white bar while scrolled; regular city-count heading removed from page */
+.china-map-hero .china-hero-bar{position:relative}
+.atm-wx-ttl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:calc(100% - 210px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 17px/1.2 system-ui,-apple-system,sans-serif;color:#191919;pointer-events:none;display:none}
+html.atm-wx-s.atm-wx-t .atm-wx-ttl{display:block}
+html.atm-wx-s.atm-wx-t body.china-page .china-map-hero h1 .atm-back>span{visibility:hidden}
+html body.china-page .atm-onehead.atm-oh-reg{display:none!important}
+@media (min-width:1200px){.atm-wx-ttl{max-width:40vw}html.atm-wx-s.atm-wx-t body.china-page .china-map-hero h1 .atm-back>span{visibility:visible}}
+/* from asia map page inline */
+/* draft 2026-10-31 v2: tap card -> scroll it under the white bar + expand (no overlay); 2nd tap -> detail link; no link -> nothing (stays expanded; ··· only from top-bar button) */
+body.china-page .atm-tapsel{box-shadow:0 0 0 2px #07c160,0 10px 26px rgba(0,0,0,.18)!important}
+/* from asia map page inline */
+#atm-pop{position:fixed;inset:0;z-index:99999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:rgba(0,0,0,.55);padding:16px;box-sizing:border-box}
+#atm-pop.on{display:flex}
+#atm-pop .ap-wrap{position:relative;width:min(280px,72vw);max-height:min(58vh,520px);overflow:auto;border-radius:16px;box-shadow:0 14px 40px rgba(0,0,0,.45);background:#fff;-webkit-overflow-scrolling:touch}
+#atm-pop .ap-wrap ul{list-style:none;margin:0;padding:0;display:block!important;columns:auto!important;width:100%!important}
+#atm-pop .ap-wrap .ev-card{margin:0!important;width:auto!important;max-width:none!important;transform:none!important}
+#atm-pop .ap-wrap .atm-heart,#atm-pop .ap-wrap .atm-viewed-mark{display:none!important}
+#atm-pop .ap-wrap .ev-cover,#atm-pop .ap-wrap .ev-cover img{max-height:min(32vh,260px)!important;object-fit:cover}
+#atm-pop .ap-wrap .ev-card{font-size:.92em}
+#atm-pop{gap:12px;padding:12px;justify-content:center}
+#atm-pop .ap-ad{position:sticky;bottom:0;z-index:2;display:block;text-align:right;padding:8px 12px 10px;font:700 14px/1.2 system-ui,sans-serif;letter-spacing:.06em;color:#fff;background:linear-gradient(rgba(200,16,46,0),#c8102e 35%);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+#atm-pop .ap-x{flex:0 0 auto;width:48px;height:48px;border-radius:50%;border:3px solid #fff;background:#111;color:#fff;font-size:28px;font-weight:700;line-height:42px;padding:0;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#atm-pop .ap-x:focus-visible{outline:3px solid #F6D58E;outline-offset:2px}
+/* from asia map page inline */
+/* draft 2026-10-30: mobile first-load 收藏 cards fill viewport; compact header = back chevron only */
+@media (max-width:600px){
+body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc{height:var(--atm-favh,auto)!important;max-height:none!important}
+body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc .tw-fc-img{flex:1 1 0!important;height:auto!important;min-height:0!important;max-height:none!important}
+body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc .tw-fc-img img{height:100%!important;width:100%!important;object-fit:cover}
+html.atm-compact body.china-page section.china-map-hero .china-hero-bar .atm-back>span,html.atm-compact body.china-page section.china-map-hero .china-hero-bar nav.top-lang,html.atm-compact body.china-page section.china-map-hero .china-hero-bar a.atm-langbtn,html.atm-compact body.china-page section.china-map-hero .china-hero-bar button.atm-burger,html.atm-compact body.china-page section.china-map-hero .china-hero-bar button.china-suggest-open{display:none!important}
+html.atm-compact body.china-page section.china-map-hero .china-hero-bar .atm-back{font-size:0!important;gap:0!important}html.atm-compact body.china-page section.china-map-hero .china-hero-bar .atm-back .atm-beta{display:none!important}
+html.atm-compact body.china-page section.china-map-hero .china-hero-bar .atm-back-chev{height:32px!important;width:auto!important}
+body.china-presearch .tw-m-feat-grid.tw-feat-ad a.tw-fc .tw-fc-body{flex:0 0 auto!important}
+}
+/* from asia map page inline */
+html.atm-compact body.china-page .china-map-hero h1 .atm-back{min-width:44px;min-height:44px;justify-content:flex-start;box-sizing:border-box}
+/* v11.0: snap point at page top so proximity snap cannot pull a short header onto the first card */
+html body.china-page::before{content:"";display:block;height:0;scroll-snap-align:start;scroll-margin-top:400px}
+/* draft 2026-10-30: mobile search bar always one-line (also after search) */
+@media (max-width:600px){
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form { grid-template-columns: repeat(4, minmax(0px, 1fr)); gap: 8px 6px; position: relative; display: grid !important; padding: 0px !important; margin: 0px !important; background: transparent !important; border: 0px !important; box-shadow: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap.atm-row-go { display: contents !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev { grid-area: 1 / 1 / auto / 3 !important; margin: 0px !important; min-height: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { grid-area: 1 / 3 / auto / 5 !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev > label, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { min-height: 44px; justify-content: center; box-sizing: border-box; width: 100% !important; margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .atm-ev-note, html body.china-page.atm-1l #filters .china-filters-row1.atm-form .atm-row-go .m-label { display: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form::after { content: ""; border: 1.5px solid rgb(14, 110, 120); border-radius: 999px; background: rgb(255, 255, 255); pointer-events: none; grid-area: 2 / 1 / auto / -1 !important; align-self: stretch !important; z-index: 0 !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-city-wrap { grid-area: 2 / 1 / auto / 2 !important; z-index: 1 !important; align-self: center !important; margin: 0px 0px 0px 10px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-city-wrap select { min-height: 44px; width: 100% !important; border: 0px !important; background-color: transparent !important; padding-left: 4px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap > .china-date-fromto { grid-area: 2 / 1 / auto / 4 !important; z-index: 1 !important; align-self: center !important; margin: 0px 0px 0px 16px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form:has(input[value="regular"]:checked) .china-date-fromto { grid-column: 2 / 4 !important; margin-left: 6px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap > .china-showmode { padding: 3px; grid-area: 2 / 4 / auto / 5 !important; z-index: 1 !important; place-self: center end !important; margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form #china-search { width: auto !important; min-width: 76px !important; padding: 0px 12px !important; margin: 0px !important; border-radius: 999px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form { display: flex !important; flex-flow: row !important; align-items: center !important; gap: 6px !important; width: auto !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form::after { display: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap.atm-row-go { display: contents !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev { display: contents !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { order: 2; flex: 0 0 auto !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev > label, html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { width: auto !important; min-width: 0px !important; flex: 0 0 auto !important; min-height: 44px !important; padding: 0px 10px !important; font-size: 14px !important; white-space: nowrap !important; margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-ev > label { order: 1; border-radius: 999px 0px 0px 999px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .atm-row-reg > label { border-radius: 0px 999px 999px 0px !important; margin-left: -6px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-check { display: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-city-wrap { order: 3; border: 1.5px solid rgb(14, 110, 120); border-radius: 999px; background: rgb(255, 255, 255); overflow: hidden; flex: 0 1 84px !important; min-width: 64px !important; margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-city-wrap select { min-height: 41px !important; font-size: 14px !important; padding: 0px 2px 0px 8px !important; width: 100% !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap > .china-date-fromto { order: 4; border: 1.5px solid rgb(14, 110, 120); border-radius: 999px; background: rgb(255, 255, 255); min-height: 41px; align-items: center; overflow: hidden; flex: 1 1 0px !important; min-width: 0px !important; margin: 0px !important; padding: 0px 8px !important; display: flex !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form:has(input[value="regular"]:checked) .china-date-fromto { margin: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-date-fromto .china-date-field, html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-date-fromto .china-date-wrap { display: flex !important; align-items: center !important; height: 41px !important; width: 100% !important; min-width: 0px !important; border: 0px !important; padding: 0px !important; margin: 0px !important; background: transparent !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .china-date-fromto input { width: 100% !important; min-width: 0px !important; border: 0px !important; font-size: 13px !important; padding: 0px !important; min-height: 38px !important; background: transparent !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form .atm-date-default { display: none !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form > .china-date-wrap > .china-showmode { order: 5; flex: 0 0 44px !important; margin: 0px !important; padding: 0px !important; }
+html body.china-page.atm-1l #filters .china-filters-row1.atm-form #china-search { width: 44px !important; min-width: 44px !important; height: 44px !important; padding: 0px !important; margin: 0px !important; border-radius: 50% !important; font-size: 0px !important; color: transparent !important; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F6D58E' stroke-width='2.6' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") !important; background-repeat: no-repeat !important; background-position: center center !important; background-size: 22px auto !important; }
+}
+/* from asia map page inline */
+/* draft 2026-10-30: first-load featured-count strip */
+html.atm-nosnap,html.atm-nosnap:has(body){scroll-snap-type:none!important}
+html body.china-page section.tw-m-feat:has(.atm-favgrid.atm-fold){min-height:0!important;height:auto!important}
+html body.china-page .atm-featstrip[hidden],html body.china-page:not(.china-presearch) .atm-featstrip{display:none!important}
+/* from asia map page inline */
+/* draft 2026-10-31: unified one-line heading (list head + first-load strip) */
+.atm-oh-hide{display:none!important}
+html body.china-page .atm-onehead{display:flex;align-items:baseline;gap:8px;flex-wrap:nowrap;white-space:nowrap;overflow:hidden;box-sizing:border-box;width:100%;margin:14px 0 10px;padding:4px 2px 8px;border:0;border-bottom:2px solid #E3C98C;border-radius:0;background:transparent;color:#0E6E78;font:inherit;font-weight:700;font-size:18px;line-height:1.35;text-align:left;box-shadow:none}
+html body.china-page .atm-onehead .atm-oh-city{color:#5a3e2b}
+html body.china-page .atm-onehead .atm-oh-n{color:#C8102E;font-variant-numeric:tabular-nums}
+html body.china-page .atm-onehead .atm-oh-from{margin-left:auto;font-size:.72em;font-weight:500;color:#8a7563;flex:0 0 auto}
+html body.china-page button.atm-onehead.atm-featstrip{cursor:pointer;margin:10px 0 2px}
+html body.china-page .atm-onehead .atm-oh-car{margin-left:auto;color:#b8913a;font-size:.85em;transition:transform .2s}
+html body.china-page button.atm-featstrip:hover .atm-oh-car{transform:translateY(2px)}
+@media (min-width:601px){html body.china-page .atm-onehead{font-size:22px;padding:6px 2px 10px;margin:18px 0 12px}}
