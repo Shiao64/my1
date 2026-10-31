@@ -324,34 +324,22 @@ function upd(){raf=0;var bar=D.querySelector('.china-map-hero');if(!bar)return;i
 var lim=bar.getBoundingClientRect().bottom,t='';D.querySelectorAll('.atm-onehead,.atm-featstrip').forEach(function(h){if(h.hidden||!h.offsetHeight)return;var r=h.getBoundingClientRect();if(r.bottom<=lim+2){var c=h.cloneNode(true);c.querySelectorAll('.atm-oh-from').forEach(function(x){x.remove()});t=c.textContent.replace(/\s*\u25BE\s*$/,'').replace(/\s+/g,' ').trim()}});
 if(t){if(el.textContent!==t)el.textContent=t;R.classList.add('atm-wx-t')}else R.classList.remove('atm-wx-t')}
 function q(){if(!raf)raf=requestAnimationFrame(upd)}addEventListener('scroll',q,{passive:true});addEventListener('resize',q);D.addEventListener('DOMContentLoaded',q);})();</script>
-<style id="atm-cardpv">/* draft 2026-10-31: tap card -> large preview; 2nd tap -> detail link, or ··· sheet with card #v-ID link */
-#atm-cpv{position:fixed;inset:0;z-index:99990;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);padding:16px;box-sizing:border-box}
-#atm-cpv.open{display:flex}
-#atm-cpv .cp{position:relative;width:min(92vw,520px);max-height:88vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 18px 50px rgba(0,0,0,.35);cursor:pointer;font-family:system-ui,-apple-system,sans-serif;color:#191919}
-#atm-cpv .cp img{display:block;width:100%;max-height:60vh;object-fit:contain;background:#111}
-#atm-cpv .cb{padding:14px 18px 16px}
-#atm-cpv h2{margin:0 0 6px;font-size:20px;line-height:1.25}
-#atm-cpv .cm{color:#555;font-size:15px;line-height:1.5}
-#atm-cpv .go{display:block;width:100%;min-height:48px;margin-top:12px;border:0;border-radius:10px;background:#07c160;color:#fff;font:600 16px system-ui,sans-serif;cursor:pointer}
-#atm-cpv .cx{position:absolute;top:6px;right:6px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:24px;line-height:44px;cursor:pointer;z-index:2}
+<style id="atm-cardpv">/* draft 2026-10-31 v2: tap card -> scroll it under the white bar + expand (no overlay); 2nd tap -> detail link, or ··· sheet with card #v-ID */
+body.china-page .atm-tapsel{box-shadow:0 0 0 2px #07c160,0 10px 26px rgba(0,0,0,.18)!important}
 </style>
-<script id="atm-cardpv-js">(function(){var D=document;function Z(){return (D.documentElement.lang||'').indexOf('zh')==0}
-function esc(t){return String(t||'').replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+<script id="atm-cardpv-js">(function(){var D=document,R=D.documentElement,act=null,opened=null;
 function detail(c){if(c.matches('a.atm-favfc'))return c.href;var as=c.querySelectorAll('.china-links a[href]'),best=null;for(var i=0;i<as.length;i++){var a=as[i],h=a.getAttribute('href')||'';if(/^(tel:|mailto:|#)/.test(h)||/\.(jpe?g|png|webp|gif)$/i.test(h))continue;if(/官网|网站|详情|Website|Details|Info|活动页/i.test(a.textContent))return a.href;if(!best)best=a.href}return best}
-function info(c){var q=function(s){var e=c.querySelector(s);return e?e.textContent.trim():''},img=c.querySelector('img');var id=c.getAttribute('data-id')||'';
-if(c.matches('a.atm-favfc'))return{img:img&&(img.dataset.full||img.src),name:q('.tw-fc-body strong'),meta:q('.tw-fc-meta'),venue:'',id:''};
-return{img:img&&(img.dataset.full||img.src),name:q('.ev-name'),meta:q('.b-label'),venue:q('.b-venue .b-v'),id:id}}
-var ov,cur=null;function build(){ov=D.createElement('div');ov.id='atm-cpv';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');D.body.appendChild(ov);
-ov.addEventListener('click',function(e){if(e.target===ov||e.target.closest('.cx')){close();return}if(e.target.closest('.cp'))second()})}
-function close(){ov.classList.remove('open');cur=null}
-function second(){if(!cur)return;var c=cur;close();if(c.href){if(c.fav)location.href=c.href;else{var w=null;try{w=open(c.href,'_blank','noopener')}catch(x){}if(!w)location.href=c.href}}else if(window.atmWxSheet)window.atmWxSheet(location.origin+location.pathname+(c.id?'#v-'+c.id:''))}
-function show(c){if(!ov)build();var i=info(c),h=detail(c),z=Z();cur={href:h,fav:c.matches('a.atm-favfc'),id:i.id};
-ov.innerHTML='<div class="cp"><button class="cx" type="button" aria-label="'+(z?'关闭':'Close')+'">×</button>'+(i.img?'<img src="'+esc(i.img)+'" alt="">':'')+'<div class="cb"><h2>'+esc(i.name)+'</h2><div class="cm">'+esc(i.meta)+(i.venue?'<br>📍 '+esc(i.venue):'')+'</div><button class="go" type="button">'+(h?(z?'查看详情':'View details'):(z?'分享 / 复制链接':'Share / Copy link'))+'</button></div></div>';ov.classList.add('open')}
-D.addEventListener('click',function(e){var t=e.target;if(!t.closest||t.closest('#atm-cpv,#atm-pop,#atm-wx-sheet'))return;var c=t.closest('a.atm-favfc,li.ev-card');if(!c)return;
-if(t.closest('.atm-heart,details.b-more,.b-more,.atm-more,button,input,label,select'))return;if(c.matches('li.ev-card')&&t.closest('a'))return;
-e.preventDefault();e.stopPropagation();show(c)},true);
-D.addEventListener('keydown',function(e){if(e.key==='Escape'&&ov&&ov.classList.contains('open'))close()});
-window.atmCardDetail=detail;})();</script>
+function reset(){if(act)act.classList.remove('atm-tapsel');if(opened)opened.open=false;act=opened=null}
+function barB(){var b=D.querySelector('.china-sticky-top')||D.querySelector('.china-map-hero');return b?Math.max(0,b.getBoundingClientRect().bottom):0}
+function first(c){reset();act=c;c.classList.add('atm-tapsel');c.classList.remove('atm-lift');var d=c.querySelector('details.b-more');if(d&&!d.open){d.open=true;opened=d}
+ R.style.scrollSnapType='none';var go=function(){var y=scrollY+c.getBoundingClientRect().top-barB()-8;scrollTo({top:Math.max(0,y),behavior:'smooth'})};go();setTimeout(go,450);setTimeout(function(){R.style.scrollSnapType=''},1200);
+ if(c.matches('a.atm-favfc'))try{c.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}catch(x){}}
+function second(c){var h=detail(c),id=c.getAttribute('data-id')||'';reset();if(h){if(c.matches('a.atm-favfc'))location.href=h;else{var w=null;try{w=open(h,'_blank')}catch(x){}if(w){try{w.opener=null}catch(x){}}else location.href=h}}else if(window.atmWxSheet)window.atmWxSheet(location.origin+location.pathname+(id?'#v-'+id:''))}
+D.addEventListener('click',function(e){var t=e.target;if(!t.closest||t.closest('#atm-pop,#atm-wx-sheet,.china-map-hero'))return;var c=t.closest('a.atm-favfc,li.ev-card');
+ if(!c){return}
+ if(t.closest('.atm-heart,details.b-more,.atm-more,button,input,label,select'))return;if(c.matches('li.ev-card')&&t.closest('a'))return;
+ e.preventDefault();e.stopPropagation();if(c===act)second(c);else first(c)},true);
+window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
