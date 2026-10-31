@@ -106,7 +106,7 @@ function second(c){var h=detail(c);if(!h)return;if(window.atmFromUrl)h=window.at
 D.addEventListener('click',function(e){var t=e.target;if(!t.closest||t.closest('#atm-pop,#atm-wx-sheet,.china-map-hero'))return;var c=t.closest('a.atm-favfc,li.ev-card');
  if(!c){return}
  if(t.closest('.atm-heart,details.b-more,.atm-more,button,input,label,select'))return;if(c.matches('li.ev-card')&&t.closest('a'))return;if(c.matches('a.atm-favfc'))return;/* draft 10/31: favorite tap -> ?card single view (asia-fav.js) */
- e.preventDefault();e.stopPropagation();if(c===act)second(c);else first(c)},true);
+ e.preventDefault();e.stopPropagation();var d=c.querySelector('details.b-more');if(d&&!d.open)d.open=true;/* draft 10/31 spec: collapsed card tap = expand in place (one level); expanded card tap = nothing; detail page only via 活动详情 button; 收起 collapses */},true);
 window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 </head>
 <body class="china-page">
@@ -406,7 +406,7 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<link rel="stylesheet" href="/asia/cardB.css?v=cb9"><script src="/asia/cardB.js?v=cb16"></script>
+<link rel="stylesheet" href="/asia/cardB.css?v=cb11"><script src="/asia/cardB.js?v=cb18"></script>
 <!-- atm-stw-popup v3 (entry ad = site's own E093 card) -->
 
 <div id="atm-pop" role="dialog" aria-modal="true" aria-label="第4届北京精选探戈周末"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">广告</span></div><button type="button" class="ap-x" aria-label="关闭">&times;</button></div>

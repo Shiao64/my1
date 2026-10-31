@@ -7,8 +7,38 @@ var EV=null; fetch('/asia/events.json').then(function(r){return r.json()}).then(
 function djName(e){ var t=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||''; var re=/\bDJ(?!s)(?!\s*booth)(?!台)\s*[:：]?\s*([^；;。，,（()）\n]+?)(?=\s*[（(；;。，,]|\.\s|\.$|$)/g, m, out=[]; while(m=re.exec(t)){ var n=m[1].replace(/\s*\(host[^)]*\)/i,'').trim(); if(n&&out.indexOf(n)<0) out.push(n); } if(/\bDJs\b/.test(t)||/DJ\s*[：:][^。；;]*、/.test(t)) return null; return out.length===1?out[0]:null; }
 function dj(li){ if(!EV||li.dataset.dj) return; var e=EV[li.dataset.id]; if(!e) return; li.dataset.dj='0'; var n=djName(e); if(!n) return; li.dataset.dj='1'; var v=li.querySelectorAll('.b-meta>.b-m')[1]; var d=document.createElement('div'); d.className='b-m b-dj'; d.innerHTML='<i>🎧</i><span class="b-l">DJ</span><span class="b-v"></span>'; d.lastChild.textContent=n; var m=li.querySelector('.b-meta'); var ven=[].filter.call(m.children,function(x){return /📍/.test(x.textContent)})[0]; if(ven) ven.after(d); else m.appendChild(d); }
 /* draft 2026-10-31: one-step 更多/More — opening expands everything (notes unclamped, no second 展开全文 level); open state shows a single 收起/Less at the bottom */
+function H(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function bad(x){return !x||/not found|没找到|未找到|unknown|未知|^tba$|待定/i.test(String(x))}
+function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in'); if(!inn||!EV||!li||inn.dataset.r) return; var e=EV[li.dataset.id]; if(!e) return; inn.dataset.r='1';
+ var R=[], row=function(l,v,c){ if(v) R.push('<div class="b-row'+(c?' '+c:'')+'"><b>'+l+'</b><span>'+v+'</span></div>'); };
+ var cn=e.country==='China', a1=bad(e.venue_address)?'':e.venue_address, a2=bad(e.venue_address_en)?'':e.venue_address_en, ad=[];
+ if(zh){ if(a1) ad.push(a1); if(a2&&(!cn||!a1||e.addr_en_zh)&&a2!==a1) ad.push(a2); } else { if(a2||a1) ad.push(a2||a1); }
+ var mq=(e.venue?e.venue+' ':'')+(a1||a2||''), mu=(cn?'https://uri.amap.com/search?keyword=':'https://www.google.com/maps/search/?api=1&query=')+encodeURIComponent(a1||a2||'');
+ row(zh?'地址':'Address', ad.length?'<a class="b-map" href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>':'');
+ var f=function(x){return x.replace(/-/g,'/')}, tm='';
+ if(e.start&&e.end&&e.start!==e.end) tm=f(e.start)+' – '+f(e.end); else if(e.start) tm=f(e.start)+(e.time?' '+e.time:''); else if(e.time) tm=e.time;
+ row(zh?'时间':'Time', H(tm));
+ row('DJ', H(djName(e)||''));
+ var nt=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||'', ss=nt.split(/(?<=[。；;！!])\s*|(?<=\.)\s+/).filter(function(x){return x.trim()}), fee=[], keep=[];
+ ss.forEach(function(x){ if(bad(x)) return; if(/门票|票价|费用|入场费|收费|免费|¥|￥|\d+\s*元|RMB|CNY|KRW|₩|NT\$|HK\$|\bEntry\b|\bFee\b|\bTicket|\bFree\b|\bAdmission/i.test(x)&&x.length<120) fee.push(x); else keep.push(x); });
+ row(zh?'费用':'Fee', fee.map(H).join(' '));
+ row(zh?'说明':'Notes', H(keep.join(zh?'':' ')), 'b-note');
+ var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, org=(!zh&&e.organizers_en)||e.organizers||[], ct=[];
+ if(org.length) ct.push(H(org.join(zh?'、':', ')));
+ if(C.wechat_id) ct.push((zh?'微信号：':'WeChat ID: ')+H(C.wechat_id)+(C.wechat_label?' ('+H(C.wechat_label)+')':''));
+ if(C.phone) ct.push((zh?'电话：':'Phone: ')+'<a href="tel:'+H(C.phone.replace(/[^\d+]/g,''))+'">'+H(C.phone)+'</a>');
+ if(C.email) ct.push((zh?'邮箱：':'Email: ')+'<a href="mailto:'+H(C.email)+'">'+H(C.email)+'</a>');
+ row(zh?'联络方式':'Contact', ct.join('<br>'));
+ var L=e.links||{}, lk=[], A=function(u,t){ lk.push('<a href="'+H(u)+'" target="_blank" rel="noopener">'+t+'</a>'); };
+ if(L.wechat) A(L.wechat, zh?'微信文章':'WeChat article');
+ if(L.facebook) A(L.facebook, zh?'脸书':'Facebook');
+ if(L.other&&!/tangoweekend\.org\/event\//.test(L.other)) A(L.other, zh?'网站':'Website');
+ if(L.register) A(L.register, zh?'报名':'Register');
+ if(L.video) A(L.video, zh?'视频':'Video');
+ row(zh?'链接':'Links', lk.join('<br>'), 'b-links');
+ inn.innerHTML=R.join(''); }
 document.addEventListener('toggle',function(ev){ var dt=ev.target; if(!dt.classList||!dt.classList.contains('b-more')) return; var inn=dt.querySelector('.b-in')||dt;
- if(dt.open){ dt.querySelectorAll('.b-note>span').forEach(function(sp){ sp.classList.add('b-open'); }); if(!inn.querySelector(':scope>.b-less')){ var b=document.createElement('button'); b.type='button'; b.className='b-less'; b.textContent=zh?'收起':'Less'; b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); dt.open=false; var c=dt.closest('.ev-card')||dt, r=c.getBoundingClientRect(); if(r.top<0) c.scrollIntoView({block:'start'}); }); inn.appendChild(b); } }
+ if(dt.open){ rebuild(dt); dt.querySelectorAll('.b-note>span').forEach(function(sp){ sp.classList.add('b-open'); }); if(!inn.querySelector(':scope>.b-less')){ var b=document.createElement('button'); b.type='button'; b.className='b-less'; b.textContent=zh?'收起':'Less'; b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); dt.open=false; var c=dt.closest('.ev-card')||dt, r=c.getBoundingClientRect(); if(r.top<0) c.scrollIntoView({block:'start'}); }); inn.appendChild(b); var li=dt.closest('.ev-card'), e=EV&&li&&EV[li.dataset.id], m=e&&((e.links&&e.links.other)||'').match(/^https?:\/\/(www\.)?tangoweekend\.org\/event\/([^\/]+)\/$/); if(m){ var a=document.createElement('a'); a.className='b-det'; a.href='/event/'+m[2]+'/'+(zh?'zh/':'')+'?from='+encodeURIComponent(li.dataset.id); a.textContent=zh?'活动详情':'Event details'; inn.insertBefore(a,b); } } }
 },true);
 function k(l){return (l.querySelector('.ev-k')||{}).textContent||''}
 function fix(li){ if(li.dataset.b)return; li.dataset.b='1'; li.classList.add('b-card');

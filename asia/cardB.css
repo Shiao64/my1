@@ -52,3 +52,9 @@ html body .ev-card.b-card[data-kind=event] .b-head .atm-marks{display:contents!i
 .b-more .b-less{display:block;width:100%;margin:12px 0 0;cursor:pointer;font:inherit;font-weight:800;color:#7A5700;background:#F7F5FF;border:0;border-radius:14px;padding:10px 14px;font-size:.9rem;text-align:left}
 .b-note-tg{display:none!important}
 .b-more .b-less::after{content:"▴";float:right}
+.b-more a.b-det{display:flex;align-items:center;justify-content:center;min-height:50px;margin:14px 0 0;border-radius:14px;background:#0E6E78;color:#fff!important;font-weight:800;font-size:1rem;text-decoration:none;box-shadow:0 5px 14px rgba(14,110,120,.28)}
+.b-more a.b-det+.b-less{margin-top:10px}
+#atm-single .b-more a.b-det~.b-less{margin-top:10px}
+#atm-single:has(details.b-more[open]) > .atm-det{display:none}
+.b-more .b-row a.b-map{color:inherit;text-decoration:underline dotted;text-underline-offset:3px}
+.b-more .b-row.b-links a{display:inline-block;padding:2px 0;font-weight:700}
