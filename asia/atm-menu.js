@@ -1,8 +1,8 @@
-/* draft 2026-10-30: header hamburger menu (footer removed). Holds 资料来源 (moved .china-disclaimer), 联系我们, 订阅, 提交活动, 语言. Only existing content. */
+/* draft 2026-10-30: header hamburger menu (footer removed). Holds 分享/复制链接/刷新 (moved from ··· 10/31), 资料来源 (moved .china-disclaimer), 联系我们, 订阅, 提交活动, 语言. Only existing content. */
 (function () {
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系我们', sub: '订阅更新', add: '提交活动', langL: '中文 / English', lang: 'English', site: '亚洲探戈地图' }
-             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Subscribe', add: 'Submit event', langL: 'Language', lang: '中文', site: 'Asia Tango Map' };
+  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系我们', sub: '订阅更新', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
+             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Subscribe', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
   var css = document.createElement('style');
   css.textContent = 'html body footer#contact,html body #contact{display:none!important}' +
     '.atm-burger{width:44px;height:44px;margin:0 0 0 4px;padding:0;border:0;background:transparent;color:#F6D58E;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;position:relative;z-index:5}' +
@@ -34,11 +34,14 @@
   nav.parentNode.insertBefore(b, nav.nextSibling);
   var m = document.createElement('div'); m.id = 'atm-menu'; m.hidden = true;
   function ic(p) { return '<svg class="atm-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="' + p + '"/></svg>'; }
-  var I = { lang: 'M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18', add: 'M12 5v14M5 12h14', sub: 'M6 16V11a6 6 0 0112 0v5l1.5 2h-15zM10 20h4', mail: 'M3 6h18v12H3zM3 6l9 7 9-7', src: 'M4 5h7v14H4zM13 5h7v14h-7z' };
+  var I = { lang: 'M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18', add: 'M12 5v14M5 12h14', sub: 'M6 16V11a6 6 0 0112 0v5l1.5 2h-15zM10 20h4', mail: 'M3 6h18v12H3zM3 6l9 7 9-7', src: 'M4 5h7v14H4zM13 5h7v14h-7z', share: 'M12 3v12M7 8l5-5 5 5M5 13v7h14v-7', copy: 'M9 9h11v11H9zM5 15H4V4h11v1', reload: 'M20 12a8 8 0 11-2.3-5.7M20 4v5h-5' };
   m.innerHTML = '<div class="atm-mbg" data-x></div><div class="atm-mp" role="dialog" aria-modal="true" aria-label="' + L.menu + '"><div class="atm-mhd"><span>' + L.site + '</span><button type="button" class="atm-mx" data-x aria-label="' + L.close + '">&times;</button></div>' +
     (other ? '<a class="atm-mi atm-mlang" href="' + other.getAttribute('href') + '" hreflang="' + (other.getAttribute('hreflang') || '') + '" data-asia-lang-set="' + (other.getAttribute('data-asia-lang-set') || '') + '">' + ic(I.lang) + L.langL + '<small>' + L.lang + '</small></a>' : '') +
     '<button type="button" class="atm-mi" data-a="add">' + ic(I.add) + L.add + '</button>' +
     '<button type="button" class="atm-mi" data-a="sub">' + ic(I.sub) + L.sub + '</button>' +
+    '<button type="button" class="atm-mi" data-a="wx-s">' + ic(I.share) + L.share + '</button>' +
+    '<button type="button" class="atm-mi" data-a="wx-c">' + ic(I.copy) + L.copy + '</button>' +
+    '<button type="button" class="atm-mi" data-a="wx-r">' + ic(I.reload) + L.reload + '</button>' +
     '<a class="atm-mi" href="mailto:info@tangoweekend.org">' + ic(I.mail) + L.contact + '<small>info@tangoweekend.org</small></a>' +
     '<details class="atm-msrcd"><summary class="atm-mi">' + ic(I.src) + L.src + '<small class="atm-car">\u25BE</small></summary><div class="atm-msrc"></div></details></div>';
   document.body.appendChild(m);
@@ -52,7 +55,8 @@
     if (e.target.closest('[data-x]')) return close();
     var a = e.target.closest('[data-a]'); if (!a) return;
     close();
-    if (a.dataset.a === 'sub') { var t = document.getElementById('tsub-open'); if (t) t.click(); }
+    if (a.dataset.a.indexOf('wx-') === 0) { if (window.atmWxAct) window.atmWxAct(a.dataset.a.slice(3)); }
+    else if (a.dataset.a === 'sub') { var t = document.getElementById('tsub-open'); if (t) t.click(); }
     else { document.documentElement.classList.add('atm-sug-on'); var s = document.getElementById('china-suggest-open'); if (s) s.click(); }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });

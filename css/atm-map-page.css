@@ -350,3 +350,8 @@ html body.china-page button.atm-onehead.atm-featstrip{cursor:pointer;margin:10px
 html body.china-page .atm-onehead .atm-oh-car{margin-left:auto;color:#b8913a;font-size:.85em;transition:transform .2s}
 html body.china-page button.atm-featstrip:hover .atm-oh-car{transform:translateY(2px)}
 @media (min-width:601px){html body.china-page .atm-onehead{font-size:22px;padding:6px 2px 10px;margin:18px 0 12px}}
+/* draft 2026-10-31: ··· removed; ☰ is the rightmost control in the header AND the frozen (compact) bar */
+.atm-wx-more{display:none!important}
+html.atm-compact body.china-page section.china-map-hero .china-hero-bar button.atm-burger{display:inline-flex!important;margin-left:auto!important;position:relative;z-index:6}
+html.atm-compact body.china-page section.china-map-hero .china-hero-bar{display:flex!important;align-items:center}
+html.atm-wx-s body.china-page .china-map-hero .atm-burger:before{border-color:#d6d6d6!important;background:#fff!important}

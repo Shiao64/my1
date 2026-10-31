@@ -69,15 +69,16 @@ D.addEventListener('click',function(e){var s=e.target.closest&&e.target.closest(
 
 <script id="atm-wx-js">document.addEventListener('DOMContentLoaded',function(){function LL(){return (document.documentElement.lang||'').indexOf('zh')==0?{zh:1,m:'更多操作',s:'分享',c:'复制链接',r:'刷新',x:'取消',ok:'已复制'}:{m:'More actions',s:'Share',c:'Copy link',r:'Refresh',x:'Cancel',ok:'Copied'}}var L=LL();
 var bar=document.querySelector('.china-map-hero .china-hero-bar');if(!bar)return;
-var b=document.createElement('button');b.type='button';b.className='atm-wx-more';b.setAttribute('aria-label',L.m);b.textContent='···';bar.appendChild(b);
+var b=document.createElement('button');b.type='button';b.className='atm-wx-more';b.setAttribute('aria-label',L.m);b.textContent='···';/* draft 10/31: ··· removed from header & frozen bar; actions moved into ☰ (window.atmWxAct) */
 var sh=document.createElement('div');sh.id='atm-wx-sheet';sh.innerHTML='<div class="sh" role="menu"><button data-a="s">'+L.s+'</button><button data-a="c">'+L.c+'</button><button data-a="r">'+L.r+'</button><button class="x" data-a="x">'+L.x+'</button></div>';document.body.appendChild(sh);
 var t=document.createElement('div');t.id='atm-wx-toast';document.body.appendChild(t);
 function toast(m){t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(function(){t.style.display='none'},m.length>12?2600:1500)}
 var U=null;function cur(){return U||location.href}function copy(){var u=cur();function fb(){var a=document.createElement('textarea');a.value=u;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove();toast(L.ok)}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(function(){toast(L.ok)},fb);else fb()}
 function op(u){U=u||null;L=LL();b.setAttribute('aria-label',L.m);var bs=sh.querySelectorAll('button');bs[0].textContent=L.s;bs[1].textContent=L.c;bs[2].textContent=L.r;bs[3].textContent=L.x;sh.classList.add('open')}window.atmWxSheet=op;
 b.addEventListener('click',function(e){e.stopPropagation();op();return;L=LL();b.setAttribute('aria-label',L.m);var bs=sh.querySelectorAll('button');bs[0].textContent=L.s;bs[1].textContent=L.c;bs[2].textContent=L.r;bs[3].textContent=L.x;sh.classList.add('open')});
-sh.addEventListener('click',function(e){var a=e.target.getAttribute&&e.target.getAttribute('data-a');sh.classList.remove('open');
- if(a=='s'){if(/MicroMessenger/i.test(navigator.userAgent)){copy();setTimeout(function(){toast(LL().zh?'已复制链接，点右上角 ··· 分享给朋友':'Link copied. Tap ··· at top right to share to a friend')},50)}else if(navigator.share)navigator.share({title:document.title,url:cur()}).catch(function(){});else copy()}else if(a=='c')copy();else if(a=='r')location.reload()});
+sh.addEventListener('click',function(e){var a=e.target.getAttribute&&e.target.getAttribute('data-a');sh.classList.remove('open');act(a)});
+function act(a){U=null;L=LL();
+ if(a=='s'){if(/MicroMessenger/i.test(navigator.userAgent)){copy();setTimeout(function(){toast(LL().zh?'已复制链接，点右上角 ··· 分享给朋友':'Link copied. Tap ··· at top right to share to a friend')},50)}else if(navigator.share)navigator.share({title:document.title,url:cur()}).catch(function(){});else copy()}else if(a=='c')copy();else if(a=='r')location.reload()}window.atmWxAct=act;
 });</script>
 
 <script id="atm-wx-title-js">(function(){var D=document,R=D.documentElement,el,raf=0;
