@@ -283,6 +283,46 @@ D.addEventListener('click',function(e){var s=e.target.closest&&e.target.closest(
  de.style.scrollSnapType='none';
  (function fix(){var d=c.getBoundingClientRect().top-t0;if(Math.abs(d)>.5)scrollBy(0,d);if(Date.now()<end)requestAnimationFrame(fix);else if(!D.querySelector('details.b-more[open]'))de.style.scrollSnapType='';})();
 },true);})();</script>
+<style id="atm-wx-bar">/* draft 2026-10-31: WeChat-style white top bar (was teal radial-gradient .china-map-hero) + ··· sheet */
+html body.china-page .china-map-hero{background:#fff!important;background-image:none!important;color:#191919!important;border-bottom:1px solid #e5e5e5!important;box-shadow:none!important}
+html body.china-page .china-map-hero:before,html body.china-page .china-map-hero:after{display:none!important}
+html body.china-page .china-map-hero h1,html body.china-page .china-map-hero h1 a{color:#191919!important;text-shadow:none!important}
+html body.china-page .china-map-hero h1 .atm-back-chev{filter:none!important}
+html body.china-page .china-map-hero h1 .atm-beta{color:#576b95!important;border-color:#c8d0e0!important}
+html.atm-compact body.china-page .china-map-hero h1::before{background-color:#191919!important}
+html body.china-page .china-map-hero .atm-langbtn,html body.china-page .china-map-hero .atm-burger{color:#191919!important;border-color:#d6d6d6!important;background:#fff!important}
+html body.china-page .china-map-hero .china-suggest-open{background:#f2f2f2!important;color:#191919!important;border-color:#d6d6d6!important}
+.atm-wx-more{flex:0 0 auto;width:44px;height:44px;margin:0 -6px 0 2px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;padding:0;color:#191919;font:700 22px/1 system-ui,sans-serif;letter-spacing:1px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#atm-wx-sheet{position:fixed;inset:0;z-index:100000;display:none;background:rgba(0,0,0,.4)}
+#atm-wx-sheet.open{display:block}
+#atm-wx-sheet .sh{position:absolute;left:0;right:0;bottom:0;background:#f7f7f7;border-radius:12px 12px 0 0;padding:8px 0 calc(8px + env(safe-area-inset-bottom));max-width:520px;margin:0 auto}
+#atm-wx-sheet button{display:block;width:100%;min-height:52px;background:#fff;border:0;border-bottom:1px solid #e5e5e5;font:500 17px system-ui,sans-serif;color:#191919;cursor:pointer}
+#atm-wx-sheet button.x{margin-top:8px;border:0}
+#atm-wx-toast{position:fixed;left:50%;top:45%;transform:translate(-50%,-50%);z-index:100001;background:rgba(17,17,17,.82);color:#fff;padding:12px 20px;border-radius:8px;font:15px system-ui,sans-serif;display:none}
+</style>
+<script id="atm-wx-js">document.addEventListener('DOMContentLoaded',function(){function LL(){return (document.documentElement.lang||'').indexOf('zh')==0?{m:'更多操作',s:'分享',c:'复制链接',r:'刷新',x:'取消',ok:'已复制'}:{m:'More actions',s:'Share',c:'Copy link',r:'Refresh',x:'Cancel',ok:'Copied'}}var L=LL();
+var bar=document.querySelector('.china-map-hero .china-hero-bar');if(!bar)return;
+var b=document.createElement('button');b.type='button';b.className='atm-wx-more';b.setAttribute('aria-label',L.m);b.textContent='···';bar.appendChild(b);
+var sh=document.createElement('div');sh.id='atm-wx-sheet';sh.innerHTML='<div class="sh" role="menu"><button data-a="s">'+L.s+'</button><button data-a="c">'+L.c+'</button><button data-a="r">'+L.r+'</button><button class="x" data-a="x">'+L.x+'</button></div>';document.body.appendChild(sh);
+var t=document.createElement('div');t.id='atm-wx-toast';document.body.appendChild(t);
+function toast(m){t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(function(){t.style.display='none'},1500)}
+function copy(){var u=location.href;function fb(){var a=document.createElement('textarea');a.value=u;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove();toast(L.ok)}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(function(){toast(L.ok)},fb);else fb()}
+b.addEventListener('click',function(e){e.stopPropagation();L=LL();b.setAttribute('aria-label',L.m);var bs=sh.querySelectorAll('button');bs[0].textContent=L.s;bs[1].textContent=L.c;bs[2].textContent=L.r;bs[3].textContent=L.x;sh.classList.add('open')});
+sh.addEventListener('click',function(e){var a=e.target.getAttribute&&e.target.getAttribute('data-a');sh.classList.remove('open');
+ if(a=='s'){if(navigator.share)navigator.share({title:document.title,url:location.href}).catch(function(){});else copy()}else if(a=='c')copy();else if(a=='r')location.reload()});
+});</script>
+<style id="atm-wx-title">/* draft 2026-10-31: centered list title in white bar once in-page heading scrolls away */
+.china-map-hero .china-hero-bar{position:relative}
+.atm-wx-ttl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:calc(100% - 210px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 17px/1.2 system-ui,-apple-system,sans-serif;color:#191919;pointer-events:none;display:none}
+html.atm-wx-t .atm-wx-ttl{display:block}
+html.atm-wx-t body.china-page .china-map-hero h1 .atm-back>span{visibility:hidden}
+@media (min-width:1200px){.atm-wx-ttl{max-width:40vw}html.atm-wx-t body.china-page .china-map-hero h1 .atm-back>span{visibility:visible}}
+</style>
+<script id="atm-wx-title-js">(function(){var D=document,R=D.documentElement,el,raf=0;
+function upd(){raf=0;var bar=D.querySelector('.china-map-hero');if(!bar)return;if(!el){var b=bar.querySelector('.china-hero-bar');if(!b)return;el=D.createElement('div');el.className='atm-wx-ttl';el.setAttribute('aria-hidden','true');b.appendChild(el)}
+var lim=bar.getBoundingClientRect().bottom,t='';D.querySelectorAll('.atm-onehead,.atm-featstrip').forEach(function(h){if(h.hidden||!h.offsetHeight)return;var r=h.getBoundingClientRect();if(r.bottom<=lim+2){var c=h.cloneNode(true);c.querySelectorAll('.atm-oh-from').forEach(function(x){x.remove()});t=c.textContent.replace(/\s*\u25BE\s*$/,'').replace(/\s+/g,' ').trim()}});
+if(t){if(el.textContent!==t)el.textContent=t;R.classList.add('atm-wx-t')}else R.classList.remove('atm-wx-t')}
+function q(){if(!raf)raf=requestAnimationFrame(upd)}addEventListener('scroll',q,{passive:true});addEventListener('resize',q);D.addEventListener('DOMContentLoaded',q);})();</script>
 </head>
 <body class="china-page">
 <div class="china-sticky-top">
