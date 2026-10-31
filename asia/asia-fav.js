@@ -11,6 +11,10 @@
   function byId() { var m = {}; (window._chinaData || []).forEach(function (r) { if (!r.hidden) m[r.id] = r; }); return m; }
   function valid() { var a = load(); if (!window._chinaData) return a; var m = byId(); return a.filter(function (id) { return m[id]; }); }
 
+  /* draft 2026-10-31: first visit seeds the 3 recommended cards (HOST ids) as saved, once (flag atm_fav_seeded_v1),
+     so un-saving persists. Cards un-saved this session stay in the row with a hollow heart so a second tap re-saves. */
+  var SK = 'atm_fav_seeded_v1', SEED = ['manual-hz-jinsha', 'cwCbtm27', 'E093'], ghost = [];
+  (function () { try { if (localStorage.getItem(SK) === '1') return; if (!load().length && localStorage.getItem(KEY) === null) save(SEED.slice()); localStorage.setItem(SK, '1'); } catch (e) {} })();
   var HP = 'M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z';
   var css = document.createElement('style');
   css.textContent = '.atm-heart{position:absolute;top:6px;right:6px;z-index:4;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center}' +
@@ -62,15 +66,17 @@
       '<span class="atm-heart" role="button" tabindex="0" aria-pressed="true" aria-label="' + T.del + '" title="' + T.del + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + HP + '"/></svg></span>';
     return a;
   }
-  function drawRow(ids) {
-    var m = byId(), c = getC(), n = ids.filter(function (id) { return m[id]; }).length;
+  function drawRow(ids, show) {
+    var m = byId(), c = getC(), n = ids.filter(function (id) { return m[id]; }).length, sv = {}; ids.forEach(function (x) { sv[x] = 1; });
+    ids = show;
     bar.classList.toggle('atm-on', n > 0);
     if (!n) { bar.innerHTML = '<b>\u2661 ' + T.title + '</b><span class="atm-hint">' + T2.hint + '</span>'; bar.removeAttribute('aria-expanded'); bar.tabIndex = -1; }
     else { bar.innerHTML = '<b>\u2764\uFE0E ' + T.title + (zh ? '（' + n + '）' : ' (' + n + ')') + '</b><span class="atm-car">' + (c ? '\u25B8' : '\u25BE') + '</span>'; bar.setAttribute('aria-expanded', String(!c)); bar.tabIndex = 0; }
     var key = ids.join(',');
     if (grid._k !== key) { grid._k = key; grid.innerHTML = ''; ids.forEach(function (id) { if (m[id]) grid.appendChild(card(m[id])); }); }
-    grid.hidden = !n;
-    if (n) { var was = grid.classList.contains('atm-fold');
+    grid.querySelectorAll('.atm-favfc').forEach(function (a) { var b = a.querySelector('.atm-heart'), f = !!sv[a.getAttribute('data-fid')]; if (b && b.getAttribute('aria-pressed') !== String(f)) { b.setAttribute('aria-pressed', String(f)); b.setAttribute('aria-label', f ? T.del : T.add); b.title = f ? T.del : T.add; } });
+    grid.hidden = !grid.children.length; n = n || 0;
+    if (grid.children.length) { var was = grid.classList.contains('atm-fold');
       if (grid._init && was !== c) { grid.style.maxHeight = grid.scrollHeight + 'px'; void grid.offsetHeight; }
       grid.classList.toggle('atm-fold', c);
       if (!c) { grid.style.maxHeight = grid._init ? grid.scrollHeight + 'px' : 'none'; clearTimeout(grid._tm); grid._tm = setTimeout(function () { if (!grid.classList.contains('atm-fold')) grid.style.maxHeight = 'none'; }, 260); }
@@ -104,8 +110,8 @@
     });
   }
   var busy = false, mo = null, tm = null;
-  function refresh() { busy = true; try { place(); var ids = valid(); document.documentElement.classList.toggle('atm-has-fav', ids.length > 0); hearts(ids); var on = {}; ids.forEach(function (x) { on[x] = 1; }); hostHearts(on); drawRow(ids); } finally { busy = false; } if (mo) mo.takeRecords(); }
-  function toggle(id) { var a = load(), i = a.indexOf(id); if (i >= 0) a.splice(i, 1); else { a.unshift(id); firstToast(); } save(a); refresh(); }
+  function refresh() { busy = true; try { place(); var ids = valid(), m0 = byId(); ghost = ghost.filter(function (x) { return ids.indexOf(x) < 0 && m0[x]; }); var show = ids.slice(); ghost.forEach(function (g) { var p = (grid._k || '').split(',').indexOf(g); if (p < 0 || p > show.length) show.push(g); else show.splice(p, 0, g); }); document.documentElement.classList.toggle('atm-has-fav', show.length > 0); hearts(ids); var on = {}; ids.forEach(function (x) { on[x] = 1; }); hostHearts(on); drawRow(ids, show); } finally { busy = false; } if (mo) mo.takeRecords(); }
+  function toggle(id) { var a = load(), i = a.indexOf(id); if (i >= 0) { a.splice(i, 1); if (grid.querySelector('[data-fid="' + id + '"]')) ghost.push(id); } else { var gp = ghost.indexOf(id) >= 0 ? (grid._k || '').split(',').indexOf(id) : -1; if (gp >= 0) a.splice(Math.min(gp, a.length), 0, id); else a.unshift(id); firstToast(); } save(a); refresh(); }
   document.addEventListener('keydown', function (e) { var b = e.target.closest && e.target.closest('.atm-favfc .atm-heart,.atm-hostfc .atm-heart'); if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); b.click(); } }, true);
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('.atm-heart'); if (!b) return;
