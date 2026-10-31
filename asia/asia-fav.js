@@ -14,7 +14,7 @@
   /* draft 2026-10-31: first visit seeds the 3 recommended cards (HOST ids) as saved, once (flag atm_fav_seeded_v1),
      so un-saving persists. Cards un-saved this session stay in the row with a hollow heart so a second tap re-saves. */
   var SK = 'atm_fav_seeded_v1', SEED = ['manual-hz-jinsha', 'cwCbtm27', 'E093'], ghost = [];
-  (function () { try { if (localStorage.getItem(SK) === '1') return; if (!load().length && localStorage.getItem(KEY) === null) save(SEED.slice()); localStorage.setItem(SK, '1'); } catch (e) {} })();
+  (function () { try { if (localStorage.getItem(SK) === '1') return; /* v11.6: no more seeding — seeded ids made a first heart tap UN-save (e.g. 杭州金沙 vanished from favorites) */ localStorage.setItem(SK, '1'); } catch (e) {} })();
   var HP = 'M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z';
   var css = document.createElement('style');
   css.textContent = '.atm-heart{position:absolute;top:6px;right:6px;z-index:4;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center}' +
