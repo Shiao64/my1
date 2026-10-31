@@ -26,3 +26,36 @@
     }).catch(function () {});
   }
 })();
+/* draft 2026-10-31: mobile header like the list page — row 1: back 〈 left, site name centred, ☰ far right (proxies the page's own .nav-toggle so every page's menu logic keeps working); row 2 keeps only the event name; EN/中文 moves into the ☰ menu. */
+(function () {
+  var D = document, bar = D.querySelector('.atm-bar'), hdr = D.querySelector('.site-header'), tg = hdr && hdr.querySelector('.nav-toggle');
+  if (!bar || !hdr || !tg) return;
+  var zh = /^zh/i.test(D.documentElement.lang || ''), lang = bar.querySelector('a.atm-lang');
+  var b = D.createElement('button'); b.type = 'button'; b.className = 'atm-dburger'; b.setAttribute('aria-label', zh ? '菜单' : 'Menu'); b.setAttribute('aria-expanded', 'false');
+  b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  bar.appendChild(b);
+  b.addEventListener('click', function (e) { e.preventDefault(); tg.click(); setTimeout(sync, 0); });
+  function sync() { var o = tg.getAttribute('aria-expanded') === 'true' || hdr.classList.contains('is-open') || hdr.classList.contains('open'); b.setAttribute('aria-expanded', o ? 'true' : 'false'); }
+  new MutationObserver(sync).observe(tg, { attributes: true, attributeFilter: ['aria-expanded'] });
+  if (lang) {
+    var box = hdr.querySelector('.main-nav') || hdr.querySelector('.header-menus') || hdr.querySelector('nav');
+    if (box) { var l = D.createElement('a'); l.className = 'atm-dmlang'; l.href = lang.getAttribute('href'); l.setAttribute('hreflang', lang.getAttribute('hreflang') || ''); l.textContent = '🌐 ' + lang.textContent.trim(); l.addEventListener('click', function () { try { localStorage.setItem('twLang', l.getAttribute('hreflang') === 'en' ? 'en' : 'zh'); } catch (x) {} }); box.appendChild(l); }
+  }
+  function mode() { D.body.classList.remove('atm-dhb'); var m = getComputedStyle(tg).display !== 'none'; D.body.classList.toggle('atm-dhb', m); }
+  mode(); addEventListener('resize', mode);
+})();
+/* draft 2026-10-31: close X (top-right, gold) + bottom 「返回列表 / Back to list」: page slides down, then the same return as 〈 (history.back when we came from the map, keeping its scroll; else map#v-<cardID>). */
+(function () {
+  var D = document, bar = D.querySelector('.atm-bar'), back = bar && bar.querySelector('.atm-dback'); if (!bar || !back) return;
+  var zh = /^zh/i.test(D.documentElement.lang || '');
+  function close(e) { if (e) e.preventDefault(); if (D.body.classList.contains('atm-closing')) return; D.body.classList.add('atm-closing'); setTimeout(function () { back.click(); }, 280); }
+  addEventListener('pageshow', function () { D.body.classList.remove('atm-closing'); });
+  var x = D.createElement('a'); x.className = 'atm-dclose'; x.href = back.href; x.setAttribute('aria-label', zh ? '关闭' : 'Close');
+  x.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  x.addEventListener('click', close); bar.appendChild(x);
+  var bt = D.createElement('div'); bt.className = 'atm-dfoot';
+  bt.innerHTML = '<a class="atm-dlist" href="' + back.href + '">' + (zh ? '返回列表' : 'Back to list') + '</a>';
+  bt.firstChild.addEventListener('click', close);
+  D.body.appendChild(bt);
+  setTimeout(function () { x.href = bt.firstChild.href = back.href; }, 1500);
+})();

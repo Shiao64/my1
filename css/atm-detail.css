@@ -26,3 +26,21 @@ html body.atm-detail .atm-bar.atm-sticky{height:44px!important}
 html body.atm-detail .site-header[style*="sticky"],html body.atm-detail.cw-theme .site-header,html body.atm-detail.sy-theme .site-header,html body.atm-detail.hz-theme .site-header,html body.atm-detail.tw-theme .site-header{top:44px!important}
 .atm-dback::before{display:none}
 html body.atm-detail .atm-bar.atm-sticky a.atm-dback{height:44px;margin:0 0 0 -12px}
+/* draft 2026-10-31: mobile header = list page (〈 left · site name centred · ☰ right); page's own ☰ hidden, EN/中文 inside the menu */
+.atm-dburger,.atm-dmlang{display:none}
+body.atm-dhb .atm-bar.atm-sticky{position:sticky;justify-content:center!important}
+body.atm-dhb .atm-bar.atm-sticky a.atm-map{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;margin:0!important}
+body.atm-dhb .atm-bar.atm-sticky a.atm-lang{display:none!important}
+body.atm-dhb .atm-bar.atm-sticky .atm-dburger{display:inline-flex;align-items:center;justify-content:center;margin-left:auto;margin-right:-6px;width:44px;height:44px;padding:0;border:0;background:transparent;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+body.atm-dhb .atm-dburger svg{width:24px;height:24px}
+html body.atm-dhb .site-header .nav-toggle{display:none!important}
+body.atm-dhb .site-header .atm-dmlang{display:block}
+/* draft 2026-10-31: close X + 返回列表 */
+.atm-bar.atm-sticky a.atm-dclose{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;margin:0 -4px 0 6px;border-radius:50%;background:#9A6E00;color:#fff!important;box-shadow:0 2px 8px rgba(0,0,0,.28);-webkit-tap-highlight-color:transparent}
+.atm-bar.atm-sticky a.atm-dclose svg{width:22px;height:22px}
+.atm-bar.atm-sticky a.atm-lang+a.atm-dclose,.atm-bar.atm-sticky .atm-dburger+a.atm-dclose{margin-left:4px}
+body.atm-dhb .atm-bar.atm-sticky .atm-dburger{margin-right:0}
+.atm-dfoot{padding:28px 18px 34px;text-align:center}
+.atm-dfoot a.atm-dlist{display:flex;align-items:center;justify-content:center;max-width:480px;margin:0 auto;min-height:54px;border-radius:14px;background:#0E6E78;color:#fff!important;font-weight:800;font-size:1.08rem;text-decoration:none;box-shadow:0 6px 18px rgba(14,110,120,.3)}
+body.atm-detail{transition:transform .28s ease-in,opacity .28s ease-in}
+body.atm-detail.atm-closing{transform:translateY(100vh);opacity:.3}
