@@ -9420,5 +9420,84 @@
     "poster_pos": "center top",
     "note_zh": "2009舞台探戈世界冠军，2026年世界锦标赛总决赛裁判。课程安排和价格我没找到，请联系主办方。",
     "note": "2009 World Tango Stage champions; judges at the 2026 World Championship final. Class schedule and prices not found; please contact the organizer."
+  },
+  {
+    "id": "E118",
+    "kind": "event",
+    "type": "milonga",
+    "name": "The Pista Halloween Milonga",
+    "city": "Seoul",
+    "country": "South Korea",
+    "region": "South Korea",
+    "start": "2026-10-31",
+    "end": "2026-10-31",
+    "weekday": null,
+    "weekdays": null,
+    "time": "19:00–23:00",
+    "venue": "PISTA",
+    "venue_address": "서울 월드컵북로6길 49 지하1층",
+    "venue_address_en": "Address not found",
+    "addr_en_zh": true,
+    "organizers": [
+      "PISTA"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/jiyu.banny",
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "phone": null,
+      "email": null
+    },
+    "source": "Facebook Tango Pista post 2026-10-29 (radar 常规活动 E118)",
+    "updated": "2026-10-31",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "regular_oneoff": true,
+    "note_zh": "The PISTA 每周六舞会的万圣节特别场。DJ Bubbleti（Facebook 英译名）。有 Halloween 最佳服装比赛，服装自由。价格未公布。",
+    "note": "Halloween special of The PISTA Saturday milonga. DJ Bubbleti (name as translated on Facebook). Halloween Best Dress Contest; costumes optional. Price not announced."
+  },
+  {
+    "id": "E121",
+    "kind": "event",
+    "type": "milonga",
+    "name": "ESSA Double Milonga",
+    "name_zh": "ESSA 中韩联合双场大舞会",
+    "city": "Shanghai",
+    "country": "China",
+    "region": "China",
+    "start": "2026-11-07",
+    "end": "2026-11-07",
+    "weekday": null,
+    "weekdays": null,
+    "time": "14:00–18:30、20:30–00:30",
+    "venue": "Tango Palace",
+    "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
+    "venue_address_en": "Tango Palace, 2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai",
+    "organizers": [
+      "Maggie",
+      "Lydia",
+      "Marco"
+    ],
+    "links": {
+      "facebook": "https://www.facebook.com/people/Shanghai-Essa/61571757600926/",
+      "video": null,
+      "other": null
+    },
+    "contacts": {
+      "wechat_id": "xiaonan191986",
+      "wechat_label": "Shanghai ESSA",
+      "email": "56010374@qq.com"
+    },
+    "source": "email from 56010374@qq.com (Maggie) 2026-10-30 with 3 posters (radar 常规活动 E121)",
+    "updated": "2026-10-31",
+    "hidden": false,
+    "hidden_reason": null,
+    "tba": false,
+    "regular_oneoff": true,
+    "note_zh": "中韩大舞会，海报主题「Handsome Guys」。第一场 14:00–18:30，DJ Alu + DJ Teo（昌原），现场 80 元；第二场 20:30–00:30，DJ Lucila（釜山），现场 90 元。双场早鸟 150 元，送 ESSA 环保袋，11 月 6 日截止预约（海报二维码）。约 35 位韩国探友参加。",
+    "note": "China–Korea milonga, poster theme \"Handsome Guys\". Milonga 1 14:00–18:30, DJ Alu + DJ Teo (Changwon), RMB 80 at the door; Milonga 2 20:30–00:30, DJ Lucila (Busan), RMB 90 at the door. Early-bird for both: RMB 150 with an ESSA tote bag, book by Nov 6 (QR code on poster). About 35 Korean dancers are coming."
   }
 ]
