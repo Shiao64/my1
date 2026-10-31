@@ -46,3 +46,9 @@ html body li.ev-card.b-card.b-card[hidden]:not(.x){display:none!important} /* v1
 
 /* v11.1: event cards first line = ● type · start date city · ♥ */
 html body .ev-card.b-card[data-kind=event] .b-head .atm-marks{display:contents!important}html body .ev-card.b-card[data-kind=event] .b-head .atm-mk:not(.atm-fav){order:0!important}html body .ev-card.b-card[data-kind=event] .b-head .b-label{order:1!important;flex:0 1 auto!important}html body .ev-card.b-card[data-kind=event] .b-head .atm-fav{order:2!important;font-size:0!important}html body .ev-card.b-card[data-kind=event] .b-head .atm-fav svg{width:15px;height:15px}
+/* draft 2026-10-31: one-step 更多 / 收起 */
+.b-more[open]>summary{display:none}
+.b-note>span.b-open{-webkit-line-clamp:unset;display:block;overflow:visible}
+.b-more .b-less{display:block;width:100%;margin:12px 0 0;cursor:pointer;font:inherit;font-weight:800;color:#7A5700;background:#F7F5FF;border:0;border-radius:14px;padding:10px 14px;font-size:.9rem;text-align:left}
+.b-note-tg{display:none!important}
+.b-more .b-less::after{content:"▴";float:right}
