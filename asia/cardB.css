@@ -63,3 +63,21 @@ html body .ev-card.b-card[data-kind=event] .b-head .atm-marks{display:contents!i
 .b-links a{display:inline-flex!important;align-items:center;min-height:36px!important;padding:4px 2px!important;box-sizing:border-box;color:#0e6e78;text-decoration:underline;text-underline-offset:3px;font-weight:600}
 .b-links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none;display:inline-block}
 .b-links .b-lsep{color:#999}
+
+/* v11.7 draft: single card (#atm-single) layout by type —
+   FEATURED (kind=event, not regular_oneoff): poster on top, then text.
+   REGULAR (weekly + regular_oneoff): text on top, poster below (approved mockup style). */
+#atm-single .ev-card.b-card.b-feat>.b-poster,#atm-single .ev-card.b-card.b-feat .b-poster{order:-10!important}
+#atm-single .ev-card.b-card.b-reg{gap:12px!important;padding:20px!important}
+#atm-single .ev-card.b-card.b-reg .b-label{font-size:.9rem!important;letter-spacing:.02em}
+#atm-single .ev-card.b-card.b-reg .b-name{font-size:1.6rem!important;line-height:1.25!important;margin:2px 0 4px!important}
+#atm-single .ev-card.b-card.b-reg .b-meta{gap:10px!important;padding:12px 0;border-top:1px solid #eee;border-bottom:1px solid #eee}
+#atm-single .ev-card.b-card.b-reg .b-m{grid-template-columns:32px 52px 1fr!important;font-size:1rem!important}
+#atm-single .ev-card.b-card.b-reg .b-more{order:5!important}
+#atm-single .ev-card.b-card.b-reg .b-btns{order:20!important;display:flex;flex-direction:column}
+#atm-single .ev-card.b-card.b-reg .b-btns>a{margin-top:0}#atm-single .ev-card.b-card.b-reg .b-btns>a+a{margin-top:10px}
+#atm-single .ev-card.b-card.b-reg .b-poster{order:50!important;padding-top:16px!important;border-top:2px dashed #e6dcc8!important;margin-top:6px!important}
+#atm-single .ev-card.b-card.b-reg .b-poster img{aspect-ratio:auto!important;max-height:none!important;border-radius:16px!important;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:zoom-in}
+#atm-single .ev-card.b-card.b-reg .b-poster:after{content:attr(data-cap);display:block;text-align:center;color:#8a7a6a;font-size:.82rem;margin-top:8px}
+@media(min-width:1000px){#atm-single:has(.b-reg){max-width:640px!important}}
+#atm-single:has(details.b-more[open]) .b-btns>.atm-det{display:none}
