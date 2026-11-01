@@ -173,7 +173,7 @@
   addEventListener('storage', function (e) { if (e.key === 'atm_fav_v1') badge(); });
   addEventListener('pageshow', function () { if (DATA) { badge(); render(); } });
   function mount() {
-    var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { nav.parentNode.insertBefore(bS, nav); /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
+    var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { /* v11.7 H3: header 🔍 removed (route #h-search kept) */ void bS; /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
   function start() {
