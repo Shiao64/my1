@@ -41,9 +41,9 @@
   }
   function th(p) { return '/images/thumb' + p.replace(/\.(jpe?g|png)$/i, '.webp'); }
   function img(e, cls) { return e.poster ? '<img class="' + cls + '" src="' + esc(th(e.poster)) + '" data-full="' + esc(e.poster) + '" onerror="if(this.dataset.full&&this.src.indexOf(this.dataset.full)<0)this.src=this.dataset.full" alt="" loading="lazy" decoding="async">' : '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>'; }
-  function card(e, sub) {
+  function card(e, sub, tag) {
     var v = (e.kind === 'weekly' || e.theme_of) ? (e.venue || '') : '';
-    return '<a class="ah-card" data-id="' + esc(e.id) + '" href="' + location.pathname + '?card=' + encodeURIComponent(e.id) + '">' + img(e, 'ah-th') + '<span class="ah-tx">' + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (v ? '<span>' + esc(v) + '</span>' : '') + '</span></a>';
+    return '<a class="ah-card" data-id="' + esc(e.id) + '" href="' + location.pathname + '?card=' + encodeURIComponent(e.id) + '">' + img(e, 'ah-th') + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (v ? '<span>' + esc(v) + '</span>' : '') + '</span></a>';
   }
   function n(x) { return zh ? x + ' ' + T.items : String(x); }
   var root = D.createElement('div'); root.id = 'atm-home'; root.className = 'wrap';
@@ -60,7 +60,7 @@
     '.ah-list{display:grid;grid-template-columns:1fr;gap:8px}@media(min-width:900px){#atm-home .ah-list.ah-2{grid-template-columns:1fr 1fr}}' +
     '.ah-card{display:flex;gap:10px;background:#fff;border-radius:12px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);text-decoration:none!important;color:#5b7f84;min-height:84px;align-items:flex-start}.ah-th{width:64px;height:84px;object-fit:cover;border-radius:8px;flex:0 0 auto}.ah-noimg{display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0E6E78,#06333A);color:#F6D58E;font:700 13px serif;text-align:center}' +
     '.ah-tx{min-width:0;display:flex;flex-direction:column;gap:3px;font:13px system-ui;color:#5b7f84}.ah-tx b{font:700 15px system-ui;color:#06333A;margin-bottom:1px}' +
-    '.ah-theme{align-self:flex-start;font:700 11px system-ui;font-style:normal;color:#fff;background:#C0392B;border-radius:6px;padding:2px 7px}.ah-fav{margin:8px 0 4px;padding:10px;border-radius:16px;background:#fff;border:1.5px solid #F2C9C4}.ah-favh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.ah-favh b{font:700 17px "Noto Serif SC",serif;color:#0A4F57}.ah-favall{border:0;background:none;color:#0E6E78;font:700 14px system-ui;cursor:pointer;min-height:36px;padding:0 4px}.ah-fcities{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 10px}.ah-fcities span{font:600 12px system-ui;color:#8aa3a6}.ah-fcity{height:36px;padding:0 16px;border-radius:18px;border:1.5px solid #0E6E78;background:#E9F2F2;color:#0E6E78;font:700 14px system-ui;cursor:pointer}.ah-fav .ah-card{box-shadow:none;border:1px solid #eee}.ah-wd{margin:12px 2px 6px;font:700 14px system-ui;color:#0E6E78}' +
+    '.ah-theme{align-self:flex-start;font:700 11px system-ui;font-style:normal;color:#fff;background:#C0392B;border-radius:6px;padding:2px 7px}#atm-home .ah-fav{margin:4px 0 0;padding:0}html.atm-h-home .tw-m-feat{display:none!important}.ah-favs{flex:1;margin-left:8px;font:600 12px system-ui;color:#8aa3a6}.ah-car{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}.ah-car::-webkit-scrollbar{display:none}.ah-fit{position:relative;flex:0 0 78%;max-width:320px;scroll-snap-align:start}.ah-fit>.ah-card{height:100%;box-sizing:border-box}.ah-unsug{position:absolute;top:2px;right:2px;width:36px;height:36px;border:0;background:none;color:#9aa;font:16px system-ui;cursor:pointer}.ah-sugt{align-self:flex-start;font:700 11px system-ui;font-style:normal;color:#8a6500;background:#FBEFC9;border-radius:6px;padding:1px 7px}.ah-rows{display:flex;flex-direction:column;gap:12px;margin-top:12px}.ah-rows .ah-ban{margin:0}.ah-row{display:flex;align-items:center;gap:14px;min-height:80px;padding:0 18px;border:0;border-radius:18px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08);cursor:pointer;text-align:left;font:inherit}.ah-ic{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;flex:0 0 auto}.ah-row-f .ah-ic{background:#06333A;color:#F6D58E}.ah-row-r .ah-ic{background:#E9F2F2}.ah-row b{flex:1;font:700 19px "Noto Serif SC",serif;color:#0A4F57}.ah-row b small{display:block;font:600 13px system-ui;color:#8aa3a6;margin-top:2px}.ah-n{font:700 22px system-ui;color:#C0392B;white-space:nowrap}.ah-n small{font-size:13px}.ah-a{font:700 26px system-ui;color:#0E6E78}.ah-favh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.ah-favh b{font:700 17px "Noto Serif SC",serif;color:#0A4F57}.ah-favall{border:0;background:none;color:#0E6E78;font:700 14px system-ui;cursor:pointer;min-height:36px;padding:0 4px}.ah-fcities{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 10px}.ah-fcities span{font:600 12px system-ui;color:#8aa3a6}.ah-fcity{height:36px;padding:0 16px;border-radius:18px;border:1.5px solid #0E6E78;background:#E9F2F2;color:#0E6E78;font:700 14px system-ui;cursor:pointer}.ah-fav .ah-card{box-shadow:0 1px 5px rgba(0,0,0,.09)}.ah-wd{margin:12px 2px 6px;font:700 14px system-ui;color:#0E6E78}' +
     '.ah-sels{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}.ah-sel{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:22px;background:#0E6E78;color:#fff;font:700 15px system-ui;border:0;cursor:pointer}.ah-sel i{font-style:normal;color:#F6D58E}' +
     '.ah-rowl{font:700 15px "Noto Serif SC",serif;color:#0A4F57;margin:12px 0 8px}.ah-chips{display:flex;flex-wrap:wrap;gap:8px}.ah-chip{display:inline-flex;align-items:center;gap:5px;height:40px;padding:0 15px;border-radius:20px;border:1.5px solid transparent;background:#E9F2F2;color:#0E6E78;font:700 15px system-ui;cursor:pointer}.ah-chip small{font-weight:600;opacity:.7}.ah-chip[aria-pressed=true]{background:#F6D58E;color:#06333A;border-color:#C9A24E}' +
     '.ah-fold{margin-top:12px;border:0;background:none;color:#0E6E78;font:700 14px system-ui;cursor:pointer;padding:6px 0}' +
@@ -71,30 +71,38 @@
     'html.atm-h-on #china-listings .ev-card>.atm-heart{display:none!important}';
   D.head.appendChild(css);
   var S = { a: -1, c: '', open: false };
-  function route() { var h = location.hash; if (/^#v-/.test(h)) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} h = ''; } /* old #v-<id> card anchors (shared links, back from detail) -> new home, not the old list */ if (!h || h === '#') return 'home'; if (h === '#h-feat') return 'feat'; if (h === '#h-search') return 'search'; if (h.indexOf('#h-city-') === 0) return 'city'; return null; }
+  function route() { var h = location.hash; if (/^#v-/.test(h)) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} h = ''; } /* old #v-<id> card anchors (shared links, back from detail) -> new home, not the old list */ if (!h || h === '#') return 'home'; if (h === '#h-feat') return 'feat'; if (h === '#h-search') return 'search'; if (h === '#h-reg') return 'reg'; if (h.indexOf('#h-city-') === 0) return 'city'; return null; }
   function go(h) { if (location.hash === h) render(); else location.hash = h; }
   /* v11.7 home ♥ 我的收藏 block: favorites (max 5, past one-offs hidden) + top-3 common cities (visits + favorites), hidden when empty */
   var VK = 'atm_city_visits_v1';
   function visits() { try { return JSON.parse(localStorage.getItem(VK) || '{}') || {}; } catch (e) { return {}; } }
   function visit(c) { if (!c || !REG[c]) return; var v = visits(); v[c] = (v[c] || 0) + 1; try { localStorage.setItem(VK, JSON.stringify(v)); } catch (e) {} }
   function nextOcc(e) { var w = wdOf(e), d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + rel(w)); return (zh ? '下次 ' : 'Next ') + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + T.WD[w] + (e.time ? ' ' + e.time : ''); }
-  function favLive() { var m = {}; DATA.forEach(function (e) { m[e.id] = e; }); return favIds().map(function (i) { return m[i]; }).filter(function (e) { return e && !(e.kind === 'event' && (e.end || e.start || '9') < TODAY); }); }
-  function topCities(fs) { var sc = {}, v = visits(); Object.keys(v).forEach(function (c) { if (REG[c]) sc[c] = (sc[c] || 0) + v[c]; }); fs.forEach(function (e) { if (REG[e.city]) sc[e.city] = (sc[e.city] || 0) + 1; }); return Object.keys(sc).sort(function (a, b) { return sc[b] - sc[a] || CITIES.indexOf(a) - CITIES.indexOf(b); }).slice(0, 3); }
+  /* v11.7 homepage C: favorites carousel (own, else 系统建议 from /data/suggested_favs.json, ✕ remembered) + two entry rows; city grid moved to #h-reg */
+  var SUG = [], HK = 'atm_sug_hidden_v1';
+  function live(e) { return e && !(e.kind === 'event' && (e.end || e.start || '9') < TODAY); } /* weekly favorites never expire; past one-offs drop out */
+  function sugHidden() { try { return JSON.parse(localStorage.getItem(HK) || '[]') || []; } catch (e) { return []; } }
+  function byId() { var m = {}; DATA.forEach(function (e) { m[e.id] = e; }); return m; }
+  function favLive() { var m = byId(); return favIds().map(function (i) { return m[i]; }).filter(live); }
+  function sugLive() { var m = byId(), h = sugHidden(); return SUG.map(function (i) { return m[i]; }).filter(function (e) { return live(e) && h.indexOf(e.id) < 0; }).sort(function (a, b) { return (a.start || '9') < (b.start || '9') ? -1 : 1; }); }
+  function themed(e) { if (e.kind !== 'weekly') return null; var o = occOf(e), t = null; DATA.forEach(function (x) { if (x.theme_of === e.id && x.start === o) t = x; }); return t; }
   function favBlock() {
-    var fs = favLive(), tc = topCities(fs); if (!fs.length && !tc.length) return '';
-    var rows = fs.slice(0, 5).map(function (e) { return card(e, e.kind === 'weekly' ? nextOcc(e) : ''); }).join('');
-    return '<section class="ah-fav" aria-label="' + T.fav + '"><div class="ah-favh"><b><span style="color:#C0392B">♥</span> ' + T.fav + '</b>' + (fs.length ? '<button type="button" class="ah-favall" data-fav="1">' + (zh ? '全部 ' + fs.length + ' 项' : 'All ' + fs.length) + ' ›</button>' : '') + '</div>' +
-      (tc.length ? '<div class="ah-fcities"><span>' + (zh ? '常用城市' : 'My cities') + '</span>' + tc.map(function (c) { return '<button type="button" class="ah-fcity" data-city="' + esc(c) + '">' + esc(cn(c)) + '</button>'; }).join('') + '</div>' : '') +
-      (rows ? '<div class="ah-list ah-2">' + rows + '</div>' : '') + '</section>';
+    var own = favLive(), sg = own.length ? [] : sugLive(), L = own.length ? own : sg; if (!L.length) return '';
+    var items = L.map(function (e) { var t = themed(e) || e; return '<div class="ah-fit">' + card(t, t.kind === 'weekly' ? nextOcc(t) : '', own.length ? '' : (zh ? '系统建议' : 'Suggested')) + (own.length ? '' : '<button type="button" class="ah-unsug" data-unsug="' + esc(e.id) + '" aria-label="' + T.close + '">✕</button>') + '</div>'; }).join('');
+    var sub = own.length ? (zh ? '左右滑动' : 'swipe') : (zh ? '系统建议，可换成你自己的' : 'Suggested, swap in your own');
+    return '<section class="ah-fav" aria-label="' + T.fav + '"><div class="ah-favh"><b><span style="color:#C0392B">♥</span> ' + T.fav + '</b><span class="ah-favs">' + sub + '</span>' + (own.length ? '<button type="button" class="ah-favall" data-fav="1">' + (zh ? '全部 ' + own.length + ' 项' : 'All ' + own.length) + ' ›</button>' : '') + '</div><div class="ah-car">' + items + '</div></section>';
   }
   function home() {
-    var strip = FEAT.filter(function (e) { return e.poster; }).slice(0, 6).map(function (e) { return img(e, ''); }).join('');
+    return favBlock() + '<div class="ah-rows">' +
+      '<button type="button" class="ah-ban" data-go="#h-feat"><span class="ah-ban-h"><span><span class="ah-ban-t" style="display:block">' + (zh ? T.feat + ' <i>' + FEAT.length + '</i> ' + T.items : T.feat + ' <i>' + FEAT.length + '</i>') + '</span><span class="ah-ban-s" style="display:block">' + T.from + ' · ' + T.sort + '</span></span><span class="ah-ban-a">›</span></span><span class="ah-strip">' + FEAT.filter(function (e) { return e.poster; }).slice(0, 6).map(function (e) { return img(e, ''); }).join('') + '</span></button>' +
+      '<button type="button" class="ah-row ah-row-r" data-go="#h-reg"><span class="ah-ic">📍</span><b>' + T.reg + '<small>' + (zh ? '中国大陆 · 每周固定舞会' : 'Mainland China · weekly milongas') + '</small></b><span class="ah-n">' + CITIES.length + '<small>' + (zh ? ' 城' : ' cities') + '</small></span><span class="ah-a">›</span></button></div>';
+  }
+  function regView() {
     var g = CITIES.map(function (c) { return '<button type="button" class="ah-city" data-city="' + esc(c) + '"><b>' + esc(cn(c)) + '</b><span>' + n(REG[c].length) + '</span></button>'; }).join('');
-    return favBlock() + '<button type="button" class="ah-ban" data-go="#h-feat"><span class="ah-ban-h"><span><span class="ah-ban-t" style="display:block">' + (zh ? T.feat + ' <i>' + FEAT.length + '</i> ' + T.items : T.feat + ' <i>' + FEAT.length + '</i>') + '</span><span class="ah-ban-s" style="display:block">' + T.from + ' · ' + T.sort + '</span></span><span class="ah-ban-a">›</span></span><span class="ah-strip">' + strip + '</span></button>' +
-      '<div class="ah-div"></div><div class="ah-h"><b>' + T.reg + '</b><span>' + T.regsub + '</span></div><div class="ah-grid">' + g + '</div>';
+    return top(T.reg + ' <i>' + CITIES.length + '</i>' + (zh ? ' 城' : ' cities')) + '<div class="ah-note">' + T.regsub + '</div><div class="ah-grid">' + g + '</div>';
   }
   function top(t) { return '<div class="ah-top"><button type="button" class="ah-back" data-go="" aria-label="' + T.back + '">‹</button><span class="ah-title">' + t + '</span></div>'; }
-  function feat() { return top(T.feat + ' <i>' + FEAT.length + '</i>' + (zh ? ' ' + T.items : '')) + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + FEAT.map(card).join('') + '</div>'; }
+  function feat() { return top(T.feat + ' <i>' + FEAT.length + '</i>' + (zh ? ' ' + T.items : '')) + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + FEAT.map(function (e) { return card(e); }).join('') + '</div>'; }
   function cityView(c) {
     var L = regSorted(c), out = '', last = -1;
     L.forEach(function (e) { var w = wdOf(e); if (w !== last) { out += '<div class="ah-wd">' + T.WD[w] + '</div>'; last = w; } out += card(e); });
@@ -116,7 +124,7 @@
       h += '<div class="ah-rowl">' + T.act + '</div><div class="ah-chips">' + ch(S.a < 0, 'data-a', -1, T.allA, FEAT.length) + T.cats.map(function (t, i) { return ch(S.a === i, 'data-a', i, t, srchSet(i).length); }).join('') + '</div>' +
         '<div class="ah-div" style="margin-top:14px"></div><div class="ah-rowl">' + T.city + '</div><div class="ah-chips">' + ch(!S.c, 'data-c', '', T.allC, base.length) + cl.map(function (c) { return ch(S.c === c, 'data-c', c, cn(c), cc[c]); }).join('') + '</div><button type="button" class="ah-fold" data-tog="1">' + T.fold + ' ▴</button>';
     }
-    h += '<div class="ah-h" style="margin-top:20px"><b>' + esc(an) + ' · ' + esc(ctn) + ' <i style="font-style:normal;color:#C0392B">' + res.length + '</i>' + (zh ? ' ' + T.items : '') + '</b><span>' + T.from + ' · ' + T.sort + '</span></div><div class="ah-list ah-2">' + (res.map(card).join('') || '<p>' + T.none + '</p>') + '</div>';
+    h += '<div class="ah-h" style="margin-top:20px"><b>' + esc(an) + ' · ' + esc(ctn) + ' <i style="font-style:normal;color:#C0392B">' + res.length + '</i>' + (zh ? ' ' + T.items : '') + '</b><span>' + T.from + ' · ' + T.sort + '</span></div><div class="ah-list ah-2">' + (res.map(function (e) { return card(e); }).join('') || '<p>' + T.none + '</p>') + '</div>';
     return h;
   }
   var lastR = null, lastC = '';
@@ -125,7 +133,7 @@
     if (!r || !DATA) return;
     if (r !== lastR) S.open = false;
     var c = r === 'city' ? decodeURIComponent(location.hash.slice(8)) : '';
-    root.innerHTML = r === 'home' ? home() : r === 'feat' ? feat() : r === 'search' ? search() : cityView(c);
+    root.innerHTML = r === 'home' ? home() : r === 'feat' ? feat() : r === 'search' ? search() : r === 'reg' ? regView() : cityView(c);
     root.setAttribute('data-view', r);
     if (r === 'city' && (r !== lastR || c !== lastC)) visit(c); lastC = c;
     if (r !== lastR) window.scrollTo(0, 0);
@@ -136,6 +144,7 @@
     if (b.hasAttribute('data-go')) { var g = b.getAttribute('data-go'); if (g) go(g); else if (history.length > 1 && lastFromHome) history.back(); else { history.pushState(null, '', location.pathname); render(); } return; }
     if (b.hasAttribute('data-city')) { S.open = false; go('#h-city-' + encodeURIComponent(b.getAttribute('data-city'))); return; }
     if (b.hasAttribute('data-fav')) { openFav(); return; }
+    if (b.hasAttribute('data-unsug')) { var hs = sugHidden(); hs.push(b.getAttribute('data-unsug')); try { localStorage.setItem(HK, JSON.stringify(hs)); } catch (er) {} render(); return; }
     if (b.hasAttribute('data-tog')) { S.open = !S.open; render(); return; }
     if (b.hasAttribute('data-a')) { S.a = +b.getAttribute('data-a'); render(); return; }
     if (b.hasAttribute('data-c')) { S.c = b.getAttribute('data-c'); render(); return; }
@@ -148,7 +157,7 @@
   var bF = D.createElement('button'); bF.type = 'button'; bF.className = 'ah-hbtn ah-hfav'; bF.innerHTML = '<span class="ah-hrt" aria-hidden="true">♥</span><span class="ah-badge" hidden></span>'; bF.setAttribute('aria-label', T.fav);
   bS.addEventListener('click', function () { S.open = false; S.a = -1; S.c = ''; go('#h-search'); });
   bF.addEventListener('click', openFav);
-  function favIds() { var a = []; try { a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); } catch (e) {} if (window.ATM_FAV && window.ATM_FAV.get && !a.length) a = window.ATM_FAV.get(); if (!DATA) return a; var m = {}; DATA.forEach(function (e) { m[e.id] = 1; }); return a.filter(function (id) { return m[id]; }); }
+  function favIds() { var a = []; try { a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); } catch (e) {} if (window.ATM_FAV && window.ATM_FAV.get && !a.length) a = window.ATM_FAV.get(); if (!DATA) return a; var m = {}; DATA.forEach(function (e) { m[e.id] = e; }); return a.filter(function (id) { return live(m[id]); }); }
   function badge() { var k = favIds().length, s = bF.querySelector('.ah-badge'); s.textContent = k; s.hidden = !k; }
   var ly = null;
   function closeFav() { if (ly) { ly.remove(); ly = null; D.body.style.overflow = ''; } }
@@ -163,12 +172,13 @@
   addEventListener('storage', function (e) { if (e.key === 'atm_fav_v1') badge(); });
   addEventListener('pageshow', function () { if (DATA) { badge(); render(); } });
   function mount() {
-    var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { nav.parentNode.insertBefore(bS, nav); nav.parentNode.insertBefore(bF, nav); }
+    var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { nav.parentNode.insertBefore(bS, nav); /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
   function start() {
     mount();
-    fetch('/asia/events.json?v=h4', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    var sp = fetch('/data/suggested_favs.json?v=s1', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
+    fetch('/asia/events.json?v=h5', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };
