@@ -84,7 +84,7 @@
   function sugHidden() { try { return JSON.parse(localStorage.getItem(HK) || '[]') || []; } catch (e) { return []; } }
   function byId() { var m = {}; DATA.forEach(function (e) { m[e.id] = e; }); return m; }
   function favLive() { var m = byId(); return favIds().map(function (i) { return m[i]; }).filter(live); }
-  function sugLive() { var m = byId(), h = sugHidden(); return SUG.map(function (i) { return m[i]; }).filter(function (e) { return live(e) && h.indexOf(e.id) < 0; }).sort(function (a, b) { return (a.start || '9') < (b.start || '9') ? -1 : 1; }); }
+  function sugLive() { var m = byId(), h = sugHidden(); return SUG.map(function (i) { return m[i]; }).filter(function (e) { return live(e) && h.indexOf(e.id) < 0; }).sort(function (a, b) { var x = a.kind === 'weekly' ? occOf(a) : a.start || '9', y = b.kind === 'weekly' ? occOf(b) : b.start || '9'; return x < y ? -1 : 1; }); } /* by next occurrence */
   function themed(e) { if (e.kind !== 'weekly') return null; var o = occOf(e), t = null; DATA.forEach(function (x) { if (x.theme_of === e.id && x.start === o) t = x; }); return t; }
   function favBlock() {
     var own = favLive(), sg = own.length ? [] : sugLive(), L = own.length ? own : sg; if (!L.length) return '';
@@ -178,7 +178,7 @@
   }
   function start() {
     mount();
-    var sp = fetch('/data/suggested_favs.json?v=s1', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
+    var sp = fetch('/data/suggested_favs.json?v=s3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
     fetch('/asia/events.json?v=h6', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
