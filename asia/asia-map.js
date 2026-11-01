@@ -807,7 +807,7 @@
       var feat = r.kind === 'event' && !r.regular_oneoff;
       var q = (feat ? '?mode=featured' + kr : '?mode=regular' + cy + kr) + '&via=card#v-' + encodeURIComponent(r.id); /* via=card: no ad popup on arrival */
       var om = ((r.detail && ('https://tangoweekend.org' + r.detail)) || (r.links && r.links.other) || '').match(/^https?:\/\/(www\.)?tangoweekend\.org\/event\/([^\/]+)\/$/), det = om ? '<a class="atm-det" href="/event/' + esc(om[2]) + '/' + (isZh ? 'zh/' : '') + '?from=' + encodeURIComponent(r.id) + '">' + (isZh ? '活动详情' : 'Event details') + '</a>' : '';
-      box.innerHTML = '<ul class="china-list ev-list">' + card(r) + '</ul>' + det + allBtn(location.pathname + q);
+      box.innerHTML = '<ul class="china-list ev-list">' + card(r) + '</ul>' + det; /* v11.7 P10: 查看全部活动 removed (S0 ‹ covers navigation) */ void allBtn; void q;
       try { document.title = ((isZh && r.name_zh) || r.name) + ' · ' + document.title; } catch(e){}
       keepLang(); setTimeout(keepLang, 1500);
     });
