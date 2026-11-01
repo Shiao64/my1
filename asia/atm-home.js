@@ -68,7 +68,7 @@
     'html.atm-h-on #china-listings .ev-card>.atm-heart{display:none!important}';
   D.head.appendChild(css);
   var S = { a: -1, c: '', open: false };
-  function route() { var h = location.hash; if (!h || h === '#') return 'home'; if (h === '#h-feat') return 'feat'; if (h === '#h-search') return 'search'; if (h.indexOf('#h-city-') === 0) return 'city'; return null; }
+  function route() { var h = location.hash; if (/^#v-/.test(h)) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} h = ''; } /* old #v-<id> card anchors (shared links, back from detail) -> new home, not the old list */ if (!h || h === '#') return 'home'; if (h === '#h-feat') return 'feat'; if (h === '#h-search') return 'search'; if (h.indexOf('#h-city-') === 0) return 'city'; return null; }
   function go(h) { if (location.hash === h) render(); else location.hash = h; }
   function home() {
     var strip = FEAT.filter(function (e) { return e.poster; }).slice(0, 6).map(function (e) { return img(e, ''); }).join('');
