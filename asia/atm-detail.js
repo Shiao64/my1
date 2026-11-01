@@ -1,5 +1,5 @@
 /* draft 2026-10-31: unified back arrow on event detail pages.
-   Came from the map (or, with data-back, from any page of this site) -> history.back(); otherwise go to the map in the same language with #v-<cardID>. */
+   Came from the map (or, with data-back, from any page of this site) -> history.back(); otherwise go to the map in the same language with ?card=<cardID>. */
 (function () {
   var D = document, H = D.documentElement, zh = /\/zh\//.test(location.pathname) || (!/\/event\//.test(location.pathname) && /^zh/i.test(H.lang || '')), bar = D.querySelector('.atm-bar');
   if (!bar) return;
@@ -11,7 +11,7 @@
   var cameMap = /\/asia\/?$/.test(ref), hl0 = history.length;
   var a = D.createElement('a'); a.className = 'atm-dback'; a.setAttribute('aria-label', zh ? '返回' : 'Back');
   a.innerHTML = '<svg viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  function href() { return fb || (map + (from ? '#v-' + encodeURIComponent(from) : '')); }
+  function href() { return fb || (map + (from ? '?card=' + encodeURIComponent(from) : '')); } /* draft 11/01: land on the card view, like the list's ‹ */
   a.href = href(); bar.insertBefore(a, bar.firstChild);
   a.addEventListener('click', function (e) {
     if (e.button || e.metaKey || e.ctrlKey || e.shiftKey) return;
@@ -22,7 +22,7 @@
     var slug = (location.pathname.match(/\/event\/([^\/]+)\//) || [])[1];
     if (slug) fetch('/asia/events.json').then(function (r) { return r.json(); }).then(function (d) {
       d = Array.isArray(d) ? d : (d.events || []);
-      for (var i = 0; i < d.length; i++) { var o = (d[i].links && d[i].links.other) || ''; if (!d[i].hidden && o.indexOf('/event/' + slug + '/') > -1) { from = d[i].id; a.href = href(); break; } }
+      for (var i = 0; i < d.length; i++) { var o = ((d[i].links && d[i].links.other) || '') + ' ' + (typeof d[i].detail === 'string' ? d[i].detail : JSON.stringify(d[i].detail || '')); if (!d[i].hidden && o.indexOf('/event/' + slug + '/') > -1) { from = d[i].id; a.href = href(); break; } }
     }).catch(function () {});
   }
 })();
@@ -44,7 +44,7 @@
   function mode() { D.body.classList.remove('atm-dhb'); var m = getComputedStyle(tg).display !== 'none'; D.body.classList.toggle('atm-dhb', m); }
   mode(); addEventListener('resize', mode);
 })();
-/* draft 2026-10-31: close X (top-right, gold) + bottom 「返回列表 / Back to list」: page slides down, then the same return as 〈 (history.back when we came from the map, keeping its scroll; else map#v-<cardID>). */
+/* draft 2026-10-31: close X (top-right, gold) + bottom 「返回列表 / Back to list」: page slides down, then the same return as 〈 (history.back when we came from the map, keeping its scroll; else map?card=<cardID>). */
 (function () {
   var D = document, bar = D.querySelector('.atm-bar'), back = bar && bar.querySelector('.atm-dback'); if (!bar || !back) return;
   var zh = /^zh/i.test(D.documentElement.lang || '');

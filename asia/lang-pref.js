@@ -1,9 +1,7 @@
-/* Asia Tango Map language preference + auto-detect.
-   localStorage asiaMapLang = 'en' | 'zh'
-   No saved preference:
-     - any zh* browser locale (incl. zh-TW/zh-HK/zh-Hant) → Simplified Chinese
-     - otherwise → English
-   Explicit switch click saves preference and wins over auto-detect. */
+/* Asia Tango Map language preference.
+   v11.8 draft: the URL decides the language. /zh/... always Chinese, /asia/ always English;
+   no redirect here (browser language / saved choice only apply on the bare homepage /, see /index.html).
+   Explicit switch click saves localStorage asiaMapLang = 'en' | 'zh' (used by / next time). */
 (function () {
   var KEY = 'asiaMapLang';
   var html = document.documentElement;
@@ -41,16 +39,5 @@
     if (v === 'en' || v === 'zh') save(v);
   }, true);
 
-  var pref = saved();
-  if (page === 'en') {
-    if (pref === 'zh' || (!pref && isZhBrowser())) {
-      location.replace(zhUrl + location.search + location.hash); /* v9.6: keep ?mode=&city= */
-      return;
-    }
-  } else if (page === 'zh') {
-    if (pref === 'en' || (!pref && !isZhBrowser())) {
-      location.replace(enUrl + location.search + location.hash); /* v9.6: keep ?mode=&city= */
-      return;
-    }
-  }
+  void page; void enUrl; void zhUrl; void isZhBrowser;
 })();

@@ -118,7 +118,7 @@ def page(e, slug, zh):
 <section class="alt"><div class="wrap"><p class="meta" style="text-align:center">{E(meta)}</p><h2 class="sec-title" style="text-align:center">{E(title)}</h2></div></section>{''.join(secs)}
 <footer><div class="wrap"></div></footer>
 <script>(function(){{var btn=document.querySelector('.nav-toggle'),header=document.querySelector('.site-header');if(!btn||!header)return;btn.addEventListener('click',function(){{var o=header.classList.toggle('is-open');btn.setAttribute('aria-expanded',o);}});header.querySelectorAll('.main-nav a').forEach(function(a){{a.addEventListener('click',function(){{header.classList.remove('is-open');btn.setAttribute('aria-expanded',false);}});}});}})();</script>
-<script src="{pre}asia/atm-detail.js?v=d7"></script>
+<script src="{pre}asia/atm-detail.js?v=d8"></script>
 </body>
 </html>
 '''
