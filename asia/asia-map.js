@@ -729,7 +729,7 @@
         function(){ if (fromList()) history.back(); else location.assign(list + '#v-' + encodeURIComponent(cid)); });
       var srch = mk('atm-c1-search', zhP ? '搜索' : 'Search', '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.8" fill="none" stroke="#FFFFFF" stroke-width="2.6"/><path d="M15.6 15.6L21 21" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/></svg>',
         function(){ location.assign(list + '?search=1'); });
-      function put(){ var bar = document.querySelector('.china-hero-bar'); if (!bar) return; if (!bar.querySelector('.atm-c1-back')) bar.insertBefore(back, bar.firstChild); if (!bar.querySelector('.atm-c1-search')) bar.appendChild(srch); }
+      function put(){ var bar = document.querySelector('.china-hero-bar'); if (!bar) return; if (!bar.querySelector('.atm-c1-back')) bar.insertBefore(back, bar.firstChild); /* v11.7 H3: no 🔍 on single card */ void srch; }
       if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put(); })();
     var st = document.createElement('style');
     st.textContent = 'html.atm-card-mode body>#filters,html.atm-card-mode body>.tw-m-feat,html.atm-card-mode body>#atm-skel,html.atm-card-mode body>#events,html.atm-card-mode body>.atm-reglist,html.atm-card-mode #atm-pop,html.atm-card-mode .atm-featstrip,html.atm-card-mode .china-sticky-top .china-stw-banner{display:none!important}' +
