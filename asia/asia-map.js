@@ -154,7 +154,9 @@
     if (L.other && r.id !== 'nTUlADFZ' /* v10.8: Suzhou TangoBlast - poster/dot already open the event page; no 网站 row */ && !(isZh && isFb(L.other) && FB_ZH_OFF[r.country])) { var wh = /^https?:\/\/(www\.)?tangoweekend\.org(\/event(\/beijing-2027-tango-weekend)?)?\/?$/.test(L.other) ? 'https://tangoweekend.org/event/beijing-2027-tango-weekend/' + (isZh ? 'zh/' : '') : (isZh && /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(L.other) ? L.other + 'zh/' : L.other);
       var wOwn = wh.match(/^https?:\/\/(www\.)?tangoweekend\.org(\/event\/.*)$/); /* v9.7: on-site page opens in the same tab so Back / 「← 亚洲探戈地图」 return to the same results */
       out.push('<a class="china-linkbtn" href="' + esc(wOwn ? wOwn[2] : wh) + '"' + (wOwn ? '' : ' target="_blank" rel="noopener"') + '>' + (wOwn && /^(cwCbtm27|manual-hz-jinsha|manual-cq-spicy-2026)$/.test(r.id) ? (isZh ? '详情' : 'Details') : (UI.website || 'Website')) + '</a>'); } /* v9.7: Changwon / Hangzhou Jinsha / Chongqing -> 详情 / Details */
-    if (L.wechat) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + (isZh ? '微信文章' : 'WeChat Article') /* v11.1: one label for all WeChat article links */ + '</a>');
+    var OA = L.wechat_oa; /* v11.7: links.wechat_oa {name, biz} -> 「微信公众号：name」 linking to the account home (replaces the article link); no biz -> plain text + article link kept */
+    if (OA && OA.name) { var oaT = (isZh ? '微信公众号：' : 'WeChat Official Account: ') + esc(OA.name); out.push(OA.biz ? '<a class="china-linkbtn atm-wxoa" href="https://mp.weixin.qq.com/mp/profile_ext?action=home&amp;__biz=' + OA.biz.replace(/[^A-Za-z0-9+\/=]/g,'') + '#wechat_redirect" target="_blank" rel="noopener">' + oaT + '</a>' : '<span class="china-linkbtn atm-wxoa">' + oaT + '</span>'); }
+    if (L.wechat && !(OA && OA.name && OA.biz)) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + (isZh ? '微信文章' : 'WeChat Article') /* v11.1: one label for all WeChat article links */ + '</a>');
     if (L.video && !isZh) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">' + (UI.video || 'Video') + '</a>');
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
   }
@@ -705,7 +707,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china349';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china350';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }

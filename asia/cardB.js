@@ -30,7 +30,8 @@ function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in
  if(C.email) ct.push((zh?'邮箱：':'Email: ')+'<a href="mailto:'+H(C.email)+'">'+H(C.email)+'</a>');
  row(zh?'联络方式':'Contact', ct.join('<br>'));
  var L=e.links||{}, lk=[], A=function(u,t){ lk.push('<a href="'+H(u)+'" target="_blank" rel="noopener">'+t+'</a>'); };
- if(L.wechat) A(L.wechat, zh?'微信文章':'WeChat article');
+ var OA=L.wechat_oa, oaT=OA&&OA.name?(zh?'微信公众号：':'WeChat Official Account: ')+H(OA.name):''; if(oaT){ if(OA.biz) A('https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz='+OA.biz.replace(/[^A-Za-z0-9+\/=]/g,'')+'#wechat_redirect', oaT); else lk.push('<span>'+oaT+'</span>'); } /* v11.7 wechat_oa */
+ if(L.wechat&&!(oaT&&OA.biz)) A(L.wechat, zh?'微信文章':'WeChat article');
  if(L.facebook) A(L.facebook, zh?'脸书':'Facebook');
  if(L.other&&!/tangoweekend\.org\/event\//.test(L.other)) A(L.other, zh?'网站':'Website');
  if(L.register) A(L.register, zh?'报名':'Register');

@@ -152,7 +152,7 @@
   }
   function start() {
     mount();
-    fetch('/asia/events.json?v=h2', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    fetch('/asia/events.json?v=h3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };
