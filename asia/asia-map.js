@@ -567,6 +567,7 @@
       '.atm-pv-t::before{content:"";flex:0 0 auto;width:.95em;height:.95em;background-color:#F6D58E;-webkit-mask:var(--atm-mag) center/contain no-repeat;mask:var(--atm-mag) center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}' +
       '.atm-pv-img{display:block;margin:0 auto;max-width:100%;height:auto;cursor:default}' +
       'body.china-page .ev-card>.ev-cover{cursor:pointer!important}' +
+      'body.china-page .ev-card[data-kind="event"]:not([data-oneoff="1"]) details.b-more[open]~.ev-cover,#atm-single .ev-card.b-feat .ev-cover,#atm-single .ev-card.b-feat .ev-cover img{cursor:default!important}' +
       '.atm-pv-x{position:fixed;top:52px;right:10px;z-index:3;width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.55);color:#fff;font:400 30px/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}' +
       '.atm-pv-back{display:block;margin:18px auto 40px;min-width:180px;min-height:52px;padding:12px 28px;border-radius:999px;border:0;background:#F6D58E;color:#06333a;font:700 17px/1.2 inherit;cursor:pointer}' +
       '.ev-card.atm-ring{outline:3px solid #F6B93B!important;outline-offset:3px;transition:outline-color .9s ease}.ev-card.atm-ring-off{outline-color:rgba(246,185,59,0)!important}';
@@ -610,9 +611,11 @@
   }
   document.addEventListener('click', function(e){
     var cv = e.target.closest && e.target.closest('.ev-card .ev-cover'); if (!cv) return;
+    var c0 = cv.closest('.ev-card'); if (c0 && cv.closest('#atm-single') && c0.getAttribute('data-kind') === 'event' && c0.getAttribute('data-oneoff') !== '1') { e.preventDefault(); e.stopPropagation(); return; } /* v11.7: featured single card: poster tap does nothing (no viewer, no navigation) */
     var own = cv.closest('.ev-card') && cv.closest('.ev-card').getAttribute('data-own');
     if (own) { e.preventDefault(); e.stopPropagation(); try { if (location.search) sessionStorage.setItem('atmLast', JSON.stringify({p: location.pathname, q: location.search, y: window.pageYOffset || 0, t: Date.now()})); } catch(err){} location.assign(own); return; }
     var dm = cv.closest('.ev-card').querySelector('details.b-more'); if (dm && !dm.open && !cv.closest('#atm-single .b-reg')) { e.preventDefault(); e.stopPropagation(); dm.open = true; return; } /* draft 2026-11-01: collapsed card: poster tap expands it (v11.7: except regular single card, poster below = tap opens full screen directly); full-screen poster only once expanded */
+    var fc = cv.closest('.ev-card'); if (fc.getAttribute('data-kind') === 'event' && fc.getAttribute('data-oneoff') !== '1') { e.preventDefault(); e.stopPropagation(); return; } /* v11.7 rule: FEATURED poster is already big on top -> tap never opens the full-screen viewer (regular cards keep it) */
     var im = cv.querySelector('img'); if (!im) return;
     e.preventDefault(); e.stopPropagation(); pvCard = cv.closest('.ev-card'); pvTop = pvCard.getBoundingClientRect().top; pvOpen(im.getAttribute('data-full') || cv.getAttribute('href') && /\.(jpe?g|png|webp)(\?|$)/i.test(cv.getAttribute('href')) && cv.getAttribute('href') || im.currentSrc || im.src);
   }, true);
@@ -707,7 +710,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china350';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china351';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
