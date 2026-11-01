@@ -83,3 +83,7 @@ html body .ev-card.b-card[data-kind=event] .b-head .atm-marks{display:contents!i
 #atm-single:has(details.b-more[open]) .b-btns>.atm-det{display:none}
 /* v11.7 theme merge: themed one-off replacing that week's weekly card */
 .ev-card>.atm-theme-bar{order:0;margin:-4px -4px 10px;padding:6px 12px;border-radius:8px;background:#C0392B;color:#fff;font-weight:800;letter-spacing:.03em;text-align:center}
+/* v11.9 label never breaks mid-word (Ven/ue bug) */
+html body .ev-card.b-card .b-l{white-space:nowrap;overflow-wrap:normal;word-break:keep-all;min-width:max-content}
+html body .ev-card.b-card .b-m{grid-template-columns:28px minmax(52px,max-content) 1fr;column-gap:4px}
+#atm-single .ev-card.b-card.b-reg .b-m{grid-template-columns:32px minmax(56px,max-content) 1fr!important}
