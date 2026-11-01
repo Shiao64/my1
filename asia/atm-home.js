@@ -6,8 +6,8 @@
   if (/[?&](card|mode|city|via|date|q|type)=/.test(location.search)) return;
   try { if (sessionStorage.getItem('atm_legacy_list') === '1') return; } catch (e) {} /* regression hook: old full list for the pre-v11.6 test suite */
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
-  var T = zh ? { feat: '特色活动', reg: '常规活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '每周常规活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。打开活动卡片，点 ♥ 收藏。', favnote: '收藏只保存在本机', back: '返回', cats: ['大师课/工作坊', '马拉松', '探戈节', '特色舞会', '常规活动'], WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
-    : { feat: 'Featured events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'weekly regular events', fav: 'My favorites', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No favorites yet. Open an event card and tap ♥ to save it.', favnote: 'Favorites are saved on this device only', back: 'Back', cats: ['Classes / workshops', 'Marathons', 'Festivals', 'Special milongas', 'Regular events'], WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
+  var T = zh ? { feat: '特色活动', reg: '常规活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '每周常规活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。打开活动卡片，点 ♥ 收藏。', favnote: '收藏只保存在本机', back: '返回', theme: '每周舞会 · 本周专题', cats: ['大师课/工作坊', '马拉松', '探戈节', '特色舞会', '常规活动'], WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
+    : { feat: 'Featured events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'weekly regular events', fav: 'My favorites', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No favorites yet. Open an event card and tap ♥ to save it.', favnote: 'Favorites are saved on this device only', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Classes / workshops', 'Marathons', 'Festivals', 'Special milongas', 'Regular events'], WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
   var CZ = { 'Seoul': '首尔', 'Busan': '釜山', 'Daejeon': '大田', 'Kuala Lumpur': '吉隆坡', 'Beijing': '北京', 'Hong Kong': '香港', 'Changwon': '昌原', 'Daegu': '大邱', 'Shanghai': '上海', 'Taipei': '台北', 'New Taipei': '新北', 'Zhubei': '竹北', 'Chengdu': '成都', 'Hangzhou': '杭州', 'Chongqing': '重庆', 'Tokyo': '东京', 'Osaka': '大阪', 'Guangzhou': '广州', 'Tianjin': '天津', 'Taichung': '台中', 'Tainan': '台南', 'Nanjing': '南京', 'Suzhou': '苏州', 'Bandar Seri Begawan': '斯里巴加湾', 'Penang': '槟城', 'Da Nang': '岘港', 'Miaoli': '苗栗', 'Wuhan': '武汉', 'Gunsan': '群山', 'Shenzhen': '深圳', 'Qingdao': '青岛', 'Haikou': '海口', 'Zhengzhou': '郑州', "Xi'an": '西安', 'Singapore': '新加坡', 'Bangkok': '曼谷', 'Hanoi': '河内', 'Ho Chi Minh City': '胡志明市', 'Manila': '马尼拉', 'Jakarta': '雅加达', 'Bali': '巴厘岛', 'Macau': '澳门', 'Incheon': '仁川', 'Gwangju': '光州', 'Jeju': '济州', 'Ulsan': '蔚山', 'Suwon': '水原', 'Ilsan': '一山', 'Goyang': '高阳', 'Seongnam': '城南', 'Cheongju': '清州', 'Jeonju': '全州', 'Pohang': '浦项', 'Gyeongju': '庆州', 'Kaohsiung': '高雄', 'Hsinchu': '新竹', 'Taoyuan': '桃园', 'Ulaanbaatar': '乌兰巴托', 'Phnom Penh': '金边', 'Yokohama': '横滨', 'Kyoto': '京都', 'Nagoya': '名古屋', 'Fukuoka': '福冈', 'Sapporo': '札幌', 'Kobe': '神户' };
   function cn(c) { return zh ? (CZ[c] || c) : c; }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -26,21 +26,24 @@
       var w = e.kind === 'weekly', o = e.kind === 'event' && e.regular_oneoff && e.start >= TODAY && e.start <= WEEK_END;
       if (w || o) (REG[e.city] = REG[e.city] || []).push(e);
     });
+    /* v11.7 theme merge: a regular_oneoff with theme_of=<weekly id> on that weekly's date this week replaces the weekly card for that date only */
+    Object.keys(REG).forEach(function (c) { var th = {}; REG[c].forEach(function (e) { if (e.kind === 'event' && e.theme_of) th[e.theme_of + '|' + e.start] = 1; }); REG[c] = REG[c].filter(function (e) { return !(e.kind === 'weekly' && th[e.id + '|' + occOf(e)]); }); });
     CITIES = Object.keys(REG).sort(function (a, b) { return REG[b].length - REG[a].length || (a < b ? -1 : 1); });
   }
+  function occOf(e) { var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + rel(wdOf(e))); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
   function wdOf(e) { if (e.kind === 'weekly') return (e.weekdays && e.weekdays.length ? e.weekdays[0] : e.weekday) % 7; return new Date(e.start + 'T12:00:00').getDay(); }
   function rel(w) { return (w - TWD + 7) % 7; }
   function regSorted(c) { return (REG[c] || []).slice().sort(function (a, b) { return rel(wdOf(a)) - rel(wdOf(b)) || ((a.time || '') < (b.time || '') ? -1 : 1); }); }
   function fd(s) { return s ? s.slice(5).replace('-', '/') + (s.slice(0, 4) !== TODAY.slice(0, 4) ? '' : '') : ''; }
   function dt(e) {
     if (e.kind === 'weekly') return T.every + (e.weekdays || [e.weekday]).map(function (i) { return T.WD[i % 7]; }).join('/') + (e.time ? ' ' + e.time : '');
-    var s = fd(e.start) + (e.end && e.end !== e.start ? '–' + fd(e.end) : ''); if (e.start && e.start.slice(0, 4) !== TODAY.slice(0, 4)) s = e.start.slice(0, 4) + '/' + s; return s;
+    var s = fd(e.start) + (e.end && e.end !== e.start ? '–' + fd(e.end) : ''); if (e.start && e.start.slice(0, 4) !== TODAY.slice(0, 4)) s = e.start.slice(0, 4) + '/' + s; if (e.theme_of) s += ' ' + T.WD[new Date(e.start + 'T12:00:00').getDay()] + (e.time ? ' ' + e.time : ''); return s;
   }
   function th(p) { return '/images/thumb' + p.replace(/\.(jpe?g|png)$/i, '.webp'); }
   function img(e, cls) { return e.poster ? '<img class="' + cls + '" src="' + esc(th(e.poster)) + '" data-full="' + esc(e.poster) + '" onerror="if(this.dataset.full&&this.src.indexOf(this.dataset.full)<0)this.src=this.dataset.full" alt="" loading="lazy" decoding="async">' : '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>'; }
   function card(e) {
-    var v = e.kind === 'weekly' ? (e.venue || '') : '';
-    return '<a class="ah-card" data-id="' + esc(e.id) + '" href="' + location.pathname + '?card=' + encodeURIComponent(e.id) + '">' + img(e, 'ah-th') + '<span class="ah-tx"><b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (v ? '<span>' + esc(v) + '</span>' : '') + '</span></a>';
+    var v = (e.kind === 'weekly' || e.theme_of) ? (e.venue || '') : '';
+    return '<a class="ah-card" data-id="' + esc(e.id) + '" href="' + location.pathname + '?card=' + encodeURIComponent(e.id) + '">' + img(e, 'ah-th') + '<span class="ah-tx">' + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (v ? '<span>' + esc(v) + '</span>' : '') + '</span></a>';
   }
   function n(x) { return zh ? x + ' ' + T.items : String(x); }
   var root = D.createElement('div'); root.id = 'atm-home'; root.className = 'wrap';
@@ -57,7 +60,7 @@
     '.ah-list{display:grid;grid-template-columns:1fr;gap:8px}@media(min-width:900px){#atm-home .ah-list.ah-2{grid-template-columns:1fr 1fr}}' +
     '.ah-card{display:flex;gap:10px;background:#fff;border-radius:12px;padding:8px;box-shadow:0 1px 4px rgba(0,0,0,.08);text-decoration:none!important;color:#5b7f84;min-height:84px;align-items:flex-start}.ah-th{width:64px;height:84px;object-fit:cover;border-radius:8px;flex:0 0 auto}.ah-noimg{display:flex;align-items:center;justify-content:center;background:linear-gradient(160deg,#0E6E78,#06333A);color:#F6D58E;font:700 13px serif;text-align:center}' +
     '.ah-tx{min-width:0;display:flex;flex-direction:column;gap:3px;font:13px system-ui;color:#5b7f84}.ah-tx b{font:700 15px system-ui;color:#06333A;margin-bottom:1px}' +
-    '.ah-wd{margin:12px 2px 6px;font:700 14px system-ui;color:#0E6E78}' +
+    '.ah-theme{align-self:flex-start;font:700 11px system-ui;font-style:normal;color:#fff;background:#C0392B;border-radius:6px;padding:2px 7px}.ah-wd{margin:12px 2px 6px;font:700 14px system-ui;color:#0E6E78}' +
     '.ah-sels{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}.ah-sel{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 18px;border-radius:22px;background:#0E6E78;color:#fff;font:700 15px system-ui;border:0;cursor:pointer}.ah-sel i{font-style:normal;color:#F6D58E}' +
     '.ah-rowl{font:700 15px "Noto Serif SC",serif;color:#0A4F57;margin:12px 0 8px}.ah-chips{display:flex;flex-wrap:wrap;gap:8px}.ah-chip{display:inline-flex;align-items:center;gap:5px;height:40px;padding:0 15px;border-radius:20px;border:1.5px solid transparent;background:#E9F2F2;color:#0E6E78;font:700 15px system-ui;cursor:pointer}.ah-chip small{font-weight:600;opacity:.7}.ah-chip[aria-pressed=true]{background:#F6D58E;color:#06333A;border-color:#C9A24E}' +
     '.ah-fold{margin-top:12px;border:0;background:none;color:#0E6E78;font:700 14px system-ui;cursor:pointer;padding:6px 0}' +
@@ -149,7 +152,7 @@
   }
   function start() {
     mount();
-    fetch('/asia/events.json?v=h1', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    fetch('/asia/events.json?v=h2', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };

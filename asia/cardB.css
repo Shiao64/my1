@@ -81,3 +81,5 @@ html body .ev-card.b-card[data-kind=event] .b-head .atm-marks{display:contents!i
 #atm-single .ev-card.b-card.b-reg .b-poster:after{content:attr(data-cap);display:block;text-align:center;color:#8a7a6a;font-size:.82rem;margin-top:8px}
 @media(min-width:1000px){#atm-single:has(.b-reg){max-width:640px!important}}
 #atm-single:has(details.b-more[open]) .b-btns>.atm-det{display:none}
+/* v11.7 theme merge: themed one-off replacing that week's weekly card */
+.ev-card>.atm-theme-bar{order:0;margin:-4px -4px 10px;padding:6px 12px;border-radius:8px;background:#C0392B;color:#fff;font-weight:800;letter-spacing:.03em;text-align:center}

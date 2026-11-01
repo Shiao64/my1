@@ -232,7 +232,7 @@
     var cx = r.status === 'cancelled';
     if (!cx && r.cancelled_dates && r.weekday != null) { var t0 = baseDate(); var nx = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + ((r.weekday - t0.getDay() + 7) % 7)); cx = r.cancelled_dates.indexOf(nx.getFullYear() + '-' + pad(nx.getMonth()+1) + '-' + pad(nx.getDate())) !== -1; }
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
-    return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + ((r.region === 'Taiwan' || r.region === 'Hong Kong' || r.country === 'Taiwan' || r.country === 'Hong Kong') ? ' data-hant="1"' : '') + (r.also_regular ? ' data-also-regular="1"' : '') + (r.regular_oneoff ? ' data-oneoff="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img' + thImg(pp) + ' alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"></a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img' + thImg(c[0]) + ' decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
+    return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + ((r.region === 'Taiwan' || r.region === 'Hong Kong' || r.country === 'Taiwan' || r.country === 'Hong Kong') ? ' data-hant="1"' : '') + (r.also_regular ? ' data-also-regular="1"' : '') + (r.regular_oneoff ? ' data-oneoff="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (r.theme_of ? '<div class="atm-theme-bar">' + (isZh ? '每周舞会 · 本周专题' : 'Weekly milonga · This week\'s theme') + '</div>' : '') + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true"><img' + thImg(pp) + ' alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"></a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true"><img' + thImg(c[0]) + ' decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"></a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
       '<h3 class="ev-name">' + esc((isZh && r.name_zh) || r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
@@ -329,7 +329,7 @@
       if (sched.length || oneoff.length) {
         h.push('<h3 class="china-sub-head china-weekly-head">' + (UI.weeklyHead || 'Weekly milongas &amp; practicas') + '</h3>');
         [0,1,2,3,4,5,6].map(function(i){ return (baseDate().getDay() + i) % 7; }).forEach(function(d){
-          h.push(group(weekdayHead(d), sched.filter(function(r){ return r.weekday === d; }).concat(oneoff.filter(function(r){ return owd(r) === d; })).sort(function(a,b){ return (a.time||'') < (b.time||'') ? -1 : 1; }), 'china-day'));
+          h.push(group(weekdayHead(d), sched.filter(function(r){ return r.weekday === d && !oneoff.some(function(o){ return o.theme_of === r.id && o.start === occISO(r.weekday); }); }).concat(oneoff.filter(function(r){ return owd(r) === d; })).sort(function(a,b){ return (a.time||'') < (b.time||'') ? -1 : 1; }), 'china-day'));
         });
         h.push(group(UI.dayTba || 'Day TBA', nos, 'china-day'));
       } else h.push(group((UI.weeklyHead || 'Weekly milongas &amp; practicas') + ' · ' + (UI.dayTba || 'Day TBA'), nos));
@@ -705,7 +705,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china346';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china349';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
