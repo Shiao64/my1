@@ -5,56 +5,60 @@
 <style>
 :root{--cream:#FBF5E9;--teal:#0E6E78;--deep:#0A4F57;--heart:#C8102E;--muted:#5f6f66;--milonga:#9E1020;--gold:#C9A227}
 *{box-sizing:border-box}body{margin:0;background:#e8e2d6;display:flex;justify-content:center;padding:16px;font-family:system-ui,sans-serif}
-.phone{width:390px;height:844px;background:var(--cream);border-radius:28px;border:8px solid #111;overflow:hidden;position:relative}
-.status{height:28px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;font-size:12px}
-.bar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #e4e0d8;background:var(--cream);position:sticky;top:0;z-index:2}
+.phone{width:390px;height:844px;background:var(--cream);border-radius:28px;border:8px solid #111;overflow:hidden;display:flex;flex-direction:column}
+.status{height:28px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;font-size:12px;flex:0 0 auto}
+.bar{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #e4e0d8;background:var(--cream);flex:0 0 auto}
 .back{border:0;background:none;color:var(--teal);font-size:32px;cursor:pointer}
-.title{color:var(--deep);font-weight:700;font-size:19px}
-.heart{width:24px;height:24px}
-.heart svg{display:block}
-.meta{margin:10px 10px 0;padding:10px 12px;background:#eceeea;border-radius:10px}
+.title{color:var(--deep);font-weight:700;font-size:18px}
+.meta{margin:10px 8px 0;padding:12px 12px;background:#eceeea;border-radius:10px;flex:0 0 auto}
 .row1{display:flex;align-items:center;gap:8px;color:var(--deep);font-weight:700;font-size:18px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--milonga)}
-.row2{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:18px}
-.venue,.more{color:var(--teal);font-weight:700;border:0;background:none;cursor:pointer;font-size:18px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--milonga);flex:0 0 10px}
+.row2{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:17px}
+.venue,.more{color:var(--teal);font-weight:700;border:0;background:none;cursor:pointer;font-size:17px}
 .dj{color:var(--muted);font-weight:600;flex:1}
-.stage{margin:14px 18px 0;height:680px;display:flex;align-items:center;justify-content:center;position:relative}
-.frame{border:2px solid var(--gold);background:#fff;padding:0;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center}
-.frame img{width:auto;height:auto;max-width:346px;max-height:680px;object-fit:contain;display:block}
-.nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:18px;border:0;border-radius:999px;background:rgba(33,55,60,.92);color:#fff;cursor:pointer}
-.nav.l{left:0}.nav.r{right:0}
-.pager{text-align:center;margin-top:8px;font:700 13px system-ui;color:var(--teal)}
+.stage{flex:1 1 auto;margin:4px 12px 0;display:flex;align-items:center;justify-content:center;position:relative;min-height:0}
+.frame{border:2px solid var(--gold);background:#fff;display:flex;align-items:center;justify-content:center;max-width:100%;max-height:100%}
+.frame img{width:auto;height:auto;max-width:346px;max-height:100%;object-fit:contain;object-position:center center;display:block}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:18px;border:0;border-radius:999px;background:rgba(33,55,60,.92);color:#fff;cursor:pointer;z-index:2}
+.nav.l{left:2px}.nav.r{right:2px}
+.pager{text-align:center;padding:8px 0 12px;font:700 13px system-ui;color:var(--teal);flex:0 0 auto}
 </style></head><body>
 <div class="phone">
-  <div class="status"><span>00:26</span><span>●●●</span></div>
+  <div class="status"><span>00:30</span><span>●●●</span></div>
   <div class="bar">
     <button class="back" type="button" onclick="history.length>1?history.back():location.href='https://tangoweekend.org/zh/asia/'">‹</button>
-    <span class="title">探戈会</span>
-    <span class="heart" aria-label="未收藏" title="未收藏">
-      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z" fill="none" stroke="#C8102E" stroke-width="1.8" stroke-linejoin="round"/></svg>
-    </span>
+    <span class="title" id="title">Kai's Milonga</span>
+    <span class="heart" aria-label="未收藏"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z" fill="none" stroke="#C8102E" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
   </div>
   <div class="meta">
-    <div class="row1"><span class="dot"></span><span>每周二舞会 11/3 · 20:00–24:00</span></div>
-    <div class="row2"><span class="venue">Ala House</span><span class="dj">DJ: Yelyn Woo</span><button class="more" type="button">更多 ›</button></div>
+    <div class="row1"><span class="dot"></span><span id="line1">每周日舞会 11/8 · 20:00–24:00</span></div>
+    <div class="row2"><span class="venue" id="venue">Te Amo</span><span class="dj" id="dj">DJ: Kai</span><button class="more" type="button">更多 ›</button></div>
   </div>
   <div class="stage">
     <button class="nav l" id="prev" type="button">◀</button>
-    <div class="frame"><img id="poster" alt="海报" src="https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg"/></div>
+    <div class="frame"><img id="poster" alt="海报" src="https://tangoweekend.org/images/asia/posters/R015.jpg"/></div>
     <button class="nav r" id="next" type="button">▶</button>
   </div>
-  <div class="pager" id="pager">1 / 3</div>
+  <div class="pager" id="pager">2 / 3</div>
 </div>
 <script>
-const posters=[
- 'https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg',
- 'https://tangoweekend.org/images/asia/posters/R015.jpg',
- 'https://tangoweekend.org/images/asia/posters/R017.jpg'
+const slides=[
+ {src:'https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg', title:'探戈会', line1:'每周二舞会 11/3 · 20:00–24:00', venue:'Ala House', dj:'DJ: Yelyn Woo'},
+ {src:'https://tangoweekend.org/images/asia/posters/R015.jpg', title:"Kai's Milonga", line1:'每周日舞会 11/8 · 20:00–24:00', venue:'Te Amo', dj:'DJ: Kai'},
+ {src:'https://tangoweekend.org/images/asia/posters/R017.jpg', title:'探戈会', line1:'每周二舞会 11/3 · 20:00–24:00', venue:'Ala House', dj:'DJ: Yelyn Woo'}
 ];
-let i=0; const img=document.getElementById('poster'), pager=document.getElementById('pager');
-function show(n){i=(n+posters.length)%posters.length; img.src=posters[i]; pager.textContent=(i+1)+' / '+posters.length}
+let i=1;
+const img=document.getElementById('poster');
+function show(n){
+ i=(n+slides.length)%slides.length; const s=slides[i];
+ img.src=s.src; document.getElementById('title').textContent=s.title;
+ document.getElementById('line1').textContent=s.line1;
+ document.getElementById('venue').textContent=s.venue;
+ document.getElementById('dj').textContent=s.dj;
+ document.getElementById('pager').textContent=(i+1)+' / '+slides.length;
+}
 document.getElementById('prev').onclick=()=>show(i-1);
 document.getElementById('next').onclick=()=>show(i+1);
-show(0);
+show(1);
 </script>
 </body></html>
