@@ -1,318 +1,60 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>探戈会 · 预览（未上线）</title>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ATM P10 预览</title>
 <style>
-  :root{--accent:#0E6E78;--ink:#2a1a14;--muted:#5f6f66;--teal:#0E6E78;--deep:#0A4F57;--cream:#FBF5E9;--heart:#C8102E}
-  *{box-sizing:border-box}
-  [hidden]{display:none!important}
-  html,body{margin:0;background:#FBF5E9;height:100%}
-  body{width:100%;max-width:390px;margin:0 auto;height:100dvh;max-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;padding-top:36px;color:var(--ink);font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
-  .bar{position:relative;z-index:20;flex:none;margin-top:0;background:#FBF5E9 !important;border-bottom:1px solid #e4e0d8;box-shadow:none}
-  #back{color:#0E6E78}
-  .bar-in{position:relative;width:100%;max-width:none;margin:0 auto;height:44px;padding:0 2px;display:flex;align-items:center;justify-content:space-between}
-  .iconbtn{position:relative;z-index:1;flex:none;width:32px;height:32px;padding:0;border:0;background:transparent;color:#0E6E78;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
-  .iconbtn:active{opacity:.6}
-  .iconbtn:focus-visible{outline:2px solid #0E6E78;outline-offset:1px;border-radius:8px}
-  .bar h1{position:absolute;left:40px;right:40px;top:0;height:44px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none;overflow:hidden;white-space:nowrap;font:700 20px/1 "Noto Serif SC","Songti SC","PMingLiU",serif;color:#0A4F57}
-  .heart svg{width:24px;height:24px}
-  .heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
-  .heart[aria-pressed="true"] path{fill:#C8102E;stroke:#C8102E}
-  .wrap{flex:0 1 auto;display:flex;flex-direction:column;width:100%;max-width:none;min-height:0;margin:0;padding:2px 4px 4px}
-  .card{flex:0 1 auto;display:flex;flex-direction:column;justify-content:flex-end;min-height:0;gap:4px;width:100%;padding:4px 4px 2px;border:0;border-radius:10px;background:#fff;box-shadow:none;border-top:2px solid #0E6E78}
-  .info-bar{align-self:stretch;width:100%;max-width:100%;margin:0;padding:8px 14px;background:#E8E6EC;border-radius:10px;position:relative;z-index:2}
-  .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:18px;line-height:1.3;white-space:nowrap;overflow:hidden}
-  .meta-line .meta-fixed{flex:none;display:inline-flex;align-items:center}
-  .cat-dot{flex:none;width:9px;height:9px;margin-right:6px;border-radius:50%;background:#9E1020}
-  .meta-line .meta-time{margin-left:.12em}
-  .meta-line .meta-venue{flex:0 1 auto;min-width:0;margin-left:.45em;color:#0E6E78}
-  .meta-line time{color:inherit;font-weight:800}
-  .meta-foot{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:4px 0 0;color:#0A4F57;font-weight:800;font-size:18px;line-height:1.3;white-space:nowrap}
-  .meta-dj{font-size:18px;font-weight:800;color:#5f6f66}
-  .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:17px;text-align:left;border:0;border-radius:14px;padding:10px 14px;color:#0E6E78}
-  .info-bar .more{display:inline;width:auto;margin-left:0;padding:0;background:transparent;color:#0E6E78;font-size:18px;font-weight:800;text-align:right;white-space:nowrap}
-  .more::after{content:" ›"}
-  .less{margin-top:12px;color:#0E6E78;background:#FBF5E9}
-  .less::after{content:"▴";float:right}
-  .more:focus-visible,.less:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
-  .rows{display:grid;gap:8px;padding:10px 4px 0;font-size:1rem;color:#3a3460}
-  .row{display:grid;grid-template-columns:76px 1fr;gap:6px}
-  .row b{color:#5f6f66;font-size:.9rem;font-weight:700;padding-top:2px}
-  .row span{overflow-wrap:anywhere}
-  .map{color:#0E6E78;text-decoration:underline dotted;text-underline-offset:3px}
-  .links a{display:inline-flex;align-items:center;min-height:36px;color:#0E6E78;font-weight:700;text-decoration:underline;text-underline-offset:3px}
-  .links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none}
-  .stage{flex:0 1 auto;display:flex;min-height:0;margin:12px 0 0;padding:0;border:0;overflow:hidden;position:relative;z-index:0}
-  .frame{position:relative;flex:1;min-height:0;height:auto;display:flex;align-items:flex-end;gap:6px;touch-action:pan-y;overflow:hidden}
-  .frame img{display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:auto;max-width:100%;max-height:calc(100dvh - 250px);aspect-ratio:9/16;object-fit:contain;object-position:center center;box-sizing:border-box;border:2px solid #C9A227;border-radius:10px;box-shadow:none;cursor:zoom-in;background:#fff}
-  .chev{position:static;flex:none;align-self:center;z-index:2;width:40px;height:68px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
-  .chev svg{width:24px;height:40px;display:block}
-  .chev.prev{order:-1}
-  .chev.next{order:1}
-  .chev.is-off{opacity:.38}
-  .chev[hidden]{display:none}
-  .chev:active{transform:scale(.96)}
-  .chev:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
-  .chip,.idx{position:absolute;z-index:2;color:#fff;font:700 12px/1 system-ui,sans-serif;padding:5px 8px;border-radius:999px;pointer-events:none}
-  .chip{top:10px;left:10px;background:rgba(10,79,87,.9)}
-  .idx{top:10px;right:10px;background:rgba(0,0,0,.45);font-weight:600}
-  .chip[hidden]{display:none}
-  .note{display:none}
-  .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-  .pv{position:fixed;inset:0;z-index:50;background:rgba(6,20,24,.92);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-  .pv[hidden]{display:none}
-  .pv-bar{position:sticky;top:0;z-index:2;height:44px;display:flex;align-items:center;background:linear-gradient(160deg,#0e6e78 0%,#0a4f57 60%,#06333a 100%);border-bottom:1px solid #5fb3bb}
-  .pv-t{display:inline-flex;align-items:center;min-height:44px;margin:0;padding:0 14px;border:0;background:none;cursor:pointer;font-weight:700;font-size:17px;color:#F6D58E}
-  .pv img{display:block;margin:0 auto;max-width:100%;height:auto}
-  .pv-x{position:fixed;top:52px;right:10px;z-index:3;width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.55);color:#fff;font:400 30px/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}
-  .pv-back{display:block;margin:18px auto 40px;min-width:180px;min-height:52px;padding:12px 28px;border-radius:999px;border:0;background:#F6D58E;color:#06333a;font:700 17px/1.2 inherit;cursor:pointer}
-  @media (prefers-reduced-motion:reduce){.frame img{transition:none!important}}
-</style>
-</head>
-<body>
-<header class="bar">
-  <div class="bar-in">
-    <button type="button" class="iconbtn" id="back" aria-label="返回">
-      <svg width="16" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#0E6E78" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <h1>探戈会</h1>
-    <button type="button" class="iconbtn heart" id="heart" aria-pressed="false" aria-label="加入收藏">
-      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>
-    </button>
+:root{--cream:#FBF5E9;--teal:#0E6E78;--deep:#0A4F57;--heart:#C8102E;--muted:#5f6f66;--milonga:#9E1020;--gold:#C9A227}
+*{box-sizing:border-box}body{margin:0;background:#e8e2d6;display:flex;justify-content:center;padding:16px;font-family:system-ui,sans-serif}
+.phone{width:390px;height:844px;background:var(--cream);border-radius:28px;border:8px solid #111;overflow:hidden;position:relative}
+.status{height:28px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;font-size:12px}
+.bar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #e4e0d8;background:var(--cream);position:sticky;top:0;z-index:2}
+.back{border:0;background:none;color:var(--teal);font-size:32px;cursor:pointer}
+.title{color:var(--deep);font-weight:700;font-size:18px}
+.heart{width:24px;height:24px}
+.heart svg{display:block}
+.meta{margin:10px 10px 0;padding:10px 12px;background:#eceeea;border-radius:10px}
+.row1{display:flex;align-items:center;gap:8px;color:var(--deep);font-weight:700;font-size:14px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--milonga)}
+.row2{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:14px}
+.venue,.more{color:var(--teal);font-weight:700;border:0;background:none;cursor:pointer;font-size:14px}
+.dj{color:var(--muted);font-weight:600;flex:1}
+.stage{margin:14px 18px 0;height:560px;display:flex;align-items:center;justify-content:center;position:relative}
+.frame{border:2px solid var(--gold);background:#fff;padding:0;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center}
+.frame img{width:auto;height:auto;max-width:260px;max-height:520px;object-fit:contain;display:block}
+.nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:18px;border:0;border-radius:999px;background:rgba(33,55,60,.92);color:#fff;cursor:pointer}
+.nav.l{left:0}.nav.r{right:0}
+.pager{text-align:center;margin-top:8px;font:700 13px system-ui;color:var(--teal)}
+</style></head><body>
+<div class="phone">
+  <div class="status"><span>00:26</span><span>●●●</span></div>
+  <div class="bar">
+    <button class="back" type="button" onclick="history.length>1?history.back():location.href='https://tangoweekend.org/zh/asia/'">‹</button>
+    <span class="title">探戈会</span>
+    <span class="heart" aria-label="未收藏" title="未收藏">
+      <svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z" fill="none" stroke="#C8102E" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    </span>
   </div>
-</header>
-<main class="wrap">
-  <article class="card" id="card" data-id="GqufXmMX">
-    <div class="info-bar">
-      <p class="meta-line" id="metaLine"><span class="meta-fixed"><i class="cat-dot" aria-hidden="true"></i><span id="freq">每周二舞会</span> <time id="when"></time> · <span class="meta-time">20:00–24:00</span> · </span><span class="meta-venue" id="venueBar">Ala House</span></p>
-      <p class="meta-foot" id="foot"><span class="meta-dj" id="djBar">DJ: Yelyn Woo</span><button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button></p>
-    </div>
-    <div id="moreBody" hidden>
-      <div class="rows">
-        <div class="row"><b>主办</b><span>刘峥</span></div>
-        <div class="row" id="venueMoreRow"><b>场地</b><span id="venueMore">Ala House</span></div>
-        <div class="row" id="djMoreRow"><b>DJ:</b><span id="djMore">Yelyn Woo（首尔）· Frank Jin 联合嘉宾 Seoul Guest Night Selector 特别场驻场</span></div>
-        <div class="row"><b>地址</b><span><a class="map" href="https://uri.amap.com/search?keyword=%E5%8C%97%E4%BA%AC%E5%B8%82%E4%B8%9C%E7%9B%B4%E9%97%A8%E5%A4%96%E5%A4%A7%E8%A1%97%E4%BA%AE%E9%A9%AC%E6%B2%B3%E5%8D%97%E8%B7%AF18%E5%8F%B72%E5%B1%82" target="_blank" rel="noopener">北京市东直门外大街亮马河南路18号2层</a></span></div>
-        <div class="row"><b>联络方式</b><span>微信号：beijingtango (刘峥)</span></div>
-        <div class="row links"><b>链接</b><span><a href="https://www.facebook.com/tangobeijing" target="_blank" rel="noopener">脸书</a></span></div>
-      </div>
-      <button type="button" class="less" id="less">收起</button>
-    </div>
-    <div class="stage">
-      <div class="frame" id="frame" tabindex="0" role="group" aria-roledescription="carousel" aria-label="活动海报">
-        <img id="poster" width="466" height="1014" alt="探戈会 本期海报" src="https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg">
-        <span class="chip" id="chip" hidden></span>
-        <span class="idx" id="idx">1 / 3</span>
-        <button type="button" class="chev prev" id="prev" hidden aria-label="较新的海报">
-          <svg viewBox="0 0 28 44" aria-hidden="true"><path fill="#0E6E78" d="M20 2 L6 22 L20 42 L15 42 L1 22 L15 2 Z"/></svg>
-        </button>
-        <button type="button" class="chev next" id="next" aria-label="更早的海报">
-          <svg viewBox="0 0 28 44" aria-hidden="true"><path fill="#0E6E78" d="M8 2 L22 22 L8 42 L13 42 L27 22 L13 2 Z"/></svg>
-        </button>
-      </div>
-    </div>
-  </article>
-  <p class="note">未发布预览，没有改 tangoweekend.org。右侧 › 或向左滑看更早的海报，左侧 ‹ 或向右滑回到较新。橙色那张是仓库里的真实备份；标「示例 · 往期」的三张是占位。点海报可以放大。</p>
-  <p class="sr" id="live" aria-live="polite"></p>
-</main>
-<div class="pv" id="pv" hidden role="dialog" aria-modal="true" aria-label="海报">
-  <div class="pv-bar"><button type="button" class="pv-t" id="pvTitle">探戈会</button></div>
-  <img class="pv-img" id="pvImg" alt="">
-  <button type="button" class="pv-x" id="pvX" aria-label="关闭">✕</button>
-  <button type="button" class="pv-back" id="pvBack">返回卡片</button>
+  <div class="meta">
+    <div class="row1"><span class="dot"></span><span>每周二舞会 11/3 · 20:00–24:00</span></div>
+    <div class="row2"><span class="venue">Ala House</span><span class="dj">DJ: Yelyn Woo</span><button class="more" type="button">更多 ›</button></div>
+  </div>
+  <div class="stage">
+    <button class="nav l" id="prev" type="button">◀</button>
+    <div class="frame"><img id="poster" alt="海报" src="https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg"/></div>
+    <button class="nav r" id="next" type="button">▶</button>
+  </div>
+  <div class="pager" id="pager">1 / 3</div>
 </div>
 <script>
-(function(){
-  var WEEKDAY = 2;
-  var RAW = 'https://raw.githubusercontent.com/Shiao64/my1/cursor/preview-p10-gquf-carousel-7f1e/';
-  var slides = [
-    {src:'https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg', alt:'探戈会 本期海报', chip:''},
-    {src:'https://tangoweekend.org/images/asia/posters/R015.jpg', alt:'R015 海报', chip:''},
-    {src:'https://tangoweekend.org/images/asia/posters/R017.jpg', alt:'R017 海报', chip:''}
-  ];
-  var index = 0;
-  var poster = document.getElementById('poster');
-  var frame = document.getElementById('frame');
-  var prev = document.getElementById('prev');
-  var next = document.getElementById('next');
-  var chip = document.getElementById('chip');
-  var idx = document.getElementById('idx');
-  var live = document.getElementById('live');
-  var more = document.getElementById('more');
-  var moreBody = document.getElementById('moreBody');
-  var less = document.getElementById('less');
-  var card = document.getElementById('card');
-  var heart = document.getElementById('heart');
-  var pv = document.getElementById('pv');
-  var pvImg = document.getElementById('pvImg');
-  var pvOn = false, closing = false, pvGuard = 0;
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function nextOcc(weekday, now){
-    var n = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    n.setDate(n.getDate() + ((weekday - n.getDay() + 7) % 7));
-    return n;
-  }
-  var occ = nextOcc(WEEKDAY, new Date());
-  var when = document.getElementById('when');
-  when.textContent = (occ.getMonth() + 1) + '/' + occ.getDate();
-  when.dateTime = occ.getFullYear() + '-' + ('0' + (occ.getMonth() + 1)).slice(-2) + '-' + ('0' + occ.getDate()).slice(-2);
-
-  slides.forEach(function(s){ var im = new Image(); im.src = s.src; });
-
-  function apply(){
-    var s = slides[index];
-    if (poster.getAttribute('src') !== s.src) poster.src = s.src;
-    poster.alt = s.alt;
-    chip.hidden = !s.chip;
-    chip.textContent = s.chip || '';
-    var multi = slides.length > 1;
-    idx.hidden = !multi;
-    idx.textContent = (index + 1) + ' / ' + slides.length;
-    prev.hidden = !multi;
-    next.hidden = !multi;
-    prev.classList.toggle('is-off', index === 0);
-    next.classList.toggle('is-off', index === slides.length - 1);
-    prev.setAttribute('aria-disabled', index === 0 ? 'true' : 'false');
-    next.setAttribute('aria-disabled', index === slides.length - 1 ? 'true' : 'false');
-    frame.setAttribute('aria-label', '活动海报，第' + (index + 1) + '张，共' + slides.length + '张' + (s.chip ? '，' + s.chip : ''));
-    live.textContent = frame.getAttribute('aria-label');
-  }
-  function go(d){
-    var n = index + d;
-    if (n < 0 || n >= slides.length) return;
-    var dir = d > 0 ? 1 : -1;
-    index = n;
-    if (!reduce) {
-      poster.style.transition = 'none';
-      poster.style.transform = 'translateX(' + (dir * 12) + '%)';
-      poster.style.opacity = '.2';
-    }
-    apply();
-    if (!reduce) {
-      void poster.offsetWidth;
-      poster.style.transition = 'transform .24s ease, opacity .24s ease';
-      poster.style.transform = 'none';
-      poster.style.opacity = '1';
-    }
-  }
-  apply();
-
-  prev.addEventListener('click', function(e){ e.stopPropagation(); go(-1); });
-  next.addEventListener('click', function(e){ e.stopPropagation(); go(1); });
-
-  var drag = null, suppress = false;
-  frame.addEventListener('pointerdown', function(e){
-    if (e.button || (e.target.closest && e.target.closest('button'))) return;
-    drag = {id:e.pointerId, x:e.clientX, y:e.clientY};
-  });
-  frame.addEventListener('pointerup', function(e){
-    if (!drag || e.pointerId !== drag.id) return;
-    var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-    drag = null;
-    if (Math.abs(dx) < 14 && Math.abs(dy) < 14) return;
-    suppress = true;
-    setTimeout(function(){ suppress = false; }, 450);
-    if (Math.abs(dx) > 36 && Math.abs(dx) > Math.abs(dy) * 1.15) go(dx < 0 ? 1 : -1);
-  });
-  frame.addEventListener('pointercancel', function(){ drag = null; });
-  frame.addEventListener('click', function(e){
-    if (e.target.closest && e.target.closest('button')) return;
-    if (suppress) { suppress = false; return; }
-    openPv();
-  });
-
-  document.addEventListener('keydown', function(e){
-    if (pvOn) { if (e.key === 'Escape') { e.preventDefault(); requestClose(); } return; }
-    if (e.target && e.target.closest && e.target.closest('a,input,textarea,select')) return;
-    if (e.key === 'ArrowRight') { e.preventDefault(); go(1); }
-    else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
-  });
-
-  function placeFields(){}
-
-  function setMore(on){
-    more.hidden = on;
-    moreBody.hidden = !on;
-    more.setAttribute('aria-expanded', on ? 'true' : 'false');
-  }
-  more.addEventListener('click', function(){ setMore(true); });
-  less.addEventListener('click', function(){
-    setMore(false);
-    var r = card.getBoundingClientRect();
-    if (r.top < 0) card.scrollIntoView({block:'start'});
-  });
-
-  (function fitTitle(){
-    var h = document.querySelector('.bar h1');
-    if (!h) return;
-    var size = 20;
-    function fit(){
-      size = 20;
-      h.style.fontSize = size + 'px';
-      while (size > 15 && h.scrollWidth > h.clientWidth + 1) { size -= 1; h.style.fontSize = size + 'px'; }
-    }
-    fit();
-    window.addEventListener('resize', fit);
-  })();
-  placeFields();
-  setMore(false);
-  window.addEventListener('resize', placeFields);
-
-  document.getElementById('back').addEventListener('click', function(){
-    if (history.length > 1) history.back();
-    else location.assign('https://tangoweekend.org/');
-  });
-
-  heart.addEventListener('click', function(){
-    var on = heart.getAttribute('aria-pressed') !== 'true';
-    heart.setAttribute('aria-pressed', on ? 'true' : 'false');
-    heart.setAttribute('aria-label', on ? '取消收藏' : '加入收藏');
-  });
-
-  function openPv(){
-    if (pvOn) return;
-    pvImg.src = poster.currentSrc || poster.src;
-    pvImg.alt = poster.alt;
-    pv.hidden = false;
-    pv.scrollTop = 0;
-    document.documentElement.style.overflow = 'hidden';
-    pvOn = true;
-    pvGuard = Date.now() + 450;
-    history.pushState({pv:1}, '');
-  }
-  function closePv(){
-    closing = false;
-    pvOn = false;
-    pv.hidden = true;
-    document.documentElement.style.overflow = '';
-  }
-  function requestClose(){
-    if (!pvOn || closing) return;
-    if (history.state && history.state.pv) { closing = true; history.back(); }
-    else closePv();
-  }
-  window.addEventListener('popstate', function(){ if (pvOn) closePv(); });
-  pv.addEventListener('click', function(e){ if (Date.now() < pvGuard || e.target === pvImg) return; requestClose(); });
-  var ty = null;
-  pv.addEventListener('touchstart', function(e){ ty = pv.scrollTop <= 0 && e.touches.length === 1 ? e.touches[0].clientY : null; }, {passive:true});
-  pv.addEventListener('touchend', function(e){
-    if (ty == null) return;
-    var dy = e.changedTouches[0].clientY - ty; ty = null;
-    if (dy > 90 && pv.scrollTop <= 0) requestClose();
-  }, {passive:true});
-
-  window.__p10 = {
-    go: go,
-    nextOcc: nextOcc,
-    get index(){ return index; },
-    get src(){ return poster.getAttribute('src'); },
-    slides: slides
-  };
-})();
+const posters=[
+ 'https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg',
+ 'https://tangoweekend.org/images/asia/posters/R015.jpg',
+ 'https://tangoweekend.org/images/asia/posters/R017.jpg'
+];
+let i=0; const img=document.getElementById('poster'), pager=document.getElementById('pager');
+function show(n){i=(n+posters.length)%posters.length; img.src=posters[i]; pager.textContent=(i+1)+' / '+posters.length}
+document.getElementById('prev').onclick=()=>show(i-1);
+document.getElementById('next').onclick=()=>show(i+1);
+show(0);
 </script>
-</body>
-</html>
+</body></html>
