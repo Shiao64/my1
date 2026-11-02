@@ -611,6 +611,7 @@
   }
   document.addEventListener('click', function(e){
     var cv = e.target.closest && e.target.closest('.ev-card .ev-cover'); if (!cv) return;
+    if (cv.closest('#atm-pop')) return; /* v11.8: entry ad cover href is the event page; do not swallow it as a poster tap */
     var c0 = cv.closest('.ev-card'); if (c0 && cv.closest('#atm-single') && c0.getAttribute('data-kind') === 'event' && c0.getAttribute('data-oneoff') !== '1') { e.preventDefault(); e.stopPropagation(); return; } /* v11.7: featured single card: poster tap does nothing (no viewer, no navigation) */
     var own = cv.closest('.ev-card') && cv.closest('.ev-card').getAttribute('data-own');
     if (own) { e.preventDefault(); e.stopPropagation(); try { if (location.search) sessionStorage.setItem('atmLast', JSON.stringify({p: location.pathname, q: location.search, y: window.pageYOffset || 0, t: Date.now()})); } catch(err){} location.assign(own); return; }
@@ -623,7 +624,7 @@
      On-site poster images open in the in-page viewer like the cover; other new-tab links fall back to the same tab if no window opened. */
   document.addEventListener('click', function(e){
     if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-    var a = e.target.closest && e.target.closest('.ev-card a[href]'); if (!a) return;
+    var a = e.target.closest && e.target.closest('.ev-card a[href]'); if (!a || a.closest('#atm-pop')) return; /* entry ad links navigate; poster-viewer fallback is for list cards */
     var h = a.getAttribute('href') || ''; if (/^(tel|mailto|sms|javascript):/i.test(h)) return;
     var u; try { u = new URL(a.href, location.href); } catch(err){ return; }
     var own = u.origin === location.origin || /^(www\.)?tangoweekend\.org$/.test(u.hostname);
@@ -710,7 +711,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china370';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china371';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
