@@ -22,7 +22,9 @@
   .heart[aria-pressed="true"] path{fill:#C8102E}
   .wrap{max-width:588px;margin:0 auto;padding:14px 14px 36px}
   .card{display:flex;flex-direction:column;gap:12px;padding:20px;border:0;border-radius:24px;background:#fff;box-shadow:0 8px 24px rgba(123,97,255,.14);border-top:6px solid var(--accent)}
-  .meta-line{display:flex;align-items:baseline;flex-wrap:nowrap;gap:0 .72em;margin:2px 0 0;color:var(--accent);font-weight:800;font-size:clamp(13.5px,3.65vw,16px);line-height:1.35;white-space:nowrap}
+  .meta-line,.meta-venue{margin:2px 0 0;color:var(--accent);font-weight:800;font-size:clamp(13.5px,3.65vw,16px);line-height:1.35}
+  .meta-line{white-space:nowrap}
+  .meta-line .meta-time{margin-left:.4em}
   .meta-line time{color:inherit;font-weight:800}
   .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:.9rem;text-align:left;border:0;border-radius:14px;padding:10px 14px}
   .more{color:var(--accent);background:transparent;padding:2px 0 0}
@@ -76,7 +78,8 @@
 </header>
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
-    <p class="meta-line"><span><span id="freq">每周二舞会</span> · <time id="when"></time></span><span>20:00–24:00</span><span>Ala House</span></p>
+    <p class="meta-line"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></p>
+    <p class="meta-venue">Ala House</p>
     <button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button>
     <div id="moreBody" hidden>
       <div class="rows">
