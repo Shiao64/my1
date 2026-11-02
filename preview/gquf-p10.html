@@ -25,7 +25,8 @@
   .card{flex:0 1 auto;display:flex;flex-direction:column;justify-content:flex-end;min-height:0;gap:4px;width:100%;padding:4px 4px 2px;border:0;border-radius:10px;background:#fff;box-shadow:none;border-top:2px solid #0E6E78}
   .info-bar{align-self:stretch;width:100%;max-width:100%;margin:0;padding:8px 14px;background:#E8E6EC;border-radius:10px}
   .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:18px;line-height:1.3;white-space:nowrap;overflow:hidden}
-  .meta-line .meta-fixed{flex:none}
+  .meta-line .meta-fixed{flex:none;display:inline-flex;align-items:center}
+  .cat-dot{flex:none;width:9px;height:9px;margin-right:6px;border-radius:50%;background:#9E1020}
   .meta-line .meta-time{margin-left:.12em}
   .meta-line .meta-venue{flex:0 1 auto;min-width:0;margin-left:.45em}
   .meta-line time{color:inherit;font-weight:800}
@@ -86,7 +87,7 @@
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
     <div class="info-bar">
-      <p class="meta-line" id="metaLine"><span class="meta-fixed"><span id="freq">每周二舞会</span> <time id="when"></time> · <span class="meta-time">20:00–24:00</span> · </span><span class="meta-venue" id="venueBar">Ala House</span></p>
+      <p class="meta-line" id="metaLine"><span class="meta-fixed"><i class="cat-dot" aria-hidden="true"></i><span id="freq">每周二舞会</span> <time id="when"></time> · <span class="meta-time">20:00–24:00</span> · </span><span class="meta-venue" id="venueBar">Ala House</span></p>
       <p class="meta-foot" id="foot"><span class="meta-dj" id="djBar">DJ: Yelyn Woo</span><button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button></p>
     </div>
     <div id="moreBody" hidden>
