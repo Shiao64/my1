@@ -21,7 +21,7 @@
   .heart svg{width:26px;height:26px}
   .heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
   .heart[aria-pressed="true"] path{fill:#C8102E}
-  .wrap{flex:1;display:flex;flex-direction:column;width:100%;max-width:none;min-height:0;margin:0;padding:8px 10px 12px}
+  .wrap{flex:1;display:flex;flex-direction:column;width:100%;max-width:none;min-height:0;margin:0;padding:4px 8px 8px}
   .card{flex:1;display:flex;flex-direction:column;min-height:0;gap:6px;width:100%;padding:8px 10px 8px;border:0;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(14,110,120,.12);border-top:4px solid #0E6E78}
   .info-bar{align-self:flex-start;width:auto;max-width:100%;margin:0;padding:6px 10px;background:#E8E6EC;border-radius:10px}
   .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:14px;line-height:1.2;white-space:nowrap;overflow:hidden}
@@ -46,8 +46,9 @@
   .links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none}
   .stage{flex:1;display:flex;min-height:56vh;margin-top:2px;padding-top:4px;border-top:0}
   .frame{position:relative;flex:1;min-height:0;border-radius:16px;touch-action:pan-y}
-  .frame img{display:block;width:100%;height:100%;object-fit:contain;object-position:center top;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:zoom-in;background:#1a1a1a}
-  .chev{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .frame img{display:block;width:100%;height:100%;object-fit:contain;object-position:center center;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:zoom-in;background:#FBF5E9}
+  .chev{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:52px;height:84px;padding:0;border:0;border-radius:18px;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .chev svg{width:26px;height:42px;display:block}
   .chev.is-off{opacity:.38}
   .chev.prev{left:8px}
   .chev.next{right:8px}
@@ -105,10 +106,10 @@
         <span class="chip" id="chip" hidden></span>
         <span class="idx" id="idx">1 / 5</span>
         <button type="button" class="chev prev" id="prev" hidden aria-label="较新的海报">
-          <svg width="12" height="22" viewBox="0 0 12 22" aria-hidden="true"><path d="M10 2L2 11l8 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 28 44" aria-hidden="true"><path fill="#0E6E78" d="M20 2 L6 22 L20 42 L15 42 L1 22 L15 2 Z"/></svg>
         </button>
         <button type="button" class="chev next" id="next" aria-label="更早的海报">
-          <svg width="12" height="22" viewBox="0 0 12 22" aria-hidden="true"><path d="M2 2l8 9-8 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 28 44" aria-hidden="true"><path fill="#0E6E78" d="M8 2 L22 22 L8 42 L13 42 L27 22 L13 2 Z"/></svg>
         </button>
       </div>
     </div>
