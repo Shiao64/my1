@@ -49,6 +49,8 @@
   .frame img{display:block;flex:1;min-width:0;width:auto;height:100%;object-fit:contain;object-position:center center;box-sizing:border-box;border:3px solid #fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:zoom-in;background:#fff}
   .chev{position:static;flex:none;z-index:2;width:46px;height:78px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .chev svg{width:24px;height:40px;display:block}
+  .chev.prev{order:-1}
+  .chev.next{order:1}
   .chev.is-off{opacity:.38}
   .chev[hidden]{display:none}
   .chev:active{transform:scale(.96)}
