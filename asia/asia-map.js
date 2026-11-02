@@ -54,6 +54,33 @@
   }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   function occISO(wd){ var t = baseDate(), n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((wd - t.getDay() + 7) % 7)); return n.getFullYear() + '-' + pad(n.getMonth()+1) + '-' + pad(n.getDate()); }
+  /* v11.9: next session to show (local day, same as todayISO / baseDate). nth walks up to 6 weeks; biweekly has no anchor so no date. Does not change data-occ. */
+  function nextShowISO(r){
+    if (!r || r.kind !== 'weekly' || r.every === 2) return '';
+    var wds = r.weekdays && r.weekdays.length ? r.weekdays : (r.weekday != null ? [r.weekday] : []);
+    if (!wds.length) return '';
+    var t = baseDate(), best = '';
+    wds.forEach(function(wd){
+      wd = ((wd % 7) + 7) % 7;
+      for (var step = 0; step < (r.nth ? 6 : 1); step++) {
+        var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((wd - t.getDay() + 7) % 7) + step * 7);
+        if (r.nth) {
+          var k = Math.floor((n.getDate() - 1) / 7) + 1;
+          var last = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth();
+          if (r.nth === -1 ? !last : k !== r.nth) continue;
+        }
+        var iso = n.getFullYear() + '-' + pad(n.getMonth()+1) + '-' + pad(n.getDate());
+        if (!best || iso < best) best = iso;
+        break;
+      }
+    });
+    return best;
+  }
+  function mdShort(iso){
+    if (!iso) return '';
+    var p = iso.split('-'), s = (+p[1]) + '/' + (+p[2]);
+    return p[0] !== String(baseDate().getFullYear()) ? p[0] + '/' + s : s;
+  }
   function nthOk(r){
     if (!r.nth) return true;
     var t = baseDate();
@@ -206,9 +233,11 @@
         else if (r.nth && ds.length === 1) when = nthLabel(r.nth, ds[0]) + (r.time ? ' · ' + formatTime12(r.time) : ''); /* v8g: monthly nth weekday */
         else when = every + (ds.length > 1 ? DAYS[ds[0]] + '–' + DAYS[ds[ds.length-1]] : DAYS[ds[0]]) + (r.time ? ' · ' + formatTime12(r.time) : '');
       } else { when = UI.dayTba || 'Day TBA'; attrs += ' data-tba="1"'; }
+      var nxShow = nextShowISO(r); if (nxShow) attrs += ' data-next="' + nxShow + '"'; /* display date; data-occ stays the filter weekday */
       var unconf = r.confirmed_until && r.weekday != null && occISO(r.weekday) > r.confirmed_until; /* v9.4: no poster for this week */
       if (unconf) { when = when.replace(/ · .*$/, '') + ' · No'; body.push(line(UI.time || 'Time', '<span class="atm-unconfirmed" style="color:#9b1c1c;font-weight:700">' + (isZh ? 'No · 未确定，请联络组织者' : 'No · Not confirmed, please contact the organizer') + '</span>')); }
-      else if (r.time) body.push(line(UI.time || 'Time', esc(formatTime12(r.time))));
+      else if (r.time) body.push(line(UI.time || 'Time', esc((nxShow ? mdShort(nxShow) + ' ' : '') + formatTime12(r.time))));
+      else if (nxShow) body.push(line(UI.dates || 'Dates', esc(mdShort(nxShow))));
     }
     if (r.venue) {
       var vName = r.venue; /* v10.9 address rule: en always English addr; zh mainland Chinese; zh overseas Chinese + English */
@@ -797,7 +826,7 @@
         var nx = !r || !r.city ? [] : all.filter(function(x){ return x.city === r.city && !x.hidden && x.id !== r.id && !ended(x) && (x.kind === 'weekly' || (x.end || x.start) >= T); })
           .sort(function(a, b){ var fa = a.kind === 'weekly' ? 1 : 0, fb = b.kind === 'weekly' ? 1 : 0; return fa - fb || String(a.start || '').localeCompare(String(b.start || '')); }).slice(0, 3);
         var WD = isZh ? ['周日','周一','周二','周三','周四','周五','周六'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        function when(x){ if (x.kind === 'weekly') { var ds = x.weekdays || (x.weekday != null ? [x.weekday] : []); return (isZh ? '每' : 'Every ') + ds.map(function(i){ return WD[i % 7]; }).join('/') + (x.time ? ' ' + x.time : ''); } return String(x.start || '').replace(/-/g, '/') + (x.end && x.end !== x.start ? '–' + String(x.end).slice(5).replace(/-/g, '/') : ''); }
+        function when(x){ if (x.kind === 'weekly') { var ds = x.weekdays || (x.weekday != null ? [x.weekday] : []), nd = mdShort(nextShowISO(x)); return (isZh ? '每' : 'Every ') + ds.map(function(i){ return WD[i % 7]; }).join('/') + (nd ? ' ' + nd : '') + (x.time ? ' ' + x.time : ''); } return String(x.start || '').replace(/-/g, '/') + (x.end && x.end !== x.start ? '–' + String(x.end).slice(5).replace(/-/g, '/') : ''); }
         var mini = nx.length ? '<h3 class="atm-nf-h">' + (isZh ? cn + '近期活动' : 'Coming up in ' + cn) + '</h3><div class="atm-nf-list">' + nx.map(function(x){ return '<a class="atm-nf-mini" href="' + esc(base + '?card=' + encodeURIComponent(x.id)) + '">' + (x.poster ? '<img' + thImg(x.poster) + ' alt="" loading="lazy" decoding="async">' : '<span class="atm-nf-noimg">♪</span>') + '<span><strong>' + esc((isZh && x.name_zh) || x.name) + '</strong><em>' + esc(when(x)) + '</em></span></a>'; }).join('') + '</div>' : '';
         var ico = '<svg class="atm-nf-ico" viewBox="0 0 96 96" aria-hidden="true"><rect x="10" y="10" width="68" height="68" rx="16" fill="#0e6e78"/><path d="M44 19c-11.2 0-20.2 8.8-20.2 19.8C23.8 53.6 44 71 44 71s20.2-17.4 20.2-32.2C64.2 27.8 55.2 19 44 19z" fill="#fbf5e9"/><path d="M44 50.5s-9.6-6-9.6-12c0-3.2 2.4-5.5 5.3-5.5 1.9 0 3.4 1 4.3 2.4.9-1.4 2.4-2.4 4.3-2.4 2.9 0 5.3 2.3 5.3 5.5 0 6-9.6 12-9.6 12z" fill="#c8102e" opacity=".55"/><circle cx="72" cy="72" r="17" fill="#fffcf5" stroke="#9a6e00" stroke-width="4"/><path d="M72 63v10l6 4" stroke="#9a6e00" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         var allH = base + (r && r.city ? '?mode=regular' + cy + kr + '&via=card' : '?via=card');

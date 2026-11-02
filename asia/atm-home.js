@@ -48,8 +48,34 @@
   function rel(w) { return (w - TWD + 7) % 7; }
   function regSorted(c) { return (REG[c] || []).slice().sort(function (a, b) { return rel(wdOf(a)) - rel(wdOf(b)) || ((a.time || '') < (b.time || '') ? -1 : 1); }); }
   function fd(s) { return s ? s.slice(5).replace('-', '/') + (s.slice(0, 4) !== TODAY.slice(0, 4) ? '' : '') : ''; }
+  /* v11.9: next session date at render time (same local day as TODAY / occOf). Plain weekly = this week's weekday; nth = next matching week. Biweekly has no anchor, so no date. */
+  function nextISO(e) {
+    var wds = (e.weekdays && e.weekdays.length) ? e.weekdays : (e.weekday != null ? [e.weekday] : []);
+    if (!wds.length || e.every === 2) return '';
+    var best = '';
+    wds.forEach(function (wd) {
+      wd = ((wd % 7) + 7) % 7;
+      for (var step = 0; step < (e.nth ? 6 : 1); step++) {
+        var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + rel(wd) + step * 7);
+        if (e.nth) {
+          var k = Math.floor((d.getDate() - 1) / 7) + 1;
+          var last = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7).getMonth() !== d.getMonth();
+          if (e.nth === -1 ? !last : k !== e.nth) continue;
+        }
+        var iso = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+        if (!best || iso < best) best = iso;
+        break;
+      }
+    });
+    return best;
+  }
+  function md(iso) { if (!iso) return ''; var m = +iso.slice(5, 7), d = +iso.slice(8, 10), s = m + '/' + d; return iso.slice(0, 4) !== TODAY.slice(0, 4) ? iso.slice(0, 4) + '/' + s : s; }
   function dt(e) {
-    if (e.kind === 'weekly') return T.every + (e.weekdays || [e.weekday]).map(function (i) { return T.WD[i % 7]; }).join('/') + (e.time ? ' ' + e.time : '');
+    if (e.kind === 'weekly') {
+      var days = (e.weekdays && e.weekdays.length ? e.weekdays : [e.weekday]).map(function (i) { return T.WD[i % 7]; }).join('/');
+      var nd = md(nextISO(e));
+      return T.every + days + (nd ? ' ' + nd : '') + (e.time ? ' ' + e.time : '');
+    }
     var s = fd(e.start) + (e.end && e.end !== e.start ? '–' + fd(e.end) : ''); if (e.start && e.start.slice(0, 4) !== TODAY.slice(0, 4)) s = e.start.slice(0, 4) + '/' + s; if (e.theme_of) s += ' ' + T.WD[new Date(e.start + 'T12:00:00').getDay()] + (e.time ? ' ' + e.time : ''); return s;
   }
   function th(p) { return '/images/thumb' + p.replace(/\.(jpe?g|png)$/i, '.webp'); }
@@ -97,7 +123,6 @@
   var VK = 'atm_city_visits_v1';
   function visits() { try { return JSON.parse(localStorage.getItem(VK) || '{}') || {}; } catch (e) { return {}; } }
   function visit(c) { if (!c || !REG[c]) return; var v = visits(); v[c] = (v[c] || 0) + 1; try { localStorage.setItem(VK, JSON.stringify(v)); } catch (e) {} }
-  function nextOcc(e) { var w = wdOf(e), d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + rel(w)); return (zh ? '下次 ' : 'Next ') + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + T.WD[w] + (e.time ? ' ' + e.time : ''); }
   /* v11.7 homepage C: favorites carousel (own, else 系统建议 from /data/suggested_favs.json, ✕ remembered) + two entry rows; city grid moved to #h-reg */
   var SUG = [], HK = 'atm_sug_hidden_v1';
   function live(e) { return e && !(e.kind === 'event' && (e.end || e.start || '9') < TODAY); } /* weekly favorites never expire; past one-offs drop out */
@@ -108,7 +133,7 @@
   function themed(e) { if (e.kind !== 'weekly') return null; var o = occOf(e), t = null; DATA.forEach(function (x) { if (x.theme_of === e.id && x.start === o) t = x; }); return t; }
   function favBlock() {
     var own = favLive(), sg = own.length ? [] : sugLive(), L = own.length ? own : sg; if (!L.length) return '';
-    var items = L.map(function (e) { var t = themed(e) || e; return '<div class="ah-fit">' + card(t, t.kind === 'weekly' ? nextOcc(t) : '', own.length ? '' : (zh ? '系统建议' : 'Suggested')) + (own.length ? '' : '<button type="button" class="ah-unsug" aria-pressed="true" data-unsug="' + esc(e.id) + '" aria-label="' + (zh ? '移除建议' : 'Remove suggestion') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></button>') + '</div>'; }).join('');
+    var items = L.map(function (e) { var t = themed(e) || e; return '<div class="ah-fit">' + card(t, '', own.length ? '' : (zh ? '系统建议' : 'Suggested')) + (own.length ? '' : '<button type="button" class="ah-unsug" aria-pressed="true" data-unsug="' + esc(e.id) + '" aria-label="' + (zh ? '移除建议' : 'Remove suggestion') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></button>') + '</div>'; }).join('');
     var sub = own.length ? (zh ? '左右滑动' : 'swipe') : (zh ? '系统建议，可换成你自己的' : 'Suggested, swap in your own');
     return '<section class="ah-fav" aria-label="' + T.fav + '"><div class="ah-favh"><b><span style="color:#C0392B">♥</span> ' + T.fav + '</b><span class="ah-favs">' + sub + '</span>' + (own.length ? '<button type="button" class="ah-favall" data-fav="1">' + (zh ? '全部 ' + own.length + ' 项' : 'All ' + own.length) + ' ›</button>' : '') + '</div><div class="ah-car">' + items + '</div></section>';
   }

@@ -50,8 +50,28 @@
   }
   function d(x) { return (x || '').replace(/-/g, '/'); }
   var WD = zh ? ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function nextMd(r) {
+    if (!r || r.kind !== 'weekly' || r.every === 2) return '';
+    var wds = r.weekdays && r.weekdays.length ? r.weekdays : (r.weekday != null ? [r.weekday] : []);
+    if (!wds.length) return '';
+    var now = new Date(), best = '';
+    wds.forEach(function (wd) {
+      wd = ((wd % 7) + 7) % 7;
+      for (var step = 0; step < (r.nth ? 6 : 1); step++) {
+        var n = new Date(now.getFullYear(), now.getMonth(), now.getDate() + ((wd - now.getDay() + 7) % 7) + step * 7);
+        if (r.nth) { var k = Math.floor((n.getDate() - 1) / 7) + 1, last = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth(); if (r.nth === -1 ? !last : k !== r.nth) continue; }
+        var iso = n.getFullYear() + '-' + (n.getMonth() < 9 ? '0' : '') + (n.getMonth() + 1) + '-' + (n.getDate() < 10 ? '0' : '') + n.getDate();
+        if (!best || iso < best) best = iso;
+        break;
+      }
+    });
+    if (!best) return '';
+    var p = best.split('-'), s = (+p[1]) + '/' + (+p[2]);
+    return p[0] !== String(now.getFullYear()) ? p[0] + '/' + s : s;
+  }
   function meta(r) {
-    var w = r.kind === 'weekly' ? ((r.weekdays || (r.weekday != null ? [r.weekday] : [])).map(function (i) { return WD[i % 7]; }).join('/') + (r.time ? ' ' + r.time : '')) : (d(r.start) + (r.end && r.end !== r.start ? '–' + d(r.end) : ''));
+    var nd = r.kind === 'weekly' ? nextMd(r) : '';
+    var w = r.kind === 'weekly' ? ((r.weekdays || (r.weekday != null ? [r.weekday] : [])).map(function (i) { return WD[i % 7]; }).join('/') + (nd ? ' ' + nd : '') + (r.time ? ' ' + r.time : '')) : (d(r.start) + (r.end && r.end !== r.start ? '–' + d(r.end) : ''));
     return w + ' · ' + cityName(r);
   }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
