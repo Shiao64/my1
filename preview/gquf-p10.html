@@ -46,7 +46,7 @@
   .links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none}
   .stage{flex:1 1 auto;display:flex;min-height:0;margin:0;padding:0;border:0;overflow:hidden}
   .frame{position:relative;flex:1;min-height:0;height:100%;display:flex;align-items:center;gap:6px;touch-action:pan-y;overflow:hidden}
-  .frame img{display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center center;box-sizing:border-box;border:3px solid #fff;border-radius:10px;box-shadow:none;cursor:zoom-in;background:#fff}
+  .frame img{display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center center;box-sizing:border-box;border:2px solid #C9A227;border-radius:10px;box-shadow:none;cursor:zoom-in;background:#fff}
   .chev{position:static;flex:none;align-self:center;z-index:2;width:40px;height:68px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .chev svg{width:24px;height:40px;display:block}
   .chev.prev{order:-1}
@@ -86,13 +86,13 @@
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
     <div class="info-bar">
-      <p class="meta-line" id="metaLine"><span class="meta-fixed"><span id="freq">每周二</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></span><span class="meta-venue" id="venueBar" hidden></span></p>
+      <p class="meta-line" id="metaLine"><span class="meta-fixed"><span id="freq">每周二舞会</span> <time id="when"></time> · <span class="meta-time">20:00–24:00</span> · </span><span class="meta-venue" id="venueBar">Ala House</span></p>
       <p class="meta-foot" id="foot"><span class="meta-dj" id="djBar">DJ: Yelyn Woo</span><button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button></p>
     </div>
     <div id="moreBody" hidden>
       <div class="rows">
         <div class="row"><b>主办</b><span>刘峥</span></div>
-        <div class="row" id="venueMoreRow"><b>场地</b><span id="venueMore">Ala House上海长滩店·外滩旗舰店</span></div>
+        <div class="row" id="venueMoreRow"><b>场地</b><span id="venueMore">Ala House</span></div>
         <div class="row" id="djMoreRow"><b>DJ:</b><span id="djMore">Yelyn Woo（首尔）· Frank Jin 联合嘉宾 Seoul Guest Night Selector 特别场驻场</span></div>
         <div class="row"><b>地址</b><span><a class="map" href="https://uri.amap.com/search?keyword=%E5%8C%97%E4%BA%AC%E5%B8%82%E4%B8%9C%E7%9B%B4%E9%97%A8%E5%A4%96%E5%A4%A7%E8%A1%97%E4%BA%AE%E9%A9%AC%E6%B2%B3%E5%8D%97%E8%B7%AF18%E5%8F%B72%E5%B1%82" target="_blank" rel="noopener">北京市东直门外大街亮马河南路18号2层</a></span></div>
         <div class="row"><b>联络方式</b><span>微信号：beijingtango (刘峥)</span></div>
@@ -233,36 +233,7 @@
     else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
   });
 
-  var VENUE = 'Ala House上海长滩店·外滩旗舰店';
-  var DJ = 'Yelyn Woo（首尔）· Frank Jin 联合嘉宾 Seoul Guest Night Selector 特别场驻场';
-  var VENUE_ON_BAR = VENUE.length <= 12;
-  var venueBar = document.getElementById('venueBar');
-  var venueMoreRow = document.getElementById('venueMoreRow');
-  var venueMore = document.getElementById('venueMore');
-  var djBar = document.getElementById('djBar');
-  var djMoreRow = document.getElementById('djMoreRow');
-  var djMore = document.getElementById('djMore');
-  var metaLine = document.getElementById('metaLine');
-  var foot = document.getElementById('foot');
-  venueMore.textContent = VENUE;
-  djMore.textContent = DJ;
-  function placeFields(){
-    djBar.hidden = false;
-    djBar.textContent = 'DJ: Yelyn Woo';
-    djMore.textContent = DJ;
-    venueMore.textContent = VENUE;
-    venueBar.hidden = false;
-    venueBar.textContent = ' · ' + VENUE;
-    var tooLong = !VENUE_ON_BAR || metaLine.scrollWidth > metaLine.clientWidth + 1;
-    if (tooLong) {
-      venueBar.hidden = true;
-      venueBar.textContent = '';
-      venueMoreRow.hidden = false;
-    } else {
-      venueMoreRow.hidden = true;
-    }
-    djMoreRow.hidden = false;
-  }
+  function placeFields(){}
 
   function setMore(on){
     more.hidden = on;
