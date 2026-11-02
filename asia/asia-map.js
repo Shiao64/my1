@@ -135,7 +135,7 @@
   function line(k, v){ return '<div class="ev-line"><span class="ev-k">' + k + '</span> ' + v + '</div>'; }
   function contactBlock(r){
     var C = r.contacts || {};
-    if (!C.wechat_id && !C.phone && !C.email) return '';
+    if (!C.wechat_id && !C.phone && !C.email && !C.facebook) return '';
     var parts = [];
     if (C.wechat_id) {
       var wx = esc(C.wechat_id);
@@ -144,6 +144,7 @@
     }
     if (C.phone) parts.push(line(UI.phone || 'Phone', '<a href="tel:' + esc(C.phone) + '">' + esc(C.phone) + '</a>'));
     if (C.email) parts.push(line(UI.email || 'Email', '<a href="mailto:' + esc(C.email) + '">' + esc(C.email) + '</a>'));
+    if (C.facebook && !/^https?:\/\//i.test(C.facebook)) parts.push(line(UI.facebook || 'Facebook', esc(C.facebook)));
     return '<div class="china-contact-block">' + parts.join('') + '</div>';
   }
   function linkBtns(r){
@@ -711,7 +712,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china372';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china373';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
