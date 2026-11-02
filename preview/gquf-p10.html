@@ -12,25 +12,20 @@
   html,body{margin:0}
   body{background:var(--cream);color:#2a1a14;font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
   .bar{position:sticky;top:0;z-index:20;background:var(--cream);box-shadow:0 1px 0 rgba(10,79,87,.12)}
-  .bar-in{max-width:588px;margin:0 auto;height:56px;padding:0 6px;display:flex;align-items:center;gap:2px}
-  .iconbtn{flex:none;width:44px;height:44px;padding:0;border:0;background:transparent;color:var(--teal);cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+  .bar-in{max-width:588px;margin:0 auto;height:64px;padding:0 8px 0 2px;display:flex;align-items:center;gap:2px}
+  .iconbtn{flex:none;width:48px;height:48px;padding:0;border:0;background:transparent;color:var(--teal);cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
   .iconbtn:active{opacity:.6}
   .iconbtn:focus-visible{outline:2px solid var(--teal);outline-offset:1px;border-radius:8px}
-  .bar h1{flex:1;min-width:0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 19px/1.2 "Noto Serif SC","Songti SC","PMingLiU",serif;color:var(--deep)}
+  .bar h1{flex:1;min-width:0;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:700 25px/1.15 "Noto Serif SC","Songti SC","PMingLiU",serif;color:var(--deep)}
+  .heart svg{width:32px;height:32px}
   .heart path{fill:none;stroke:#C8102E;stroke-width:2;stroke-linejoin:round}
   .heart[aria-pressed="true"] path{fill:#C8102E}
   .wrap{max-width:588px;margin:0 auto;padding:14px 14px 36px}
   .card{display:flex;flex-direction:column;gap:12px;padding:20px;border:0;border-radius:24px;background:#fff;box-shadow:0 8px 24px rgba(123,97,255,.14);border-top:6px solid var(--accent)}
-  .sched{margin:0;font-weight:800;font-size:.95rem;letter-spacing:.02em;color:var(--accent)}
-  .sched time{color:var(--ink);font-weight:800}
-  .name{margin:2px 0 4px;font-size:1.6rem;line-height:1.25;font-weight:900;color:var(--ink)}
-  .meta{display:grid;gap:10px;padding:12px 0;border-top:1px solid #eee;border-bottom:1px solid #eee}
-  .m{display:grid;grid-template-columns:32px minmax(56px,max-content) 1fr;column-gap:4px;align-items:start;font-size:1rem;color:#2b2550}
-  .m i{font-style:normal;width:26px;height:26px;border-radius:9px;background:#F3F0FF;display:grid;place-items:center;font-size:.85rem}
-  .m b{font-weight:700;color:var(--muted);font-size:.78rem;padding-top:4px;white-space:nowrap}
-  .m span{font-weight:600;padding-top:2px;overflow-wrap:anywhere}
+  .meta-line{display:flex;align-items:baseline;flex-wrap:nowrap;gap:0 .72em;margin:2px 0 0;color:var(--accent);font-weight:800;font-size:clamp(13.5px,3.65vw,16px);line-height:1.35;white-space:nowrap}
+  .meta-line time{color:inherit;font-weight:800}
   .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:.9rem;text-align:left;border:0;border-radius:14px;padding:10px 14px}
-  .more{color:var(--accent);background:#F7F5FF}
+  .more{color:var(--accent);background:transparent;padding:2px 0 0}
   .more::after{content:" ▾"}
   .less{margin-top:12px;color:#7A5700;background:#F7F5FF}
   .less::after{content:"▴";float:right}
@@ -71,26 +66,22 @@
 <header class="bar">
   <div class="bar-in">
     <button type="button" class="iconbtn" id="back" aria-label="返回">
-      <svg width="14" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="18" height="34" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <h1>探戈会</h1>
     <button type="button" class="iconbtn heart" id="heart" aria-pressed="false" aria-label="加入收藏">
-      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>
     </button>
   </div>
 </header>
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
-    <p class="sched"><span id="freq">每周二舞会</span> · <time id="when"></time></p>
-    <h2 class="name">探戈会</h2>
-    <div class="meta">
-      <div class="m"><i aria-hidden="true">🕗</i><b>时间</b><span>20:00–24:00</span></div>
-      <div class="m"><i aria-hidden="true">📍</i><b>场地</b><span>Ala House</span></div>
-    </div>
+    <p class="meta-line"><span><span id="freq">每周二舞会</span> · <time id="when"></time></span><span>20:00–24:00</span><span>Ala House</span></p>
     <button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button>
     <div id="moreBody" hidden>
       <div class="rows">
         <div class="row"><b>主办</b><span>刘峥</span></div>
+        <div class="row"><b>DJ：</b><span>Yelyn Woo</span></div>
         <div class="row"><b>地址</b><span><a class="map" href="https://uri.amap.com/search?keyword=%E5%8C%97%E4%BA%AC%E5%B8%82%E4%B8%9C%E7%9B%B4%E9%97%A8%E5%A4%96%E5%A4%A7%E8%A1%97%E4%BA%AE%E9%A9%AC%E6%B2%B3%E5%8D%97%E8%B7%AF18%E5%8F%B72%E5%B1%82" target="_blank" rel="noopener">北京市东直门外大街亮马河南路18号2层</a></span></div>
         <div class="row"><b>联络方式</b><span>微信号：beijingtango (刘峥)</span></div>
         <div class="row links"><b>链接</b><span><a href="https://www.facebook.com/tangobeijing" target="_blank" rel="noopener">脸书</a></span></div>
