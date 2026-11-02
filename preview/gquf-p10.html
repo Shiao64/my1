@@ -22,11 +22,11 @@
   .heart[aria-pressed="true"] path{fill:#C8102E}
   .wrap{max-width:588px;margin:0 auto;padding:14px 14px 36px}
   .card{display:flex;flex-direction:column;gap:12px;padding:20px;border:0;border-radius:24px;background:#fff;box-shadow:0 8px 24px rgba(123,97,255,.14);border-top:6px solid var(--accent)}
-  .info-bar{display:flex;align-items:center;gap:12px;margin:0;padding:12px 14px;background:#E8E6EC;border-radius:14px}
-  .info-text{flex:1;min-width:0}
-  .meta-line,.meta-venue{margin:0;color:#3d3850;font-weight:800;font-size:clamp(13.5px,3.65vw,16px);line-height:1.35}
-  .meta-line{white-space:nowrap}
-  .meta-line .meta-time{margin-left:.4em}
+  .info-bar{margin:0;padding:12px 14px;background:#E8E6EC;border-radius:14px}
+  .meta-row1{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .meta-line,.meta-venue{margin:0;color:#3d3850;font-weight:800;font-size:clamp(12.5px,3.3vw,15px);line-height:1.35}
+  .meta-line{white-space:nowrap;min-width:0}
+  .meta-line .meta-time,.meta-line .meta-dj{margin-left:.4em}
   .meta-line time{color:inherit;font-weight:800}
   .meta-venue{margin-top:14px}
   .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:.9rem;text-align:left;border:0;border-radius:14px;padding:10px 14px}
@@ -70,9 +70,6 @@
 <body>
 <header class="bar">
   <div class="bar-in">
-    <button type="button" class="iconbtn" id="back" aria-label="返回">
-      <svg width="18" height="34" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
     <h1>探戈会</h1>
     <button type="button" class="iconbtn heart" id="heart" aria-pressed="false" aria-label="加入收藏">
       <svg width="32" height="32" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>
@@ -82,11 +79,11 @@
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
     <div class="info-bar">
-      <div class="info-text">
-        <p class="meta-line"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></p>
-        <p class="meta-venue">Ala House · DJ Yelyn Woo</p>
+      <div class="meta-row1">
+        <p class="meta-line"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span><span class="meta-dj">DJ Yelyn Woo</span></p>
+        <button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button>
       </div>
-      <button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button>
+      <p class="meta-venue">Ala House</p>
     </div>
     <div id="moreBody" hidden>
       <div class="rows">
@@ -242,11 +239,6 @@
     var on = heart.getAttribute('aria-pressed') !== 'true';
     heart.setAttribute('aria-pressed', on ? 'true' : 'false');
     heart.setAttribute('aria-label', on ? '取消收藏' : '加入收藏');
-  });
-
-  document.getElementById('back').addEventListener('click', function(){
-    if (history.length > 1) history.back();
-    else location.href = 'https://tangoweekend.org/zh/asia/';
   });
 
   function openPv(){
