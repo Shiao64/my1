@@ -22,13 +22,16 @@
   .heart[aria-pressed="true"] path{fill:#C8102E}
   .wrap{max-width:588px;margin:0 auto;padding:14px 14px 36px}
   .card{display:flex;flex-direction:column;gap:12px;padding:20px;border:0;border-radius:24px;background:#fff;box-shadow:0 8px 24px rgba(123,97,255,.14);border-top:6px solid var(--accent)}
-  .meta-line,.meta-venue{margin:2px 0 0;color:var(--accent);font-weight:800;font-size:clamp(13.5px,3.65vw,16px);line-height:1.35}
+  .info-bar{display:flex;align-items:center;gap:12px;margin:0;padding:12px 14px;background:#E8E6EC;border-radius:14px}
+  .info-text{flex:1;min-width:0}
+  .meta-line,.meta-venue{margin:0;color:#3d3850;font-weight:800;font-size:clamp(13.5px,3.65vw,16px);line-height:1.35}
   .meta-line{white-space:nowrap}
   .meta-line .meta-time{margin-left:.4em}
   .meta-line time{color:inherit;font-weight:800}
+  .meta-venue{margin-top:14px}
   .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:.9rem;text-align:left;border:0;border-radius:14px;padding:10px 14px}
-  .more{color:var(--accent);background:transparent;padding:2px 0 0}
-  .more::after{content:" ▾"}
+  .info-bar .more{flex:none;width:auto;align-self:center;margin:0;padding:0;background:transparent;color:var(--accent);text-align:right;white-space:nowrap}
+  .more::after{content:" ›"}
   .less{margin-top:12px;color:#7A5700;background:#F7F5FF}
   .less::after{content:"▴";float:right}
   .more:focus-visible,.less:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
@@ -78,13 +81,16 @@
 </header>
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
-    <p class="meta-line"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></p>
-    <p class="meta-venue">Ala House</p>
-    <button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button>
+    <div class="info-bar">
+      <div class="info-text">
+        <p class="meta-line"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></p>
+        <p class="meta-venue">Ala House · DJ Yelyn Woo</p>
+      </div>
+      <button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button>
+    </div>
     <div id="moreBody" hidden>
       <div class="rows">
         <div class="row"><b>主办</b><span>刘峥</span></div>
-        <div class="row"><b>DJ：</b><span>Yelyn Woo</span></div>
         <div class="row"><b>地址</b><span><a class="map" href="https://uri.amap.com/search?keyword=%E5%8C%97%E4%BA%AC%E5%B8%82%E4%B8%9C%E7%9B%B4%E9%97%A8%E5%A4%96%E5%A4%A7%E8%A1%97%E4%BA%AE%E9%A9%AC%E6%B2%B3%E5%8D%97%E8%B7%AF18%E5%8F%B72%E5%B1%82" target="_blank" rel="noopener">北京市东直门外大街亮马河南路18号2层</a></span></div>
         <div class="row"><b>联络方式</b><span>微信号：beijingtango (刘峥)</span></div>
         <div class="row links"><b>链接</b><span><a href="https://www.facebook.com/tangobeijing" target="_blank" rel="noopener">脸书</a></span></div>
