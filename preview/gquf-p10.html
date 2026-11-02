@@ -22,17 +22,17 @@
   .heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
   .heart[aria-pressed="true"] path{fill:#C8102E}
   .wrap{flex:1;display:flex;flex-direction:column;width:100%;max-width:none;min-height:0;margin:0;padding:8px 10px 12px}
-  .card{flex:1;display:flex;flex-direction:column;min-height:0;gap:10px;width:100%;padding:12px;border:0;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(14,110,120,.12);border-top:6px solid #0E6E78}
-  .info-bar{align-self:flex-start;width:auto;max-width:100%;margin:0;padding:10px 12px;background:#E8E6EC;border-radius:14px}
-  .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:clamp(14px,3.6vw,16px);line-height:1.35;white-space:nowrap;overflow:hidden}
+  .card{flex:1;display:flex;flex-direction:column;min-height:0;gap:6px;width:100%;padding:8px 10px 8px;border:0;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(14,110,120,.12);border-top:4px solid #0E6E78}
+  .info-bar{align-self:flex-start;width:auto;max-width:100%;margin:0;padding:6px 10px;background:#E8E6EC;border-radius:10px}
+  .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:14px;line-height:1.2;white-space:nowrap;overflow:hidden}
   .meta-line .meta-fixed{flex:none}
   .meta-line .meta-time{margin-left:.12em}
   .meta-line .meta-venue{flex:0 1 auto;min-width:0;margin-left:.45em}
   .meta-line time{color:inherit;font-weight:800}
-  .meta-foot{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin:12px 0 0;color:#0A4F57;font-weight:800;font-size:17px;line-height:1.35;white-space:nowrap}
-  .meta-dj{font-size:17px;font-weight:800}
+  .meta-foot{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:2px 0 0;color:#0A4F57;font-weight:800;font-size:15px;line-height:1.2;white-space:nowrap}
+  .meta-dj{font-size:15px;font-weight:800}
   .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:17px;text-align:left;border:0;border-radius:14px;padding:10px 14px;color:#0E6E78}
-  .info-bar .more{display:inline;width:auto;margin-left:0;padding:0;background:transparent;color:#0E6E78;font-size:17px;font-weight:800;text-align:right;white-space:nowrap}
+  .info-bar .more{display:inline;width:auto;margin-left:0;padding:0;background:transparent;color:#0E6E78;font-size:15px;font-weight:800;text-align:right;white-space:nowrap}
   .more::after{content:" ›"}
   .less{margin-top:12px;color:#0E6E78;background:#FBF5E9}
   .less::after{content:"▴";float:right}
@@ -44,7 +44,7 @@
   .map{color:#0E6E78;text-decoration:underline dotted;text-underline-offset:3px}
   .links a{display:inline-flex;align-items:center;min-height:36px;color:#0E6E78;font-weight:700;text-decoration:underline;text-underline-offset:3px}
   .links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none}
-  .stage{flex:1;display:flex;min-height:42vh;margin-top:4px;padding-top:10px;border-top:2px dashed #d9d4cc}
+  .stage{flex:1;display:flex;min-height:56vh;margin-top:2px;padding-top:4px;border-top:0}
   .frame{position:relative;flex:1;min-height:0;border-radius:16px;touch-action:pan-y}
   .frame img{display:block;width:100%;height:100%;object-fit:contain;object-position:center top;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:zoom-in;background:#1a1a1a}
   .chev{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -58,7 +58,7 @@
   .chip{top:10px;left:10px;background:rgba(10,79,87,.9)}
   .idx{top:10px;right:10px;background:rgba(0,0,0,.45);font-weight:600}
   .chip[hidden]{display:none}
-  .note{margin:10px 4px 0;color:#5f6f66;font-size:.78rem;line-height:1.5}
+  .note{display:none}
   .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   .pv{position:fixed;inset:0;z-index:50;background:rgba(6,20,24,.92);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
   .pv[hidden]{display:none}
@@ -85,7 +85,7 @@
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
     <div class="info-bar">
-      <p class="meta-line" id="metaLine"><span class="meta-fixed"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></span><span class="meta-venue" id="venueBar" hidden></span></p>
+      <p class="meta-line" id="metaLine"><span class="meta-fixed"><span id="freq">每周二</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></span><span class="meta-venue" id="venueBar" hidden></span></p>
       <p class="meta-foot" id="foot"><span class="meta-dj" id="djBar">DJ: Yelyn Woo</span><button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button></p>
     </div>
     <div id="moreBody" hidden>
