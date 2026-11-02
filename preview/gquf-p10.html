@@ -27,13 +27,12 @@
   .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:clamp(14px,3.6vw,16px);line-height:1.35;white-space:nowrap;overflow:hidden}
   .meta-line .meta-fixed{flex:none}
   .meta-line .meta-time{margin-left:.22em}
-  .meta-line .meta-venue{flex:0 0 auto;margin-left:.35em}
+  .meta-line .meta-venue{flex:1 1 auto;min-width:0;margin-left:.35em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .meta-line time{color:inherit;font-weight:800}
-  .meta-foot{display:flex;align-items:baseline;justify-content:flex-end;gap:22px;margin:12px 0 0;color:#0A4F57;font-weight:800;font-size:18px;line-height:1.35;white-space:nowrap}
-  .meta-foot:not(:has(:not([hidden]))){display:none}
-  .meta-dj{font-size:18px;font-weight:800}
-  .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:18px;text-align:left;border:0;border-radius:14px;padding:10px 14px;color:#0E6E78}
-  .info-bar .more{display:inline;width:auto;margin-left:auto;padding:0;background:transparent;color:#0E6E78;font-size:18px;font-weight:800;text-align:right;white-space:nowrap}
+  .meta-foot{display:flex;align-items:baseline;justify-content:flex-end;gap:20px;margin:12px 0 0;color:#0A4F57;font-weight:800;font-size:17px;line-height:1.35;white-space:nowrap}
+  .meta-dj{font-size:17px;font-weight:800}
+  .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:17px;text-align:left;border:0;border-radius:14px;padding:10px 14px;color:#0E6E78}
+  .info-bar .more{display:inline;width:auto;margin-left:0;padding:0;background:transparent;color:#0E6E78;font-size:17px;font-weight:800;text-align:right;white-space:nowrap}
   .more::after{content:" ›"}
   .less{margin-top:12px;color:#0E6E78;background:#FBF5E9}
   .less::after{content:"▴";float:right}
@@ -86,10 +85,10 @@
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
     <div class="info-bar">
-      <p class="meta-line" id="metaLine"><span class="meta-fixed"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></span><span class="meta-venue" id="venueBar" hidden></span></p>
-      <p class="meta-foot" id="foot"><span class="meta-dj" id="djBar" hidden></span><button type="button" class="more" id="more" hidden aria-expanded="true" aria-controls="moreBody">更多</button></p>
+      <p class="meta-line" id="metaLine"><span class="meta-fixed"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span> · </span><span class="meta-venue" id="venueBar">Ala House上海长滩店·外滩旗舰店</span></p>
+      <p class="meta-foot" id="foot"><span class="meta-dj" id="djBar">DJ: Yelyn Woo</span><button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button></p>
     </div>
-    <div id="moreBody">
+    <div id="moreBody" hidden>
       <div class="rows">
         <div class="row"><b>主办</b><span>刘峥</span></div>
         <div class="row" id="venueMoreRow"><b>场地</b><span id="venueMore"></span></div>
@@ -233,7 +232,7 @@
     else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
   });
 
-  var VENUE = 'Ala House上海长滩店·外滩旗舰店（北京市东直门外大街亮马河南路18号2层）Tango By Ala House 每周二特别场亮马河旗舰外滩观景大厅';
+  var VENUE = 'Ala House上海长滩店·外滩旗舰店';
   var DJ = 'Yelyn Woo（首尔）· Frank Jin 联合嘉宾 Seoul Guest Night Selector 特别场驻场';
   var venueBar = document.getElementById('venueBar');
   var venueMoreRow = document.getElementById('venueMoreRow');
@@ -247,24 +246,11 @@
   djMore.textContent = DJ;
   function placeFields(){
     venueBar.hidden = false;
-    venueBar.textContent = ' · ' + VENUE;
-    if (metaLine.scrollWidth > metaLine.clientWidth + 1) {
-      venueBar.hidden = true;
-      venueBar.textContent = '';
-      venueMoreRow.hidden = false;
-    } else {
-      venueMoreRow.hidden = true;
-    }
+    venueBar.textContent = VENUE;
+    venueMoreRow.hidden = false;
     djBar.hidden = false;
-    djBar.textContent = 'DJ: ' + DJ;
-    var room = foot.clientWidth - 72;
-    if (djBar.scrollWidth > room) {
-      djBar.hidden = true;
-      djBar.textContent = '';
-      djMoreRow.hidden = false;
-    } else {
-      djMoreRow.hidden = true;
-    }
+    djBar.textContent = 'DJ: Yelyn Woo';
+    djMoreRow.hidden = false;
   }
 
   function setMore(on){
@@ -292,7 +278,7 @@
     window.addEventListener('resize', fit);
   })();
   placeFields();
-  setMore(true);
+  setMore(false);
   window.addEventListener('resize', placeFields);
 
   document.getElementById('back').addEventListener('click', function(){
