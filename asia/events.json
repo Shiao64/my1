@@ -1210,7 +1210,7 @@
     "id": "R0E9XeyL",
     "kind": "weekly",
     "type": "milonga",
-    "name": "猫猫探戈",
+    "name": "LosGatos Tango",
     "city": "Shanghai",
     "country": "China",
     "region": "China",
@@ -1239,7 +1239,7 @@
     "nth": 1,
     "poster": "/images/asia/posters/generated/R023.png",
     "poster_pos": "center top",
-    "name_zh": "LosGatos Tango",
+    "name_zh": "猫猫探戈",
     "organizers_en": [
       "Monica"
     ]
