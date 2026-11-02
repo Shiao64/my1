@@ -83,7 +83,8 @@
     "name_zh": "Milonga Sino Chu",
     "organizers_en": [
       "Li Songyan"
-    ]
+    ],
+    "venue_en": "Liangmahe Wine House 1F"
   },
   {
     "id": "eRpBxkDC",
@@ -119,7 +120,8 @@
     "organizers_en": [
       "Simona",
       "Allen Ma"
-    ]
+    ],
+    "venue_en": "AS Tango Club"
   },
   {
     "id": "NmkWjMxo",
@@ -200,7 +202,8 @@
     "organizers_en": [
       "Gou Chen",
       "Yezi"
-    ]
+    ],
+    "venue_en": "Tango Union West"
   },
   {
     "id": "GqufXmMX",
@@ -251,7 +254,7 @@
       6
     ],
     "time": "21:00–02:00",
-    "venue": "金尚源大厦B1瑜伽舞蹈室",
+    "venue": "金尚源瑜伽舞蹈室",
     "venue_address": "北京市朝阳区新源里西20号楼金尚源大厦B1层瑜伽舞蹈室",
     "organizers": [
       "刘峥",
@@ -272,7 +275,8 @@
     "organizers_en": [
       "Liu Zheng",
       "Whisky Ge"
-    ]
+    ],
+    "venue_en": "Yoga & Dance Studio"
   },
   {
     "id": "wSeFVkSa",
@@ -309,7 +313,8 @@
     "organizers_en": [
       "Simona",
       "Allen Ma"
-    ]
+    ],
+    "venue_en": "AS Tango Club"
   },
   {
     "id": "AymclBjD",
@@ -386,7 +391,8 @@
     "name_zh": "红房子 Milonga",
     "organizers_en": [
       "Nico Zhang"
-    ]
+    ],
+    "venue_en": "Vida Mia Club"
   },
   {
     "id": "UiQphCjS",
@@ -609,7 +615,8 @@
     "organizers_en": [
       "carly",
       "Liang Yili"
-    ]
+    ],
+    "venue_en": "K-97"
   },
   {
     "id": "4nJKuVTB",
@@ -632,7 +639,8 @@
     "tba": false,
     "poster": "/images/asia/posters/generated/R061.png",
     "poster_pos": "center top",
-    "name_zh": "Tres Amigos Milonga"
+    "name_zh": "Tres Amigos Milonga",
+    "venue_en": "K-97"
   },
   {
     "id": "kOcru3n3",
@@ -655,7 +663,8 @@
     "tba": false,
     "poster": "/images/asia/posters/generated/R064.png",
     "poster_pos": "center top",
-    "name_zh": "La Milongaza"
+    "name_zh": "La Milongaza",
+    "venue_en": "SDF"
   },
   {
     "id": "yhBU2qgt",
@@ -686,7 +695,8 @@
     "name_zh": "Milonga Nuevo",
     "organizers_en": [
       "Edith Ho"
-    ]
+    ],
+    "venue_en": "Dance Culture Studio"
   },
   {
     "id": "WExJslMr",
@@ -828,7 +838,8 @@
     "name_zh": "Practilonga",
     "organizers_en": [
       "Gou Chen"
-    ]
+    ],
+    "venue_en": "Tango Union West"
   },
   {
     "id": "1hCBcWaP",
@@ -862,7 +873,8 @@
     "name_zh": "Milonga 玩儿",
     "organizers_en": [
       "Fanfan"
-    ]
+    ],
+    "venue_en": "Liangmahe Wine House 1F"
   },
   {
     "id": "DFBKYdPX",
@@ -898,7 +910,8 @@
     "name_zh": "Kai's Milonga",
     "organizers_en": [
       "Kai Wang"
-    ]
+    ],
+    "venue_en": "Te Amo Tango Lounge"
   },
   {
     "id": "bQFvmIuY",
@@ -936,7 +949,8 @@
     "organizers_en": [
       "Nam",
       "Wing"
-    ]
+    ],
+    "venue_en": "Campanile Hotel Shanghai Jing'an"
   },
   {
     "id": "JKQfiwMf",
@@ -976,7 +990,8 @@
     "organizers_en": [
       "Gaby",
       "Tangocool"
-    ]
+    ],
+    "venue_en": "Fantai Building 5, 3F"
   },
   {
     "id": "eEHzQBzu",
@@ -1015,7 +1030,8 @@
     "organizers_en": [
       "Shelley Hou",
       "Teacher Xu"
-    ]
+    ],
+    "venue_en": "Hualin Building 6F"
   },
   {
     "id": "2tbfzeS7",
@@ -1051,7 +1067,8 @@
     "name_zh": "Kai's Milonga",
     "organizers_en": [
       "Kai Wang"
-    ]
+    ],
+    "venue_en": "Te Amo Tango Lounge"
   },
   {
     "id": "6Pcl1YgL",
@@ -1091,7 +1108,8 @@
     "organizers_en": [
       "Shelley Hou",
       "Teacher Xu"
-    ]
+    ],
+    "venue_en": "Hualin Building 6F"
   },
   {
     "id": "DIVjezcE",
@@ -1129,7 +1147,8 @@
     "name_zh": "探戈帮 Milonga",
     "organizers_en": [
       "Vivian Ye"
-    ]
+    ],
+    "venue_en": "Yonghui Building Tower A, Rm 1502"
   },
   {
     "id": "rccbKIYP",
@@ -1168,7 +1187,8 @@
       "Irene",
       "Kaiser",
       "Cindy"
-    ]
+    ],
+    "venue_en": "Maoming Building 313"
   },
   {
     "id": "R0E9XeyL",
@@ -1206,7 +1226,8 @@
     "name_zh": "猫猫探戈",
     "organizers_en": [
       "Monica"
-    ]
+    ],
+    "venue_en": "W BAR"
   },
   {
     "id": "xXxB330r",
@@ -1242,7 +1263,8 @@
     "name_zh": "Pampa Mia Milonga",
     "organizers_en": [
       "PIPO YANG"
-    ]
+    ],
+    "venue_en": "Jinchao Dance Hall"
   },
   {
     "id": "ecyMAjFj",
@@ -1282,7 +1304,8 @@
       "Maggie",
       "Lydia",
       "Marco"
-    ]
+    ],
+    "venue_en": "Tango Palace"
   },
   {
     "id": "izAYSxss",
@@ -1319,7 +1342,8 @@
     "organizers_en": [
       "ZhengZhong",
       "Pauline"
-    ]
+    ],
+    "venue_en": "Tango Palace"
   },
   {
     "id": "juGlRrW2",
@@ -1336,7 +1360,7 @@
     "time": "19:30–22:30",
     "venue": "Tango Palace",
     "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
-    "venue_address_en": "2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai (Tango Palace)",
+    "venue_address_en": "Tango Palace, 2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai",
     "organizers": [
       "iTango"
     ],
@@ -1348,7 +1372,8 @@
     "name_zh": "iTango 练习舞会",
     "organizers_en": [
       "iTango"
-    ]
+    ],
+    "venue_en": "Tango Palace"
   },
   {
     "id": "LxcvweaE",
@@ -1365,7 +1390,7 @@
     "time": "19:30–22:30",
     "venue": "Tango Palace",
     "venue_address": "上海市普陀区中山北路3175号2楼Tango Palace（探戈文化空间）",
-    "venue_address_en": "2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai (Tango Palace)",
+    "venue_address_en": "Tango Palace, 2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai",
     "organizers": [
       "TD House",
       "Tango Dreamers",
@@ -1385,7 +1410,8 @@
       "TD House",
       "Tango Dreamers",
       "ZhengZhong"
-    ]
+    ],
+    "venue_en": "Tango Palace"
   },
   {
     "id": "QWdKPmum",
@@ -1415,7 +1441,8 @@
     "name_zh": "Infinitango 练习舞会",
     "organizers_en": [
       "Infinity Tango"
-    ]
+    ],
+    "venue_en": "Maoming Building 313"
   },
   {
     "id": "vhkQ2Ltw",
@@ -1446,7 +1473,8 @@
     "name_zh": "Los Gatos Practica",
     "organizers_en": [
       "Los Gatos"
-    ]
+    ],
+    "venue_en": "1438 N. Shaanxi Rd, Rm 1309"
   },
   {
     "id": "WPYNvSAB",
@@ -1482,7 +1510,8 @@
     "name_zh": "红舞房 练习场",
     "organizers_en": [
       "Angel"
-    ]
+    ],
+    "venue_en": "109 Guangrong Rd"
   },
   {
     "id": "mBDeAKKW",
@@ -1517,7 +1546,8 @@
     "organizers_en": [
       "Janisa",
       "Chaoran"
-    ]
+    ],
+    "venue_en": "Shidai Aocheng Office C5-401"
   },
   {
     "id": "ZwJVD64Z",
@@ -1554,7 +1584,8 @@
     "organizers_en": [
       "Summer",
       "Kevin"
-    ]
+    ],
+    "venue_en": "Henghua Building 1, Rm 607"
   },
   {
     "id": "TqqsVj5K",
@@ -1585,7 +1616,8 @@
     "name_zh": "Firebird 练习场",
     "organizers_en": [
       "Firebird"
-    ]
+    ],
+    "venue_en": "Henghua Building 1, Rm 607"
   },
   {
     "id": "3UUmjMJZ",
@@ -1610,7 +1642,8 @@
     "tba": false,
     "poster": "/images/asia/posters/generated/R038.png",
     "poster_pos": "center top",
-    "name_zh": "奥城舞会"
+    "name_zh": "奥城舞会",
+    "venue_en": "Shidai Aocheng C5-401"
   },
   {
     "id": "R059",
@@ -1640,7 +1673,8 @@
     "poster_pos": "center top",
     "note_zh": "40元。联络方式没找到，有兴趣请向组织者修老师确认。",
     "note": "¥40. Contact not found; please check with the organizer 修老师 (Teacher Xiu).",
-    "name_zh": "探戈练习场"
+    "name_zh": "探戈练习场",
+    "venue_en": "Home Inn 6F"
   },
   {
     "id": "QbUzonBt",
@@ -1676,7 +1710,8 @@
     "name_zh": "广州红房子 Milonga",
     "organizers_en": [
       "POP"
-    ]
+    ],
+    "venue_en": "Red House, Mingmen Building 5F"
   },
   {
     "id": "EDPSh1eZ",
@@ -1716,7 +1751,8 @@
     "name_zh": "Milonga Cadencia",
     "organizers_en": [
       "Alice"
-    ]
+    ],
+    "venue_en": "MSH Music Party House"
   },
   {
     "id": "9Nf1QY8C",
@@ -1747,7 +1783,8 @@
     "name_zh": "红房子 周二练习场",
     "organizers_en": [
       "PoP_DaNcE"
-    ]
+    ],
+    "venue_en": "Mingmen Building 5F"
   },
   {
     "id": "n3ENukGH",
@@ -1762,7 +1799,7 @@
       4
     ],
     "time": "20:30–22:30",
-    "venue": "南天广场皇朝阁804",
+    "venue": "南天广场皇朝阁805",
     "venue_address": "广州市南天广场皇朝阁804",
     "venue_address_en": "Room 804, Huangchao Ge, Nantian Plaza, Guangzhou",
     "organizers": [
@@ -1777,7 +1814,8 @@
     "name_zh": "Open Step Practica",
     "organizers_en": [
       "Michelle"
-    ]
+    ],
+    "venue_en": "Nantian Plaza, Huangchao Ge 804"
   },
   {
     "id": "tSTMn9NF",
@@ -1814,7 +1852,8 @@
     "name_zh": "Besos Tango Practica",
     "organizers_en": [
       "Bes"
-    ]
+    ],
+    "venue_en": "Shuxiang Mendi Mingyuan Bldg 6, Rm 401"
   },
   {
     "id": "SGk39A4O",
@@ -1839,7 +1878,8 @@
     "tba": false,
     "poster": "/images/asia/posters/generated/R051.png",
     "poster_pos": "center top",
-    "name_zh": "Sola 舞会"
+    "name_zh": "Sola 舞会",
+    "venue_en": "Jinsong Building 8A, Chegongmiao"
   },
   {
     "id": "dLub3zK9",
@@ -1854,7 +1894,7 @@
       6
     ],
     "time": "20:00–late",
-    "venue": "傍海小区8栋603",
+    "venue": "傍海小区8栋604",
     "venue_address": "海口市龙华区玉沙横路30号傍海小区8栋603",
     "venue_address_en": "Room 603, Building 8, Banghai Residence, No. 30 Yusha Heng Road, Longhua District, Haikou",
     "organizers": [
@@ -1877,7 +1917,8 @@
     "organizers_en": [
       "Calix",
       "Momo"
-    ]
+    ],
+    "venue_en": "Banghai Residence Bldg 8, Rm 603"
   },
   {
     "id": "w1RSOcni",
@@ -1908,9 +1949,10 @@
     "poster_pos": "center top",
     "name_zh": "TangoQ 练习舞会",
     "organizers_en": [
-      "TangoQ",
+      "Jenny",
       "Jenny"
-    ]
+    ],
+    "venue_en": "Guotai Apartments Bldg 1, Rm 401"
   },
   {
     "id": "cwCbtm27",
@@ -1932,7 +1974,8 @@
       "other": "https://tangoweekend.org/event/changwon-2027-tango-marathon/"
     },
     "source": "tangoweekend.org",
-    "updated": "2026-10-31"
+    "updated": "2026-11-02",
+    "venue_en": "Munseong University Gymnasium"
   },
   {
     "id": "E004",
@@ -1968,7 +2011,8 @@
     "regular_oneoff": true,
     "organizers_en": [
       "Infinity Tango"
-    ]
+    ],
+    "venue_en": "Maoming Building 313"
   },
   {
     "id": "E005",
@@ -2004,7 +2048,8 @@
     "detail": "/event/beijing-2026-javier-fatima/",
     "organizers_en": [
       "VidaMia (NICO)"
-    ]
+    ],
+    "venue_en": "Vida Mia Tango Club"
   },
   {
     "id": "U11",
@@ -2077,7 +2122,8 @@
     "organizers_en": [
       "Cristopher Wibowo & Michelle Ng",
       "EL PISO Dance Academy"
-    ]
+    ],
+    "venue_en": "Ceylon House, Ramada Hotel"
   },
   {
     "id": "E043",
@@ -2109,7 +2155,8 @@
     "detail": "/event/hong-kong-2026-camila-rene/",
     "organizers_en": [
       "Tango Escencia (Daisy Tsang)"
-    ]
+    ],
+    "venue_en": "Dance Concept"
   },
   {
     "id": "E044",
@@ -2142,7 +2189,8 @@
     "poster": "/images/asia/posters/E044.jpg",
     "organizers_en": [
       "Tango Escencia (Daisy Tsang)"
-    ]
+    ],
+    "venue_en": "Studio 9"
   },
   {
     "id": "E045",
@@ -2174,7 +2222,8 @@
     "detail": "/event/hong-kong-2026-volver-javier/",
     "organizers_en": [
       "Sandrini Tango (Sandra Mok)"
-    ]
+    ],
+    "venue_en": "Danzstage"
   },
   {
     "id": "U06",
@@ -2208,7 +2257,8 @@
     "name_zh": "天蝎座生日舞会",
     "organizers_en": [
       "Vamos tango"
-    ]
+    ],
+    "venue_en": "Tongfang Fortune Building 1202"
   },
   {
     "id": "R030",
@@ -2244,7 +2294,8 @@
     "name_zh": "Milonga Iris",
     "organizers_en": [
       "A.F.Mike"
-    ]
+    ],
+    "venue_en": "583 Yuyao Rd"
   },
   {
     "id": "R045",
@@ -2280,7 +2331,8 @@
     "name_zh": "LegendsTango Practica",
     "organizers_en": [
       "Legends Tango (Antimo y Sunny)"
-    ]
+    ],
+    "venue_en": "Legends Tango Academy"
   },
   {
     "id": "rSFJaHtm",
@@ -2297,7 +2349,7 @@
     "time": "16:00–20:00",
     "venue": "Legends Tango Academy",
     "venue_address": "广州市越秀区明月一路明月阁1706",
-    "venue_address_en": "Room 1706, 17F, Mingyuege, No.20 Mingyueyilu, Yuexiu District, Guangzhou, China",
+    "venue_address_en": "Room 1706, 17F, Mingyuege, No.20 Mingyueyilu, Yuexiu District, Guangzhou",
     "organizers": [
       "Legends Tango（Antimo y Sunny）"
     ],
@@ -2317,7 +2369,8 @@
     "name_zh": "Sunset Milonga",
     "organizers_en": [
       "Legends Tango (Antimo y Sunny)"
-    ]
+    ],
+    "venue_en": "Legends Tango Academy"
   },
   {
     "id": "R034",
@@ -2349,7 +2402,8 @@
     "name_zh": "Milonga de Ensueños",
     "organizers_en": [
       "Zhang Zhenyi"
-    ]
+    ],
+    "venue_en": "Te Amo Tango Lounge"
   },
   {
     "id": "R073",
@@ -2364,7 +2418,7 @@
       3
     ],
     "time": "20:30–00:00",
-    "venue": "金尚首层（Jinshang 1F）",
+    "venue": "金尚首层",
     "venue_address": "北京市朝阳区新东路新源里西20号楼金尚首层109",
     "venue_address_en": "Room 109, 1F, Jinshang, Building 20, Xinyuanli West, Xindong Road, Chaoyang District, Beijing",
     "organizers": [
@@ -2381,7 +2435,8 @@
     "name_zh": "TAIFENGO MILONGA",
     "organizers_en": [
       "Tayfun"
-    ]
+    ],
+    "venue_en": "Jinshang 1F"
   },
   {
     "id": "R079",
@@ -2412,7 +2467,9 @@
     "name_zh": "Viernes Milonga by Carol Lin",
     "organizers_en": [
       "Tanguisimo Tango Space"
-    ]
+    ],
+    "venue_en": "Tanguisimo Tango Space",
+    "venue_address": "台北市大安區忠孝東路四段169號7樓之4"
   },
   {
     "id": "R080",
@@ -2427,9 +2484,9 @@
       6
     ],
     "time": "19:30–23:30",
-    "venue": "TTA Taichung Tango Academy 台中探戈學院",
+    "venue": "台中探戈學院",
     "venue_address": "台中市西屯區重慶路99號五樓之二",
-    "venue_address_en": "5F.-2, No. 99, Chongqing Rd., Xitun Dist., Taichung City",
+    "venue_address_en": "Address not found",
     "organizers": [
       "台中探戈學院"
     ],
@@ -2443,7 +2500,8 @@
     "name_zh": "TTA Milonga",
     "organizers_en": [
       "TTA Taichung Tango Academy"
-    ]
+    ],
+    "venue_en": "TTA Taichung Tango Academy"
   },
   {
     "id": "R081",
@@ -2474,7 +2532,9 @@
     "name_zh": "Tanguísimo Saturday Milonga",
     "organizers_en": [
       "Tanguísimo"
-    ]
+    ],
+    "venue_en": "Tanguísimo",
+    "venue_address": "台北市大安區忠孝東路四段169號7樓之4"
   },
   {
     "id": "R082",
@@ -2490,8 +2550,8 @@
     ],
     "time": "20:00–22:30",
     "venue": "Corazon Tango Studio",
-    "venue_address": "台北市復興南路一段63號4樓之2",
-    "venue_address_en": "4F.-2, No. 63, Sec. 1, Fuxing S. Rd., Taipei City",
+    "venue_address": "台北市大安區復興南路一段63號4樓之2",
+    "venue_address_en": "Address not found",
     "organizers": [
       "Corazon Tango Studio"
     ],
@@ -2505,7 +2565,8 @@
     "name_zh": "Taipei_Corazon Milonga",
     "organizers_en": [
       "Corazon Tango Studio"
-    ]
+    ],
+    "venue_en": "Corazon Tango Studio"
   },
   {
     "id": "R083",
@@ -2536,7 +2597,8 @@
     "name_zh": "Baile del Domingo",
     "organizers_en": [
       "Bailemos"
-    ]
+    ],
+    "venue_en": "Bailemos tango school"
   },
   {
     "id": "E046",
@@ -2549,7 +2611,7 @@
     "start": "2026-11-07",
     "end": "2026-11-07",
     "time": "20:00–24:00",
-    "venue": "Tango.two 兩兩阿根廷探戈",
+    "venue": "兩兩阿根廷探戈",
     "venue_address": "台中市西區美村路一段743號三樓",
     "organizers": [
       "Tango.two 兩兩阿根廷探戈"
@@ -2566,7 +2628,9 @@
     "name_zh": "Birthday Milonga",
     "organizers_en": [
       "Tango.two"
-    ]
+    ],
+    "venue_en": "Tango.two",
+    "venue_address_en": "Address not found"
   },
   {
     "id": "E086",
@@ -2739,7 +2803,8 @@
     ],
     "organizers_en": [
       "Ms. Lala"
-    ]
+    ],
+    "venue_en": "Furama Resort Da Nang"
   },
   {
     "id": "R188",
@@ -2774,7 +2839,8 @@
     "name_zh": "A Practilonga",
     "organizers_en": [
       "A Practilonga"
-    ]
+    ],
+    "venue_en": "Sport King"
   },
   {
     "id": "R189",
@@ -2808,7 +2874,9 @@
     "name_zh": "Tanguísimo Sunday Práctica",
     "organizers_en": [
       "Tanguísimo"
-    ]
+    ],
+    "venue_en": "Tanguísimo Tango Space",
+    "venue_address": "台北市大安區忠孝東路四段169號7樓之4"
   },
   {
     "id": "R190",
@@ -2842,7 +2910,9 @@
     "name_zh": "Práctica Tango y Alcohol",
     "organizers_en": [
       "Tanguísimo"
-    ]
+    ],
+    "venue_en": "Tanguísimo Tango Space",
+    "venue_address": "台北市大安區忠孝東路四段169號7樓之4"
   },
   {
     "id": "R191",
@@ -2875,7 +2945,8 @@
     "name_zh": "Práctica el Sur in Tainan",
     "organizers_en": [
       "Tainan Tango Gang"
-    ]
+    ],
+    "venue_en": "Yunong Community Activity Center 3F"
   },
   {
     "id": "R192",
@@ -2910,7 +2981,8 @@
     "name_zh": "Bailemos Practica",
     "organizers_en": [
       "Bailemos"
-    ]
+    ],
+    "venue_en": "Bailemos"
   },
   {
     "id": "R193",
@@ -2945,7 +3017,8 @@
     "name_zh": "友善練習會",
     "organizers_en": [
       "TangoFriendly"
-    ]
+    ],
+    "venue_en": "TangoFriendly"
   },
   {
     "id": "R194",
@@ -2960,9 +3033,9 @@
       3
     ],
     "time": "19:00–22:00",
-    "venue": "Tango.two 兩兩阿根廷探戈",
+    "venue": "兩兩阿根廷探戈",
     "venue_address": "台中市西區美村路一段743號三樓",
-    "venue_address_en": "3F, No. 743, Sec. 1, Meichun Rd., West Dist., Taichung City 403, Taiwan",
+    "venue_address_en": "Address not found",
     "addr_en_zh": true,
     "organizers": [
       "Tango.two 兩兩阿根廷探戈"
@@ -2978,7 +3051,8 @@
     "name_zh": "Tango.two Practica",
     "organizers_en": [
       "Tango.two"
-    ]
+    ],
+    "venue_en": "Tango.two"
   },
   {
     "id": "R195",
@@ -2993,9 +3067,9 @@
       3
     ],
     "time": "20:30–22:30",
-    "venue": "TTA Taichung Tango Academy 台中探戈學院",
+    "venue": "台中探戈學院",
     "venue_address": "台中市西屯區重慶路99號五樓之二",
-    "venue_address_en": "5F.-2, No. 99, Chongqing Rd., Xitun Dist., Taichung City",
+    "venue_address_en": "Address not found",
     "addr_en_zh": true,
     "organizers": [
       "台中探戈學院"
@@ -3011,7 +3085,8 @@
     "name_zh": "TTA Práctica",
     "organizers_en": [
       "TTA Taichung Tango Academy"
-    ]
+    ],
+    "venue_en": "TTA Taichung Tango Academy"
   },
   {
     "id": "R196",
@@ -3028,7 +3103,7 @@
     "time": "20:00–23:00",
     "venue": "台中香榭驪舍大飯店 2F",
     "venue_address": "台中市北區五權路377號",
-    "venue_address_en": "2F, No. 377, Wuquan Rd., North Dist., Taichung City 404",
+    "venue_address_en": "Address not found",
     "addr_en_zh": true,
     "organizers": [
       "Cheek to Cheek"
@@ -3046,7 +3121,8 @@
     "name_zh": "Cheek to Cheek Práctica",
     "organizers_en": [
       "Cheek to Cheek"
-    ]
+    ],
+    "venue_en": "Champs Elysees Hotel Taichung 2F"
   },
   {
     "id": "R197",
@@ -3063,7 +3139,7 @@
     "time": "14:30–15:30",
     "venue": "Corazon Tango Studio",
     "venue_address": "台北市大安區復興南路一段63號4樓之2",
-    "venue_address_en": "4F.-2, No. 63, Sec. 1, Fuxing S. Rd., Taipei City",
+    "venue_address_en": "Address not found",
     "addr_en_zh": true,
     "organizers": [
       "Corazon Tango School"
@@ -3079,7 +3155,8 @@
     "name_zh": "Taipei_Corazon Practica",
     "organizers_en": [
       "Corazon Tango School"
-    ]
+    ],
+    "venue_en": "Corazon Tango Studio"
   },
   {
     "id": "R198",
@@ -3112,7 +3189,8 @@
     "name_zh": "Mi Rincón Del Tango Sunshine Practica",
     "organizers_en": [
       "Weining Chen"
-    ]
+    ],
+    "venue_en": "Weining's Tango Corner"
   },
   {
     "id": "R199",
@@ -3127,7 +3205,7 @@
       6
     ],
     "time": "19:00–22:30",
-    "venue": "Tango.FelipeH 菲利佩探戈教室",
+    "venue": "菲利佩探戈教室",
     "venue_address": "台中市西屯區大信街56號8F-1",
     "venue_address_en": "8F-1, No. 56, Daxin St, Xitun District, Taichung City",
     "addr_en_zh": false,
@@ -3148,7 +3226,8 @@
     "name_zh": "Milonguita 微舞會",
     "organizers_en": [
       "Tango.FelipeH"
-    ]
+    ],
+    "venue_en": "Tango.FelipeH"
   },
   {
     "id": "R200",
@@ -3163,9 +3242,9 @@
       0
     ],
     "time": "16:00–20:00",
-    "venue": "Tango.two 兩兩阿根廷探戈",
+    "venue": "兩兩阿根廷探戈",
     "venue_address": "台中市西區美村路一段743號三樓",
-    "venue_address_en": "3F, No. 743, Sec. 1, Meichun Rd., West Dist., Taichung City 403, Taiwan",
+    "venue_address_en": "Address not found",
     "addr_en_zh": true,
     "organizers": [
       "Tango.two 兩兩阿根廷探戈"
@@ -3182,7 +3261,8 @@
     "name_zh": "Abrazo Milonga",
     "organizers_en": [
       "Tango.two"
-    ]
+    ],
+    "venue_en": "Tango.two"
   },
   {
     "id": "R201",
@@ -3197,7 +3277,7 @@
       0
     ],
     "time": "15:00–17:30",
-    "venue": "Tango.FelipeH 菲利佩探戈教室",
+    "venue": "菲利佩探戈教室",
     "venue_address": "台中市西屯區大信街56號8F-1",
     "venue_address_en": "8F-1, No. 56, Daxin St, Xitun District, Taichung City",
     "addr_en_zh": false,
@@ -3218,7 +3298,8 @@
     "name_zh": "公開練習會",
     "organizers_en": [
       "Tango.FelipeH"
-    ]
+    ],
+    "venue_en": "Tango.FelipeH"
   },
   {
     "id": "R250",
@@ -3235,7 +3316,7 @@
     "time": "13:00–16:30",
     "venue": "陽晴心理諮商所_永春館",
     "venue_address": "臺中市南屯區永春東路283號",
-    "venue_address_en": "1F-2F, No. 283, Yongchun E. Rd., Nantun Dist., Taichung City 408",
+    "venue_address_en": "Address not found",
     "addr_en_zh": true,
     "organizers": [
       "Cheek to Cheek"
@@ -3252,7 +3333,8 @@
     "name_zh": "Cheek to Cheek guided practica",
     "organizers_en": [
       "Cheek to Cheek"
-    ]
+    ],
+    "venue_en": "Yangqing Counseling Center, Yongchun Branch"
   },
   {
     "id": "E090",
@@ -3283,7 +3365,8 @@
     "name_zh": "Tango al Rio Practica",
     "organizers_en": [
       "Curtis Tsai"
-    ]
+    ],
+    "venue_en": "Dahelian Community, Zhubei"
   },
   {
     "id": "E091",
@@ -3314,7 +3397,8 @@
     "name_zh": "Tango al Rio Practica",
     "organizers_en": [
       "Curtis Tsai"
-    ]
+    ],
+    "venue_en": "Dahelian Community, Zhubei"
   },
   {
     "id": "E092",
@@ -3346,7 +3430,8 @@
     "name_zh": "Tainan Milonga",
     "organizers_en": [
       "Tainan Tango Gang"
-    ]
+    ],
+    "venue_en": "Cangfeng Art Cafe"
   },
   {
     "id": "E116",
@@ -3650,7 +3735,8 @@
       "Maggie",
       "Lydia",
       "Marco"
-    ]
+    ],
+    "venue_en": "Tango Palace"
   },
   {
     "id": "E122",
@@ -4087,7 +4173,8 @@
     "note": "#995, DJ Alan (Shanghai).",
     "organizers_en": [
       "Kai Wang"
-    ]
+    ],
+    "venue_en": "Te Amo Tango Lounge"
   },
   {
     "id": "E134",
@@ -4108,11 +4195,12 @@
     "links": {},
     "contacts": {},
     "source": "微信群 Shanghai Te Amo（G13）",
-    "updated": "2026-11-01",
+    "updated": "2026-11-02",
     "hidden": false,
     "tba": false,
     "note_zh": "门票 90 元。DJ Bobby（大田）。",
     "note": "Ticket 90 RMB. DJ Bobby (Daejeon).",
-    "regular_oneoff": true
+    "regular_oneoff": true,
+    "venue_en": "Te Amo Tango Lounge"
   }
 ]
