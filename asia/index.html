@@ -323,7 +323,7 @@ window.CHINA_UI = {
 <script src="asia-map.js?v=china368"></script>
 <script defer src="asia-reglist.js?v=china278"></script>
 <script defer src="asia-fav.js?v=fav8"></script>
-<script defer src="/asia/atm-home.js?v=h33"></script>
+<script defer src="/asia/atm-home.js?v=h34"></script>
 <script defer src="atm-menu.js?v=m9"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="asia-howto.js?v=china278"></script> -->
 <script defer src="lang-keep.js?v=china242"></script>
@@ -391,19 +391,72 @@ new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentEle
 })();</script>
 
 <link rel="stylesheet" href="/asia/cardB.css?v=cb17"><script src="/asia/cardB.js?v=cb40"></script>
-<!-- atm-stw-popup v3 (entry ad = site's own E093 card) -->
+<!-- atm-stw-popup v4 (entry ad = E093; home mode builds the card from events-core, not #china-listings) -->
 
 <div id="atm-pop" role="dialog" aria-modal="true" aria-label="4th Beijing Select Tango Weekend"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">Ad</span></div><button type="button" class="ap-x" aria-label="Close">&times;</button></div>
-<script>(function(){var K='atm_stw_popup_dismissed_until_v2',D=7*864e5,ID='E093',p=document.getElementById('atm-pop');if(!p)return;if(/[?&](card|via)=/.test(location.search))return;var ls=null;try{localStorage.setItem('__atm_t','1');localStorage.removeItem('__atm_t');ls=localStorage}catch(e){}
-if(ls){var u=+ls.getItem(K)||0;if(Date.now()<u)return}
-var x=p.querySelector('.ap-x'),ul=p.querySelector('ul'),n=0;
-function close(){p.classList.remove('on');document.removeEventListener('keydown',kd);if(ls){try{ls.setItem(K,String(Date.now()+D))}catch(e){}}}
-function kd(e){if(e.key==='Escape'||e.key==='Esc')close();else if(e.key==='Tab'){var f=[].slice.call(p.querySelectorAll('a[href],button')).filter(function(z){return z.offsetParent});var i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?f.length-1:1))%f.length].focus()}}
-x.addEventListener('click',close);p.addEventListener('click',function(e){if(e.target===p)close()});
-function show(){var src=document.querySelector('#china-listings .ev-card[data-id="'+ID+'"]');if(!src){if(++n<80)return setTimeout(show,100);return}
- setTimeout(function(){var c=src.cloneNode(true);c.removeAttribute('id');c.classList.remove('atm-flash','atm-viewed');c.querySelectorAll('[id]').forEach(function(z){z.removeAttribute('id')});c.querySelectorAll('img[loading="lazy"]').forEach(function(z){z.loading='eager'});ul.appendChild(c);
- p.classList.add('on');document.addEventListener('keydown',kd);try{x.focus({preventScroll:true})}catch(e){}},250)}
-show()})();</script>
+<script>(function(){
+var K='atm_stw_popup_dismissed_until_v2',DAYS=7*864e5,ID='E093',p=document.getElementById('atm-pop');
+if(!p)return;
+if(/[?&](card|via)=/.test(location.search))return;
+var ls=null;try{localStorage.setItem('__atm_t','1');localStorage.removeItem('__atm_t');ls=localStorage}catch(e){}
+if(ls){var until=+ls.getItem(K)||0;if(Date.now()<until)return}
+var x=p.querySelector('.ap-x'),ul=p.querySelector('ul'),n=0,shown=false;
+var zh=/\/zh\//.test(location.pathname);
+function close(){p.classList.remove('on');document.removeEventListener('keydown',kd);if(ls){try{ls.setItem(K,String(Date.now()+DAYS))}catch(e){}}}
+function kd(e){if(e.key==='Escape'||e.key==='Esc')close();else if(e.key==='Tab'){var f=[].slice.call(p.querySelectorAll('a[href],button')).filter(function(z){return z.offsetParent});if(!f.length)return;var i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?f.length-1:1))%f.length].focus()}}
+x.addEventListener('click',close);
+p.addEventListener('click',function(e){if(e.target===p)close()});
+function legacy(){if(/[?&](mode|city|date|q|type)=/.test(location.search))return true;try{if(sessionStorage.getItem('atm_legacy_list')==='1')return true}catch(e){}return false}
+function homeOn(){return document.documentElement.classList.contains('atm-h-on')}
+function openWith(node){if(shown||!node)return;shown=true;setTimeout(function(){ul.appendChild(node);p.classList.add('on');document.addEventListener('keydown',kd);try{x.focus({preventScroll:true})}catch(e){}},250)}
+function tidy(src){var c=src.cloneNode(true);c.removeAttribute('id');c.classList.remove('atm-flash','atm-viewed');c.querySelectorAll('[id]').forEach(function(z){z.removeAttribute('id')});c.querySelectorAll('img[loading="lazy"]').forEach(function(z){z.loading='eager'});if(zh){var nm=c.querySelector('.ev-name');if(nm)nm.textContent='2027北京精選探戈週末'}return c}
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function pad(n){return(n<10?'0':'')+n}
+function whenOf(e){
+  if(!e.start)return '';
+  var end=e.end||e.start,A=e.start.split('-').map(Number),B=end.split('-').map(Number);
+  if(zh){var s=A[0]+'/'+pad(A[1])+'/'+pad(A[2]);if(e.start===end)return s;return s+'–'+B[0]+'/'+pad(B[1])+'/'+pad(B[2])}
+  var M=['January','February','March','April','May','June','July','August','September','October','November','December'],ma=M[A[1]-1],mb=M[B[1]-1];
+  if(e.start===end)return ma+' '+A[2]+', '+A[0];
+  if(A[0]!==B[0])return ma+' '+A[2]+', '+A[0]+' – '+mb+' '+B[2]+', '+B[0];
+  if(A[1]!==B[1])return ma+' '+A[2]+' – '+mb+' '+B[2]+', '+A[0];
+  return ma+' '+A[2]+'–'+B[2]+', '+A[0];
+}
+function cityName(c){if(!zh||!c)return c||'';var m={Beijing:'北京',Shanghai:'上海','Hong Kong':'香港',Chengdu:'成都',Hangzhou:'杭州',Chongqing:'重庆',Guangzhou:'广州',Taipei:'台北',Shenzhen:'深圳',Tianjin:'天津',Suzhou:'苏州',Nanjing:'南京',Wuhan:'武汉',Qingdao:'青岛',Shenyang:'沈阳'};return m[c]||c}
+function build(e){
+  var name=zh?'2027北京精選探戈週末':(e.name||'');
+  var poster=(zh&&e.poster_zh)||e.poster||'';
+  var thumb=poster?'/images/thumb'+poster.replace(/\.(jpe?g|png)$/i,'.webp'):'';
+  var when=whenOf(e);
+  var TN=zh?{marathon:'马拉松',festival:'探戈节',event:'特色活动',milonga:'舞会',practica:'练习场',weekend:'周末',encuentro:'聚会',championship:'锦标赛'}:{marathon:'Marathon',festival:'Festival',event:'Event',milonga:'Milonga',practica:'Práctica',weekend:'Weekend',encuentro:'Encuentro',championship:'Championship'};
+  var other=(e.links&&e.links.other)||'',path='',om=other.match(/^https?:\/\/(?:www\.)?tangoweekend\.org(\/event\/[^/]+\/)/);
+  if(om)path=om[1]+(zh?'zh/':'');else if(other)path=other;
+  var orgs=zh?(e.organizers||[]):(e.organizers_en&&e.organizers_en.length?e.organizers_en:(e.organizers||[]));
+  var li=document.createElement('li');
+  li.className='ev-card'+(poster?' ev-has-poster':'')+' china-stw-highlight';
+  li.setAttribute('data-id',ID);li.setAttribute('data-atm-ad','event');li.setAttribute('data-type',e.type||'');li.setAttribute('data-kind',e.kind||'event');
+  var cover=poster?'<a class="ev-cover" href="'+esc(poster)+'" tabindex="-1" aria-hidden="true"><img src="'+esc(thumb)+'" data-full="'+esc(poster)+'" alt="" loading="eager" decoding="async" onerror="if(this.dataset.full&&this.src.indexOf(this.dataset.full)<0)this.src=this.dataset.full"></a>':'';
+  var links='';
+  if(!zh&&e.links&&e.links.facebook)links+='<a class="china-linkbtn" href="'+esc(e.links.facebook)+'" target="_blank" rel="noopener">Facebook</a>';
+  if(path)links+='<a class="china-linkbtn" href="'+esc(path)+'"'+(om?'':' target="_blank" rel="noopener"')+'>'+(zh?'网站':'Website')+'</a>';
+  li.innerHTML=cover+'<div class="ev-top"><span class="ev-type">'+esc(TN[e.type]||e.type||'')+'</span><span class="ev-when">'+esc(when)+'</span></div><h3 class="ev-name">'+esc(name)+'</h3><div class="ev-line"><span class="ev-k">'+(zh?'日期':'Dates')+'</span> '+esc(when)+'</div><div class="ev-line"><span class="ev-k">'+(zh?'城市':'City')+'</span> '+esc(cityName(e.city))+'</div>'+(orgs.length?'<div class="ev-line"><span class="ev-k">'+(zh?'组织者':'ORG')+'</span> '+esc(orgs.join(', '))+'</div>':'')+(links?'<div class="ev-line china-links">'+links+'</div>':'');
+  return li;
+}
+function fromListings(){var src=document.querySelector('#china-listings .ev-card[data-id="'+ID+'"]');return src?tidy(src):null}
+function fromData(cb){
+  fetch('/asia/events-core.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw new Error('http');return r.json()}).then(function(list){
+    var e=null;for(var i=0;i<list.length;i++)if(list[i]&&list[i].id===ID&&!list[i].hidden){e=list[i];break}
+    if(!e){cb(false);return}openWith(build(e));cb(true);
+  }).catch(function(){cb(false)});
+}
+function show(){
+  if(homeOn()){fromData(function(ok){if(!ok)openWith(fromListings())});return}
+  if(legacy()){var c=fromListings();if(c){openWith(c);return}if(++n<80)return setTimeout(show,100);fromData(function(){});return}
+  if(++n<80)return setTimeout(show,100);
+  fromData(function(ok){if(!ok)openWith(fromListings())});
+}
+show();
+})();</script>
 
 <script id="draft-favtall-js">(function(){var D=document;function fit(){var R=D.documentElement;if(!matchMedia('(max-width:600px)').matches||!D.body.classList.contains('china-presearch')){R.style.removeProperty('--atm-favh');return}
 var g=[].find.call(D.querySelectorAll('.tw-m-feat-grid.tw-feat-ad'),function(x){return x.offsetParent&&(x.classList.contains('atm-fold')||x.getBoundingClientRect().height>0)});if(!g||!g.firstElementChild)return;var top=g.getBoundingClientRect().top+scrollY,dots=g.nextElementSibling&&g.nextElementSibling.classList.contains('atm-dots')?g.nextElementSibling.offsetHeight+16:12;var fs=D.querySelector('.atm-featstrip');if(fs&&!fs.hidden)dots+=fs.offsetHeight+14;

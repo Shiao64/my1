@@ -64,7 +64,10 @@
   function n(x) { return zh ? x + ' ' + T.items : String(x); }
   var root = D.createElement('div'); root.id = 'atm-home'; root.className = 'wrap';
   var css = D.createElement('style'); css.id = 'atm-home-css';
-  css.textContent = 'html.atm-h-on #filters,html.atm-h-on .atm-favbar,html.atm-h-on .atm-favgrid,html.atm-h-on .atm-featstrip,html.atm-h-on #china-listings,html.atm-h-on .tw-m-feat-grid,html.atm-h-on .atm-dots,html.atm-h-on .china-results,html.atm-h-on .atm-recent,html.atm-h-on #atm-pop{display:none!important}' +
+  css.textContent = 'html.atm-h-on #filters,html.atm-h-on .atm-favbar,html.atm-h-on .atm-favgrid,html.atm-h-on .atm-featstrip,html.atm-h-on #china-listings,html.atm-h-on .tw-m-feat-grid,html.atm-h-on .atm-dots,html.atm-h-on .china-results,html.atm-h-on .atm-recent{display:none!important}' +
+    /* v11.8: #h-search drops .atm-h-home but stays .atm-h-on. The cream bar (#FFFAF0) and its square date control are .atm-form inside #filters, and those rules use display:flex!important — enough to paint the bar in the header if #filters is shown. Lock the form off for every home-mode route, including search. #h-search chips live in #atm-home. The entry ad (#atm-pop.on) must stay visible. */
+    'html.atm-h-on #atm-pop.on{display:flex!important}' +
+    'html.atm-h-on body.china-page #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.atm-1l #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.atm-1l #filters .china-filters-row1.atm-form{display:none!important;visibility:hidden!important;pointer-events:none!important}' +
     '#atm-home{display:none;box-sizing:border-box;padding:4px 12px 40px;max-width:952px;margin:0 auto;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}html.atm-h-on #atm-home{display:block}' +
     '.ah-ban{display:block;width:100%;text-align:left;margin:8px 0;padding:14px;border:0;border-radius:16px;background:linear-gradient(160deg,#0E6E78,#06333A);box-shadow:0 4px 14px rgba(6,51,58,.25);cursor:pointer;color:#F6D58E}' +
     '.ah-ban-h{display:flex;justify-content:space-between;align-items:center}.ah-ban-t{font:700 19px "Noto Serif SC",serif}.ah-ban-t i{font-style:normal;color:#fff}.ah-ban-s{font:600 13px system-ui;color:#cfe3e3;margin-top:2px}.ah-ban-a{font:700 30px system-ui}' +
@@ -160,7 +163,7 @@
   var hhq = 0; function hhLater() { if (!hhq) { hhq = 1; requestAnimationFrame(function () { hhq = 0; hh(); }); } }
   addEventListener('resize', hhLater); addEventListener('scroll', hhLater, { passive: true });
   function render() { hh();
-    var r = route(); R.classList.toggle('atm-h-on', !!r && !!DATA); R.classList.toggle('atm-h-home', !!r && r !== 'search'); R.classList.toggle('atm-h-inner', r === 'feat' || r === 'reg' || r === 'city'); hhLater(); /* P2/P3/P4: header H hidden, T row pinned at top */
+    var r = route(); R.classList.toggle('atm-h-on', !!r && !!DATA); R.classList.toggle('atm-h-home', !!r && r !== 'search'); R.classList.toggle('atm-h-search', r === 'search' && !!DATA); R.classList.toggle('atm-h-inner', r === 'feat' || r === 'reg' || r === 'city'); hhLater(); /* P2/P3/P4: header H hidden, T row pinned at top */
     if (!r || !DATA) return;
     if (r !== lastR) S.open = false;
     var c = r === 'city' ? decodeURIComponent(location.hash.slice(8)) : '';
