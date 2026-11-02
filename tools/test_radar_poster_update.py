@@ -128,6 +128,7 @@ def main():
         evs = P.load_events(tmp)
         by = {e['id']: e for e in evs}
         check('poster field', by['R030']['poster'] == '/images/asia/posters/R030.jpg')
+        check('past poster', by['R030'].get('posters_past') == [res['replaced'][0]['backup']])
         check('other unchanged', by['R031']['poster'] == '/images/asia/posters/old.jpg')
         check('updated date', by['R030']['updated'] == '2026-11-02')
         core = json.load(open(os.path.join(tmp, 'asia/events-core.json'), encoding='utf-8'))

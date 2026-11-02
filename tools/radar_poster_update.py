@@ -139,9 +139,12 @@ def save_events(root, events):
             row = by.get(ev.get('id'))
             if row is None:
                 continue
-            if row.get('poster') != ev.get('poster') or row.get('updated') != ev.get('updated'):
+            past = ev.get('posters_past') if isinstance(ev.get('posters_past'), list) else None
+            if row.get('poster') != ev.get('poster') or row.get('updated') != ev.get('updated') or (past is not None and row.get('posters_past') != past):
                 row['poster'] = ev.get('poster')
                 row['updated'] = ev.get('updated')
+                if past is not None:
+                    row['posters_past'] = list(past)
                 changed = True
         if changed:
             raw = open(path, 'rb').read()
@@ -566,6 +569,13 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                 update_atm_th(root, dest_web, tsize, drop_path=drop)
             event['poster'] = dest_web
             event['updated'] = today
+            if backup:
+                past = event.get('posters_past')
+                if not isinstance(past, list):
+                    past = []
+                if backup not in past:
+                    past = [backup] + [p for p in past if p != backup]
+                event['posters_past'] = past[:12]
             plan['backup'] = backup
             plan['thumb'] = '/' + thumb_rel.lstrip('/')
             plan['thumb_px'] = [tsize[0], tsize[1]]
