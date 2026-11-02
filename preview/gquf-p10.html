@@ -11,26 +11,25 @@
   [hidden]{display:none!important}
   html,body{margin:0}
   body{background:var(--cream);color:#2a1a14;font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
-  .bar{position:sticky;top:0;z-index:20;background:var(--cream);border-bottom:1px solid #e4e0d8;box-shadow:none}
+  .bar{position:sticky;top:0;z-index:20;background:#FBF5E9;border-bottom:1px solid #e4e0d8;box-shadow:none}
   .bar-in{position:relative;max-width:588px;margin:0 auto;height:68px;padding:0 6px;display:flex;align-items:center;justify-content:space-between}
   .iconbtn{position:relative;z-index:1;flex:none;width:52px;height:52px;padding:0;border:0;background:transparent;color:var(--teal);cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
   .iconbtn:active{opacity:.6}
   .iconbtn:focus-visible{outline:2px solid var(--teal);outline-offset:1px;border-radius:8px}
-  .bar h1{position:absolute;left:58px;right:58px;top:0;height:68px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none;font:700 30px/1.1 "Noto Serif SC","Songti SC","PMingLiU",serif;color:var(--deep)}
+  .bar h1{position:absolute;left:58px;right:58px;top:0;height:68px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none;overflow:hidden;white-space:nowrap;font:700 30px/1.1 "Noto Serif SC","Songti SC","PMingLiU",serif;color:var(--deep)}
   .heart svg{width:38px;height:38px}
-  .heart path{fill:none;stroke:#C8102E;stroke-width:2;stroke-linejoin:round}
+  .heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
   .heart[aria-pressed="true"] path{fill:#C8102E}
   .wrap{max-width:588px;margin:0 auto;padding:14px 14px 36px}
   .card{display:flex;flex-direction:column;gap:12px;padding:20px;border:0;border-radius:24px;background:#fff;box-shadow:0 8px 24px rgba(123,97,255,.14);border-top:6px solid var(--accent)}
-  .info-bar{margin:0;padding:14px 14px 10px;background:#E8E6EC;border-radius:14px}
-  .meta-line,.meta-venue,.meta-dj{margin:0;color:#3d3850;font-weight:800;font-size:clamp(13px,3.4vw,15.5px);line-height:1.35}
-  .meta-line{white-space:nowrap}
-  .meta-line .meta-time{margin-left:.4em}
+  .info-bar{margin:0;padding:14px 14px 12px;background:#E8E6EC;border-radius:14px}
+  .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#3d3850;font-weight:800;font-size:clamp(13px,3.4vw,15.5px);line-height:1.35;white-space:nowrap}
+  .meta-line .meta-fixed{flex:none}
+  .meta-line .meta-venue{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .meta-line time{color:inherit;font-weight:800}
-  .meta-low{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:20px}
-  .meta-corner{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;text-align:right}
+  .meta-foot{display:flex;justify-content:flex-end;align-items:baseline;gap:0;margin:14px 0 0;color:#3d3850;font-weight:800;font-size:clamp(13px,3.4vw,15.5px);line-height:1.35;white-space:nowrap}
   .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:.9rem;text-align:left;border:0;border-radius:14px;padding:10px 14px}
-  .info-bar .more{width:auto;margin:6px 0 0;padding:0;background:transparent;color:var(--accent);text-align:right;white-space:nowrap}
+  .info-bar .more{display:inline;width:auto;margin:0;padding:0;background:transparent;color:var(--accent);font-weight:800;text-align:right;white-space:nowrap}
   .more::after{content:" ›"}
   .less{margin-top:12px;color:#7A5700;background:#F7F5FF}
   .less::after{content:"▴";float:right}
@@ -82,14 +81,8 @@
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
     <div class="info-bar">
-      <p class="meta-line"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></p>
-      <div class="meta-low">
-        <p class="meta-venue">Ala House</p>
-        <div class="meta-corner">
-          <span class="meta-dj">DJ Yelyn Woo</span>
-          <button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button>
-        </div>
-      </div>
+      <p class="meta-line"><span class="meta-fixed"><span id="freq">每周二舞会</span> · <time id="when"></time> · <span class="meta-time">20:00–24:00</span> · </span><span class="meta-venue">Ala House</span></p>
+      <p class="meta-foot"><span class="meta-dj">DJ Yelyn Woo · </span><button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button></p>
     </div>
     <div id="moreBody" hidden>
       <div class="rows">
@@ -240,6 +233,19 @@
     var r = card.getBoundingClientRect();
     if (r.top < 0) card.scrollIntoView({block:'start'});
   });
+
+  (function fitTitle(){
+    var h = document.querySelector('.bar h1');
+    if (!h) return;
+    var size = 30;
+    function fit(){
+      size = 30;
+      h.style.fontSize = size + 'px';
+      while (size > 16 && h.scrollWidth > h.clientWidth + 1) { size -= 1; h.style.fontSize = size + 'px'; }
+    }
+    fit();
+    window.addEventListener('resize', fit);
+  })();
 
   document.getElementById('back').addEventListener('click', function(){
     if (history.length > 1) history.back();
