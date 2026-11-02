@@ -12,6 +12,8 @@
     D.addEventListener('keydown', function (e) { var h = e.target.closest && e.target.closest('.ah-sheart'); if (h && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); h.click(); } }); })();
   if (/[?&](card|mode|city|via|date|q|type)=/.test(location.search)) return;
   try { if (sessionStorage.getItem('atm_legacy_list') === '1') return; } catch (e) {} /* regression hook: old full list for the pre-v11.6 test suite */
+  /* v11.8: home / #h-search hide the legacy cream bar before events.json. CSS (.atm-h-hold) covers first paint; the node is removed once home mode is actually on. */
+  (function () { var h = location.hash; if (/^#v-/.test(h)) h = ''; if (!h || h === '#' || h === '#h-feat' || h === '#h-search' || h === '#h-reg' || h.indexOf('#h-city-') === 0) R.classList.add('atm-h-hold'); })();
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
   var T = zh ? { feat: '特色活动', reg: '常规活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '每周常规活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。打开活动卡片，点 ♥ 收藏。', favnote: '收藏只保存在本机', back: '返回', theme: '每周舞会 · 本周专题', cats: ['大师课/工作坊', '马拉松', '探戈节', '特色舞会', '常规活动'], WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
     : { feat: 'Featured events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'weekly regular events', fav: 'My favorites', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No favorites yet. Open an event card and tap ♥ to save it.', favnote: 'Favorites are saved on this device only', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Classes / workshops', 'Marathons', 'Festivals', 'Special milongas', 'Regular events'], WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
@@ -65,9 +67,9 @@
   var root = D.createElement('div'); root.id = 'atm-home'; root.className = 'wrap';
   var css = D.createElement('style'); css.id = 'atm-home-css';
   css.textContent = 'html.atm-h-on #filters,html.atm-h-on .atm-favbar,html.atm-h-on .atm-favgrid,html.atm-h-on .atm-featstrip,html.atm-h-on #china-listings,html.atm-h-on .tw-m-feat-grid,html.atm-h-on .atm-dots,html.atm-h-on .china-results,html.atm-h-on .atm-recent{display:none!important}' +
-    /* v11.8: #h-search drops .atm-h-home but stays .atm-h-on. The cream bar (#FFFAF0) and its square date control are .atm-form inside #filters, and those rules use display:flex!important — enough to paint the bar in the header if #filters is shown. Lock the form off for every home-mode route, including search. #h-search chips live in #atm-home. The entry ad (#atm-pop.on) must stay visible. */
+    /* v11.8: #h-search drops .atm-h-home but stays .atm-h-on. The cream bar (#FFFAF0) and its square date control are .atm-form inside #filters, and those rules use display:flex!important — enough to paint the bar in the header if #filters is shown. .atm-h-hold (set before events.json) and .atm-h-on / .atm-h-search keep it hidden until dropLegacyForm() removes the node. #h-search chips live in #atm-home. The entry ad (#atm-pop.on) must stay visible. */
     'html.atm-h-on #atm-pop.on{display:flex!important}' +
-    'html.atm-h-on body.china-page #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.atm-1l #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.atm-1l #filters .china-filters-row1.atm-form{display:none!important;visibility:hidden!important;pointer-events:none!important}' +
+    'html.atm-h-on body.china-page #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page #filters .china-filters-row1.atm-form,html.atm-h-hold body.china-page #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-hold body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-hold body.china-page.china-presearch.atm-1l #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.atm-1l #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.atm-1l #filters .china-filters-row1.atm-form,html.atm-h-hold body.china-page.atm-1l #filters .china-filters-row1.atm-form{display:none!important;visibility:hidden!important;pointer-events:none!important}' +
     '#atm-home{display:none;box-sizing:border-box;padding:4px 12px 40px;max-width:952px;margin:0 auto;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}html.atm-h-on #atm-home{display:block}' +
     '.ah-ban{display:block;width:100%;text-align:left;margin:8px 0;padding:14px;border:0;border-radius:16px;background:linear-gradient(160deg,#0E6E78,#06333A);box-shadow:0 4px 14px rgba(6,51,58,.25);cursor:pointer;color:#F6D58E}' +
     '.ah-ban-h{display:flex;justify-content:space-between;align-items:center}.ah-ban-t{font:700 19px "Noto Serif SC",serif}.ah-ban-t i{font-style:normal;color:#fff}.ah-ban-s{font:600 13px system-ui;color:#cfe3e3;margin-top:2px}.ah-ban-a{font:700 30px system-ui}' +
@@ -159,11 +161,17 @@
     return h;
   }
   var lastR = null, lastC = '';
+  /* v11.8: once home mode is on, the legacy square search is removed from the DOM. CSS (.atm-h-hold) only covers the gap before that. If the hash leaves home mode, put the node back. A failed events.json load never removes it and drops .atm-h-hold. */
+  var legacySlot = null;
+  function legacyFormEl() { return D.querySelector('#filters .china-filters-row1.atm-form') || D.querySelector('#filters .atm-form'); }
+  function dropLegacyForm() { var f = legacyFormEl(); if (!f || !f.parentNode) return; legacySlot = { p: f.parentNode, n: f.nextSibling, el: f }; f.remove(); }
+  function restoreLegacyForm() { if (!legacySlot || !legacySlot.el || legacySlot.el.parentNode || !legacySlot.p) return; legacySlot.p.insertBefore(legacySlot.el, legacySlot.n); }
   function hh() { var h = D.querySelector('.china-sticky-top'); if (h) R.style.setProperty('--ah-hh', Math.max(0, Math.round(h.getBoundingClientRect().bottom)) + 'px'); } /* T row pinned under H */
   var hhq = 0; function hhLater() { if (!hhq) { hhq = 1; requestAnimationFrame(function () { hhq = 0; hh(); }); } }
   addEventListener('resize', hhLater); addEventListener('scroll', hhLater, { passive: true });
   function render() { hh();
-    var r = route(); R.classList.toggle('atm-h-on', !!r && !!DATA); R.classList.toggle('atm-h-home', !!r && r !== 'search'); R.classList.toggle('atm-h-search', r === 'search' && !!DATA); R.classList.toggle('atm-h-inner', r === 'feat' || r === 'reg' || r === 'city'); hhLater(); /* P2/P3/P4: header H hidden, T row pinned at top */
+    var r = route(), on = !!r && !!DATA; R.classList.toggle('atm-h-on', on); R.classList.toggle('atm-h-home', !!r && r !== 'search'); R.classList.toggle('atm-h-search', r === 'search' && !!DATA); R.classList.toggle('atm-h-inner', r === 'feat' || r === 'reg' || r === 'city'); hhLater(); /* P2/P3/P4: header H hidden, T row pinned at top */
+    if (on) dropLegacyForm(); else if (r) R.classList.add('atm-h-hold'); else { restoreLegacyForm(); R.classList.remove('atm-h-hold'); }
     if (!r || !DATA) return;
     if (r !== lastR) S.open = false;
     var c = r === 'city' ? decodeURIComponent(location.hash.slice(8)) : '';
@@ -220,7 +228,7 @@
   function start() {
     mount();
     var sp = fetch('/data/suggested_favs.json?v=s3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
-    fetch('/asia/events.json?v=e134', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    fetch('/asia/events.json?v=e134', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { restoreLegacyForm(); R.classList.remove('atm-h-on', 'atm-h-home', 'atm-h-search', 'atm-h-hold'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };
