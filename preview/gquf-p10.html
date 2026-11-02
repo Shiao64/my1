@@ -10,8 +10,8 @@
   *{box-sizing:border-box}
   [hidden]{display:none!important}
   html,body{margin:0;background:#FBF5E9;height:100%}
-  body{width:100%;max-width:390px;margin:0 auto;height:100dvh;max-height:100dvh;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;color:var(--ink);font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
-  .bar{position:relative;z-index:20;flex:none;margin-top:auto;background:#FBF5E9 !important;border-bottom:1px solid #e4e0d8;box-shadow:none}
+  body{width:100%;max-width:390px;margin:0 auto;height:100dvh;max-height:100dvh;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;padding-top:36px;color:var(--ink);font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
+  .bar{position:relative;z-index:20;flex:none;margin-top:0;background:#FBF5E9 !important;border-bottom:1px solid #e4e0d8;box-shadow:none}
   #back{color:#0E6E78}
   .bar-in{position:relative;width:100%;max-width:none;margin:0 auto;height:36px;padding:0 2px;display:flex;align-items:center;justify-content:space-between}
   .iconbtn{position:relative;z-index:1;flex:none;width:32px;height:32px;padding:0;border:0;background:transparent;color:#0E6E78;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
@@ -46,7 +46,7 @@
   .links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none}
   .stage{flex:0 1 auto;display:flex;min-height:0;margin:0;padding:0;border:0;overflow:hidden}
   .frame{position:relative;flex:1;min-height:0;height:auto;display:flex;align-items:flex-end;gap:6px;touch-action:pan-y;overflow:hidden}
-  .frame img{display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:auto;max-width:100%;max-height:calc(100dvh - 132px);aspect-ratio:9/16;object-fit:contain;object-position:center center;box-sizing:border-box;border:2px solid #C9A227;border-radius:10px;box-shadow:none;cursor:zoom-in;background:#fff}
+  .frame img{display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:auto;max-width:100%;max-height:calc(100dvh - 168px);aspect-ratio:9/16;object-fit:contain;object-position:center center;box-sizing:border-box;border:2px solid #C9A227;border-radius:10px;box-shadow:none;cursor:zoom-in;background:#fff}
   .chev{position:static;flex:none;align-self:center;z-index:2;width:40px;height:68px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .chev svg{width:24px;height:40px;display:block}
   .chev.prev{order:-1}
