@@ -10,29 +10,29 @@
   *{box-sizing:border-box}
   [hidden]{display:none!important}
   html,body{margin:0;background:#FBF5E9;height:100%}
-  body{min-height:100dvh;display:flex;flex-direction:column;color:var(--ink);font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
+  body{height:100dvh;max-height:100dvh;display:flex;flex-direction:column;overflow:auto;color:var(--ink);font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
   .bar{position:sticky;top:0;z-index:20;flex:none;background:#FBF5E9 !important;border-bottom:1px solid #e4e0d8;box-shadow:none}
   #back{color:#0E6E78}
-  .bar-in{position:relative;width:100%;max-width:none;margin:0 auto;height:48px;padding:0 4px;display:flex;align-items:center;justify-content:space-between}
-  .iconbtn{position:relative;z-index:1;flex:none;width:40px;height:40px;padding:0;border:0;background:transparent;color:#0E6E78;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+  .bar-in{position:relative;width:100%;max-width:none;margin:0 auto;height:40px;padding:0 2px;display:flex;align-items:center;justify-content:space-between}
+  .iconbtn{position:relative;z-index:1;flex:none;width:36px;height:36px;padding:0;border:0;background:transparent;color:#0E6E78;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
   .iconbtn:active{opacity:.6}
   .iconbtn:focus-visible{outline:2px solid #0E6E78;outline-offset:1px;border-radius:8px}
-  .bar h1{position:absolute;left:44px;right:44px;top:0;height:48px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none;overflow:hidden;white-space:nowrap;font:700 22px/1.1 "Noto Serif SC","Songti SC","PMingLiU",serif;color:#0A4F57}
-  .heart svg{width:26px;height:26px}
+  .bar h1{position:absolute;left:40px;right:40px;top:0;height:40px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none;overflow:hidden;white-space:nowrap;font:700 18px/1 "Noto Serif SC","Songti SC","PMingLiU",serif;color:#0A4F57}
+  .heart svg{width:22px;height:22px}
   .heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
   .heart[aria-pressed="true"] path{fill:#C8102E}
-  .wrap{flex:1;display:flex;flex-direction:column;width:100%;max-width:none;min-height:0;margin:0;padding:4px 8px 8px}
-  .card{flex:1;display:flex;flex-direction:column;min-height:0;gap:6px;width:100%;padding:8px 10px 8px;border:0;border-radius:16px;background:#fff;box-shadow:0 8px 24px rgba(14,110,120,.12);border-top:4px solid #0E6E78}
-  .info-bar{align-self:flex-start;width:auto;max-width:100%;margin:0;padding:6px 10px;background:#E8E6EC;border-radius:10px}
-  .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:14px;line-height:1.2;white-space:nowrap;overflow:hidden}
+  .wrap{flex:1;display:flex;flex-direction:column;width:100%;max-width:none;min-height:0;margin:0;padding:2px 6px 4px}
+  .card{flex:1;display:flex;flex-direction:column;min-height:0;gap:4px;width:100%;padding:4px 6px 4px;border:0;border-radius:12px;background:#fff;box-shadow:none;border-top:3px solid #0E6E78}
+  .info-bar{align-self:flex-start;width:auto;max-width:100%;margin:0;padding:3px 8px;background:#E8E6EC;border-radius:8px}
+  .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:13px;line-height:1.15;white-space:nowrap;overflow:hidden}
   .meta-line .meta-fixed{flex:none}
   .meta-line .meta-time{margin-left:.12em}
   .meta-line .meta-venue{flex:0 1 auto;min-width:0;margin-left:.45em}
   .meta-line time{color:inherit;font-weight:800}
-  .meta-foot{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:2px 0 0;color:#0A4F57;font-weight:800;font-size:15px;line-height:1.2;white-space:nowrap}
-  .meta-dj{font-size:15px;font-weight:800}
+  .meta-foot{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:0;color:#0A4F57;font-weight:800;font-size:14px;line-height:1.15;white-space:nowrap}
+  .meta-dj{font-size:14px;font-weight:800}
   .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:17px;text-align:left;border:0;border-radius:14px;padding:10px 14px;color:#0E6E78}
-  .info-bar .more{display:inline;width:auto;margin-left:0;padding:0;background:transparent;color:#0E6E78;font-size:15px;font-weight:800;text-align:right;white-space:nowrap}
+  .info-bar .more{display:inline;width:auto;margin-left:0;padding:0;background:transparent;color:#0E6E78;font-size:14px;font-weight:800;text-align:right;white-space:nowrap}
   .more::after{content:" ›"}
   .less{margin-top:12px;color:#0E6E78;background:#FBF5E9}
   .less::after{content:"▴";float:right}
@@ -44,9 +44,9 @@
   .map{color:#0E6E78;text-decoration:underline dotted;text-underline-offset:3px}
   .links a{display:inline-flex;align-items:center;min-height:36px;color:#0E6E78;font-weight:700;text-decoration:underline;text-underline-offset:3px}
   .links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none}
-  .stage{flex:1;display:flex;min-height:56vh;margin-top:2px;padding-top:4px;border-top:0}
-  .frame{position:relative;flex:1;min-height:0;display:flex;align-items:center;gap:8px;touch-action:pan-y}
-  .frame img{display:block;flex:1;min-width:0;width:auto;height:100%;object-fit:contain;object-position:center center;box-sizing:border-box;border:3px solid #fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:zoom-in;background:#fff}
+  .stage{flex:1 1 auto;display:flex;min-height:0;margin:0;padding:0;border:0}
+  .frame{position:relative;flex:1;min-height:0;height:100%;display:flex;align-items:center;gap:6px;touch-action:pan-y}
+  .frame img{display:block;flex:1;min-width:0;min-height:0;width:100%;height:100%;max-height:100%;object-fit:contain;object-position:center center;box-sizing:border-box;border:3px solid #fff;border-radius:10px;box-shadow:none;cursor:zoom-in;background:#fff}
   .chev{position:static;flex:none;z-index:2;width:46px;height:78px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .chev svg{width:24px;height:40px;display:block}
   .chev.prev{order:-1}
@@ -280,9 +280,9 @@
   (function fitTitle(){
     var h = document.querySelector('.bar h1');
     if (!h) return;
-    var size = 22;
+    var size = 18;
     function fit(){
-      size = 22;
+      size = 18;
       h.style.fontSize = size + 'px';
       while (size > 15 && h.scrollWidth > h.clientWidth + 1) { size -= 1; h.style.fontSize = size + 'px'; }
     }
