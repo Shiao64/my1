@@ -19,11 +19,11 @@
   .iconbtn:focus-visible{outline:2px solid #0E6E78;outline-offset:1px;border-radius:8px}
   .bar h1{position:absolute;left:40px;right:40px;top:0;height:44px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none;overflow:hidden;white-space:nowrap;font:700 20px/1 "Noto Serif SC","Songti SC","PMingLiU",serif;color:#0A4F57}
   .heart svg{width:24px;height:24px}
-  .heart path{fill:#C8102E;stroke:#C8102E;stroke-width:1.5;stroke-linejoin:round}
+  .heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
   .heart[aria-pressed="true"] path{fill:#C8102E;stroke:#C8102E}
   .wrap{flex:0 1 auto;display:flex;flex-direction:column;width:100%;max-width:none;min-height:0;margin:0;padding:2px 4px 4px}
   .card{flex:0 1 auto;display:flex;flex-direction:column;justify-content:flex-end;min-height:0;gap:4px;width:100%;padding:4px 4px 2px;border:0;border-radius:10px;background:#fff;box-shadow:none;border-top:2px solid #0E6E78}
-  .info-bar{align-self:stretch;width:100%;max-width:100%;margin:0;padding:8px 14px;background:#E8E6EC;border-radius:10px}
+  .info-bar{align-self:stretch;width:100%;max-width:100%;margin:0;padding:8px 14px;background:#E8E6EC;border-radius:10px;position:relative;z-index:2}
   .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:18px;line-height:1.3;white-space:nowrap;overflow:hidden}
   .meta-line .meta-fixed{flex:none;display:inline-flex;align-items:center}
   .cat-dot{flex:none;width:9px;height:9px;margin-right:6px;border-radius:50%;background:#9E1020}
@@ -45,9 +45,9 @@
   .map{color:#0E6E78;text-decoration:underline dotted;text-underline-offset:3px}
   .links a{display:inline-flex;align-items:center;min-height:36px;color:#0E6E78;font-weight:700;text-decoration:underline;text-underline-offset:3px}
   .links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none}
-  .stage{flex:0 1 auto;display:flex;min-height:0;margin:0;padding:0;border:0;overflow:hidden}
+  .stage{flex:0 1 auto;display:flex;min-height:0;margin:12px 0 0;padding:0;border:0;overflow:hidden;position:relative;z-index:0}
   .frame{position:relative;flex:1;min-height:0;height:auto;display:flex;align-items:flex-end;gap:6px;touch-action:pan-y;overflow:hidden}
-  .frame img{display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:auto;max-width:100%;max-height:calc(100dvh - 188px);aspect-ratio:9/16;object-fit:contain;object-position:center center;box-sizing:border-box;border:2px solid #C9A227;border-radius:10px;box-shadow:none;cursor:zoom-in;background:#fff}
+  .frame img{display:block;flex:1 1 auto;min-width:0;min-height:0;width:100%;height:auto;max-width:100%;max-height:calc(100dvh - 250px);aspect-ratio:9/16;object-fit:contain;object-position:center center;box-sizing:border-box;border:2px solid #C9A227;border-radius:10px;box-shadow:none;cursor:zoom-in;background:#fff}
   .chev{position:static;flex:none;align-self:center;z-index:2;width:40px;height:68px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
   .chev svg{width:24px;height:40px;display:block}
   .chev.prev{order:-1}
@@ -264,7 +264,7 @@
 
   document.getElementById('back').addEventListener('click', function(){
     if (history.length > 1) history.back();
-    else location.href = 'https://tangoweekend.org/zh/asia/';
+    else location.assign('https://tangoweekend.org/');
   });
 
   heart.addEventListener('click', function(){
