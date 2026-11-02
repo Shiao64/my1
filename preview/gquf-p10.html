@@ -6,56 +6,60 @@
 <meta name="robots" content="noindex">
 <title>探戈会 · 预览（未上线）</title>
 <style>
-  :root{--accent:#FF5C8A;--ink:#1d1640;--muted:#8a84a8;--teal:#0E6E78;--deep:#0A4F57;--cream:#FBF5E9}
+  :root{--accent:#0E6E78;--ink:#2a1a14;--muted:#5f6f66;--teal:#0E6E78;--deep:#0A4F57;--cream:#FBF5E9;--heart:#C8102E}
   *{box-sizing:border-box}
   [hidden]{display:none!important}
-  html,body{margin:0;background:#FBF5E9}
-  body{color:#2a1a14;font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
-  .bar{position:sticky;top:0;z-index:20;background:#FBF5E9 !important;border-bottom:1px solid #e4e0d8;box-shadow:none}
-  #back{color:#0A4F57}
-  .bar-in{position:relative;max-width:588px;margin:0 auto;height:68px;padding:0 6px;display:flex;align-items:center;justify-content:space-between}
-  .iconbtn{position:relative;z-index:1;flex:none;width:52px;height:52px;padding:0;border:0;background:transparent;color:var(--teal);cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:#FBF5E9;height:100%}
+  body{min-height:100dvh;display:flex;flex-direction:column;color:var(--ink);font:16px/1.45 "PingFang SC","Noto Sans SC","Poppins",system-ui,sans-serif}
+  .bar{position:sticky;top:0;z-index:20;flex:none;background:#FBF5E9 !important;border-bottom:1px solid #e4e0d8;box-shadow:none}
+  #back{color:#0E6E78}
+  .bar-in{position:relative;width:100%;max-width:none;margin:0 auto;height:48px;padding:0 4px;display:flex;align-items:center;justify-content:space-between}
+  .iconbtn{position:relative;z-index:1;flex:none;width:40px;height:40px;padding:0;border:0;background:transparent;color:#0E6E78;cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
   .iconbtn:active{opacity:.6}
-  .iconbtn:focus-visible{outline:2px solid var(--teal);outline-offset:1px;border-radius:8px}
-  .bar h1{position:absolute;left:58px;right:58px;top:0;height:68px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none;overflow:hidden;white-space:nowrap;font:700 30px/1.1 "Noto Serif SC","Songti SC","PMingLiU",serif;color:var(--deep)}
-  .heart svg{width:38px;height:38px}
+  .iconbtn:focus-visible{outline:2px solid #0E6E78;outline-offset:1px;border-radius:8px}
+  .bar h1{position:absolute;left:44px;right:44px;top:0;height:48px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none;overflow:hidden;white-space:nowrap;font:700 22px/1.1 "Noto Serif SC","Songti SC","PMingLiU",serif;color:#0A4F57}
+  .heart svg{width:26px;height:26px}
   .heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
   .heart[aria-pressed="true"] path{fill:#C8102E}
-  .wrap{max-width:588px;margin:0 auto;padding:14px 14px 36px}
-  .card{display:flex;flex-direction:column;gap:12px;padding:20px;border:0;border-radius:24px;background:#fff;box-shadow:0 8px 24px rgba(123,97,255,.14);border-top:6px solid var(--accent)}
-  .info-bar{margin:0;padding:14px 14px 12px;background:#E8E6EC;border-radius:14px}
-  .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#3d3850;font-weight:800;font-size:clamp(13px,3.4vw,15.5px);line-height:1.35;white-space:nowrap}
+  .wrap{flex:1;display:flex;flex-direction:column;width:100%;max-width:none;min-height:0;margin:0;padding:8px 10px 12px}
+  .card{flex:1;display:flex;flex-direction:column;min-height:0;gap:10px;width:100%;padding:12px;border:0;border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(14,110,120,.12);border-top:6px solid #0E6E78}
+  .info-bar{margin:0;padding:12px 12px 10px;background:#E8E6EC;border-radius:14px}
+  .meta-line{display:flex;align-items:baseline;min-width:0;margin:0;color:#0A4F57;font-weight:800;font-size:clamp(14px,3.6vw,16px);line-height:1.35;white-space:nowrap;overflow:hidden}
   .meta-line .meta-fixed{flex:none}
-  .meta-line .meta-venue{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .meta-line .meta-time{margin-left:.22em}
+  .meta-line .meta-venue{flex:0 0 auto;margin-left:.35em}
   .meta-line time{color:inherit;font-weight:800}
-  .meta-foot{display:flex;justify-content:flex-end;align-items:baseline;gap:0;margin:14px 0 0;color:#3d3850;font-weight:800;font-size:clamp(13px,3.4vw,15.5px);line-height:1.35;white-space:nowrap}
-  .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:.9rem;text-align:left;border:0;border-radius:14px;padding:10px 14px}
-  .info-bar .more{display:inline;width:auto;margin:0;padding:0;background:transparent;color:var(--accent);font-weight:800;text-align:right;white-space:nowrap}
+  .meta-foot{display:flex;align-items:baseline;justify-content:flex-end;gap:22px;margin:12px 0 0;color:#0A4F57;font-weight:800;font-size:18px;line-height:1.35;white-space:nowrap}
+  .meta-foot:not(:has(:not([hidden]))){display:none}
+  .meta-dj{font-size:18px;font-weight:800}
+  .more,.less{display:block;width:100%;margin:0;cursor:pointer;font:inherit;font-weight:800;font-size:18px;text-align:left;border:0;border-radius:14px;padding:10px 14px;color:#0E6E78}
+  .info-bar .more{display:inline;width:auto;margin-left:auto;padding:0;background:transparent;color:#0E6E78;font-size:18px;font-weight:800;text-align:right;white-space:nowrap}
   .more::after{content:" ›"}
-  .less{margin-top:12px;color:#7A5700;background:#F7F5FF}
+  .less{margin-top:12px;color:#0E6E78;background:#FBF5E9}
   .less::after{content:"▴";float:right}
   .more:focus-visible,.less:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
   .rows{display:grid;gap:8px;padding:10px 4px 0;font-size:.88rem;color:#3a3460}
   .row{display:grid;grid-template-columns:72px 1fr;gap:6px}
-  .row b{color:var(--muted);font-size:.78rem;font-weight:700;padding-top:2px}
+  .row b{color:#5f6f66;font-size:.78rem;font-weight:700;padding-top:2px}
   .row span{overflow-wrap:anywhere}
-  .map{color:inherit;text-decoration:underline dotted;text-underline-offset:3px}
-  .links a{display:inline-flex;align-items:center;min-height:36px;color:#0e6e78;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+  .map{color:#0E6E78;text-decoration:underline dotted;text-underline-offset:3px}
+  .links a{display:inline-flex;align-items:center;min-height:36px;color:#0E6E78;font-weight:700;text-decoration:underline;text-underline-offset:3px}
   .links a::after{content:"↗";font-size:.8em;margin-left:2px;text-decoration:none}
-  .stage{margin-top:6px;padding-top:16px;border-top:2px dashed #e6dcc8}
-  .frame{position:relative;border-radius:16px;touch-action:pan-y}
-  .frame img{display:block;width:100%;height:auto;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:zoom-in;background:#111}
-  .chev{position:absolute;top:22%;z-index:2;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:var(--deep);display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .stage{flex:1;display:flex;min-height:42vh;margin-top:4px;padding-top:10px;border-top:2px dashed #d9d4cc}
+  .frame{position:relative;flex:1;min-height:0;border-radius:16px;touch-action:pan-y}
+  .frame img{display:block;width:100%;height:100%;object-fit:contain;object-position:center top;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.12);cursor:zoom-in;background:#1a1a1a}
+  .chev{position:absolute;top:50%;transform:translateY(-50%);z-index:2;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:rgba(251,245,233,.94);box-shadow:0 2px 8px rgba(0,0,0,.22);color:#0E6E78;display:grid;place-items:center;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .chev.is-off{opacity:.38}
   .chev.prev{left:8px}
   .chev.next{right:8px}
   .chev[hidden]{display:none}
-  .chev:active{transform:scale(.96)}
+  .chev:active{transform:translateY(-50%) scale(.96)}
   .chev:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
   .chip,.idx{position:absolute;z-index:2;color:#fff;font:700 12px/1 system-ui,sans-serif;padding:5px 8px;border-radius:999px;pointer-events:none}
   .chip{top:10px;left:10px;background:rgba(10,79,87,.9)}
   .idx{top:10px;right:10px;background:rgba(0,0,0,.45);font-weight:600}
   .chip[hidden]{display:none}
-  .note{margin:14px 4px 0;color:#8a7a6a;font-size:.78rem;line-height:1.5}
+  .note{margin:10px 4px 0;color:#5f6f66;font-size:.78rem;line-height:1.5}
   .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   .pv{position:fixed;inset:0;z-index:50;background:rgba(6,20,24,.92);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
   .pv[hidden]{display:none}
@@ -71,23 +75,25 @@
 <header class="bar">
   <div class="bar-in">
     <button type="button" class="iconbtn" id="back" aria-label="返回">
-      <svg width="22" height="40" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#0A4F57" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg width="16" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#0E6E78" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </button>
     <h1>探戈会</h1>
     <button type="button" class="iconbtn heart" id="heart" aria-pressed="false" aria-label="加入收藏">
-      <svg width="38" height="38" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>
+      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>
     </button>
   </div>
 </header>
 <main class="wrap">
   <article class="card" id="card" data-id="GqufXmMX">
     <div class="info-bar">
-      <p class="meta-line"><span class="meta-fixed"><span id="freq">每周二舞会</span> · <time id="when"></time> · <span class="meta-time">20:00–24:00</span> · </span><span class="meta-venue">Ala House</span></p>
-      <p class="meta-foot"><span class="meta-dj">DJ Yelyn Woo · </span><button type="button" class="more" id="more" aria-expanded="false" aria-controls="moreBody">更多</button></p>
+      <p class="meta-line" id="metaLine"><span class="meta-fixed"><span id="freq">每周二舞会</span> · <time id="when"></time><span class="meta-time">20:00–24:00</span></span><span class="meta-venue" id="venueBar" hidden></span></p>
+      <p class="meta-foot" id="foot"><span class="meta-dj" id="djBar" hidden></span><button type="button" class="more" id="more" hidden aria-expanded="true" aria-controls="moreBody">更多</button></p>
     </div>
-    <div id="moreBody" hidden>
+    <div id="moreBody">
       <div class="rows">
         <div class="row"><b>主办</b><span>刘峥</span></div>
+        <div class="row" id="venueMoreRow"><b>场地</b><span id="venueMore"></span></div>
+        <div class="row" id="djMoreRow"><b>DJ:</b><span id="djMore"></span></div>
         <div class="row"><b>地址</b><span><a class="map" href="https://uri.amap.com/search?keyword=%E5%8C%97%E4%BA%AC%E5%B8%82%E4%B8%9C%E7%9B%B4%E9%97%A8%E5%A4%96%E5%A4%A7%E8%A1%97%E4%BA%AE%E9%A9%AC%E6%B2%B3%E5%8D%97%E8%B7%AF18%E5%8F%B72%E5%B1%82" target="_blank" rel="noopener">北京市东直门外大街亮马河南路18号2层</a></span></div>
         <div class="row"><b>联络方式</b><span>微信号：beijingtango (刘峥)</span></div>
         <div class="row links"><b>链接</b><span><a href="https://www.facebook.com/tangobeijing" target="_blank" rel="noopener">脸书</a></span></div>
@@ -167,8 +173,12 @@
     var multi = slides.length > 1;
     idx.hidden = !multi;
     idx.textContent = (index + 1) + ' / ' + slides.length;
-    prev.hidden = !multi || index === 0;
-    next.hidden = !multi || index === slides.length - 1;
+    prev.hidden = !multi;
+    next.hidden = !multi;
+    prev.classList.toggle('is-off', index === 0);
+    next.classList.toggle('is-off', index === slides.length - 1);
+    prev.setAttribute('aria-disabled', index === 0 ? 'true' : 'false');
+    next.setAttribute('aria-disabled', index === slides.length - 1 ? 'true' : 'false');
     frame.setAttribute('aria-label', '活动海报，第' + (index + 1) + '张，共' + slides.length + '张' + (s.chip ? '，' + s.chip : ''));
     live.textContent = frame.getAttribute('aria-label');
   }
@@ -223,6 +233,40 @@
     else if (e.key === 'ArrowLeft') { e.preventDefault(); go(-1); }
   });
 
+  var VENUE = 'Ala House上海长滩店·外滩旗舰店（北京市东直门外大街亮马河南路18号2层）Tango By Ala House 每周二特别场亮马河旗舰外滩观景大厅';
+  var DJ = 'Yelyn Woo（首尔）· Frank Jin 联合嘉宾 Seoul Guest Night Selector 特别场驻场';
+  var venueBar = document.getElementById('venueBar');
+  var venueMoreRow = document.getElementById('venueMoreRow');
+  var venueMore = document.getElementById('venueMore');
+  var djBar = document.getElementById('djBar');
+  var djMoreRow = document.getElementById('djMoreRow');
+  var djMore = document.getElementById('djMore');
+  var metaLine = document.getElementById('metaLine');
+  var foot = document.getElementById('foot');
+  venueMore.textContent = VENUE;
+  djMore.textContent = DJ;
+  function placeFields(){
+    venueBar.hidden = false;
+    venueBar.textContent = ' · ' + VENUE;
+    if (metaLine.scrollWidth > metaLine.clientWidth + 1) {
+      venueBar.hidden = true;
+      venueBar.textContent = '';
+      venueMoreRow.hidden = false;
+    } else {
+      venueMoreRow.hidden = true;
+    }
+    djBar.hidden = false;
+    djBar.textContent = 'DJ: ' + DJ;
+    var room = foot.clientWidth - 72;
+    if (djBar.scrollWidth > room) {
+      djBar.hidden = true;
+      djBar.textContent = '';
+      djMoreRow.hidden = false;
+    } else {
+      djMoreRow.hidden = true;
+    }
+  }
+
   function setMore(on){
     more.hidden = on;
     moreBody.hidden = !on;
@@ -238,15 +282,18 @@
   (function fitTitle(){
     var h = document.querySelector('.bar h1');
     if (!h) return;
-    var size = 30;
+    var size = 22;
     function fit(){
-      size = 30;
+      size = 22;
       h.style.fontSize = size + 'px';
-      while (size > 16 && h.scrollWidth > h.clientWidth + 1) { size -= 1; h.style.fontSize = size + 'px'; }
+      while (size > 15 && h.scrollWidth > h.clientWidth + 1) { size -= 1; h.style.fontSize = size + 'px'; }
     }
     fit();
     window.addEventListener('resize', fit);
   })();
+  placeFields();
+  setMore(true);
+  window.addEventListener('resize', placeFields);
 
   document.getElementById('back').addEventListener('click', function(){
     if (history.length > 1) history.back();
