@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>ATM P10 预览 · 轮播测试</title>
+<style>
+  :root{--cream:#FBF5E9;--teal:#0E6E78;--deep:#0A4F57;--heart:#C8102E;--muted:#5f6f66;--milonga:#9E1020;--gold:#C9A227;}
+  *{box-sizing:border-box}
+  body{margin:0;background:#e8e2d6;font-family:system-ui,"Noto Sans SC",sans-serif;display:flex;justify-content:center;padding:16px}
+  .phone{width:390px;height:844px;background:var(--cream);border-radius:28px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.25);position:relative;border:8px solid #111}
+  .status{height:28px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;font-size:12px;color:#333}
+  .bar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;background:var(--cream);border-bottom:1px solid #e4e0d8;position:sticky;top:0;z-index:5}
+  .bar .back{color:var(--teal);font-size:32px;line-height:1;border:0;background:none;cursor:pointer;padding:0 6px}
+  .bar .title{color:var(--deep);font-weight:700;font-size:18px}
+  .bar .heart{color:var(--heart);font-size:22px}
+  .meta{margin:8px 10px;padding:10px 12px;background:#eceeea;border-radius:10px}
+  .meta .row1{display:flex;align-items:center;gap:8px;color:var(--deep);font-weight:700;font-size:14px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--milonga);flex:0 0 8px}
+  .meta .row2{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:14px}
+  .venue{color:var(--teal);font-weight:600}
+  .dj{color:var(--muted);font-weight:600;flex:1}
+  .more{color:var(--teal);font-weight:700;border:0;background:none;cursor:pointer;font-size:14px}
+  .stage{position:relative;margin:8px 10px 12px;height:calc(844px - 28px - 48px - 78px - 36px);display:flex;align-items:center;justify-content:center}
+  .frame{border:2px solid var(--gold);background:#fff;max-width:100%;max-height:100%;display:flex;align-items:center;justify-content:center}
+  .frame img{max-width:334px;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+  .nav{position:absolute;top:50%;transform:translateY(-50%);width:28px;height:18px;border:0;border-radius:999px;background:rgba(33,55,60,.92);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;padding:0}
+  .nav.l{left:2px}.nav.r{right:2px}
+  .pager{text-align:center;font:700 13px system-ui;color:var(--teal);margin-top:-4px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status"><span>00:16</span><span>●●●</span></div>
+  <div class="bar"><button class="back" type="button" aria-label="返回">‹</button><span class="title">探戈会</span><span class="heart" aria-label="收藏">♥</span></div>
+  <div class="meta">
+    <div class="row1"><span class="dot"></span><span>每周二舞会 11/3 · 20:00–24:00</span></div>
+    <div class="row2"><span class="venue">Ala House</span><span class="dj">DJ: Yelyn Woo</span><button class="more" type="button">更多 ›</button></div>
+  </div>
+  <div class="stage">
+    <button class="nav l" type="button" id="prev" aria-label="上一张">◀</button>
+    <div class="frame"><img id="poster" alt="海报" src="https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg"/></div>
+    <button class="nav r" type="button" id="next" aria-label="下一张">▶</button>
+  </div>
+  <div class="pager" id="pager">1 / 3</div>
+</div>
+<script>
+const posters=[
+  {src:'https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg', note:'GqufXmMX 466×1014'},
+  {src:'https://tangoweekend.org/images/asia/posters/R015.jpg', note:'DFBKYdPX/R015 800×1121'},
+  {src:'https://tangoweekend.org/images/asia/posters/R001.jpg', note:'R001 916×1972'}
+];
+let i=0;
+const img=document.getElementById('poster');
+const pager=document.getElementById('pager');
+function show(n){i=(n+posters.length)%posters.length;img.src=posters[i].src;img.title=posters[i].note;pager.textContent=(i+1)+' / '+posters.length;}
+document.getElementById('prev').onclick=()=>show(i-1);
+document.getElementById('next').onclick=()=>show(i+1);
+let sx=0; document.querySelector('.stage').addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+document.querySelector('.stage').addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>40) show(i+(dx<0?1:-1));},{passive:true});
+show(0);
+</script>
+</body>
+</html>
