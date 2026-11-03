@@ -11,9 +11,11 @@ What it does, per item that passes the checks:
   2. Copy the previous poster to images/asia/posters/_backup/<id>-<utc>.<ext>
      before any bytes are overwritten. The previous file is never deleted.
   3. Store the new file under images/asia/posters/<id>.<ext>.
-  4. Write an ~800px-wide thumb (no upscale) as WebP and JPEG at
-     images/thumb/images/asia/posters/<id>.webp and .jpg, and record its
-     pixel size in asia/asia-map.js ATM_TH.
+  4. Write two thumbs, neither upscaled. The list thumb is at most 480px wide
+     (WebP and JPEG) at images/thumb/images/asia/posters/<id>.webp and .jpg.
+     The opened-card thumb is at most 800px wide at
+     images/thumb800/images/asia/posters/<id>.webp and .jpg. ATM_TH records
+     the list size.
   5. Set that event's `poster` (and `updated`) in events.json and, when the
      same id is present, events-core.json / events-more.json.
   6. Append a line to tools/radar-poster-log.jsonl.
@@ -63,7 +65,8 @@ MAP_JS = 'asia/asia-map.js'
 MAX_BYTES = 20_000_000
 MIN_BYTES = 800
 MIN_PX = 80
-THUMB_W = 800
+LIST_W = 480
+CARD_W = 800
 UA = 'AsiaTangoMap-radar/1.0'
 
 # Chinese labels operators paste from 雷达表. Not used to find an event — only
@@ -386,16 +389,28 @@ def sniff_image(data):
     return im, ext
 
 
-def thumb_image(im):
-    """Resize to at most THUMB_W wide. Never upscale. Returns webp, jpeg, size."""
-    from PIL import Image
-    rgb = im.convert('RGB')
-    rgb.thumbnail((THUMB_W, THUMB_W * 8), Image.LANCZOS)
+def _encode(rgb):
     webp = io.BytesIO()
     rgb.save(webp, 'WEBP', quality=80, method=6)
     jpg = io.BytesIO()
     rgb.save(jpg, 'JPEG', quality=82, optimize=True)
     return webp.getvalue(), jpg.getvalue(), rgb.size
+
+
+def thumb_image(im):
+    """List thumb max LIST_W, card thumb max CARD_W. Never upscale.
+
+    Returns list webp, list jpeg, list size, card webp, card jpeg, card size.
+    """
+    from PIL import Image
+    rgb = im.convert('RGB')
+    listed = rgb.copy()
+    listed.thumbnail((LIST_W, LIST_W * 8), Image.LANCZOS)
+    card = rgb.copy()
+    card.thumbnail((CARD_W, CARD_W * 8), Image.LANCZOS)
+    lw, lj, ls = _encode(listed)
+    cw, cj, cs = _encode(card)
+    return lw, lj, ls, cw, cj, cs
 
 
 def backup_poster(root, event_id, old_web, stamp):
@@ -560,16 +575,25 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
             dest_fs = os.path.join(root, dest_rel)
             with open(dest_fs, 'wb') as fh:
                 fh.write(data)
-            twebp, tjpg, tsize = thumb_image(im)
+            twebp, tjpg, tsize, cwebp, cjpg, csize = thumb_image(im)
             thumb_rel = 'images/thumb' + os.path.splitext(dest_web)[0] + '.webp'
             thumb_fs = os.path.join(root, thumb_rel.lstrip('/'))
             jpg_rel = os.path.splitext(thumb_rel)[0] + '.jpg'
             jpg_fs = os.path.join(root, jpg_rel.lstrip('/'))
+            card_rel = 'images/thumb800' + os.path.splitext(dest_web)[0] + '.webp'
+            card_fs = os.path.join(root, card_rel.lstrip('/'))
+            card_jpg_rel = os.path.splitext(card_rel)[0] + '.jpg'
+            card_jpg_fs = os.path.join(root, card_jpg_rel.lstrip('/'))
             os.makedirs(os.path.dirname(thumb_fs), exist_ok=True)
+            os.makedirs(os.path.dirname(card_fs), exist_ok=True)
             with open(thumb_fs, 'wb') as fh:
                 fh.write(twebp)
             with open(jpg_fs, 'wb') as fh:
                 fh.write(tjpg)
+            with open(card_fs, 'wb') as fh:
+                fh.write(cwebp)
+            with open(card_jpg_fs, 'wb') as fh:
+                fh.write(cjpg)
             drop = None
             if old and not shared_old and old.split('?', 1)[0] != dest_web:
                 drop = old
@@ -588,6 +612,8 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
             plan['thumb'] = '/' + thumb_rel.lstrip('/')
             plan['thumb_jpg'] = '/' + jpg_rel.lstrip('/')
             plan['thumb_px'] = [tsize[0], tsize[1]]
+            plan['card_thumb'] = '/' + card_rel.lstrip('/')
+            plan['card_px'] = [csize[0], csize[1]]
             result['replaced'].append(plan)
             replaced_events.append(event['id'])
             if log:

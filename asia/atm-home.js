@@ -56,7 +56,7 @@
     if (e.kind === 'weekly') return T.every + (e.weekdays || [e.weekday]).map(function (i) { return T.WD[i % 7]; }).join('/') + (e.time ? ' ' + e.time : '');
     var s = fd(e.start) + (e.end && e.end !== e.start ? '–' + fd(e.end) : ''); if (e.start && e.start.slice(0, 4) !== TODAY.slice(0, 4)) s = e.start.slice(0, 4) + '/' + s; if (e.theme_of) s += ' ' + T.WD[new Date(e.start + 'T12:00:00').getDay()] + (e.time ? ' ' + e.time : ''); return s;
   }
-  function posterUrls(p) { var q = String(p || '').split('?')[0], base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, ''); return { webp: base + '.webp?v=t800', jpg: base + '.jpg?v=t800', full: q }; }
+  function posterUrls(p) { var q = String(p || '').split('?')[0], base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, ''); return { webp: base + '.webp?v=t480', jpg: base + '.jpg?v=t480', full: q }; }
   function img(e, cls, eager) { if (!e.poster) return '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>'; var u = posterUrls(e.poster); return '<picture><source type="image/webp" srcset="' + esc(u.webp) + '"><img class="' + cls + '" src="' + esc(u.jpg) + '" data-full="' + esc(u.full) + '" onerror="if(this.dataset.full&&this.dataset.fell!==\'1\'){this.dataset.fell=\'1\';this.src=this.dataset.full}" alt="" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></picture>'; }
   function card(e, sub, tag, eager) {
     var v = (e.kind === 'weekly' || e.theme_of) ? (e.venue || '') : '';
