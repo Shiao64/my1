@@ -39,11 +39,10 @@
     var profile = (list || []).filter(function (p) { return p.id === id; })[0];
     if (!profile) return;
     var name = zh ? (profile.name_zh || profile.name || '') : (profile.name || profile.name_zh || '');
-    var city = zh ? (profile.city_zh || '') : (profile.city || '');
     var bio = zh ? (profile.bio_zh || '') : (profile.bio || '');
     var aff = zh ? (profile.affiliation_zh || profile.affiliation || '') : (profile.affiliation || profile.affiliation_zh || '');
     var h1 = document.querySelector('.dj-bar h1'); if (h1 && name) h1.textContent = name;
-    setText('pf-name', name); setText('pf-city', city); setText('pf-aff', aff); setText('pf-bio', bio); setPhoto(profile.photo || '', name);
+    setText('pf-aff', aff); setText('pf-bio', bio); setPhoto(profile.photo || '', name);
     var links = profile.links || {};
     setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || '');
     return fetch('/asia/events.json?v=e152').then(function (r) { return r.json(); }).then(function (events) {
