@@ -2,7 +2,7 @@
 (function(){
 var zh=location.pathname.indexOf('/zh/')===0; /* page language = path only */
 var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
-var EV=null; fetch('/asia/events.json?v=e148').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
+var EV=null; fetch('/asia/events.json?v=e149').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
 /* DJ line: events.dj wins. Else names from the note (DJ or 乐师). Several people are joined. A name that is a case/space-insensitive substring of another is dropped. The face label stays "DJ:". */
 function djTrim(n){ n=String(n||'').replace(/\s*\(host[^)]*\)/i,'').replace(/\s*（主持[^）]*）/,'').replace(/\s+(who|which)\b[\s\S]*$/i,'').trim(); var lat=n.match(/^([A-Za-z][A-Za-z .'\-·]*[A-Za-z])/); if(lat&&/[\u4e00-\u9fff]/.test(n)) n=lat[1]; n=n.replace(/\s+[a-z][\s\S]*$/,'').trim(); return n.replace(/\s+/g,' ').trim(); }
 function djPieces(n){ return String(n||'').split(/\s*(?:、|\+|＆|&|\/|\band\b|与|與)\s*/i).map(djTrim).filter(Boolean); }
@@ -84,7 +84,7 @@ function fix(li){ if(li.dataset.b)return; li.dataset.b='1'; li.classList.add('b-
  html=html.replace(/\s*[（(]\s*[）)]/g,''); /* v11.1: drop empty （ ） anywhere on the card */ li.innerHTML=html; dj(li); if(cover){cover.removeAttribute('aria-hidden');cover.removeAttribute('tabindex');li.querySelector('.b-poster').appendChild(cover);}
 }
 var REG=null,CV={};
-if(zh){fetch('/asia/events.json?v=e148').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);REG={};d.forEach(function(e){REG[e.id]=e.region});trad()}).catch(function(){});}
+if(zh){fetch('/asia/events.json?v=e149').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);REG={};d.forEach(function(e){REG[e.id]=e.region});trad()}).catch(function(){});}
 var occL=0; function conv(k){ if(!window.OpenCC){ if(!occL){occL=1;var sc=document.createElement('script');sc.src='/asia/opencc-cn2t.js';sc.onload=function(){document.querySelectorAll('.ev-card.b-card[data-t]').forEach(function(x){if(!x.lang)x.removeAttribute('data-t')});trad()};document.head.appendChild(sc);} return null; } return CV[k]||(CV[k]=OpenCC.Converter({from:'cn',to:k==='hk'?'hk':'twp'})); }
 function trad(){ if(!REG) return; document.querySelectorAll('.ev-card.b-card[data-b]:not([data-t]), .ev-card.b-card[lang]').forEach(function(li){ var r=REG[li.dataset.id]; li.dataset.t='1'; var k=r==='Taiwan'?'tw':r==='Hong Kong'?'hk':null; if(!k) return; var c=conv(k); if(!c){li.removeAttribute('data-t');return;} li.lang=k==='hk'?'zh-HK':'zh-TW';
   var w=document.createTreeWalker(li,NodeFilter.SHOW_TEXT),n; while(n=w.nextNode()){ if(!/[\u4e00-\u9fff]/.test(n.nodeValue)) continue; if(n.parentElement&&n.parentElement.closest('.b-row')&&/^(城市|国家)$/.test((n.parentElement.closest('.b-row').querySelector('b')||{}).textContent||'')) continue; if(n.parentElement&&n.parentElement.closest('.atm-pt,.b-l,.b-label,.atm-mk,.china-badge,.atm-more,.ev-type,summary,.b-row>b,.china-links,.b-note-tg,.atm-heart,.p10-more,.p10-less,.p10-k,.p10-npill,.p10-ncollapse')) continue; /* quickfix: fixed UI labels stay Simplified */ var nv=n.nodeValue.split(/([台里])/).map(function(p){return /^[台里]$/.test(p)?p:c(p)}).join(''); if(nv!==n.nodeValue) n.nodeValue=nv; } }); }
