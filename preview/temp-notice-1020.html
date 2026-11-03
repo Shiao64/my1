@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>探戈会 · 10/20 临时通知预览（未上线）</title>
+<style>
+  :root{--cream:#FBF5E9;--teal:#0E6E78;--title:#0A4F57;--heart:#C8102E;--muted:#5f6f66;--dot:#2A1A14;--gold:#C9A227;--notice:#9E1020}
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  html,body{margin:0;background:var(--cream);height:100%}
+  body{width:100%;max-width:430px;margin:0 auto;color:#2a1a14;font:16px/1.4 "PingFang SC","Noto Sans SC",system-ui,sans-serif}
+  .preview-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px 0;font:700 13px/1 system-ui,sans-serif;color:#5f6f66}
+  .preview-tools span{font-weight:600}
+  .langs{display:flex;border:1px solid #e4e0d8;border-radius:999px;overflow:hidden;background:#fff}
+  .langs button{border:0;background:transparent;padding:6px 12px;font:800 13px/1 inherit;color:#0A4F57;cursor:pointer}
+  .langs button.on{background:#9E1020;color:#fff}
+  #scroll{height:calc(100dvh - 36px);overflow:auto;background:var(--cream)}
+  .bar{position:sticky;top:0;z-index:20;height:48px;background:#FBF5E9;border-bottom:1px solid #e4e0d8}
+  .bar-in{position:relative;height:48px;padding:0 4px;display:flex;align-items:center;justify-content:space-between}
+  .iconbtn{position:relative;z-index:1;width:40px;height:40px;padding:0;border:0;background:transparent;cursor:pointer;display:grid;place-items:center}
+  .iconbtn:focus-visible{outline:2px solid #0E6E78;outline-offset:1px;border-radius:8px}
+  .bar h1{position:absolute;left:44px;right:44px;top:0;height:48px;margin:0;display:flex;align-items:center;justify-content:center;pointer-events:none;font:700 22px/1 "Noto Serif SC","Songti SC",serif;color:#0A4F57;white-space:nowrap}
+  .heart svg{width:26px;height:26px;display:block}
+  .heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
+  .heart[aria-pressed="true"] path{fill:#C8102E;stroke:#C8102E}
+  main{padding:8px 8px 16px}
+  .info{width:100%;margin:0 0 12px;padding:10px 14px;background:#E8E6EC;border-radius:12px;position:relative;z-index:2}
+  .row1{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:0 .35em;color:#0A4F57;font-weight:800;font-size:17px;line-height:1.35}
+  .lead{display:inline-flex;align-items:center;white-space:nowrap}
+  .dot{width:10px;height:10px;margin-right:6px;border-radius:50%;background:#2A1A14;flex:none}
+  .venue{color:#0E6E78;font-weight:800;white-space:nowrap}
+  .npill-wrap{margin:8px 0 0}
+  .npill{display:inline-flex;align-items:center;border:0;border-radius:999px;background:#9E1020;color:#fff;font:800 13px/1 inherit;padding:6px 10px;cursor:pointer}
+  .npill::after{content:" ›"}
+  .npanel{margin:8px 0 0;color:#2a1a14;font-size:15px;font-weight:600}
+  .ntxt{white-space:pre-wrap;overflow-wrap:anywhere;color:#9E1020;font-weight:700}
+  .nven{margin-top:6px;font-weight:800;color:#9E1020}
+  .ndir{display:inline-block;margin-top:4px;color:#0E6E78;font-weight:700}
+  .npic{margin:8px 0 0}
+  .npic img{display:block;max-width:100%;height:auto;border-radius:8px;background:#fff}
+  .row2{margin:6px 0 0;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .dj{color:#5f6f66;font-weight:800;font-size:17px}
+  .more,.less{border:0;background:transparent;color:#0E6E78;font:800 17px/1.2 inherit;cursor:pointer;padding:0}
+  .more{margin-left:auto;white-space:nowrap}
+  .more::after{content:" ›"}
+  .less{display:block;width:100%;margin-top:12px;padding:10px 0;text-align:left;background:#FBF5E9;border-radius:12px}
+  .less::after{content:"▴";float:right}
+  .rows{display:grid;gap:8px;padding:12px 2px 0;font-size:16px}
+  .row{display:grid;grid-template-columns:72px 1fr;gap:8px}
+  .row b{color:#5f6f66;font-size:14px;font-weight:700}
+  .row span,.row a{overflow-wrap:anywhere}
+  .rows a{color:#0E6E78;font-weight:700}
+  .stage{margin-top:12px}
+  .frame img{display:block;width:100%;height:auto;max-height:calc(100dvh - 220px);object-fit:contain;object-position:center top;box-sizing:border-box;border:2px solid #C9A227;border-radius:8px;background:#fff}
+</style>
+</head>
+<body>
+<div class="preview-tools">
+  <span id="clock">预览时钟 2026-10-20</span>
+  <div class="langs" role="group" aria-label="language">
+    <button type="button" id="lang-zh" class="on">中文</button>
+    <button type="button" id="lang-en">EN</button>
+  </div>
+</div>
+<div id="scroll">
+  <header class="bar">
+    <div class="bar-in">
+      <button type="button" class="iconbtn" id="back" aria-label="返回">
+        <svg width="16" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#0A4F57" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <h1 id="title">探戈会</h1>
+      <button type="button" class="iconbtn heart" id="heart" aria-pressed="false" aria-label="加入收藏">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>
+      </button>
+    </div>
+  </header>
+  <main>
+    <section class="info">
+      <p class="row1">
+        <span class="lead"><i class="dot" aria-hidden="true"></i><span id="freq">每周二舞会</span> <time id="when">10/20</time></span>
+        <span>·</span>
+        <span class="time" id="time">20:00–24:00</span>
+        <span class="venue">Ala House</span>
+      </p>
+      <div class="npill-wrap" id="notice" hidden>
+        <button type="button" class="npill" id="pill" aria-expanded="false">临时通知</button>
+        <div class="npanel" id="panel" hidden>
+          <div class="ntxt" id="notice-text"></div>
+          <div class="nven" id="notice-venue"></div>
+          <a class="ndir" id="notice-dir" target="_blank" rel="noopener"></a>
+          <div class="npic"><img id="notice-img" alt="临时通知" src="temp-notice-1020-notice.jpg"></div>
+        </div>
+      </div>
+      <p class="row2">
+        <span class="dj" id="dj">DJ: Loura</span>
+        <button type="button" class="more" id="more" aria-expanded="false">更多</button>
+      </p>
+      <div id="more-body" hidden>
+        <div class="rows" id="more-rows"></div>
+        <button type="button" class="less" id="less">收起</button>
+      </div>
+    </section>
+    <div class="stage">
+      <div class="frame">
+        <img id="poster" alt="探戈会 2026-10-20 海报" src="https://tangoweekend.org/images/asia/posters/GqufXmMX-no212-20261020.jpg">
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+(function () {
+  /* Unpublished preview. Clock is fixed so the 2026-10-20 notice is active. */
+  var PREVIEW_TODAY = '2026-10-20';
+  var NOTICE = { date: '2026-10-20', start: '2026-10-20', end: '2026-10-20' };
+  var ZH = '由于Tango by Ala House10月20日晚间有包场活动，所以舞会场地变更至：白驹Monoceros艺术展现空间。地址：北京市三元桥东侧「京投派商业空间」内，B2层。地铁：10号线/12号线/机场线三元桥站，F出口旁「商业」出口，乘扶梯至B2层。自驾：导航「哈银国际中心」，地面停车场。';
+  var EN = 'Due to a private event at Tango by Ala House on the evening of October 20th, our milonga venue has been changed to White Horse Monoceros Art Space, B2 floor, in the commercial space of \u2018Jingtou Pai\u2019 on the east side of Sanyuan Bridge, Beijing. Subway: Line 10/12 Sanyuanqiao Station, \u2018Shopping\u2019 exit near Exit F, escalator to B2. Driving: navigate to Harbin Bank International Plaza, ground parking.';
+  var lang = 'zh';
+  function active() {
+    var start = NOTICE.start || NOTICE.date;
+    var end = NOTICE.end || NOTICE.date;
+    return PREVIEW_TODAY >= start && PREVIEW_TODAY <= end;
+  }
+  function mapHref(q) {
+    return 'https://uri.amap.com/search?keyword=' + encodeURIComponent(q);
+  }
+  function render() {
+    var zh = lang === 'zh';
+    document.documentElement.lang = zh ? 'zh-CN' : 'en';
+    document.getElementById('lang-zh').classList.toggle('on', zh);
+    document.getElementById('lang-en').classList.toggle('on', !zh);
+    document.getElementById('clock').textContent = (zh ? '预览时钟 ' : 'Preview clock ') + PREVIEW_TODAY;
+    document.getElementById('title').textContent = zh ? '探戈会' : 'Milonga V';
+    document.getElementById('back').setAttribute('aria-label', zh ? '返回' : 'Back');
+    document.getElementById('freq').textContent = zh ? '每周二舞会' : 'Every Tuesday Milonga';
+    document.getElementById('when').textContent = '10/20';
+    document.getElementById('time').textContent = zh ? '20:00–24:00' : '8:00 PM – 12:00 AM';
+    document.getElementById('dj').textContent = 'DJ: Loura';
+    document.getElementById('more').textContent = zh ? '更多' : 'More';
+    document.getElementById('less').textContent = zh ? '收起' : 'Less';
+    document.getElementById('poster').alt = zh ? '探戈会 2026-10-20 海报 No.212' : 'Milonga V 2026-10-20 poster No.212';
+    var on = active();
+    document.getElementById('notice').hidden = !on;
+    document.getElementById('pill').textContent = zh ? '临时通知' : 'Notice';
+    document.getElementById('notice-text').textContent = zh ? ZH : EN;
+    document.getElementById('notice-venue').textContent = zh ? '白驹Monoceros艺术展现空间' : 'White Horse Monoceros Art Space';
+    var dir = document.getElementById('notice-dir');
+    var addr = zh ? '北京市三元桥东侧「京投派商业空间」B2层' : 'B2, Jingtou Pai commercial space, east side of Sanyuan Bridge, Beijing';
+    dir.textContent = addr;
+    dir.href = mapHref(addr);
+    document.getElementById('notice-img').alt = zh ? '临时通知' : 'Notice';
+    var rows = zh ? [
+      ['主办', '刘峥'],
+      ['地址', '北京市东直门外大街亮马河南路18号2层'],
+      ['联络方式', '微信号：beijingtango (刘峥)'],
+      ['链接', '脸书']
+    ] : [
+      ['Organizer', 'Liu Zheng'],
+      ['Address', '2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing'],
+      ['Contact', 'WeChat ID: beijingtango (刘峥)'],
+      ['Links', 'Facebook']
+    ];
+    document.getElementById('more-rows').innerHTML = rows.map(function (r) {
+      return '<div class="row"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>';
+    }).join('');
+  }
+  document.getElementById('pill').addEventListener('click', function () {
+    var panel = document.getElementById('panel');
+    var open = panel.hidden;
+    panel.hidden = !open;
+    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  document.getElementById('more').addEventListener('click', function () {
+    document.getElementById('more-body').hidden = false;
+    this.hidden = true;
+    this.setAttribute('aria-expanded', 'true');
+  });
+  document.getElementById('less').addEventListener('click', function () {
+    document.getElementById('more-body').hidden = true;
+    var more = document.getElementById('more');
+    more.hidden = false;
+    more.setAttribute('aria-expanded', 'false');
+  });
+  document.getElementById('lang-zh').addEventListener('click', function () { lang = 'zh'; render(); });
+  document.getElementById('lang-en').addEventListener('click', function () { lang = 'en'; render(); });
+  document.getElementById('heart').addEventListener('click', function () {
+    var on = this.getAttribute('aria-pressed') !== 'true';
+    this.setAttribute('aria-pressed', on ? 'true' : 'false');
+    this.setAttribute('aria-label', on ? (lang === 'zh' ? '取消收藏' : 'Remove from favorites') : (lang === 'zh' ? '加入收藏' : 'Add to favorites'));
+  });
+  document.getElementById('back').addEventListener('click', function () {
+    if (history.length > 1) history.back();
+    else location.assign(lang === 'zh' ? 'https://tangoweekend.org/zh/' : 'https://tangoweekend.org/');
+  });
+  render();
+})();
+</script>
+</body>
+</html>
