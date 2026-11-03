@@ -220,7 +220,7 @@
   function start() {
     mount();
     var sp = fetch('/data/suggested_favs.json?v=s3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
-    fetch('/asia/events.json?v=e141', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    fetch('/asia/events.json?v=e142', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };
