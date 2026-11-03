@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" data-preview-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>P10 card preview</title>
+<link rel="stylesheet" href="../asia/cardB.css?v=p10dj1">
+<style>
+  html,body{margin:0;background:#FBF5E9}
+  body{max-width:390px;margin:0 auto}
+  #atm-c1bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;height:48px;background:#FBF5E9}
+  #atm-single ul{list-style:none;margin:0;padding:0}
+</style>
+</head>
+<body class="china-page">
+<div id="atm-c1bar"><button type="button" class="atm-c1 atm-c1-back" aria-label="Back"><svg width="14" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#0E6E78" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="atm-c1-t"></span></div>
+<div id="atm-single"><ul class="china-list ev-list"><li class="ev-card ev-has-poster" id="seed" data-id="GqufXmMX" data-kind="weekly" data-type="milonga" data-region="China"><div class="ev-top"><span class="ev-type">Milonga</span><span class="ev-when">Tuesday</span></div><h3 class="ev-name">Milonga V</h3></li></ul></div>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search);
+  var id=q.get('id')||'GqufXmMX';
+  var lang=q.get('lang')==='zh'?'zh':'en';
+  document.documentElement.setAttribute('data-preview-lang', lang);
+  document.documentElement.lang=lang==='zh'?'zh-CN':'en';
+  var li=document.getElementById('seed');
+  li.dataset.id=id;
+  li.querySelector('.ev-name').textContent='';
+  if(id==='E155'){ li.dataset.kind='event'; li.dataset.oneoff='1'; li.dataset.dates='2026-11-14'; li.dataset.region='Hong Kong'; li.dataset.type='milonga'; }
+  else { li.dataset.kind='weekly'; li.dataset.type='milonga'; li.dataset.region='China'; }
+  var orig=window.fetch;
+  function abs(p){ return (p&&p.charAt(0)==='/')?'https://tangoweekend.org'+p:p; }
+  window.fetch=function(input, init){
+    var u=typeof input==='string'?input:(input&&input.url)||'';
+    if(String(u).indexOf('events.json')>=0){
+      return orig('../asia/events.json', init).then(function(r){return r.json()}).then(function(data){
+        (Array.isArray(data)?data:(data.events||[])).forEach(function(e){
+          ['poster','poster_zh','poster_en','poster_text'].forEach(function(k){ if(typeof e[k]==='string') e[k]=abs(e[k]); });
+          if(Array.isArray(e.posters_past)) e.posters_past=e.posters_past.map(abs);
+        });
+        return {ok:true, json:function(){return Promise.resolve(data);}};
+      });
+    }
+    return orig(input, init);
+  };
+})();
+</script>
+<script src="https://tangoweekend.org/asia/opencc-cn2t.js"></script>
+<script id="draft-layout-card-js">/* same phone re-wrap as asia/index.html; P10 cards bail out */
+(function(){if(!matchMedia('(max-width:600px)').matches)return;
+function fix(li){if(li.dataset.atm||li.dataset.p10||li.classList.contains('b-reg'))return;li.dataset.atm=1;
+ if(!li.querySelector(':scope>.ev-cover')){var n=document.createElement('div');var id=li.dataset.id||'',hh=0;for(var k=0;k<id.length;k++)hh=(hh*31+id.charCodeAt(k))>>>0;n.className='atm-nocover p'+(hh%3);
+ var tx=function(e){return e?e.textContent.replace(/\s+/g,' ').trim():'';},nm0=li.querySelector(':scope>.ev-name');
+ var pt=document.createElement('div');pt.className='atm-pt';var b=document.createElement('b');b.textContent=tx(nm0);pt.appendChild(b);n.appendChild(pt);li.insertBefore(n,li.firstChild);}
+ var d=document.createElement('div');d.className='atm-desc';var nm=li.querySelector(':scope>.ev-name');
+ [].slice.call(li.children).forEach(function(c){if(c.matches('div:not(.ev-top):not(.atm-nocover):not(.china-cancelled-bar):not(.china-links)'))d.appendChild(c);});
+ li.insertBefore(d,nm?nm.nextSibling:null);}
+function chk(){document.querySelectorAll('.ev-card').forEach(fix);}
+var t,mo=new MutationObserver(function(){clearTimeout(t);t=setTimeout(chk,60);});
+if(document.body) mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
+addEventListener('load',function(){setTimeout(chk,60);});
+})();</script>
+<script src="../asia/cardB.js?v=p10dj1"></script>
+</body>
+</html>

@@ -1,10 +1,19 @@
 /* Card design B (young/fresh) — draft only */
 (function(){
-var zh=location.pathname.indexOf('/zh/')===0; /* page language = path only */
+var zh=location.pathname.indexOf('/zh/')===0; /* page language = path only; a preview page may set data-preview-lang */
+if(document.documentElement.getAttribute('data-preview-lang')==='zh') zh=true; if(document.documentElement.getAttribute('data-preview-lang')==='en') zh=false;
 var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
 var EV=null; fetch('/asia/events.json?v=e147').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
-/* DJ row only when the event's own note names exactly one DJ (never invented); several DJs -> notes only */
-function djName(e){ var t=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||''; var re=/\bDJ(?!s)(?!\s*booth)(?!台)\s*[:：]?\s*([^；;。，,（()）\n]+?)(?=\s*[（(；;。，,]|\.\s|\.$|$)/g, m, out=[]; while(m=re.exec(t)){ var n=m[1].replace(/\s*\(host[^)]*\)/i,'').trim(); if(n&&out.indexOf(n)<0) out.push(n); } if(/\bDJs\b/.test(t)||/DJ\s*[：:][^。；;]*、/.test(t)) return null; return out.length===1?out[0]:null; }
+/* DJ row: events.dj wins. Else one name from the note or poster text (DJ or 乐师). The face label stays "DJ:". Variants of one person (Huy Q Nguyen / HuyQ) keep the first; several people stay in the notes only. */
+function djCompact(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g,''); }
+function djSame(a,b){ var x=djCompact(a), y=djCompact(b); if(!x||!y) return false; if(x===y) return true; var s=x.length<=y.length?x:y, l=x.length<=y.length?y:x; return s.length>=4 && l.indexOf(s)===0; }
+function djTrim(n){ n=String(n||'').replace(/\s*\(host[^)]*\)/i,'').replace(/\s*（主持[^）]*）/,'').trim(); var lat=n.match(/^([A-Za-z][A-Za-z .'\-·]*[A-Za-z])/); if(lat&&/[\u4e00-\u9fff]/.test(n)) n=lat[1]; return n.replace(/\s+/g,' ').trim(); }
+function djName(e){ if(!e) return null; if(e.dj&&String(e.dj).trim()) return String(e.dj).trim();
+  var parts=zh?[e.note_zh,e.note,e.poster_text]:[e.note,e.note_zh,e.poster_text], t=parts.filter(Boolean).join('\n'); if(!t) return null;
+  if(/\bDJs\b/.test(t)||/(?:DJ|乐师)\s*[：:][^。；;\n]*、/.test(t)) return null;
+  var re=/(?:\bDJ|乐师)(?!s)(?!\s*booth)(?!台)\s*[:：]?\s*([^；;。，,（()）\n]+?)(?=\s*(?:[（(）)；;。，,]|\bDJ\b|乐师)|\.\s|\.$|$)/gi, m, out=[];
+  while(m=re.exec(t)){ var n=djTrim(m[1]); if(n&&!out.some(function(x){return djSame(x,n)})) out.push(n); }
+  return out.length===1?out[0]:null; }
 function dj(li){ if(!EV||li.dataset.dj) return; var e=EV[li.dataset.id]; if(!e) return; li.dataset.dj='0'; var n=djName(e); if(!n) return; li.dataset.dj='1'; var v=li.querySelectorAll('.b-meta>.b-m')[1]; var d=document.createElement('div'); d.className='b-m b-dj'; d.innerHTML='<i>🎧</i><span class="b-l">DJ</span><span class="b-v"></span>'; d.lastChild.textContent=n; var m=li.querySelector('.b-meta'); var ven=[].filter.call(m.children,function(x){return /📍/.test(x.textContent)})[0]; if(ven) ven.after(d); else m.appendChild(d); }
 /* draft 2026-10-31: one-step 更多/More — opening expands everything (notes unclamped, no second 展开全文 level); open state shows a single 收起/Less at the bottom */
 function H(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
@@ -155,7 +164,7 @@ function p10bar(name, id){ document.documentElement.classList.add('atm-p10'); va
     var on=false; try{ on=JSON.parse(localStorage.getItem('atm_fav_v1')||'[]').indexOf(id)>=0; }catch(err){} var lab=on?(zh?'取消收藏':'Remove from favorites'):(zh?'加入收藏':'Add to favorites');
     h.setAttribute('aria-pressed', on?'true':'false'); h.setAttribute('aria-label', lab); h.title=lab;
     h.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>'; host.appendChild(h); } }
-function p10(li, sg, e){ var nameEl=li.querySelector('.ev-name'), name=(nameEl&&nameEl.textContent||'').trim()||((zh&&e.name_zh)||e.name||''); if(/^S[01]$/.test(name)) name=(zh&&e.name_zh)||e.name||name;
+function p10(li, sg, e){ li.dataset.atm='1'; var nameEl=li.querySelector('.ev-name'), name=(nameEl&&nameEl.textContent||'').trim()||((zh&&e.name_zh)||e.name||''); if(/^S[01]$/.test(name)) name=(zh&&e.name_zh)||e.name||name;
   var keep=''; li.querySelectorAll(':scope>.china-cancelled-bar,:scope>.atm-theme-bar').forEach(function(n){ keep+=n.outerHTML; });
   var ven=(!zh&&e.venue_en)||e.venue||''; if(!zh&&/[\u4e00-\u9fff]/.test(ven)&&e.venue_en) ven=e.venue_en;
   var when=p10when(e), time=p10time(e.time), dj=djName(e)||'', faceDj=!!(dj&&dj.length<=28), notices=p10notices(e);
