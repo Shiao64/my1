@@ -137,7 +137,7 @@ html.atm-p10 .p10-frame img{display:block;width:100%;height:auto;max-height:calc
 html.atm-p10 .p10-chev{flex:none;align-self:center;width:42px;height:72px;padding:0;border:0;border-radius:50%;background:rgba(10,20,24,.45);display:grid;place-items:center;cursor:pointer}
 html.atm-p10 .p10-chev svg{width:22px;height:36px;display:block}
 html.atm-p10 .p10-chev.is-off{opacity:.35}
-html.atm-p10 .p10-idx{position:absolute;top:8px;right:8px;z-index:2;color:#fff;background:rgba(0,0,0,.45);font:700 13px/1 system-ui,sans-serif;padding:5px 8px;border-radius:999px}
+html.atm-p10 .p10-idx{position:absolute;top:8px;right:8px;z-index:2;color:#fff;background:rgba(0,0,0,.45);font:700 13px/1 system-ui,sans-serif;padding:5px 8px;border-radius:999px;white-space:nowrap}
 html.atm-p10 .p10-chev[hidden],html.atm-p10 .p10-idx[hidden],html.atm-p10 .p10-dj[hidden],html.atm-p10 .p10-body[hidden],html.atm-p10 .p10-row2[hidden],html.atm-p10 .p10-more[hidden],html.atm-p10 .p10-pv[hidden]{display:none!important}
 html.atm-p10 .p10-pv{position:fixed;inset:0;z-index:10060;background:rgba(6,20,24,.92);overflow:auto}
 html.atm-p10 .p10-pv img{display:block;max-width:100%;height:auto;margin:0 auto}

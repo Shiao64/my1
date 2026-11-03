@@ -206,6 +206,34 @@ def main():
                 check('live city refuse', False)
             except P.Refuse:
                 check('live city refuse', True)
+
+        kept, dropped = P.trim_past([
+            '/images/asia/posters/A-2026-10-27.jpg',
+            '/images/asia/posters/B-2026-10-20.jpg',
+            '/images/asia/posters/C-2026-10-13.jpg',
+            '/images/asia/posters/D-2026-10-06.jpg',
+            '/images/asia/posters/E-2026-09-29.jpg',
+            '/images/asia/posters/nodate.jpg',
+        ], 4)
+        check('trim oldest', dropped == ['/images/asia/posters/E-2026-09-29.jpg', '/images/asia/posters/D-2026-10-06.jpg'] and kept == [
+            '/images/asia/posters/A-2026-10-27.jpg',
+            '/images/asia/posters/B-2026-10-20.jpg',
+            '/images/asia/posters/C-2026-10-13.jpg',
+            '/images/asia/posters/nodate.jpg',
+        ])
+        kept_u, dropped_u = P.trim_past(['/a.jpg', '/b.jpg', '/c.jpg', '/d.jpg', '/e-2026-01-01.jpg'], 4)
+        check('trim keeps undated', dropped_u == ['/e-2026-01-01.jpg'] and len(kept_u) == 4 and '/e-2026-01-01.jpg' not in kept_u)
+        check('backup stamp not a date', P.poster_event_date('/images/asia/posters/_backup/rccbKIYP-20261103T051259Z.png') is None)
+        check('filename date', P.poster_event_date('/images/asia/posters/GqufXmMX-no210-20261006.jpg') == '2026-10-06')
+        check('note event not clock', P.note_event_date('刘峥 2026-11-02 20:14: Milonga V 2026.11.03 20:00-24:00') == '2026-11-03')
+        check('note plain day', P.note_event_date('Lounge 2026-11-01 post') == '2026-11-01')
+        check('note english day', P.note_event_date('8 Nov 2026 Sunday afternoon') == '2026-11-08')
+        bak = os.path.join(tmp, P.BACKUP_REL, 'keep-me.jpg')
+        os.makedirs(os.path.dirname(bak), exist_ok=True)
+        jpeg(bak, (9, 9, 9), (80, 80))
+        before_bak = os.path.getsize(bak)
+        kept_path = P.archive_poster(tmp, 'R030', '/' + os.path.relpath(bak, tmp).replace(os.sep, '/'), 'stamp')
+        check('backup not deleted', os.path.isfile(bak) and os.path.getsize(bak) == before_bak and kept_path.endswith('keep-me.jpg'))
     finally:
         shutil.rmtree(tmp)
     print('fails', fails)

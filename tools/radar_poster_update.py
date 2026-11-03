@@ -18,8 +18,12 @@ What it does, per item that passes the checks:
      the list size.
   5. Set that event's `poster` (and `updated`) in events.json and, when the
      same id is present, events-core.json / events-more.json.
-  6. Append a line to tools/radar-poster-log.jsonl.
-  7. When asked (the 异动 runner does this after a real replace), bump the live
+  6. Keep at most 4 past posters (5 with the current one). Drop the oldest
+     dated past poster. A poster with no date in its filename is kept.
+     Dropped public files are copied into _backup; files already there are
+     not deleted.
+  7. Append a line to tools/radar-poster-log.jsonl.
+  8. When asked (the 异动 runner does this after a real replace), bump the live
      cache keys eNNN, chinaNNN, hNN, cbNN the same way a publish commit does.
      SITE_VERSION is left alone.
 
@@ -67,6 +71,7 @@ MIN_BYTES = 800
 MIN_PX = 80
 LIST_W = 480
 CARD_W = 800
+MAX_PAST = 4
 UA = 'AsiaTangoMap-radar/1.0'
 
 # Chinese labels operators paste from 雷达表. Not used to find an event — only
@@ -144,11 +149,21 @@ def save_events(root, events):
             if row is None:
                 continue
             past = ev.get('posters_past') if isinstance(ev.get('posters_past'), list) else None
-            if row.get('poster') != ev.get('poster') or row.get('updated') != ev.get('updated') or (past is not None and row.get('posters_past') != past):
+            dates = ev.get('poster_dates') if isinstance(ev.get('poster_dates'), dict) else None
+            if (row.get('poster') != ev.get('poster') or row.get('updated') != ev.get('updated')
+                    or (past is not None and row.get('posters_past') != past)
+                    or row.get('poster_date') != ev.get('poster_date')
+                    or (dates is not None and row.get('poster_dates') != dates)):
                 row['poster'] = ev.get('poster')
                 row['updated'] = ev.get('updated')
                 if past is not None:
                     row['posters_past'] = list(past)
+                if 'poster_date' in ev:
+                    row['poster_date'] = ev.get('poster_date')
+                elif 'poster_date' in row and not ev.get('poster_date'):
+                    row.pop('poster_date', None)
+                if dates is not None:
+                    row['poster_dates'] = dict(dates)
                 changed = True
         if changed:
             raw = open(path, 'rb').read()
@@ -397,6 +412,188 @@ def _encode(rgb):
     return webp.getvalue(), jpg.getvalue(), rgb.size
 
 
+def poster_event_date(path):
+    """Event date encoded in a poster filename, or None.
+
+    Backup stamps (YYYYMMDDTHHMMSS) are not event dates.
+    """
+    base = os.path.basename(str(path or '').split('?', 1)[0])
+    m = re.search(r'(20\d{2})-(\d{2})-(\d{2})', base)
+    if not m:
+        m = re.search(r'(?<!\d)(20\d{2})(\d{2})(\d{2})(?!\d)', base)
+        if m and (m.group(0) + 'T') in base:
+            m = None
+    if not m:
+        return None
+    try:
+        datetime.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    except ValueError:
+        return None
+    return '%04d-%02d-%02d' % (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+
+
+def known_poster_date(path, dates=None):
+    """Recorded poster_dates entry, else a date in the filename."""
+    if dates and dates.get(path):
+        return dates.get(path)
+    return poster_event_date(path)
+
+
+def trim_past(past, max_past=MAX_PAST, dates=None):
+    """Drop oldest-dated past posters until max_past remain.
+
+    A poster with no recorded date and no filename date stays. Returns (kept, dropped).
+    """
+    kept = [p for p in (past or []) if p]
+    dropped = []
+    while len(kept) > max_past:
+        dated = [(known_poster_date(p, dates), i) for i, p in enumerate(kept) if known_poster_date(p, dates)]
+        if not dated:
+            break
+        dated.sort(key=lambda t: (t[0], -t[1]))
+        dropped.append(kept.pop(dated[0][1]))
+    return kept, dropped
+
+
+def text_iso_date(text):
+    m = re.search(r'(20\d{2})-(\d{2})-(\d{2})', str(text or ''))
+    if not m:
+        return None
+    try:
+        datetime.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    except ValueError:
+        return None
+    return '%s-%s-%s' % (m.group(1), m.group(2), m.group(3))
+
+
+_MONTHS = {'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
+           'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12}
+
+
+def _iso_parts(y, mo, d):
+    try:
+        datetime.date(int(y), int(mo), int(d))
+    except ValueError:
+        return None
+    return '%04d-%02d-%02d' % (int(y), int(mo), int(d))
+
+
+def note_event_date(text):
+    """Event date written in a radar note or poster line, not a clock timestamp."""
+    text = str(text or '')
+    found = []
+    for m in re.finditer(r'(20\d{2})[./](\d{1,2})[./](\d{1,2})(?!\d)', text):
+        found.append(_iso_parts(m.group(1), m.group(2), m.group(3)))
+    for m in re.finditer(r'(20\d{2})-(\d{2})-(\d{2})(?!\d)', text):
+        if re.match(r'\s*\d{1,2}:\d{2}', text[m.end():m.end()+8]):
+            continue
+        found.append(_iso_parts(m.group(1), m.group(2), m.group(3)))
+    for m in re.finditer(r'\b(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(20\d{2})\b', text, re.I):
+        found.append(_iso_parts(m.group(3), _MONTHS[m.group(2).lower()[:3]], m.group(1)))
+    for m in re.finditer(r'\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{1,2}),?\s+(20\d{2})\b', text, re.I):
+        found.append(_iso_parts(m.group(3), _MONTHS[m.group(1).lower()[:3]], m.group(2)))
+    found = [d for d in found if d]
+    return found[-1] if found else None
+
+
+def backfill_poster_dates(events, hashes=None, log_dates=None):
+    """Set poster_date / poster_dates on regular events when a date is known.
+
+    hashes maps a poster path to a content key. log_dates maps a path to a
+    radar note date. One-off start dates win, then filename dates, then the
+    radar note. The same image bytes share one date.
+    """
+    hashes = hashes or {}
+    log_dates = log_dates or {}
+    src = {}
+
+    def put(path, date, pri):
+        if not path or not date:
+            return
+        old = src.get(path)
+        if old is None or pri > old[0] or (pri == old[0] and date > old[1]):
+            src[path] = (pri, date)
+
+    for e in events:
+        if not isinstance(e, dict) or e.get('hidden'):
+            continue
+        paths = [e.get('poster') or '']
+        past = e.get('posters_past') if isinstance(e.get('posters_past'), list) else []
+        paths.extend(past)
+        for path in paths:
+            if not path:
+                continue
+            if e.get('regular_oneoff') and e.get('start') and path == (e.get('poster') or ''):
+                put(path, e.get('start'), 3)
+            put(path, poster_event_date(path), 2)
+            put(path, log_dates.get(path), 1)
+    groups = {}
+    for path, key in hashes.items():
+        groups.setdefault(key, []).append(path)
+    for paths in groups.values():
+        best = None
+        for path in paths:
+            if path not in src:
+                continue
+            pri, date = src[path]
+            if best is None or pri > best[0] or (pri == best[0] and date > best[1]):
+                best = (pri, date)
+        if not best:
+            continue
+        for path in paths:
+            if path not in src:
+                src[path] = best
+    dated = []
+    undated = []
+    for e in events:
+        if not isinstance(e, dict) or e.get('hidden'):
+            continue
+        if not (e.get('kind') == 'weekly' or e.get('regular_oneoff')):
+            continue
+        cur = e.get('poster') or ''
+        past = e.get('posters_past') if isinstance(e.get('posters_past'), list) else []
+        if not cur and not past:
+            continue
+        found = {}
+        for path in [cur] + list(past):
+            if path and path in src:
+                found[path] = src[path][1]
+        if cur and cur in found:
+            e['poster_date'] = found[cur]
+        elif 'poster_date' in e and cur and cur not in found:
+            e.pop('poster_date', None)
+        if found:
+            e['poster_dates'] = found
+            dated.append(e.get('id'))
+        elif 'poster_dates' in e:
+            e.pop('poster_dates', None)
+        if cur and cur not in found:
+            undated.append({'id': e.get('id'), 'name': e.get('name'), 'poster': cur, 'kind': e.get('kind')})
+    return {'dated_ids': dated, 'undated': undated}
+
+
+def archive_poster(root, event_id, web_path, stamp):
+    """Copy a dropped poster into _backup. A path already under _backup is kept."""
+    if not web_path:
+        return None
+    rel = str(web_path).split('?', 1)[0].lstrip('/')
+    if rel.startswith(BACKUP_REL + '/') or '/_backup/' in ('/' + rel):
+        return '/' + rel
+    src = os.path.join(root, rel)
+    if not os.path.isfile(src):
+        return None
+    ext = os.path.splitext(src)[1] or '.img'
+    dest_dir = os.path.join(root, BACKUP_REL)
+    os.makedirs(dest_dir, exist_ok=True)
+    dest = os.path.join(dest_dir, '%s-pruned-%s%s' % (event_id, stamp, ext))
+    n = 2
+    while os.path.exists(dest):
+        dest = os.path.join(dest_dir, '%s-pruned-%s-%s%s' % (event_id, stamp, n, ext))
+        n += 1
+    shutil.copy2(src, dest)
+    return '/' + os.path.relpath(dest, root).replace(os.sep, '/')
+
+
 def thumb_image(im):
     """List thumb max LIST_W, card thumb max CARD_W. Never upscale.
 
@@ -607,7 +804,28 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                     past = []
                 if backup not in past:
                     past = [backup] + [p for p in past if p != backup]
-                event['posters_past'] = past[:12]
+                dates = event.get('poster_dates') if isinstance(event.get('poster_dates'), dict) else {}
+                old_key = old.split('?', 1)[0] if old else ''
+                if old_key:
+                    old_d = event.get('poster_date') or dates.get(old_key) or poster_event_date(old_key)
+                    if old_d:
+                        dates[old_key] = old_d
+                new_d = None
+                if isinstance(item, dict):
+                    new_d = text_iso_date(item.get('date') or item.get('start') or item.get('on') or '') or note_event_date(item.get('note') or '')
+                new_d = new_d or poster_event_date(dest_web)
+                if new_d:
+                    dates[dest_web] = new_d
+                    event['poster_date'] = new_d
+                elif 'poster_date' in event:
+                    event.pop('poster_date', None)
+                if dates:
+                    event['poster_dates'] = dates
+                past, dropped = trim_past(past, MAX_PAST, dates)
+                archived = [archive_poster(root, event['id'], path, stamp) for path in dropped]
+                event['posters_past'] = past
+                plan['dropped'] = dropped
+                plan['dropped_backups'] = archived
             plan['backup'] = backup
             plan['thumb'] = '/' + thumb_rel.lstrip('/')
             plan['thumb_jpg'] = '/' + jpg_rel.lstrip('/')
