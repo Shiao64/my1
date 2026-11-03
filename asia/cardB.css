@@ -132,6 +132,7 @@ html.atm-p10 .p10-body a{color:#0E6E78;font-weight:700}
 html.atm-p10 .p10-det{display:flex;align-items:center;justify-content:center;min-height:44px;margin:12px 0 0;border-radius:12px;background:#0E6E78;color:#fff!important;font-weight:800;text-decoration:none}
 html.atm-p10 .p10-stage{display:flex;align-items:center;gap:8px;margin-top:12px;position:relative;z-index:1}
 html.atm-p10 .p10-frame{position:relative;flex:1;min-width:0}
+html.atm-p10 .p10-frame picture{display:block;width:100%}
 html.atm-p10 .p10-frame img{display:block;width:100%;height:auto;max-height:calc(100dvh - 220px);object-fit:contain;object-position:center top;box-sizing:border-box;border:2px solid #C9A227;border-radius:8px;background:#fff;cursor:zoom-in}
 html.atm-p10 .p10-chev{flex:none;align-self:center;width:42px;height:72px;padding:0;border:0;border-radius:50%;background:rgba(10,20,24,.45);display:grid;place-items:center;cursor:pointer}
 html.atm-p10 .p10-chev svg{width:22px;height:36px;display:block}
