@@ -1,0 +1,28 @@
+[
+  {
+    "id": "liu-zheng",
+    "name": "Liu Zheng",
+    "name_zh": "刘峥",
+    "city": "",
+    "city_zh": "",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {"instagram": "", "facebook": "", "wechat": "", "soundcloud": ""},
+    "match": ["刘峥", "Liu Zheng"],
+    "sources": ["Organizer name already on Asia Tango Map. No bio, photo, city, or social link recorded."]
+  },
+  {
+    "id": "kai",
+    "name": "Kai",
+    "name_zh": "王凯",
+    "city": "",
+    "city_zh": "",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {"instagram": "", "facebook": "", "wechat": "", "soundcloud": ""},
+    "match": ["Kai", "王凯", "Kai Wang"],
+    "sources": ["Radar sheet 中文组织者: 王凯. English name on the preview: Kai. Same person as the Kai's Milonga organizer previously stored as Kai Wang. No bio, photo, city, or social link recorded."]
+  }
+]

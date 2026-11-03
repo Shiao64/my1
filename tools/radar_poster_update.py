@@ -150,10 +150,13 @@ def save_events(root, events):
                 continue
             past = ev.get('posters_past') if isinstance(ev.get('posters_past'), list) else None
             dates = ev.get('poster_dates') if isinstance(ev.get('poster_dates'), dict) else None
+            djs = ev.get('poster_djs') if isinstance(ev.get('poster_djs'), dict) else None
             if (row.get('poster') != ev.get('poster') or row.get('updated') != ev.get('updated')
                     or (past is not None and row.get('posters_past') != past)
                     or row.get('poster_date') != ev.get('poster_date')
-                    or (dates is not None and row.get('poster_dates') != dates)):
+                    or row.get('dj') != ev.get('dj')
+                    or (dates is not None and row.get('poster_dates') != dates)
+                    or (djs is not None and row.get('poster_djs') != djs)):
                 row['poster'] = ev.get('poster')
                 row['updated'] = ev.get('updated')
                 if past is not None:
@@ -164,6 +167,12 @@ def save_events(root, events):
                     row.pop('poster_date', None)
                 if dates is not None:
                     row['poster_dates'] = dict(dates)
+                if 'dj' in ev:
+                    row['dj'] = ev.get('dj')
+                elif 'dj' in row and not ev.get('dj'):
+                    row.pop('dj', None)
+                if djs is not None:
+                    row['poster_djs'] = dict(djs)
                 changed = True
         if changed:
             raw = open(path, 'rb').read()
@@ -476,6 +485,22 @@ def _iso_parts(y, mo, d):
     except ValueError:
         return None
     return '%04d-%02d-%02d' % (int(y), int(mo), int(d))
+
+
+def dj_from_text(text):
+    """DJ name written on a poster or in a radar note. Empty when none is named."""
+    found = []
+    for m in re.finditer(r'(?:DJ|乐师)(?!s)(?!\s*booth)(?!台)\s*[:：]?\s*([^\n；;。]+)', str(text or ''), re.I):
+        name = re.split(r'\s*[（(,，]', m.group(1).strip(), maxsplit=1)[0].strip(' .')
+        if name and name.lower() not in ('booth',):
+            found.append(name)
+    if not found:
+        return None
+    out = []
+    for name in found:
+        if name not in out:
+            out.append(name)
+    return '、'.join(out)
 
 
 def note_event_date(text):
@@ -821,6 +846,22 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                     event.pop('poster_date', None)
                 if dates:
                     event['poster_dates'] = dates
+                djs = event.get('poster_djs') if isinstance(event.get('poster_djs'), dict) else {}
+                if old_key and event.get('dj') and old_key not in djs:
+                    djs[old_key] = event.get('dj')
+                new_dj = None
+                if isinstance(item, dict):
+                    new_dj = dj_from_text(item.get('note') or '') or dj_from_text(item.get('poster_text') or '')
+                    if isinstance(item.get('dj'), str) and item.get('dj').strip():
+                        new_dj = item.get('dj').strip()
+                if new_dj:
+                    event['dj'] = new_dj
+                    djs[dest_web] = new_dj
+                elif 'dj' in event:
+                    event.pop('dj', None)
+                if djs:
+                    event['poster_djs'] = djs
+                plan['dj'] = event.get('dj')
                 past, dropped = trim_past(past, MAX_PAST, dates)
                 archived = [archive_poster(root, event['id'], path, stamp) for path in dropped]
                 event['posters_past'] = past

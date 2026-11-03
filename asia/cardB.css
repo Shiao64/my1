@@ -119,7 +119,8 @@ html.atm-p10 .p10-lead{display:inline-flex;align-items:center;white-space:nowrap
 html.atm-p10 .p10-dot{width:10px;height:10px;margin-right:6px;border-radius:50%;background:#2A1A14;flex:none;display:inline-block}
 html.atm-p10 .p10-venue{color:#0E6E78;font-weight:800;white-space:nowrap}
 html.atm-p10 .p10-row2{margin:6px 0 0;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-html.atm-p10 .p10-dj{color:#5f6f66;font-weight:800;font-size:17px;min-width:0}
+html.atm-p10 .p10-dj{color:#5f6f66;font-weight:800;font-size:17px;min-width:0;white-space:nowrap;flex-basis:100%}
+html.atm-p10 .p10-dj-a,html.atm-p10 .p10-org-a{color:#0E6E78;font-weight:800;text-decoration:underline;text-underline-offset:2px}
 html.atm-p10 .p10-more,html.atm-p10 .p10-less{border:0;background:transparent;color:#0E6E78;font:800 17px/1.2 inherit;cursor:pointer;padding:0}
 html.atm-p10 .p10-more{margin-left:auto;white-space:nowrap}
 html.atm-p10 .p10-more::after{content:" ›"}

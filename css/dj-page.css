@@ -1,0 +1,18 @@
+html,body{margin:0;background:#FBF5E9;color:#0A4F57;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}
+.dj-bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:4px;height:56px;padding:0 12px 0 6px;background:#FBF5E9;box-shadow:0 1px 0 rgba(10,79,87,.12)}
+.dj-back{width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:#0E6E78;font:700 32px/1 system-ui;text-decoration:none}
+.dj-bar h1{margin:0;flex:1;min-width:0;font:700 20px/1.2 "Noto Serif SC",serif;color:#0A4F57;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dj-main{max-width:480px;margin:0 auto;padding:8px 16px 40px;box-sizing:border-box}
+.dj-note{margin:8px 0 14px;color:#5f6f66;font-size:13px;font-weight:600}
+.dj-fields{margin:0;display:grid;gap:10px}
+.dj-fields div{display:grid;grid-template-columns:108px 1fr;gap:8px;align-items:start}
+.dj-fields dt{margin:0;color:#5f6f66;font-size:14px;font-weight:700}
+.dj-fields dd{margin:0;min-height:1.2em;font-size:16px;font-weight:700;color:#0A4F57}
+.dj-fields dd:empty{border-bottom:1px solid rgba(10,79,87,.15)}
+.dj-fields a{color:#0E6E78}
+.dj-fields dd img{display:block;width:96px;height:96px;object-fit:cover;border-radius:12px;background:#fff}
+.dj-main h2{margin:22px 0 8px;font:700 18px/1.3 "Noto Serif SC",serif}
+.dj-events a{display:block;margin:0 0 8px;padding:10px 12px;background:#fff;border-radius:12px;color:#0A4F57;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.dj-events a b{display:block;font-size:16px}
+.dj-events a span{display:block;margin-top:2px;color:#5f6f66;font-size:13px;font-weight:600}
+.dj-empty{margin:0;color:#5f6f66;font-size:14px;font-weight:600}
