@@ -164,5 +164,16 @@ def main(argv=None):
     return 0 if not summary['detail']['refused'] else 2
 
 
+def _ensure_posters():
+    # Guard: no visible card may be left without a poster (past poster, else generated).
+    import subprocess
+    here = os.path.dirname(os.path.abspath(__file__))
+    subprocess.run([sys.executable, os.path.join(here, 'ensure_posters.py')], check=True)
+    subprocess.run([sys.executable, os.path.join(here, 'ensure_posters.py'), '--check'], check=True)
+
+
 if __name__ == '__main__':
-    sys.exit(main())
+    rc = main()
+    if '--dry-run' not in sys.argv:
+        _ensure_posters()
+    sys.exit(rc)

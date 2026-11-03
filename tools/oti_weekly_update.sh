@@ -16,3 +16,6 @@ assert isinstance(d, list) and len(d) >= 5, f"sanity check failed: only {len(d)}
 PY
 python3 tools/oti_changes.py "$TMP/old.json" "$TMP/new.json" asia/events-changes.json --source-updated "$UPDATED"
 cp "$TMP/new.json" asia/events.json
+pip install -q pillow >/dev/null 2>&1 || true
+python3 tools/ensure_posters.py
+python3 tools/ensure_posters.py --check

@@ -1,0 +1,12 @@
+name: Poster guard
+on:
+  push:
+    paths: ['asia/events*.json']
+  pull_request:
+    paths: ['asia/events*.json']
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 tools/ensure_posters.py --check
