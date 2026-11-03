@@ -33,8 +33,8 @@
   .venue{color:#0E6E78;font-weight:800;white-space:nowrap}
   .npill-wrap{margin:8px 0 0}
   .npill{display:inline-flex;align-items:center;border:0;border-radius:999px;background:#9E1020;color:#fff;font:800 13px/1 inherit;padding:6px 10px;cursor:pointer}
-  .npill::after{content:" ›"}
   .npanel{margin:8px 0 0;color:#2a1a14;font-size:15px;font-weight:600}
+  .ncollapse{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:12px;padding:12px 16px;border:0;border-radius:12px;background:transparent;color:#9E1020;font:800 17px/1.2 inherit;cursor:pointer}
   .ntxt{white-space:pre-wrap;overflow-wrap:anywhere;color:#9E1020;font-weight:700}
   .nven{margin-top:6px;font-weight:800;color:#9E1020}
   .ndir{display:inline-block;margin-top:4px;color:#0E6E78;font-weight:700}
@@ -91,6 +91,7 @@
           <div class="nven" id="notice-venue"></div>
           <a class="ndir" id="notice-dir" target="_blank" rel="noopener"></a>
           <div class="npic"><img id="notice-img" alt="临时通知" src="temp-notice-1020-notice.jpg"></div>
+          <button type="button" class="ncollapse" id="notice-collapse">收起 ⌃</button>
         </div>
       </div>
       <p class="row2">
@@ -142,7 +143,8 @@
     document.getElementById('poster').alt = zh ? '探戈会 2026-10-20 海报 No.212' : 'Milonga V 2026-10-20 poster No.212';
     var on = active();
     document.getElementById('notice').hidden = !on;
-    document.getElementById('pill').textContent = zh ? '临时通知' : 'Notice';
+    document.getElementById('pill').textContent = (zh ? '临时通知' : 'Notice') + (document.getElementById('panel').hidden ? ' ›' : ' ⌃');
+    document.getElementById('notice-collapse').textContent = zh ? '收起 ⌃' : 'Collapse ⌃';
     document.getElementById('notice-text').textContent = zh ? ZH : EN;
     document.getElementById('notice-venue').textContent = zh ? '白驹Monoceros艺术展现空间' : 'White Horse Monoceros Art Space';
     var dir = document.getElementById('notice-dir');
@@ -165,11 +167,18 @@
       return '<div class="row"><b>' + r[0] + '</b><span>' + r[1] + '</span></div>';
     }).join('');
   }
-  document.getElementById('pill').addEventListener('click', function () {
+  function setNotice(open) {
     var panel = document.getElementById('panel');
-    var open = panel.hidden;
+    var pill = document.getElementById('pill');
     panel.hidden = !open;
-    this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    pill.setAttribute('aria-expanded', open ? 'true' : 'false');
+    pill.textContent = (lang === 'zh' ? '临时通知' : 'Notice') + (open ? ' ⌃' : ' ›');
+  }
+  document.getElementById('pill').addEventListener('click', function () {
+    setNotice(document.getElementById('panel').hidden);
+  });
+  document.getElementById('notice-collapse').addEventListener('click', function () {
+    setNotice(false);
   });
   document.getElementById('more').addEventListener('click', function () {
     document.getElementById('more-body').hidden = false;
