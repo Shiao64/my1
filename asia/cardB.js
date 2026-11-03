@@ -3,8 +3,17 @@
 var zh=location.pathname.indexOf('/zh/')===0; /* page language = path only */
 var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
 var EV=null; fetch('/asia/events.json?v=e148').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
-/* DJ row only when the event's own note names exactly one DJ (never invented); several DJs -> notes only */
-function djName(e){ var t=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||''; var re=/\bDJ(?!s)(?!\s*booth)(?!台)\s*[:：]?\s*([^；;。，,（()）\n]+?)(?=\s*[（(；;。，,]|\.\s|\.$|$)/g, m, out=[]; while(m=re.exec(t)){ var n=m[1].replace(/\s*\(host[^)]*\)/i,'').trim(); if(n&&out.indexOf(n)<0) out.push(n); } if(/\bDJs\b/.test(t)||/DJ\s*[：:][^。；;]*、/.test(t)) return null; return out.length===1?out[0]:null; }
+/* DJ line: events.dj wins. Else names from the note (DJ or 乐师). Several people are joined. A name that is a case/space-insensitive substring of another is dropped. The face label stays "DJ:". */
+function djTrim(n){ n=String(n||'').replace(/\s*\(host[^)]*\)/i,'').replace(/\s*（主持[^）]*）/,'').replace(/\s+(who|which)\b[\s\S]*$/i,'').trim(); var lat=n.match(/^([A-Za-z][A-Za-z .'\-·]*[A-Za-z])/); if(lat&&/[\u4e00-\u9fff]/.test(n)) n=lat[1]; n=n.replace(/\s+[a-z][\s\S]*$/,'').trim(); return n.replace(/\s+/g,' ').trim(); }
+function djPieces(n){ return String(n||'').split(/\s*(?:、|\+|＆|&|\/|\band\b|与|與)\s*/i).map(djTrim).filter(Boolean); }
+function djKey(n){ return String(n||'').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g,''); }
+function djJoin(list){ var out=[]; list.forEach(function(n){ if(!n) return; var c=djKey(n); if(!c) return; for(var i=0;i<out.length;i++){ var o=djKey(out[i]); if(!o) continue; if(o===c||o.indexOf(c)>=0) return; if(c.indexOf(o)>=0){ out[i]=n; return; } } out.push(n); }); return out.join(zh?'、':', '); }
+function djName(e){ if(!e) return '';
+  var preset=e.dj; if(Array.isArray(preset)){ var aj=djJoin(preset.map(djTrim)); if(aj) return aj; } else if(preset!=null&&String(preset).trim()){ var sj=djJoin(djPieces(String(preset))); if(sj) return sj; }
+  var parts=zh?[e.note_zh,e.note,e.poster_text]:[e.note,e.note_zh,e.poster_text], t=parts.filter(Boolean).join('\n'); if(!t) return '';
+  var re=/(?:\bDJ|乐师)(?!s)(?!\s*booth)(?!台)\s*[:：]?\s*([^；;。，,（()）\n]+?)(?=\s*(?:[（(）)；;。，,]|\bDJ\b|乐师)|\.\s|\.$|$)/gi, m, found=[];
+  while(m=re.exec(t)) djPieces(m[1]).forEach(function(n){ if(n) found.push(n); });
+  return djJoin(found); }
 function dj(li){ if(!EV||li.dataset.dj) return; var e=EV[li.dataset.id]; if(!e) return; li.dataset.dj='0'; var n=djName(e); if(!n) return; li.dataset.dj='1'; var v=li.querySelectorAll('.b-meta>.b-m')[1]; var d=document.createElement('div'); d.className='b-m b-dj'; d.innerHTML='<i>🎧</i><span class="b-l">DJ</span><span class="b-v"></span>'; d.lastChild.textContent=n; var m=li.querySelector('.b-meta'); var ven=[].filter.call(m.children,function(x){return /📍/.test(x.textContent)})[0]; if(ven) ven.after(d); else m.appendChild(d); }
 /* draft 2026-10-31: one-step 更多/More — opening expands everything (notes unclamped, no second 展开全文 level); open state shows a single 收起/Less at the bottom */
 function H(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
@@ -155,10 +164,10 @@ function p10bar(name, id){ document.documentElement.classList.add('atm-p10'); va
     var on=false; try{ on=JSON.parse(localStorage.getItem('atm_fav_v1')||'[]').indexOf(id)>=0; }catch(err){} var lab=on?(zh?'取消收藏':'Remove from favorites'):(zh?'加入收藏':'Add to favorites');
     h.setAttribute('aria-pressed', on?'true':'false'); h.setAttribute('aria-label', lab); h.title=lab;
     h.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>'; host.appendChild(h); } }
-function p10(li, sg, e){ var nameEl=li.querySelector('.ev-name'), name=(nameEl&&nameEl.textContent||'').trim()||((zh&&e.name_zh)||e.name||''); if(/^S[01]$/.test(name)) name=(zh&&e.name_zh)||e.name||name;
+function p10(li, sg, e){ li.dataset.atm='1'; var nameEl=li.querySelector('.ev-name'), name=(nameEl&&nameEl.textContent||'').trim()||((zh&&e.name_zh)||e.name||''); if(/^S[01]$/.test(name)) name=(zh&&e.name_zh)||e.name||name;
   var keep=''; li.querySelectorAll(':scope>.china-cancelled-bar,:scope>.atm-theme-bar').forEach(function(n){ keep+=n.outerHTML; });
   var ven=(!zh&&e.venue_en)||e.venue||''; if(!zh&&/[\u4e00-\u9fff]/.test(ven)&&e.venue_en) ven=e.venue_en;
-  var when=p10when(e), time=p10time(e.time), dj=djName(e)||'', faceDj=!!(dj&&dj.length<=28), notices=p10notices(e);
+  var when=p10when(e), time=p10time(e.time), dj=djName(e)||'', faceDj=!!dj, notices=p10notices(e);
   var info=document.createElement('section'); info.className='p10-info';
   info.innerHTML='<p class="p10-row1"><span class="p10-lead"><i class="p10-dot" aria-hidden="true"></i><span class="p10-freq"></span>'+(when?' <time class="p10-when"></time>':'')+'</span>'+(time?'<span class="p10-sep">·</span><span class="p10-time"></span>':'')+'</p><p class="p10-row2">'+(faceDj?'<span class="p10-dj"></span>':'<span class="p10-dj" hidden></span>')+'<button type="button" class="p10-more" aria-expanded="false">'+ (zh?'更多':'More') +'</button></p><div class="p10-body" hidden></div>';
   info.querySelector('.p10-freq').textContent=p10freq(e); var tm=info.querySelector('.p10-when'); if(tm) tm.textContent=when; var tt=info.querySelector('.p10-time'); if(tt) tt.textContent=time; var jd=info.querySelector('.p10-dj'); if(faceDj) jd.textContent='DJ: '+dj;
