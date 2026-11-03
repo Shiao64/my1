@@ -3,14 +3,16 @@
     "id": "liu-zheng",
     "name": "Liu Zheng",
     "name_zh": "刘峥",
-    "city": "",
-    "city_zh": "",
+    "city": "Beijing",
+    "city_zh": "北京",
+    "affiliation": "VTango",
+    "affiliation_zh": "探戈会 VTango",
     "photo": "",
-    "bio": "",
-    "bio_zh": "",
+    "bio": "Liu Zheng (刘峥) has danced tango since 2006 and is one of China's first-generation tango organizers. In 2007 he founded VTango (探戈会) in Beijing, running classes, milongas and workshops with visiting teachers. In 2013 he co-founded the China Argentine Tango Association with Xu Xuanyi and launched the China qualifier of the Tango World Championship. He created Tango Holiday (2014), the Beijing Tango Open (2017) and the Beijing Tuye Tango Festival (2019). Also a long-time tango DJ, he builds on Golden Age tradition with balanced, dancer-focused energy. In 2018 he was honored by the Embassy of Argentina in China.",
+    "bio_zh": "刘峥，2006 年开始跳探戈，中国第一代探戈人。2007 年创办「探戈会（VTango）」，长期在北京组织探戈课程、舞会与外教 Workshop。2013 年与许暄宜共同成立「中国阿根廷探戈协会」，发起世界探戈锦标赛中国区赛。先后创办 Tango Holiday（2014）、北京探戈公开赛（2017）和北京兔爷探戈节（2019）。他也是资深探戈 DJ，以黄金年代传统为本，均衡分配舞会能量。2018 年获阿根廷驻华大使馆表彰。",
     "links": {"instagram": "", "facebook": "", "wechat": "", "soundcloud": ""},
     "match": ["刘峥", "Liu Zheng"],
-    "sources": ["Organizer name already on Asia Tango Map. No bio, photo, city, or social link recorded."]
+    "sources": ["Organizer profile supplied for this preview. Also a DJ; no photo yet. City Beijing / 北京. Affiliation 探戈会 VTango / VTango."]
   },
   {
     "id": "kai",

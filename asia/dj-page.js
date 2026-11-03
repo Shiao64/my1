@@ -34,7 +34,7 @@
   }
   function when(e) { return e.kind === 'weekly' ? (zh ? '每周' : 'Weekly') : (e.start || ''); }
   function isPast(e, day) { if (e.kind === 'weekly') return false; var end = e.end || e.start || ''; return !!(end && end < day); }
-  var file = kind === 'organizer' ? '/asia/organizers.json?v=o2' : '/asia/djs.json?v=d1';
+  var file = kind === 'organizer' ? '/asia/organizers.json?v=o3' : '/asia/djs.json?v=d1';
   fetch(file).then(function (r) { return r.json(); }).then(function (list) {
     var profile = (list || []).filter(function (p) { return p.id === id; })[0];
     if (!profile) return;
