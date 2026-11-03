@@ -96,15 +96,19 @@ function p10nextDate(e){ var today=p10shToday(), p=today.split('-'), now=new Dat
   var ds=e.weekdays||(e.weekday!=null?[e.weekday]:[]); if(!ds.length) return ''; var best=null;
   ds.forEach(function(wd){ wd=wd%7; var n=new Date(now.getFullYear(),now.getMonth(),now.getDate()+((wd-now.getDay()+7)%7)); if(e.nth){ var g=0; while(g++<8){ var k=Math.floor((n.getDate()-1)/7)+1, last=new Date(n.getFullYear(),n.getMonth(),n.getDate()+7).getMonth()!==n.getMonth(); if(e.nth===-1?last:k===e.nth) break; n=new Date(n.getFullYear(),n.getMonth(),n.getDate()+7); } } if(!best||n<best) best=n; });
   return best?best.getFullYear()+'-'+p10pad(best.getMonth()+1)+'-'+p10pad(best.getDate()):''; }
-/* venue_overrides: shown only when the next occurrence (Asia/Shanghai) is that date; hidden once the date is past. */
-function p10override(e){ var list=e.venue_overrides; if(!Array.isArray(list)) return null; var today=p10shToday(), next=p10nextDate(e); if(!next||next<today) return null;
-  for(var i=0;i<list.length;i++){ var o=list[i]; if(!o) continue; var d=p10normDate(o.date); if(d&&d===next&&d>=today) return o; } return null; }
+/* temp_notices: visible while Asia/Shanghai today is within date, or start–end. Hidden after the end date. */
+function p10noticeSpan(o){ var date=p10normDate(o.date), start=p10normDate(o.start)||date, end=p10normDate(o.end)||date||start; if(!start) start=end; if(!end) end=start; if(!start||!end) return null; if(end<start){ var t=start; start=end; end=t; } return {start:start, end:end}; }
+function p10notices(e){ var list=e.temp_notices; if(!Array.isArray(list)) return []; var today=p10shToday(), out=[];
+  for(var i=0;i<list.length;i++){ var o=list[i]; if(!o) continue; var w=p10noticeSpan(o); if(!w||today<w.start||today>w.end) continue; out.push(o); } return out; }
+function p10noticeBody(o){ return String(zh?(o.text!=null&&o.text!==''?o.text:(o.text_en||'')):(o.text_en!=null&&o.text_en!==''?o.text_en:(o.text||''))); }
+function p10noticeShort(o){ var lines=p10noticeBody(o).split(/\r?\n/), line=''; for(var i=0;i<lines.length;i++){ if(String(lines[i]).trim()){ line=String(lines[i]).trim(); break; } }
+  if(!line){ var v=zh?(o.venue||o.venue_en||''):(o.venue_en||o.venue||''); if(v&&!bad(v)) line=String(v).trim(); } return line; }
 function p10safeImg(u){ u=String(u||'').trim(); if(/^\/(?!\/)/.test(u)||/^https?:\/\//i.test(u)) return u; return ''; }
 function p10when(e){ if(e.kind!=='weekly'){ if(!e.start) return ''; var p=String(e.start).split('-'), s=(+p[1])+'/'+(+p[2]); if(e.end&&e.end!==e.start){ var q=String(e.end).split('-'); s+='–'+(p[0]===q[0]&&p[1]===q[1]?(+q[2]):(+q[1])+'/'+(+q[2])); } return s; }
   var iso=p10nextDate(e); if(!iso) return ''; var x=iso.split('-'); return (+x[1])+'/'+(+x[2]); }
 function p10time(t){ if(!t) return ''; var raw=String(t).replace(/-/g,'–'); if(zh) return raw; function one(x){ var m=String(x).trim().match(/^(\d{1,2}):(\d{2})$/); if(!m) return String(x).trim(); var h=(+m[1])%24, mi=m[2], ap=h>=12?'PM':'AM'; h=h%12; if(!h) h=12; return h+':'+mi+' '+ap; } var parts=raw.split('–'); return parts.length===2?one(parts[0])+' – '+one(parts[1]):one(raw); }
 function p10slides(e){ var cur=(zh&&e.poster_zh)||(!zh&&e.poster_en)||e.poster||''; var past=e.posters_past||e.past_posters||[]; if(!Array.isArray(past)) past=[]; var out=[]; function add(u){ u=String(u||'').trim(); if(u&&out.indexOf(u)<0) out.push(u); } add(cur); past.forEach(add); return out; }
-function p10rows(e, faceVenue, faceDj, ov){ var R=[], row=function(l,v){ if(v) R.push('<div class="b-row p10-row"><b class="p10-k">'+l+'</b><span>'+v+'</span></div>'); };
+function p10rows(e, faceVenue, faceDj, notices){ var R=[], row=function(l,v){ if(v) R.push('<div class="b-row p10-row"><b class="p10-k">'+l+'</b><span>'+v+'</span></div>'); };
   var org=(!zh&&e.organizers_en&&e.organizers_en.length)?e.organizers_en:(e.organizers||[]); if(org.length) row(zh?'主办':'Organizer', H(org.join(zh?'、':', ')));
   var ven=(!zh&&e.venue_en)||e.venue||''; if(!zh&&/[\u4e00-\u9fff]/.test(ven)&&e.venue_en) ven=e.venue_en; if(ven&&!faceVenue) row(zh?'场地':'Venue', H(ven));
   var dj=djName(e)||''; if(dj&&!faceDj) row('DJ', H(dj));
@@ -126,10 +130,11 @@ function p10rows(e, faceVenue, faceDj, ov){ var R=[], row=function(l,v){ if(v) R
   if(L.video) A(L.video, zh?'视频':'Video');
   row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'));
   var nt=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||''; nt=String(nt).trim(); if(nt&&!bad(nt)) row(zh?'备注':'Note', H(nt));
-  if(ov){ var oa=zh?(ov.address||ov.address_en||''):(ov.address_en||ov.address||''), on=zh?(ov.note||ov.note_en||''):(ov.note_en||ov.note||'');
-    if(oa&&!bad(oa)){ var mu=(e.country==='China'?'https://uri.amap.com/search?keyword=':'https://www.google.com/maps/search/?api=1&query=')+encodeURIComponent(oa); row(zh?'本周地址':'This date', '<a href="'+mu+'" target="_blank" rel="noopener">'+H(oa)+'</a>'); }
-    if(on&&!bad(on)) row(zh?'本周说明':'This date note', H(on));
-    var img=p10safeImg(ov.image); if(img) R.push('<div class="p10-ovpic"><img src="'+H(img)+'" alt="'+(zh?'本周场地':'Temporary venue')+'"></div>'); }
+  (notices||[]).forEach(function(o){ var body=p10noticeBody(o); if(body.trim()) R.push('<div class="p10-ntxt">'+H(body)+'</div>');
+    var vn=zh?(o.venue||o.venue_en||''):(o.venue_en||o.venue||''), oa=zh?(o.address||o.address_en||''):(o.address_en||o.address||'');
+    if(vn&&!bad(vn)) row(zh?'临时场地':'Temporary venue', H(vn));
+    if(oa&&!bad(oa)){ var mu=(e.country==='China'?'https://uri.amap.com/search?keyword=':'https://www.google.com/maps/search/?api=1&query=')+encodeURIComponent(oa); row(zh?'地址':'Directions', '<a href="'+mu+'" target="_blank" rel="noopener">'+H(oa)+'</a>'); }
+    var img=p10safeImg(o.image); if(img) R.push('<div class="p10-ovpic"><img src="'+H(img)+'" alt="'+(zh?'临时通知':'Temporary notice')+'"></div>'); });
   return R.join(''); }
 function p10bar(name, id){ document.documentElement.classList.add('atm-p10'); var bar=document.getElementById('atm-c1bar'); if(!bar) return;
   if(!bar.querySelector('.p10-in')){ var inn=document.createElement('div'); inn.className='p10-in'; while(bar.firstChild) inn.appendChild(bar.firstChild); bar.appendChild(inn); }
@@ -143,16 +148,15 @@ function p10bar(name, id){ document.documentElement.classList.add('atm-p10'); va
 function p10(li, sg, e){ var nameEl=li.querySelector('.ev-name'), name=(nameEl&&nameEl.textContent||'').trim()||((zh&&e.name_zh)||e.name||''); if(/^S[01]$/.test(name)) name=(zh&&e.name_zh)||e.name||name;
   var keep=''; li.querySelectorAll(':scope>.china-cancelled-bar,:scope>.atm-theme-bar').forEach(function(n){ keep+=n.outerHTML; });
   var ven=(!zh&&e.venue_en)||e.venue||''; if(!zh&&/[\u4e00-\u9fff]/.test(ven)&&e.venue_en) ven=e.venue_en;
-  var when=p10when(e), time=p10time(e.time), dj=djName(e)||'', faceDj=!!(dj&&dj.length<=28), ov=p10override(e);
-  var ovName=ov?(zh?(ov.venue||ov.venue_en||''):(ov.venue_en||ov.venue||'')):''; if(bad(ovName)) ovName='';
+  var when=p10when(e), time=p10time(e.time), dj=djName(e)||'', faceDj=!!(dj&&dj.length<=28), notices=p10notices(e);
   var info=document.createElement('section'); info.className='p10-info';
   info.innerHTML='<p class="p10-row1"><span class="p10-lead"><i class="p10-dot" aria-hidden="true"></i><span class="p10-freq"></span>'+(when?' <time class="p10-when"></time>':'')+'</span>'+(time?'<span class="p10-sep">·</span><span class="p10-time"></span>':'')+'</p><p class="p10-row2">'+(faceDj?'<span class="p10-dj"></span>':'<span class="p10-dj" hidden></span>')+'<button type="button" class="p10-more" aria-expanded="false">'+ (zh?'更多':'More') +'</button></p><div class="p10-body" hidden></div>';
   info.querySelector('.p10-freq').textContent=p10freq(e); var tm=info.querySelector('.p10-when'); if(tm) tm.textContent=when; var tt=info.querySelector('.p10-time'); if(tt) tt.textContent=time; var jd=info.querySelector('.p10-dj'); if(faceDj) jd.textContent='DJ: '+dj;
   li.appendChild(info);
   var faceVenue=false; if(ven){ var vs=document.createElement('span'); vs.className='p10-venue'; vs.textContent=ven; var row1=info.querySelector('.p10-row1'); row1.appendChild(vs);
     var lh=parseFloat(getComputedStyle(row1).lineHeight)||26; if(row1.scrollHeight>lh*2.25||row1.scrollWidth>row1.clientWidth+4) vs.remove(); else faceVenue=true; }
-  if(ovName){ var line=document.createElement('p'); line.className='p10-ov'; var ok=document.createElement('span'); ok.className='p10-k'; ok.textContent=zh?'临时场地':'Temporary venue'; var ovv=document.createElement('span'); ovv.className='p10-ovv'; ovv.textContent=ovName; line.appendChild(ok); line.appendChild(document.createTextNode(zh?'：':': ')); line.appendChild(ovv); info.appendChild(line); }
-  var html=p10rows(e, faceVenue, faceDj, ov), body=info.querySelector('.p10-body'), more=info.querySelector('.p10-more'), det=sg.querySelector('a.atm-det');
+  notices.forEach(function(o){ var short=p10noticeShort(o); if(!short&&!p10safeImg(o.image)&&!(o.address||o.address_en||o.venue||o.venue_en)) return; var line=document.createElement('p'); line.className='p10-ov'; var ok=document.createElement('span'); ok.className='p10-k'; ok.textContent=zh?'临时通知':'Temporary notice'; line.appendChild(ok); if(short){ line.appendChild(document.createTextNode(zh?'：':': ')); var ovv=document.createElement('span'); ovv.className='p10-ovv'; ovv.textContent=short; line.appendChild(ovv); } info.appendChild(line); });
+  var html=p10rows(e, faceVenue, faceDj, notices), body=info.querySelector('.p10-body'), more=info.querySelector('.p10-more'), det=sg.querySelector('a.atm-det');
   if(!html&&!det){ more.hidden=true; if(!faceDj) info.querySelector('.p10-row2').hidden=true; }
   else { body.innerHTML=html; if(det){ det.classList.add('p10-det'); body.appendChild(det); } var less=document.createElement('button'); less.type='button'; less.className='p10-less'; less.textContent=zh?'收起':'Less'; body.appendChild(less);
     function setMore(on){ more.hidden=on; body.hidden=!on; more.setAttribute('aria-expanded', on?'true':'false'); }
