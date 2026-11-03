@@ -45,7 +45,7 @@
     setText('pf-aff', aff); setText('pf-bio', bio); setPhoto(profile.photo || '', name);
     var links = profile.links || {};
     setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || '');
-    return fetch('/asia/events.json?v=e152').then(function (r) { return r.json(); }).then(function (events) {
+    return fetch('/asia/events.json?v=e153').then(function (r) { return r.json(); }).then(function (events) {
       var day = today(), up = [], past = [];
       (events || []).forEach(function (e) { if (!e || e.hidden || !matches(profile, e)) return; (isPast(e, day) ? past : up).push(e); });
       function draw(node, rows, empty) {
