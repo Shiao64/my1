@@ -2,7 +2,7 @@
 (function(){
 var zh=location.pathname.indexOf('/zh/')===0; /* page language = path only */
 var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
-var EV=null; fetch('/asia/events.json?v=e179').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
+var EV=null; fetch('/asia/events.json?v=e180').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
 var DJPROF=[]; fetch('/asia/djs.json?v=d1').then(function(r){return r.json()}).then(function(d){ DJPROF=Array.isArray(d)?d:[]; document.querySelectorAll('.p10-dj[data-name]').forEach(function(el){ paintDj(el, el.dataset.name); }); }).catch(function(){});
 var ORGPROF=[]; fetch('/asia/organizers.json?v=o1').then(function(r){return r.json()}).then(function(d){ ORGPROF=Array.isArray(d)?d:[]; document.querySelectorAll('.p10-orgs').forEach(function(el){ el.innerHTML=orgNamesHtml((el.dataset.orgs||'').split('||'), el.dataset.card||''); }); }).catch(function(){});
 /* DJ line: events.dj wins. Else names from the note (DJ or 乐师). Several people are joined. A name that is a case/space-insensitive substring of another is dropped. The face label stays "DJ:". */
@@ -93,7 +93,7 @@ function fix(li){ if(li.dataset.b)return; li.dataset.b='1'; li.classList.add('b-
  html=html.replace(/\s*[（(]\s*[）)]/g,''); /* v11.1: drop empty （ ） anywhere on the card */ li.innerHTML=html; dj(li); if(cover){cover.removeAttribute('aria-hidden');cover.removeAttribute('tabindex');li.querySelector('.b-poster').appendChild(cover);}
 }
 var REG=null,CV={};
-if(zh){fetch('/asia/events.json?v=e179').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);REG={};d.forEach(function(e){REG[e.id]=e.region});trad()}).catch(function(){});}
+if(zh){fetch('/asia/events.json?v=e180').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);REG={};d.forEach(function(e){REG[e.id]=e.region});trad()}).catch(function(){});}
 var occL=0; function conv(k){ if(!window.OpenCC){ if(!occL){occL=1;var sc=document.createElement('script');sc.src='/asia/opencc-cn2t.js';sc.onload=function(){document.querySelectorAll('.ev-card.b-card[data-t]').forEach(function(x){if(!x.lang)x.removeAttribute('data-t')});trad()};document.head.appendChild(sc);} return null; } return CV[k]||(CV[k]=OpenCC.Converter({from:'cn',to:k==='hk'?'hk':'twp'})); }
 function trad(){ if(!REG) return; document.querySelectorAll('.ev-card.b-card[data-b]:not([data-t]), .ev-card.b-card[lang]').forEach(function(li){ var r=REG[li.dataset.id]; li.dataset.t='1'; var k=r==='Taiwan'?'tw':r==='Hong Kong'?'hk':null; if(!k) return; var c=conv(k); if(!c){li.removeAttribute('data-t');return;} li.lang=k==='hk'?'zh-HK':'zh-TW';
   var w=document.createTreeWalker(li,NodeFilter.SHOW_TEXT),n; while(n=w.nextNode()){ if(!/[\u4e00-\u9fff]/.test(n.nodeValue)) continue; if(n.parentElement&&n.parentElement.closest('.b-row')&&/^(城市|国家)$/.test((n.parentElement.closest('.b-row').querySelector('b')||{}).textContent||'')) continue; if(n.parentElement&&n.parentElement.closest('.atm-pt,.b-l,.b-label,.atm-mk,.china-badge,.atm-more,.ev-type,summary,.b-row>b,.china-links,.b-note-tg,.atm-heart,.p10-more,.p10-less,.p10-k,.p10-npill,.p10-ncollapse')) continue; /* quickfix: fixed UI labels stay Simplified */ var nv=n.nodeValue.split(/([台里])/).map(function(p){return /^[台里]$/.test(p)?p:c(p)}).join(''); if(nv!==n.nodeValue) n.nodeValue=nv; } }); }
@@ -135,10 +135,16 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   if(zh){ if(a1) ad.push(a1); if(a2&&(!cn||!a1||e.addr_en_zh)&&a2!==a1) ad.push(a2); } else if(a2||a1) ad.push(a2||a1);
   if(ad.length){ var mu=(cn?'https://uri.amap.com/search?keyword=':'https://www.google.com/maps/search/?api=1&query=')+encodeURIComponent(a1||a2||''); row(zh?'地址':'Address', '<a href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>'); }
   var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, ct=[];
-  if(C.wechat_id) ct.push((zh?'微信号：':'WeChat ID: ')+H(C.wechat_id)+(C.wechat_label?' ('+H(C.wechat_label)+')':''));
-  if(C.phone) ct.push((zh?'电话：':'Phone: ')+'<a href="tel:'+H(String(C.phone).replace(/[^\d+]/g,''))+'">'+H(C.phone)+'</a>');
+  var tel=function(p){ return '<a href="tel:'+H(String(p).replace(/[^\d+]/g,''))+'">'+H(p)+'</a>'; }, same=C.wechat_id&&C.phone&&String(C.wechat_id).replace(/\D/g,'')===String(C.phone).replace(/\D/g,'')&&/^\+?[\d\s\-]+$/.test(String(C.wechat_id)); /* v12: WeChat==phone -> one line */
+  if(same) ct.push((zh?'微信/电话：':'WeChat/Phone: ')+tel(C.phone)+(C.wechat_label?' ('+H(C.wechat_label)+')':''));
+  else { if(C.wechat_id) ct.push((zh?'微信号：':'WeChat ID: ')+H(C.wechat_id)+(C.wechat_label?' ('+H(C.wechat_label)+')':''));
+  if(C.phone) ct.push((zh?'电话：':'Phone: ')+tel(C.phone)); }
   if(C.email) ct.push((zh?'邮箱：':'Email: ')+'<a href="mailto:'+H(C.email)+'">'+H(C.email)+'</a>');
   if(C.facebook&&!/^https?:\/\//i.test(C.facebook)) ct.push((zh?'脸书：':'Facebook: ')+H(C.facebook));
+  var nt=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||'', fee=[], keep=[]; nt=String(nt).trim(); /* v12: fee sentences get their own 费用 row */
+  if(e.fee||e.fee_zh) fee.push(zh?(e.fee_zh||e.fee):(e.fee||e.fee_zh));
+  nt.split(/(?<=[。；;！!])\s*|(?<=\.)\s+/).forEach(function(x){ x=x.trim(); if(!x||bad(x)) return; if(!(e.fee||e.fee_zh)&&/门票|票价|费用|入场费|收费|免费|¥|￥|\d+\s*元|RMB|CNY|KRW|₩|NT\$|HK\$|\bEntry\b|\bFee\b|\bTicket|\bFree\b|\bAdmission/i.test(x)&&x.length<120){ var m=x.match(/^([^，,；;]*?(?:\d+\s*元|[¥￥]\s*\d+|\d+\s*(?:RMB|CNY|KRW|NT\$|HK\$))[^，,；;]*)[，,；;]\s*(.+)$/); if(m&&!/元|¥|￥|RMB|CNY|KRW|NT\$|HK\$|fee|ticket|entry/i.test(m[2])){ fee.push(m[1].replace(/[。.；;，,\s]+$/,'')); keep.push(m[2]); } else fee.push(x.replace(/[。.；;，,\s]+$/,'')); } else keep.push(x); });
+  row(zh?'费用':'Fee', fee.map(H).join(zh?'；':'; '));
   row(zh?'联络方式':'Contact', ct.join('<br>'));
   var L=e.links||{}, lk=[], A=function(u,t){ lk.push('<a href="'+H(u)+'" target="_blank" rel="noopener">'+t+'</a>'); };
   var OA=L.wechat_oa, oaT=OA&&OA.name?(zh?'微信公众号：':'WeChat Official Account: ')+H(OA.name):''; if(oaT){ if(OA.biz) A('https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz='+OA.biz.replace(/[^A-Za-z0-9+\/=]/g,'')+'#wechat_redirect', oaT); else lk.push('<span>'+oaT+'</span>'); }
@@ -148,7 +154,7 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   if(L.register) A(L.register, zh?'报名':'Register');
   if(L.video) A(L.video, zh?'视频':'Video');
   row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links'); /* v11.8b: P10 links get the ↗ marker too */
-  var nt=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||''; nt=String(nt).trim(); if(nt&&!bad(nt)) row(zh?'备注':'Note', H(nt));
+  if(keep.length) row(zh?'备注':'Note', H(keep.join(zh?'':' ')));
   return R.join(''); }
 function p10noticeUI(e, notices){ if(!notices||!notices.length) return null; var wrap=document.createElement('div'); wrap.className='p10-npill-wrap';
   var btn=document.createElement('button'); btn.type='button'; btn.className='p10-npill'; btn.setAttribute('aria-expanded','false');
