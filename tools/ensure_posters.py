@@ -58,6 +58,29 @@ def generate(e):
     rpu.update_atm_th(ROOT, web, ls)
     return web
 
+def past_guard(data):
+    """Fail if any posters_past entry present in HEAD was dropped, or its file is missing (ALLOW_PAST_DROP=1 to override)."""
+    import subprocess
+    bad = []
+    for rel, L in data.items():
+        try: old = json.loads(subprocess.check_output(['git', '-C', ROOT, 'show', 'HEAD:' + rel], stderr=subprocess.DEVNULL))
+        except Exception: old = []
+        cur = {e['id']: e for e in L}
+        for e in old:
+            c = cur.get(e['id'])
+            if not c: continue
+            have = set((c.get('posters_past') or []) + [c.get('poster')])
+            for u in (e.get('posters_past') or []):
+                if u not in have: bad.append(f'PAST DROPPED: {rel} {e["id"]} {u}')
+        for e in L:
+            for u in (e.get('posters_past') or []):
+                if isinstance(u, str) and u.startswith('/') and not os.path.isfile(os.path.join(ROOT, u.split('?')[0].lstrip('/'))):
+                    bad.append(f'PAST FILE MISSING: {rel} {e["id"]} {u}')
+    for b in bad: print(b)
+    if bad and os.environ.get('ALLOW_PAST_DROP') != '1':
+        print(f'FAIL: {len(bad)} past-poster problem(s); set ALLOW_PAST_DROP=1 if intentional'); sys.exit(1)
+    print('OK: no past posters dropped')
+
 def main():
     check = '--check' in sys.argv
     skip = set()
@@ -71,6 +94,7 @@ def main():
         for e in L:
             if visible(e) and not e.get('poster') and e['id'] not in skip: missing.setdefault(e['id'], e)
     if check:
+        past_guard(data)
         for i, e in missing.items(): print('NO POSTER:', i, e.get('name'))
         if missing: print(f'FAIL: {len(missing)} visible card(s) without poster; run tools/ensure_posters.py'); sys.exit(1)
         print('OK: every visible card has a poster'); return
