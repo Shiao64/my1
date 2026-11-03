@@ -61,7 +61,7 @@
   function posterUrls(p) { var q = String(p || '').split('?')[0], base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, ''); return { webp: base + '.webp?v=t480', jpg: base + '.jpg?v=t480', full: q }; }
   function img(e, cls, eager) { if (!e.poster) return '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>'; var u = posterUrls(e.poster); return '<picture><source type="image/webp" srcset="' + esc(u.webp) + '"><img class="' + cls + '" src="' + esc(u.jpg) + '" data-full="' + esc(u.full) + '" onerror="if(this.dataset.full&&this.dataset.fell!==\'1\'){this.dataset.fell=\'1\';this.src=this.dataset.full}" alt="" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></picture>'; }
   /* v11.9: DJ line under time, above venue (events.dj, else poster_djs for the current poster) */
-  function djOf(e) { var d = e.dj; if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || pd >= TODAY) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
+  function djOf(e) { var d = (!zh && e.dj_en) ? e.dj_en : e.dj; if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || pd >= TODAY) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
   function card(e, sub, tag, eager) {
     var v = (e.kind === 'weekly' || e.theme_of) ? (e.venue || '') : '';
     var kt = oneTag(e);
@@ -232,7 +232,7 @@
   function start() {
     mount();
     var sp = fetch('/data/suggested_favs.json?v=s3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
-    fetch('/asia/events.json?v=e175', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    fetch('/asia/events.json?v=e176', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };
