@@ -128,6 +128,7 @@ function p10slides(e){ var cur=(zh&&e.poster_zh)||(!zh&&e.poster_en)||e.poster||
 function p10fileDate(u){ var b=String(u||'').split('/').pop().split('?')[0]; var m=b.match(/(20\d{2})-(\d{2})-(\d{2})/); if(!m){ m=b.match(/(20\d{2})(\d{2})(\d{2})(?!\d)/); if(m&&b.indexOf(m[0]+'T')>=0) m=null; } if(!m) return ''; var y=+m[1], mo=+m[2], d=+m[3]; if(mo<1||mo>12||d<1||d>31) return ''; return m[1]+'-'+p10pad(mo)+'-'+p10pad(d); }
 function p10dateOf(e, url){ var q=String(url||'').split('?')[0]; var map=e.poster_dates; if(map&&map[q]) return map[q]; var cur=String((zh&&e.poster_zh)||(!zh&&e.poster_en)||e.poster||'').split('?')[0]; if(q&&q===cur&&e.poster_date) return e.poster_date; return p10fileDate(q); }
 function p10singlePast(e, url){ var today=p10shToday(); if(e.kind!=='weekly'){ var end=e.end||e.start||''; if(end) return end<today; } var d=p10dateOf(e, url); return !!(d&&d<today); }
+function p10fee(e){ var preset=zh?(e.fee_zh||e.fee||e.price_zh||e.price):(e.fee||e.fee_zh||e.price||e.price_zh); if(preset!=null&&String(preset).trim()&&!bad(preset)) return String(preset).trim(); var nt=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||'', raw=String(nt).split(/(?<=[。；;！!])\s*|(?<=\.)\s+/).map(function(x){return x.trim()}).filter(Boolean), ss=[], i=0; while(i<raw.length){ var x=raw[i]; if(/\bincl\.?$/i.test(x)&&raw[i+1]){ if(!/\.$/.test(x)) x+='.'; x=(x+' '+raw[++i]).trim(); } ss.push(x.replace(/[。；;！!.]+$/,'')); i++; } var fee=[]; ss.forEach(function(x){ if(bad(x)) return; if(/门票|票价|费用|入场费|收费|免费|¥|￥|\d+\s*元|RMB|CNY|KRW|₩|NT\$|HK\$|\bEntry\b|\bFee\b|\bTicket|\bFree\b|\bAdmission/i.test(x)&&x.length<120) fee.push(x); }); return fee.join(zh?'':' '); }
 function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v){ if(v) R.push('<div class="b-row p10-row"><b class="p10-k">'+l+'</b><span>'+v+'</span></div>'); };
   var org=(!zh&&e.organizers_en&&e.organizers_en.length)?e.organizers_en:(e.organizers||[]); if(org.length) R.push('<div class="b-row p10-row"><b class="p10-k">'+(zh?'主办':'Organizer')+'</b><span class="p10-orgs" data-card="'+H(e.id)+'" data-orgs="'+H(org.join('||'))+'">'+orgNamesHtml(org, e.id)+'</span></div>');
   var ven=(!zh&&e.venue_en)||e.venue||''; if(!zh&&/[\u4e00-\u9fff]/.test(ven)&&e.venue_en) ven=e.venue_en; if(ven&&!faceVenue) row(zh?'场地':'Venue', H(ven));
@@ -149,6 +150,7 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v){ if(v) R.pus
   if(L.register) A(L.register, zh?'报名':'Register');
   if(L.video) A(L.video, zh?'视频':'Video');
   row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'));
+  var fee=p10fee(e); if(fee) row(zh?'费用':'Fee', H(fee));
   var nt=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||''; nt=String(nt).trim(); if(nt&&!bad(nt)) row(zh?'备注':'Note', H(nt));
   return R.join(''); }
 function p10noticeUI(e, notices){ if(!notices||!notices.length) return null; var wrap=document.createElement('div'); wrap.className='p10-npill-wrap';
