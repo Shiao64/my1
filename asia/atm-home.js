@@ -113,7 +113,10 @@
   function favLive() { var m = byId(); return favIds().map(function (i) { return m[i]; }).filter(live); }
   function sugLive() { var m = byId(), h = sugHidden(); return SUG.map(function (i) { return m[i]; }).filter(function (e) { return live(e) && h.indexOf(e.id) < 0; }).sort(function (a, b) { var x = a.kind === 'weekly' ? occOf(a) : a.start || '9', y = b.kind === 'weekly' ? occOf(b) : b.start || '9'; return x < y ? -1 : 1; }); } /* by next occurrence */
   function themed(e) { if (e.kind !== 'weekly') return null; var o = occOf(e), t = null; DATA.forEach(function (x) { if (x.theme_of === e.id && x.start === o) t = x; }); return t; }
+  /* v11.8b: home 我的收藏 block is off unless intentionally enabled (window.ATM_HOME_FAV = true, or localStorage atm_home_fav_on = '1') */
+  function favOn() { try { return window.ATM_HOME_FAV === true || localStorage.getItem('atm_home_fav_on') === '1'; } catch (e) { return false; } }
   function favBlock() {
+    if (!favOn()) return '';
     var own = favLive(), sg = own.length ? [] : sugLive(), L = own.length ? own : sg; if (!L.length) return '';
     var items = L.map(function (e, i) { var t = themed(e) || e; return '<div class="ah-fit">' + card(t, t.kind === 'weekly' ? nextOcc(t) : '', own.length ? '' : (zh ? '系统建议' : 'Suggested'), i < 1) + (own.length ? '' : '<button type="button" class="ah-unsug" aria-pressed="true" data-unsug="' + esc(e.id) + '" aria-label="' + (zh ? '移除建议' : 'Remove suggestion') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></button>') + '</div>'; }).join('');
     var sub = own.length ? (zh ? '左右滑动' : 'swipe') : (zh ? '系统建议，可换成你自己的' : 'Suggested, swap in your own');
@@ -227,7 +230,7 @@
   function start() {
     mount();
     var sp = fetch('/data/suggested_favs.json?v=s3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
-    fetch('/asia/events.json?v=e172', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    fetch('/asia/events.json?v=e173', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };
