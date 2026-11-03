@@ -54,3 +54,7 @@ On a real replace it:
 Mis-replace protections: explicit id only; city / organizers / weekday / date are enforced when present; at least one of those, a note, or a filename containing the id is required; a filename that names a different event id is refused; class ads (课系, 大师课, 工作坊, workshop, master class) and `type: class` are skipped; hidden rows and featured events are skipped; a shared poster file is not overwritten.
 
 Commit the new poster, the backup, the thumb, the JSON, and the log with the rest of the 异动. Then publish with the usual backup branch `backup/live-YYYYMMDD-HHMM` from main and keep `SITE_VERSION` unless the change is a version bump.
+
+## Regular list — one-off and monthly
+
+A city's 常规 list (home city view, and the legacy regular filter) includes `regular_oneoff` events whose `start` is today through the next 5 weeks (`today` + 34 days), under that date's weekday. Past dates stay hidden. Each of those cards shows a label: `oneoff_kind: "monthly"` → 月度活动 / Monthly; otherwise 单次活动 / One-off. Set `oneoff_kind` on the event (`"oneoff"` or `"monthly"`). A `theme_of` one-off still replaces only the weekly row whose next occurrence is that same date (for example E154 replaces Milonga X on 2026-11-10, not on earlier Tuesdays).
