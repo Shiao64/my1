@@ -105,8 +105,8 @@ html.atm-p10 .p10-sr{position:absolute!important;width:1px!important;height:1px!
 html.atm-p10 .p10-info{width:100%;margin:0;padding:10px 14px;background:#E8E6EC;border-radius:12px;position:relative;z-index:2;box-sizing:border-box}
 html.atm-p10 .p10-npill-wrap{margin:8px 0 0}
 html.atm-p10 .p10-npill{display:inline-flex;align-items:center;border:0;border-radius:999px;background:#9E1020;color:#fff;font:800 13px/1 inherit;padding:6px 10px;cursor:pointer}
-html.atm-p10 .p10-npill::after{content:" ›"}
 html.atm-p10 .p10-npanel{margin:8px 0 0;color:#2a1a14;font-size:15px;font-weight:600}
+html.atm-p10 .p10-ncollapse{display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;margin-top:12px;padding:12px 16px;border:0;border-radius:12px;background:transparent;color:#9E1020;font:800 17px/1.2 inherit;cursor:pointer}
 html.atm-p10 .p10-npanel[hidden]{display:none!important}
 html.atm-p10 .p10-nblock+.p10-nblock{margin-top:10px}
 html.atm-p10 .p10-ntxt{white-space:pre-wrap;overflow-wrap:anywhere;color:#9E1020;font-weight:700}
