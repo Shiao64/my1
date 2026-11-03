@@ -103,6 +103,10 @@ html.atm-p10 #atm-single li.ev-card.b-card.b-reg{height:auto!important;min-heigh
 html.atm-p10 #atm-single .ev-card>.atm-heart{display:none!important}
 html.atm-p10 .p10-sr{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;border:0!important}
 html.atm-p10 .p10-info{width:100%;margin:0;padding:10px 14px;background:#E8E6EC;border-radius:12px;position:relative;z-index:2;box-sizing:border-box}
+html.atm-p10 .p10-ov{margin:8px 0 0;color:#9E1020;font-weight:800;font-size:15px;line-height:1.4}
+html.atm-p10 .p10-ov .p10-k{color:#9E1020}
+html.atm-p10 .p10-ovpic{margin:4px 0 0}
+html.atm-p10 .p10-ovpic img{display:block;max-width:100%;height:auto;max-height:280px;object-fit:contain;object-position:center top;border-radius:8px;background:#fff}
 html.atm-p10 .p10-row1{margin:0;display:flex;flex-wrap:wrap;align-items:center;gap:0 .35em;color:#0A4F57;font-weight:800;font-size:17px;line-height:1.35}
 html.atm-p10 .p10-lead{display:inline-flex;align-items:center;white-space:nowrap}
 html.atm-p10 .p10-dot{width:10px;height:10px;margin-right:6px;border-radius:50%;background:#2A1A14;flex:none;display:inline-block}
