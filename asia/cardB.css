@@ -150,3 +150,4 @@ html.atm-p10 .p10-lead .p10-when{margin-left:.35em}
 /* v12.2 align: values start on one line; first link no offset */
 html.atm-p10 .p10-row>span>a:first-child,.b-row>span>a:first-child{margin-left:0;padding-left:0}
 .b-row{grid-template-columns:82px minmax(0,1fr);column-gap:6px;margin-left:0;padding-left:0}.b-row b{white-space:nowrap}
+html.atm-p10 .p10-row.b-links a{display:inline!important;padding:0!important;margin:0!important}
