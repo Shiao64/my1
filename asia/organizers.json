@@ -16,13 +16,14 @@
     "id": "kai",
     "name": "Kai",
     "name_zh": "王凯",
-    "city": "",
-    "city_zh": "",
-    "photo": "",
-    "bio": "",
-    "bio_zh": "",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "affiliation": "Te Amo Tango Lounge",
+    "photo": "/images/asia/profiles/kai.webp?v=k1",
+    "bio": "Kai Wang (王凯) was born in Taiwan, graduated from National Taipei University and studied in the US. He discovered salsa in 2005 and later fell in love with tango in Shanghai. In 2017 he founded Te Amo Tango Lounge, called \"China's first tango bar\" and a filming location for B for Busy (爱情神话); it moved to 583 Yuyao Road, Jing'an, in 2023. He runs Kai's Milonga every Wednesday and Sunday, and its 900th edition was held at the Paramount Ballroom on 1 Jan 2026.",
+    "bio_zh": "王凯（Kai），台湾出生，毕业于台北大学，曾赴美国留学。2005 年接触 Salsa，后在上海爱上探戈。2017 年创办 Te Amo Tango Lounge（舞爱探戈），被称为「中国第一家探戈酒吧」，也是电影《爱情神话》的取景地，2023 年迁到静安区余姚路 583 号。他长期主办 Kai's Milonga（每周三、周日），2026 年元旦在百乐门举办了第 900 场。",
     "links": {"instagram": "", "facebook": "", "wechat": "", "soundcloud": ""},
     "match": ["Kai", "王凯", "Kai Wang"],
-    "sources": ["Radar sheet 中文组织者: 王凯. English name on the preview: Kai. Same person as the Kai's Milonga organizer previously stored as Kai Wang. No bio, photo, city, or social link recorded."]
+    "sources": ["Radar sheet 中文组织者: 王凯. English name: Kai. Photo and bios supplied for this profile. City Shanghai / 上海. Affiliation Te Amo Tango Lounge."]
   }
 ]

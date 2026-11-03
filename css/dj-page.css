@@ -10,7 +10,8 @@ html,body{margin:0;background:#FBF5E9;color:#0A4F57;font-family:system-ui,-apple
 .dj-fields dd{margin:0;min-height:1.2em;font-size:16px;font-weight:700;color:#0A4F57}
 .dj-fields dd:empty{border-bottom:1px solid rgba(10,79,87,.15)}
 .dj-fields a{color:#0E6E78}
-.dj-fields dd img{display:block;width:96px;height:96px;object-fit:cover;border-radius:12px;background:#fff}
+.dj-fields dd img{display:block;width:168px;max-width:100%;height:auto;border-radius:12px;background:#fff}
+#pf-bio{font-weight:600;line-height:1.55}
 .dj-main h2{margin:22px 0 8px;font:700 18px/1.3 "Noto Serif SC",serif}
 .dj-events a{display:block;margin:0 0 8px;padding:10px 12px;background:#fff;border-radius:12px;color:#0A4F57;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .dj-events a b{display:block;font-size:16px}

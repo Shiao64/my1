@@ -14,9 +14,9 @@
   }
   function key(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, ''); }
   function setText(elId, text) { var el = document.getElementById(elId); if (el) el.textContent = text || ''; }
-  function setPhoto(url) {
+  function setPhoto(url, alt) {
     var el = document.getElementById('pf-photo'); if (!el) return; el.textContent = ''; if (!url) return;
-    var img = document.createElement('img'); img.src = url; img.alt = ''; el.appendChild(img);
+    var img = document.createElement('img'); img.src = url; img.alt = alt || ''; el.appendChild(img);
   }
   function setLink(elId, url) {
     var el = document.getElementById(elId); if (!el) return; el.textContent = ''; if (!url) return;
@@ -34,15 +34,16 @@
   }
   function when(e) { return e.kind === 'weekly' ? (zh ? '每周' : 'Weekly') : (e.start || ''); }
   function isPast(e, day) { if (e.kind === 'weekly') return false; var end = e.end || e.start || ''; return !!(end && end < day); }
-  var file = kind === 'organizer' ? '/asia/organizers.json?v=o1' : '/asia/djs.json?v=d1';
+  var file = kind === 'organizer' ? '/asia/organizers.json?v=o2' : '/asia/djs.json?v=d1';
   fetch(file).then(function (r) { return r.json(); }).then(function (list) {
     var profile = (list || []).filter(function (p) { return p.id === id; })[0];
     if (!profile) return;
     var name = zh ? (profile.name_zh || profile.name || '') : (profile.name || profile.name_zh || '');
     var city = zh ? (profile.city_zh || '') : (profile.city || '');
     var bio = zh ? (profile.bio_zh || '') : (profile.bio || '');
+    var aff = zh ? (profile.affiliation_zh || profile.affiliation || '') : (profile.affiliation || profile.affiliation_zh || '');
     var h1 = document.querySelector('.dj-bar h1'); if (h1 && name) h1.textContent = name;
-    setText('pf-name', name); setText('pf-city', city); setText('pf-bio', bio); setPhoto(profile.photo || '');
+    setText('pf-name', name); setText('pf-city', city); setText('pf-aff', aff); setText('pf-bio', bio); setPhoto(profile.photo || '', name);
     var links = profile.links || {};
     setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || '');
     return fetch('/asia/events.json?v=e152').then(function (r) { return r.json(); }).then(function (events) {
