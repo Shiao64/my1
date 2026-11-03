@@ -9,7 +9,7 @@
   body{margin:0;background:#e7e2d8;color:#2a1a14;font:15px/1.4 system-ui,"PingFang SC","Noto Sans SC",sans-serif}
   header{padding:14px 16px 4px}
   h1{font:700 18px/1.3 "Noto Serif SC",serif;margin:0 0 6px}
-  p{margin:0;color:#5f6f66;max-width:46rem}
+  p{margin:0;color:#5f6f66;max-width:48rem}
   .row{display:flex;flex-wrap:wrap;gap:18px;padding:16px}
   figure{margin:0}
   figcaption{font-weight:800;margin:0 0 6px}
@@ -19,13 +19,34 @@
 <body>
 <header>
   <h1>未上线预览 · P10 常规卡（手机）</h1>
-  <p>海报在灰信息条和 DJ 行下面。GqufXmMX 的 dj 是 Yelyn Woo。E155 显示 Huy Q Nguyen。此页不进 main。</p>
+  <p>不进 main。顺序是标题、灰色信息条、DJ、下面的海报。GqufXmMX 的 dj 是 Yelyn Woo。E155 显示 Huy Q Nguyen（HuyQ 是同一个人的另一种写法）。</p>
 </header>
-<div class="row">
-  <figure><figcaption>中文 · 探戈会</figcaption><iframe title="zh GqufXmMX" src="p10-card.html?lang=zh&amp;id=GqufXmMX"></iframe></figure>
-  <figure><figcaption>English · Milonga V</figcaption><iframe title="en GqufXmMX" src="p10-card.html?lang=en&amp;id=GqufXmMX"></iframe></figure>
-  <figure><figcaption>中文 · Milonga Mascarita</figcaption><iframe title="zh E155" src="p10-card.html?lang=zh&amp;id=E155"></iframe></figure>
-  <figure><figcaption>English · Milonga Mascarita</figcaption><iframe title="en E155" src="p10-card.html?lang=en&amp;id=E155"></iframe></figure>
-</div>
+<div class="row" id="row"></div>
+<script>
+var P10EV = [{"id":"GqufXmMX","dj":"Yelyn Woo","name":"Milonga V","name_zh":"探戈会","kind":"weekly","type":"milonga","city":"Beijing","country":"China","region":"China","venue":"Ala House","venue_en":"Ala House","venue_address":"北京市东直门外大街亮马河南路18号2层","venue_address_en":"2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing","time":"20:00–24:00","weekday":2,"weekdays":[2],"poster":"https://tangoweekend.org/images/asia/posters/GqufXmMX.jpg","posters_past":["https://tangoweekend.org/images/asia/posters/GqufXmMX-no213-20261027.jpg","https://tangoweekend.org/images/asia/posters/GqufXmMX-no212-20261020.jpg","https://tangoweekend.org/images/asia/posters/GqufXmMX-no211-20261013.jpg","https://tangoweekend.org/images/asia/posters/GqufXmMX-no210-20261006.jpg"],"organizers":["刘峥"],"organizers_en":["Liu Zheng"],"links":{"facebook":"https://www.facebook.com/tangobeijing"},"contacts":{"wechat_id":"beijingtango","wechat_label":"刘峥"}},{"id":"E155","name":"Milonga Mascarita · HuyQ's Farewell Milonga","name_zh":"Milonga Mascarita · HuyQ 告別舞會","kind":"event","type":"milonga","city":"Hong Kong","country":"China","region":"Hong Kong","venue":"Danzstage","venue_en":"Danzstage","venue_address":"香港電氣道148號","venue_address_en":"20/F, 148 Electric Road, Tin Hau, Hong Kong","time":"21:15–01:00","start":"2026-11-14","end":"2026-11-14","regular_oneoff":true,"oneoff_kind":"monthly","poster":"https://tangoweekend.org/images/asia/posters/E155.jpg","note":"Monthly Milonga Mascarita; this month is also a farewell milonga for DJ Huy Q Nguyen, who is leaving Hong Kong (Guest DJ HuyQ). November birthdays celebrated. HK$100 cash at the door. Beginner and visitor friendly.","note_zh":"每月一次的 Milonga Mascarita；本月也是 DJ Huy Q Nguyen 離港告別舞會，Guest DJ HuyQ。同場慶祝 11 月壽星。HK$100（現金，門口付）。歡迎初學者和外地舞者。","organizers":["Ray Rudowski"],"organizers_en":["Ray Rudowski"],"links":{"facebook":"https://www.facebook.com/groups/811530215594629/"}}];
+var BASE = (location.hostname==='127.0.0.1' || location.hostname==='localhost')
+  ? new URL('../asia/', location.href).href
+  : 'https://raw.githubusercontent.com/Shiao64/my1/cursor/preview-p10-poster-dj-8516/asia/';
+var CARDS = [
+  ['zh','GqufXmMX','中文 · 探戈会'],
+  ['en','GqufXmMX','English · Milonga V'],
+  ['zh','E155','中文 · Milonga Mascarita'],
+  ['en','E155','English · Milonga Mascarita']
+];
+function srcdoc(lang, id){
+  return '<!DOCTYPE html><html lang="'+(lang==='zh'?'zh-CN':'en')+'" data-preview-lang="'+lang+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="'+BASE+'cardB.css?v=p10dj1"><style>html,body{margin:0;background:#FBF5E9}body{max-width:390px;margin:0 auto}#atm-c1bar{position:sticky;top:0;z-index:50;display:flex;align-items:center;height:48px;background:#FBF5E9}#atm-single ul{list-style:none;margin:0;padding:0}</style></head><body class="china-page"><div id="atm-c1bar"><button type="button" class="atm-c1 atm-c1-back" aria-label="Back"><svg width="14" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#0E6E78" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><span class="atm-c1-t"></span></div><div id="atm-single"><ul class="china-list ev-list"><li class="ev-card ev-has-poster" id="seed" data-id="'+id+'" data-kind="'+(id==='E155'?'event':'weekly')+'" data-type="milonga" data-region="'+(id==='E155'?'Hong Kong':'China')+'"'+(id==='E155'?' data-oneoff="1" data-dates="2026-11-14"':'')+'><div class="ev-top"><span class="ev-type">Milonga</span><span class="ev-when"></span></div><h3 class="ev-name"></h3></li></ul></div>'
+  + '<script>window.P10EV='+JSON.stringify(P10EV).replace(/</g,'\\u003c')+';var orig=window.fetch;window.fetch=function(input,init){var u=typeof input==="string"?input:(input&&input.url)||"";if(String(u).indexOf("events.json")>=0)return Promise.resolve({ok:true,json:function(){return Promise.resolve(window.P10EV);}});return orig.call(window,input,init);};<\/script>'
+  + '<script src="https://tangoweekend.org/asia/opencc-cn2t.js"><\/script>'
+  + '<script id="draft-layout-card-js">(function(){if(!matchMedia("(max-width:600px)").matches)return;function fix(li){if(li.dataset.atm||li.dataset.p10||li.classList.contains("b-reg"))return;li.dataset.atm=1;if(!li.querySelector(":scope>.ev-cover")){var n=document.createElement("div");n.className="atm-nocover";li.insertBefore(n,li.firstChild);}var d=document.createElement("div");d.className="atm-desc";var nm=li.querySelector(":scope>.ev-name");[].slice.call(li.children).forEach(function(c){if(c.matches("div:not(.ev-top):not(.atm-nocover)"))d.appendChild(c);});li.insertBefore(d,nm?nm.nextSibling:null);}var t,mo=new MutationObserver(function(){clearTimeout(t);t=setTimeout(function(){document.querySelectorAll(".ev-card").forEach(fix);},60);});mo.observe(document.body,{childList:true,subtree:true});})();<\/script>'
+  + '<script src="'+BASE+'cardB.js?v=p10dj1"><\/script></body></html>';
+}
+var row=document.getElementById('row');
+CARDS.forEach(function(c){
+  var fig=document.createElement('figure');
+  var cap=document.createElement('figcaption'); cap.textContent=c[2];
+  var fr=document.createElement('iframe'); fr.title=c[2]; fr.srcdoc=srcdoc(c[0], c[1]);
+  fig.appendChild(cap); fig.appendChild(fr); row.appendChild(fig);
+});
+</script>
 </body>
 </html>
