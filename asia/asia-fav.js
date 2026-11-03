@@ -55,14 +55,14 @@
     return w + ' · ' + cityName(r);
   }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
-  function card(r) {
+  function card(r, eager) {
     var a = document.createElement('a'); a.className = 'tw-fc atm-favfc'; a.setAttribute('data-fid', r.id);
     var li = document.querySelector('#china-listings .ev-card[data-id="' + r.id + '"] a[href*="/event/"]');
     a.href = location.pathname + '?card=' + encodeURIComponent(r.id); /* draft 10/31: always the single-card view (was: own detail page if any, else list #v-ID) */
     a.addEventListener('click', function (e) { if (e.target.closest('.atm-heart')) return; e.preventDefault(); go(r); });
-    var lim = document.querySelector('#china-listings .ev-card[data-id="' + r.id + '"] img'), ls = lim && (lim.getAttribute('data-src') || lim.getAttribute('src'));
-    var pos = r.poster || ls || '', th = r.poster ? '/images/thumb' + pos.replace(/\.(jpe?g|png)$/i, '.webp') : pos;
-    a.innerHTML = '<span class="tw-fc-img">' + (pos ? '<img src="' + esc(th) + '" data-full="' + esc(pos) + '" onerror="if(this.dataset.full&&this.src.indexOf(this.dataset.full)<0)this.src=this.dataset.full" decoding="async" alt="" loading="eager" style="object-position:center 20%">' : '<span class="atm-noimg">' + esc(cityName(r)) + '</span>') + '</span>' +
+    var lim = document.querySelector('#china-listings .ev-card[data-id="' + r.id + '"] img'), ls = lim && (lim.getAttribute('data-full') || lim.getAttribute('data-src') || lim.getAttribute('src'));
+    var pos = r.poster || ls || '', q = String(pos).split('?')[0], base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, '');
+    a.innerHTML = '<span class="tw-fc-img">' + (pos ? '<picture><source type="image/webp" srcset="' + esc(base + '.webp') + '"><img src="' + esc(base + '.jpg') + '" data-full="' + esc(q) + '" onerror="if(this.dataset.full&&this.src.indexOf(this.dataset.full)<0)this.src=this.dataset.full" decoding="async" alt="" loading="' + (eager ? 'eager' : 'lazy') + '" style="object-position:center 20%"></picture>' : '<span class="atm-noimg">' + esc(cityName(r)) + '</span>') + '</span>' +
       '<span class="tw-fc-body"><strong>' + esc((zh && r.name_zh) || r.name) + '</strong><span class="tw-fc-meta">' + esc(meta(r)) + '</span></span>' +
       '<span class="atm-heart" role="button" tabindex="0" aria-pressed="true" aria-label="' + T.del + '" title="' + T.del + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + HP + '"/></svg></span>';
     return a;
@@ -74,7 +74,7 @@
     if (!n) { bar.innerHTML = '<b>\u2661 ' + T.title + '</b><span class="atm-hint">' + T2.hint + '</span>'; bar.removeAttribute('aria-expanded'); bar.tabIndex = -1; }
     else { bar.innerHTML = '<b>\u2764\uFE0E ' + T.title + (zh ? '（' + n + '）' : ' (' + n + ')') + '</b><span class="atm-car">' + (c ? '\u25B8' : '\u25BE') + '</span>'; bar.setAttribute('aria-expanded', String(!c)); bar.tabIndex = 0; }
     var key = ids.join(',');
-    if (grid._k !== key) { grid._k = key; grid.innerHTML = ''; ids.forEach(function (id) { if (m[id]) grid.appendChild(card(m[id])); }); }
+    if (grid._k !== key) { grid._k = key; grid.innerHTML = ''; var ncard = 0; ids.forEach(function (id) { if (m[id]) grid.appendChild(card(m[id], ncard++ < 1 && !c)); }); }
     grid.querySelectorAll('.atm-favfc').forEach(function (a) { var b = a.querySelector('.atm-heart'), f = !!sv[a.getAttribute('data-fid')]; if (b && b.getAttribute('aria-pressed') !== String(f)) { b.setAttribute('aria-pressed', String(f)); b.setAttribute('aria-label', f ? T.del : T.add); b.title = f ? T.del : T.add; } });
     grid.hidden = !grid.children.length; n = n || 0;
     if (grid.children.length) { var was = grid.classList.contains('atm-fold');

@@ -276,10 +276,10 @@ window.CHINA_UI = {
   fsEmail: 'Your email', fsWechat: 'Your WeChat ID', fsUrl: 'Event website'
 };
 </script>
-<script src="asia-map.js?v=china385"></script>
+<script src="asia-map.js?v=china386"></script>
 <script defer src="asia-reglist.js?v=china278"></script>
-<script defer src="asia-fav.js?v=fav8"></script>
-<script defer src="/asia/atm-home.js?v=h50"></script>
+<script defer src="asia-fav.js?v=fav9"></script>
+<script defer src="/asia/atm-home.js?v=h51"></script>
 <script defer src="atm-menu.js?v=m9"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="asia-howto.js?v=china278"></script> -->
 <script defer src="lang-keep.js?v=china242"></script>
@@ -346,7 +346,7 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<link rel="stylesheet" href="/asia/cardB.css?v=cb22"><script src="/asia/cardB.js?v=cb61"></script>
+<link rel="stylesheet" href="/asia/cardB.css?v=cb23"><script src="/asia/cardB.js?v=cb62"></script>
 <!-- atm-stw-popup v5 (entry ad = E093; cover and card open the event page, not the poster file) -->
 
 <div id="atm-pop" role="dialog" aria-modal="true" aria-label="4th Beijing Select Tango Weekend"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">Ad</span></div><button type="button" class="ap-x" aria-label="Close">&times;</button></div>
@@ -400,7 +400,7 @@ document.addEventListener('click',function(e){
 function build(e){
   var name=zh?'2027北京精選探戈週末':(e.name||'');
   var poster=(zh&&e.poster_zh)||e.poster||'';
-  var thumb=poster?'/images/thumb'+poster.replace(/\.(jpe?g|png)$/i,'.webp'):'';
+  var pbase=poster?'/images/thumb'+String(poster).split('?')[0].replace(/\.(jpe?g|png|webp)$/i,''):'';
   var when=whenOf(e);
   var TN=zh?{marathon:'马拉松',festival:'探戈节',event:'特色活动',milonga:'舞会',practica:'练习场',weekend:'周末',encuentro:'聚会',championship:'锦标赛'}:{marathon:'Marathon',festival:'Festival',event:'Event',milonga:'Milonga',practica:'Práctica',weekend:'Weekend',encuentro:'Encuentro',championship:'Championship'};
   var other=(e.links&&e.links.other)||'',path=ownPath(other),onsite=!!path;
@@ -410,7 +410,7 @@ function build(e){
   li.className='ev-card'+(poster?' ev-has-poster':'')+' china-stw-highlight';
   li.setAttribute('data-id',ID);li.setAttribute('data-atm-ad','event');li.setAttribute('data-type',e.type||'');li.setAttribute('data-kind',e.kind||'event');
   if(onsite)li.setAttribute('data-own',path);
-  var cover=poster?'<a class="ev-cover" href="'+esc(onsite?path:poster)+'"'+(onsite?'':' target="_blank" rel="noopener"')+'><img src="'+esc(thumb)+'" data-full="'+esc(poster)+'" alt="" loading="eager" decoding="async" onerror="if(this.dataset.full&&this.src.indexOf(this.dataset.full)<0)this.src=this.dataset.full"></a>':'';
+  var cover=poster?'<a class="ev-cover" href="'+esc(onsite?path:poster)+'"'+(onsite?'':' target="_blank" rel="noopener"')+'><picture><source type="image/webp" srcset="'+esc(pbase+'.webp')+'"><img src="'+esc(pbase+'.jpg')+'" data-full="'+esc(poster)+'" alt="" loading="eager" decoding="async" onerror="if(this.dataset.full&&this.src.indexOf(this.dataset.full)<0)this.src=this.dataset.full"></picture></a>':'';
   var links='';
   if(!zh&&e.links&&e.links.facebook)links+='<a class="china-linkbtn" href="'+esc(e.links.facebook)+'" target="_blank" rel="noopener">Facebook</a>';
   if(path)links+='<a class="china-linkbtn" href="'+esc(path)+'"'+(onsite?'':' target="_blank" rel="noopener"')+'>'+(zh?'网站':'Website')+'</a>';
