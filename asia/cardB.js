@@ -2,7 +2,7 @@
 (function(){
 var zh=location.pathname.indexOf('/zh/')===0; /* page language = path only */
 var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
-var EV=null; fetch('/asia/events.json?v=e187').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
+var EV=null; fetch('/asia/events.json?v=e188').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
 var DJPROF=[]; fetch('/asia/djs.json?v=d1').then(function(r){return r.json()}).then(function(d){ DJPROF=Array.isArray(d)?d:[]; document.querySelectorAll('.p10-dj[data-name]').forEach(function(el){ paintDj(el, el.dataset.name); }); }).catch(function(){});
 var ORGPROF=[]; fetch('/asia/organizers.json?v=o1').then(function(r){return r.json()}).then(function(d){ ORGPROF=Array.isArray(d)?d:[]; document.querySelectorAll('.p10-orgs').forEach(function(el){ el.innerHTML=orgNamesHtml((el.dataset.orgs||'').split('||'), el.dataset.card||''); }); }).catch(function(){});
 /* DJ line: events.dj wins. Else names from the note (DJ or 乐师). Several people are joined. A name that is a case/space-insensitive substring of another is dropped. The face label stays "DJ:". */
@@ -43,7 +43,7 @@ function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in
  row(zh?'说明':'Notes', H(keep.join(zh?'':' ')), 'b-note');
  var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, org=(!zh&&e.organizers_en)||e.organizers||[], ct=[];
  if(org.length) ct.push(H(org.join(zh?'、':', ')));
- if(C.wechat_id) ct.push((zh?'微信号：':'WeChat ID: ')+H(C.wechat_id)+(C.wechat_label?' ('+H(C.wechat_label)+')':''));
+ if(C.wechat_id) ct.push((zh?'微信号：':'WeChat ID: ')+H(C.wechat_id)+(wl?' ('+H(wl)+')':''));
  if(C.phone) ct.push((zh?'电话：':'Phone: ')+'<a href="tel:'+H(C.phone.replace(/[^\d+]/g,''))+'">'+H(C.phone)+'</a>');
  if(C.email) ct.push((zh?'邮箱：':'Email: ')+'<a href="mailto:'+H(C.email)+'">'+H(C.email)+'</a>');
  if(C.facebook&&!/^https?:\/\//i.test(C.facebook)) ct.push((zh?'脸书：':'Facebook: ')+H(C.facebook));
@@ -93,7 +93,7 @@ function fix(li){ if(li.dataset.b)return; li.dataset.b='1'; li.classList.add('b-
  html=html.replace(/\s*[（(]\s*[）)]/g,''); /* v11.1: drop empty （ ） anywhere on the card */ li.innerHTML=html; dj(li); if(cover){cover.removeAttribute('aria-hidden');cover.removeAttribute('tabindex');li.querySelector('.b-poster').appendChild(cover);}
 }
 var REG=null,CV={};
-if(zh){fetch('/asia/events.json?v=e187').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);REG={};d.forEach(function(e){REG[e.id]=e.region});trad()}).catch(function(){});}
+if(zh){fetch('/asia/events.json?v=e188').then(function(r){return r.json()}).then(function(d){d=Array.isArray(d)?d:(d.events||d);REG={};d.forEach(function(e){REG[e.id]=e.region});trad()}).catch(function(){});}
 var occL=0; function conv(k){ if(!window.OpenCC){ if(!occL){occL=1;var sc=document.createElement('script');sc.src='/asia/opencc-cn2t.js';sc.onload=function(){document.querySelectorAll('.ev-card.b-card[data-t]').forEach(function(x){if(!x.lang)x.removeAttribute('data-t')});trad()};document.head.appendChild(sc);} return null; } return CV[k]||(CV[k]=OpenCC.Converter({from:'cn',to:k==='hk'?'hk':'twp'})); }
 function trad(){ if(!REG) return; document.querySelectorAll('.ev-card.b-card[data-b]:not([data-t]), .ev-card.b-card[lang]').forEach(function(li){ var r=REG[li.dataset.id]; li.dataset.t='1'; var k=r==='Taiwan'?'tw':r==='Hong Kong'?'hk':null; if(!k) return; var c=conv(k); if(!c){li.removeAttribute('data-t');return;} li.lang=k==='hk'?'zh-HK':'zh-TW';
   var w=document.createTreeWalker(li,NodeFilter.SHOW_TEXT),n; while(n=w.nextNode()){ if(!/[\u4e00-\u9fff]/.test(n.nodeValue)) continue; if(n.parentElement&&n.parentElement.closest('.b-row')&&/^(城市|国家)$/.test((n.parentElement.closest('.b-row').querySelector('b')||{}).textContent||'')) continue; if(n.parentElement&&n.parentElement.closest('.atm-pt,.b-l,.b-label,.atm-mk,.china-badge,.atm-more,.ev-type,summary,.b-row>b,.china-links,.b-note-tg,.atm-heart,.p10-more,.p10-less,.p10-k,.p10-npill,.p10-ncollapse')) continue; /* quickfix: fixed UI labels stay Simplified */ var nv=n.nodeValue.split(/([台里])/).map(function(p){return /^[台里]$/.test(p)?p:c(p)}).join(''); if(nv!==n.nodeValue) n.nodeValue=nv; } }); }
@@ -133,11 +133,12 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   var dj=djName(e)||''; if(dj&&!faceDj) row('DJ', H(dj));
   var cn=e.country==='China', a1=bad(e.venue_address)?'':e.venue_address, a2=bad(e.venue_address_en)?'':e.venue_address_en, ad=[];
   if(zh){ if(a1) ad.push(a1); if(a2&&(!cn||!a1||e.addr_en_zh)&&a2!==a1) ad.push(a2); } else if(a2||a1) ad.push(a2||a1);
+  var vns=[e.venue,e.venue_en].filter(Boolean).map(String); ad=ad.map(function(x){ x=String(x).trim(); vns.forEach(function(v){ v=v.trim(); if(!v||x.length<=v.length+2) return; var lx=x.toLowerCase(), lv=v.toLowerCase(); if(lx.slice(-lv.length)===lv) x=x.slice(0,-v.length).replace(/[\s,，、·\-–]+$/,''); else if(lx.indexOf(lv)===0) x=x.slice(v.length).replace(/^[\s,，、·\-–]+/,''); }); return x; }); /* v12.1: no venue name repeated in address */
   if(ad.length){ var mu=(cn?'https://uri.amap.com/search?keyword=':'https://www.google.com/maps/search/?api=1&query=')+encodeURIComponent(a1||a2||''); row(zh?'地址':'Address', '<a href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>'); }
-  var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, ct=[];
+  var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, ct=[]; var wl=C.wechat_label&&!org.some(function(o){ o=String(o).toLowerCase(); var l=String(C.wechat_label).toLowerCase().trim(); return o===l||o.split(/[\s&、,，()（）]+/).indexOf(l)>=0; })?C.wechat_label:''; /* v12.1: drop label repeating organizer */
   var tel=function(p){ return '<a href="tel:'+H(String(p).replace(/[^\d+]/g,''))+'">'+H(p)+'</a>'; }, same=C.wechat_id&&C.phone&&String(C.wechat_id).replace(/\D/g,'')===String(C.phone).replace(/\D/g,'')&&/^\+?[\d\s\-]+$/.test(String(C.wechat_id)); /* v12: WeChat==phone -> one line */
-  if(same) ct.push((zh?'手机/微信同号：':'Phone/WeChat: ')+tel(C.phone)+(C.wechat_label?' ('+H(C.wechat_label)+')':''));
-  else { if(C.wechat_id) ct.push((zh?'微信号：':'WeChat ID: ')+H(C.wechat_id)+(C.wechat_label?' ('+H(C.wechat_label)+')':''));
+  if(same) ct.push((zh?'手机/微信同号：':'Phone/WeChat: ')+tel(C.phone)+(wl?' ('+H(wl)+')':''));
+  else { if(C.wechat_id) ct.push((zh?'微信号：':'WeChat ID: ')+H(C.wechat_id)+(wl?' ('+H(wl)+')':''));
   if(C.phone) ct.push((zh?'电话：':'Phone: ')+tel(C.phone)); }
   if(C.email) ct.push((zh?'邮箱：':'Email: ')+'<a href="mailto:'+H(C.email)+'">'+H(C.email)+'</a>');
   if(C.facebook&&!/^https?:\/\//i.test(C.facebook)) ct.push((zh?'脸书：':'Facebook: ')+H(C.facebook));

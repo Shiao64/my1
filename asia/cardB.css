@@ -129,7 +129,8 @@ html.atm-p10 .p10-less::after{content:"▴";float:right}
 html.atm-p10 .p10-body{display:grid;gap:6px;padding:12px 2px 0;font-size:16px;line-height:1.45;color:#2a1a14}
 html.atm-p10 .p10-row{display:grid!important;grid-template-columns:4.6em minmax(0,1fr)!important;column-gap:8px!important;row-gap:0!important;align-items:baseline}
 html.atm-p10 .p10-row>b{color:#5f6f66;font-size:14px;font-weight:700;white-space:nowrap}
-html.atm-p10 .p10-row>span{min-width:0;overflow-wrap:anywhere}
+html.atm-p10 .p10-row>span{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}
+html.atm-p10 .p10-row>span a{overflow-wrap:anywhere;display:inline}
 html.atm-p10 .p10-body a{color:#0E6E78;font-weight:700}
 html.atm-p10 .p10-det{display:flex;align-items:center;justify-content:center;min-height:44px;margin:12px 0 0;border-radius:12px;background:#0E6E78;color:#fff!important;font-weight:800;text-decoration:none}
 html.atm-p10 .p10-stage{display:flex;align-items:center;gap:8px;margin-top:12px;position:relative;z-index:1}
