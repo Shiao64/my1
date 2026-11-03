@@ -29,7 +29,8 @@
     if (!em) { em = D.createElement('div'); em.id = 'atm-empty'; em.setAttribute('role', 'status'); em.innerHTML = '<p>' + (zh ? '没有找到活动' : 'No events found') + '</p><button type="button">' + (zh ? '清除筛选' : 'Clear filters') + '</button>'; em.querySelector('button').addEventListener('click', clearAll); root.parentNode.insertBefore(em, root); }
     var presearch = D.body.classList.contains('china-presearch'), reg = D.querySelector('input[value=regular]');
     var regNoCity = reg && reg.checked && D.getElementById('china-city') && D.getElementById('china-city').value === '';
-    H.classList.toggle('atm-empty', cnt() === 0 && !regNoCity);
+    /* v11.8b: home view (atm-h-home, no search) never shows the empty state; the legacy search controls behind regNoCity were removed in c812be9 */ var homeView = H.classList.contains('atm-h-home') || presearch;
+    H.classList.toggle('atm-empty', cnt() === 0 && !regNoCity && !homeView);
   }
   var tm; if (root) new MutationObserver(function () { clearTimeout(tm); tm = setTimeout(chk, 120); }).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
   D.addEventListener('change', function () { setTimeout(chk, 200); });
