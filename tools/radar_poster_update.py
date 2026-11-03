@@ -15,8 +15,12 @@ What it does, per item that passes the checks:
      and record its pixel size in asia/asia-map.js ATM_TH.
   5. Set that event's `poster` (and `updated`) in events.json and, when the
      same id is present, events-core.json / events-more.json.
-  6. Append a line to tools/radar-poster-log.jsonl.
-  7. When asked (the 异动 runner does this after a real replace), bump the live
+  6. Keep at most 4 past posters (5 with the current one). Drop the oldest
+     dated past poster. A poster with no date in its filename is kept.
+     Dropped public files are copied into _backup; files already there are
+     not deleted.
+  7. Append a line to tools/radar-poster-log.jsonl.
+  8. When asked (the 异动 runner does this after a real replace), bump the live
      cache keys eNNN, chinaNNN, hNN, cbNN the same way a publish commit does.
      SITE_VERSION is left alone.
 
@@ -62,6 +66,7 @@ MAP_JS = 'asia/asia-map.js'
 MAX_BYTES = 20_000_000
 MIN_BYTES = 800
 MIN_PX = 80
+MAX_PAST = 4
 THUMB_W = 480
 UA = 'AsiaTangoMap-radar/1.0'
 
@@ -385,6 +390,64 @@ def sniff_image(data):
     return im, ext
 
 
+def poster_event_date(path):
+    """Event date encoded in a poster filename, or None.
+
+    Backup stamps (YYYYMMDDTHHMMSS) are not event dates.
+    """
+    base = os.path.basename(str(path or '').split('?', 1)[0])
+    m = re.search(r'(20\d{2})-(\d{2})-(\d{2})', base)
+    if not m:
+        m = re.search(r'(?<!\d)(20\d{2})(\d{2})(\d{2})(?!\d)', base)
+        if m and (m.group(0) + 'T') in base:
+            m = None
+    if not m:
+        return None
+    try:
+        datetime.date(int(m.group(1)), int(m.group(2)), int(m.group(3)))
+    except ValueError:
+        return None
+    return '%04d-%02d-%02d' % (int(m.group(1)), int(m.group(2)), int(m.group(3)))
+
+
+def trim_past(past, max_past=MAX_PAST):
+    """Drop oldest-dated past posters until max_past remain.
+
+    Posters with no filename date stay. Returns (kept, dropped).
+    """
+    kept = [p for p in (past or []) if p]
+    dropped = []
+    while len(kept) > max_past:
+        dated = [(poster_event_date(p), i) for i, p in enumerate(kept) if poster_event_date(p)]
+        if not dated:
+            break
+        dated.sort(key=lambda t: (t[0], -t[1]))
+        dropped.append(kept.pop(dated[0][1]))
+    return kept, dropped
+
+
+def archive_poster(root, event_id, web_path, stamp):
+    """Copy a dropped poster into _backup. A path already under _backup is kept."""
+    if not web_path:
+        return None
+    rel = str(web_path).split('?', 1)[0].lstrip('/')
+    if rel.startswith(BACKUP_REL + '/') or '/_backup/' in ('/' + rel):
+        return '/' + rel
+    src = os.path.join(root, rel)
+    if not os.path.isfile(src):
+        return None
+    ext = os.path.splitext(src)[1] or '.img'
+    dest_dir = os.path.join(root, BACKUP_REL)
+    os.makedirs(dest_dir, exist_ok=True)
+    dest = os.path.join(dest_dir, '%s-pruned-%s%s' % (event_id, stamp, ext))
+    n = 2
+    while os.path.exists(dest):
+        dest = os.path.join(dest_dir, '%s-pruned-%s-%s%s' % (event_id, stamp, n, ext))
+        n += 1
+    shutil.copy2(src, dest)
+    return '/' + os.path.relpath(dest, root).replace(os.sep, '/')
+
+
 def thumb_image(im):
     from PIL import Image
     rgb = im.convert('RGB')
@@ -575,7 +638,11 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                     past = []
                 if backup not in past:
                     past = [backup] + [p for p in past if p != backup]
-                event['posters_past'] = past[:12]
+                past, dropped = trim_past(past, MAX_PAST)
+                archived = [archive_poster(root, event['id'], path, stamp) for path in dropped]
+                event['posters_past'] = past
+                plan['dropped'] = dropped
+                plan['dropped_backups'] = archived
             plan['backup'] = backup
             plan['thumb'] = '/' + thumb_rel.lstrip('/')
             plan['thumb_px'] = [tsize[0], tsize[1]]
