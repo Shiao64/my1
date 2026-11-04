@@ -119,10 +119,10 @@
   function sugLive() { var m = byId(), h = sugHidden(); return SUG.map(function (i) { return m[i]; }).filter(function (e) { return live(e) && h.indexOf(e.id) < 0; }).sort(function (a, b) { var x = a.kind === 'weekly' ? occOf(a) : a.start || '9', y = b.kind === 'weekly' ? occOf(b) : b.start || '9'; return x < y ? -1 : 1; }); } /* by next occurrence */
   function themed(e) { if (e.kind !== 'weekly') return null; var o = occOf(e), t = null; DATA.forEach(function (x) { if (x.theme_of === e.id && x.start === o) t = x; }); return t; }
   /* v11.8b: home 我的收藏 block is off unless intentionally enabled (window.ATM_HOME_FAV = true, or localStorage atm_home_fav_on = '1') */
-  function favOn() { try { return window.ATM_HOME_FAV === true || localStorage.getItem('atm_home_fav_on') === '1'; } catch (e) { return false; } }
+  function favOn() { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').length > 0; } catch (e) { return false; } } /* v12 preview: row shown iff user has ≥1 favorite; no 系统建议 */
   function favBlock() {
     if (!favOn()) return '';
-    var own = favLive(), sg = own.length ? [] : sugLive(), L = own.length ? own : sg; if (!L.length) return '';
+    var own = favLive(), L = own; if (!L.length) return '';
     var items = L.map(function (e, i) { var t = themed(e) || e; return '<div class="ah-fit">' + card(t, t.kind === 'weekly' ? nextOcc(t) : '', own.length ? '' : (zh ? '系统建议' : 'Suggested'), i < 1) + (own.length ? '' : '<button type="button" class="ah-unsug" aria-pressed="true" data-unsug="' + esc(e.id) + '" aria-label="' + (zh ? '移除建议' : 'Remove suggestion') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></button>') + '</div>'; }).join('');
     var sub = own.length ? (zh ? '左右滑动' : 'swipe') : (zh ? '系统建议，可换成你自己的' : 'Suggested, swap in your own');
     return '<section class="ah-fav" aria-label="' + T.fav + '"><div class="ah-favh"><b><span style="color:#C0392B">♥</span> ' + T.fav + '</b><span class="ah-favs">' + sub + '</span>' + (own.length ? '<button type="button" class="ah-favall" data-fav="1">' + (zh ? '全部 ' + own.length + ' 项' : 'All ' + own.length) + ' ›</button>' : '') + '</div><div class="ah-car">' + items + '</div></section>';
@@ -200,7 +200,7 @@
     if (b.hasAttribute('data-c')) { S.c = b.getAttribute('data-c'); render(); return; }
   });
   D.addEventListener('click', function (e) { var h = e.target.closest && e.target.closest('.ah-heart'); if (!h) return; e.preventDefault(); var id = h.getAttribute('data-fid'), inCar = !!h.closest('.ah-fav');
-    setTimeout(function () { var f = isFav(id), l = f ? (zh ? '取消收藏' : 'Remove from favorites') : (zh ? '收藏' : 'Add to favorites'); D.querySelectorAll('.ah-heart[data-fid="' + id + '"]').forEach(function (x) { x.setAttribute('aria-pressed', String(f)); x.setAttribute('aria-label', l); x.title = l; }); if (inCar) setTimeout(render, 200); }, 30); }, true);
+    setTimeout(function () { var f = isFav(id), l = f ? (zh ? '取消收藏' : 'Remove from favorites') : (zh ? '收藏' : 'Add to favorites'); D.querySelectorAll('.ah-heart[data-fid="' + id + '"]').forEach(function (x) { x.setAttribute('aria-pressed', String(f)); x.setAttribute('aria-label', l); x.title = l; }); if (inCar || (!!D.querySelector('#atm-home .ah-fav')) !== (favLive().length > 0)) setTimeout(render, 200); }, 30); }, true);
   D.addEventListener('keydown', function (e) { var h = e.target.closest && e.target.closest('.ah-heart'); if (h && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); h.click(); } });
   var lastFromHome = false, prevHash = null;
   addEventListener('hashchange', function (e) { lastFromHome = true; try { prevHash = new URL(e.oldURL).hash; } catch (er) { prevHash = null; } render(); });
