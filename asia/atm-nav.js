@@ -22,7 +22,7 @@
     if (c) c.dispatchEvent(new Event('change', { bubbles: true }));
     var b = D.getElementById('china-search'); if (b) b.click();
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
-    setTimeout(chk, 300);
+    userSet = false; userTyped = false; setTimeout(chk, 300);
   }
   function chk() {
     if (!window._chinaData || !root) return;
@@ -30,8 +30,21 @@
     var presearch = D.body.classList.contains('china-presearch'), reg = D.querySelector('input[value=regular]');
     var regNoCity = reg && reg.checked && D.getElementById('china-city') && D.getElementById('china-city').value === '';
     /* v11.8b: home view (atm-h-home, no search) never shows the empty state; the legacy search controls behind regNoCity were removed in c812be9 */ var homeView = H.classList.contains('atm-h-home') || presearch;
-    H.classList.toggle('atm-empty', cnt() === 0 && !regNoCity && !homeView);
+    /* v11.9a: empty state only after the user actively set a filter/search (city, date, type, keyword) and 0 results; never on first load, tab defaults or after clearing */
+    H.classList.toggle('atm-empty', userSet && hasFilter() && cnt() === 0 && !regNoCity && !homeView);
   }
+  var userSet = false, today0 = null;
+  function hasFilter() {
+    var c = D.getElementById('china-city'); if (c && c.value) return true;
+    var k = D.querySelector('#china-listings ~ * input[type=search], input[type=search], #china-q'); if (k && k.value && k.value.trim()) return true;
+    var d = D.querySelector('input[type=date]'); if (d && d.value && today0 !== null && d.value !== today0) return true;
+    var ev = D.querySelector('input[value=event]'), ty = D.querySelector('input[name][value=regular]:checked, input[name][value=featured]:checked'); if (ty && ev && !ev.checked && userTyped) return true;
+    return false;
+  }
+  var userTyped = false;
+  (function () { var d = D.querySelector('input[type=date]'); today0 = d ? d.value : null; })();
+  D.addEventListener('change', function (e) { if (!e.isTrusted) return; var t = e.target; if (t && t.matches && t.matches('#china-city, input[type=date], input[type=search], #china-q, input[type=radio]')) { userSet = true; if (t.type === 'radio') userTyped = true; } }, true);
+  D.addEventListener('input', function (e) { if (e.isTrusted && e.target && e.target.matches && e.target.matches('input[type=search], #china-q')) userSet = true; }, true);
   var tm; if (root) new MutationObserver(function () { clearTimeout(tm); tm = setTimeout(chk, 120); }).observe(root, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
   D.addEventListener('change', function () { setTimeout(chk, 200); });
   /* ---- ?from=ID on detail links (item 2) ---- */
