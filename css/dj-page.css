@@ -22,3 +22,12 @@ html,body{margin:0;background:#FBF5E9;color:#0A4F57;font-family:system-ui,-apple
 .dj-events a b{display:block;font-size:16px}
 .dj-events a span{display:block;margin-top:2px;color:#5f6f66;font-size:13px;font-weight:600}
 .dj-empty{margin:0;color:#5f6f66;font-size:14px;font-weight:600}
+
+/* v12: match card-page header (#atm-c1bar) */
+.dj-bar{position:sticky;height:48px;padding:0 max(4px,calc(50% - 236px));border-bottom:1px solid #e4e0d8;box-shadow:none;box-sizing:border-box}
+.dj-back{position:relative;z-index:1;color:#0A4F57}
+.dj-back svg{display:block}
+.dj-tw{position:absolute;left:52px;right:52px;top:0;height:48px;display:flex;align-items:center;justify-content:center;min-width:0;pointer-events:none}
+.dj-tw>*{pointer-events:auto}
+.dj-tw h1{font:700 22px/1 "Noto Serif SC","Songti SC",serif;flex:0 1 auto}
+.dj-tw .dj-aff{flex:0 1 auto}

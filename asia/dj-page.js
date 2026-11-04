@@ -4,6 +4,8 @@
   try { card = new URLSearchParams(location.search).get('card') || ''; } catch (e) {}
   var back = document.querySelector('.dj-back');
   if (back) back.href = (zh ? '/zh' : '') + '/asia/' + (card ? ('?card=' + encodeURIComponent(card)) : '');
+  /* v12: header matches the card page (#atm-c1bar): 48px bar, same SVG ‹ at left, title centered */
+  if (back) { back.innerHTML = '<svg width="14" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#0A4F57" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>'; var bar = back.parentNode, h1 = bar.querySelector('h1'), aff = bar.querySelector('.dj-aff'); if (h1 && !bar.querySelector('.dj-tw')) { var tw = document.createElement('div'); tw.className = 'dj-tw'; bar.insertBefore(tw, h1); tw.appendChild(h1); if (aff) tw.appendChild(aff); } }
   /* v12 fix: ‹ returns via history when we came from that same page (no new entry → no loop); otherwise replace this page instead of pushing */
   if (back) back.addEventListener('click', function (ev) { ev.preventDefault(); var rf = null; try { rf = new URL(document.referrer); } catch (e) {} var t = new URL(back.href, location.href); if (rf && rf.origin === location.origin && rf.pathname === t.pathname && rf.search === t.search && history.length > 1) history.back(); else location.replace(t.href); });
   function today() {
