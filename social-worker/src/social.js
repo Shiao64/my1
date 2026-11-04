@@ -26,7 +26,10 @@ async function sendCode(env, to, name, code, lang) {
     : `Hi ${name},\n\nYour Asia Tango Map verification code is: ${code}\n\nIt's valid for 15 minutes. Enter it on the page and you can comment on event cards.\nIf this wasn't you, just ignore this email.\n\nAsia Tango Map\nhttps://tangoweekend.org`;
   const p = env.SOCIAL_MAIL || 'log';
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
-  if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName: 'Asia Tango Map', to, subject, text });
+  if (p === 'resend') { const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <onboarding@resend.dev>', to: [to], subject, text }) });
+    if (!r.ok) throw new Error('resend ' + r.status + ' ' + (await r.text()).slice(0, 150)); }
+  else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName: 'Asia Tango Map', to, subject, text });
   else if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: 'Asia Tango Map' }, to, subject, text });
   else console.log(`[mail:log] to=${to} subject=${subject}`);
   return p;
