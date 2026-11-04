@@ -827,8 +827,19 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                 past = event.get('posters_past')
                 if not isinstance(past, list):
                     past = []
-                if backup not in past:
-                    past = [backup] + [p for p in past if p != backup]
+                # _backup/ is not served on live (underscore dir), so the swipe
+                # copy of the previous poster goes to a public past/ dir. 2026-11-04
+                pub = backup.replace('/_backup/', '/past/')
+                if pub != backup:
+                    src_fs = os.path.join(root, backup.lstrip('/'))
+                    pub_fs = os.path.join(root, pub.lstrip('/'))
+                    if os.path.isfile(src_fs):
+                        os.makedirs(os.path.dirname(pub_fs), exist_ok=True)
+                        shutil.copyfile(src_fs, pub_fs)
+                    else:
+                        pub = backup
+                if pub not in past:
+                    past = [pub] + [p for p in past if p != pub and p != backup]
                 dates = event.get('poster_dates') if isinstance(event.get('poster_dates'), dict) else {}
                 old_key = old.split('?', 1)[0] if old else ''
                 if old_key:
