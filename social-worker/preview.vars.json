@@ -1,0 +1,1 @@
+{"_note":"Plain vars on atm-social-preview (secrets RESEND_API_KEY, ADMIN_TOKEN kept in Cloudflare; deploy with keep_bindings)","MAIL_PROVIDER":"log","NOTIFY_TO":"","PREVIEW_SHOW_CODE":"0","RESEND_FROM":"Asia Tango Map <noreply@tangoweekend.org>","SENDER":"subscribe@tangoweekend.org","SOCIAL_MAIL":"resend","TEST_ONLY_RECIPIENT":"shiao.li.chang@gmail.com"}
