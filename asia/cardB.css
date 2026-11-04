@@ -162,3 +162,4 @@ html.atm-p10 .atm-cancelled-day .p10-row1{text-decoration:line-through;opacity:.
 
 .ev-card.b-card .b-poster{position:relative}.b-poster .b-prev{position:absolute;top:10px;right:10px;z-index:2;color:#fff;background:rgba(0,0,0,.55);font:700 12px/1 system-ui,sans-serif;padding:5px 8px;border-radius:999px;white-space:nowrap;pointer-events:none}
 #atm-single .ev-card.b-card.b-reg .b-poster .b-prev{top:26px}
+html.atm-p10 .p10-frame{touch-action:pan-y} /* v12: horizontal swipe not stolen by browser panning (pointercancel) on touch phones */
