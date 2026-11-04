@@ -163,3 +163,15 @@ html.atm-p10 .atm-cancelled-day .p10-row1{text-decoration:line-through;opacity:.
 .ev-card.b-card .b-poster{position:relative}.b-poster .b-prev{position:absolute;top:10px;right:10px;z-index:2;color:#fff;background:rgba(0,0,0,.55);font:700 12px/1 system-ui,sans-serif;padding:5px 8px;border-radius:999px;white-space:nowrap;pointer-events:none}
 #atm-single .ev-card.b-card.b-reg .b-poster .b-prev{top:26px}
 html.atm-p10 .p10-frame{touch-action:pan-y} /* v12: horizontal swipe not stolen by browser panning (pointercancel) on touch phones */
+/* v12 typography: regular-card info box (「更多」 panel) */
+html.atm-p10 .p10-venue{flex-basis:100%;margin-top:2px;font-size:16px;font-weight:700;white-space:normal;line-height:1.3}
+html.atm-p10 .p10-body{gap:8px;padding:12px 0 0;margin-top:10px;border-top:1px solid rgba(10,79,87,.12);line-height:1.5}
+html.atm-p10 .p10-row{grid-template-columns:5.2em minmax(0,1fr)!important;column-gap:10px!important;font-size:15px}
+html.atm-p10 .p10-row>b{color:#7a8a83;font-size:13px;font-weight:600;letter-spacing:.02em}
+html.atm-p10 .p10-row>span{color:#2a1a14}
+html.atm-p10 .p10-body a{font-weight:600;text-decoration:underline;text-decoration-color:rgba(14,110,120,.35);text-decoration-thickness:1px;text-underline-offset:3px}
+html.atm-p10 .p10-row>span a{overflow-wrap:break-word;word-break:normal;line-break:strict}
+html.atm-p10 .p10-less{margin-top:10px;padding:6px 10px;font-size:14px;font-weight:700;background:transparent;border:1px solid rgba(10,79,87,.15);border-radius:999px;width:auto;display:inline-block;color:#5f6f66}
+html.atm-p10 .p10-less::after{float:none;margin-left:6px}
+html.atm-p10 .p10-less{justify-self:start;width:auto!important}
+html.atm-p10 .p10-body .p10-row a{font-weight:600!important;text-decoration-color:rgba(14,110,120,.35)!important;text-decoration-thickness:1px!important}
