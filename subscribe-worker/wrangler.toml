@@ -15,6 +15,12 @@ API_BASE = "https://api.tangoweekend.org"
 # TEST_ONLY_RECIPIENT (optional) limits sends to one address.
 MAIL_PROVIDER = "gmail"
 GMAIL_USER = "selecttango@gmail.com"
+# Web push (draft). Secrets, set before deploy (placeholders only in repo):
+#   npx wrangler secret put VAPID_PUBLIC   # base64url uncompressed P-256 public key
+#   npx wrangler secret put VAPID_PRIVATE  # base64url 32-byte private key
+#   npx wrangler secret put PUSH_ADMIN_TOKEN  # >=24 chars; same value as GitHub secret PUSH_ADMIN_TOKEN
+VAPID_SUBJECT = "mailto:selecttango@gmail.com"
+PUSH_ADHOC_PER_DAY = "2"
 
 # Daily cleanup of pending (unconfirmed) rows older than 7 days.
 [triggers]

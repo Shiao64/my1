@@ -151,3 +151,11 @@ html.atm-p10 .p10-lead .p10-when{margin-left:.35em}
 html.atm-p10 .p10-row>span>a:first-child,.b-row>span>a:first-child{margin-left:0;padding-left:0}
 .b-row{grid-template-columns:82px minmax(0,1fr);column-gap:6px;margin-left:0;padding-left:0}.b-row b{white-space:nowrap}
 html.atm-p10 .p10-row.b-links a{display:inline!important;padding:0!important;margin:0!important}
+
+/* temp change badge */
+.atm-chg{display:inline-block;border-radius:999px;padding:4px 10px;font:800 12px/1.2 system-ui,sans-serif;margin:0 0 6px;letter-spacing:.02em}
+.atm-chg-c{background:#E8A317;color:#2a1a14}
+.atm-chg-x{background:#9E1020;color:#fff}
+.atm-chg-row{margin:0 0 4px}
+html.atm-p10 .atm-cancelled-day .p10-row1{text-decoration:line-through;opacity:.6}
+.atm-chg-txt{display:block;font:600 13px/1.4 system-ui,sans-serif;color:#5a3a10;margin:2px 0 4px}

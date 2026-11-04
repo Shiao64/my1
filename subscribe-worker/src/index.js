@@ -6,6 +6,7 @@
 // Cron (daily): delete pending rows not confirmed within 7 days.
 // The old collect-only table `subs` is kept as-is; still written for backward-compatible owner records.
 import { EmailMessage } from 'cloudflare:email';
+import { pushSubscribe, pushUnsubscribe, pushSend } from './push.js';
 
 const ORIGINS = ['https://tangoweekend.org', 'https://www.tangoweekend.org'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -34,7 +35,7 @@ const T = {
 };
 
 const cors = (o, env) => (ORIGINS.includes(o) || (env.ALLOW_LOCAL === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)))
-  ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' } : {};
+  ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' } : {};
 const json = (d, s, h) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
 const nowIso = () => new Date().toISOString();
 const tok = () => [...crypto.getRandomValues(new Uint8Array(24))].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -182,6 +183,12 @@ export default {
     }
     if (url.pathname === '/confirm' && req.method === 'GET') return confirm(url, env);
     if (url.pathname === '/unsubscribe' && (req.method === 'GET' || req.method === 'POST')) return unsubscribe(url, env);
+    if (url.pathname === '/push/key' && req.method === 'GET') return json({ key: env.VAPID_PUBLIC || '' }, env.VAPID_PUBLIC ? 200 : 503, h);
+    if ((url.pathname === '/push/subscribe' || url.pathname === '/push/unsubscribe') && req.method === 'POST') {
+      if (!h['Access-Control-Allow-Origin']) return json({ error: 'forbidden_origin' }, 403);
+      return url.pathname === '/push/subscribe' ? pushSubscribe(req, env, json, h) : pushUnsubscribe(req, env, json, h);
+    }
+    if (url.pathname === '/push/send' && req.method === 'POST') return pushSend(req, env, json);
     if (url.pathname === '/health') return json({ ok: true }, 200, h);
     return json({ error: 'not_found' }, 404, h);
   },

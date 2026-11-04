@@ -1,0 +1,43 @@
+name: Push notify (new events / temp changes)
+# After each push to main that touches asia/events.json: diff before/after and send web push via the Worker.
+# Needs repo secret PUSH_ADMIN_TOKEN (same as the Worker secret). Without it the job only prints what it would send.
+on:
+  push:
+    branches: [main]
+    paths: ['asia/events.json']
+  workflow_dispatch:
+    inputs:
+      kind: {description: 'notice | ad', required: true, default: notice}
+      title_zh: {required: true}
+      title_en: {required: true}
+      body_zh: {required: false}
+      body_en: {required: false}
+      url: {required: false, default: 'https://tangoweekend.org/asia/'}
+concurrency: {group: push-notify, cancel-in-progress: false}
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Event diff push
+        if: github.event_name == 'push'
+        env:
+          PUSH_ADMIN_TOKEN: ${{ secrets.PUSH_ADMIN_TOKEN }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then BEFORE="${GITHUB_SHA}~1"; fi
+          python3 tools/push_diff.py "$BEFORE" "$GITHUB_SHA" | tee /tmp/msgs.json
+          if [ -z "$PUSH_ADMIN_TOKEN" ]; then echo "PUSH_ADMIN_TOKEN not set: dry run only"; exit 0; fi
+          python3 tools/push_send.py diff "$BEFORE" "$GITHUB_SHA"
+      - name: Ad-hoc notice / ad (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          PUSH_ADMIN_TOKEN: ${{ secrets.PUSH_ADMIN_TOKEN }}
+          K: ${{ inputs.kind }}
+          TZ_: ${{ inputs.title_zh }}
+          TE: ${{ inputs.title_en }}
+          BZ: ${{ inputs.body_zh }}
+          BE: ${{ inputs.body_en }}
+          U: ${{ inputs.url }}
+        run: python3 tools/push_send.py "$K" --title-zh "$TZ_" --title-en "$TE" --body-zh "$BZ" --body-en "$BE" --url "$U"
