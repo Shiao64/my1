@@ -5,7 +5,9 @@
   var R = document.documentElement, zh = /^zh/i.test(R.getAttribute('data-asia-lang') || document.body.getAttribute('data-lang') || R.lang || '');
   var API = (window.ATM_SOCIAL_API || 'https://api.tangoweekend.org') + '/social', TSKEY = window.ATM_TS_KEY || '';
   var cardId = ''; try { cardId = new URLSearchParams(location.search).get('card') || ''; } catch (e) {}
-  if (!/^[A-Za-z0-9_-]{1,64}$/.test(cardId)) return;
+  var pm = location.pathname.match(/^\/(?:zh\/|en\/)?(organizer|dj)\/([a-z0-9-]{1,48})\/?(?:index\.html)?$/i);
+  if (pm && document.querySelector('.dj-main')) cardId = (pm[1].toLowerCase() === 'dj' ? 'dj:' : 'org:') + pm[2].toLowerCase();
+  if (!/^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/.test(cardId)) return;
   var L = zh ? { like: '赞', cm: '留言', none: '还没有留言，来说第一句吧。', ph: '写下你的留言…', post: '发布', join: '登录后留言', name: '名字', email: '邮箱',
       send: '发送验证码', code: '邮件里的 6 位验证码', verify: '验证', sent: '验证码已发到你的邮箱（15 分钟内有效，没收到请看垃圾邮件）。', as: '以 {n} 的身份留言 · ', out: '退出',
       need: '请填写名字和正确的邮箱。', bad: '验证码不对或已过期。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '留言需要注册并验证邮箱。' }
@@ -43,7 +45,7 @@
     if (placed) return true;
     var single = document.getElementById('atm-single'), anchor = single && single.querySelector('ul.china-list');
     if (anchor && anchor.querySelector('.ev-card')) { anchor.parentNode.insertBefore(box, anchor.nextSibling); placed = true; }
-    else if (document.body.getAttribute('data-kind') && document.querySelector('.dj-main')) { var mm = document.querySelector('.dj-main'); mm.insertBefore(box, mm.querySelector('section') || null); placed = true; }
+    else if (pm && document.querySelector('.dj-main')) { var mm = document.querySelector('.dj-main'); mm.insertBefore(box, mm.querySelector('section') || null); placed = true; }
     if (placed) init(); return placed;
   }
   var likeB = box.querySelector('.as-like'), nEl = likeB.querySelector('.as-n'), list = box.querySelector('.as-list'), form = box.querySelector('.as-form');

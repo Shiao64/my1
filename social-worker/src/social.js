@@ -6,7 +6,7 @@
 // POST /social/verify {email, code}        -> {token, name}  (email verified)
 // GET  /social/me  (Authorization: Bearer)  -> {name}
 // POST /social/comment {id, body} (Bearer)  -> posts a comment
-const ID_RE = /^[A-Za-z0-9_-]{1,64}$/, DEV_RE = /^[A-Za-z0-9-]{16,64}$/, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const ID_RE = /^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/, DEV_RE = /^[A-Za-z0-9-]{16,64}$/, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const now = () => new Date().toISOString();
 async function sha(s) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
 const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -57,7 +57,7 @@ export async function social(req, env, url, json) {
   }
   if (p === '/comments' && req.method === 'GET') {
     const id = url.searchParams.get('id') || ''; if (!ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
-    const r = await env.SDB.prepare("SELECT u.name,c.body,c.created_at at FROM comments c JOIN users u ON u.id=c.user_id WHERE c.card_id=? AND c.status='visible' ORDER BY c.created_at ASC LIMIT 200").bind(id).all();
+    const r = await env.SDB.prepare("SELECT u.name,c.body,c.created_at at FROM comments c JOIN users u ON u.id=c.user_id WHERE c.card_id=? AND c.status='visible' ORDER BY c.created_at DESC, c.id DESC LIMIT 200").bind(id).all();
     return json({ items: r.results });
   }
   if (p === '/signup' && req.method === 'POST') {
@@ -106,6 +106,9 @@ export async function social(req, env, url, json) {
   if (p.startsWith('/admin/') ) {   // Bearer ADMIN_TOKEN. GET /admin/wx-pending ; POST /admin/wx-verify {wechat}
     const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
     if (!env.ADMIN_TOKEN || a.length < 24 || a !== env.ADMIN_TOKEN) return json({ error: 'auth' }, 401);
+    if (p === '/admin/archive' && req.method === 'POST') { const id = String(b.id || ''); if (!ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
+      const st = b.restore ? 'visible' : 'archived', from = b.restore ? 'archived' : 'visible';
+      const r = await env.SDB.prepare('UPDATE comments SET status=? WHERE card_id=? AND status=?').bind(st, id, from).run(); return json({ ok: true, changed: r.meta.changes }); }
     if (p === '/admin/wx-pending' && req.method === 'GET') return json({ items: (await env.DB.prepare("SELECT id,created_at,name,wechat,wx_code,email FROM subs WHERE wx_status='pending' ORDER BY id").all()).results });
     if (p === '/admin/wx-verify' && req.method === 'POST') { const r = await env.DB.prepare("UPDATE subs SET wx_status='verified',wx_verified_at=? WHERE wechat=? AND wx_status='pending'").bind(now(), clean(b.wechat, 64)).run(); return json({ ok: true, changed: r.meta?.changes ?? 0 }); }
   }
