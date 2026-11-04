@@ -52,7 +52,7 @@
   function rel(w) { return (w - TWD + 7) % 7; }
   function occDate(e) { return e.kind === 'weekly' ? occOf(e) : (e.start || ''); }
   function regSorted(c) { return (REG[c] || []).slice().sort(function (a, b) { var da = occDate(a), db = occDate(b); if (da !== db) return da < db ? -1 : 1; return (a.time || '') < (b.time || '') ? -1 : 1; }); }
-  function oneTag(e) { if (!(e.kind === 'event' && e.regular_oneoff)) return ''; return e.oneoff_kind === 'monthly' ? (zh ? '月度活动' : 'Monthly') : (zh ? '单次活动' : 'One-off'); }
+  function oneTag(e) { if (!(e.kind === 'event' && e.regular_oneoff)) return ''; return e.oneoff_kind === 'monthly' ? (zh ? '月度活动' : 'Monthly') : (zh ? '单次' : 'One-off'); }
   function fd(s) { return s ? s.slice(5).replace('-', '/') + (s.slice(0, 4) !== TODAY.slice(0, 4) ? '' : '') : ''; }
   function dt(e) {
     if (e.kind === 'weekly' && e.nth) return (zh ? '每月' + (e.nth === -1 ? '最后一个' : '第' + e.nth + '个') : (e.nth === -1 ? 'Last ' : ['', '1st ', '2nd ', '3rd ', '4th ', '5th '][e.nth])) + T.WD[wdOf(e)] + (zh ? '' : ' monthly') + (e.time ? ' ' + e.time : '');
@@ -233,7 +233,7 @@
   function start() {
     mount();
     var sp = fetch('/data/suggested_favs.json?v=s3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
-    fetch('/asia/events.json?v=e197', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    fetch('/asia/events.json?v=e198', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };
