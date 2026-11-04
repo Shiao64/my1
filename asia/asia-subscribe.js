@@ -9,7 +9,7 @@
     submit: '订阅', sending: '提交中…', ok: '确认邮件已发出！请到邮箱点击链接完成订阅（7天内有效，没收到请查看垃圾邮件）。',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
   } : {
-    btn: '✉ Get event alert', title: 'Join the Asia Tango Map community', desc: 'Join the Asia Tango Map community! Leave your name and email, and we\'ll send you a verification code. Once verified, you\'ll get an invitation to our Facebook group <b>Asia Tango Map</b>, where we share the latest tango events across China, plus occasional emails featuring special events and festivals. Verified members can also comment on event cards.', name: 'Name', namePh: 'Your name', wxNeed: '', okWx: '',
+    btn: '✉ Get event alert', title: 'Join the Asia Tango Map community', desc: 'Join the Asia Tango Map community! Leave your name and email, and we\'ll send you a confirmation email. Once confirmed, you\'ll get an invitation to our Facebook group <b>Asia Tango Map</b>, where we share the latest tango events across China, plus occasional emails featuring special events and festivals. Verified members can also comment on event cards.', name: 'Name', namePh: 'Your name', wxNeed: '', okWx: '',
     email: 'Email (required)', emailPh: 'name@example.com', hint: 'After submitting, click the confirmation link in your inbox; unconfirmed sign-ups are deleted after 7 days.',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the confirmation email. Please check the address or try again later.', bad: 'Please check your email address.',
     submit: 'Subscribe', sending: 'Sending…', ok: "Almost done! Check your inbox and click the confirmation link (valid 7 days; check spam if you don't see it).",
