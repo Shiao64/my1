@@ -37,8 +37,24 @@ async function sendCode(env, to, name, code, lang) {
 async function user(req, env) {
   const t = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
   if (!/^[0-9a-f]{64}$/.test(t)) return null;
-  return env.SDB.prepare('SELECT u.id,u.name,u.city FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND u.verified_at IS NOT NULL').bind(await sha(t)).first();
+  return env.SDB.prepare('SELECT u.id,u.name,u.city,u.email,u.wx_used FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND u.verified_at IS NOT NULL').bind(await sha(t)).first();
 }
+
+// WeChat users (users.email = 'wx:<id>'): status lives on subs.wx_status in DB. banned wins, then verified, then pending.
+async function wxStatus(env, wx) {
+  const r = await env.DB.prepare("SELECT wx_status FROM subs WHERE wechat=? AND wx_status IN ('pending','verified','banned') ORDER BY (wx_status='banned') DESC, (wx_status='verified') DESC LIMIT 1").bind(wx).first();
+  return r ? r.wx_status : null;
+}
+const wxOf = u => u && typeof u.email === 'string' && u.email.startsWith('wx:') ? u.email.slice(3) : null;
+const wxDev = id => 'wxuser-' + String(id).padStart(10, '0');   // likes.device for a WeChat user's like
+async function wxGate(env, u) {   // null = allowed; else error name. Pending gets exactly one action (comment OR like), claimed atomically.
+  const wx = wxOf(u); if (!wx) return { ok: true };
+  const st = await wxStatus(env, wx);
+  if (st === 'banned' || !st) return { err: 'wx_banned' };
+  if (st === 'verified') return { ok: true, st };
+  return { ok: true, st, claim: true };
+}
+async function wxClaim(env, u) { const r = await env.SDB.prepare('UPDATE users SET wx_used=1 WHERE id=? AND wx_used=0').bind(u.id).run(); return (r.meta?.changes ?? 0) > 0; }
 
 export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
@@ -53,10 +69,13 @@ export async function social(req, env, url, json) {
     return json({ counts, mine, comments: cc });
   }
   if (p === '/like' && req.method === 'POST') {
-    const id = String(b.id || ''), dev = String(b.dev || ''); if (!ID_RE.test(id) || !DEV_RE.test(dev)) return json({ error: 'bad_input' }, 400);
+    let id = String(b.id || ''), dev = String(b.dev || ''); if (!ID_RE.test(id) || !DEV_RE.test(dev)) return json({ error: 'bad_input' }, 400);
+    const lu = await user(req, env), lwx = wxOf(lu); let claim = false;
+    if (lwx) { const g = await wxGate(env, lu); if (g.err) return json({ error: g.err }, 403); dev = wxDev(lu.id); claim = !!g.claim; }
     const had = await env.SDB.prepare('SELECT 1 FROM likes WHERE card_id=? AND device=?').bind(id, dev).first();
     if (had) await env.SDB.prepare('DELETE FROM likes WHERE card_id=? AND device=?').bind(id, dev).run();
-    else await env.SDB.prepare('INSERT OR IGNORE INTO likes(card_id,device,created_at) VALUES(?,?,?)').bind(id, dev, now()).run();
+    else { if (claim && !(await wxClaim(env, lu))) return json({ error: 'wx_used' }, 403);
+      await env.SDB.prepare('INSERT OR IGNORE INTO likes(card_id,device,created_at) VALUES(?,?,?)').bind(id, dev, now()).run(); }
     const n = await env.SDB.prepare('SELECT COUNT(*) n FROM likes WHERE card_id=?').bind(id).first('n');
     return json({ id, n, liked: !had });
   }
@@ -90,26 +109,33 @@ export async function social(req, env, url, json) {
     await env.SDB.prepare('INSERT INTO sessions(token_hash,user_id,created_at) VALUES(?,?,?)').bind(await sha(t), u.id, now()).run();
     return json({ ok: true, token: t, name: u.name });
   }
-  if (p === '/me' && req.method === 'GET') { const u = await user(req, env); return u ? json({ name: u.name }) : json({ error: 'auth' }, 401); }
+  if (p === '/me' && req.method === 'GET') { const u = await user(req, env); if (!u) return json({ error: 'auth' }, 401);
+    const wx = wxOf(u); if (!wx) return json({ name: u.name });
+    const st = await wxStatus(env, wx); if (st === 'banned' || !st) return json({ error: 'wx_banned' }, 403);
+    return json({ name: u.name, wx: st, used: !!u.wx_used, wxdev: wxDev(u.id) }); }
   if (p === '/comment' && req.method === 'POST') {
     const u = await user(req, env); if (!u) return json({ error: 'auth' }, 401);
     const id = String(b.id || ''), body = clean(b.body, 1000); if (!ID_RE.test(id) || !body) return json({ error: 'bad_input' }, 400);
     const n = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>?').bind(u.id, new Date(Date.now() - 600e3).toISOString()).first('n');
     if (n >= 5) return json({ error: 'rate_limited' }, 429);
+    const g = await wxGate(env, u); if (g.err) return json({ error: g.err }, 403);
+    if (g.claim && !(await wxClaim(env, u))) return json({ error: 'wx_used' }, 403);
     const lang = /[\u3400-\u9fff]/.test(body) ? 'zh' : 'en', tr = await translate(env, body, lang);
     await env.SDB.prepare('INSERT INTO comments(card_id,user_id,body,created_at,ip_hash,lang,tr) VALUES(?,?,?,?,?,?,?)').bind(id, u.id, body, now(), iph, lang, tr).run();
     return json({ ok: true, item: { name: u.name, body, lang, tr, at: now() } });
   }
-  if (p === '/wx-login' && req.method === 'POST') {   // zh alternative to email: WeChat subscriber verified by admin, proves it with the 4-digit code
-    if (b.lang !== 'zh') return json({ error: 'zh_only' }, 403);   // WeChat verification is for zh readers only
-    const wx = clean(b.wechat, 64), code = clean(b.code, 4);
-    const r = await env.DB.prepare("SELECT name,wechat FROM subs WHERE wechat=? AND wx_code=? AND wx_status='verified' LIMIT 1").bind(wx, code).first();
-    if (!r) { const pend = await env.DB.prepare("SELECT 1 FROM subs WHERE wechat=? AND wx_code=? AND wx_status='pending'").bind(wx, code).first(); return json({ error: pend ? 'wx_pending' : 'bad_code' }, 400); }
-    const key = 'wx:' + wx, nm = clean(r.name, 40) || wx;
-    await env.SDB.prepare(`INSERT INTO users(email,name,lang,verified_at,created_at,ip_hash,city,role,contact_email) VALUES(?,?,'zh',?,?,?,?,?,?) ON CONFLICT(email) DO UPDATE SET name=excluded.name,contact_email=COALESCE(excluded.contact_email,users.contact_email),city=COALESCE(excluded.city,users.city),role=COALESCE(excluded.role,users.role),verified_at=COALESCE(users.verified_at,excluded.verified_at)`).bind(key, nm, now(), now(), iph, clean(b.city, 40) || null, ROLES.includes(b.role) ? b.role : null, /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(clean(b.email, 120) || '') ? clean(b.email, 120).toLowerCase() : null).run();
-    const u = await env.SDB.prepare('SELECT id,name FROM users WHERE email=?').bind(key).first(), t = rnd(32);
+  if (p === '/wx-login' && req.method === 'POST') {   // zh: WeChat ID only (no code). Pending = one comment or one like; verified (探戈助理 added them) = unlimited; banned = none.
+    if (b.lang !== 'zh') return json({ error: 'zh_only' }, 403);
+    const wx = clean(b.wechat, 64); if (!wx) return json({ error: 'need_wechat' }, 400);
+    const st = await wxStatus(env, wx);
+    if (st === 'banned') return json({ error: 'wx_banned' }, 403);
+    if (!st) return json({ error: 'not_found' }, 404);
+    const r = await env.DB.prepare("SELECT name FROM subs WHERE wechat=? AND wx_status=? ORDER BY id DESC LIMIT 1").bind(wx, st).first();
+    const key = 'wx:' + wx, nm = clean(r && r.name, 40) || wx;
+    await env.SDB.prepare(`INSERT INTO users(email,name,lang,verified_at,created_at,ip_hash,city,role) VALUES(?,?,'zh',?,?,?,?,?) ON CONFLICT(email) DO UPDATE SET name=excluded.name,city=COALESCE(excluded.city,users.city),role=COALESCE(excluded.role,users.role),verified_at=COALESCE(users.verified_at,excluded.verified_at)`).bind(key, nm, now(), now(), iph, clean(b.city, 40) || null, ROLES.includes(b.role) ? b.role : null).run();
+    const u = await env.SDB.prepare('SELECT id,name,wx_used FROM users WHERE email=?').bind(key).first(), t = rnd(32);
     await env.SDB.prepare('INSERT INTO sessions(token_hash,user_id,created_at) VALUES(?,?,?)').bind(await sha(t), u.id, now()).run();
-    return json({ ok: true, token: t, name: u.name });
+    return json({ ok: true, token: t, name: u.name, wx: st, used: !!u.wx_used, wxdev: wxDev(u.id) });
   }
   if (p.startsWith('/admin/') ) {   // Bearer ADMIN_TOKEN. GET /admin/wx-pending ; POST /admin/wx-verify {wechat}
     const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
@@ -117,7 +143,16 @@ export async function social(req, env, url, json) {
     if (p === '/admin/archive' && req.method === 'POST') { const id = String(b.id || ''); if (!ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
       const st = b.restore ? 'visible' : 'archived', from = b.restore ? 'archived' : 'visible';
       const r = await env.SDB.prepare('UPDATE comments SET status=? WHERE card_id=? AND status=?').bind(st, id, from).run(); return json({ ok: true, changed: r.meta.changes }); }
-    if (p === '/admin/wx-pending' && req.method === 'GET') return json({ items: (await env.DB.prepare("SELECT id,created_at,name,wechat,wx_code,email FROM subs WHERE wx_status='pending' ORDER BY id").all()).results });
+    if (p === '/admin/wx-pending' && req.method === 'GET') return json({ items: (await env.DB.prepare("SELECT id,created_at,name,wechat,email FROM subs WHERE wx_status='pending' ORDER BY id").all()).results });
+    if (p === '/admin/wx-reject' && req.method === 'POST') {   // fake ID (探戈助理 can't add): delete its comments + likes, end its sessions, ban the ID for good
+      const wx = clean(b.wechat, 64); if (!wx) return json({ error: 'bad_input' }, 400);
+      const r = await env.DB.prepare("UPDATE subs SET wx_status='banned' WHERE wechat=? AND wx_status IN ('pending','verified')").bind(wx).run();
+      if (!(r.meta?.changes ?? 0)) await env.DB.prepare("INSERT INTO subs(created_at,wechat,types,cities,lang,mail_status,wx_status) VALUES(?,?,'featured,regular','all','zh','wechat','banned')").bind(now(), wx).run();
+      const u = await env.SDB.prepare('SELECT id FROM users WHERE email=?').bind('wx:' + wx).first(); let dc = 0, dl = 0;
+      if (u) { dc = (await env.SDB.prepare('DELETE FROM comments WHERE user_id=?').bind(u.id).run()).meta?.changes ?? 0;
+        dl = (await env.SDB.prepare('DELETE FROM likes WHERE device=?').bind(wxDev(u.id)).run()).meta?.changes ?? 0;
+        await env.SDB.prepare('DELETE FROM sessions WHERE user_id=?').bind(u.id).run(); }
+      return json({ ok: true, banned: wx, comments_deleted: dc, likes_deleted: dl }); }
     if (p === '/admin/wx-verify' && req.method === 'POST') { const r = await env.DB.prepare("UPDATE subs SET wx_status='verified',wx_verified_at=? WHERE wechat=? AND wx_status='pending'").bind(now(), clean(b.wechat, 64)).run(); return json({ ok: true, changed: r.meta?.changes ?? 0 }); }
   }
   return json({ error: 'not_found' }, 404);
