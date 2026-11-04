@@ -3,13 +3,13 @@
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
   var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
   var L = zh ? {
-    btn: '✉ 新活动通知', title: '加入亚洲探戈地图', desc: '加入亚洲探戈地图！留下你的名字和微信号，我们会邀请你加入「亚洲探戈地图」微信群，群里会分享中国各地最新的探戈活动；留下邮箱，可以收到不定期的活动更新邮件。微信号和邮箱至少填一项。', name: '名字', namePh: '您的名字', wxNeed: '请填写微信号或邮箱（至少一项）。', okWx: '收到！我们会尽快加您微信，邀请您进「亚洲探戈地图」微信群。',
+    btn: '✉ 新活动通知', title: '加入亚洲探戈地图', desc: '加入亚洲探戈地图！留下你的名字，再选填微信或邮箱（二选一）。选微信：扫码加「探戈助理」为好友，验证消息里写上页面给你的验证码，通过后会邀请你加入「亚洲探戈地图」微信群，群里会分享中国各地最新的探戈活动。选邮箱：用邮件验证，还能收到不定期的活动更新邮件。验证后就可以在活动卡片下留言。', name: '名字', namePh: '您的名字', wxNeed: '请填写微信号或邮箱（至少一项）。', okWx: '收到！我们会尽快加您微信，邀请您进「亚洲探戈地图」微信群。',
     email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '微信号和邮箱至少填一项，用哪种方式验证都可以。填微信号：加「探戈助理」验证；填邮箱：点确认邮件里的链接（7天内有效）。',
     need: '请填写微信号或邮箱（至少一项）。', bad: '邮箱格式不正确', sendfail: '确认邮件发送失败，请检查邮箱地址或稍后再试。',
     submit: '订阅', sending: '提交中…', ok: '确认邮件已发出！请到邮箱点击链接完成订阅（7天内有效，没收到请查看垃圾邮件）。',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
   } : {
-    btn: '✉ Get event alert', title: 'Join the Asia Tango Map community', desc: 'Join the Asia Tango Map community! Leave your name and email, and we\'ll send you an invitation to our Facebook group <b>Asia Tango Map</b>, where we share the latest tango events across China. You\'ll also receive occasional emails featuring special events and festivals.', name: 'Name', namePh: 'Your name', wxNeed: '', okWx: '',
+    btn: '✉ Get event alert', title: 'Join the Asia Tango Map community', desc: 'Join the Asia Tango Map community! Leave your name and email, and we\'ll send you a verification code. Once verified, you\'ll get an invitation to our Facebook group <b>Asia Tango Map</b>, where we share the latest tango events across China, plus occasional emails featuring special events and festivals. Verified members can also comment on event cards.', name: 'Name', namePh: 'Your name', wxNeed: '', okWx: '',
     email: 'Email (required)', emailPh: 'name@example.com', hint: 'After submitting, click the confirmation link in your inbox; unconfirmed sign-ups are deleted after 7 days.',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the confirmation email. Please check the address or try again later.', bad: 'Please check your email address.',
     submit: 'Subscribe', sending: 'Sending…', ok: "Almost done! Check your inbox and click the confirmation link (valid 7 days; check spam if you don't see it).",
