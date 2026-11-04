@@ -159,3 +159,5 @@ html.atm-p10 .p10-row.b-links a{display:inline!important;padding:0!important;mar
 .atm-chg-row{margin:0 0 4px}
 html.atm-p10 .atm-cancelled-day .p10-row1{text-decoration:line-through;opacity:.6}
 .atm-chg-txt{display:block;font:600 13px/1.4 system-ui,sans-serif;color:#5a3a10;margin:2px 0 4px}
+/* multi-poster (side-by-side "-duo" image, owner rule 2026-11-04): show every poster fully, never crop */
+img[src*="-duo."],img[data-full*="-duo."]{object-fit:contain!important;object-position:center!important;background:#f4efe6}

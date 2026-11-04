@@ -62,3 +62,5 @@ A city's 常规 list (home city view, and the legacy regular filter) includes `r
 ## Poster guard — every visible card has a poster
 
 `tools/ensure_posters.py` fills any visible (`hidden != true`) card in `asia/events*.json` that has no `poster`: newest `posters_past[0]` first, else a generated text poster `images/asia/posters/generated/<id>.png` (1080×1350, same style) with thumbs + ATM_TH. `--check` exits 1 if any remain. It runs automatically after `radar_yidong.py`, at the end of `oti_weekly_update.sh`, in CI (`.github/workflows/poster-guard.yml`), and in the local pre-push hook.
+
+`tools/make_duo.py ID img1 img2…` builds the side-by-side `<ID>-duo.jpg` for multi-poster events (owner rule 2026-11-04: all posters fully visible, no 过期). Any `*-duo.*` image is shown uncropped (object-fit:contain) in list and card.
