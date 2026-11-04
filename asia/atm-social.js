@@ -8,12 +8,12 @@
   var pm = location.pathname.match(/^\/(?:zh\/|en\/)?(organizer|dj)\/([a-z0-9-]{1,48})\/?(?:index\.html)?$/i);
   if (pm && document.querySelector('.dj-main')) cardId = (pm[1].toLowerCase() === 'dj' ? 'dj:' : 'org:') + pm[2].toLowerCase();
   if (!/^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/.test(cardId)) return;
-  var L = zh ? { like: '赞', cm: '留言', none: '还没有留言，来说第一句吧。', ph: '写下你的留言…', post: '发布', join: '登录后留言', name: '名字', email: '邮箱',
+  var L = zh ? { like: '赞', cm: '留言', none: '还没有留言，来说第一句吧。', ph: '写下你的留言…', post: '发布', join: '用邮箱留言', name: '你的名字', email: '你的邮箱',
       send: '发送验证码', code: '邮件里的 6 位验证码', verify: '验证', sent: '验证码已发到你的邮箱（15 分钟内有效，没收到请看垃圾邮件）。', as: '以 {n} 的身份留言 · ', out: '退出',
-      need: '请填写名字和正确的邮箱。', bad: '验证码不对或已过期。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '留言需要注册并验证邮箱。', upd: '我们会不定时发送活动更新。', city: '城市（必填）', ncity: '请填写你所在的城市。', role: '你跳的角色（必选）', rl: '领舞', rf: '跟舞', rb: '双角色', nrole: '请选择你跳的角色。', trd: '译文', org: '查看原文', shtr: '查看译文' }
-    : { like: 'Like', cm: 'Comments', none: 'No comments yet. Be the first!', ph: 'Write a comment…', post: 'Post', join: 'Sign in to comment', name: 'Name', email: 'Email',
+      need: '请填写名字和正确的邮箱。', bad: '验证码不对或已过期。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '填好资料，我们把验证码发到你的邮箱', upd: '我们会不定期把活动更新发到这个邮箱', city: '所在城市（必填）', ncity: '请填写你所在的城市。', role: '你跳的角色（必选）', rl: '领舞', rf: '跟舞', rb: '双角色', nrole: '请选择你跳的角色。', trd: '译文', org: '查看原文', shtr: '查看译文' }
+    : { like: 'Like', cm: 'Comments', none: 'No comments yet. Be the first!', ph: 'Write a comment…', post: 'Post', join: 'Comment with email', name: 'Your name', email: 'Your email',
       send: 'Send code', code: '6-digit code from the email', verify: 'Verify', sent: 'We emailed you a code (valid 15 minutes; check spam if you don\'t see it).', as: 'Commenting as {n} · ', out: 'Sign out',
-      need: 'Please enter your name and a valid email.', bad: 'Wrong or expired code.', fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', why: 'Commenting needs an account with a verified email.', upd: 'We occasionally send event updates.', city: 'City (required)', ncity: 'Please enter your city.', role: 'Your role (required)', rl: 'Leader', rf: 'Follower', rb: 'Both', nrole: 'Please choose your role.', trd: 'Translated', org: 'See original', shtr: 'See translation' };
+      need: 'Please enter your name and a valid email.', bad: 'Wrong or expired code.', fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', why: 'Fill in your details and we\'ll email you a code', upd: 'We\'ll send event updates to this address from time to time', city: 'Your city (required)', ncity: 'Please enter your city.', role: 'Your role (required)', rl: 'Leader', rf: 'Follower', rb: 'Both', nrole: 'Please choose your role.', trd: 'Translated', org: 'See original', shtr: 'See translation' };
   function dev() { var k = 'atm_dev_id', v = ''; try { v = localStorage.getItem(k) || ''; if (!/^[A-Za-z0-9-]{16,64}$/.test(v)) { v = (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2))); localStorage.setItem(k, v); } } catch (e) { v = v || 'anon-' + Date.now().toString(36) + '0000000000'; } return v; }
   function tok() { try { return localStorage.getItem('atm_social_tok') || ''; } catch (e) { return ''; } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -60,14 +60,14 @@
   }
   var me = null, wxi = null, tsId = null, tsTok = '';   // wxi = {wx:'pending'|'verified', used, wxdev} for WeChat sessions
   var inWx = /MicroMessenger/i.test(navigator.userAgent || ''), QR = window.ATM_WX_QR || '/asia/tango-assistant-qr.jpg', poll = null;
-  var WXT = { title: '留言前，先加探戈助理好友', ok: '留下微信号即表示同意探戈助理添加你为好友', qr: inWx ? '长按二维码，加探戈助理好友' : '用微信扫码加探戈助理好友', ph: '你的微信号', cy: '城市（选填）', rl: '身份（选填）', go: '获取验证码',
+  var WXT = { title: '先加探戈助理为好友，就能留言', ok: '留下微信号，就表示同意探戈助理加你为好友', qr: inWx ? '长按二维码，加探戈助理为好友' : '用微信扫码，加探戈助理为好友', ph: '你的微信号', cy: '所在城市（选填）', rl: '你跳的角色（选填）', go: '获取验证码',
     cd: '加好友时，请在申请里写上这个验证码', add: '我已添加', addh: '按下后，探戈助理通常几分钟内通过', chk: '已通知探戈助理，正在核对', na: '请先加探戈助理好友，再按「我已添加」。',
-    once: '你现在可以留言一次，或点一次赞。探戈助理加你为好友后，就不再限制', wait: '探戈助理正在加你为好友，通过后就可以继续留言', ver: '已验证', rule: '请填真实的微信号。三小时内加不上好友的话，留言会被删除，这个微信号也不能再用', need: '请填写你的微信号。', first: '请先在下面填写微信号，获取验证码。' };
+    once: '你现在可以留言一次，或点一次赞。探戈助理加你为好友后，就不再限制', wait: '探戈助理正在加你为好友，通过后就可以继续留言', ver: '已验证', rule: inWx ? '长按二维码加探戈助理为好友，申请时写上验证码。' : '请填真实的微信号，探戈助理会来加你。', ban: '这个微信号不能再用来留言。' /* v12: 3-hour expiry still enforced in backend; user removed the delete/ban sentence from the panel */, need: '请填写你的微信号。', first: '请先在下面填写微信号，获取验证码。' };
   function qrHtml() { return '<div class="as-qr"><img src="' + esc(QR) + '" alt="探戈助理二维码" width="180" height="180" loading="lazy"><p class="as-meta">' + WXT.qr + '</p></div>'; }
   function wxHead() { return '<h4 class="as-wt">' + WXT.title + '</h4><p class="as-wc">' + WXT.ok + '</p>'; }
   function setPoll() { var want = !!(me && wxi && wxi.wx === 'pending' && wxi.added); if (want && !poll) poll = setInterval(function () { if (document.hidden) return; api('/me', null, true).then(function (d) { if (d.error === 'wx_banned') { banned(); return; } if (d.wx && wxi && d.wx !== wxi.wx) { wxi = { wx: d.wx, used: d.used, wxdev: d.wxdev, added: d.added, code: d.code }; drawForm(); } }).catch(function () {}); }, 30000); if (!want && poll) { clearInterval(poll); poll = null; } }
   function signOut() { try { localStorage.removeItem('atm_social_tok'); } catch (e) {} me = null; wxi = null; setPoll(); }
-  function banned(msg) { signOut(); drawForm(); var e = form.querySelector('.as-wxerr') || form.querySelector('.as-err'); if (e) e.textContent = msg || WXT.rule; }
+  function banned(msg) { signOut(); drawForm(); var e = form.querySelector('.as-wxerr') || form.querySelector('.as-err'); if (e) e.textContent = msg || WXT.ban; }
   function drawForm() {
     if (me) {
       var pend = wxi && wxi.wx === 'pending', used = pend && wxi.used, nadd = pend && !wxi.added;
@@ -93,7 +93,7 @@
       return;
     }
     form.innerHTML = (zh ? '<div class="as-tabs" role="tablist"><button type="button" class="as-tab" data-t="wx">微信</button><button type="button" class="as-tab" data-t="em">邮箱</button></div>' : '') +
-      '<div class="as-emf"><p class="as-meta"><b>' + L.join + '</b> — ' + L.why + '</p><input class="as-in as-nm" maxlength="40" autocomplete="name" placeholder="' + L.name + '"><div class="as-row as-cr"><input class="as-in as-cy0" maxlength="40" autocomplete="address-level2" placeholder="' + L.city + '"><select class="as-in as-role"><option value="">' + L.role + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div><input class="as-in as-em" type="email" autocomplete="email" placeholder="' + L.email + '"><p class="as-meta as-upd">' + L.upd + '</p>' +
+      '<div class="as-emf"><h4 class="as-wt">' + L.join + '</h4><p class="as-wc">' + L.why + '</p><input class="as-in as-nm" maxlength="40" autocomplete="name" placeholder="' + L.name + '"><div class="as-row as-cr"><input class="as-in as-cy0" maxlength="40" autocomplete="address-level2" placeholder="' + L.city + '"><select class="as-in as-role"><option value="">' + L.role + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div><input class="as-in as-em" type="email" autocomplete="email" placeholder="' + L.email + '"><p class="as-meta as-upd">' + L.upd + '</p>' +
       '<div class="as-ts"></div><button type="button" class="as-go as-send">' + L.send + '</button></div>' +
       (zh ? '<div class="as-wx">' + wxHead() + qrHtml() +
         '<input class="as-in as-wxid" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + WXT.ph + '"><div class="as-row as-wsm"><input class="as-in as-wcy" maxlength="40" autocomplete="address-level2" placeholder="' + WXT.cy + '"><select class="as-in as-wrl"><option value="">' + WXT.rl + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>' +
@@ -105,10 +105,10 @@
       wb.querySelector('.as-wxsub').onclick = function () { var go = this, wx = wb.querySelector('.as-wxid').value.trim(), cy = wb.querySelector('.as-wcy').value.trim(), rl = wb.querySelector('.as-wrl').value; wer.textContent = '';
         if (!wx) { wer.textContent = WXT.need; return; }
         go.disabled = true; fetch(API.replace(/\/social$/, '') + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ types: ['featured', 'regular'], cities: [], name: wx, email: '', wechat: wx, city: cy, role: rl, lang: 'zh', website: '' }) })
-          .then(function (r) { return r.json(); }).then(function (d) { if (d.error === 'wx_banned') { wer.textContent = WXT.rule; return; } if (!d.ok) { wer.textContent = d.error === 'rate_limited' ? L.rate : L.fail; return; }
+          .then(function (r) { return r.json(); }).then(function (d) { if (d.error === 'wx_banned') { wer.textContent = WXT.ban; return; } if (!d.ok) { wer.textContent = d.error === 'rate_limited' ? L.rate : L.fail; return; }
             return api('/wx-login', { lang: 'zh', wechat: wx, city: cy, role: rl }).then(function (d2) {
               if (d2.ok) { try { localStorage.setItem('atm_social_tok', d2.token); } catch (e) {} me = d2.name; wxi = { wx: d2.wx, used: d2.used, wxdev: d2.wxdev, added: d2.added, code: d2.code || d.wechat_code }; drawForm(); refreshLike(); }
-              else wer.textContent = d2.error === 'wx_banned' ? WXT.rule : L.fail; });
+              else wer.textContent = d2.error === 'wx_banned' ? WXT.ban : L.fail; });
           }).catch(function () { wer.textContent = L.fail; }).then(function () { go.disabled = false; }); }; }
     if (TSKEY) loadTs(function () { tsId = window.turnstile.render(form.querySelector('.as-ts'), { sitekey: TSKEY, language: zh ? 'zh-cn' : 'en', callback: function (t) { tsTok = t; } }); });
     form.querySelector('.as-send').onclick = function () {
