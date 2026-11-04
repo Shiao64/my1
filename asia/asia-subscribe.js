@@ -30,7 +30,7 @@
     '#tsub-modal input.tsub-in:focus{outline:none;border-color:#0e6e78;box-shadow:0 0 0 3px rgba(14,110,120,.18)}' +
     '#tsub-modal .tsub-desc{font-size:.88rem;color:#2a1a14;margin:0 0 4px;line-height:1.5}' +
     '#tsub-modal .tsub-hint{font-size:.8rem;color:#7a6255;margin:6px 0 0}#tsub-modal .tsub-err{color:#b5654a;font-size:.85rem;margin:8px 0 0;min-height:1em}' +
-    '#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;margin:8px 0 0;line-height:1.6}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:auto;margin:10px auto 0;border-radius:8px}' +
+    '#tsub-modal .tsub-tabs{display:flex;margin:10px 0 6px;border:1px solid #0e6e78;border-radius:8px;overflow:hidden}#tsub-modal .tsub-tab{flex:1;padding:9px 0;border:0;background:#fff;color:#0e6e78;font:600 .95rem system-ui;cursor:pointer}#tsub-modal .tsub-tab[aria-selected=true]{background:#0e6e78;color:#fff}#tsub-modal [data-m=wx] .tsub-emf,#tsub-modal [data-m=em] .tsub-wxf,#tsub-modal [data-m] .tsub-hint{display:none!important}#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;margin:8px 0 0;line-height:1.6}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:auto;margin:10px auto 0;border-radius:8px}' +
     '#tsub-modal .tsub-go{width:100%;min-height:44px;margin-top:10px;border-radius:999px;font-size:1rem;background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;cursor:pointer}#tsub-modal .tsub-go:disabled{opacity:.5}' +
     '#tsub-modal .tsub-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}' +
     '#tsub-modal .tsub-foot{font-size:.78rem;color:#7a6255;margin:12px 0 0;padding-top:8px;border-top:1px dashed #ead9b8}';
@@ -56,12 +56,13 @@
     '<button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button><h2 id="tsub-t">' + L.title + '</h2><p class="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate>' +
     '<label class="tsub-lbl" for="tsub-n">' + L.name + '</label><input type="text" class="tsub-in" id="tsub-n" autocomplete="name" maxlength="80" placeholder="' + L.namePh + '">' +
-    (zh ? '<p class="tsub-stp"><b>①</b> 先扫码加探戈助理为好友</p><img class="tsub-qr" alt="探戈助理微信二维码" src="' + (window.ATM_WX_QR || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f6f1e7" stroke="#0e6e78" stroke-width="4" stroke-dasharray="8 6"/><text x="100" y="95" font-size="16" text-anchor="middle" fill="#0a4f57">探戈助理二维码</text><text x="100" y="120" font-size="13" text-anchor="middle" fill="#b5654a">（占位图，待换真图）</text></svg>')) + '"><p class="tsub-stp"><b>②</b> 填微信号（或邮箱），点下方按钮获取验证码</p>' + WX(false) + '<p class="tsub-stp" style="text-align:center">或</p>' + EM(false) : EM(true)) +
+    (zh ? '<div class="tsub-tabs"><button type="button" class="tsub-tab" data-t="wx">微信验证</button><button type="button" class="tsub-tab" data-t="em">邮件验证</button></div><div class="tsub-wxf"><p class="tsub-stp"><b>①</b> 先扫码加探戈助理为好友</p><img class="tsub-qr" alt="探戈助理微信二维码" src="' + (window.ATM_WX_QR || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f6f1e7" stroke="#0e6e78" stroke-width="4" stroke-dasharray="8 6"/><text x="100" y="95" font-size="16" text-anchor="middle" fill="#0a4f57">探戈助理二维码</text><text x="100" y="120" font-size="13" text-anchor="middle" fill="#b5654a">（占位图，待换真图）</text></svg>')) + '"><p class="tsub-stp"><b>②</b> 填微信号，点下方按钮获取验证码</p>' + WX(false) + '<p class="tsub-stp"><b>③</b> 把页面给你的那句「订阅亚洲探戈地图，验证码 XXXX」发给探戈助理</p><p class="tsub-stp"><b>④</b> 助理通过后即可留言，也会邀请你进群</p></div><div class="tsub-emf">' + EM(false) + '<p class="tsub-stp">我们会不定时发送活动更新。</p></div>' : EM(true)) +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
     '<p class="tsub-hint">' + L.hint + '</p><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
     '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
     '<p class="tsub-foot">' + L.foot + '</p></div>';
   document.body.appendChild(m);
+  if (zh) { var sm = function (v) { var f = document.getElementById('tsub-f'); f.setAttribute('data-m', v); [].forEach.call(f.querySelectorAll('.tsub-tab'), function (t) { t.setAttribute('aria-selected', t.getAttribute('data-t') === v ? 'true' : 'false'); }); var e = document.getElementById('tsub-err'); if (e) e.textContent = ''; }; [].forEach.call(m.querySelectorAll('.tsub-tab'), function (t) { t.onclick = function () { sm(t.getAttribute('data-t')); }; }); sm('wx'); }
   var $ = function (id) { return document.getElementById(id); };
   var tmr = null;
   function open() { if (tmr) { clearTimeout(tmr); tmr = null; } $('tsub-ok').hidden = true; $('tsub-err').textContent = ''; m.hidden = false; }
@@ -73,9 +74,9 @@
 
   $('tsub-f').addEventListener('submit', function (e) {
     e.preventDefault();
-    var em = $('tsub-e').value.trim(), wx = zh ? $('tsub-w').value.trim() : '', nm = $('tsub-n').value.trim(), err = $('tsub-err'), ok = $('tsub-ok'), go = $('tsub-go');
+    var vm = zh ? ($('tsub-f').getAttribute('data-m') || 'wx') : 'em', em = vm === 'em' ? $('tsub-e').value.trim() : '', wx = zh && vm === 'wx' ? $('tsub-w').value.trim() : '', nm = $('tsub-n').value.trim(), err = $('tsub-err'), ok = $('tsub-ok'), go = $('tsub-go');
     err.textContent = ''; ok.hidden = true;
-    if (zh && !wx && !em) { err.textContent = L.wxNeed; $('tsub-w').focus(); return; }
+    if (zh && !wx && !em) { err.textContent = vm === 'wx' ? '请填写微信号。' : '请填写邮箱。'; $(vm === 'wx' ? 'tsub-w' : 'tsub-e').focus(); return; }
     if (!zh && !em) { err.textContent = L.need; $('tsub-e').focus(); return; }
     if (em && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
     go.disabled = true; go.textContent = L.sending;
