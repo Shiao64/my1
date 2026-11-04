@@ -1,5 +1,5 @@
 // Asia Tango Map "event alerts" API — double opt-in (draft, NOT deployed).
-// POST /subscribe {email (required), wechat?, types, cities, lang, website(honeypot)}
+// POST /subscribe {email (required), name?, wechat?, types, cities, lang, website(honeypot)}
 //   -> row in email_subs with status 'pending' + confirmation email with a one-time link (token, valid 7 days).
 // GET  /confirm?t=TOKEN   -> status 'active' (on the mailing list) + welcome email + owner notification.
 // GET  /unsubscribe?t=TOKEN (and POST for List-Unsubscribe one-click) -> status 'unsubscribed'.
@@ -34,7 +34,7 @@ const T = {
   }
 };
 
-const cors = (o, env) => (ORIGINS.includes(o) || (env.ALLOW_LOCAL === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)))
+const cors = (o, env) => (ORIGINS.includes(o) || String(env.EXTRA_ORIGINS || '').split(',').includes(o) || (env.ALLOW_LOCAL === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)))
   ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' } : {};
 const json = (d, s, h) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
 const nowIso = () => new Date().toISOString();
@@ -108,8 +108,22 @@ async function subscribe(req, env, h) {
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const email = String(b.email || '').trim().toLowerCase().slice(0, 254);
   const wechat = String(b.wechat || '').trim().slice(0, 64);
+  const name = String(b.name || '').replace(/\s+/g, ' ').trim().slice(0, 80);
   const types = (Array.isArray(b.types) ? b.types : ['featured', 'regular']).filter(t => t === 'featured' || t === 'regular');
   const cities = types.includes('regular') ? (Array.isArray(b.cities) ? b.cities : []).map(c => String(c).trim().slice(0, 40)).filter(Boolean).slice(0, 40) : [];
+  if (lang === 'zh' && !wechat) return json({ error: 'need_wechat' }, 400, h);   // zh form: WeChat ID required, email optional
+  let wxCode = null;
+  if (lang === 'zh') {   // zh: WeChat ID required. Pending row + 4-digit code; the user adds 探戈助理 and writes the code in the friend request; admin marks verified.
+    const ip0 = await sha((req.headers.get('CF-Connecting-IP') || '') + (env.IP_SALT || 'tw'), 12);
+    const old = await env.DB.prepare("SELECT wx_code,wx_status FROM subs WHERE wechat=? AND wx_status IS NOT NULL ORDER BY id DESC LIMIT 1").bind(wechat).first();
+    wxCode = old?.wx_code || String(1000 + (crypto.getRandomValues(new Uint16Array(1))[0] % 9000));
+    if (!old) await env.DB.prepare('INSERT INTO subs(created_at,email,name,wechat,types,cities,lang,ip_hash,is_test,mail_status,wx_code,wx_status) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)')
+      .bind(nowIso(), email || null, name || null, wechat, types.join(',') || 'featured,regular', cities.join(',') || 'all', lang, ip0, b.test ? 1 : 0, 'wechat', wxCode, 'pending').run();
+    else await env.DB.prepare('UPDATE subs SET name=COALESCE(?,name),email=COALESCE(?,email) WHERE wechat=? AND wx_status IS NOT NULL').bind(name || null, email || null, wechat).run();
+    if (!old) await notifyOwner(env, `新订阅（微信）${name || ''} ${wechat} 验证码 ${wxCode}`, [`亚洲探戈地图 新订阅（微信，待验证）`, '', `名字：${name || '（未填）'}`, `微信号：${wechat}`, `验证码：${wxCode}`, `邮箱：${email || '（未填）'}`, `时间：${shTime()}`].join('\n'));
+    if (old?.wx_status === 'verified') wxCode = null;   // never hand out a verified member's code again
+    if (!email) return json({ ok: true, pending: true, wechat_only: true, wechat_code: wxCode, wx_status: old?.wx_status || 'pending' }, 200, h);
+  }
   if (!email) return json({ error: 'need_email' }, 400, h);          // email is required (WeChat can't receive alerts)
   if (!EMAIL_RE.test(email)) return json({ error: 'bad_email' }, 400, h);
   if (!types.length) return json({ error: 'need_type' }, 400, h);
@@ -122,22 +136,22 @@ async function subscribe(req, env, h) {
 
   const row = await env.DB.prepare('SELECT id,status,unsub_token FROM email_subs WHERE email=?').bind(email).first();
   // Same neutral answer whether or not the address is already on the list (no membership leak, no extra mail to active members).
-  if (row && row.status === 'active') return json({ ok: true, pending: true }, 200, h);
+  if (row && row.status === 'active') return json({ ok: true, pending: true, ...(wxCode ? { wechat_code: wxCode } : {}) }, 200, h);
 
   const token = tok(), hash = await sha(token), unsub = row?.unsub_token || tok(), now = nowIso();
-  await env.DB.prepare(`INSERT INTO email_subs(email,wechat,types,cities,lang,status,confirm_hash,pending_since,unsub_token,created_at,ip_hash,is_test)
-      VALUES(?,?,?,?,?,'pending',?,?,?,?,?,?)
-      ON CONFLICT(email) DO UPDATE SET wechat=COALESCE(excluded.wechat,wechat),types=excluded.types,cities=excluded.cities,lang=excluded.lang,
+  await env.DB.prepare(`INSERT INTO email_subs(email,name,wechat,types,cities,lang,status,confirm_hash,pending_since,unsub_token,created_at,ip_hash,is_test)
+      VALUES(?,?,?,?,?,?,'pending',?,?,?,?,?,?)
+      ON CONFLICT(email) DO UPDATE SET name=COALESCE(excluded.name,name),wechat=COALESCE(excluded.wechat,wechat),types=excluded.types,cities=excluded.cities,lang=excluded.lang,
         status='pending',confirm_hash=excluded.confirm_hash,pending_since=excluded.pending_since,ip_hash=excluded.ip_hash,unsubscribed_at=NULL`)
-    .bind(email, wechat || null, types.join(','), cities.join(',') || 'all', lang, hash, now, unsub, now, ip, isTest).run();
+    .bind(email, name || null, wechat || null, types.join(','), cities.join(',') || 'all', lang, hash, now, unsub, now, ip, isTest).run();
 
   const t = T[lang], link = `${env.API_BASE}/confirm?t=${token}`;
   let st;
   try { st = await sendToSubscriber(env, email, t.cSubj, `${t.cBody(link)}\n\n${t.foot}`, mailHtml(t.cBody('').split('\n').filter(Boolean), link, t)); }
   catch (e) { st = 'fail: ' + String(e.message || e).slice(0, 150); }
   await env.DB.prepare('UPDATE email_subs SET confirm_mail_status=? WHERE email=?').bind(st, email).run();
-  if (st.startsWith('fail')) return json({ error: 'send_failed' }, 502, h);
-  return json({ ok: true, pending: true }, 200, h);
+  if (st.startsWith('fail')) return json({ error: 'send_failed', ...(wxCode ? { wechat_code: wxCode } : {}) }, 502, h);
+  return json({ ok: true, pending: true, ...(wxCode ? { wechat_code: wxCode } : {}) }, 200, h);
 }
 
 async function confirm(url, env) {
@@ -154,7 +168,7 @@ async function confirm(url, env) {
   await env.DB.prepare('UPDATE email_subs SET welcome_mail_status=? WHERE id=?').bind(ws, r.id).run();
   const typeZh = r.types.split(',').map(x => x === 'featured' ? '特色活动' : '常规活动').join('、');
   await notifyOwner(env, `${r.is_test ? '[测试] ' : ''}新订阅已确认 #${r.id} ${r.email}`,
-    [`亚洲探戈地图 新订阅（已确认）#${r.id}`, '', `邮箱：${r.email}`, `微信号：${r.wechat || '（未填）'}`, `活动类型：${typeZh}`, `城市：${r.cities === 'all' ? '全部城市' : r.cities}`, `确认时间：${shTime()}`, `页面语言：${lang === 'zh' ? '中文' : 'English'}`].join('\n'));
+    [`亚洲探戈地图 新订阅（已确认）#${r.id}`, '', `名字：${r.name || '（未填）'}`, `邮箱：${r.email}`, `微信号：${r.wechat || '（未填）'}`, `活动类型：${typeZh}`, `城市：${r.cities === 'all' ? '全部城市' : r.cities}`, `确认时间：${shTime()}`, `页面语言：${lang === 'zh' ? '中文' : 'English'}`].join('\n'));
   return page(lang, t.okPage);
 }
 
