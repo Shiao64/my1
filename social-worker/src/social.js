@@ -32,7 +32,7 @@ async function sendCode(env, to, name, code, lang) {
 async function user(req, env) {
   const t = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
   if (!/^[0-9a-f]{64}$/.test(t)) return null;
-  return env.SDB.prepare('SELECT u.id,u.name FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND u.verified_at IS NOT NULL').bind(await sha(t)).first();
+  return env.SDB.prepare('SELECT u.id,u.name,u.city FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND u.verified_at IS NOT NULL').bind(await sha(t)).first();
 }
 
 export async function social(req, env, url, json) {
@@ -57,19 +57,21 @@ export async function social(req, env, url, json) {
   }
   if (p === '/comments' && req.method === 'GET') {
     const id = url.searchParams.get('id') || ''; if (!ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
-    const r = await env.SDB.prepare("SELECT u.name,c.body,c.created_at at FROM comments c JOIN users u ON u.id=c.user_id WHERE c.card_id=? AND c.status='visible' ORDER BY c.created_at DESC, c.id DESC LIMIT 200").bind(id).all();
+    const r = await env.SDB.prepare("SELECT u.name,u.city,c.body,c.lang,c.tr,c.created_at at FROM comments c JOIN users u ON u.id=c.user_id WHERE c.card_id=? AND c.status='visible' ORDER BY c.created_at DESC, c.id DESC LIMIT 200").bind(id).all();
     return json({ items: r.results });
   }
   if (p === '/signup' && req.method === 'POST') {
     const name = clean(b.name, 40).replace(/\s+/g, ' '), email = clean(b.email, 254).toLowerCase(), lang = b.lang === 'zh' ? 'zh' : 'en';
+    const city = clean(b.city, 40).replace(/\s+/g, ' '); if (!city) return json({ error: 'need_city' }, 400);
+    const role = ROLES.includes(b.role) ? b.role : ''; if (!role) return json({ error: 'need_role' }, 400);
     if (!name) return json({ error: 'need_name' }, 400); if (!EMAIL_RE.test(email)) return json({ error: 'bad_email' }, 400);
     if (!(await turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
     const recent = await env.SDB.prepare('SELECT COUNT(*) n FROM users WHERE ip_hash=? AND code_sent_at>?').bind(iph, new Date(Date.now() - 3600e3).toISOString()).first('n');
     if (recent >= 6) return json({ error: 'rate_limited' }, 429);
     const code = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
-    await env.SDB.prepare(`INSERT INTO users(email,name,lang,code_hash,code_sent_at,code_tries,created_at,ip_hash) VALUES(?,?,?,?,?,0,?,?)
-      ON CONFLICT(email) DO UPDATE SET name=excluded.name,lang=excluded.lang,code_hash=excluded.code_hash,code_sent_at=excluded.code_sent_at,code_tries=0,ip_hash=excluded.ip_hash`)
-      .bind(email, name, lang, await sha(email + ':' + code), now(), now(), iph).run();
+    await env.SDB.prepare(`INSERT INTO users(email,name,lang,code_hash,code_sent_at,code_tries,created_at,ip_hash,city,role) VALUES(?,?,?,?,?,0,?,?,?,?)
+      ON CONFLICT(email) DO UPDATE SET name=excluded.name,lang=excluded.lang,code_hash=excluded.code_hash,code_sent_at=excluded.code_sent_at,code_tries=0,ip_hash=excluded.ip_hash,city=excluded.city,role=excluded.role`)
+      .bind(email, name, lang, await sha(email + ':' + code), now(), now(), iph, city, role).run();
     let via; try { via = await sendCode(env, email, name, code, lang); } catch (e) { return json({ error: 'send_failed' }, 502); }
     return json({ ok: true, via, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_code: code } : {}) });
   }
@@ -89,8 +91,9 @@ export async function social(req, env, url, json) {
     const id = String(b.id || ''), body = clean(b.body, 1000); if (!ID_RE.test(id) || !body) return json({ error: 'bad_input' }, 400);
     const n = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>?').bind(u.id, new Date(Date.now() - 600e3).toISOString()).first('n');
     if (n >= 5) return json({ error: 'rate_limited' }, 429);
-    await env.SDB.prepare('INSERT INTO comments(card_id,user_id,body,created_at,ip_hash) VALUES(?,?,?,?,?)').bind(id, u.id, body, now(), iph).run();
-    return json({ ok: true, item: { name: u.name, body, at: now() } });
+    const lang = /[\u3400-\u9fff]/.test(body) ? 'zh' : 'en', tr = await translate(env, body, lang);
+    await env.SDB.prepare('INSERT INTO comments(card_id,user_id,body,created_at,ip_hash,lang,tr) VALUES(?,?,?,?,?,?,?)').bind(id, u.id, body, now(), iph, lang, tr).run();
+    return json({ ok: true, item: { name: u.name, body, lang, tr, at: now() } });
   }
   if (p === '/wx-login' && req.method === 'POST') {   // zh alternative to email: WeChat subscriber verified by admin, proves it with the 4-digit code
     if (b.lang !== 'zh') return json({ error: 'zh_only' }, 403);   // WeChat verification is for zh readers only
@@ -98,7 +101,7 @@ export async function social(req, env, url, json) {
     const r = await env.DB.prepare("SELECT name,wechat FROM subs WHERE wechat=? AND wx_code=? AND wx_status='verified' LIMIT 1").bind(wx, code).first();
     if (!r) { const pend = await env.DB.prepare("SELECT 1 FROM subs WHERE wechat=? AND wx_code=? AND wx_status='pending'").bind(wx, code).first(); return json({ error: pend ? 'wx_pending' : 'bad_code' }, 400); }
     const key = 'wx:' + wx, nm = clean(r.name, 40) || wx;
-    await env.SDB.prepare(`INSERT INTO users(email,name,lang,verified_at,created_at,ip_hash) VALUES(?,?,'zh',?,?,?) ON CONFLICT(email) DO UPDATE SET name=excluded.name,verified_at=COALESCE(users.verified_at,excluded.verified_at)`).bind(key, nm, now(), now(), iph).run();
+    await env.SDB.prepare(`INSERT INTO users(email,name,lang,verified_at,created_at,ip_hash,city,role) VALUES(?,?,'zh',?,?,?,?,?) ON CONFLICT(email) DO UPDATE SET name=excluded.name,city=COALESCE(excluded.city,users.city),role=COALESCE(excluded.role,users.role),verified_at=COALESCE(users.verified_at,excluded.verified_at)`).bind(key, nm, now(), now(), iph, clean(b.city, 40) || null, ROLES.includes(b.role) ? b.role : null).run();
     const u = await env.SDB.prepare('SELECT id,name FROM users WHERE email=?').bind(key).first(), t = rnd(32);
     await env.SDB.prepare('INSERT INTO sessions(token_hash,user_id,created_at) VALUES(?,?,?)').bind(await sha(t), u.id, now()).run();
     return json({ ok: true, token: t, name: u.name });
@@ -114,3 +117,11 @@ export async function social(req, env, url, json) {
   }
   return json({ error: 'not_found' }, 404);
 }
+
+// zh<->en machine translation (Workers AI m2m100); null on failure so the original still posts.
+async function translate(env, text, lang) {
+  if (!env.AI) return null;
+  try { const r = await env.AI.run('@cf/meta/m2m100-1.2b', { text, source_lang: lang === 'zh' ? 'chinese' : 'english', target_lang: lang === 'zh' ? 'english' : 'chinese' });
+    const t = String(r && r.translated_text || '').trim().slice(0, 2000); return t && t !== text ? t : null; } catch (e) { return null; }
+}
+const ROLES = ['leader', 'follower', 'both'];

@@ -1,0 +1,2 @@
+ALTER TABLE comments ADD COLUMN lang TEXT;
+ALTER TABLE comments ADD COLUMN tr TEXT;

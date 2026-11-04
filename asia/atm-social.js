@@ -10,10 +10,10 @@
   if (!/^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/.test(cardId)) return;
   var L = zh ? { like: '赞', cm: '留言', none: '还没有留言，来说第一句吧。', ph: '写下你的留言…', post: '发布', join: '登录后留言', name: '名字', email: '邮箱',
       send: '发送验证码', code: '邮件里的 6 位验证码', verify: '验证', sent: '验证码已发到你的邮箱（15 分钟内有效，没收到请看垃圾邮件）。', as: '以 {n} 的身份留言 · ', out: '退出',
-      need: '请填写名字和正确的邮箱。', bad: '验证码不对或已过期。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '留言需要注册并验证邮箱。' }
+      need: '请填写名字和正确的邮箱。', bad: '验证码不对或已过期。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '留言需要注册并验证邮箱。', city: '城市（必填）', ncity: '请填写你所在的城市。', role: '你跳的角色（必选）', rl: 'Leader 领舞', rf: 'Follower 跟舞', rb: '两者都跳 Both', nrole: '请选择你跳的角色。', trd: '译文', org: '查看原文', shtr: '查看译文' }
     : { like: 'Like', cm: 'Comments', none: 'No comments yet. Be the first!', ph: 'Write a comment…', post: 'Post', join: 'Sign in to comment', name: 'Name', email: 'Email',
       send: 'Send code', code: '6-digit code from the email', verify: 'Verify', sent: 'We emailed you a code (valid 15 minutes; check spam if you don\'t see it).', as: 'Commenting as {n} · ', out: 'Sign out',
-      need: 'Please enter your name and a valid email.', bad: 'Wrong or expired code.', fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', why: 'Commenting needs an account with a verified email.' };
+      need: 'Please enter your name and a valid email.', bad: 'Wrong or expired code.', fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', why: 'Commenting needs an account with a verified email.', city: 'City (required)', ncity: 'Please enter your city.', role: 'Your role (required)', rl: 'Leader', rf: 'Follower', rb: 'Both', nrole: 'Please choose your role.', trd: 'Translated', org: 'See original', shtr: 'See translation' };
   function dev() { var k = 'atm_dev_id', v = ''; try { v = localStorage.getItem(k) || ''; if (!/^[A-Za-z0-9-]{16,64}$/.test(v)) { v = (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2))); localStorage.setItem(k, v); } } catch (e) { v = v || 'anon-' + Date.now().toString(36) + '0000000000'; } return v; }
   function tok() { try { return localStorage.getItem('atm_social_tok') || ''; } catch (e) { return ''; } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -30,7 +30,7 @@
     '#atm-soc .as-btn:hover{background:#f3ece0}#atm-soc .as-like[aria-pressed="true"]{color:#0e6e78}#atm-soc .as-like[aria-pressed="true"] .as-ic{filter:none;transform:scale(1.08)}' +
     '#atm-soc .as-ic{font-size:1.15rem;line-height:1;filter:grayscale(1);transition:transform .15s}#atm-soc .as-n{font-variant-numeric:tabular-nums}' +
     '#atm-soc .as-list{list-style:none;margin:10px 0;padding:0}#atm-soc .as-item{background:#f6f1e7;border-radius:14px;padding:8px 12px;margin:0 0 8px}' +
-    '#atm-soc .as-item b{color:#0a4f57;font-size:.88rem}#atm-soc .as-item time{color:#7a6255;font-size:.75rem;margin-left:8px}#atm-soc .as-item p{margin:3px 0 0;font-size:.92rem;line-height:1.5;white-space:pre-wrap;word-break:break-word}' +
+    '#atm-soc .as-item b{color:#0a4f57;font-size:.88rem}#atm-soc .as-item time{color:#7a6255;font-size:.8rem}#atm-soc .as-item p{margin:3px 0 0;font-size:.92rem;line-height:1.5;white-space:pre-wrap;word-break:break-word}#atm-soc .as-cty{color:#7a6255;font-size:.8rem}#atm-soc .as-trt{background:none;border:0;padding:2px 0;color:#7a6255;font-size:.75rem;cursor:pointer;text-decoration:underline}' +
     '#atm-soc .as-empty{color:#7a6255;font-size:.88rem;margin:10px 0}#atm-soc .as-in{width:100%;box-sizing:border-box;min-height:40px;padding:8px 10px;border:1px solid #ead9b8;border-radius:10px;font-size:16px;margin:4px 0;font-family:inherit}' +
     '#atm-soc textarea.as-in{min-height:64px;resize:vertical}#atm-soc .as-go{min-height:40px;padding:0 18px;border-radius:999px;background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;font-size:.95rem;cursor:pointer}#atm-soc .as-go:disabled{opacity:.5}' +
     '#atm-soc .as-meta{font-size:.8rem;color:#7a6255;margin:4px 0}#atm-soc .as-meta a{color:#0e6e78;cursor:pointer}#atm-soc .as-err{color:#b5654a;font-size:.85rem;min-height:1em;margin:4px 0}#atm-soc .as-ok{color:#0a4f57;font-size:.85rem;margin:4px 0}' +
@@ -52,7 +52,9 @@
   function setLike(n, on) { nEl.textContent = n > 0 ? n : ''; likeB.setAttribute('aria-pressed', on ? 'true' : 'false'); }
   function drawItems(items) {
     box.querySelector('.as-cn').textContent = items.length || '';
-    list.innerHTML = items.length ? items.map(function (c) { return '<li class="as-item"><b>' + esc(c.name) + '</b><time>' + esc(day(c.at)) + '</time><p>' + esc(c.body) + '</p></li>'; }).join('') : '<li class="as-empty">' + L.none + '</li>';
+    list.innerHTML = items.length ? items.map(function (c) { return '<li class="as-item"><b>' + esc(c.name) + '</b>' + (c.city ? '<span class="as-cty"> · ' + esc(c.city) + '</span>' : '') + '<time> · ' + esc(day(c.at)) + '</time>' + (function () { var want = zh ? 'zh' : 'en', t = c.tr && c.lang && c.lang !== want;
+        return t ? '<p class="as-txt">' + esc(c.tr) + '</p><p class="as-txt as-org" hidden>' + esc(c.body) + '</p><button type="button" class="as-trt" data-t="1">' + L.trd + ' · ' + L.org + '</button>' : '<p>' + esc(c.body) + '</p>'; })() + '</li>'; }).join('') : '<li class="as-empty">' + L.none + '</li>';
+    list.querySelectorAll('.as-trt').forEach(function (bt) { bt.onclick = function () { var li = bt.parentNode, ps = li.querySelectorAll('.as-txt'), o = bt.getAttribute('data-t') === '1'; ps[0].hidden = o; ps[1].hidden = !o; bt.setAttribute('data-t', o ? '0' : '1'); bt.textContent = o ? L.shtr : L.trd + ' · ' + L.org; }; });
   }
   var me = null, tsId = null, tsTok = '';
   function drawForm() {
@@ -66,23 +68,24 @@
       };
       return;
     }
-    form.innerHTML = '<p class="as-meta"><b>' + L.join + '</b> — ' + L.why + '</p><input class="as-in as-nm" maxlength="40" autocomplete="name" placeholder="' + L.name + '"><input class="as-in as-em" type="email" autocomplete="email" placeholder="' + L.email + '">' +
+    form.innerHTML = '<p class="as-meta"><b>' + L.join + '</b> — ' + L.why + '</p><input class="as-in as-nm" maxlength="40" autocomplete="name" placeholder="' + L.name + '"><input class="as-in as-cy0" maxlength="40" autocomplete="address-level2" placeholder="' + L.city + '"><select class="as-in as-role"><option value="">' + L.role + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select><input class="as-in as-em" type="email" autocomplete="email" placeholder="' + L.email + '">' +
       '<div class="as-ts"></div><p class="as-err"></p><button type="button" class="as-go as-send">' + L.send + '</button>' + (zh ? '<p class="as-meta"><a class="as-wxt">已通过微信订阅？用微信号 + 4 位验证码留言</a></p><div class="as-wx" hidden><input class="as-in as-wxid" placeholder="微信号"><input class="as-in as-wxc" inputmode="numeric" maxlength="4" placeholder="订阅时拿到的 4 位验证码"><button type="button" class="as-go as-wxgo">用微信验证</button></div>' : '') + '<div class="as-step2" hidden><p class="as-ok"></p><input class="as-in as-code" inputmode="numeric" maxlength="6" placeholder="' + L.code + '"><button type="button" class="as-go as-ver">' + L.verify + '</button></div>';
     var er = form.querySelector('.as-err');
     if (zh) { var wt = form.querySelector('.as-wxt'), wb = form.querySelector('.as-wx'); try { var sv = JSON.parse(localStorage.getItem('atm_wx_sub') || 'null'); if (sv) { wb.querySelector('.as-wxid').value = sv.wechat || ''; wb.querySelector('.as-wxc').value = sv.code || ''; } } catch (e) {}
       wt.onclick = function () { wb.hidden = !wb.hidden; };
-      wb.querySelector('.as-wxgo').onclick = function () { er.textContent = '';
-        api('/wx-login', { lang: 'zh', wechat: wb.querySelector('.as-wxid').value.trim(), code: wb.querySelector('.as-wxc').value.trim() }).then(function (d) {
+      wb.querySelector('.as-wxgo').onclick = function () { er.textContent = ''; if (!form.querySelector('.as-cy0').value.trim()) { er.textContent = L.ncity; return; } if (!form.querySelector('.as-role').value) { er.textContent = L.nrole; return; }
+        api('/wx-login', { lang: 'zh', city: form.querySelector('.as-cy0').value.trim(), role: form.querySelector('.as-role').value, wechat: wb.querySelector('.as-wxid').value.trim(), code: wb.querySelector('.as-wxc').value.trim() }).then(function (d) {
           if (d.ok) { try { localStorage.setItem('atm_social_tok', d.token); } catch (e) {} me = d.name; drawForm(); }
           else er.textContent = d.error === 'wx_pending' ? '还在等我们核对你的好友申请，通过后就能留言。' : '微信号或验证码不对，或还没有用微信订阅。'; }).catch(function () { er.textContent = L.fail; }); }; }
     if (TSKEY) loadTs(function () { tsId = window.turnstile.render(form.querySelector('.as-ts'), { sitekey: TSKEY, language: zh ? 'zh-cn' : 'en', callback: function (t) { tsTok = t; } }); });
     form.querySelector('.as-send').onclick = function () {
       var nm = form.querySelector('.as-nm').value.trim(), em = form.querySelector('.as-em').value.trim(), go = this; er.textContent = '';
+      if (!form.querySelector('.as-cy0').value.trim()) { er.textContent = L.ncity; return; } if (!form.querySelector('.as-role').value) { er.textContent = L.nrole; return; }
       if (!nm || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { er.textContent = L.need; return; }
       if (TSKEY && !tsTok) { er.textContent = L.ts; return; }
       go.disabled = true;
-      api('/signup', { name: nm, email: em, lang: zh ? 'zh' : 'en', ts: tsTok }).then(function (d) {
-        if (!d.ok) { er.textContent = d.error === 'rate_limited' ? L.rate : d.error === 'turnstile' ? L.ts : d.error === 'need_name' || d.error === 'bad_email' ? L.need : L.fail; if (tsId != null && window.turnstile) { window.turnstile.reset(tsId); tsTok = ''; } return; }
+      api('/signup', { name: nm, city: form.querySelector('.as-cy0').value.trim(), role: form.querySelector('.as-role').value, email: em, lang: zh ? 'zh' : 'en', ts: tsTok }).then(function (d) {
+        if (!d.ok) { er.textContent = d.error === 'rate_limited' ? L.rate : d.error === 'turnstile' ? L.ts : d.error === 'need_city' ? L.ncity : d.error === 'need_role' ? L.nrole : d.error === 'need_name' || d.error === 'bad_email' ? L.need : L.fail; if (tsId != null && window.turnstile) { window.turnstile.reset(tsId); tsTok = ''; } return; }
         var s2 = form.querySelector('.as-step2'); s2.hidden = false; s2.querySelector('.as-ok').textContent = L.sent;
         if (d.preview_code) { var pv = document.createElement('p'); pv.className = 'as-pv'; pv.textContent = (zh ? '预览版：邮件未真正发送，验证码是 ' : 'Preview only: no email sent, the code is ') + d.preview_code; s2.insertBefore(pv, s2.firstChild.nextSibling); }
       }).catch(function () { er.textContent = L.fail; }).then(function () { go.disabled = false; });
