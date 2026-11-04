@@ -4,6 +4,8 @@
   try { card = new URLSearchParams(location.search).get('card') || ''; } catch (e) {}
   var back = document.querySelector('.dj-back');
   if (back) back.href = (zh ? '/zh' : '') + '/asia/' + (card ? ('?card=' + encodeURIComponent(card)) : '');
+  /* v12 fix: ‹ returns via history when we came from that same page (no new entry → no loop); otherwise replace this page instead of pushing */
+  if (back) back.addEventListener('click', function (ev) { ev.preventDefault(); var rf = null; try { rf = new URL(document.referrer); } catch (e) {} var t = new URL(back.href, location.href); if (rf && rf.origin === location.origin && rf.pathname === t.pathname && rf.search === t.search && history.length > 1) history.back(); else location.replace(t.href); });
   function today() {
     try {
       var y, m, d, parts = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
