@@ -70,7 +70,7 @@
     if (zh) { var wt = form.querySelector('.as-wxt'), wb = form.querySelector('.as-wx'); try { var sv = JSON.parse(localStorage.getItem('atm_wx_sub') || 'null'); if (sv) { wb.querySelector('.as-wxid').value = sv.wechat || ''; wb.querySelector('.as-wxc').value = sv.code || ''; } } catch (e) {}
       wt.onclick = function () { wb.hidden = !wb.hidden; };
       wb.querySelector('.as-wxgo').onclick = function () { er.textContent = '';
-        api('/wx-login', { wechat: wb.querySelector('.as-wxid').value.trim(), code: wb.querySelector('.as-wxc').value.trim() }).then(function (d) {
+        api('/wx-login', { lang: 'zh', wechat: wb.querySelector('.as-wxid').value.trim(), code: wb.querySelector('.as-wxc').value.trim() }).then(function (d) {
           if (d.ok) { try { localStorage.setItem('atm_social_tok', d.token); } catch (e) {} me = d.name; drawForm(); }
           else er.textContent = d.error === 'wx_pending' ? '还在等我们核对你的好友申请，通过后就能留言。' : '微信号或验证码不对，或还没有用微信订阅。'; }).catch(function () { er.textContent = L.fail; }); }; }
     if (TSKEY) loadTs(function () { tsId = window.turnstile.render(form.querySelector('.as-ts'), { sitekey: TSKEY, language: zh ? 'zh-cn' : 'en', callback: function (t) { tsTok = t; } }); });

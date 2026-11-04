@@ -93,6 +93,7 @@ export async function social(req, env, url, json) {
     return json({ ok: true, item: { name: u.name, body, at: now() } });
   }
   if (p === '/wx-login' && req.method === 'POST') {   // zh alternative to email: WeChat subscriber verified by admin, proves it with the 4-digit code
+    if (b.lang !== 'zh') return json({ error: 'zh_only' }, 403);   // WeChat verification is for zh readers only
     const wx = clean(b.wechat, 64), code = clean(b.code, 4);
     const r = await env.DB.prepare("SELECT name,wechat FROM subs WHERE wechat=? AND wx_code=? AND wx_status='verified' LIMIT 1").bind(wx, code).first();
     if (!r) { const pend = await env.DB.prepare("SELECT 1 FROM subs WHERE wechat=? AND wx_code=? AND wx_status='pending'").bind(wx, code).first(); return json({ error: pend ? 'wx_pending' : 'bad_code' }, 400); }

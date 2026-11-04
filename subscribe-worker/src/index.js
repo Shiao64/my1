@@ -107,13 +107,13 @@ async function subscribe(req, env, h) {
   if (b.website) return json({ ok: true, pending: true }, 200, h); // honeypot
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const email = String(b.email || '').trim().toLowerCase().slice(0, 254);
-  const wechat = String(b.wechat || '').trim().slice(0, 64);
+  const wechat = b.lang === 'zh' ? String(b.wechat || '').trim().slice(0, 64) : '';   // WeChat only on zh pages
   const name = String(b.name || '').replace(/\s+/g, ' ').trim().slice(0, 80);
   const types = (Array.isArray(b.types) ? b.types : ['featured', 'regular']).filter(t => t === 'featured' || t === 'regular');
   const cities = types.includes('regular') ? (Array.isArray(b.cities) ? b.cities : []).map(c => String(c).trim().slice(0, 40)).filter(Boolean).slice(0, 40) : [];
-  if (lang === 'zh' && !wechat) return json({ error: 'need_wechat' }, 400, h);   // zh form: WeChat ID required, email optional
+  if (lang === 'zh' && !wechat && !email) return json({ error: 'need_contact' }, 400, h);   // zh form: WeChat ID or email (at least one)
   let wxCode = null;
-  if (lang === 'zh') {   // zh: WeChat ID required. Pending row + 4-digit code; the user adds 探戈助理 and writes the code in the friend request; admin marks verified.
+  if (lang === 'zh' && wechat) {   // zh with WeChat ID: Pending row + 4-digit code; the user adds 探戈助理 and writes the code in the friend request; admin marks verified.
     const ip0 = await sha((req.headers.get('CF-Connecting-IP') || '') + (env.IP_SALT || 'tw'), 12);
     const old = await env.DB.prepare("SELECT wx_code,wx_status FROM subs WHERE wechat=? AND wx_status IS NOT NULL ORDER BY id DESC LIMIT 1").bind(wechat).first();
     wxCode = old?.wx_code || String(1000 + (crypto.getRandomValues(new Uint16Array(1))[0] % 9000));
