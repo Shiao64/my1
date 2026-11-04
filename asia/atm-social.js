@@ -10,7 +10,7 @@
   if (!/^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/.test(cardId)) return;
   var L = zh ? { like: '赞', cm: '留言', none: '还没有留言，来说第一句吧。', ph: '写下你的留言…', post: '发布', join: '登录后留言', name: '名字', email: '邮箱',
       send: '发送验证码', code: '邮件里的 6 位验证码', verify: '验证', sent: '验证码已发到你的邮箱（15 分钟内有效，没收到请看垃圾邮件）。', as: '以 {n} 的身份留言 · ', out: '退出',
-      need: '请填写名字和正确的邮箱。', bad: '验证码不对或已过期。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '留言需要注册并验证邮箱。', city: '城市（必填）', ncity: '请填写你所在的城市。', role: '你跳的角色（必选）', rl: 'Leader 领舞', rf: 'Follower 跟舞', rb: '两者都跳 Both', nrole: '请选择你跳的角色。', trd: '译文', org: '查看原文', shtr: '查看译文' }
+      need: '请填写名字和正确的邮箱。', bad: '验证码不对或已过期。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '留言需要注册并验证邮箱。', city: '城市（必填）', ncity: '请填写你所在的城市。', role: '你跳的角色（必选）', rl: '领舞', rf: '跟舞', rb: '双角色', nrole: '请选择你跳的角色。', trd: '译文', org: '查看原文', shtr: '查看译文' }
     : { like: 'Like', cm: 'Comments', none: 'No comments yet. Be the first!', ph: 'Write a comment…', post: 'Post', join: 'Sign in to comment', name: 'Name', email: 'Email',
       send: 'Send code', code: '6-digit code from the email', verify: 'Verify', sent: 'We emailed you a code (valid 15 minutes; check spam if you don\'t see it).', as: 'Commenting as {n} · ', out: 'Sign out',
       need: 'Please enter your name and a valid email.', bad: 'Wrong or expired code.', fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', why: 'Commenting needs an account with a verified email.', city: 'City (required)', ncity: 'Please enter your city.', role: 'Your role (required)', rl: 'Leader', rf: 'Follower', rb: 'Both', nrole: 'Please choose your role.', trd: 'Translated', org: 'See original', shtr: 'See translation' };
@@ -23,7 +23,7 @@
     if (auth && tok()) o.headers.Authorization = 'Bearer ' + tok();
     return fetch(API + path, o).then(function (r) { return r.json().then(function (d) { d._s = r.status; return d; }); });
   }
-  function day(iso) { var d = new Date(iso); if (isNaN(d)) return ''; try { return new Intl.DateTimeFormat(zh ? 'zh-CN' : 'en-US', { timeZone: 'Asia/Shanghai', year: 'numeric', month: zh ? 'numeric' : 'short', day: 'numeric' }).format(d); } catch (e) { return iso.slice(0, 10); } }
+  function day(iso) { var d = new Date(iso); if (isNaN(d)) return ''; var c = new Date(d.getTime() + 8 * 3600e3); return (c.getUTCMonth() + 1) + '/' + c.getUTCDate(); }
   var css = '#atm-soc{max-width:560px;margin:10px auto 18px;padding:0 12px;box-sizing:border-box;font-family:inherit;color:#2a1a14}' +
     '#atm-soc .as-bar{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid #ead9b8;border-bottom:1px solid #ead9b8}' +
     '#atm-soc .as-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:0;border-radius:8px;padding:6px 10px;font-size:.95rem;font-weight:600;color:#65676b;cursor:pointer}' +

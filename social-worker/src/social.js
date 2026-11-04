@@ -1,3 +1,4 @@
+import { gmailSend } from './smtp.js';
 // Asia Tango Map likes + comments API. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
 // POST /social/like {id, dev}              -> toggle; {id, n, liked}
@@ -20,12 +21,13 @@ async function turnstile(env, token, ip) {
 }
 async function sendCode(env, to, name, code, lang) {
   const zh = lang === 'zh';
-  const subject = zh ? `亚洲探戈地图 验证码：${code}` : `Asia Tango Map verification code: ${code}`;
-  const text = zh ? `${name}，您好！\n\n您的验证码是：${code}\n15 分钟内有效。验证邮箱后就可以在亚洲探戈地图留言。\n如果不是您本人操作，请忽略这封邮件。`
-    : `Hi ${name},\n\nYour verification code is: ${code}\nIt is valid for 15 minutes. Once your email is verified you can comment on Asia Tango Map.\nIf this wasn't you, just ignore this email.`;
+  const subject = zh ? `亚洲探戈地图｜你的验证码 ${code}` : `Asia Tango Map | Your verification code ${code}`;
+  const text = zh ? `${name}，你好！\n\n你的亚洲探戈地图验证码是：${code}\n\n15 分钟内有效。把它填回网页，就能在活动卡片下留言了。\n如果不是你本人操作，忽略这封邮件即可。\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
+    : `Hi ${name},\n\nYour Asia Tango Map verification code is: ${code}\n\nIt's valid for 15 minutes. Enter it on the page and you can comment on event cards.\nIf this wasn't you, just ignore this email.\n\nAsia Tango Map\nhttps://tangoweekend.org`;
   const p = env.SOCIAL_MAIL || 'log';
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
-  if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: 'Asia Tango Map' }, to, subject, text });
+  if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName: 'Asia Tango Map', to, subject, text });
+  else if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: 'Asia Tango Map' }, to, subject, text });
   else console.log(`[mail:log] to=${to} subject=${subject}`);
   return p;
 }
@@ -72,7 +74,7 @@ export async function social(req, env, url, json) {
     await env.SDB.prepare(`INSERT INTO users(email,name,lang,code_hash,code_sent_at,code_tries,created_at,ip_hash,city,role) VALUES(?,?,?,?,?,0,?,?,?,?)
       ON CONFLICT(email) DO UPDATE SET name=excluded.name,lang=excluded.lang,code_hash=excluded.code_hash,code_sent_at=excluded.code_sent_at,code_tries=0,ip_hash=excluded.ip_hash,city=excluded.city,role=excluded.role`)
       .bind(email, name, lang, await sha(email + ':' + code), now(), now(), iph, city, role).run();
-    let via; try { via = await sendCode(env, email, name, code, lang); } catch (e) { return json({ error: 'send_failed' }, 502); }
+    let via; try { via = await sendCode(env, email, name, code, lang); } catch (e) { return json({ error: 'send_failed', ...(env.PREVIEW_SHOW_CODE === '1' ? { detail: String(e && e.message || e).slice(0, 200) } : {}) }, 502); }
     return json({ ok: true, via, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_code: code } : {}) });
   }
   if (p === '/verify' && req.method === 'POST') {
