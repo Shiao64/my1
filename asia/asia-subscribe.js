@@ -30,7 +30,7 @@
     '#tsub-modal input.tsub-in:focus{outline:none;border-color:#0e6e78;box-shadow:0 0 0 3px rgba(14,110,120,.18)}' +
     '#tsub-modal .tsub-desc{font-size:.88rem;color:#2a1a14;margin:0 0 4px;line-height:1.5}' +
     '#tsub-modal .tsub-hint{font-size:.8rem;color:#7a6255;margin:6px 0 0}#tsub-modal .tsub-err{color:#b5654a;font-size:.85rem;margin:8px 0 0;min-height:1em}' +
-    '#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;margin:8px 0 0;line-height:1.6}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:180px;margin:10px auto 0;border-radius:8px}' +
+    '#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;margin:8px 0 0;line-height:1.6}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:180px;margin:10px auto 0;border-radius:8px}' +
     '#tsub-modal .tsub-go{width:100%;min-height:44px;margin-top:10px;border-radius:999px;font-size:1rem;background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;cursor:pointer}#tsub-modal .tsub-go:disabled{opacity:.5}' +
     '#tsub-modal .tsub-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}' +
     '#tsub-modal .tsub-foot{font-size:.78rem;color:#7a6255;margin:12px 0 0;padding-top:8px;border-top:1px dashed #ead9b8}';
@@ -56,7 +56,7 @@
     '<button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button><h2 id="tsub-t">' + L.title + '</h2><p class="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate>' +
     '<label class="tsub-lbl" for="tsub-n">' + L.name + '</label><input type="text" class="tsub-in" id="tsub-n" autocomplete="name" maxlength="80" placeholder="' + L.namePh + '">' +
-    (zh ? WX(false) + EM(false) : EM(true)) +
+    (zh ? '<p class="tsub-stp"><b>①</b> 先扫码加探戈助理为好友</p><img class="tsub-qr" alt="探戈助理微信二维码" src="' + (window.ATM_WX_QR || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f6f1e7" stroke="#0e6e78" stroke-width="4" stroke-dasharray="8 6"/><text x="100" y="95" font-size="16" text-anchor="middle" fill="#0a4f57">探戈助理二维码</text><text x="100" y="120" font-size="13" text-anchor="middle" fill="#b5654a">（占位图，待换真图）</text></svg>')) + '"><p class="tsub-stp"><b>②</b> 填微信号（或邮箱），点下方按钮获取验证码</p>' + WX(false) + '<p class="tsub-stp" style="text-align:center">或</p>' + EM(false) : EM(true)) +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
     '<p class="tsub-hint">' + L.hint + '</p><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
     '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
@@ -87,8 +87,7 @@
           ok.textContent = d.wechat_only ? L.okWx : L.ok; ok.hidden = false; $('tsub-f').reset();
           if (zh && d.wechat_code) { /* zh WeChat verification: add 探戈助理, write this code in the friend request; admin verifies */
             try { localStorage.setItem('atm_wx_sub', JSON.stringify({ wechat: wx, code: d.wechat_code })); } catch (e2) {}
-            ok.innerHTML = '<b>最后一步：</b>用微信扫码加「探戈助理」，在好友申请里写上验证码 <b class="tsub-code">' + d.wechat_code + '</b>，可直接复制：<span class="tsub-tpl"><code>订阅亚洲探戈地图，验证码 ' + d.wechat_code + '</code><button type="button" class="tsub-cp">复制</button></span>我们核对后就会邀请你进群。' +
-              '<img class="tsub-qr" alt="探戈助理微信二维码" src="' + (window.ATM_WX_QR || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f6f1e7" stroke="#0e6e78" stroke-width="4" stroke-dasharray="8 6"/><text x="100" y="95" font-size="16" text-anchor="middle" fill="#0a4f57">探戈助理二维码</text><text x="100" y="120" font-size="13" text-anchor="middle" fill="#b5654a">（占位图，待换真图）</text></svg>')) + '">' +
+            ok.innerHTML = '<b>③</b> 把这句发给探戈助理（好友申请或聊天都可以）：<span class="tsub-tpl"><code>订阅亚洲探戈地图，验证码 ' + d.wechat_code + '</code><button type="button" class="tsub-cp">复制</button></span><b>④</b> 助理通过后即可留言，也会邀请你进群。' +
               (em ? '<br>邮箱那边也请点确认邮件里的链接。' : '');
             var cpb = ok.querySelector('.tsub-cp'), tpx = '订阅亚洲探戈地图，验证码 ' + d.wechat_code; cpb.onclick = function () { var dn = function () { cpb.textContent = '已复制'; }; if (navigator.clipboard) navigator.clipboard.writeText(tpx).then(dn, function () {}); else { var t = document.createElement('textarea'); t.value = tpx; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); dn(); } catch (e3) {} t.remove(); } };
             if (tmr) { clearTimeout(tmr); tmr = null; }
