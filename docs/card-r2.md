@@ -16,6 +16,8 @@ The program (HTML, `asia-map.js`, `cardB.js`, `atm-home.js`) stays on Pages / th
 
 `events-core.json` is first paint (China / Taiwan / Hong Kong regular cards, plus featured). `events-more.json` loads for `?k=Seoul` and for a single card that is not in core. `events.json` is the full file (single-card fallback, home, card design B).
 
+A `*.pages.dev` preview reads the JSON shipped with that deploy, not the bucket. That is so a branch which changes a card shows the change on its preview. `tangoweekend.org` still tries R2 first and uses the git files only when R2 does not answer.
+
 Poster `<img>` URLs point at R2 only after one of those JSON fetches succeeds. If the thumb is missing there, the image falls back to the file in this repo.
 
 Like / subscribe (`tango-subscribe`, `api.tangoweekend.org`) is unchanged. Reads are public HTTP, not a Worker binding.

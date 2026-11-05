@@ -64,10 +64,17 @@
   function img(e, cls, eager) { if (!e.poster) return '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>'; var u = posterUrls(e.poster), pv = e.kind === 'weekly' && e.poster_date && e.poster_date < SHT; return (pv ? '<span class="ah-pw">' : '') + '<picture><source type="image/webp" srcset="' + esc(u.webp) + '"><img class="' + cls + '" src="' + esc(u.jpg) + '" data-full="' + esc(u.full) + '" onerror="if(this.dataset.full&&this.dataset.fell!==\'1\'){this.dataset.fell=\'1\';this.src=this.dataset.full}" alt="" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></picture>' + (pv ? '<i class="ah-prev">' + (zh ? '上期海报' : 'Previous poster') + '</i></span>' : ''); }
   /* v11.9: DJ line under time, above venue (events.dj, else poster_djs for the current poster) */
   function djOf(e) { var d = (!zh && e.dj_en) ? e.dj_en : e.dj; if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || pd >= TODAY) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
+  /* A detail URL with a hash (edition landing) opens that anchor. Other cards stay on ?card=. */
+  function openHref(e) {
+    var raw = typeof e.detail === 'string' ? e.detail : '';
+    var m = raw.match(/\/event\/([^\/?#]+)\/(?:[^#]*)#([A-Za-z0-9_-]+)\s*$/);
+    if (!m) return location.pathname + '?card=' + encodeURIComponent(e.id);
+    return '/event/' + m[1] + '/' + (zh ? 'zh/' : '') + '?from=' + encodeURIComponent(e.id) + '#' + m[2];
+  }
   function card(e, sub, tag, eager) {
     var v = (e.kind === 'weekly' || e.theme_of) ? (e.venue || '') : '';
     var kt = oneTag(e);
-    return '<a class="ah-card" data-id="' + esc(e.id) + '" href="' + location.pathname + '?card=' + encodeURIComponent(e.id) + '">' + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
+    return '<a class="ah-card" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
@@ -236,7 +243,7 @@
     mount();
     var sp = fetch('/data/suggested_favs.json?v=s3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
     var loadEv = window.atmDataJson || function (u) { return fetch(u, { cache: 'no-cache' }).then(function (r) { return r.json(); }); };
-    loadEv('/asia/events.json?v=e214').then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    loadEv('/asia/events.json?v=e215').then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };
