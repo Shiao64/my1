@@ -60,11 +60,12 @@
   }
   var me = null, wxi = null, tsId = null, tsTok = '';   // wxi = {wx:'pending'|'verified', used, wxdev} for WeChat sessions
   var inWx = /MicroMessenger/i.test(navigator.userAgent || ''), QR = window.ATM_WX_QR || '/asia/tango-assistant-qr.jpg', poll = null;
-  var WXT = { title: '先加探戈助理为好友，就能留言', ok: '留下微信号，就表示同意探戈助理加你为好友', qr: inWx ? '长按二维码，加探戈助理为好友' : '用微信扫码，加探戈助理为好友', ph: '你的微信号', cy: '所在城市（选填）', rl: '你跳的角色（选填）', go: '获取验证码',
+  var WXT = { title: '留微信号或邮箱获取验证码', ok: '', qr: inWx ? '长按二维码，加探戈助理为好友' : '用微信扫码，加探戈助理为好友', ph: '你的微信号', cy: '所在城市（选填）', rl: '你跳的角色（选填）', go: '获取验证码',
     cd: '加好友时，请在申请里写上这个验证码', add: '我已添加', addh: '按下后，探戈助理通常几分钟内通过', chk: '已通知探戈助理，正在核对', na: '请先加探戈助理好友，再按「我已添加」。',
-    once: '你现在可以留言一次，或点一次赞。探戈助理加你为好友后，就不再限制', wait: '探戈助理正在加你为好友，通过后就可以继续留言', ver: '已验证', rule: inWx ? '长按二维码加探戈助理为好友，申请时写上验证码。' : '请填真实的微信号，探戈助理会来加你。', ban: '这个微信号不能再用来留言。' /* v12: 3-hour expiry still enforced in backend; user removed the delete/ban sentence from the panel */, need: '请填写你的微信号。', first: '请先在下面填写微信号，获取验证码。' };
+    once: '你现在可以留言一次，或点一次赞。探戈助理加你为好友后，就不再限制', wait: '探戈助理正在加你为好友，通过后就可以继续留言', ver: '已验证', rule: inWx ? '长按二维码加探戈助理为好友，申请时写上验证码。' : '', ban: '这个微信号不能再用来留言。' /* v12: 3-hour expiry still enforced in backend; user removed the delete/ban sentence from the panel */, need: '请填写你的微信号。', first: '请先在下面填写微信号，获取验证码。' };
   function qrHtml() { if (!inWx) return ''; return '<div class="as-qr"><img src="' + esc(QR) + '" alt="探戈助理二维码" width="180" height="180" loading="lazy"><p class="as-meta">' + WXT.qr + '</p></div>'; }
-  function wxHead() { return '<h4 class="as-wt">' + WXT.title + '</h4><p class="as-wc">' + WXT.ok + '</p>'; }
+  function wxHead() { return '<h4 class="as-wt">' + WXT.title + '</h4>' + (WXT.ok ? '<p class="as-wc">' + WXT.ok + '</p>' : ''); }
+  function ruleHtml() { return WXT.rule ? '<p class="as-rule">' + WXT.rule + '</p>' : ''; }
   function setPoll() { var want = !!(me && wxi && wxi.wx === 'pending' && wxi.added); if (want && !poll) poll = setInterval(function () { if (document.hidden) return; api('/me', null, true).then(function (d) { if (d.error === 'wx_banned') { banned(); return; } if (d.wx && wxi && d.wx !== wxi.wx) { wxi = { wx: d.wx, used: d.used, wxdev: d.wxdev, added: d.added, code: d.code }; drawForm(); } }).catch(function () {}); }, 30000); if (!want && poll) { clearInterval(poll); poll = null; } }
   function signOut() { try { localStorage.removeItem('atm_social_tok'); } catch (e) {} me = null; wxi = null; setPoll(); }
   function banned(msg) { signOut(); drawForm(); var e = form.querySelector('.as-wxerr') || form.querySelector('.as-err'); if (e) e.textContent = msg || WXT.ban; }
@@ -74,7 +75,7 @@
       if (nadd) {   // got the code, has not pressed 「我已添加」 yet
         form.innerHTML = '<div class="as-wx">' + wxHead() + qrHtml() + '<p class="as-code4">' + esc(wxi.code || '') + '</p><p class="as-wc as-cdh">' + WXT.cd + '</p>' +
           '<button type="button" class="as-go as-big as-add">' + WXT.add + '</button><p class="as-meta as-addh">' + WXT.addh + '</p><p class="as-err as-wxerr"></p>' +
-          '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p><p class="as-rule">' + WXT.rule + '</p></div>';
+          '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p>' + ruleHtml() + '</div>';
         form.querySelector('.as-add').onclick = function () { var go = this, e = form.querySelector('.as-wxerr'); go.disabled = true; e.textContent = '';
           api('/wx-added', {}, true).then(function (d) { if (d.ok) { wxi.added = true; if (d.wx) wxi.wx = d.wx; drawForm(); } else if (d.error === 'wx_banned') banned(); else if (d.error === 'auth') { signOut(); drawForm(); } else e.textContent = L.fail; })
             .catch(function () { e.textContent = L.fail; }).then(function () { go.disabled = false; }); };
@@ -82,7 +83,7 @@
         setPoll(); return;
       }
       form.innerHTML = (wxi && wxi.wx === 'verified' ? '<p class="as-ok as-vf">✓ ' + WXT.ver + '</p>' : '') + (pend ? '<p class="as-note as-chk">' + WXT.chk + '</p>' : '') + (pend && !used ? '<p class="as-note">' + WXT.once + '</p>' : '') + (used ? '<p class="as-note as-wait">' + WXT.wait + '</p>' : '<textarea class="as-in as-body" maxlength="1000" placeholder="' + L.ph + '"></textarea>') +
-        '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p><p class="as-err"></p>' + (used ? '' : '<button type="button" class="as-go as-post">' + L.post + '</button>') + (pend ? '<p class="as-rule">' + WXT.rule + '</p>' : '');
+        '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p><p class="as-err"></p>' + (used ? '' : '<button type="button" class="as-go as-post">' + L.post + '</button>') + (pend ? ruleHtml() : '');
       setPoll();
       form.querySelector('.as-out').onclick = function () { signOut(); drawForm(); };
       var pb = form.querySelector('.as-post'); if (pb) pb.onclick = function () {
@@ -97,7 +98,7 @@
       '<div class="as-ts"></div><button type="button" class="as-go as-send">' + L.send + '</button></div>' +
       (zh ? '<div class="as-wx">' + wxHead() + qrHtml() +
         '<input class="as-in as-wxid" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + WXT.ph + '"><div class="as-row as-wsm"><input class="as-in as-wcy" maxlength="40" autocomplete="address-level2" placeholder="' + WXT.cy + '"><select class="as-in as-wrl"><option value="">' + WXT.rl + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>' +
-        '<button type="button" class="as-go as-big as-wxsub">' + WXT.go + '</button><p class="as-err as-wxerr"></p><p class="as-rule">' + WXT.rule + '</p></div>' : '') +
+        '<button type="button" class="as-go as-big as-wxsub">' + WXT.go + '</button><p class="as-err as-wxerr"></p>' + ruleHtml() + '</div>' : '') +
       '<p class="as-err as-emerr"></p><div class="as-step2" hidden><p class="as-ok"></p><input class="as-in as-code" inputmode="numeric" maxlength="6" placeholder="' + L.code + '"><button type="button" class="as-go as-ver">' + L.verify + '</button></div>';
     var er = form.querySelector('.as-emerr');
     if (zh) { var wer = form.querySelector('.as-wxerr'), setM = function (m) { form.setAttribute('data-m', m); [].forEach.call(form.querySelectorAll('.as-tab'), function (t) { t.setAttribute('aria-selected', t.getAttribute('data-t') === m ? 'true' : 'false'); }); er.textContent = ''; wer.textContent = ''; try { localStorage.setItem('atm_vm', m); } catch (e) {} }; [].forEach.call(form.querySelectorAll('.as-tab'), function (t) { t.onclick = function () { setM(t.getAttribute('data-t')); }; }); var vm0 = 'wx'; try { vm0 = localStorage.getItem('atm_vm') || 'wx'; } catch (e) {} setM(vm0);
