@@ -1,8 +1,8 @@
 /* draft 2026-10-30: header hamburger menu (footer removed). Holds 分享/复制链接/刷新 (moved from ··· 10/31), 资料来源 (moved .china-disclaimer), 联系我们, 订阅, 提交活动, 语言. Only existing content. */
 (function () {
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅更新', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
-             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Subscribe', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
+  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅通知', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
+             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Event alerts', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
   var css = document.createElement('style');
   css.textContent = 'html body footer#contact,html body #contact{display:none!important}' +
     '.atm-burger{width:44px;height:44px;margin:0 0 0 4px;padding:0;border:0;background:transparent;color:#F6D58E;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;position:relative;z-index:5}' +
