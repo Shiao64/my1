@@ -281,7 +281,12 @@ def publish(root, event_id=None, dry_run=False):
 
 def check_public():
     url = PUBLIC_BASE + '/asia/events-core.json'
-    req = urllib.request.Request(url, method='GET')
+    # The custom domain sits behind Cloudflare. Python's default User-Agent is
+    # answered with error 1010, so this check identifies itself.
+    req = urllib.request.Request(url, method='GET', headers={
+        'User-Agent': 'atm-r2-sync/1.0',
+        'Origin': 'https://tangoweekend.org',
+    })
     try:
         with urllib.request.urlopen(req, timeout=20) as res:
             body = res.read(200)
