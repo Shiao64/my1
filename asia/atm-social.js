@@ -63,7 +63,7 @@
   var WXT = { title: '先加探戈助理为好友，就能留言', ok: '留下微信号，就表示同意探戈助理加你为好友', qr: inWx ? '长按二维码，加探戈助理为好友' : '用微信扫码，加探戈助理为好友', ph: '你的微信号', cy: '所在城市（选填）', rl: '你跳的角色（选填）', go: '获取验证码',
     cd: '加好友时，请在申请里写上这个验证码', add: '我已添加', addh: '按下后，探戈助理通常几分钟内通过', chk: '已通知探戈助理，正在核对', na: '请先加探戈助理好友，再按「我已添加」。',
     once: '你现在可以留言一次，或点一次赞。探戈助理加你为好友后，就不再限制', wait: '探戈助理正在加你为好友，通过后就可以继续留言', ver: '已验证', rule: inWx ? '长按二维码加探戈助理为好友，申请时写上验证码。' : '请填真实的微信号，探戈助理会来加你。', ban: '这个微信号不能再用来留言。' /* v12: 3-hour expiry still enforced in backend; user removed the delete/ban sentence from the panel */, need: '请填写你的微信号。', first: '请先在下面填写微信号，获取验证码。' };
-  function qrHtml() { return '<div class="as-qr"><img src="' + esc(QR) + '" alt="探戈助理二维码" width="180" height="180" loading="lazy"><p class="as-meta">' + WXT.qr + '</p></div>'; }
+  function qrHtml() { if (!inWx) return ''; return '<div class="as-qr"><img src="' + esc(QR) + '" alt="探戈助理二维码" width="180" height="180" loading="lazy"><p class="as-meta">' + WXT.qr + '</p></div>'; }
   function wxHead() { return '<h4 class="as-wt">' + WXT.title + '</h4><p class="as-wc">' + WXT.ok + '</p>'; }
   function setPoll() { var want = !!(me && wxi && wxi.wx === 'pending' && wxi.added); if (want && !poll) poll = setInterval(function () { if (document.hidden) return; api('/me', null, true).then(function (d) { if (d.error === 'wx_banned') { banned(); return; } if (d.wx && wxi && d.wx !== wxi.wx) { wxi = { wx: d.wx, used: d.used, wxdev: d.wxdev, added: d.added, code: d.code }; drawForm(); } }).catch(function () {}); }, 30000); if (!want && poll) { clearInterval(poll); poll = null; } }
   function signOut() { try { localStorage.removeItem('atm_social_tok'); } catch (e) {} me = null; wxi = null; setPoll(); }
@@ -87,7 +87,7 @@
       form.querySelector('.as-out').onclick = function () { signOut(); drawForm(); };
       var pb = form.querySelector('.as-post'); if (pb) pb.onclick = function () {
         var b = form.querySelector('.as-body'), t = b.value.trim(), er = form.querySelector('.as-err'), go = this; if (!t) return; go.disabled = true; er.textContent = '';
-        api('/comment', { id: cardId, body: t }, true).then(function (d) { if (d.ok) { b.value = ''; loadComments(); if (pend) { wxi.used = true; drawForm(); } } else if (d.error === 'auth') { signOut(); drawForm(); } else if (d.error === 'wx_banned') banned(); else if (d.error === 'wx_used') { wxi.used = true; drawForm(); } else if (d.error === 'wx_not_added') { wxi.added = false; drawForm(); } else er.textContent = d.error === 'rate_limited' ? L.rate : L.fail; })
+        api('/comment', { id: cardId, body: t }, true).then(function (d) { if (d.ok) { b.value = ''; loadComments(); if (pend) { wxi.used = true; drawForm(); } } else if (d.error === 'auth') { signOut(); drawForm(); } else if (d.error === 'wx_banned') banned(); else if (d.error === 'wx_used') { wxi.used = true; drawForm(); reveal(gateEl()); } else if (d.error === 'wx_not_added') { wxi.added = false; drawForm(); reveal(gateEl()); } else er.textContent = d.error === 'rate_limited' ? L.rate : L.fail; })
           .catch(function () { er.textContent = L.fail; }).then(function () { go.disabled = false; });
       };
       return;
@@ -130,19 +130,23 @@
     };
   }
   function loadTs(cb) { if (window.turnstile) return cb(); var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = cb; document.head.appendChild(s); }
+  function shown(el) { return !!(el && !el.hidden && el.getClientRects && el.getClientRects().length); }
+  function stickyTop() { var st = document.querySelector('.china-sticky-top'); if (!st) return 0; var p = getComputedStyle(st).position; return (p === 'sticky' || p === 'fixed') ? (st.getBoundingClientRect().bottom || 0) : 0; }
+  function reveal(el) { if (!el || !el.getBoundingClientRect) return; var y = el.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop || 0) - stickyTop() - 8; try { window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' }); } catch (e) { window.scrollTo(0, Math.max(0, y)); } }
+  function gateEl() { var hs = form.querySelectorAll('.as-wt'), i; for (i = 0; i < hs.length; i++) if (shown(hs[i])) return hs[i]; return form.querySelector('.as-wait') || form.querySelector('.as-note') || form; }
   function loadComments() { api('/comments?id=' + encodeURIComponent(cardId)).then(function (d) { drawItems(d.items || []); }).catch(function () {}); }
   function likeDev() { return wxi && wxi.wxdev ? wxi.wxdev : dev(); }
   function refreshLike() { api('/likes?ids=' + encodeURIComponent(cardId) + '&dev=' + encodeURIComponent(likeDev())).then(function (d) { setLike((d.counts || {})[cardId] || 0, (d.mine || []).indexOf(cardId) >= 0); }).catch(function () {}); }
   function init() {
     likeB.onclick = function () {
-      if (zh && !me) { var w = form.querySelector('.as-wxid'), e = form.querySelector('.as-wxerr'); if (w && form.getAttribute('data-m') === 'wx') { if (e) e.textContent = WXT.first; w.focus(); return; } }
+      if (zh && !me) { var w = form.querySelector('.as-wxid'); if (w && form.getAttribute('data-m') === 'wx') { reveal(gateEl()); return; } }
       var on = likeB.getAttribute('aria-pressed') !== 'true', n = +(nEl.textContent || 0);
-      if (on && wxi && wxi.wx === 'pending' && !wxi.added) { var e3 = form.querySelector('.as-wxerr'); if (e3) e3.textContent = WXT.na; return; }
-      if (on && wxi && wxi.wx === 'pending' && wxi.used) { var e2 = form.querySelector('.as-err'); if (e2) e2.textContent = WXT.wait; return; }
+      if (on && wxi && wxi.wx === 'pending' && !wxi.added) { reveal(gateEl()); return; }
+      if (on && wxi && wxi.wx === 'pending' && wxi.used) { reveal(gateEl()); return; }
       setLike(n + (on ? 1 : -1), on); /* optimistic */
-      api('/like', { id: cardId, dev: dev() }, true).then(function (d) { if (d.id) { setLike(d.n, d.liked); if (d.liked && wxi && wxi.wx === 'pending' && !wxi.used) { wxi.used = true; drawForm(); } } else { setLike(n, !on); if (d.error === 'wx_banned') banned(); else if (d.error === 'wx_used') { wxi && (wxi.used = true); drawForm(); } else if (d.error === 'wx_not_added') { wxi && (wxi.added = false); drawForm(); } } }).catch(function () { setLike(n, !on); });
+      api('/like', { id: cardId, dev: dev() }, true).then(function (d) { if (d.id) { setLike(d.n, d.liked); if (d.liked && wxi && wxi.wx === 'pending' && !wxi.used) { wxi.used = true; drawForm(); } } else { setLike(n, !on); if (d.error === 'wx_banned') banned(); else if (d.error === 'wx_used') { wxi && (wxi.used = true); drawForm(); reveal(gateEl()); } else if (d.error === 'wx_not_added') { wxi && (wxi.added = false); drawForm(); reveal(gateEl()); } } }).catch(function () { setLike(n, !on); });
     };
-    box.querySelector('.as-cmb').onclick = function () { var t = form.querySelector('textarea,input'); if (t) t.focus(); };
+    box.querySelector('.as-cmb').onclick = function () { var ta = form.querySelector('textarea.as-body'); if (ta && shown(ta)) { reveal(ta); try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); } return; } reveal(gateEl()); };
     loadComments();
     if (tok()) api('/me', null, true).then(function (d) { if (d.error === 'wx_banned') { banned(); refreshLike(); return; } me = d.name || null; wxi = d.wx ? { wx: d.wx, used: d.used, wxdev: d.wxdev, added: d.added, code: d.code } : null; if (!me) signOut(); drawForm(); refreshLike(); }).catch(function () { drawForm(); refreshLike(); }); else { drawForm(); refreshLike(); }
   }
