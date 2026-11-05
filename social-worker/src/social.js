@@ -1,24 +1,17 @@
 import { gmailSend } from './smtp.js';
 import { updateFooter } from './unsub.js';
-// Asia Tango Map likes + comments API. Mounted under /social/* .
+// Asia Tango Map likes API, plus email confirm for the update list. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
-// POST /social/like {id, dev}              -> toggle; {id, n, liked}
-// GET  /social/comments?id=A               -> {items:[{name,body,at}]}
+// POST /social/like {id, dev}              -> toggle; one per device per card; {id, n, liked}
 // POST /social/signup {name,email,lang,ts,magic?,ret?} -> 6-digit code, or a magic link when magic=1
 // GET  /social/confirm?e=&t=&next=         -> confirm button only (mail scanners GET the link; that must not use it up)
 // POST /social/confirm                     -> person tapped Confirm: verify, set session, stay valid for MAGIC_MS
 // POST /social/verify {email, code}        -> {token, name}  (email verified; still works alongside magic links)
 // GET  /social/me  (Authorization: Bearer)  -> {name}
-// POST /social/comment {id, body} (Bearer)  -> posts one comment per confirmed user per card
 const ID_RE = /^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/, DEV_RE = /^[A-Za-z0-9-]{16,64}$/, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const now = () => new Date().toISOString();
 const CODE_MS = 15 * 60e3;    // 6-digit code, typed while the page is still open
 const MAGIC_MS = 60 * 60e3;   // email link. Scanners open it before the person does, so it stays valid for an hour and more than once.
-// 00:00 Asia/Shanghai today, as a UTC ISO string. Shanghai is UTC+8 with no DST, so created_at (toISOString) compares in order.
-function shanghaiDayStart(at = Date.now()) {
-  const sh = new Date(at + 8 * 3600e3);
-  return new Date(Date.UTC(sh.getUTCFullYear(), sh.getUTCMonth(), sh.getUTCDate()) - 8 * 3600e3).toISOString();
-}
 async function sha(s) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
 const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
 const clean = (s, n) => String(s || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n);
@@ -58,20 +51,20 @@ async function deliver(env, to, subject, text, html, headers) {
 async function sendCode(env, to, name, code, lang) {
   const zh = lang === 'zh';
   const subject = zh ? `亚洲探戈地图｜你的验证码 ${code}` : `Asia Tango Map | Your verification code ${code}`;
-  const text = zh ? `${name}，你好！\n\n你的亚洲探戈地图验证码是：${code}\n\n15 分钟内有效。把它填回网页，就能在活动卡片下留言了。\n如果不是你本人操作，忽略这封邮件即可。\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
-    : `Hi ${name},\n\nYour Asia Tango Map verification code is: ${code}\n\nIt's valid for 15 minutes. Enter it on the page and you can comment on event cards.\nIf this wasn't you, just ignore this email.\n\nAsia Tango Map\nhttps://tangoweekend.org`;
+  const text = zh ? `${name}，你好！\n\n你的亚洲探戈地图验证码是：${code}\n\n15 分钟内有效。把它填回网页即可完成验证。\n如果不是你本人操作，忽略这封邮件即可。\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
+    : `Hi ${name},\n\nYour Asia Tango Map verification code is: ${code}\n\nIt's valid for 15 minutes. Enter it on the page to finish verifying.\nIf this wasn't you, just ignore this email.\n\nAsia Tango Map\nhttps://tangoweekend.org`;
   return deliver(env, to, subject, text);
 }
 async function sendMagic(env, to, name, url, lang) {
   const zh = lang === 'zh';
   const origin = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
   const foot = await updateFooter(env, origin, to, lang);
-  const cta = zh ? '确认订阅并开通留言' : 'Confirm subscription and turn on comments';
+  const cta = zh ? '确认订阅' : 'Confirm subscription';
   const subject = zh ? '请确认订阅亚洲探戈地图' : 'Please confirm your Asia Tango Map subscription';
   const text = zh
-    ? `你好 ${name}，\n\n请在 60 分钟内打开下面的链接，再点「确认」完成订阅：\n\n${url}\n\n确认后你可以：\n· 在活动卡片下留言\n· 不定时收到亚洲探戈地图的活动更新（你若选择了接收更新）\n\n若你并未申请订阅，忽略即可。\n\n随时可退订，我们不会把你的信息给别人。\n退订：${foot.url}\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
-    : `Hello ${name},\n\nOpen the link below within 60 minutes, then tap Confirm to finish subscribing:\n\n${url}\n\nAfter you confirm, you can:\n· Comment on event cards\n· Get occasional Asia Tango Map event updates (if you chose to receive them)\n\nIf you didn't ask to subscribe, you can ignore this email.\n\nUnsubscribe anytime. We never share your information.\nUnsubscribe: ${foot.url}\n\nAsia Tango Map\nhttps://tangoweekend.org`;
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? '你好 ' + name + '，' : 'Hello ' + name + ',')}</p><p>${zh ? '请在 60 分钟内打开下面的链接，再点「确认」完成订阅：' : 'Open the link below within 60 minutes, then tap Confirm to finish subscribing:'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p>${zh ? '确认后你可以：' : 'After you confirm, you can:'}</p><ul><li>${zh ? '在活动卡片下留言' : 'Comment on event cards'}</li><li>${zh ? '不定时收到亚洲探戈地图的活动更新（你若选择了接收更新）' : 'Get occasional Asia Tango Map event updates (if you chose to receive them)'}</li></ul><p>${zh ? '若你并未申请订阅，忽略即可。' : 'If you didn\'t ask to subscribe, you can ignore this email.'}</p><p>${zh ? '随时可退订，我们不会把你的信息给别人。' : 'Unsubscribe anytime. We never share your information.'}<br><a href="${he(foot.url)}">${zh ? '退订' : 'Unsubscribe'}</a></p><p>亚洲探戈地图 Asia Tango Map<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
+    ? `你好 ${name}，\n\n请在 60 分钟内打开下面的链接，再点「确认」完成订阅：\n\n${url}\n\n确认后，若你选择了接收更新，会不定时收到亚洲探戈地图的活动更新。\n\n若你并未申请订阅，忽略即可。\n\n随时可退订，我们不会把你的信息给别人。\n退订：${foot.url}\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
+    : `Hello ${name},\n\nOpen the link below within 60 minutes, then tap Confirm to finish subscribing:\n\n${url}\n\nAfter you confirm, you'll get occasional Asia Tango Map event updates if you chose to receive them.\n\nIf you didn't ask to subscribe, you can ignore this email.\n\nUnsubscribe anytime. We never share your information.\nUnsubscribe: ${foot.url}\n\nAsia Tango Map\nhttps://tangoweekend.org`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? '你好 ' + name + '，' : 'Hello ' + name + ',')}</p><p>${zh ? '请在 60 分钟内打开下面的链接，再点「确认」完成订阅：' : 'Open the link below within 60 minutes, then tap Confirm to finish subscribing:'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p>${zh ? '确认后，若你选择了接收更新，会不定时收到亚洲探戈地图的活动更新。' : 'After you confirm, you\'ll get occasional Asia Tango Map event updates if you chose to receive them.'}</p><p>${zh ? '若你并未申请订阅，忽略即可。' : 'If you didn\'t ask to subscribe, you can ignore this email.'}</p><p>${zh ? '随时可退订，我们不会把你的信息给别人。' : 'Unsubscribe anytime. We never share your information.'}<br><a href="${he(foot.url)}">${zh ? '退订' : 'Unsubscribe'}</a></p><p>亚洲探戈地图 Asia Tango Map<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
   if (/ATM互动|探戈雷达/.test(subject + text + html)) throw new Error('internal name in mail');
   return deliver(env, to, subject, text, html, foot.headers);
 }
@@ -88,7 +81,7 @@ async function wxStatus(env, wx) {
 }
 const wxOf = u => u && typeof u.email === 'string' && u.email.startsWith('wx:') ? u.email.slice(3) : null;
 const wxDev = id => 'wxuser-' + String(id).padStart(10, '0');   // likes.device for a WeChat user's like
-async function wxGate(env, u) {   // pending gets exactly one action (comment OR like) after 「我已添加」, claimed atomically.
+async function wxGate(env, u) {   // pending WeChat gets exactly one like after 「我已添加」, claimed atomically. The tab stays disabled.
   const wx = wxOf(u); if (!wx) return { ok: true };
   const st = await wxStatus(env, wx);
   if (st === 'banned' || !st) return { err: 'wx_banned' };
@@ -108,7 +101,7 @@ export function wxDeadline(startIso, hours = 3) {
   }
   return new Date(t).toISOString();
 }
-async function wxReject(env, wx) {   // fake ID: delete its comments + likes, end its sessions, ban the ID for good
+async function wxReject(env, wx) {   // fake ID: clear its likes and any leftover rows, end its sessions, ban the ID for good
   const r = await env.DB.prepare("UPDATE subs SET wx_status='banned' WHERE wechat=? AND wx_status IN ('pending','verified')").bind(wx).run();
   if (!(r.meta?.changes ?? 0)) await env.DB.prepare("INSERT INTO subs(created_at,wechat,types,cities,lang,mail_status,wx_status) VALUES(?,?,'featured,regular','all','zh','wechat','banned')").bind(now(), wx).run();
   const u = await env.SDB.prepare('SELECT id FROM users WHERE email=?').bind('wx:' + wx).first(); let dc = 0, dl = 0;
@@ -135,12 +128,11 @@ async function wxAddedNotify(env, u, wx, row) {   // 「我已添加」 pressed:
   await env.DB.prepare('INSERT INTO wx_notify(wechat,at) VALUES(?,?) ON CONFLICT(wechat) DO UPDATE SET at=excluded.at').bind(wx, t).run();
   if (/^atm_test/i.test(wx) && env.TEST_NOTIFY !== '1') return 'test_skip';
   const full = await env.SDB.prepare('SELECT city,role FROM users WHERE id=?').bind(u.id).first() || {};
-  const nc = await env.SDB.prepare("SELECT COUNT(*) n FROM comments WHERE user_id=? AND status='visible'").bind(u.id).first('n');
   const nl = await env.SDB.prepare('SELECT COUNT(*) n FROM likes WHERE device=?').bind(wxDev(u.id)).first('n');
   const role = { leader: '领舞', follower: '跟舞', both: '双角色' }[full.role] || '（未填）';
   const when = new Date(t).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + '（北京时间）';
   const dl = wxDeadline(row.wx_added_at || now()), dls = new Date(dl).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
-  const text = `有人在亚洲探戈地图按了「我已添加」，请在探戈助理的「新的朋友」里核对验证码：\n\n微信号：${wx}\n验证码：${row.wx_code || ''}\n城市：${full.city || '（未填）'}\n身份：${role}\n时间：${when}\n留过言：${nc ? '是（' + nc + ' 条）' : '否'}${nl ? '，点过赞' : ''}\n\n核对通过后标记已验证（之后不限次数）：POST /social/admin/wx-verify {"wechat":"${wx}"}\n加不上：POST /social/admin/wx-reject {"wechat":"${wx}"}（删除留言并禁用）\n期限：${dls}（三小时，夜里 23:00–09:00 不计；AUTO_EXPIRE=${env.AUTO_EXPIRE === 'on' ? 'on' : 'off'}）`;
+  const text = `有人在亚洲探戈地图按了「我已添加」，请在探戈助理的「新的朋友」里核对验证码：\n\n微信号：${wx}\n验证码：${row.wx_code || ''}\n城市：${full.city || '（未填）'}\n身份：${role}\n时间：${when}\n点过赞：${nl ? '是（' + nl + '）' : '否'}\n\n核对通过后标记已验证（之后不限次数）：POST /social/admin/wx-verify {"wechat":"${wx}"}\n加不上：POST /social/admin/wx-reject {"wechat":"${wx}"}（删除点赞并禁用）\n期限：${dls}（三小时，夜里 23:00–09:00 不计；AUTO_EXPIRE=${env.AUTO_EXPIRE === 'on' ? 'on' : 'off'}）`;
   const to = env.WX_NOTIFY_TO || 'shiao.li.chang@gmail.com';
   const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <noreply@tangoweekend.org>', to: [to], subject: `ATM 待核对：${wx}，${row.wx_code || ''}`, text }) });
@@ -161,7 +153,7 @@ function confirmPage(ok, text) {
 }
 function donePage(lang, dest, unsub) {
   const zh = lang === 'zh';
-  const msg = zh ? '订阅成功！你已可在活动卡片下留言。不想再收消息可随时退订。' : 'You\'re subscribed. You can comment on event cards now. Unsubscribe anytime if you don\'t want messages.';
+  const msg = zh ? '订阅成功。不想再收消息可随时退订。' : 'You\'re subscribed. Unsubscribe anytime if you don\'t want messages.';
   const back = zh ? '回到活动卡片' : 'Back to the event card';
   const uword = zh ? '退订' : 'Unsubscribe';
   const href = he(dest), uh = he(unsub);
@@ -170,7 +162,7 @@ function donePage(lang, dest, unsub) {
 <p style="font-size:1.1rem;color:#0a4f57;font-weight:700">${he(msg)}</p><p><a href="${href}" style="color:#0e6e78">${back}</a></p><p style="font-size:.85rem"><a href="${uh}" style="color:#7a6255">${uword}</a></p></div></body></html>`,
     { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' } });
 }
-// Opt-in joins the update list. Opt-out only blocks future update mail; an existing comment session stays.
+// Opt-in joins the update list. Opt-out only blocks future update mail.
 async function applyList(env, u, want) {
   const email = String(u.email || '').toLowerCase(), ts = now();
   if (!want) {
@@ -239,8 +231,7 @@ export async function social(req, env, url, json) {
     const q = ids.map(() => '?').join(',');
     (await env.SDB.prepare(`SELECT card_id,COUNT(*) n FROM likes WHERE card_id IN (${q}) GROUP BY card_id`).bind(...ids).all()).results.forEach(r => counts[r.card_id] = r.n);
     if (DEV_RE.test(dev)) (await env.SDB.prepare(`SELECT card_id FROM likes WHERE device=? AND card_id IN (${q})`).bind(dev, ...ids).all()).results.forEach(r => mine.push(r.card_id));
-    const cc = {}; (await env.SDB.prepare(`SELECT card_id,COUNT(*) n FROM comments WHERE status='visible' AND card_id IN (${q}) GROUP BY card_id`).bind(...ids).all()).results.forEach(r => cc[r.card_id] = r.n);
-    return json({ counts, mine, comments: cc });
+    return json({ counts, mine });
   }
   if (p === '/like' && req.method === 'POST') {
     let id = String(b.id || ''), dev = String(b.dev || ''); if (!ID_RE.test(id) || !DEV_RE.test(dev)) return json({ error: 'bad_input' }, 400);
@@ -252,13 +243,6 @@ export async function social(req, env, url, json) {
       await env.SDB.prepare('INSERT OR IGNORE INTO likes(card_id,device,created_at) VALUES(?,?,?)').bind(id, dev, now()).run(); }
     const n = await env.SDB.prepare('SELECT COUNT(*) n FROM likes WHERE card_id=?').bind(id).first('n');
     return json({ id, n, liked: !had });
-  }
-  if (p === '/comments' && req.method === 'GET') {
-    const id = url.searchParams.get('id') || ''; if (!ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
-    const r = await env.SDB.prepare("SELECT u.name,u.city,c.body,c.lang,c.tr,c.created_at at FROM comments c JOIN users u ON u.id=c.user_id WHERE c.card_id=? AND c.status='visible' ORDER BY c.created_at DESC, c.id DESC LIMIT 200").bind(id).all();
-    const u = await user(req, env);
-    const mine = !!(u && await env.SDB.prepare('SELECT 1 FROM comments WHERE card_id=? AND user_id=? LIMIT 1').bind(id, u.id).first());
-    return json({ items: r.results, mine });
   }
   if (p === '/signup' && req.method === 'POST') {
     const name = clean(b.name, 40).replace(/\s+/g, ' '), email = clean(b.email, 254).toLowerCase(), lang = b.lang === 'zh' ? 'zh' : 'en';
@@ -304,22 +288,7 @@ export async function social(req, env, url, json) {
     const row = await wxRow(env, wx) || {}; let note = 'skip';
     try { note = await wxAddedNotify(env, u, wx, row); } catch (e) { console.log('wx notify', e.message); note = 'fail'; }
     return json({ ok: true, wx: st, added: true, used: !!u.wx_used, notify: note, deadline: wxDeadline(row.wx_added_at) }); }
-  if (p === '/comment' && req.method === 'POST') {
-    const u = await user(req, env); if (!u) return json({ error: 'auth' }, 401);
-    const id = String(b.id || ''), body = clean(b.body, 1000); if (!ID_RE.test(id) || !body) return json({ error: 'bad_input' }, 400);
-    if (await env.SDB.prepare('SELECT 1 FROM comments WHERE card_id=? AND user_id=? LIMIT 1').bind(id, u.id).first()) return json({ error: 'already_commented' }, 409);
-    const n = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>?').bind(u.id, new Date(Date.now() - 600e3).toISOString()).first('n');
-    if (n >= 5) return json({ error: 'rate_limited' }, 429);
-    const day0 = shanghaiDayStart();
-    const dayN = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>=?').bind(u.id, day0).first('n');
-    if (dayN >= 2) return json({ error: 'day_limited' }, 429);
-    const g = await wxGate(env, u); if (g.err) return json({ error: g.err }, 403);
-    if (g.claim && !(await wxClaim(env, u))) return json({ error: 'wx_used' }, 403);
-    const lang = /[\u3400-\u9fff]/.test(body) ? 'zh' : 'en', tr = await translate(env, body, lang);
-    await env.SDB.prepare('INSERT INTO comments(card_id,user_id,body,created_at,ip_hash,lang,tr) VALUES(?,?,?,?,?,?,?)').bind(id, u.id, body, now(), iph, lang, tr).run();
-    return json({ ok: true, item: { name: u.name, body, lang, tr, at: now() } });
-  }
-  if (p === '/wx-login' && req.method === 'POST') {   // zh: WeChat ID only (no code). Pending = one comment or one like; verified (探戈助理 added them) = unlimited; banned = none.
+  if (p === '/wx-login' && req.method === 'POST') {   // zh: WeChat ID only (no code). Pending = one like; verified = unlimited; banned = none. The WeChat tab stays disabled.
     if (b.lang !== 'zh') return json({ error: 'zh_only' }, 403);
     const wx = clean(b.wechat, 64); if (!wx) return json({ error: 'need_wechat' }, 400);
     const st = await wxStatus(env, wx);
@@ -336,9 +305,6 @@ export async function social(req, env, url, json) {
   if (p.startsWith('/admin/') ) {   // Bearer ADMIN_TOKEN. GET /admin/wx-pending ; POST /admin/wx-verify {wechat}
     const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
     if (!env.ADMIN_TOKEN || a.length < 24 || a !== env.ADMIN_TOKEN) return json({ error: 'auth' }, 401);
-    if (p === '/admin/archive' && req.method === 'POST') { const id = String(b.id || ''); if (!ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
-      const st = b.restore ? 'visible' : 'archived', from = b.restore ? 'archived' : 'visible';
-      const r = await env.SDB.prepare('UPDATE comments SET status=? WHERE card_id=? AND status=?').bind(st, id, from).run(); return json({ ok: true, changed: r.meta.changes }); }
     if (p === '/admin/wx-pending' && req.method === 'GET') return json({ auto_expire: env.AUTO_EXPIRE === 'on' ? 'on' : 'off', items: await wxPendingList(env) });
     if (p === '/admin/wx-expire' && req.method === 'POST') return json(await wxExpireSweep(env));
     if (p === '/admin/wx-reject' && req.method === 'POST') { const wx = clean(b.wechat, 64); if (!wx) return json({ error: 'bad_input' }, 400); return json(await wxReject(env, wx)); }
@@ -347,10 +313,4 @@ export async function social(req, env, url, json) {
   return json({ error: 'not_found' }, 404);
 }
 
-// zh<->en machine translation (Workers AI m2m100); null on failure so the original still posts.
-async function translate(env, text, lang) {
-  if (!env.AI) return null;
-  try { const r = await env.AI.run('@cf/meta/m2m100-1.2b', { text, source_lang: lang === 'zh' ? 'chinese' : 'english', target_lang: lang === 'zh' ? 'english' : 'chinese' });
-    const t = String(r && r.translated_text || '').trim().slice(0, 2000); return t && t !== text ? t : null; } catch (e) { return null; }
-}
 const ROLES = ['leader', 'follower', 'both'];

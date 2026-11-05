@@ -46,7 +46,7 @@ async function wxNotify(env, b, origin) {
   await env.DB.prepare('INSERT INTO wx_notify(wechat,at) VALUES(?,?) ON CONFLICT(wechat) DO UPDATE SET at=excluded.at').bind(wx, t).run();
   const role = { leader: '领舞', follower: '跟舞', both: '双角色' }[b.role] || '';
   const when = new Date(t).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + '（北京时间）';
-  const text = `有人在亚洲探戈地图留了微信号，请用「探戈助理」主动加他为好友：\n\n微信号：${wx}\n名字：${b.name || ''}\n城市：${b.city || ''}\n角色：${role}\n时间：${when}\n\n他现在可以留言一次或点一次赞。\n加上好友后标记已验证（之后不限次数）：\nPOST ${origin}/social/admin/wx-verify  {"wechat":"${wx}"}\n加不上（假微信号）就拒绝：会删除他的留言/赞，并禁止这个微信号再留言：\nPOST ${origin}/social/admin/wx-reject  {"wechat":"${wx}"}\n（Authorization: Bearer <管理员 token>；待加列表：GET ${origin}/social/admin/wx-pending）`;
+  const text = `有人在亚洲探戈地图留了微信号，请用「探戈助理」主动加他为好友：\n\n微信号：${wx}\n名字：${b.name || ''}\n城市：${b.city || ''}\n角色：${role}\n时间：${when}\n\n他现在可以点一次赞。\n加上好友后标记已验证（之后不限次数）：\nPOST ${origin}/social/admin/wx-verify  {"wechat":"${wx}"}\n加不上（假微信号）就拒绝：会删除他的赞，并禁止这个微信号再使用：\nPOST ${origin}/social/admin/wx-reject  {"wechat":"${wx}"}\n（Authorization: Bearer <管理员 token>；待加列表：GET ${origin}/social/admin/wx-pending）`;
   const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <noreply@tangoweekend.org>', to: [to], subject: `ATM 待加微信好友：${wx}`, text }) });
   if (!r.ok) throw new Error('resend ' + r.status);

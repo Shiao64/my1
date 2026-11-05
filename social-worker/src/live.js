@@ -1,4 +1,4 @@
-// LIVE: tango-subscribe Worker (api.tangoweekend.org). Subscribe/confirm/push from subscribe-worker, plus /social/* (likes, comments, WeChat flow v3).
+// LIVE: tango-subscribe Worker (api.tangoweekend.org). Subscribe/confirm/push from subscribe-worker, plus /social/* (likes, email confirm, WeChat flow v3). The WeChat tab stays disabled.
 import SUB from '../../subscribe-worker/src/index.js';
 import { social, wxExpireSweep } from './social.js';
 import { unsubscribe as unsub2 } from './unsub.js';
