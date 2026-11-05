@@ -41,8 +41,61 @@ body.wt-theme .hero-poster{
 }
 body.wt-theme .hero a{color:var(--gold-soft)}
 body.wt-theme .hero a:hover{color:#fff}
-body.wt-theme .wt-nextline{margin-top:14px}
-body.wt-theme .wt-nextline a{font-weight:700;text-underline-offset:3px}
+
+/* Cinnabar chop: the 1st edition has concluded. Sits at the top of the hero. */
+body.wt-theme .wt-stamp{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:0 0 18px;
+}
+body.wt-theme .wt-seal{
+  position:relative;
+  flex:0 0 auto;
+  width:118px;
+  height:118px;
+  margin:0;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  color:#fff8ee;
+  background:
+    radial-gradient(circle at 34% 30%, rgba(255,255,255,.2), transparent 40%),
+    radial-gradient(circle at 50% 58%, #d44736 0%, #8e1e18 76%);
+  border:2px solid #f6e0b4;
+  box-shadow:
+    0 0 0 4px #b43328,
+    0 0 0 6px #f6e0b4,
+    0 12px 20px rgba(0,0,0,.32);
+  transform:rotate(-12deg);
+}
+body.wt-theme .wt-seal::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(255,246,232,.78);
+  border-radius:50%;
+}
+body.wt-theme .wt-seal-zh{
+  position:relative;
+  display:grid;
+  grid-template-columns:1.1em 1.1em;
+  justify-content:center;
+  font-family:var(--serif);
+  font-weight:700;
+  font-size:1.42rem;
+  line-height:1.05;
+  letter-spacing:0;
+}
+body.wt-theme .wt-seal-zh span{text-align:center}
+body.wt-theme .wt-seal-caption{
+  color:var(--gold);
+  font-family:var(--serif);
+  font-weight:700;
+  font-size:1.15rem;
+  line-height:1.2;
+  letter-spacing:.01em;
+}
 
 body.wt-theme .main-nav a.nav-cta,
 body.wt-theme .site-header .main-nav a.nav-cta{
@@ -116,7 +169,18 @@ body.wt-theme .wt-passes{
 body.wt-theme .price-card.sold .ribbon{background:var(--red-deep);color:var(--gold-soft)}
 body.wt-theme .wt-passnote{text-align:center}
 
-/* 2027 placeholder + link slots. No URLs until the organizers send them. */
+/* 2027 sits directly under the hero, still marked as planning. */
+body.wt-theme #next{padding-top:42px;padding-bottom:22px}
+body.wt-theme #next .sec-title{margin-bottom:20px}
+body.wt-theme #next .card{
+  border-color:var(--gold);
+  background:linear-gradient(180deg,#fff,#fff8ee);
+}
+body.wt-theme #next .ed-badge{
+  background:var(--red);
+  color:#fff8ee;
+  letter-spacing:.08em;
+}
 body.wt-theme .wt-next{align-items:stretch}
 body.wt-theme .wt-ph{
   min-height:280px;
