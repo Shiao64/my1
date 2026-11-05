@@ -6,13 +6,13 @@
   var API = (window.ATM_SOCIAL_API || 'https://api.tangoweekend.org') + '/social';
   var TSKEY = window.ATM_TS_KEY || (/(^|\.)tangoweekend\.org$/.test(location.hostname) || /\.my1-7p3\.pages\.dev$/.test(location.hostname) ? '0x4AAAAAAFzkQw2fwneONelA' : '');
   var L = zh ? {
-    btn: '✉ 新活动通知', title: '订阅通知', desc: '订阅亚洲探戈地图的活动通知。留下姓名、城市、角色和邮箱，点确认邮件后即可收到不定期更新，也可以在活动卡片下留言。', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '领舞', rf: '跟舞', rb: '双角色', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色（领舞、跟舞或双角色）。', wxNeed: '', okWx: '',
+    btn: '✉ 新活动通知', title: '订阅通知', desc: '加入亚洲探戈地图！留下你的名字和邮箱，我们会发确认邮件。确认后，你就能收到不定期的活动更新，也可以在活动卡片下留言。', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '领舞', rf: '跟舞', rb: '双角色', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色（领舞、跟舞或双角色）。', wxNeed: '', okWx: '',
     email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '确认邮件发送失败，请检查邮箱地址或稍后再试。',
     submit: '订阅', sending: '提交中…', ok: '确认邮件已发出。请打开邮箱，点邮件里的链接（约 15 分钟内有效，没收到请看垃圾邮件）。',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', ts: '请先完成人机验证。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
   } : {
-    btn: '✉ Get event alert', title: 'Subscribe to updates', desc: 'Subscribe to Asia Tango Map event notices. Leave your name, city, role, and email. After you tap the link in the confirmation email, you will get occasional updates and you can comment under event cards.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'Follower', rb: 'Both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose leader, follower, or both.', wxNeed: '', okWx: '',
+    btn: '✉ Get event alert', title: 'Subscribe to updates', desc: 'Join Asia Tango Map! Leave your name and email, and we\'ll send a confirmation email. Once confirmed, you\'ll get occasional event updates and can comment on event cards.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'Follower', rb: 'Both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose leader, follower, or both.', wxNeed: '', okWx: '',
     email: 'Email', emailPh: 'name@example.com', hint: '',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the confirmation email. Please check the address or try again later.', bad: 'Please check your email address.',
     submit: 'Subscribe', sending: 'Sending…', ok: 'Confirmation email sent. Open it and tap the link (valid about 15 minutes; check spam).',
