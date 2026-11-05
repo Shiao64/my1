@@ -279,7 +279,7 @@ export async function social(req, env, url, json) {
     if (n >= 5) return json({ error: 'rate_limited' }, 429);
     const day0 = shanghaiDayStart();
     const dayN = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>=?').bind(u.id, day0).first('n');
-    if (dayN >= 15) return json({ error: 'rate_limited' }, 429);
+    if (dayN >= 2) return json({ error: 'day_limited' }, 429);
     const g = await wxGate(env, u); if (g.err) return json({ error: g.err }, 403);
     if (g.claim && !(await wxClaim(env, u))) return json({ error: 'wx_used' }, 403);
     const lang = /[\u3400-\u9fff]/.test(body) ? 'zh' : 'en', tr = await translate(env, body, lang);
