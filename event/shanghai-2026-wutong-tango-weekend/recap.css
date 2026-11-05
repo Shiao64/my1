@@ -19,25 +19,73 @@ body.wt-theme .site-header{
   background:rgba(60,28,9,.96);
   border-bottom-color:var(--gold);
 }
+/* Theme poster fills the hero. A light scrim keeps the type readable
+   without painting the panel solid brown. */
 body.wt-theme .hero{
-  background:
-    radial-gradient(920px 480px at 86% 8%, rgba(232,150,48,.42), transparent 58%),
-    linear-gradient(165deg, #5c2a0e 0%, #3c1c09 58%, #241208 100%);
+  background:#c45a12;
+  min-height:calc(100svh - 94px);
 }
 body.wt-theme .hero::before{
-  opacity:.16;
-  background-image:radial-gradient(circle at 18px 18px, #f0c56a 1.4px, transparent 2px);
+  opacity:1;
+  background-image:linear-gradient(180deg, rgba(28,12,4,.58) 0%, rgba(28,12,4,.34) 42%, rgba(28,12,4,.22) 100%);
+  background-size:auto;
+  z-index:1;
+}
+body.wt-theme .hero .wrap{
+  z-index:2;
+  grid-template-columns:minmax(0, 40rem);
+  align-items:start;
+  align-content:start;
+  min-height:calc(100svh - 94px);
+  padding-top:28px;
+  padding-bottom:56px;
 }
 body.wt-theme .hero-poster{
-  width:auto;
-  max-width:min(100%, 380px);
-  height:auto;
-  max-height:min(70vh, 640px);
-  object-fit:contain;
+  position:absolute;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  max-width:none;
+  max-height:none;
+  margin:0;
+  object-fit:cover;
   object-position:center top;
-  background:#2a1408;
-  border-color:var(--gold);
-  justify-self:end;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  transform:none;
+  background:none;
+  pointer-events:none;
+}
+body.wt-theme .hero-copy h1,
+body.wt-theme .hero-copy .meta{
+  text-shadow:0 2px 14px rgba(0,0,0,.45);
+}
+body.wt-theme .wt-next-front{
+  display:inline-flex;
+  flex-direction:column;
+  gap:2px;
+  margin:0 0 18px;
+  padding:12px 18px 14px;
+  background:#f6e0b4;
+  color:#3c1c09;
+  border:2px solid #fff8ee;
+  border-radius:14px;
+  box-shadow:0 12px 28px rgba(0,0,0,.38);
+}
+body.wt-theme .wt-next-kicker{
+  font-size:.78rem;
+  font-weight:800;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+body.wt-theme .wt-next-front strong{
+  font-family:var(--serif);
+  font-size:clamp(1.55rem, 4.6vw, 2.15rem);
+  font-weight:700;
+  line-height:1.15;
+  color:#8e1e18;
 }
 body.wt-theme .hero a{color:var(--gold-soft)}
 body.wt-theme .hero a:hover{color:#fff}
@@ -208,13 +256,7 @@ body.wt-theme .lb{z-index:2147483001}
 }
 @media (max-width:820px){
   body.wt-theme #schedule .day{grid-template-columns:1fr}
-  body.wt-theme .hero .wrap{padding-top:36px;padding-bottom:40px}
-  body.wt-theme .hero-poster{
-    justify-self:center;
-    max-width:min(100%, 340px);
-    max-height:none;
-    transform:none;
-  }
+  body.wt-theme .hero .wrap{padding-top:22px;padding-bottom:36px}
   body.wt-theme #gallery .wt-mood{grid-template-columns:1fr}
   body.wt-theme #gallery .ed-cover{margin:0 auto}
   body.wt-theme .wt-links{grid-template-columns:1fr}
