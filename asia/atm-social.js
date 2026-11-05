@@ -11,10 +11,10 @@
   if (!/^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/.test(cardId)) return;
   var L = zh ? { like: '赞', cm: '留言', none: '还没有留言，来说第一句吧。', ph: '写下你的留言…', post: '发布', join: '用邮箱开通留言', name: '你的名字', email: '你的邮箱',
       send: '发送确认邮件', resend: '重新发送', sent: '确认邮件已发出。请打开邮箱，点邮件里的链接（约 15 分钟内有效，没收到请看垃圾邮件）。', as: '以 {n} 的身份留言 · ', out: '退出',
-      need: '请填写名字和正确的邮箱。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '填写名字、城市、角色和邮箱，点「发送确认邮件」。打开邮箱点确认链接后，就可以在这张卡片下留言。', city: '所在城市（必填）', ncity: '请填写你所在的城市。', role: '你跳的角色（必选）', rl: '领舞', rf: '跟舞', rb: '双角色', nrole: '请选择你跳的角色。', trd: '译文', org: '查看原文', shtr: '查看译文' }
+      need: '请填写名字和正确的邮箱。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '填写名字、城市、角色和邮箱，点「发送确认邮件」。打开邮箱点确认链接后，就可以在这张卡片下留言。', one: '这张卡你已经留过言了。', city: '所在城市（必填）', ncity: '请填写你所在的城市。', role: '你跳的角色（必选）', rl: '领舞', rf: '跟舞', rb: '双角色', nrole: '请选择你跳的角色。', trd: '译文', org: '查看原文', shtr: '查看译文' }
     : { like: 'Like', cm: 'Comments', none: 'No comments yet. Be the first!', ph: 'Write a comment…', post: 'Post', join: 'Comment with email', name: 'Your name', email: 'Your email',
       send: 'Send confirmation email', resend: 'Resend', sent: 'Confirmation email sent. Open your inbox and tap the link (valid about 15 minutes; check spam).', as: 'Commenting as {n} · ', out: 'Sign out',
-      need: 'Please enter your name and a valid email.', fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', why: 'Enter your name, city, role, and email, then tap Send confirmation email. Open the email and tap the link to comment on this card.', city: 'Your city (required)', ncity: 'Please enter your city.', role: 'Your role (required)', rl: 'Leader', rf: 'Follower', rb: 'Both', nrole: 'Please choose your role.', trd: 'Translated', org: 'See original', shtr: 'See translation' };
+      need: 'Please enter your name and a valid email.', fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', why: 'Enter your name, city, role, and email, then tap Send confirmation email. Open the email and tap the link to comment on this card.', one: 'You\'ve already commented on this card.', city: 'Your city (required)', ncity: 'Please enter your city.', role: 'Your role (required)', rl: 'Leader', rf: 'Follower', rb: 'Both', nrole: 'Please choose your role.', trd: 'Translated', org: 'See original', shtr: 'See translation' };
   function dev() { var k = 'atm_dev_id', v = ''; try { v = localStorage.getItem(k) || ''; if (!/^[A-Za-z0-9-]{16,64}$/.test(v)) { v = (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2))); localStorage.setItem(k, v); } } catch (e) { v = v || 'anon-' + Date.now().toString(36) + '0000000000'; } return v; }
   function tok() { try { return localStorage.getItem('atm_social_tok') || ''; } catch (e) { return ''; } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -63,7 +63,7 @@
         return t ? '<p class="as-txt">' + esc(c.tr) + '</p><p class="as-txt as-org" hidden>' + esc(c.body) + '</p><button type="button" class="as-trt" data-t="1">' + L.trd + ' · ' + L.org + '</button>' : '<p>' + esc(c.body) + '</p>'; })() + '</li>'; }).join('') : '<li class="as-empty">' + L.none + '</li>';
     list.querySelectorAll('.as-trt').forEach(function (bt) { bt.onclick = function () { var li = bt.parentNode, ps = li.querySelectorAll('.as-txt'), o = bt.getAttribute('data-t') === '1'; ps[0].hidden = o; ps[1].hidden = !o; bt.setAttribute('data-t', o ? '0' : '1'); bt.textContent = o ? L.shtr : L.trd + ' · ' + L.org; }; });
   }
-  var me = null, wxi = null, tsId = null, tsTok = '', asked = false;   // wxi = {wx:'pending'|'verified', used, wxdev} for WeChat sessions. asked: 留言 opened the signup on a card page.
+  var me = null, wxi = null, tsId = null, tsTok = '', asked = false, mineComment = false;   // wxi = {wx:'pending'|'verified', used, wxdev} for WeChat sessions. asked: 留言 opened the signup on a card page. mineComment: this confirmed user already has a comment on this card.
   var QR = window.ATM_WX_QR || '/asia/tango-assistant-qr.jpg', WXID = window.ATM_WX_ID || 'wxid_ixaen7sydccp12', poll = null;
   function inWeChat() { var ua = navigator.userAgent || ''; return /MicroMessenger|WeChat|Weixin/i.test(ua) || typeof window.WeixinJSBridge !== 'undefined' || window.__wxjs_environment === 'miniprogram'; }
   var WXT = { title: '留微信号或邮箱获取验证码', ph: '你的微信号', cy: '所在城市（选填）', rl: '你跳的角色（选填）', go: '获取验证码',
@@ -81,7 +81,7 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb); else fb();
   }
   function setPoll() { var want = !!(me && wxi && wxi.wx === 'pending' && wxi.added); if (want && !poll) poll = setInterval(function () { if (document.hidden) return; api('/me', null, true).then(function (d) { if (d.error === 'wx_banned') { banned(); return; } if (d.wx && wxi && d.wx !== wxi.wx) { wxi = { wx: d.wx, used: d.used, wxdev: d.wxdev, added: d.added, code: d.code }; drawForm(); } }).catch(function () {}); }, 30000); if (!want && poll) { clearInterval(poll); poll = null; } }
-  function signOut() { popHold = 0; closePop(); try { localStorage.removeItem('atm_social_tok'); } catch (e) {} me = null; wxi = null; setPoll(); }
+  function signOut() { popHold = 0; closePop(); try { localStorage.removeItem('atm_social_tok'); } catch (e) {} me = null; wxi = null; mineComment = false; setPoll(); }
   function banned(msg) { signOut(); drawForm(); var e = form.querySelector('.as-wxerr') || form.querySelector('.as-err'); if (e) e.textContent = msg || WXT.ban; }
   function pressAdded() {
     var buttons = document.querySelectorAll('.as-add'); [].forEach.call(buttons, function (b) { b.disabled = true; });
@@ -118,6 +118,11 @@
   }
   function drawForm() {
     closePop();
+    if (me && mineComment) {
+      form.innerHTML = '<p class="as-note">' + L.one + '</p><p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p>';
+      form.querySelector('.as-out').onclick = function () { signOut(); drawForm(); };
+      syncGate(); return;
+    }
     if (me) {
       var pend = wxi && wxi.wx === 'pending', used = pend && wxi.used, nadd = pend && !wxi.added;
       if (nadd) {   // got the code, has not pressed 「我已添加」 yet. QR only in the WeChat popup.
@@ -141,7 +146,7 @@
       form.querySelector('.as-out').onclick = function () { signOut(); drawForm(); };
       var pb = form.querySelector('.as-post'); if (pb) pb.onclick = function () {
         var b = form.querySelector('.as-body'), t = b.value.trim(), er = form.querySelector('.as-err'), go = this; if (!t) return; go.disabled = true; er.textContent = '';
-        api('/comment', { id: cardId, body: t }, true).then(function (d) { if (d.ok) { b.value = ''; loadComments(); if (pend) { wxi.used = true; drawForm(); } } else if (d.error === 'auth') { signOut(); drawForm(); } else if (d.error === 'wx_banned') banned(); else if (d.error === 'wx_used') { wxi.used = true; drawForm(); reveal(gateEl()); } else if (d.error === 'wx_not_added') { wxi.added = false; drawForm(); reveal(gateEl()); } else er.textContent = d.error === 'rate_limited' ? L.rate : L.fail; })
+        api('/comment', { id: cardId, body: t }, true).then(function (d) { if (d.ok) { b.value = ''; mineComment = true; loadComments(); if (pend) { wxi.used = true; drawForm(); } else drawForm(); } else if (d.error === 'already_commented') { mineComment = true; drawForm(); } else if (d.error === 'auth') { signOut(); drawForm(); } else if (d.error === 'wx_banned') banned(); else if (d.error === 'wx_used') { wxi.used = true; drawForm(); reveal(gateEl()); } else if (d.error === 'wx_not_added') { wxi.added = false; drawForm(); reveal(gateEl()); } else er.textContent = d.error === 'rate_limited' ? L.rate : L.fail; })
           .catch(function () { er.textContent = L.fail; }).then(function () { go.disabled = false; });
       };
       syncGate(); return;
@@ -176,7 +181,7 @@
   function stickyTop() { var st = document.querySelector('.china-sticky-top'); if (!st) return 0; var p = getComputedStyle(st).position; return (p === 'sticky' || p === 'fixed') ? (st.getBoundingClientRect().bottom || 0) : 0; }
   function reveal(el) { if (!el || !el.getBoundingClientRect) return; var y = el.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop || 0) - stickyTop() - 8; try { window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' }); } catch (e) { window.scrollTo(0, Math.max(0, y)); } }
   function gateEl() { var hs = form.querySelectorAll('.as-wt'), i; for (i = 0; i < hs.length; i++) if (shown(hs[i])) return hs[i]; return form.querySelector('.as-wait') || form.querySelector('.as-note') || form; }
-  function loadComments() { api('/comments?id=' + encodeURIComponent(cardId)).then(function (d) { drawItems(d.items || []); }).catch(function () {}); }
+  function loadComments() { api('/comments?id=' + encodeURIComponent(cardId), null, true).then(function (d) { drawItems(d.items || []); if (!('mine' in d)) return; var was = mineComment; mineComment = !!d.mine; if (mineComment !== was) drawForm(); }).catch(function () {}); }
   function likeDev() { return wxi && wxi.wxdev ? wxi.wxdev : dev(); }
   function refreshLike() { api('/likes?ids=' + encodeURIComponent(cardId) + '&dev=' + encodeURIComponent(likeDev())).then(function (d) { setLike((d.counts || {})[cardId] || 0, (d.mine || []).indexOf(cardId) >= 0); }).catch(function () {}); }
   function takeLink() {
