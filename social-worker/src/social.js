@@ -11,6 +11,11 @@ import { updateFooter } from './unsub.js';
 // POST /social/comment {id, body} (Bearer)  -> posts one comment per confirmed user per card
 const ID_RE = /^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/, DEV_RE = /^[A-Za-z0-9-]{16,64}$/, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const now = () => new Date().toISOString();
+// 00:00 Asia/Shanghai today, as a UTC ISO string. Shanghai is UTC+8 with no DST, so created_at (toISOString) compares in order.
+function shanghaiDayStart(at = Date.now()) {
+  const sh = new Date(at + 8 * 3600e3);
+  return new Date(Date.UTC(sh.getUTCFullYear(), sh.getUTCMonth(), sh.getUTCDate()) - 8 * 3600e3).toISOString();
+}
 async function sha(s) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
 const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
 const clean = (s, n) => String(s || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n);
@@ -272,6 +277,9 @@ export async function social(req, env, url, json) {
     if (await env.SDB.prepare('SELECT 1 FROM comments WHERE card_id=? AND user_id=? LIMIT 1').bind(id, u.id).first()) return json({ error: 'already_commented' }, 409);
     const n = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>?').bind(u.id, new Date(Date.now() - 600e3).toISOString()).first('n');
     if (n >= 5) return json({ error: 'rate_limited' }, 429);
+    const day0 = shanghaiDayStart();
+    const dayN = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>=?').bind(u.id, day0).first('n');
+    if (dayN >= 15) return json({ error: 'rate_limited' }, 429);
     const g = await wxGate(env, u); if (g.err) return json({ error: g.err }, 403);
     if (g.claim && !(await wxClaim(env, u))) return json({ error: 'wx_used' }, 403);
     const lang = /[\u3400-\u9fff]/.test(body) ? 'zh' : 'en', tr = await translate(env, body, lang);
