@@ -1,10 +1,11 @@
 /* Asia Tango Map: 👍 likes + comments under a single event card (?card=ID), on the map and on DJ/organizer pages.
    Likes: no login, one per device (localStorage id + server dedupe), tap again to un-like.
-   Comments: zh shows 微信 | 邮箱. The WeChat tab stays visible but is disabled. Email sign-up sends a one-time confirm link (15 min); the page stores the session from #atm= into atm_social_tok. API: /social/* on the subscribe Worker. */
+   Comments: zh shows 微信 | 邮箱. The WeChat tab stays visible but is disabled. On a ?card= page the email signup stays hidden until 留言 is tapped. Email sign-up sends a one-time confirm link (15 min); the page stores the session from #atm= into atm_social_tok. API: /social/* on the subscribe Worker. */
 (function () {
   var R = document.documentElement, zh = /^zh/i.test(R.getAttribute('data-asia-lang') || document.body.getAttribute('data-lang') || R.lang || '');
   var API = (window.ATM_SOCIAL_API || 'https://api.tangoweekend.org') + '/social', TSKEY = window.ATM_TS_KEY || (/(^|\.)tangoweekend\.org$/.test(location.hostname) || /\.my1-7p3\.pages\.dev$/.test(location.hostname) ? '0x4AAAAAAFzkQw2fwneONelA' : '');
   var cardId = ''; try { cardId = new URLSearchParams(location.search).get('card') || ''; } catch (e) {}
+  var cardPage = !!cardId;
   var pm = location.pathname.match(/^\/(?:zh\/|en\/)?(organizer|dj)\/([a-z0-9-]{1,48})\/?(?:index\.html)?$/i);
   if (pm && document.querySelector('.dj-main')) cardId = (pm[1].toLowerCase() === 'dj' ? 'dj:' : 'org:') + pm[2].toLowerCase();
   if (!/^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/.test(cardId)) return;
@@ -45,7 +46,7 @@
   var box = document.createElement('section'); box.id = 'atm-soc'; box.setAttribute('data-card', cardId);
   box.innerHTML = '<div class="as-bar"><button type="button" class="as-btn as-like" aria-pressed="false"><span class="as-ic">👍</span><span class="as-l">' + L.like + '</span><span class="as-n" data-n="0"></span></button>' +
     '<button type="button" class="as-btn as-cmb"><span class="as-ic">💬</span><span>' + L.cm + '</span><span class="as-n as-cn"></span></button></div>' +
-    '<ul class="as-list" aria-live="polite"></ul><div class="as-form"></div>';
+    '<ul class="as-list" aria-live="polite"></ul><div class="as-form"' + (cardPage ? ' hidden' : '') + '></div>';
   var placed = false;
   function place() {
     if (placed) return true;
@@ -62,7 +63,7 @@
         return t ? '<p class="as-txt">' + esc(c.tr) + '</p><p class="as-txt as-org" hidden>' + esc(c.body) + '</p><button type="button" class="as-trt" data-t="1">' + L.trd + ' · ' + L.org + '</button>' : '<p>' + esc(c.body) + '</p>'; })() + '</li>'; }).join('') : '<li class="as-empty">' + L.none + '</li>';
     list.querySelectorAll('.as-trt').forEach(function (bt) { bt.onclick = function () { var li = bt.parentNode, ps = li.querySelectorAll('.as-txt'), o = bt.getAttribute('data-t') === '1'; ps[0].hidden = o; ps[1].hidden = !o; bt.setAttribute('data-t', o ? '0' : '1'); bt.textContent = o ? L.shtr : L.trd + ' · ' + L.org; }; });
   }
-  var me = null, wxi = null, tsId = null, tsTok = '';   // wxi = {wx:'pending'|'verified', used, wxdev} for WeChat sessions
+  var me = null, wxi = null, tsId = null, tsTok = '', asked = false;   // wxi = {wx:'pending'|'verified', used, wxdev} for WeChat sessions. asked: 留言 opened the signup on a card page.
   var QR = window.ATM_WX_QR || '/asia/tango-assistant-qr.jpg', WXID = window.ATM_WX_ID || 'wxid_ixaen7sydccp12', poll = null;
   function inWeChat() { var ua = navigator.userAgent || ''; return /MicroMessenger|WeChat|Weixin/i.test(ua) || typeof window.WeixinJSBridge !== 'undefined' || window.__wxjs_environment === 'miniprogram'; }
   var WXT = { title: '留微信号或邮箱获取验证码', ph: '你的微信号', cy: '所在城市（选填）', rl: '你跳的角色（选填）', go: '获取验证码',
@@ -110,6 +111,11 @@
       if (!document.getElementById('as-wxpop') && wxi && !wxi.added && wxi.wx === 'pending' && inWeChat()) openPop();
     }, 450);
   }
+  function syncGate() { form.hidden = !!(cardPage && !me && !asked); }
+  function mountTs() {
+    if (!TSKEY || tsId != null || !form.querySelector('.as-ts')) return;
+    loadTs(function () { var slot = form.querySelector('.as-ts'); if (!slot || tsId != null) return; tsId = window.turnstile.render(slot, { sitekey: TSKEY, language: zh ? 'zh-cn' : 'en', callback: function (t) { tsTok = t; } }); });
+  }
   function drawForm() {
     closePop();
     if (me) {
@@ -127,7 +133,7 @@
         var qb = form.querySelector('.as-qrbtn'); if (qb) qb.onclick = openPop;
         form.querySelector('.as-out').onclick = function () { signOut(); drawForm(); };
         if (here) armPop();
-        setPoll(); return;
+        setPoll(); syncGate(); return;
       }
       form.innerHTML = (wxi && wxi.wx === 'verified' ? '<p class="as-ok as-vf">✓ ' + WXT.ver + '</p>' : '') + (pend ? '<p class="as-note as-chk">' + WXT.chk + '</p>' : '') + (pend && !used ? '<p class="as-note">' + WXT.once + '</p>' : '') + (used ? '<p class="as-note as-wait">' + WXT.wait + '</p>' : '<textarea class="as-in as-body" maxlength="1000" placeholder="' + L.ph + '"></textarea>') +
         '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p><p class="as-err"></p>' + (used ? '' : '<button type="button" class="as-go as-post">' + L.post + '</button>');
@@ -138,7 +144,7 @@
         api('/comment', { id: cardId, body: t }, true).then(function (d) { if (d.ok) { b.value = ''; loadComments(); if (pend) { wxi.used = true; drawForm(); } } else if (d.error === 'auth') { signOut(); drawForm(); } else if (d.error === 'wx_banned') banned(); else if (d.error === 'wx_used') { wxi.used = true; drawForm(); reveal(gateEl()); } else if (d.error === 'wx_not_added') { wxi.added = false; drawForm(); reveal(gateEl()); } else er.textContent = d.error === 'rate_limited' ? L.rate : L.fail; })
           .catch(function () { er.textContent = L.fail; }).then(function () { go.disabled = false; });
       };
-      return;
+      syncGate(); return;
     }
     form.innerHTML = (zh ? '<div class="as-tabs" role="tablist"><button type="button" class="as-tab as-off" data-t="wx" disabled aria-disabled="true">微信</button><button type="button" class="as-tab" data-t="em">邮箱</button></div>' : '') +
       '<div class="as-emf"><h4 class="as-wt">' + L.join + '</h4><p class="as-wc">' + L.why + '</p><input class="as-in as-nm" maxlength="40" autocomplete="name" placeholder="' + L.name + '"><div class="as-row as-cr"><input class="as-in as-cy0" maxlength="40" autocomplete="address-level2" placeholder="' + L.city + '"><select class="as-in as-role"><option value="">' + L.role + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div><input class="as-in as-em" type="email" autocomplete="email" placeholder="' + L.email + '">' +
@@ -149,7 +155,9 @@
       '<p class="as-err as-emerr"></p>';
     var er = form.querySelector('.as-emerr');
     if (zh) { var setM = function (m) { if (m !== 'em') return; form.setAttribute('data-m', m); [].forEach.call(form.querySelectorAll('.as-tab'), function (t) { t.setAttribute('aria-selected', t.getAttribute('data-t') === m ? 'true' : 'false'); }); er.textContent = ''; }; [].forEach.call(form.querySelectorAll('.as-tab'), function (t) { t.onclick = function () { if (!t.disabled) setM('em'); }; }); setM('em'); }
-    if (TSKEY) loadTs(function () { tsId = window.turnstile.render(form.querySelector('.as-ts'), { sitekey: TSKEY, language: zh ? 'zh-cn' : 'en', callback: function (t) { tsTok = t; } }); });
+    tsId = null; tsTok = '';
+    if (!cardPage || asked) mountTs();
+    syncGate();
     form.querySelector('.as-send').onclick = function () {
       var nm = form.querySelector('.as-nm').value.trim(), em = form.querySelector('.as-em').value.trim(), go = this; er.textContent = '';
       if (!form.querySelector('.as-cy0').value.trim()) { er.textContent = L.ncity; return; } if (!form.querySelector('.as-role').value) { er.textContent = L.nrole; return; }
@@ -180,14 +188,18 @@
   function init() {
     takeLink();
     likeB.onclick = function () {
-      if (zh && !me) { var w = form.querySelector('.as-wxid'); if (w && form.getAttribute('data-m') === 'wx') { reveal(gateEl()); return; } }
       var on = likeB.getAttribute('aria-pressed') !== 'true', n = +(nEl.textContent || 0);
       if (on && wxi && wxi.wx === 'pending' && !wxi.added) { reveal(gateEl()); return; }
       if (on && wxi && wxi.wx === 'pending' && wxi.used) { reveal(gateEl()); return; }
       setLike(n + (on ? 1 : -1), on); /* optimistic */
       api('/like', { id: cardId, dev: dev() }, true).then(function (d) { if (d.id) { setLike(d.n, d.liked); if (d.liked && wxi && wxi.wx === 'pending' && !wxi.used) { wxi.used = true; drawForm(); } } else { setLike(n, !on); if (d.error === 'wx_banned') banned(); else if (d.error === 'wx_used') { wxi && (wxi.used = true); drawForm(); reveal(gateEl()); } else if (d.error === 'wx_not_added') { wxi && (wxi.added = false); drawForm(); reveal(gateEl()); } } }).catch(function () { setLike(n, !on); });
     };
-    box.querySelector('.as-cmb').onclick = function () { var ta = form.querySelector('textarea.as-body'); if (ta && shown(ta)) { reveal(ta); try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); } return; } reveal(gateEl()); };
+    box.querySelector('.as-cmb').onclick = function () {
+      var ta = form.querySelector('textarea.as-body');
+      if (me && ta && shown(ta)) { reveal(ta); try { ta.focus({ preventScroll: true }); } catch (e) { ta.focus(); } return; }
+      if (!me) { asked = true; syncGate(); mountTs(); reveal(gateEl()); return; }
+      reveal(gateEl());
+    };
     loadComments();
     if (tok()) api('/me', null, true).then(function (d) { if (d.error === 'wx_banned') { banned(); refreshLike(); return; } me = d.name || null; wxi = d.wx ? { wx: d.wx, used: d.used, wxdev: d.wxdev, added: d.added, code: d.code } : null; if (!me) signOut(); drawForm(); refreshLike(); }).catch(function () { drawForm(); refreshLike(); }); else { drawForm(); refreshLike(); }
   }
