@@ -13,7 +13,7 @@ export default {
       if (req.method === 'POST' && og && !hostOK(og) && !url.pathname.startsWith('/social/admin/')) return json({ error: 'forbidden_origin' }, 403);
       return social(req, env, url, json);
     }
-    if (url.pathname === '/unsubscribe' && (url.searchParams.get('t') || '').includes('.')) return unsub2(url, env);   // signed update-mail link
+    if (url.pathname === '/unsubscribe' && (req.method === 'GET' || req.method === 'POST') && (url.searchParams.get('t') || '').includes('.')) return unsub2(url, env);   // signed update-mail link; POST is List-Unsubscribe one-click
     if (url.pathname === '/subscribe' && req.method === 'POST') {
       const raw = await req.text(); let b = {}; try { b = JSON.parse(raw); } catch {}
       const wx0 = b.lang === 'zh' ? String(b.wechat || '').trim().slice(0, 64) : '';

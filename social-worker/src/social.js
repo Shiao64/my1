@@ -1,4 +1,5 @@
 import { gmailSend } from './smtp.js';
+import { updateFooter } from './unsub.js';
 // Asia Tango Map likes + comments API. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
 // POST /social/like {id, dev}              -> toggle; {id, n, liked}
@@ -32,15 +33,16 @@ export function safeNext(raw) {
   u.hash = '';
   return u.toString();
 }
-async function deliver(env, to, subject, text, html) {
+async function deliver(env, to, subject, text, html, headers) {
   const p = env.SOCIAL_MAIL || 'log';
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
+  const hdrs = headers && Object.keys(headers).length ? headers : undefined;
   if (p === 'resend') { const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <onboarding@resend.dev>', to: [to], subject, text, ...(html ? { html } : {}) }) });
+      body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <onboarding@resend.dev>', to: [to], subject, text, ...(html ? { html } : {}), ...(hdrs ? { headers: hdrs } : {}) }) });
     if (!r.ok) throw new Error('resend ' + r.status + ' ' + (await r.text()).slice(0, 150)); }
-  else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName: 'Asia Tango Map', to, subject, text, html });
-  else if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: 'Asia Tango Map' }, to, subject, text, ...(html ? { html } : {}) });
-  else console.log(`[mail:log] to=${to} subject=${subject}\n${text}`);
+  else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName: 'Asia Tango Map', to, subject, text, html, headers: hdrs });
+  else if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: 'Asia Tango Map' }, to, subject, text, ...(html ? { html } : {}), ...(hdrs ? { headers: hdrs } : {}) });
+  else console.log(`[mail:log] to=${to} subject=${subject}${hdrs ? ' ' + JSON.stringify(hdrs) : ''}\n${text}${html ? '\n' + html : ''}`);
   return p;
 }
 async function sendCode(env, to, name, code, lang) {
@@ -52,12 +54,16 @@ async function sendCode(env, to, name, code, lang) {
 }
 async function sendMagic(env, to, name, url, lang) {
   const zh = lang === 'zh';
-  const cta = zh ? '确认并开通留言' : 'Confirm and turn on comments';
-  const subject = zh ? '亚洲探戈地图｜确认并开通留言' : 'Asia Tango Map | Confirm and turn on comments';
-  const text = zh ? `${name}，你好！\n\n请打开下面的链接，确认后就能在活动卡片下留言（15 分钟内有效，只能用一次）：\n${url}\n\n如果不是你本人操作，忽略这封邮件即可。\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
-    : `Hi ${name},\n\nOpen this link to confirm your email and comment on event cards (valid for 15 minutes, one use):\n${url}\n\nIf this wasn't you, just ignore this email.\n\nAsia Tango Map\nhttps://tangoweekend.org`;
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:460px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? name + '，你好！' : 'Hi ' + name + ',')}</p><p>${zh ? '点下面的按钮确认邮箱，就能在活动卡片下留言。链接大约 15 分钟内有效，只能用一次。' : 'Tap the button to confirm your email and comment on event cards. The link is valid for about 15 minutes and works once.'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p style="font-size:13px;color:#7a6255">${zh ? '如果按钮打不开，把这个链接复制到浏览器：' : 'If the button does not open, copy this link into your browser:'}<br><a href="${he(url)}">${he(url)}</a></p></div></body></html>`;
-  return deliver(env, to, subject, text, html);
+  const origin = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+  const foot = await updateFooter(env, origin, to, lang);
+  const cta = zh ? '确认订阅并开通留言' : 'Confirm subscription and turn on comments';
+  const subject = zh ? '请确认订阅亚洲探戈地图' : 'Please confirm your Asia Tango Map subscription';
+  const text = zh
+    ? `你好 ${name}，\n\n请在 15 分钟内点击下面的链接，确认邮箱并完成订阅：\n\n${url}\n\n确认后你可以：\n· 在活动卡片下留言、点赞\n· 不定时收到特色探戈或互动相关消息（你若勾选了接收更新）\n\n若你并未申请订阅，忽略即可。\n\n随时可退订，我们不会把你的信息给别人。\n退订：${foot.url}\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
+    : `Hello ${name},\n\nPlease click the link below within 15 minutes to confirm your email and finish subscribing:\n\n${url}\n\nAfter you confirm, you can:\n· Comment and like on event cards\n· Occasionally get messages about featured tango or related updates (if you chose to receive them)\n\nIf you didn't ask to subscribe, you can ignore this email.\n\nUnsubscribe anytime. We never share your information.\nUnsubscribe: ${foot.url}\n\nAsia Tango Map\nhttps://tangoweekend.org`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? '你好 ' + name + '，' : 'Hello ' + name + ',')}</p><p>${zh ? '请在 15 分钟内点击下面的链接，确认邮箱并完成订阅：' : 'Please click the link below within 15 minutes to confirm your email and finish subscribing:'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p style="font-size:13px;color:#7a6255"><a href="${he(url)}">${he(url)}</a></p><p>${zh ? '确认后你可以：' : 'After you confirm, you can:'}</p><ul><li>${zh ? '在活动卡片下留言、点赞' : 'Comment and like on event cards'}</li><li>${zh ? '不定时收到特色探戈或互动相关消息（你若勾选了接收更新）' : 'Occasionally get messages about featured tango or related updates (if you chose to receive them)'}</li></ul><p>${zh ? '若你并未申请订阅，忽略即可。' : 'If you didn\'t ask to subscribe, you can ignore this email.'}</p><p>${zh ? '随时可退订，我们不会把你的信息给别人。' : 'Unsubscribe anytime. We never share your information.'}<br>${zh ? '退订' : 'Unsubscribe'}：<a href="${he(foot.url)}">${he(foot.url)}</a></p><p>亚洲探戈地图 Asia Tango Map<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
+  if (/ATM互动|探戈雷达/.test(subject + text + html)) throw new Error('internal name in mail');
+  return deliver(env, to, subject, text, html, foot.headers);
 }
 async function user(req, env) {
   const t = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
@@ -142,6 +148,31 @@ function confirmPage(ok, text) {
   return new Response(`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${ok ? '已确认' : '链接无效'}</title><body style="font-family:sans-serif;padding:32px;color:#2a1a14"><p>${text}</p></body></html>`,
     { status: ok ? 200 : 400, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
+function donePage(lang, dest, unsub) {
+  const zh = lang === 'zh';
+  const msg = zh ? '订阅成功！你已可留言、点赞；不想再收消息可随时退订。' : 'You\'re subscribed. You can comment and like now. Unsubscribe anytime if you don\'t want messages.';
+  const back = zh ? '回到活动卡片' : 'Back to the event card';
+  const uword = zh ? '退订' : 'Unsubscribe';
+  const href = he(dest), uh = he(unsub);
+  return new Response(`<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta http-equiv="refresh" content="2;url=${href}"><title>${he(msg)}</title>
+<body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
+<p style="font-size:1.1rem;color:#0a4f57;font-weight:700">${he(msg)}</p><p><a href="${href}" style="color:#0e6e78">${back}</a></p><p style="font-size:.85rem"><a href="${uh}" style="color:#7a6255">${uword}</a></p></div></body></html>`,
+    { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' } });
+}
+// Opt-in joins the update list. Opt-out only blocks future update mail; an existing comment session stays.
+async function applyList(env, u, want) {
+  const email = String(u.email || '').toLowerCase(), ts = now();
+  if (!want) {
+    const active = await env.DB.prepare("SELECT 1 FROM email_subs WHERE lower(email)=? AND status='active'").bind(email).first();
+    if (!active) await env.DB.prepare('INSERT INTO mail_unsub(email,at) VALUES(?,?) ON CONFLICT(email) DO UPDATE SET at=excluded.at').bind(email, ts).run();
+    return;
+  }
+  await env.DB.prepare('DELETE FROM mail_unsub WHERE email=?').bind(email).run();
+  const row = await env.DB.prepare('SELECT id,unsub_token FROM email_subs WHERE email=?').bind(email).first();
+  if (!row) await env.DB.prepare(`INSERT INTO email_subs(email,name,types,cities,lang,status,unsub_token,created_at,confirmed_at) VALUES(?,?,'featured,regular','all',?,'active',?,?,?)`)
+    .bind(email, u.name || null, u.lang === 'zh' ? 'zh' : 'en', rnd(24), ts, ts).run();
+  else await env.DB.prepare("UPDATE email_subs SET status='active',name=COALESCE(name,?),lang=?,confirmed_at=COALESCE(confirmed_at,?),pending_since=NULL,confirm_hash=NULL,unsubscribed_at=NULL WHERE id=?").bind(u.name || null, u.lang === 'zh' ? 'zh' : 'en', ts, row.id).run();
+}
 async function confirmLink(env, url) {
   const email = clean(url.searchParams.get('e') || '', 254).toLowerCase(), tok = String(url.searchParams.get('t') || '');
   const next = safeNext(url.searchParams.get('next') || '');
@@ -150,9 +181,14 @@ async function confirmLink(env, url) {
   const parts = String(u && u.code_hash || '').split('.');
   if (!u || parts.length < 2 || u.code_tries >= 5 || Date.parse(u.code_sent_at) + 15 * 60e3 < Date.now()) return confirmPage(false, '链接已过期。请回到页面重新发送确认邮件。 / This link has expired. Send a new confirmation email.');
   if (await sha(email + ':' + tok) !== parts[1]) { await env.SDB.prepare('UPDATE users SET code_tries=code_tries+1 WHERE id=?').bind(u.id).run(); return confirmPage(false, '链接无效。请回到页面重新发送确认邮件。 / This link is invalid. Send a new confirmation email.'); }
+  const want = parts[2] !== '0';
   const t = await issueSession(env, u);
+  try { await applyList(env, u, want); } catch (e) { console.log('list', String(e && e.message || e).slice(0, 180)); }
   const dest = new URL(next); dest.hash = 'atm=' + t;
-  return new Response(null, { status: 302, headers: { Location: dest.toString(), 'Cache-Control': 'no-store' } });
+  const origin = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+  let unsub = origin + '/';
+  try { unsub = (await updateFooter(env, origin, email, u.lang === 'zh' ? 'zh' : 'en')).url; } catch (e) { console.log('unsub link', String(e && e.message || e).slice(0, 120)); }
+  return donePage(u.lang === 'zh' ? 'zh' : 'en', dest.toString(), unsub);
 }
 
 export async function social(req, env, url, json) {
@@ -197,7 +233,8 @@ export async function social(req, env, url, json) {
     if (recent >= 6) return json({ error: 'rate_limited' }, 429);
     const code = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
     const mag = magic ? rnd(32) : '';
-    const stored = await sha(email + ':' + code) + (mag ? '.' + await sha(email + ':' + mag) : '');
+    const updates = !(b.updates === 0 || b.updates === false || b.updates === '0');
+    const stored = await sha(email + ':' + code) + (mag ? '.' + await sha(email + ':' + mag) + (updates ? '' : '.0') : '');
     await env.SDB.prepare(`INSERT INTO users(email,name,lang,code_hash,code_sent_at,code_tries,created_at,ip_hash,city,role) VALUES(?,?,?,?,?,0,?,?,?,?)
       ON CONFLICT(email) DO UPDATE SET name=excluded.name,lang=excluded.lang,code_hash=excluded.code_hash,code_sent_at=excluded.code_sent_at,code_tries=0,ip_hash=excluded.ip_hash,city=excluded.city,role=excluded.role`)
       .bind(email, name, lang, stored, now(), now(), iph, city, role).run();
