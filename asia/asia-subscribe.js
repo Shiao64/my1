@@ -5,30 +5,35 @@
 (function () {
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
   var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
+  var SOC = (window.ATM_SOCIAL_API || 'https://api.tangoweekend.org') + '/social';
+  var TSKEY = window.ATM_TS_KEY || (/(^|\.)tangoweekend\.org$/.test(location.hostname) || /\.my1-7p3\.pages\.dev$/.test(location.hostname) ? '0x4AAAAAAFzkQw2fwneONelA' : '');
   var L = zh ? {
     btn: '✉ 新活动通知', title: '订阅通知', desc: '订阅亚洲探戈地图的活动通知。留下姓名、城市、角色和邮箱，点确认邮件后即可收到不定期更新，也可以在活动卡片下留言。', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '领舞', rf: '跟舞', rb: '双角色', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色（领舞、跟舞或双角色）。', wxNeed: '', okWx: '',
     email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '确认邮件发送失败，请检查邮箱地址或稍后再试。',
     submit: '订阅', sending: '提交中…', ok: '确认邮件已发出。请打开邮箱，点邮件里的链接（7天内有效，没收到请看垃圾邮件）。',
-    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
+    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', ts: '请先完成人机验证。', okBack: '确认邮件已发出。请打开邮箱，点邮件里的链接（约 15 分钟内有效）。确认后即可在这张卡片下留言。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
   } : {
     btn: '✉ Get event alert', title: 'Subscribe for alerts', desc: 'Subscribe to Asia Tango Map event alerts. Leave your name, city, role, and email. After you confirm the email, you\'ll get occasional updates and can comment on event cards.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'Follower', rb: 'Both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose leader, follower, or both.', wxNeed: '', okWx: '',
     email: 'Email', emailPh: 'name@example.com', hint: '',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the confirmation email. Please check the address or try again later.', bad: 'Please check your email address.',
     submit: 'Subscribe', sending: 'Sending…', ok: 'Confirmation email sent. Open it and tap the link (valid 7 days; check spam).',
-    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Unsubscribe anytime. We never share your info.', close: 'Close'
+    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', okBack: 'Confirmation email sent. Open it and tap the link (valid about 15 minutes). Then you can comment on this card.', foot: 'Unsubscribe anytime. We never share your info.', close: 'Close'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
     '.tsub-open{background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;border-radius:999px;padding:5px 14px;font-size:.78rem;font-weight:700;line-height:1.2;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:background .15s,transform .15s}' +
     '.tsub-open:hover{background:#128591;transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.3)}' +
     '@media (max-width:600px){.china-hero-bar:has(.tsub-pair){flex-wrap:wrap!important;row-gap:8px}.china-hero-bar .tsub-pair{order:9;flex:1 1 100%;margin:0;justify-content:flex-start}}' +
     '.tsub-bottom-wrap{display:flex;justify-content:center;padding:4px 0 12px}.tsub-bottom-wrap .tsub-pair{margin:0}' +
-    '#tsub-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}#tsub-modal[hidden]{display:none}' +
+    '#tsub-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));box-sizing:border-box}#tsub-modal[hidden]{display:none}' +
     '#tsub-modal .tsub-bg{position:absolute;inset:0;background:rgba(6,51,58,.6)}' +
-    '#tsub-modal .tsub-dlg{position:relative;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:18px;max-width:440px;width:100%;box-sizing:border-box;box-shadow:0 16px 48px rgba(6,51,58,.35);max-height:94vh;overflow:auto}' +
-    '#tsub-modal h2{font-family:var(--serif);color:#0a4f57;font-size:1.3rem;margin:0 30px 6px 0}' +
-    '#tsub-modal .tsub-x{position:absolute;top:8px;right:10px;background:none;border:0;font-size:1.6rem;color:#7a6255;cursor:pointer}' +
+    '#tsub-modal .tsub-dlg{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:0;max-width:440px;width:100%;box-sizing:border-box;box-shadow:0 16px 48px rgba(6,51,58,.35);max-height:90vh;max-height:90dvh;overflow:hidden}' +
+    '#tsub-modal .tsub-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;background:#fff;padding:6px 4px 4px 16px;border-radius:10px 10px 0 0}' +
+    '#tsub-modal .tsub-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:0 16px 12px;min-height:0}' +
+    '#tsub-modal h2{font-family:var(--serif);color:#0a4f57;font-size:1.15rem;line-height:1.25;margin:0}' +
+    '#tsub-modal .tsub-x{position:static;flex:0 0 44px;width:44px;height:44px;margin:0;padding:0;background:#fff;border:0;border-radius:8px;font-size:1.7rem;line-height:1;color:#7a6255;cursor:pointer}' +
     '#tsub-modal .tsub-lbl{display:block;font-size:.84rem;font-weight:700;color:#0a4f57;margin:10px 0 4px}' +
+    '@media (max-width:600px){#tsub-modal h2{font-size:1.05rem}#tsub-modal .tsub-desc{font-size:.8rem;line-height:1.35;margin:0 0 2px}#tsub-modal .tsub-lbl{margin:6px 0 2px;font-size:.78rem}#tsub-modal input.tsub-in,#tsub-modal select.tsub-in{min-height:36px;padding:4px 8px}#tsub-modal .tsub-tabs{margin:6px 0 4px}#tsub-modal .tsub-tab{padding:7px 0}#tsub-modal .tsub-stp{margin:6px 0 2px;font-size:.82rem}#tsub-modal .tsub-go{margin-top:8px;min-height:40px}#tsub-modal .tsub-foot{margin:8px 0 0;padding-top:6px}}' +
     '#tsub-modal input.tsub-in,#tsub-modal select.tsub-in{width:100%;box-sizing:border-box;min-height:40px;padding:6px 10px;border:1px solid #ead9b8;border-radius:8px;font-size:16px;color:#2a1a14;background:#fff}' +
     '#tsub-modal input.tsub-in:focus,#tsub-modal select.tsub-in:focus{outline:none;border-color:#0e6e78;box-shadow:0 0 0 3px rgba(14,110,120,.18)}' +
     '#tsub-modal .tsub-row{display:flex;gap:8px}#tsub-modal .tsub-col{flex:1;min-width:0}@media (max-width:420px){#tsub-modal .tsub-row{flex-wrap:wrap}#tsub-modal .tsub-col{flex:1 1 100%}}' +
@@ -57,22 +62,38 @@
   function EM(req) { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '</label><input type="email" class="tsub-in" id="tsub-e" autocomplete="email"' + (req ? ' required aria-required="true"' : '') + ' placeholder="' + L.emailPh + '">'; }
   var m = document.createElement('div'); m.id = 'tsub-modal'; m.hidden = true;
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
-    '<button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button><h2 id="tsub-t">' + L.title + '</h2><p class="tsub-desc">' + L.desc + '</p>' +
+    '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate data-m="em">' +
     '<label class="tsub-lbl" for="tsub-n">' + L.name + '</label><input type="text" class="tsub-in" id="tsub-n" autocomplete="name" maxlength="40" required aria-required="true" placeholder="' + L.namePh + '">' +
     '<div class="tsub-row"><div class="tsub-col"><label class="tsub-lbl" for="tsub-c">' + L.city + '</label><input type="text" class="tsub-in" id="tsub-c" autocomplete="address-level2" maxlength="40" required aria-required="true" placeholder="' + L.cityPh + '"></div>' +
     '<div class="tsub-col"><label class="tsub-lbl" for="tsub-r">' + L.role + '</label><select class="tsub-in" id="tsub-r" required aria-required="true"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div></div>' +
     (zh ? '<div class="tsub-tabs" role="tablist"><button type="button" class="tsub-tab tsub-off" role="tab" data-t="wx" disabled aria-disabled="true" aria-selected="false">微信验证</button><button type="button" class="tsub-tab" role="tab" data-t="em" aria-selected="true">邮件验证</button></div><div class="tsub-wxf"><p class="tsub-stp"><b>①</b> 先扫码加探戈助理为好友</p><img class="tsub-qr" alt="探戈助理微信二维码" src="' + (window.ATM_WX_QR || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f6f1e7" stroke="#0e6e78" stroke-width="4" stroke-dasharray="8 6"/><text x="100" y="95" font-size="16" text-anchor="middle" fill="#0a4f57">探戈助理二维码</text><text x="100" y="120" font-size="13" text-anchor="middle" fill="#b5654a">（占位图，待换真图）</text></svg>')) + '"><div class="tsub-qa">' + (!/MicroMessenger/i.test(navigator.userAgent) && /Android|iPhone|iPad|iPod|HarmonyOS/i.test(navigator.userAgent) ? '<a class="tsub-wxb" href="weixin://"><svg viewBox="0 0 48 48" width="34" height="34" aria-hidden="true"><rect width="48" height="48" rx="11" fill="#07C160"/><ellipse cx="20" cy="21" rx="12" ry="10" fill="#fff"/><path d="M12 29l-1 5 5-3z" fill="#fff"/><ellipse cx="30" cy="28" rx="10" ry="8.5" fill="#fff" stroke="#07C160" stroke-width="1.5"/><path d="M37 34l1 4-4-2z" fill="#fff"/><circle cx="16" cy="19" r="1.6" fill="#07C160"/><circle cx="24" cy="19" r="1.6" fill="#07C160"/><circle cx="27" cy="27" r="1.3" fill="#07C160"/><circle cx="33" cy="27" r="1.3" fill="#07C160"/></svg><span>打开微信</span></a>' : '') + '<a class="tsub-qb" href="' + (window.ATM_WX_QR || '') + '" download="探戈助理二维码.jpg">保存二维码</a></div><p class="tsub-wid">微信号：<code>wxid_ixaen7sydccp12</code> <button type="button" class="tsub-qb" onclick="var b=this,t=\'wxid_ixaen7sydccp12\',d=function(){b.textContent=\'已复制\'};if(navigator.clipboard)navigator.clipboard.writeText(t).then(d);else{var x=document.createElement(\'textarea\');x.value=t;document.body.appendChild(x);x.select();try{document.execCommand(\'copy\');d()}catch(e){}x.remove()}">复制微信号</button></p><p class="tsub-qh">' + (/MicroMessenger/i.test(navigator.userAgent) ? '长按二维码识别，加探戈助理' : /Android|iPhone|iPad|iPod|HarmonyOS/i.test(navigator.userAgent) ? '保存后在微信扫一扫→右上角相册里选这张图' : '请用手机微信扫一扫上面的二维码') + '</p><p class="tsub-stp"><b>②</b> 填微信号，点下方按钮获取验证码</p>' + WX(false) + '<p class="tsub-stp"><b>③</b> 把页面给你的那句「订阅亚洲探戈地图，验证码 XXXX」发给探戈助理</p><p class="tsub-stp"><b>④</b> 助理通过后即可留言，也会邀请你进群</p></div><div class="tsub-emf">' + EM(true) + '<p class="tsub-stp">我们会不定时发送活动更新。</p></div>' : EM(true)) +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
-    '<p class="tsub-hint">' + L.hint + '</p><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
+    '<div class="tsub-ts"></div><p class="tsub-hint">' + L.hint + '</p><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
     '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
-    '<p class="tsub-foot">' + L.foot + '</p></div>';
+    '<p class="tsub-foot">' + L.foot + '</p></div></div>';
   document.body.appendChild(m);
   if (zh) { var sm = function (v) { if (v !== 'em') return; var f = document.getElementById('tsub-f'); f.setAttribute('data-m', 'em'); [].forEach.call(f.querySelectorAll('.tsub-tab'), function (t) { t.setAttribute('aria-selected', t.getAttribute('data-t') === 'em' ? 'true' : 'false'); }); var e = document.getElementById('tsub-err'); if (e) e.textContent = ''; }; [].forEach.call(m.querySelectorAll('.tsub-tab'), function (t) { t.onclick = function () { if (t.disabled || t.getAttribute('aria-disabled') === 'true') return; sm('em'); }; }); sm('em'); }
   var $ = function (id) { return document.getElementById(id); };
-  var tmr = null;
-  function open() { if (tmr) { clearTimeout(tmr); tmr = null; } $('tsub-ok').hidden = true; $('tsub-err').textContent = ''; m.hidden = false; }
-  function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; }
+  var tmr = null, tsId = null, tsTok = '';
+  function returnUrl() {
+    var raw = window.ATM_SUB_RETURN || '';
+    if (!raw) return '';
+    var u; try { u = new URL(raw, location.href); } catch (e) { return ''; }
+    var host = u.hostname.toLowerCase(), local = host === 'localhost' || host === '127.0.0.1';
+    var ok = host === 'tangoweekend.org' || host === 'www.tangoweekend.org' || /\.my1-7p3\.pages\.dev$/.test(host) || local;
+    if (!ok || (u.protocol !== 'https:' && !(u.protocol === 'http:' && local))) return '';
+    u.hash = '';
+    return u.toString();
+  }
+  function loadTs(cb) { if (window.turnstile) return cb(); var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = cb; document.head.appendChild(s); }
+  function mountSubTs() {
+    if (!returnUrl() || !TSKEY || tsId != null) return;
+    var slot = document.querySelector('#tsub-f .tsub-ts'); if (!slot) return;
+    loadTs(function () { if (tsId != null || !window.turnstile || !slot.isConnected) return; tsId = window.turnstile.render(slot, { sitekey: TSKEY, language: zh ? 'zh-cn' : 'en', callback: function (t) { tsTok = t; } }); });
+  }
+  function open() { if (tmr) { clearTimeout(tmr); tmr = null; } $('tsub-ok').hidden = true; $('tsub-err').textContent = ''; m.hidden = false; mountSubTs(); }
+  function close() { if (tmr) { clearTimeout(tmr); tmr = null; } window.ATM_SUB_RETURN = ''; m.hidden = true; }
   $('tsub-open').addEventListener('click', open);
   m.addEventListener('click', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-x')) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !m.hidden) close(); });
@@ -88,18 +109,25 @@
     if (!em) { err.textContent = L.need; if ($('tsub-e')) $('tsub-e').focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
     if ($('tsub-hp').value) { ok.textContent = L.ok; ok.hidden = false; return; }
+    var ret = returnUrl();
+    if (ret && TSKEY && !tsTok) { err.textContent = L.ts; return; }
     go.disabled = true; go.textContent = L.sending;
-    fetch(API + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ types: ['featured', 'regular'], cities: [], name: nm, email: em, wechat: '', lang: zh ? 'zh' : 'en', website: $('tsub-hp').value, city: cy, role: role }) })
+    var req = ret
+      ? { url: SOC + '/signup', body: { name: nm, city: cy, role: role, email: em, lang: zh ? 'zh' : 'en', ts: tsTok, magic: 1, updates: 1, ret: ret } }
+      : { url: API + '/subscribe', body: { types: ['featured', 'regular'], cities: [], name: nm, email: em, wechat: '', lang: zh ? 'zh' : 'en', website: $('tsub-hp').value, city: cy, role: role } };
+    fetch(req.url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(req.body) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.ok) {
-          ok.textContent = L.ok; ok.hidden = false; $('tsub-f').reset();
+          ok.textContent = ret ? L.okBack : L.ok; ok.hidden = false; $('tsub-f').reset();
+          if (ret) window.ATM_SUB_RETURN = '';
+          if (tsId != null && window.turnstile) { window.turnstile.reset(tsId); tsTok = ''; }
           if (tmr) clearTimeout(tmr);
           tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 6000);
         }
         else {
-          err.textContent = d.error === 'bad_email' ? L.bad : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : L.fail;
+          err.textContent = d.error === 'need_name' ? L.needName : d.error === 'need_city' ? L.needCity : d.error === 'need_role' ? L.needRole : d.error === 'bad_email' ? L.bad : d.error === 'turnstile' ? L.ts : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : L.fail;
+          if (tsId != null && window.turnstile) { window.turnstile.reset(tsId); tsTok = ''; }
         }
       })
       .catch(function () { err.textContent = L.fail; })

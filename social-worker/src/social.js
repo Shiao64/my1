@@ -8,9 +8,14 @@ import { updateFooter } from './unsub.js';
 // GET  /social/confirm?e=&t=&next=         -> one-time link: verify, set session, redirect to the card
 // POST /social/verify {email, code}        -> {token, name}  (email verified; still works alongside magic links)
 // GET  /social/me  (Authorization: Bearer)  -> {name}
-// POST /social/comment {id, body} (Bearer)  -> posts a comment
+// POST /social/comment {id, body} (Bearer)  -> posts one comment per confirmed user per card
 const ID_RE = /^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/, DEV_RE = /^[A-Za-z0-9-]{16,64}$/, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const now = () => new Date().toISOString();
+// 00:00 Asia/Shanghai today, as a UTC ISO string. Shanghai is UTC+8 with no DST, so created_at (toISOString) compares in order.
+function shanghaiDayStart(at = Date.now()) {
+  const sh = new Date(at + 8 * 3600e3);
+  return new Date(Date.UTC(sh.getUTCFullYear(), sh.getUTCMonth(), sh.getUTCDate()) - 8 * 3600e3).toISOString();
+}
 async function sha(s) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
 const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
 const clean = (s, n) => String(s || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n);
@@ -217,7 +222,9 @@ export async function social(req, env, url, json) {
   if (p === '/comments' && req.method === 'GET') {
     const id = url.searchParams.get('id') || ''; if (!ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
     const r = await env.SDB.prepare("SELECT u.name,u.city,c.body,c.lang,c.tr,c.created_at at FROM comments c JOIN users u ON u.id=c.user_id WHERE c.card_id=? AND c.status='visible' ORDER BY c.created_at DESC, c.id DESC LIMIT 200").bind(id).all();
-    return json({ items: r.results });
+    const u = await user(req, env);
+    const mine = !!(u && await env.SDB.prepare('SELECT 1 FROM comments WHERE card_id=? AND user_id=? LIMIT 1').bind(id, u.id).first());
+    return json({ items: r.results, mine });
   }
   if (p === '/confirm' && req.method === 'GET') return confirmLink(env, url);
   if (p === '/signup' && req.method === 'POST') {
@@ -267,8 +274,12 @@ export async function social(req, env, url, json) {
   if (p === '/comment' && req.method === 'POST') {
     const u = await user(req, env); if (!u) return json({ error: 'auth' }, 401);
     const id = String(b.id || ''), body = clean(b.body, 1000); if (!ID_RE.test(id) || !body) return json({ error: 'bad_input' }, 400);
+    if (await env.SDB.prepare('SELECT 1 FROM comments WHERE card_id=? AND user_id=? LIMIT 1').bind(id, u.id).first()) return json({ error: 'already_commented' }, 409);
     const n = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>?').bind(u.id, new Date(Date.now() - 600e3).toISOString()).first('n');
     if (n >= 5) return json({ error: 'rate_limited' }, 429);
+    const day0 = shanghaiDayStart();
+    const dayN = await env.SDB.prepare('SELECT COUNT(*) n FROM comments WHERE user_id=? AND created_at>=?').bind(u.id, day0).first('n');
+    if (dayN >= 2) return json({ error: 'day_limited' }, 429);
     const g = await wxGate(env, u); if (g.err) return json({ error: g.err }, 403);
     if (g.claim && !(await wxClaim(env, u))) return json({ error: 'wx_used' }, 403);
     const lang = /[\u3400-\u9fff]/.test(body) ? 'zh' : 'en', tr = await translate(env, body, lang);
