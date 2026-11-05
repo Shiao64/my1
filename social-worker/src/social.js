@@ -3,8 +3,9 @@ import { gmailSend } from './smtp.js';
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
 // POST /social/like {id, dev}              -> toggle; {id, n, liked}
 // GET  /social/comments?id=A               -> {items:[{name,body,at}]}
-// POST /social/signup {name,email,lang,ts} -> 6-digit code by email (Turnstile checked)
-// POST /social/verify {email, code}        -> {token, name}  (email verified)
+// POST /social/signup {name,email,lang,ts,magic?,ret?} -> 6-digit code, or a magic link when magic=1
+// GET  /social/confirm?e=&t=&next=         -> one-time link: verify, set session, redirect to the card
+// POST /social/verify {email, code}        -> {token, name}  (email verified; still works alongside magic links)
 // GET  /social/me  (Authorization: Bearer)  -> {name}
 // POST /social/comment {id, body} (Bearer)  -> posts a comment
 const ID_RE = /^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/, DEV_RE = /^[A-Za-z0-9-]{16,64}$/, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -19,20 +20,44 @@ async function turnstile(env, token, ip) {
   const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body: f });
   return !!(await r.json()).success;
 }
+const he = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+export function safeNext(raw) {
+  let u; try { u = new URL(String(raw || '')); } catch { return ''; }
+  const host = u.hostname.toLowerCase();
+  const local = host === 'localhost' || host === '127.0.0.1';
+  const ok = host === 'tangoweekend.org' || host === 'www.tangoweekend.org' || host.endsWith('.my1-7p3.pages.dev') || local;
+  if (!ok) return '';
+  if (u.protocol !== 'https:' && !(u.protocol === 'http:' && local)) return '';
+  if ((u.pathname + u.search).length > 800) return '';
+  u.hash = '';
+  return u.toString();
+}
+async function deliver(env, to, subject, text, html) {
+  const p = env.SOCIAL_MAIL || 'log';
+  if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
+  if (p === 'resend') { const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <onboarding@resend.dev>', to: [to], subject, text, ...(html ? { html } : {}) }) });
+    if (!r.ok) throw new Error('resend ' + r.status + ' ' + (await r.text()).slice(0, 150)); }
+  else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName: 'Asia Tango Map', to, subject, text, html });
+  else if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: 'Asia Tango Map' }, to, subject, text, ...(html ? { html } : {}) });
+  else console.log(`[mail:log] to=${to} subject=${subject}\n${text}`);
+  return p;
+}
 async function sendCode(env, to, name, code, lang) {
   const zh = lang === 'zh';
   const subject = zh ? `亚洲探戈地图｜你的验证码 ${code}` : `Asia Tango Map | Your verification code ${code}`;
   const text = zh ? `${name}，你好！\n\n你的亚洲探戈地图验证码是：${code}\n\n15 分钟内有效。把它填回网页，就能在活动卡片下留言了。\n如果不是你本人操作，忽略这封邮件即可。\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
     : `Hi ${name},\n\nYour Asia Tango Map verification code is: ${code}\n\nIt's valid for 15 minutes. Enter it on the page and you can comment on event cards.\nIf this wasn't you, just ignore this email.\n\nAsia Tango Map\nhttps://tangoweekend.org`;
-  const p = env.SOCIAL_MAIL || 'log';
-  if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
-  if (p === 'resend') { const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <onboarding@resend.dev>', to: [to], subject, text }) });
-    if (!r.ok) throw new Error('resend ' + r.status + ' ' + (await r.text()).slice(0, 150)); }
-  else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName: 'Asia Tango Map', to, subject, text });
-  else if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: 'Asia Tango Map' }, to, subject, text });
-  else console.log(`[mail:log] to=${to} subject=${subject}`);
-  return p;
+  return deliver(env, to, subject, text);
+}
+async function sendMagic(env, to, name, url, lang) {
+  const zh = lang === 'zh';
+  const cta = zh ? '确认并开通留言' : 'Confirm and turn on comments';
+  const subject = zh ? '亚洲探戈地图｜确认并开通留言' : 'Asia Tango Map | Confirm and turn on comments';
+  const text = zh ? `${name}，你好！\n\n请打开下面的链接，确认后就能在活动卡片下留言（15 分钟内有效，只能用一次）：\n${url}\n\n如果不是你本人操作，忽略这封邮件即可。\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
+    : `Hi ${name},\n\nOpen this link to confirm your email and comment on event cards (valid for 15 minutes, one use):\n${url}\n\nIf this wasn't you, just ignore this email.\n\nAsia Tango Map\nhttps://tangoweekend.org`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:460px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? name + '，你好！' : 'Hi ' + name + ',')}</p><p>${zh ? '点下面的按钮确认邮箱，就能在活动卡片下留言。链接大约 15 分钟内有效，只能用一次。' : 'Tap the button to confirm your email and comment on event cards. The link is valid for about 15 minutes and works once.'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p style="font-size:13px;color:#7a6255">${zh ? '如果按钮打不开，把这个链接复制到浏览器：' : 'If the button does not open, copy this link into your browser:'}<br><a href="${he(url)}">${he(url)}</a></p></div></body></html>`;
+  return deliver(env, to, subject, text, html);
 }
 async function user(req, env) {
   const t = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
@@ -107,6 +132,28 @@ async function wxAddedNotify(env, u, wx, row) {   // 「我已添加」 pressed:
   return 'sent';
 }
 async function wxClaim(env, u) { const r = await env.SDB.prepare('UPDATE users SET wx_used=1 WHERE id=? AND wx_used=0').bind(u.id).run(); return (r.meta?.changes ?? 0) > 0; }
+async function issueSession(env, u) {
+  const t = rnd(32);
+  await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?),code_hash=NULL WHERE id=?').bind(now(), u.id).run();
+  await env.SDB.prepare('INSERT INTO sessions(token_hash,user_id,created_at) VALUES(?,?,?)').bind(await sha(t), u.id, now()).run();
+  return t;
+}
+function confirmPage(ok, text) {
+  return new Response(`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${ok ? '已确认' : '链接无效'}</title><body style="font-family:sans-serif;padding:32px;color:#2a1a14"><p>${text}</p></body></html>`,
+    { status: ok ? 200 : 400, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+}
+async function confirmLink(env, url) {
+  const email = clean(url.searchParams.get('e') || '', 254).toLowerCase(), tok = String(url.searchParams.get('t') || '');
+  const next = safeNext(url.searchParams.get('next') || '');
+  if (!EMAIL_RE.test(email) || !/^[0-9a-f]{64}$/.test(tok) || !next) return confirmPage(false, '链接无效。请回到页面重新发送确认邮件。 / This link is invalid. Send a new confirmation email.');
+  const u = await env.SDB.prepare('SELECT * FROM users WHERE email=?').bind(email).first();
+  const parts = String(u && u.code_hash || '').split('.');
+  if (!u || parts.length < 2 || u.code_tries >= 5 || Date.parse(u.code_sent_at) + 15 * 60e3 < Date.now()) return confirmPage(false, '链接已过期。请回到页面重新发送确认邮件。 / This link has expired. Send a new confirmation email.');
+  if (await sha(email + ':' + tok) !== parts[1]) { await env.SDB.prepare('UPDATE users SET code_tries=code_tries+1 WHERE id=?').bind(u.id).run(); return confirmPage(false, '链接无效。请回到页面重新发送确认邮件。 / This link is invalid. Send a new confirmation email.'); }
+  const t = await issueSession(env, u);
+  const dest = new URL(next); dest.hash = 'atm=' + t;
+  return new Response(null, { status: 302, headers: { Location: dest.toString(), 'Cache-Control': 'no-store' } });
+}
 
 export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
@@ -136,29 +183,35 @@ export async function social(req, env, url, json) {
     const r = await env.SDB.prepare("SELECT u.name,u.city,c.body,c.lang,c.tr,c.created_at at FROM comments c JOIN users u ON u.id=c.user_id WHERE c.card_id=? AND c.status='visible' ORDER BY c.created_at DESC, c.id DESC LIMIT 200").bind(id).all();
     return json({ items: r.results });
   }
+  if (p === '/confirm' && req.method === 'GET') return confirmLink(env, url);
   if (p === '/signup' && req.method === 'POST') {
     const name = clean(b.name, 40).replace(/\s+/g, ' '), email = clean(b.email, 254).toLowerCase(), lang = b.lang === 'zh' ? 'zh' : 'en';
     const city = clean(b.city, 40).replace(/\s+/g, ' '); if (!city) return json({ error: 'need_city' }, 400);
     const role = ROLES.includes(b.role) ? b.role : ''; if (!role) return json({ error: 'need_role' }, 400);
     if (!name) return json({ error: 'need_name' }, 400); if (!EMAIL_RE.test(email)) return json({ error: 'bad_email' }, 400);
+    const magic = b.magic === 1 || b.magic === true || b.magic === '1';
+    const ret = magic ? safeNext(b.ret) : '';
+    if (magic && !ret) return json({ error: 'bad_return' }, 400);
     if (!(await turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
     const recent = await env.SDB.prepare('SELECT COUNT(*) n FROM users WHERE ip_hash=? AND code_sent_at>?').bind(iph, new Date(Date.now() - 3600e3).toISOString()).first('n');
     if (recent >= 6) return json({ error: 'rate_limited' }, 429);
     const code = String(100000 + (crypto.getRandomValues(new Uint32Array(1))[0] % 900000));
+    const mag = magic ? rnd(32) : '';
+    const stored = await sha(email + ':' + code) + (mag ? '.' + await sha(email + ':' + mag) : '');
     await env.SDB.prepare(`INSERT INTO users(email,name,lang,code_hash,code_sent_at,code_tries,created_at,ip_hash,city,role) VALUES(?,?,?,?,?,0,?,?,?,?)
       ON CONFLICT(email) DO UPDATE SET name=excluded.name,lang=excluded.lang,code_hash=excluded.code_hash,code_sent_at=excluded.code_sent_at,code_tries=0,ip_hash=excluded.ip_hash,city=excluded.city,role=excluded.role`)
-      .bind(email, name, lang, await sha(email + ':' + code), now(), now(), iph, city, role).run();
-    let via; try { via = await sendCode(env, email, name, code, lang); } catch (e) { return json({ error: 'send_failed', ...(env.PREVIEW_SHOW_CODE === '1' ? { detail: String(e && e.message || e).slice(0, 200) } : {}) }, 502); }
-    return json({ ok: true, via, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_code: code } : {}) });
+      .bind(email, name, lang, stored, now(), now(), iph, city, role).run();
+    const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+    const link = mag ? base + '/social/confirm?e=' + encodeURIComponent(email) + '&t=' + mag + '&next=' + encodeURIComponent(ret) : '';
+    let via; try { via = magic ? await sendMagic(env, email, name, link, lang) : await sendCode(env, email, name, code, lang); } catch (e) { return json({ error: 'send_failed', ...(env.PREVIEW_SHOW_CODE === '1' ? { detail: String(e && e.message || e).slice(0, 200) } : {}) }, 502); }
+    return json({ ok: true, via, ...(magic ? { magic: true } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_code: code, ...(link ? { preview_link: link } : {}) } : {}) });
   }
   if (p === '/verify' && req.method === 'POST') {
     const email = clean(b.email, 254).toLowerCase(), code = clean(b.code, 6);
     const u = await env.SDB.prepare('SELECT * FROM users WHERE email=?').bind(email).first();
     if (!u || !u.code_hash || u.code_tries >= 5 || Date.parse(u.code_sent_at) + 15 * 60e3 < Date.now()) return json({ error: 'expired' }, 400);
-    if ((await sha(email + ':' + code)) !== u.code_hash) { await env.SDB.prepare('UPDATE users SET code_tries=code_tries+1 WHERE id=?').bind(u.id).run(); return json({ error: 'bad_code' }, 400); }
-    const t = rnd(32);
-    await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?),code_hash=NULL WHERE id=?').bind(now(), u.id).run();
-    await env.SDB.prepare('INSERT INTO sessions(token_hash,user_id,created_at) VALUES(?,?,?)').bind(await sha(t), u.id, now()).run();
+    if ((await sha(email + ':' + code)) !== String(u.code_hash).split('.')[0]) { await env.SDB.prepare('UPDATE users SET code_tries=code_tries+1 WHERE id=?').bind(u.id).run(); return json({ error: 'bad_code' }, 400); }
+    const t = await issueSession(env, u);
     return json({ ok: true, token: t, name: u.name });
   }
   if (p === '/me' && req.method === 'GET') { const u = await user(req, env); if (!u) return json({ error: 'auth' }, 401);
