@@ -1,5 +1,7 @@
-/* Web push opt-in button (zh/en). Registers /sw.js (push only, no fetch caching). API: TANGO_SUB_API or api.tangoweekend.org */
+/* Web push opt-in button (zh/en). Registers /sw.js (push only, no fetch caching). API: TANGO_SUB_API or api.tangoweekend.org.
+   The button stays unmounted unless window.ATM_PUSH_UI is 1. sw.js and the Worker push API are unchanged. */
 (function(){
+  if (window.ATM_PUSH_UI !== 1 && window.ATM_PUSH_UI !== '1') return;
   var zh=location.pathname.indexOf('/zh/')===0, API=window.TANGO_SUB_API||'https://api.tangoweekend.org';
   var L=zh?{on:'🔔 开启推送通知',off:'🔕 关闭推送通知',busy:'处理中…',ok:'已开启推送：有新活动或临时变更时会通知您。',bye:'已关闭推送通知。',deny:'浏览器已拒绝通知权限，请在浏览器设置里允许本站通知。',ios:'iPhone/iPad 需要先点「分享」→「添加到主屏幕」，再从主屏幕打开本站，才能开启推送（iOS 16.4 及以上）。',na:'这个浏览器不支持推送通知。',fail:'开启失败，请稍后再试。'}
           :{on:'🔔 Turn on push alerts',off:'🔕 Turn off push alerts',busy:'Working…',ok:'Push alerts are on. We\'ll notify you about new events and temporary changes.',bye:'Push alerts are off.',deny:'Notifications are blocked. Please allow them for this site in your browser settings.',ios:'On iPhone/iPad, tap Share → Add to Home Screen, then open the site from your home screen to turn on push alerts (iOS 16.4+).',na:'This browser does not support push notifications.',fail:'Could not turn on push alerts. Please try again later.'};
