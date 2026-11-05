@@ -217,18 +217,30 @@ body.wt-theme .wt-passes{
 body.wt-theme .price-card.sold .ribbon{background:var(--red-deep);color:var(--gold-soft)}
 body.wt-theme .wt-passnote{text-align:center}
 
-/* 2027 sits directly under the hero, still marked as planning. */
-body.wt-theme #next{padding-top:42px;padding-bottom:22px}
-body.wt-theme #next .sec-title{margin-bottom:20px}
-body.wt-theme #next .card{
+/* 2027 sits directly under the hero, still marked as planning.
+   #2027 is the card landing; #next is the same block. #recap aliases #gallery. */
+body.wt-theme [id="2027"],
+body.wt-theme #next,
+body.wt-theme #gallery,
+body.wt-theme #recap{scroll-margin-top:120px}
+body.wt-theme [id="2027"]{padding-top:42px;padding-bottom:22px}
+body.wt-theme [id="2027"] .sec-title{margin-bottom:20px}
+body.wt-theme [id="2027"] .card{
   border-color:var(--gold);
   background:linear-gradient(180deg,#fff,#fff8ee);
 }
-body.wt-theme #next .ed-badge{
+body.wt-theme [id="2027"] .ed-badge{
   background:var(--red);
   color:#fff8ee;
   letter-spacing:.08em;
 }
+body.wt-theme .wt-ph{display:flex;flex-direction:column;align-items:center;gap:10px}
+body.wt-theme .wt-ph img{width:min(100%,240px);height:auto;border-radius:12px;box-shadow:0 10px 24px rgba(60,28,9,.2)}
+body.wt-theme .wt-jump{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 0}
+body.wt-theme .wt-jump a{display:inline-flex;align-items:center;min-height:44px;padding:0 18px;border-radius:999px;background:var(--red);color:#fff8ee;font-weight:800;text-decoration:none}
+body.wt-theme .wt-jump a:hover{background:var(--red-dark);color:#fff}
+body.wt-theme #gallery .past-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+body.wt-theme #gallery .wt-jump{margin:0}
 body.wt-theme .wt-next{align-items:stretch}
 body.wt-theme .wt-ph{
   min-height:280px;

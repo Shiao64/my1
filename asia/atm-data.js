@@ -4,7 +4,14 @@
    to '' before this script to force the in-repo copies. */
 (function (w) {
   var DEFAULT_BASE = 'https://data.tangoweekend.org';
-  if (w.ATM_DATA_BASE == null) w.ATM_DATA_BASE = DEFAULT_BASE;
+  /* Production (tangoweekend.org) reads R2 first. A Pages preview
+     (*.pages.dev) reads this commit's JSON, so a card edited in the
+     branch shows on the preview before it is published to the bucket. */
+  if (w.ATM_DATA_BASE == null) {
+    var host = '';
+    try { host = (w.location && w.location.hostname) || ''; } catch (e) {}
+    w.ATM_DATA_BASE = /\.pages\.dev$/i.test(host) ? '' : DEFAULT_BASE;
+  }
   function base() { return String(w.ATM_DATA_BASE || '').replace(/\/$/, ''); }
   w.atmDataBase = base;
   function jsonName(url) {

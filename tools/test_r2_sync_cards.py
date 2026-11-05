@@ -46,8 +46,8 @@ def main():
     en, zh = read('asia/index.html'), read('zh/asia/index.html')
     js, cards, home = read('asia/asia-map.js'), read('asia/cardB.js'), read('asia/atm-home.js')
     data = read('asia/atm-data.js')
-    check('en loads helper', 'atm-data.js?v=r1' in en)
-    check('zh loads helper', 'atm-data.js?v=r1' in zh)
+    check('en loads helper', 'atm-data.js?v=r2' in en)
+    check('zh loads helper', 'atm-data.js?v=r2' in zh)
     check('map uses loader', 'loadJson(' in js and 'atmPosterUrls' in js)
     check('cards use loader', 'atmDataJson' in cards)
     check('home uses loader', 'atmDataJson' in home)
@@ -59,6 +59,11 @@ const w = {};
 global.window = w; global.fetch = () => { throw new Error('no fetch'); };
 eval(fs.readFileSync('asia/atm-data.js', 'utf8'));
 if (w.ATM_DATA_BASE !== 'https://data.tangoweekend.org') process.exit(2);
+w.location = { hostname: 'cursor-wutong-2027.my1-7p3.pages.dev' };
+w.ATM_DATA_BASE = null;
+eval(fs.readFileSync('asia/atm-data.js', 'utf8'));
+if (w.ATM_DATA_BASE !== '') process.exit(8);
+w.ATM_DATA_BASE = 'https://data.tangoweekend.org';
 const u = w.atmPosterUrls('/images/asia/posters/E158.jpg?v=20261105', false);
 if (!u.webp.endsWith('.webp?v=20261105')) process.exit(3);
 if (u.key !== '/images/asia/posters/E158.jpg') process.exit(4);

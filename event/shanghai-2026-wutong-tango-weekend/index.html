@@ -11,11 +11,11 @@
 <link rel="alternate" hreflang="x-default" href="https://tangoweekend.org/event/shanghai-2026-wutong-tango-weekend/">
 <link rel="preload" as="image" href="images/poster-main.jpg">
 <script>(function(){try{var q=new URLSearchParams(location.search).get('lang');if(q==='en'){localStorage.setItem('twLang','en');return;}if(q==='zh'){location.replace('zh/'+location.hash);return;}}catch(e){}})();</script>
-<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[hreflang]');if(!a)return;try{localStorage.setItem('twLang',a.getAttribute('hreflang')==='en'?'en':'zh');}catch(x){}});</script>
+<script>document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a[hreflang]');if(!a)return;try{localStorage.setItem('twLang',a.getAttribute('hreflang')==='en'?'en':'zh');}catch(x){}if(location.hash){var h=a.getAttribute('href')||'';if(h.indexOf('#')<0)a.setAttribute('href',h+location.hash);}});</script>
 <link rel="stylesheet" href="../../css/style.css?v=china292">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="../../css/atm-detail.css?v=d10">
-<link rel="stylesheet" href="recap.css?v=4">
+<link rel="stylesheet" href="recap.css?v=5">
 </head>
 <body class="wt-theme">
 <div class="atm-bar atm-sticky"><a class="atm-map" href="/asia/"><span class="atm-ico" aria-hidden="true"></span>Asia Tango Map</a><a class="atm-lang" href="zh/" hreflang="zh-CN">中文</a></div>
@@ -26,7 +26,8 @@
     <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
     <div class="header-menus">
       <nav class="main-nav" aria-label="Sections">
-        <a href="#gallery" class="nav-cta">Recap</a>
+        <a href="#2027">Next edition</a>
+        <a href="#recap" class="nav-cta">Recap</a>
         <a href="#schedule">Schedule</a>
         <a href="#djs">DJs</a>
         <a href="#venue">Venue</a>
@@ -57,27 +58,29 @@
       <p class="meta"><strong>23–25 October 2026</strong> · FICS Xinhua 365</p>
       <p class="meta">Five milongas · five cities · every milonga sold out</p>
       <div class="btns">
-        <a class="btn btn-gold" href="#gallery">Recap</a>
-        <a class="btn btn-ghost" href="#posters">Day posters</a>
+        <a class="btn btn-gold" href="#2027">Next edition</a>
+        <a class="btn btn-ghost" href="#recap">Recap</a>
         <a class="btn btn-ghost" href="#schedule">Schedule</a>
       </div>
     </div>
   </div>
 </section>
 
-<section id="next" class="alt">
+<section id="2027" class="alt">
   <div class="wrap">
-    <div class="sec-title"><h2>Second edition</h2><span class="en">2027</span></div>
+    <div class="sec-title" id="next"><h2>Second edition · Planned</h2><span class="en">2027</span></div>
     <div class="grid g2 wt-next">
       <div class="card">
         <span class="ed-badge">Planned</span>
         <h3>22–24 October 2027</h3>
-        <p>The 2nd Wutong Tango Weekend is planned for 22–24 October 2027. Poster and schedule — with the organizers, in planning.</p>
+        <p>The 2nd Wutong Tango Weekend is set for 22–24 October 2027 in Shanghai. Details TBD. Poster and schedule — with the organizers, in planning.</p>
       </div>
-      <div class="ph wt-ph" role="img" aria-label="Placeholder for the 2027 poster">
-        <div><b>2027</b>Poster placeholder</div>
+      <div class="ph wt-ph">
+        <img src="../../images/asia/posters/XsFs5wm8_wutong2027.jpg" alt="Placeholder poster: Planned, 22–24 October 2027, Shanghai, details TBD" width="540" height="810">
+        <div><b>Planned</b>Details TBD</div>
       </div>
     </div>
+    <p class="wt-jump"><a href="#recap">Recap</a></p>
   </div>
 </section>
 
@@ -95,8 +98,9 @@
 
 <section id="gallery" class="past">
   <div class="wrap">
-    <div class="past-head">
+    <div class="past-head" id="recap">
       <div class="sec-title"><h2>Recap</h2><span class="en">往届回顾 · 1st edition</span></div>
+      <p class="wt-jump"><a href="#2027">Next edition</a></p>
     </div>
 
     <div class="ed-head wt-mood">
