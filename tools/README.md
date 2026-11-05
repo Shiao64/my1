@@ -1,5 +1,14 @@
 # Tools
 
+## 改卡 — card JSON and posters on R2
+
+Card text and poster files publish to the R2 bucket `atm-events-data` (`https://data.tangoweekend.org`) with `tools/r2_sync_cards.py`. That does not bump `china` / `e` / `h` / `cb` and does not need a Pages deploy. The map falls back to the JSON and posters in this repo when that host does not answer. Full steps: `docs/card-r2.md`.
+
+```bash
+python3 tools/r2_sync_cards.py --dry-run
+python3 tools/r2_sync_cards.py --event-id E158
+```
+
 ## Radar 异动 — regular poster replace (fixed step)
 
 Every radar 异动 run goes through `radar_yidong.py`. That script always runs the poster step in `radar_poster_update.py`. It is the way a new organizer poster for an existing regular milonga, practica, or dated one-off (`kind: weekly`, or `regular_oneoff`) gets onto the site. Featured festivals are outside this step.
