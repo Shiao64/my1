@@ -11,7 +11,7 @@ export default {
     const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...h } });
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
     if (url.pathname.startsWith('/social/')) return social(req, env, url, json);
-    if (url.pathname === '/unsubscribe' && (url.searchParams.get('t') || '').includes('.')) return unsub2(url, env);   // signed update-mail link
+    if (url.pathname === '/unsubscribe' && (req.method === 'GET' || req.method === 'POST') && (url.searchParams.get('t') || '').includes('.')) return unsub2(url, env);   // signed update-mail link; POST is List-Unsubscribe one-click
     if (url.pathname === '/subscribe' && req.method === 'POST') {   // same backend as live; preview adds an owner alert for new WeChat sign-ups
       const raw = await req.text(); let b = {}; try { b = JSON.parse(raw); } catch {}
       const wx0 = String(b.wechat || '').trim().slice(0, 64);
