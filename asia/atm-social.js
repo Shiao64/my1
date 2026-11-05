@@ -1,6 +1,6 @@
 /* Asia Tango Map: 👍 likes + comments under a single event card (?card=ID), on the map and on DJ/organizer pages.
    Likes: no login, one per device (localStorage id + server dedupe), tap again to un-like.
-   Comments: zh WeChat tab = add 探戈助理 (QR) + WeChat ID → 4-digit code for the friend request → 「我已添加」 unlocks one comment or like and alerts the owner; verified = unlimited; unverified after 3 daytime hours = deleted + banned (AUTO_EXPIRE), or email sign-up with a 6-digit code. API: /social/* on the subscribe Worker. */
+   Comments: zh has 微信 | 邮箱. WeChat ID → 获取验证码 → 4-digit code. The 探戈助理 QR is a popup only inside the WeChat app, after the code is issued; other browsers copy the assistant's WeChat ID instead. 「我已添加」 unlocks one comment or like; verified = unlimited. Email sign-up uses a 6-digit code. API: /social/* on the subscribe Worker. */
 (function () {
   var R = document.documentElement, zh = /^zh/i.test(R.getAttribute('data-asia-lang') || document.body.getAttribute('data-lang') || R.lang || '');
   var API = (window.ATM_SOCIAL_API || 'https://api.tangoweekend.org') + '/social', TSKEY = window.ATM_TS_KEY || (/(^|\.)tangoweekend\.org$/.test(location.hostname) ? '0x4AAAAAAFzkQw2fwneONelA' : '');
@@ -36,7 +36,11 @@
     '#atm-soc .as-wt{margin:12px 0 4px;font-size:1.05rem;color:#0a4f57}#atm-soc .as-wc{margin:2px 0;font-size:.9rem;color:#2a1a14}#atm-soc .as-wsm>.as-in{font-size:14px;min-height:34px;padding:4px 8px}#atm-soc .as-big{display:block;width:100%;min-height:46px;margin:8px 0 2px;font-size:1.05rem;font-weight:700}#atm-soc .as-rule{font-size:.75rem;color:#9a9a9a;margin:10px 0 2px;line-height:1.5}#atm-soc .as-note{background:#eef6f6;border-radius:8px;padding:6px 10px;font-size:.88rem;color:#0a4f57;margin:6px 0}#atm-soc .as-wait{background:#fff6d6;color:#6b5220}#atm-soc .as-vf{font-weight:700}#atm-soc .as-qr{text-align:center;margin:8px 0}#atm-soc .as-qr img{display:block;margin:0 auto;width:180px;height:180px;border-radius:10px;border:1px solid #ead9b8;-webkit-touch-callout:default}#atm-soc .as-code4{text-align:center;font:800 2.6rem/1.1 ui-monospace,Menlo,monospace;letter-spacing:.25em;color:#0a4f57;margin:10px 0 2px}#atm-soc .as-cdh{text-align:center}#atm-soc .as-go.as-add{background:#1f9d55;border-color:#1f9d55;color:#fff}#atm-soc .as-addh{text-align:center}' +
     '#atm-soc textarea.as-in{min-height:64px;resize:vertical}#atm-soc .as-go{min-height:40px;padding:0 18px;border-radius:999px;background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;font-size:.95rem;cursor:pointer}#atm-soc .as-go:disabled{opacity:.5}' +
     '#atm-soc .as-meta{font-size:.8rem;color:#7a6255;margin:4px 0}#atm-soc .as-meta a{color:#0e6e78;cursor:pointer}#atm-soc .as-err{color:#b5654a;font-size:.85rem;min-height:1em;margin:4px 0}#atm-soc .as-ok{color:#0a4f57;font-size:.85rem;margin:4px 0}' +
-    '#atm-soc .as-pv{background:#fff6d6;border:1px dashed #e8c06a;border-radius:8px;padding:4px 8px;font-size:.8rem;color:#6b5220}';
+    '#atm-soc .as-pv{background:#fff6d6;border:1px dashed #e8c06a;border-radius:8px;padding:4px 8px;font-size:.8rem;color:#6b5220}' +
+    '#atm-soc .as-copyrow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px}#atm-soc .as-wid{font:700 .95rem/1.3 ui-monospace,Menlo,monospace;color:#0a4f57}#atm-soc .as-copy{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:4px 12px;cursor:pointer;font:600 .85rem inherit}#atm-soc .as-ph{text-align:center}' +
+    '#as-wxpop{position:fixed;inset:0;z-index:80;background:rgba(42,26,20,.48);display:flex;align-items:flex-end;justify-content:center;padding:12px}#as-wxpop .as-sheet{background:#fffaf3;border-radius:18px;padding:14px 16px 18px;width:min(420px,100%);max-height:92vh;overflow:auto;box-sizing:border-box;box-shadow:0 16px 48px rgba(42,26,20,.28)}#as-wxpop .as-x{float:right;border:0;background:transparent;font-size:1.6rem;line-height:1;color:#7a6255;cursor:pointer;padding:0 2px}' +
+    '#as-wxpop .as-qr{text-align:center;margin:8px 0;clear:both}#as-wxpop .as-qr img{display:block;margin:0 auto;width:180px;height:180px;border-radius:10px;border:1px solid #ead9b8;-webkit-touch-callout:default}#as-wxpop .as-meta{font-size:.8rem;color:#7a6255;margin:4px 0;text-align:center}#as-wxpop .as-code4{text-align:center;font:800 2.6rem/1.1 ui-monospace,Menlo,monospace;letter-spacing:.25em;color:#0a4f57;margin:10px 0 2px}#as-wxpop .as-wc{margin:2px 0;font-size:.9rem;color:#2a1a14}#as-wxpop .as-cdh,#as-wxpop .as-addh{text-align:center}' +
+    '#as-wxpop .as-go{display:block;width:100%;min-height:46px;margin:8px 0 2px;border-radius:999px;background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;font-size:1.05rem;font-weight:700;cursor:pointer}#as-wxpop .as-go.as-add{background:#1f9d55;border-color:#1f9d55;color:#fff}#as-wxpop .as-go:disabled{opacity:.5}#as-wxpop .as-err{color:#b5654a;font-size:.85rem;min-height:1em;margin:4px 0;text-align:center}@media (min-width:640px){#as-wxpop{align-items:center}}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
   var box = document.createElement('section'); box.id = 'atm-soc'; box.setAttribute('data-card', cardId);
   box.innerHTML = '<div class="as-bar"><button type="button" class="as-btn as-like" aria-pressed="false"><span class="as-ic">👍</span><span class="as-l">' + L.like + '</span><span class="as-n" data-n="0"></span></button>' +
@@ -59,31 +63,59 @@
     list.querySelectorAll('.as-trt').forEach(function (bt) { bt.onclick = function () { var li = bt.parentNode, ps = li.querySelectorAll('.as-txt'), o = bt.getAttribute('data-t') === '1'; ps[0].hidden = o; ps[1].hidden = !o; bt.setAttribute('data-t', o ? '0' : '1'); bt.textContent = o ? L.shtr : L.trd + ' · ' + L.org; }; });
   }
   var me = null, wxi = null, tsId = null, tsTok = '';   // wxi = {wx:'pending'|'verified', used, wxdev} for WeChat sessions
-  var inWx = /MicroMessenger/i.test(navigator.userAgent || ''), QR = window.ATM_WX_QR || '/asia/tango-assistant-qr.jpg', poll = null;
-  var WXT = { title: '留微信号或邮箱获取验证码', ok: '', qr: inWx ? '长按二维码，加探戈助理为好友' : '用微信扫码，加探戈助理为好友', ph: '你的微信号', cy: '所在城市（选填）', rl: '你跳的角色（选填）', go: '获取验证码',
+  var inWx = /MicroMessenger/i.test(navigator.userAgent || ''), QR = window.ATM_WX_QR || '/asia/tango-assistant-qr.jpg', WXID = window.ATM_WX_ID || 'wxid_ixaen7sydccp12', poll = null;
+  var WXT = { title: '留微信号或邮箱获取验证码', ph: '你的微信号', cy: '所在城市（选填）', rl: '你跳的角色（选填）', go: '获取验证码',
     cd: '加好友时，请在申请里写上这个验证码', add: '我已添加', addh: '按下后，探戈助理通常几分钟内通过', chk: '已通知探戈助理，正在核对', na: '请先加探戈助理好友，再按「我已添加」。',
-    once: '你现在可以留言一次，或点一次赞。探戈助理加你为好友后，就不再限制', wait: '探戈助理正在加你为好友，通过后就可以继续留言', ver: '已验证', rule: inWx ? '长按二维码加探戈助理为好友，申请时写上验证码。' : '', ban: '这个微信号不能再用来留言。' /* v12: 3-hour expiry still enforced in backend; user removed the delete/ban sentence from the panel */, need: '请填写你的微信号。', first: '请先在下面填写微信号，获取验证码。' };
-  function qrHtml() { if (!inWx) return ''; return '<div class="as-qr"><img src="' + esc(QR) + '" alt="探戈助理二维码" width="180" height="180" loading="lazy"><p class="as-meta">' + WXT.qr + '</p></div>'; }
-  function wxHead() { return '<h4 class="as-wt">' + WXT.title + '</h4>' + (WXT.ok ? '<p class="as-wc">' + WXT.ok + '</p>' : ''); }
-  function ruleHtml() { return WXT.rule ? '<p class="as-rule">' + WXT.rule + '</p>' : ''; }
+    once: '你现在可以留言一次，或点一次赞。探戈助理加你为好友后，就不再限制', wait: '探戈助理正在加你为好友，通过后就可以继续留言', ver: '已验证', ban: '这个微信号不能再用来留言。', need: '请填写你的微信号。', first: '请先在下面填写微信号，获取验证码。',
+    qrCap: '长按二维码，加探戈助理为好友', phone: '在手机微信里搜索这个微信号，加探戈助理为好友。', copyId: '复制微信号', copied: '已复制', seeQr: '查看二维码' };
+  function wxHead() { return '<h4 class="as-wt">' + WXT.title + '</h4>'; }
+  function qrBlock() { return '<div class="as-qr"><img src="' + esc(QR) + '" alt="探戈助理二维码" width="180" height="180"><p class="as-meta">' + WXT.qrCap + '</p></div>'; }
+  function closePop() { var p = document.getElementById('as-wxpop'); if (p) p.remove(); }
+  function copyText(btn, text) {
+    var label = btn.getAttribute('data-label') || btn.textContent;
+    function done() { btn.textContent = WXT.copied; setTimeout(function () { btn.textContent = label; }, 1400); }
+    function fb() { var ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); done(); } catch (e) {} ta.remove(); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fb); else fb();
+  }
   function setPoll() { var want = !!(me && wxi && wxi.wx === 'pending' && wxi.added); if (want && !poll) poll = setInterval(function () { if (document.hidden) return; api('/me', null, true).then(function (d) { if (d.error === 'wx_banned') { banned(); return; } if (d.wx && wxi && d.wx !== wxi.wx) { wxi = { wx: d.wx, used: d.used, wxdev: d.wxdev, added: d.added, code: d.code }; drawForm(); } }).catch(function () {}); }, 30000); if (!want && poll) { clearInterval(poll); poll = null; } }
-  function signOut() { try { localStorage.removeItem('atm_social_tok'); } catch (e) {} me = null; wxi = null; setPoll(); }
+  function signOut() { closePop(); try { localStorage.removeItem('atm_social_tok'); } catch (e) {} me = null; wxi = null; setPoll(); }
   function banned(msg) { signOut(); drawForm(); var e = form.querySelector('.as-wxerr') || form.querySelector('.as-err'); if (e) e.textContent = msg || WXT.ban; }
+  function pressAdded() {
+    var buttons = document.querySelectorAll('.as-add'); [].forEach.call(buttons, function (b) { b.disabled = true; });
+    var pop = document.getElementById('as-wxpop'), e = (pop && pop.querySelector('.as-wxerr')) || form.querySelector('.as-wxerr'); if (e) e.textContent = '';
+    api('/wx-added', {}, true).then(function (d) { if (d.ok) { wxi.added = true; if (d.wx) wxi.wx = d.wx; closePop(); drawForm(); } else if (d.error === 'wx_banned') banned(); else if (d.error === 'auth') { signOut(); drawForm(); } else if (e) e.textContent = L.fail; })
+      .catch(function () { if (e) e.textContent = L.fail; }).then(function () { [].forEach.call(document.querySelectorAll('.as-add'), function (b) { b.disabled = false; }); });
+  }
+  function openPop() {
+    if (!inWx || !wxi) return; closePop();
+    var pop = document.createElement('div'); pop.id = 'as-wxpop';
+    pop.innerHTML = '<div class="as-sheet" role="dialog" aria-modal="true" aria-label="加探戈助理"><button type="button" class="as-x" aria-label="关闭">×</button>' + qrBlock() +
+      '<p class="as-code4">' + esc(wxi.code || '') + '</p><p class="as-wc as-cdh">' + WXT.cd + '</p><button type="button" class="as-go as-big as-add">' + WXT.add + '</button><p class="as-meta as-addh">' + WXT.addh + '</p><p class="as-err as-wxerr"></p></div>';
+    document.body.appendChild(pop);
+    pop.querySelector('.as-x').onclick = closePop;
+    pop.addEventListener('click', function (ev) { if (ev.target === pop) closePop(); });
+    pop.querySelector('.as-add').onclick = pressAdded;
+  }
   function drawForm() {
+    closePop();
     if (me) {
       var pend = wxi && wxi.wx === 'pending', used = pend && wxi.used, nadd = pend && !wxi.added;
-      if (nadd) {   // got the code, has not pressed 「我已添加」 yet
-        form.innerHTML = '<div class="as-wx">' + wxHead() + qrHtml() + '<p class="as-code4">' + esc(wxi.code || '') + '</p><p class="as-wc as-cdh">' + WXT.cd + '</p>' +
+      if (nadd) {   // got the code, has not pressed 「我已添加」 yet. QR only in the WeChat popup.
+        form.innerHTML = '<div class="as-wx">' + wxHead() +
+          (inWx ? '' : '<p class="as-meta as-ph">' + WXT.phone + '</p><p class="as-copyrow"><span class="as-wid">' + esc(WXID) + '</span><button type="button" class="as-copy" data-label="' + WXT.copyId + '" data-copy="' + esc(WXID) + '">' + WXT.copyId + '</button></p>') +
+          '<p class="as-code4">' + esc(wxi.code || '') + '</p><p class="as-wc as-cdh">' + WXT.cd + '</p>' +
+          (inWx ? '<button type="button" class="as-go as-qrbtn">' + WXT.seeQr + '</button>' : '') +
           '<button type="button" class="as-go as-big as-add">' + WXT.add + '</button><p class="as-meta as-addh">' + WXT.addh + '</p><p class="as-err as-wxerr"></p>' +
-          '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p>' + ruleHtml() + '</div>';
-        form.querySelector('.as-add').onclick = function () { var go = this, e = form.querySelector('.as-wxerr'); go.disabled = true; e.textContent = '';
-          api('/wx-added', {}, true).then(function (d) { if (d.ok) { wxi.added = true; if (d.wx) wxi.wx = d.wx; drawForm(); } else if (d.error === 'wx_banned') banned(); else if (d.error === 'auth') { signOut(); drawForm(); } else e.textContent = L.fail; })
-            .catch(function () { e.textContent = L.fail; }).then(function () { go.disabled = false; }); };
+          '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p></div>';
+        form.querySelector('.as-add').onclick = pressAdded;
+        var cp = form.querySelector('.as-copy'); if (cp) cp.onclick = function () { copyText(cp, cp.getAttribute('data-copy') || ''); };
+        var qb = form.querySelector('.as-qrbtn'); if (qb) qb.onclick = openPop;
         form.querySelector('.as-out').onclick = function () { signOut(); drawForm(); };
+        if (inWx) openPop();
         setPoll(); return;
       }
       form.innerHTML = (wxi && wxi.wx === 'verified' ? '<p class="as-ok as-vf">✓ ' + WXT.ver + '</p>' : '') + (pend ? '<p class="as-note as-chk">' + WXT.chk + '</p>' : '') + (pend && !used ? '<p class="as-note">' + WXT.once + '</p>' : '') + (used ? '<p class="as-note as-wait">' + WXT.wait + '</p>' : '<textarea class="as-in as-body" maxlength="1000" placeholder="' + L.ph + '"></textarea>') +
-        '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p><p class="as-err"></p>' + (used ? '' : '<button type="button" class="as-go as-post">' + L.post + '</button>') + (pend ? ruleHtml() : '');
+        '<p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p><p class="as-err"></p>' + (used ? '' : '<button type="button" class="as-go as-post">' + L.post + '</button>');
       setPoll();
       form.querySelector('.as-out').onclick = function () { signOut(); drawForm(); };
       var pb = form.querySelector('.as-post'); if (pb) pb.onclick = function () {
@@ -96,9 +128,9 @@
     form.innerHTML = (zh ? '<div class="as-tabs" role="tablist"><button type="button" class="as-tab" data-t="wx">微信</button><button type="button" class="as-tab" data-t="em">邮箱</button></div>' : '') +
       '<div class="as-emf"><h4 class="as-wt">' + L.join + '</h4><p class="as-wc">' + L.why + '</p><input class="as-in as-nm" maxlength="40" autocomplete="name" placeholder="' + L.name + '"><div class="as-row as-cr"><input class="as-in as-cy0" maxlength="40" autocomplete="address-level2" placeholder="' + L.city + '"><select class="as-in as-role"><option value="">' + L.role + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div><input class="as-in as-em" type="email" autocomplete="email" placeholder="' + L.email + '"><p class="as-meta as-upd">' + L.upd + '</p>' +
       '<div class="as-ts"></div><button type="button" class="as-go as-send">' + L.send + '</button></div>' +
-      (zh ? '<div class="as-wx">' + wxHead() + qrHtml() +
+      (zh ? '<div class="as-wx">' + wxHead() +
         '<input class="as-in as-wxid" maxlength="64" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="' + WXT.ph + '"><div class="as-row as-wsm"><input class="as-in as-wcy" maxlength="40" autocomplete="address-level2" placeholder="' + WXT.cy + '"><select class="as-in as-wrl"><option value="">' + WXT.rl + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>' +
-        '<button type="button" class="as-go as-big as-wxsub">' + WXT.go + '</button><p class="as-err as-wxerr"></p>' + ruleHtml() + '</div>' : '') +
+        '<button type="button" class="as-go as-big as-wxsub">' + WXT.go + '</button><p class="as-err as-wxerr"></p></div>' : '') +
       '<p class="as-err as-emerr"></p><div class="as-step2" hidden><p class="as-ok"></p><input class="as-in as-code" inputmode="numeric" maxlength="6" placeholder="' + L.code + '"><button type="button" class="as-go as-ver">' + L.verify + '</button></div>';
     var er = form.querySelector('.as-emerr');
     if (zh) { var wer = form.querySelector('.as-wxerr'), setM = function (m) { form.setAttribute('data-m', m); [].forEach.call(form.querySelectorAll('.as-tab'), function (t) { t.setAttribute('aria-selected', t.getAttribute('data-t') === m ? 'true' : 'false'); }); er.textContent = ''; wer.textContent = ''; try { localStorage.setItem('atm_vm', m); } catch (e) {} }; [].forEach.call(form.querySelectorAll('.as-tab'), function (t) { t.onclick = function () { setM(t.getAttribute('data-t')); }; }); var vm0 = 'wx'; try { vm0 = localStorage.getItem('atm_vm') || 'wx'; } catch (e) {} setM(vm0);
