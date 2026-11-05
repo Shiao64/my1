@@ -12,13 +12,13 @@
     email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '确认邮件发送失败，请检查邮箱地址或稍后再试。',
     submit: '订阅', sending: '提交中…', ok: '确认邮件已发出。请打开邮箱，点邮件里的链接（7天内有效，没收到请看垃圾邮件）。',
-    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', ts: '请先完成人机验证。', okBack: '确认邮件已发出。请打开邮箱，点邮件里的链接（约 15 分钟内有效）。确认后即可在这张卡片下留言。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
+    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', ts: '请先完成人机验证。', okBack: '确认邮件已发出。请打开邮箱，点邮件里的链接，再点「确认」（60 分钟内有效）。确认后即可在这张卡片下留言。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
   } : {
     btn: '✉ Get event alert', title: 'Subscribe for alerts', desc: 'Subscribe to Asia Tango Map event alerts. Leave your name, city, role, and email. After you confirm the email, you\'ll get occasional updates and can comment on event cards.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'Follower', rb: 'Both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose leader, follower, or both.', wxNeed: '', okWx: '',
     email: 'Email', emailPh: 'name@example.com', hint: '',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the confirmation email. Please check the address or try again later.', bad: 'Please check your email address.',
     submit: 'Subscribe', sending: 'Sending…', ok: 'Confirmation email sent. Open it and tap the link (valid 7 days; check spam).',
-    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', okBack: 'Confirmation email sent. Open it and tap the link (valid about 15 minutes). Then you can comment on this card.', foot: 'Unsubscribe anytime. We never share your info.', close: 'Close'
+    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', okBack: 'Confirmation email sent. Open the link and tap Confirm (valid for 60 minutes). Then you can comment on this card.', foot: 'Unsubscribe anytime. We never share your info.', close: 'Close'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
     '.tsub-open{background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;border-radius:999px;padding:5px 14px;font-size:.78rem;font-weight:700;line-height:1.2;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:background .15s,transform .15s}' +

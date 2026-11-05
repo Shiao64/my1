@@ -5,12 +5,15 @@ import { updateFooter } from './unsub.js';
 // POST /social/like {id, dev}              -> toggle; {id, n, liked}
 // GET  /social/comments?id=A               -> {items:[{name,body,at}]}
 // POST /social/signup {name,email,lang,ts,magic?,ret?} -> 6-digit code, or a magic link when magic=1
-// GET  /social/confirm?e=&t=&next=         -> one-time link: verify, set session, redirect to the card
+// GET  /social/confirm?e=&t=&next=         -> confirm button only (mail scanners GET the link; that must not use it up)
+// POST /social/confirm                     -> person tapped Confirm: verify, set session, stay valid for MAGIC_MS
 // POST /social/verify {email, code}        -> {token, name}  (email verified; still works alongside magic links)
 // GET  /social/me  (Authorization: Bearer)  -> {name}
 // POST /social/comment {id, body} (Bearer)  -> posts one comment per confirmed user per card
 const ID_RE = /^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/, DEV_RE = /^[A-Za-z0-9-]{16,64}$/, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const now = () => new Date().toISOString();
+const CODE_MS = 15 * 60e3;    // 6-digit code, typed while the page is still open
+const MAGIC_MS = 60 * 60e3;   // email link. Scanners open it before the person does, so it stays valid for an hour and more than once.
 // 00:00 Asia/Shanghai today, as a UTC ISO string. Shanghai is UTC+8 with no DST, so created_at (toISOString) compares in order.
 function shanghaiDayStart(at = Date.now()) {
   const sh = new Date(at + 8 * 3600e3);
@@ -19,6 +22,8 @@ function shanghaiDayStart(at = Date.now()) {
 async function sha(s) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join(''); }
 const rnd = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
 const clean = (s, n) => String(s || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n);
+// application/x-www-form-urlencoded turns '+' into a space. A plus-address must still find the user row.
+function emailParam(raw) { return clean(String(raw || '').trim().replace(/ /g, '+'), 254).toLowerCase(); }
 
 async function turnstile(env, token, ip) {
   if (!env.TURNSTILE_SECRET) return env.ALLOW_NO_TURNSTILE === '1';
@@ -64,9 +69,9 @@ async function sendMagic(env, to, name, url, lang) {
   const cta = zh ? '确认订阅并开通留言' : 'Confirm subscription and turn on comments';
   const subject = zh ? '请确认订阅亚洲探戈地图' : 'Please confirm your Asia Tango Map subscription';
   const text = zh
-    ? `你好 ${name}，\n\n请在 15 分钟内点击下面的链接，确认邮箱并完成订阅：\n\n${url}\n\n确认后你可以：\n· 在活动卡片下留言\n· 不定时收到亚洲探戈地图的活动更新（你若选择了接收更新）\n\n若你并未申请订阅，忽略即可。\n\n随时可退订，我们不会把你的信息给别人。\n退订：${foot.url}\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
-    : `Hello ${name},\n\nPlease click the link below within 15 minutes to confirm your email and finish subscribing:\n\n${url}\n\nAfter you confirm, you can:\n· Comment on event cards\n· Get occasional Asia Tango Map event updates (if you chose to receive them)\n\nIf you didn't ask to subscribe, you can ignore this email.\n\nUnsubscribe anytime. We never share your information.\nUnsubscribe: ${foot.url}\n\nAsia Tango Map\nhttps://tangoweekend.org`;
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? '你好 ' + name + '，' : 'Hello ' + name + ',')}</p><p>${zh ? '请在 15 分钟内点击下面的链接，确认邮箱并完成订阅：' : 'Please click the link below within 15 minutes to confirm your email and finish subscribing:'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p>${zh ? '确认后你可以：' : 'After you confirm, you can:'}</p><ul><li>${zh ? '在活动卡片下留言' : 'Comment on event cards'}</li><li>${zh ? '不定时收到亚洲探戈地图的活动更新（你若选择了接收更新）' : 'Get occasional Asia Tango Map event updates (if you chose to receive them)'}</li></ul><p>${zh ? '若你并未申请订阅，忽略即可。' : 'If you didn\'t ask to subscribe, you can ignore this email.'}</p><p>${zh ? '随时可退订，我们不会把你的信息给别人。' : 'Unsubscribe anytime. We never share your information.'}<br><a href="${he(foot.url)}">${zh ? '退订' : 'Unsubscribe'}</a></p><p>亚洲探戈地图 Asia Tango Map<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
+    ? `你好 ${name}，\n\n请在 60 分钟内打开下面的链接，再点「确认」完成订阅：\n\n${url}\n\n确认后你可以：\n· 在活动卡片下留言\n· 不定时收到亚洲探戈地图的活动更新（你若选择了接收更新）\n\n若你并未申请订阅，忽略即可。\n\n随时可退订，我们不会把你的信息给别人。\n退订：${foot.url}\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
+    : `Hello ${name},\n\nOpen the link below within 60 minutes, then tap Confirm to finish subscribing:\n\n${url}\n\nAfter you confirm, you can:\n· Comment on event cards\n· Get occasional Asia Tango Map event updates (if you chose to receive them)\n\nIf you didn't ask to subscribe, you can ignore this email.\n\nUnsubscribe anytime. We never share your information.\nUnsubscribe: ${foot.url}\n\nAsia Tango Map\nhttps://tangoweekend.org`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? '你好 ' + name + '，' : 'Hello ' + name + ',')}</p><p>${zh ? '请在 60 分钟内打开下面的链接，再点「确认」完成订阅：' : 'Open the link below within 60 minutes, then tap Confirm to finish subscribing:'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p>${zh ? '确认后你可以：' : 'After you confirm, you can:'}</p><ul><li>${zh ? '在活动卡片下留言' : 'Comment on event cards'}</li><li>${zh ? '不定时收到亚洲探戈地图的活动更新（你若选择了接收更新）' : 'Get occasional Asia Tango Map event updates (if you chose to receive them)'}</li></ul><p>${zh ? '若你并未申请订阅，忽略即可。' : 'If you didn\'t ask to subscribe, you can ignore this email.'}</p><p>${zh ? '随时可退订，我们不会把你的信息给别人。' : 'Unsubscribe anytime. We never share your information.'}<br><a href="${he(foot.url)}">${zh ? '退订' : 'Unsubscribe'}</a></p><p>亚洲探戈地图 Asia Tango Map<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
   if (/ATM互动|探戈雷达/.test(subject + text + html)) throw new Error('internal name in mail');
   return deliver(env, to, subject, text, html, foot.headers);
 }
@@ -143,9 +148,10 @@ async function wxAddedNotify(env, u, wx, row) {   // 「我已添加」 pressed:
   return 'sent';
 }
 async function wxClaim(env, u) { const r = await env.SDB.prepare('UPDATE users SET wx_used=1 WHERE id=? AND wx_used=0').bind(u.id).run(); return (r.meta?.changes ?? 0) > 0; }
-async function issueSession(env, u) {
+async function issueSession(env, u, opt) {
   const t = rnd(32);
-  await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?),code_hash=NULL WHERE id=?').bind(now(), u.id).run();
+  if (opt && opt.keepCode) await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?) WHERE id=?').bind(now(), u.id).run();
+  else await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?),code_hash=NULL WHERE id=?').bind(now(), u.id).run();
   await env.SDB.prepare('INSERT INTO sessions(token_hash,user_id,created_at) VALUES(?,?,?)').bind(await sha(t), u.id, now()).run();
   return t;
 }
@@ -178,16 +184,43 @@ async function applyList(env, u, want) {
     .bind(email, u.name || null, u.lang === 'zh' ? 'zh' : 'en', rnd(24), ts, ts).run();
   else await env.DB.prepare("UPDATE email_subs SET status='active',name=COALESCE(name,?),lang=?,confirmed_at=COALESCE(confirmed_at,?),pending_since=NULL,confirm_hash=NULL,unsubscribed_at=NULL WHERE id=?").bind(u.name || null, u.lang === 'zh' ? 'zh' : 'en', ts, row.id).run();
 }
-async function confirmLink(env, url) {
-  const email = clean(url.searchParams.get('e') || '', 254).toLowerCase(), tok = String(url.searchParams.get('t') || '');
-  const next = safeNext(url.searchParams.get('next') || '');
-  if (!EMAIL_RE.test(email) || !/^[0-9a-f]{64}$/.test(tok) || !next) return confirmPage(false, '链接无效。请回到页面重新发送确认邮件。 / This link is invalid. Send a new confirmation email.');
+const EXPIRED_LINK = '链接已过期。请回到页面重新发送确认邮件。 / This link has expired. Send a new confirmation email.';
+const INVALID_LINK = '链接无效。请回到页面重新发送确认邮件。 / This link is invalid. Send a new confirmation email.';
+function confirmForm(lang, email, tok, next) {
+  const zh = lang === 'zh';
+  const title = zh ? '确认邮箱' : 'Confirm your email';
+  const msg = zh ? '请点下面的按钮完成确认。这个链接 60 分钟内有效，多打开几次也可以。' : 'Tap the button below to finish. This link stays valid for 60 minutes, and opening it more than once is fine.';
+  const btn = zh ? '确认' : 'Confirm';
+  return new Response(`<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${he(title)}</title>
+<body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
+<p style="font-size:1.05rem;line-height:1.5">${he(msg)}</p>
+<form method="post" action="/social/confirm"><input type="hidden" name="e" value="${he(email)}"><input type="hidden" name="t" value="${he(tok)}"><input type="hidden" name="next" value="${he(next)}"><input type="hidden" name="confirm" value="1">
+<button type="submit" style="margin-top:8px;min-height:44px;background:#0e6e78;color:#f6e3b4;border:0;border-radius:999px;padding:12px 22px;font-weight:700;font-size:1rem">${he(btn)}</button></form></div></body></html>`,
+    { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' } });
+}
+async function confirmFields(req, url) {
+  if (req.method === 'POST') {
+    let raw = ''; try { raw = await req.text(); } catch { raw = ''; }
+    const form = new URLSearchParams(raw);
+    return { email: emailParam(form.get('e')), tok: String(form.get('t') || ''), next: safeNext(form.get('next') || ''), go: form.get('confirm') === '1' };
+  }
+  return { email: emailParam(url.searchParams.get('e')), tok: String(url.searchParams.get('t') || ''), next: safeNext(url.searchParams.get('next') || ''), go: false };
+}
+async function confirmLink(req, env, url) {
+  const { email, tok, next, go } = await confirmFields(req, url);
+  if (!EMAIL_RE.test(email) || !/^[0-9a-f]{64}$/.test(tok) || !next) return confirmPage(false, INVALID_LINK);
   const u = await env.SDB.prepare('SELECT * FROM users WHERE email=?').bind(email).first();
   const parts = String(u && u.code_hash || '').split('.');
-  if (!u || parts.length < 2 || u.code_tries >= 5 || Date.parse(u.code_sent_at) + 15 * 60e3 < Date.now()) return confirmPage(false, '链接已过期。请回到页面重新发送确认邮件。 / This link has expired. Send a new confirmation email.');
-  if (await sha(email + ':' + tok) !== parts[1]) { await env.SDB.prepare('UPDATE users SET code_tries=code_tries+1 WHERE id=?').bind(u.id).run(); return confirmPage(false, '链接无效。请回到页面重新发送确认邮件。 / This link is invalid. Send a new confirmation email.'); }
+  const sent = Date.parse(u && u.code_sent_at || '');
+  if (!u || parts.length < 2 || u.code_tries >= 5 || !Number.isFinite(sent) || sent + MAGIC_MS < Date.now()) return confirmPage(false, EXPIRED_LINK);
+  if (await sha(email + ':' + tok) !== parts[1]) {
+    if (req.method === 'POST' && go) await env.SDB.prepare('UPDATE users SET code_tries=code_tries+1 WHERE id=?').bind(u.id).run();
+    return confirmPage(false, INVALID_LINK);
+  }
+  // GET/HEAD (and a POST that is not the button) must not verify, subscribe, or burn the link.
+  if (req.method !== 'POST' || !go) return confirmForm(u.lang === 'zh' ? 'zh' : 'en', email, tok, next);
   const want = parts[2] !== '0';
-  const t = await issueSession(env, u);
+  const t = await issueSession(env, u, { keepCode: true });
   try { await applyList(env, u, want); } catch (e) { console.log('list', String(e && e.message || e).slice(0, 180)); }
   const dest = new URL(next); dest.hash = 'atm=' + t;
   const origin = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
@@ -198,6 +231,7 @@ async function confirmLink(env, url) {
 
 export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
+  if (p === '/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return confirmLink(req, env, url);
   let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400); } }
   if (p === '/likes' && req.method === 'GET') {
     const ids = (url.searchParams.get('ids') || '').split(',').filter(x => ID_RE.test(x)).slice(0, 100), dev = url.searchParams.get('dev') || '';
@@ -226,7 +260,6 @@ export async function social(req, env, url, json) {
     const mine = !!(u && await env.SDB.prepare('SELECT 1 FROM comments WHERE card_id=? AND user_id=? LIMIT 1').bind(id, u.id).first());
     return json({ items: r.results, mine });
   }
-  if (p === '/confirm' && req.method === 'GET') return confirmLink(env, url);
   if (p === '/signup' && req.method === 'POST') {
     const name = clean(b.name, 40).replace(/\s+/g, ' '), email = clean(b.email, 254).toLowerCase(), lang = b.lang === 'zh' ? 'zh' : 'en';
     const city = clean(b.city, 40).replace(/\s+/g, ' '); if (!city) return json({ error: 'need_city' }, 400);
@@ -253,7 +286,7 @@ export async function social(req, env, url, json) {
   if (p === '/verify' && req.method === 'POST') {
     const email = clean(b.email, 254).toLowerCase(), code = clean(b.code, 6);
     const u = await env.SDB.prepare('SELECT * FROM users WHERE email=?').bind(email).first();
-    if (!u || !u.code_hash || u.code_tries >= 5 || Date.parse(u.code_sent_at) + 15 * 60e3 < Date.now()) return json({ error: 'expired' }, 400);
+    if (!u || !u.code_hash || u.code_tries >= 5 || Date.parse(u.code_sent_at) + CODE_MS < Date.now()) return json({ error: 'expired' }, 400);
     if ((await sha(email + ':' + code)) !== String(u.code_hash).split('.')[0]) { await env.SDB.prepare('UPDATE users SET code_tries=code_tries+1 WHERE id=?').bind(u.id).run(); return json({ error: 'bad_code' }, 400); }
     const t = await issueSession(env, u);
     return json({ ok: true, token: t, name: u.name });
