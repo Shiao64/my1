@@ -9,10 +9,10 @@
   var pm = location.pathname.match(/^\/(?:zh\/|en\/)?(organizer|dj)\/([a-z0-9-]{1,48})\/?(?:index\.html)?$/i);
   if (pm && document.querySelector('.dj-main')) cardId = (pm[1].toLowerCase() === 'dj' ? 'dj:' : 'org:') + pm[2].toLowerCase();
   if (!/^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/.test(cardId)) return;
-  var L = zh ? { like: '赞', cm: '留言', none: '暂无留言', ph: '写下你的留言…', post: '发布', join: '用邮箱开通留言', name: '你的名字', email: '你的邮箱',
+  var L = zh ? { like: '赞', cm: '留言', none: '暂无留言', more: '查看更多留言', ph: '写下你的留言…', post: '发布', join: '用邮箱开通留言', name: '你的名字', email: '你的邮箱',
       send: '发送确认邮件', resend: '重新发送', sent: '确认邮件已发出。请打开邮箱，点邮件里的链接（约 15 分钟内有效，没收到请看垃圾邮件）。', as: '以 {n} 的身份留言 · ', out: '退出',
       need: '请填写名字和正确的邮箱。', fail: '出错了，请稍后再试。', rate: '太频繁了，请稍后再试。', ts: '请先完成人机验证。', why: '填写名字、城市、角色和邮箱，点「发送确认邮件」。打开邮箱点确认链接后，就可以在这张卡片下留言。', one: '这张卡你已经留过言了。', day: '今天已留过 2 条了，明天再写。', write: '写留言', city: '所在城市（必填）', ncity: '请填写你所在的城市。', role: '你跳的角色（必选）', rl: '领舞', rf: '跟舞', rb: '双角色', nrole: '请选择你跳的角色。', trd: '译文', org: '查看原文', shtr: '查看译文' }
-    : { like: 'Like', cm: 'Comments', none: 'No comments yet.', ph: 'Write a comment…', post: 'Post', join: 'Comment with email', name: 'Your name', email: 'Your email',
+    : { like: 'Like', cm: 'Comments', none: 'No comments yet.', more: 'View more comments', ph: 'Write a comment…', post: 'Post', join: 'Comment with email', name: 'Your name', email: 'Your email',
       send: 'Send confirmation email', resend: 'Resend', sent: 'Confirmation email sent. Open your inbox and tap the link (valid about 15 minutes; check spam).', as: 'Commenting as {n} · ', out: 'Sign out',
       need: 'Please enter your name and a valid email.', fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', ts: 'Please complete the check first.', why: 'Enter your name, city, role, and email, then tap Send confirmation email. Open the email and tap the link to comment on this card.', one: 'You\'ve already commented on this card.', day: 'You\'ve posted 2 comments today. Try again tomorrow.', write: 'Write a comment', city: 'Your city (required)', ncity: 'Please enter your city.', role: 'Your role (required)', rl: 'Leader', rf: 'Follower', rb: 'Both', nrole: 'Please choose your role.', trd: 'Translated', org: 'See original', shtr: 'See translation' };
   function dev() { var k = 'atm_dev_id', v = ''; try { v = localStorage.getItem(k) || ''; if (!/^[A-Za-z0-9-]{16,64}$/.test(v)) { v = (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2))); localStorage.setItem(k, v); } } catch (e) { v = v || 'anon-' + Date.now().toString(36) + '0000000000'; } return v; }
@@ -37,7 +37,7 @@
     '#atm-soc .as-wt{margin:12px 0 4px;font-size:1.05rem;color:#0a4f57}#atm-soc .as-wc{margin:2px 0;font-size:.9rem;color:#2a1a14}#atm-soc .as-wsm>.as-in{font-size:14px;min-height:34px;padding:4px 8px}#atm-soc .as-big{display:block;width:100%;min-height:46px;margin:8px 0 2px;font-size:1.05rem;font-weight:700}#atm-soc .as-rule{font-size:.75rem;color:#9a9a9a;margin:10px 0 2px;line-height:1.5}#atm-soc .as-note{background:#eef6f6;border-radius:8px;padding:6px 10px;font-size:.88rem;color:#0a4f57;margin:6px 0}#atm-soc .as-wait{background:#fff6d6;color:#6b5220}#atm-soc .as-vf{font-weight:700}#atm-soc .as-qr{text-align:center;margin:8px 0}#atm-soc .as-qr img{display:block;margin:0 auto;width:180px;height:180px;border-radius:10px;border:1px solid #ead9b8;-webkit-touch-callout:default}#atm-soc .as-code4{text-align:center;font:800 2.6rem/1.1 ui-monospace,Menlo,monospace;letter-spacing:.25em;color:#0a4f57;margin:10px 0 2px}#atm-soc .as-cdh{text-align:center}#atm-soc .as-go.as-add{background:#1f9d55;border-color:#1f9d55;color:#fff}#atm-soc .as-addh{text-align:center}' +
     '#atm-soc textarea.as-in{min-height:64px;resize:vertical}#atm-soc .as-go{min-height:40px;padding:0 18px;border-radius:999px;background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;font-size:.95rem;cursor:pointer}#atm-soc .as-go:disabled{opacity:.5}' +
     '#atm-soc .as-meta{font-size:.8rem;color:#7a6255;margin:4px 0}#atm-soc .as-meta a{color:#0e6e78;cursor:pointer}#atm-soc .as-err{color:#b5654a;font-size:.85rem;min-height:1em;margin:4px 0}#atm-soc .as-ok{color:#0a4f57;font-size:.85rem;margin:4px 0}' +
-    '#atm-soc .as-panel[hidden],#atm-soc .as-form[hidden]{display:none!important}#atm-soc .as-write{margin:4px 0 2px;padding:0;border:0;background:none;color:#7a6255;font:inherit;font-size:.82rem;cursor:pointer;text-decoration:underline;text-underline-offset:2px}' +
+    '#atm-soc .as-panel[hidden],#atm-soc .as-form[hidden]{display:none!important}#atm-soc .as-write,#atm-soc .as-more{display:block;margin:4px 0 2px;padding:0;border:0;background:none;color:#7a6255;font:inherit;font-size:.82rem;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:2px}#atm-soc .as-more[hidden]{display:none!important}' +
     '#atm-soc .as-pv{background:#fff6d6;border:1px dashed #e8c06a;border-radius:8px;padding:4px 8px;font-size:.8rem;color:#6b5220}' +
     '#atm-soc .as-copyrow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px}#atm-soc .as-wid{font:700 .95rem/1.3 ui-monospace,Menlo,monospace;color:#0a4f57}#atm-soc .as-copy{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:4px 12px;cursor:pointer;font:600 .85rem inherit}#atm-soc .as-ph{text-align:center}' +
     '#as-wxpop{position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;z-index:200000;background:rgba(42,26,20,.48);display:flex;align-items:flex-end;justify-content:center;padding:12px;box-sizing:border-box}#as-wxpop .as-sheet{background:#fffaf3;border-radius:18px;padding:14px 16px 18px;width:min(420px,100%);max-height:92vh;overflow:auto;box-sizing:border-box;box-shadow:0 16px 48px rgba(42,26,20,.28)}#as-wxpop .as-x{float:right;border:0;background:transparent;font-size:1.6rem;line-height:1;color:#7a6255;cursor:pointer;padding:0 2px}' +
@@ -47,7 +47,7 @@
   var box = document.createElement('section'); box.id = 'atm-soc'; box.setAttribute('data-card', cardId);
   box.innerHTML = '<div class="as-bar"><button type="button" class="as-btn as-like" aria-pressed="false"><span class="as-ic">👍</span><span class="as-l">' + L.like + '</span><span class="as-n" data-n="0"></span></button>' +
     '<button type="button" class="as-btn as-cmb" aria-expanded="false" aria-controls="atm-soc-panel"><span class="as-ic">💬</span><span>' + L.cm + '</span><span class="as-n as-cn"></span></button></div>' +
-    '<div class="as-panel" id="atm-soc-panel" hidden><ul class="as-list" aria-live="polite"></ul><button type="button" class="as-write">' + L.write + '</button><div class="as-form" hidden></div></div>';
+    '<div class="as-panel" id="atm-soc-panel" hidden><ul class="as-list" aria-live="polite"></ul><button type="button" class="as-more" hidden></button><button type="button" class="as-write">' + L.write + '</button><div class="as-form" hidden></div></div>';
   var placed = false;
   function place() {
     if (placed) return true;
@@ -58,11 +58,15 @@
   }
   var likeB = box.querySelector('.as-like'), nEl = likeB.querySelector('.as-n'), list = box.querySelector('.as-list'), form = box.querySelector('.as-form');
   function setLike(n, on) { nEl.textContent = n > 0 ? n : ''; likeB.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+  var allItems = [], shown = 3;
   function drawItems(items) {
-    box.querySelector('.as-cn').textContent = items.length || '';
-    list.innerHTML = items.length ? items.map(function (c) { return '<li class="as-item"><b>' + esc(c.name) + '</b>' + (c.city ? '<span class="as-cty"> · ' + esc(c.city) + '</span>' : '') + '<time> · ' + esc(day(c.at)) + '</time>' + (function () { var want = zh ? 'zh' : 'en', t = c.tr && c.lang && c.lang !== want;
+    if (items) allItems = items;
+    var rows = allItems.slice(0, shown), more = box.querySelector('.as-more');
+    box.querySelector('.as-cn').textContent = allItems.length || '';
+    list.innerHTML = allItems.length ? rows.map(function (c) { return '<li class="as-item"><b>' + esc(c.name) + '</b>' + (c.city ? '<span class="as-cty"> · ' + esc(c.city) + '</span>' : '') + '<time> · ' + esc(day(c.at)) + '</time>' + (function () { var want = zh ? 'zh' : 'en', t = c.tr && c.lang && c.lang !== want;
         return t ? '<p class="as-txt">' + esc(c.tr) + '</p><p class="as-txt as-org" hidden>' + esc(c.body) + '</p><button type="button" class="as-trt" data-t="1">' + L.trd + ' · ' + L.org + '</button>' : '<p>' + esc(c.body) + '</p>'; })() + '</li>'; }).join('') : '<li class="as-empty">' + L.none + '</li>';
     list.querySelectorAll('.as-trt').forEach(function (bt) { bt.onclick = function () { var li = bt.parentNode, ps = li.querySelectorAll('.as-txt'), o = bt.getAttribute('data-t') === '1'; ps[0].hidden = o; ps[1].hidden = !o; bt.setAttribute('data-t', o ? '0' : '1'); bt.textContent = o ? L.shtr : L.trd + ' · ' + L.org; }; });
+    if (more) { more.hidden = shown >= allItems.length; more.textContent = L.more; }
   }
   var me = null, wxi = null, tsId = null, tsTok = '', writing = false, writeQueued = false, open = false, session = 'guest', mineComment = false;   // session: guest | loading | in | error. writing: 写留言 was tapped. wxi = {wx:'pending'|'verified', used, wxdev}. mineComment: this confirmed user already has a comment on this card.
   var QR = window.ATM_WX_QR || '/asia/tango-assistant-qr.jpg', WXID = window.ATM_WX_ID || 'wxid_ixaen7sydccp12', poll = null;
@@ -234,9 +238,12 @@
     };
     box.querySelector('.as-cmb').onclick = function () {
       open = !open;
+      if (open) shown = 3;
+      if (allItems.length) drawItems();
       syncPanel();
       if (open) reveal(box.querySelector('.as-panel'));
     };
+    box.querySelector('.as-more').onclick = function () { shown += 10; drawItems(); };
     box.querySelector('.as-write').onclick = wantWrite;
     loadComments();
     if (tok()) {
