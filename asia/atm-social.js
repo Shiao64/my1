@@ -120,7 +120,8 @@
     var panel = box.querySelector('.as-panel'), cmb = box.querySelector('.as-cmb'), writeBtn = box.querySelector('.as-write');
     if (panel) panel.hidden = !open;
     if (cmb) cmb.setAttribute('aria-expanded', open ? 'true' : 'false');
-    var real = !!(open && ((writing && session !== 'loading') || (me && mineComment)));
+    var delegate = !me && cardPage && !!document.getElementById('tsub-open');
+    var real = !!(open && !delegate && ((writing && session !== 'loading') || (me && mineComment)));
     if (writeBtn) writeBtn.hidden = !open || real;
     form.hidden = !real;
   }
@@ -131,6 +132,7 @@
   function drawForm() {
     closePop();
     if (session === 'loading' || (!me && !writing)) { if (!me && !writing) form.innerHTML = ''; syncPanel(); return; }
+    if (!me && cardPage && document.getElementById('tsub-open')) { form.innerHTML = ''; syncPanel(); return; }
     if (session === 'error' && !me) { form.innerHTML = '<p class="as-err">' + L.fail + '</p>'; syncPanel(); return; }
     if (me && mineComment) {
       form.innerHTML = '<p class="as-note">' + L.one + '</p><p class="as-meta">' + esc(L.as.replace('{n}', me)) + '<a class="as-out">' + L.out + '</a></p>';
@@ -204,10 +206,18 @@
     try { localStorage.setItem('atm_social_tok', m[1]); } catch (e) {}
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e2) {}
   }
+  function openMapSubscribe() {
+    var t = document.getElementById('tsub-open');
+    if (!t) return false;
+    window.ATM_SUB_RETURN = location.href.split('#')[0];
+    t.click();
+    return true;
+  }
   function wantWrite() {
     writing = true; open = true;
     if (session === 'loading') { writeQueued = true; syncPanel(); return; }
     writeQueued = false;
+    if (!me && cardPage && openMapSubscribe()) { syncPanel(); return; }
     drawForm();
     syncPanel();
     reveal(form);
@@ -216,7 +226,7 @@
     if (d && d.error === 'wx_banned') { banned(); refreshLike(); return; }
     if (!d || d.error === 'auth' || d._s === 401 || !d.name) {
       signOut();
-      if (writing || writeQueued) { writing = true; writeQueued = false; open = true; drawForm(); reveal(form); }
+      if (writing || writeQueued) { writing = true; writeQueued = false; open = true; if (!(cardPage && openMapSubscribe())) { drawForm(); reveal(form); } else syncPanel(); }
       else syncPanel();
       refreshLike();
       return;
