@@ -42,7 +42,7 @@ body.wt-theme .hero-poster{
 body.wt-theme .hero a{color:var(--gold-soft)}
 body.wt-theme .hero a:hover{color:#fff}
 
-/* Cinnabar chop: the 1st edition has concluded. Sits at the top of the hero. */
+/* Cinnabar chop at the top of the hero: 圆满结束 / Concluded. */
 body.wt-theme .wt-stamp{
   display:flex;
   align-items:center;
