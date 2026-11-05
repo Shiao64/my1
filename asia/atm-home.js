@@ -82,7 +82,7 @@
   function n(x) { return zh ? x + ' ' + T.items : String(x); }
   var root = D.createElement('div'); root.id = 'atm-home'; root.className = 'wrap';
   var css = D.createElement('style'); css.id = 'atm-home-css';
-  css.textContent = 'html.atm-h-on #filters,html.atm-h-on .atm-favbar,html.atm-h-on .atm-favgrid,html.atm-h-on .atm-featstrip,html.atm-h-on #china-listings,html.atm-h-on .tw-m-feat-grid,html.atm-h-on .atm-dots,html.atm-h-on .china-results,html.atm-h-on .atm-recent{display:none!important}' +
+  css.textContent = 'html.atm-h-on #filters,html.atm-h-on .atm-favbar,html.atm-h-on .atm-favgrid,html.atm-h-on .atm-featstrip,html.atm-h-on #china-listings,html.atm-h-on .tw-m-feat-grid,html.atm-h-on .atm-dots,html.atm-h-on .china-results,html.atm-h-on .atm-recent,html.atm-h-on .china-global-empty,html.atm-h-on .china-date-empty{display:none!important}' +
     /* v11.8: the legacy cream square (.atm-form) is not in the HTML. #h-search chips live in #atm-home. The entry ad (#atm-pop.on) must stay visible. */
     'html.atm-h-on #atm-pop.on{display:flex!important}' +
     'html.atm-h-on body.china-page #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.atm-1l #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.atm-1l #filters .china-filters-row1.atm-form{display:none!important;visibility:hidden!important;pointer-events:none!important}' +

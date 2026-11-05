@@ -435,7 +435,7 @@
   function applyFilters(){
     updateCityOptions();
     var types = checkedTypes(), evM = types.length === 1 && types[0] === 'event';
-    if (!evM && citySel && citySel.value === '') { document.body.classList.add('china-presearch'); return; } /* v8: 常规 without a city shows nothing (no stale 特色 results) */
+    if (!evM && citySel && citySel.value === '') { document.body.classList.add('china-presearch'); var ge0 = document.querySelector('.china-global-empty'); if (ge0) ge0.hidden = true; return; } /* v8: 常规 without a city shows nothing (no stale 特色 results); keep the global empty line hidden too */
     var city = evM ? 'all' : (citySel ? citySel.value : 'all'), totalVisible = 0; /* v8d: 特色 is always all cities */
     var chrono = city === 'all' && types.length === 1 && types[0] === 'event';
     document.querySelectorAll('.china-city-block').forEach(function(block){
@@ -470,7 +470,7 @@
         var cc = cd.querySelector('.china-count'); if (cc) cc.textContent = '(' + cv + ')';
       } else cd.hidden = true;
     }
-    var ge = document.querySelector('.china-global-empty'); if (ge) ge.hidden = totalVisible > 0;
+    var ge = document.querySelector('.china-global-empty'); if (ge) ge.hidden = document.body.classList.contains('china-presearch') || totalVisible > 0; /* presearch / home landing: listings are suppressed, so a 0-count must not unhide the empty line */
     var fv = fromEl && fromEl.value ? fromEl.value : todayISO(), tv = toEl && toEl.value ? toEl.value : '';
     function addD(iso, k){ var d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + k); return d.getFullYear() + '-' + pad(d.getMonth()+1) + '-' + pad(d.getDate()); }
     var w0 = fv, w1 = tv && tv >= fv ? tv : addD(fv, 6);
