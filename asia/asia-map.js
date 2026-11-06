@@ -82,14 +82,18 @@
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   function occISO(wd){ var t = baseDate(), n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((wd - t.getDay() + 7) % 7)); return n.getFullYear() + '-' + pad(n.getMonth()+1) + '-' + pad(n.getDate()); }
   function normISO(s){ var m = String(s || '').trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); return m ? m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]) : ''; }
-  /* A temp_notices cancelled item covers this occurrence when date, or start–end, includes occISO. */
-  function noticeCovers(o, iso){
-    if (!o || !iso) return false;
-    var date = normISO(o.date), start = normISO(o.start) || date, end = normISO(o.end) || date || start;
-    if (!start) start = end; if (!end) end = start;
-    if (!start || !end) return false;
-    if (end < start) { var t = start; start = end; end = t; }
-    return iso >= start && iso <= end;
+  function shToday(){ try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); } catch (e) { var n = new Date(Date.now() + 8 * 3600000); return n.getUTCFullYear() + '-' + pad(n.getUTCMonth() + 1) + '-' + pad(n.getUTCDate()); } }
+  /* Cancelled day is `date` when set. start/end is the show-until window (date 11/08, start 11/06 does not cancel 11/07).
+     No date: start===iso, or a start–end range that is itself the cancelled dates. Hide once Shanghai today is past end/date. */
+  function noticeHits(o, iso){
+    if (!o || o.status !== 'cancelled' || !iso) return false;
+    var date = normISO(o.date), start = normISO(o.start), end = normISO(o.end), hit = false;
+    if (date) hit = date === iso;
+    else if (start && end && start !== end) { var a = start, b = end; if (b < a) { var t = a; a = b; b = t; } hit = iso >= a && iso <= b; }
+    else hit = (start || end) === iso;
+    if (!hit) return false;
+    var until = end || date || start;
+    return !until || shToday() <= until;
   }
   function nthOk(r){
     if (!r.nth) return true;
@@ -286,7 +290,7 @@
     if (r.status === 'paused') badges += '<span class="china-badge china-badge-paused">' + (UI.paused || 'Paused') + '</span>';
     else if (r.status === 'venue_change') badges += '<span class="china-badge china-badge-venue">' + (UI.venueChange || 'Venue change') + '</span>';
     var cx = r.status === 'cancelled';
-    if (!cx && r.weekday != null) { var iso = occISO(r.weekday); if (r.cancelled_dates && r.cancelled_dates.indexOf(iso) !== -1) cx = true; else if (Array.isArray(r.temp_notices)) { for (var ti = 0; ti < r.temp_notices.length && !cx; ti++) { var tn = r.temp_notices[ti]; if (tn && tn.status === 'cancelled' && noticeCovers(tn, iso)) cx = true; } } }
+    if (!cx && r.weekday != null) { var iso = occISO(r.weekday); if (r.cancelled_dates && r.cancelled_dates.indexOf(iso) !== -1) cx = true; else if (Array.isArray(r.temp_notices)) { for (var ti = 0; ti < r.temp_notices.length && !cx; ti++) { if (noticeHits(r.temp_notices[ti], iso)) cx = true; } } }
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
     return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + ((r.region === 'Taiwan' || r.region === 'Hong Kong' || r.country === 'Taiwan' || r.country === 'Hong Kong') ? ' data-hant="1"' : '') + (r.also_regular ? ' data-also-regular="1"' : '') + (r.regular_oneoff ? ' data-oneoff="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (r.theme_of ? '<div class="atm-theme-bar">' + (isZh ? '每周舞会 · 本周专题' : 'Weekly milonga · This week\'s theme') + '</div>' : '') + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">' + thPicture(pp, 'alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"', wide) + '</a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true">' + thPicture(c[0], 'decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"', wide) + '</a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
@@ -765,7 +769,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china463';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china464';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }

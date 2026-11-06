@@ -80,22 +80,26 @@
     return '/event/' + m[1] + '/' + (zh ? 'zh/' : '') + '?from=' + encodeURIComponent(e.id) + '#' + m[2];
   }
   function normISO(s) { var m = String(s || '').trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); return m ? m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]) : ''; }
-  function noticeCovers(o, iso) {
-    if (!o || !iso) return false;
-    var date = normISO(o.date), start = normISO(o.start) || date, end = normISO(o.end) || date || start;
-    if (!start) start = end; if (!end) end = start;
-    if (!start || !end) return false;
-    if (end < start) { var t = start; start = end; end = t; }
-    return iso >= start && iso <= end;
+  /* Cancelled day is `date` when set. start/end is the show-until window (date 11/08, start 11/06 does not cancel 11/07).
+     No date: start===iso, or a start–end range that is itself the cancelled dates. Hide once Shanghai today is past end/date. */
+  function noticeHits(o, iso) {
+    if (!o || o.status !== 'cancelled' || !iso) return false;
+    var date = normISO(o.date), start = normISO(o.start), end = normISO(o.end), hit = false;
+    if (date) hit = date === iso;
+    else if (start && end && start !== end) { var a = start, b = end; if (b < a) { var t = a; a = b; b = t; } hit = iso >= a && iso <= b; }
+    else hit = (start || end) === iso;
+    if (!hit) return false;
+    var until = end || date || start;
+    return !until || SHT <= until;
   }
-  /* Red list bar: permanent status, cancelled_dates, or a temp_notices cancelled span covering this occurrence. */
+  /* Red list bar: permanent status, cancelled_dates for this occurrence, or a cancelled notice for that same date. */
   function weekCx(e) {
     if (e.status === 'cancelled') return 'perm';
     var iso = e.kind === 'weekly' ? occOf(e) : (e.start || '');
     if (!iso) return '';
     if (e.cancelled_dates && e.cancelled_dates.indexOf(iso) !== -1) return 'week';
     var list = e.temp_notices;
-    if (Array.isArray(list)) for (var i = 0; i < list.length; i++) { var o = list[i]; if (o && o.status === 'cancelled' && noticeCovers(o, iso)) return 'week'; }
+    if (Array.isArray(list)) for (var i = 0; i < list.length; i++) { if (noticeHits(list[i], iso)) return 'week'; }
     return '';
   }
   function cxBar(e) {
@@ -320,7 +324,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china463';
+    var coreUrl = '/asia/events-core.json?v=china464';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {
