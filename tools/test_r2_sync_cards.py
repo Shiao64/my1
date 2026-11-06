@@ -46,8 +46,14 @@ def main():
     en, zh = read('asia/index.html'), read('zh/asia/index.html')
     js, cards, home = read('asia/asia-map.js'), read('asia/cardB.js'), read('asia/atm-home.js')
     data = read('asia/atm-data.js')
-    check('en loads helper', 'atm-data.js?v=r2' in en)
-    check('zh loads helper', 'atm-data.js?v=r2' in zh)
+    check('en loads helper', 'atm-data.js?v=r3' in en)
+    check('zh loads helper', 'atm-data.js?v=r3' in zh)
+    check('json cache', R.cache_control('asia/events-core.json') == 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400')
+    check('json type', R.content_type('asia/events-core.json') == 'application/json; charset=utf-8')
+    check('webp type', R.content_type('images/thumb/a.webp') == 'image/webp')
+    check('jpeg type', R.content_type('images/thumb/a.jpg') == 'image/jpeg')
+    check('png type', R.content_type('images/a.png') == 'image/png')
+    check('image cache', R.cache_control('images/thumb/a.webp') == 'public, max-age=2592000')
     check('map uses loader', 'loadJson(' in js and 'atmPosterUrls' in js)
     check('cards use loader', 'atmDataJson' in cards)
     check('home uses loader', 'atmDataJson' in home)
@@ -63,6 +69,12 @@ w.location = { hostname: 'cursor-wutong-2027.my1-7p3.pages.dev' };
 w.ATM_DATA_BASE = null;
 eval(fs.readFileSync('asia/atm-data.js', 'utf8'));
 if (w.ATM_DATA_BASE !== '') process.exit(8);
+w.ATM_DATA_BASE = '';
+let fetches = 0;
+global.fetch = (url, opts) => { fetches++; if (opts && opts.cache === 'no-cache') process.exit(9); return Promise.resolve({ ok: true, json: async () => [{ id: 'a' }] }); };
+const p1 = w.atmDataJson('/asia/events-core.json?v=china459');
+const p2 = w.atmDataJson('events-core.json?v=china459');
+if (p1 !== p2 || fetches !== 1) process.exit(10);
 w.ATM_DATA_BASE = 'https://data.tangoweekend.org';
 const u = w.atmPosterUrls('/images/asia/posters/E158.jpg?v=20261105', false);
 if (!u.webp.endsWith('.webp?v=20261105')) process.exit(3);

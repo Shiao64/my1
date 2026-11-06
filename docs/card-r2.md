@@ -14,7 +14,7 @@ The program (HTML, `asia-map.js`, `cardB.js`, `atm-home.js`) stays on Pages / th
 | Loader | `asia/atm-data.js` (`window.ATM_DATA_BASE`, default the public base above) |
 | Fallback | The `?v=chinaNNN` / `?v=eNNN` URLs already in the pages, served from the same host as the HTML |
 
-`events-core.json` is first paint (China / Taiwan / Hong Kong regular cards, plus featured). `events-more.json` loads for `?k=Seoul` and for a single card that is not in core. `events.json` is the full file (single-card fallback, home, card design B).
+`events-core.json` is first paint (China / Taiwan / Hong Kong regular cards, plus featured), fetched once per page load. `events-more.json` waits for scroll, search, `?k=Seoul`, or a single card that is not in core. `events.json` is the full file, used only when an id is in neither core nor more.
 
 A `*.pages.dev` preview reads the JSON shipped with that deploy, not the bucket. That is so a branch which changes a card shows the change on its preview. `tangoweekend.org` still tries R2 first and uses the git files only when R2 does not answer.
 
@@ -34,7 +34,7 @@ python3 tools/r2_sync_cards.py
 python3 tools/r2_sync_cards.py --check
 ```
 
-The script creates `atm-events-data` if needed, sets CORS (`tools/r2-cors.json`, GET/HEAD from any origin so `*.my1-7p3.pages.dev` previews work), attaches `data.tangoweekend.org`, and uploads the three JSON files plus every poster those rows reference (original, 480px thumb, 800px thumb).
+The script creates `atm-events-data` if needed, sets CORS (`tools/r2-cors.json`, GET/HEAD from any origin so `*.my1-7p3.pages.dev` previews work), attaches `data.tangoweekend.org`, and uploads the three JSON files plus every poster those rows reference (original, list thumb, 800px thumb). JSON is `Content-Type: application/json; charset=utf-8` with `Cache-Control: public, max-age=60, s-maxage=300, stale-while-revalidate=86400`. Images are `image/webp`, `image/jpeg`, or `image/png` with `Cache-Control: public, max-age=2592000`.
 
 ## 改一张卡
 
@@ -46,7 +46,7 @@ The script creates `atm-events-data` if needed, sets CORS (`tools/r2-cors.json`,
 python3 tools/r2_sync_cards.py --event-id E158
 ```
 
-4. Do not commit, do not push `main`, and do not deploy Pages for this. Reload the map. JSON is uploaded with `Cache-Control: max-age=0, must-revalidate`. A hard refresh should show the new card. Image URLs without a new query can stay cached for about a day.
+4. Do not commit, do not push `main`, and do not deploy Pages for this. Reload the map. JSON is revalidated at the edge within about five minutes (`s-maxage=300`) and in the browser within about a minute (`max-age=60`). Image URLs without a new query can stay cached for about 30 days.
 
 `asia/manifest.json` on the bucket records the UTC rev of the last sync. The page does not read it.
 

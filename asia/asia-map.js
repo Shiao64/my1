@@ -5,16 +5,16 @@
   var ATM_TH = {"/images/asia/posters/E134.jpg":[480,320],"/images/asia/posters/ATer_2026-11-01.jpg":[480,653],"/images/asia/posters/MiTango_2026-10-30.jpg":[480,1039],"/images/asia/posters/E121.jpg":[480,853],"/images/asia/posters/E132.jpg":[480,672],"/images/asia/posters/E131.png":[468,934],"/images/asia/posters/E155.jpg":[480,270],"/images/asia/posters/E153.jpg":[480,679],"/images/asia/posters/E154.jpg":[480,643],"/images/asia/posters/E086.jpg":[480,861],"/images/asia/posters/AymclBjD.jpg":[379,683],"/images/asia/posters/E004.jpg":[480,640],"/images/asia/posters/E005.jpg":[480,720],"/images/asia/posters/E006.jpg":[480,835],"/images/asia/posters/E007.jpg":[480,679],"/images/asia/posters/E012.jpg":[480,716],"/images/asia/posters/E016.jpg":[480,598],"/images/asia/posters/E042.jpg":[472,590],"/images/asia/posters/E093.jpg":[480,640],"/images/asia/posters/R006.jpg":[480,720],"/images/asia/posters/R008.jpg":[480,641],"/images/asia/posters/R009.jpg":[480,640],"/images/asia/posters/R010.jpg":[480,719],"/images/asia/posters/R015.jpg":[480,672],"/images/asia/posters/R017.jpg":[480,854],"/images/asia/posters/R018.jpg":[480,674],"/images/asia/posters/R020.jpg":[480,766],"/images/asia/posters/R021.jpg":[480,480],"/images/asia/posters/R027.jpg":[480,791],"/images/asia/posters/R034.jpg":[480,640],"/images/asia/posters/R036.jpg":[480,854],"/images/asia/posters/R037.jpg":[480,270],"/images/asia/posters/R041.jpg":[480,854],"/images/asia/posters/R044.jpg":[480,854],"/images/asia/posters/R045.jpg":[480,600],"/images/asia/posters/R059.jpg":[480,642],"/images/asia/posters/U06.jpg":[480,640],"/images/asia/posters/U11.jpg":[480,624],"/images/asia/posters/aanirocB.jpg":[480,449],"/images/asia/posters/generated/R007.png":[480,600],"/images/asia/posters/generated/R011.png":[480,600],"/images/asia/posters/generated/R019.png":[480,600],"/images/asia/posters/generated/R022.png":[480,600],"/images/asia/posters/generated/R023.png":[480,600],"/images/asia/posters/generated/R026.png":[480,600],"/images/asia/posters/generated/R029.png":[480,600],"/images/asia/posters/generated/R038.png":[480,600],"/images/asia/posters/generated/R040.png":[480,600],"/images/asia/posters/generated/R042.png":[480,600],"/images/asia/posters/generated/R043.png":[480,600],"/images/asia/posters/generated/R048.png":[480,600],"/images/asia/posters/generated/R051.png":[480,600],"/images/asia/posters/generated/R053.png":[480,600],"/images/asia/posters/generated/R054.png":[480,600],"/images/asia/posters/generated/R061.png":[480,600],"/images/asia/posters/generated/R064.png":[480,600],"/images/asia/posters/jtzZIdAx.jpg":[480,853],"/images/asia/posters/rSFJaHtm.jpg":[480,720],"/images/asia/posters/tbxuzmah.jpg":[480,720],"/images/asia/posters/wSeFVkSa.jpg":[480,891],"/images/korea/ktnow/E047_pista_halloween.jpg":[480,480],"/images/korea/ktnow/abrazos.jpg":[346,342],"/images/korea/ktnow/amigo_milonga.jpeg":[480,398],"/images/korea/ktnow/amigo_practica.png":[320,328],"/images/korea/ktnow/andante.jpeg":[480,480],"/images/korea/ktnow/andante_la_melodia_poster.jpg":[480,311],"/images/korea/ktnow/andante_orange_poster.webp":[480,506],"/images/korea/ktnow/azucar.png":[404,256],"/images/korea/ktnow/bailamos_tango.jpeg":[480,480],"/images/korea/ktnow/bonita.jpg":[400,400],"/images/korea/ktnow/cheongju_tango_urquiza.jpg":[151,151],"/images/korea/ktnow/club_troilo.jpg":[480,480],"/images/korea/ktnow/club_troilo_eg.jpg":[400,99],"/images/korea/ktnow/con_tango.webp":[286,294],"/images/korea/ktnow/daejeon_tango_academy_caminito.jpg":[400,403],"/images/korea/ktnow/daejeon_tango_onada.png":[480,319],"/images/korea/ktnow/detango.png":[332,182],"/images/korea/ktnow/el_tango.jpeg":[400,289],"/images/korea/ktnow/en_paz_studio.png":[480,395],"/images/korea/ktnow/hengyat_hwai_guide_practica.webp":[480,721],"/images/korea/ktnow/ideal_tango_cafe.png":[276,276],"/images/korea/ktnow/jinju_tango_people.jpg":[400,400],"/images/korea/ktnow/la_ventana_sueno_dulce.jpg":[469,469],"/images/korea/ktnow/la_ventana_tango_fire.webp":[480,367],"/images/korea/ktnow/la_vida_studio.jpg":[400,400],"/images/korea/ktnow/laboom.webp":[480,339],"/images/korea/ktnow/laboom_lavista.png":[480,480],"/images/korea/ktnow/luminoso_logo.jpg":[400,396],"/images/korea/ktnow/marine_tango.jpeg":[480,466],"/images/korea/ktnow/mariposa.jpg":[400,400],"/images/korea/ktnow/mi_vida_tango_studio.jpeg":[480,480],"/images/korea/ktnow/ocho_logo.jpeg":[480,469],"/images/korea/ktnow/otra.jpeg":[480,270],"/images/korea/ktnow/park_mi_tango.jpg":[400,404],"/images/korea/ktnow/postango.jpg":[358,364],"/images/korea/ktnow/solo_tango.png":[480,337],"/images/korea/ktnow/studio_242.jpg":[400,267],"/images/korea/ktnow/studio_ocho.jpg":[455,455],"/images/korea/ktnow/studio_ocho_ab_practica.webp":[480,481],"/images/korea/ktnow/studio_ocho_moonlight.webp":[480,480],"/images/korea/ktnow/studioaura.png":[480,480],"/images/korea/ktnow/tango_cafe_dia.jpeg":[400,270],"/images/korea/ktnow/tango_cafe_dia_viento.jpeg":[400,225],"/images/korea/ktnow/tango_club_mi_noche.jpeg":[480,720],"/images/korea/ktnow/tango_mio.jpeg":[400,401],"/images/korea/ktnow/todotango.jpg":[344,298],"/images/korea/ktnow/ulsan_tango_sociedad.jpg":[400,266],"/images/korea/tango_o_nada_20261029.png":[480,411],"/images/tianjin/aocheng_practica_poster.jpg":[400,560],"/images/hangzhou/poster.jpg":[480,679],"/images/chongqing/poster.jpg":[480,1005],"/images/chongqing/poster_en.jpg":[480,1005],"/images/miaoli/poster.jpg":[480,853],"/images/suzhou/poster.jpg":[480,716],"/images/changwon/schedule2027_zh.jpg":[480,340],"/images/changwon/schedule2027_en.jpg":[480,340],"/images/poster4_top.jpg":[480,720],"/images/stw-feat.jpg":[480,300],"/images/asia/posters/E097_gz2027.jpg":[480,270],"/images/asia/posters/manual-cd-ezequiel-2026.jpg":[480,855],"/images/asia/posters/manual-cd-spitel-2027.jpg":[480,720],"/images/asia/posters/E133.jpg":[480,672],"/images/asia/posters/R251.jpg":[480,853],"/images/asia/posters/GqufXmMX.jpg":[466,1014],"/images/asia/posters/E150.jpg":[480,337],"/images/asia/posters/E044.jpg":[480,678],"/images/asia/posters/E123.jpg":[480,270],"/images/asia/posters/E125.jpg":[480,600],"/images/asia/posters/E126.jpg":[480,713],"/images/asia/posters/E127.jpg":[480,600],"/images/asia/posters/E128.jpg":[480,600],"/images/asia/posters/GqufXmMX-no210-20261006.jpg":[480,1040],"/images/asia/posters/GqufXmMX-no211-20261013.jpg":[480,1040],"/images/asia/posters/GqufXmMX-no212-20261020.jpg":[480,1040],"/images/asia/posters/GqufXmMX-no213-20261027.jpg":[480,1033],"/images/asia/posters/JHeguuQb_wutong2026.jpg":[480,853],"/images/asia/posters/R202-no42-20261010.jpg":[480,1040],"/images/asia/posters/R202-no43-20261017.jpg":[480,1040],"/images/asia/posters/R202-no44-20261031.jpg":[480,1040],"/images/asia/posters/RDrwgcit.jpg":[480,673],"/images/asia/posters/WExJslMr.jpg":[480,480],"/images/changwon/poster2027.jpg":[480,360],"/images/asia/posters/rccbKIYP.jpg":[480,791],"/images/asia/posters/R015_993_2026-10-25.png":[480,673],"/images/asia/posters/R015_991_2026-10-18.png":[480,672],"/images/asia/posters/R015_989_2026-10-11.png":[480,673],"/images/asia/posters/generated/eRpBxkDC.png":[480,600],"/images/asia/posters/generated/Q0Dhqqdr.png":[480,600],"/images/asia/posters/generated/ecyMAjFj.png":[480,600],"/images/asia/posters/generated/izAYSxss.png":[480,600],"/images/asia/posters/generated/E043.png":[480,600],"/images/asia/posters/generated/R075.png":[480,600],"/images/asia/posters/generated/R076.png":[480,600],"/images/asia/posters/generated/R077.png":[480,600],"/images/asia/posters/generated/R078.png":[480,600],"/images/asia/posters/generated/R079.png":[480,600],"/images/asia/posters/generated/R080.png":[480,600],"/images/asia/posters/generated/R081.png":[480,600],"/images/asia/posters/generated/R082.png":[480,600],"/images/asia/posters/generated/R083.png":[480,600],"/images/asia/posters/generated/E046.png":[480,600],"/images/asia/posters/generated/R084.png":[480,600],"/images/asia/posters/generated/R085.png":[480,600],"/images/asia/posters/generated/R090.png":[480,600],"/images/asia/posters/generated/R093.png":[480,600],"/images/asia/posters/generated/R097.png":[480,600],"/images/asia/posters/generated/R101.png":[480,600],"/images/asia/posters/generated/R107.png":[480,600],"/images/asia/posters/generated/R111.png":[480,600],"/images/asia/posters/generated/R154.png":[480,600],"/images/asia/posters/generated/R156.png":[480,600],"/images/asia/posters/generated/R157.png":[480,600],"/images/asia/posters/generated/R165.png":[480,600],"/images/asia/posters/generated/R170.png":[480,600],"/images/asia/posters/generated/R174.png":[480,600],"/images/asia/posters/generated/R181.png":[480,600],"/images/asia/posters/generated/R185.png":[480,600],"/images/asia/posters/generated/R187.png":[480,600],"/images/asia/posters/generated/E049.png":[480,600],"/images/asia/posters/generated/E061.png":[480,600],"/images/asia/posters/generated/E062.png":[480,600],"/images/asia/posters/generated/E065.png":[480,600],"/images/asia/posters/generated/E071.png":[480,600],"/images/asia/posters/generated/E072.png":[480,600],"/images/asia/posters/generated/E075.png":[480,600],"/images/asia/posters/generated/E079.png":[480,600],"/images/asia/posters/generated/E080.png":[480,600],"/images/asia/posters/generated/R188.png":[480,600],"/images/asia/posters/generated/R189.png":[480,600],"/images/asia/posters/generated/R190.png":[480,600],"/images/asia/posters/generated/R191.png":[480,600],"/images/asia/posters/generated/R192.png":[480,600],"/images/asia/posters/generated/R193.png":[480,600],"/images/asia/posters/generated/R195.png":[480,600],"/images/asia/posters/generated/R196.png":[480,600],"/images/asia/posters/generated/R197.png":[480,600],"/images/asia/posters/generated/R198.png":[480,600],"/images/asia/posters/generated/R199.png":[480,600],"/images/asia/posters/generated/R200.png":[480,600],"/images/asia/posters/generated/R201.png":[480,600],"/images/asia/posters/generated/R250.png":[480,600],"/images/asia/posters/generated/E090.png":[480,600],"/images/asia/posters/generated/E091.png":[480,600],"/images/asia/posters/generated/E092.png":[480,600],"/images/asia/posters/generated/9oJFdQ64.png":[480,600],"/images/asia/posters/generated/E118.png":[480,600],"/images/asia/posters/generated/E122.png":[480,600],"/images/asia/posters/generated/E129.png":[480,600],"/images/asia/posters/generated/E130.png":[480,600],"/images/asia/posters/generated/R252.png":[480,600],"/images/asia/posters/generated/E151.png":[480,600],"/images/asia/posters/generated/E152.png":[480,600],"/images/asia/posters/ONKkPuWH_main_20261031.jpg":[480,597],"/images/asia/posters/R030.jpg":[480,679],"/images/asia/posters/yhBU2qgt.jpg":[480,463],"/images/asia/posters/E045.jpg":[480,679],"/images/asia/posters/E156.jpg":[480,679],"/images/asia/posters/E157.jpg":[480,750],"/images/asia/posters/R194.jpg":[480,337],"/images/asia/posters/2tbfzeS7.jpg":[480,672],"/images/asia/posters/m0A3Rbyv.jpg":[480,802],"/images/asia/posters/R073.png":[480,719],"/images/asia/posters/E158.jpg":[480,642],"/images/asia/posters/AtrSun01.jpg":[320,292],"/images/asia/posters/generated/YgirJagn.png":[480,600],"/images/asia/posters/XsFs5wm8_wutong2027.jpg":[480,720]};
   function posterUrls(p, wide){
     if (window.atmPosterUrls) return window.atmPosterUrls(p, wide);
-    var q = String(p || '').split('?')[0], base = (wide ? '/images/thumb800' : '/images/thumb') + q.replace(/\.(jpe?g|png|webp)$/i, ''), v = wide ? 't800' : 't480';
+    var q = String(p || '').split('?')[0], base = (wide ? '/images/thumb800' : '/images/thumb') + q.replace(/\.(jpe?g|png|webp)$/i, ''), v = wide ? 't800' : 't360';
     return { webp: base + '.webp?v=' + v, jpg: base + '.jpg?v=' + v, full: q, key: q };
   }
   /* List art is a 480px WebP. Pass wide for the poster inside an opened card (800px). JPG is the fallback.
      When the events JSON came from R2, the same paths are loaded from ATM_DATA_BASE; onerror falls back to the in-repo file. */
   function thPicture(p, extra, wide){ var u = posterUrls(p, wide), t = ATM_TH[u.key || u.full], wh = t ? ' width="' + t[0] + '" height="' + t[1] + '"' : '';
     var local = (window.ATM_DATA_OK && u.localJpg) ? ' data-local="' + esc(u.localJpg) + '"' : '';
-    return '<picture><source type="image/webp" srcset="' + esc(u.webp) + '"><img src="' + esc(u.jpg) + '" data-full="' + esc(u.full) + '"' + local + wh + ' ' + (extra || '') + ' onerror="if(this.dataset.fell!==\'1\'&&this.dataset.full){this.dataset.fell=\'1\';this.src=this.dataset.full;return}if(this.dataset.fell!==\'2\'&&this.dataset.local){this.dataset.fell=\'2\';this.src=this.dataset.local}"></picture>'; }
+    return '<picture><source type="image/webp" data-atm-srcset="' + esc(u.webp) + '"><img data-atm-src="' + esc(u.jpg) + '" data-full="' + esc(u.full) + '"' + local + wh + ' ' + (extra || '') + ' onerror="if(this.dataset.fell)return;this.dataset.fell=\'1\';var s=this.parentNode&&this.parentNode.querySelector(\'source\');if(s)s.removeAttribute(\'srcset\');if(this.dataset.full)this.src=this.dataset.full;else if(this.dataset.local)this.src=this.dataset.local"></picture>'; }
   function thImg(p){ return thPicture(p, ''); }
-  (function(){ var s = document.createElement('style'); s.textContent = '.ev-cover picture,.tw-fc-img picture,#atm-single .atm-nf-mini picture,#atm-pop .ev-cover picture{display:contents}'; document.head.appendChild(s); })();
+  (function(){ var s = document.createElement('style'); s.textContent = '.ev-cover picture,.tw-fc-img picture,#atm-single .atm-nf-mini picture,#atm-pop .ev-cover picture{display:contents}img[data-atm-src]:not([src]){background:#f3e6cc}'; document.head.appendChild(s); })();
   var UI = window.CHINA_UI || {};
   var isZh = UI.lang === 'zh';
   var citySel = document.getElementById('china-city');
@@ -537,7 +537,7 @@
     if (document.readyState === 'complete') setTimeout(go, 50); else addEventListener('load', function(){ setTimeout(go, 50); }); })();
   (function(){ var q = location.search, deep = !!location.hash || /[?&](city|type|id|event|q|from|to|mode)=/.test(q);
     if (!deep) document.body.classList.add('china-presearch'); })();
-  function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '' && !(checkedTypes().length === 1 && checkedTypes()[0] === 'event')) { cityHint(true); try { citySel.focus(); } catch(e){} return; } document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); urlPush(); }
+  function onSearch(){ if (citySel && !citySel.disabled && citySel.value === '' && !(checkedTypes().length === 1 && checkedTypes()[0] === 'event')) { cityHint(true); try { citySel.focus(); } catch(e){} return; } if (window.atmLoadMore) window.atmLoadMore(); document.body.classList.remove('china-presearch'); flashSearch(); if (window._chinaData) render(window._chinaData); applyFilters(); setTimeout(scrollToResults, 120); urlPush(); }
   /* v9.1: URL follows the selection (?mode=regular&city=gz / ?mode=featured); Back/refresh/shared links restore it */
   var _urlMute = false;
   function urlQS(){
@@ -739,7 +739,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china457';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china459';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
@@ -792,12 +792,19 @@
     function keepLang(){ Array.prototype.forEach.call(document.querySelectorAll('a.atm-langbtn,#atm-menu a.atm-mlang'), function(a){ try { var u = new URL(a.getAttribute('href'), location.href); u.search = '?card=' + encodeURIComponent(cid); u.hash = ''; a.setAttribute('href', u.pathname + u.search); } catch(e){} }); }
     var fullUrl = eventsUrl.replace('events-core.json', 'events.json');
     function get(u){ return loadJson(u).catch(function(){ return []; }); }
-    Promise.all([get(eventsUrl), get(moreUrl)]).then(function(a){
-      var core = a[0] || [], more = a[1] || [], all = core.concat(more);
-      var f = function(L){ return (L || []).filter(function(r){ return r.id === cid && !r.hidden; })[0]; };
-      var r = f(core), inMore = false; if (!r) { r = f(more); inMore = !!r; }
-      if (r) return [r, inMore, all];
-      return get(fullUrl).then(function(F){ return [f(F), false, all]; }); /* fallback: full file still holds rows dropped from core/more */
+    function findCard(L){ return (L || []).filter(function(r){ return r.id === cid && !r.hidden; })[0]; }
+    /* Core first. events-more only when this id is not in core. events.json only if it is in neither. */
+    get(eventsUrl).then(function(core){
+      core = core || [];
+      var hit = findCard(core);
+      if (hit) return [hit, false, core];
+      return get(moreUrl).then(function(more){
+        more = more || [];
+        window._atmMore = more;
+        hit = findCard(more);
+        if (hit) return [hit, true, core.concat(more)];
+        return get(fullUrl).then(function(F){ return [findCard(F), false, core.concat(more)]; });
+      });
     }).then(function(res){
       var r = res[0], more = res[1], all = res[2], T = todayISO();
       function ended(x){ return !!(x.start && (x.kind === 'event' || x.regular_oneoff) && (x.end || x.start) < T) || x.status === 'ended'; }
@@ -844,9 +851,32 @@
       keepLang(); setTimeout(keepLang, 1500);
     });
   })();
-  /* china332: first-paint loads events-core (~CN/TW/HK regular + all featured); ?k=Seoul also loads events-more (KR/JP/… regular). Full asia/events.json kept for detail pages/tools. */
-  (unlockKr ? Promise.all([loadJson(eventsUrl), loadJson(moreUrl).catch(function(){ return []; })]).then(function(a){ return a[0].concat(a[1] || []); })
-            : loadJson(eventsUrl))
+  /* First paint: events-core only. events-more waits for scroll, search, expand, ?k=Seoul, or a card that is not in core. */
+  var moreP = null;
+  function loadMore(){
+    if (moreP) return moreP;
+    moreP = loadJson(moreUrl).then(function(rows){
+      window._atmMore = rows || [];
+      try { document.dispatchEvent(new Event('atm-more')); } catch (e) {}
+      return window._atmMore;
+    }).catch(function(){ window._atmMore = []; return []; });
+    return moreP;
+  }
+  window.atmLoadMore = loadMore;
+  if (unlockKr || /[?&]search=1/.test(location.search) || location.hash === '#h-search') loadMore();
+  else {
+    var moreArmed = false;
+    function armMore(){ if (moreArmed) return; moreArmed = true; loadMore(); }
+    window.addEventListener('scroll', function(){ if ((window.scrollY || 0) > 48) armMore(); }, { passive: true });
+    window.addEventListener('wheel', function(){ armMore(); }, { passive: true });
+    window.addEventListener('touchmove', function(){ armMore(); }, { passive: true });
+    document.addEventListener('click', function(e){
+      var t = e.target && e.target.closest && e.target.closest('#china-search, details.b-more > summary, .atm-more, .p10-more, .b-less');
+      if (t) armMore();
+    }, true);
+    window.addEventListener('hashchange', function(){ if (location.hash === '#h-search') armMore(); });
+  }
+  loadJson(eventsUrl)
     .then(function(data){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
       if (up) { var p = up.split('-'), lbl = p[0] + '/' + p[1] + '/' + p[2];

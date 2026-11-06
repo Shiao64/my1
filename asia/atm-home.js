@@ -59,9 +59,9 @@
     if (e.kind === 'weekly') return T.every + (e.weekdays || [e.weekday]).map(function (i) { return T.WD[i % 7]; }).join('/') + (e.time ? ' ' + e.time : '');
     var s = fd(e.start) + (e.end && e.end !== e.start ? '–' + fd(e.end) : ''); if (e.start && e.start.slice(0, 4) !== TODAY.slice(0, 4)) s = e.start.slice(0, 4) + '/' + s; if (e.theme_of) s += ' ' + T.WD[new Date(e.start + 'T12:00:00').getDay()] + (e.time ? ' ' + e.time : ''); return s;
   }
-  function posterUrls(p) { var q = String(p || '').split('?')[0], base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, ''); return { webp: base + '.webp?v=t480', jpg: base + '.jpg?v=t480', full: q }; }
+  function posterUrls(p) { if (window.atmPosterUrls) return window.atmPosterUrls(p, false); var q = String(p || '').split('?')[0], base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, ''); return { webp: base + '.webp?v=t360', jpg: base + '.jpg?v=t360', full: q }; }
   var SHT = (function () { try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); } catch (x) { return TODAY; } })();
-  function img(e, cls, eager) { if (!e.poster) return '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>'; var u = posterUrls(e.poster), pv = e.kind === 'weekly' && e.poster_date && e.poster_date < SHT; return (pv ? '<span class="ah-pw">' : '') + '<picture><source type="image/webp" srcset="' + esc(u.webp) + '"><img class="' + cls + '" src="' + esc(u.jpg) + '" data-full="' + esc(u.full) + '" onerror="if(this.dataset.full&&this.dataset.fell!==\'1\'){this.dataset.fell=\'1\';this.src=this.dataset.full}" alt="" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async"></picture>' + (pv ? '<i class="ah-prev">' + (zh ? '上期海报' : 'Previous poster') + '</i></span>' : ''); }
+  function img(e, cls, eager) { void eager; if (!e.poster) return '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>'; var u = posterUrls(e.poster), pv = e.kind === 'weekly' && e.poster_date && e.poster_date < SHT; return (pv ? '<span class="ah-pw">' : '') + '<picture><source type="image/webp" data-atm-srcset="' + esc(u.webp) + '"><img class="' + cls + '" data-atm-src="' + esc(u.jpg) + '" data-full="' + esc(u.full) + '" onerror="if(this.dataset.fell)return;this.dataset.fell=\'1\';var s=this.parentNode&&this.parentNode.querySelector(\'source\');if(s)s.removeAttribute(\'srcset\');if(this.dataset.full)this.src=this.dataset.full" alt="" decoding="async"></picture>' + (pv ? '<i class="ah-prev">' + (zh ? '上期海报' : 'Previous poster') + '</i></span>' : ''); }
   /* v11.9: DJ line under time, above venue (events.dj, else poster_djs for the current poster) */
   function djOf(e) { var d = (!zh && e.dj_en) ? e.dj_en : e.dj; if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || pd >= TODAY) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
   /* A detail URL with a hash (edition landing) opens that anchor. Other cards stay on ?card=. */
@@ -86,7 +86,7 @@
     /* v11.8: the legacy cream square (.atm-form) is not in the HTML. #h-search chips live in #atm-home. The entry ad (#atm-pop.on) must stay visible. */
     'html.atm-h-on #atm-pop.on{display:flex!important}' +
     'html.atm-h-on body.china-page #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.china-presearch #filters .china-filters-row1.atm-form,html.atm-h-on body.china-page.atm-1l #filters .china-filters-row1.atm-form,html.atm-h-search body.china-page.atm-1l #filters .china-filters-row1.atm-form{display:none!important;visibility:hidden!important;pointer-events:none!important}' +
-    '#atm-home{display:none;box-sizing:border-box;padding:4px 12px 40px;max-width:952px;margin:0 auto;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}html.atm-h-on #atm-home{display:block}#atm-home picture{display:contents}' +
+    '#atm-home{display:none;box-sizing:border-box;padding:4px 12px 40px;max-width:952px;margin:0 auto;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}html.atm-h-on #atm-home{display:block}#atm-home picture{display:contents}img[data-atm-src]:not([src]){background:#f3e6cc}' +
     '.ah-ban{display:block;width:100%;text-align:left;margin:8px 0;padding:14px;border:0;border-radius:16px;background:linear-gradient(160deg,#0E6E78,#06333A);box-shadow:0 4px 14px rgba(6,51,58,.25);cursor:pointer;color:#F6D58E}' +
     '.ah-ban-h{display:flex;justify-content:space-between;align-items:center}.ah-ban-t{font:700 19px "Noto Serif SC",serif}.ah-ban-t i{font-style:normal;color:#fff}.ah-ban-s{font:600 13px system-ui;color:#cfe3e3;margin-top:2px}.ah-ban-a{font:700 30px system-ui}' +
     '.ah-strip{display:flex;gap:8px;margin-top:12px;overflow:hidden}.ah-strip img,.ah-strip .ah-noimg{width:64px;height:86px;object-fit:cover;border-radius:8px;flex:0 0 auto;border:2px solid rgba(246,213,142,.6)}@media(min-width:700px){.ah-strip img,.ah-strip .ah-noimg{width:90px;height:120px}.ah-ban-t{font-size:22px}}' +
@@ -144,7 +144,7 @@
   function ordered(list) { var m = mru(); return list.filter(function (c) { return m.indexOf(c) >= 0; }).sort(function (a, b) { return m.indexOf(a) - m.indexOf(b); }).concat(list.filter(function (c) { return m.indexOf(c) < 0; })); }
   /* v11.7 city thumbs: small pre-resized webp (180px, q70) made from an existing poster of one of the city's weekly events; no poster -> teal tile */
   var CTH = { Shanghai: 'shanghai', Beijing: 'beijing', Guangzhou: 'guangzhou', Tianjin: 'tianjin', Qingdao: 'qingdao', Shenzhen: 'shenzhen', Haikou: 'haikou', 'Hong Kong': 'hongkong' };
-  function cthumb(c, eager) { var lab = esc(fl(c)) + ' ' + REG[c].length; return '<button type="button" class="ah-ct" data-city="' + esc(c) + '" data-pick="1" aria-label="' + esc(fl(c)) + (zh ? '（' + REG[c].length + '）' : ' (' + REG[c].length + ')') + '">' + (CTH[c] ? '<img src="/images/citythumb/' + CTH[c] + '.webp" alt="" loading="' + (eager ? 'eager' : 'lazy') + '" decoding="async" width="90" height="120">' : '<span class="ah-ct-n"></span>') + '<b>' + lab + '</b></button>'; }
+  function cthumb(c, eager) { void eager; var lab = esc(fl(c)) + ' ' + REG[c].length; return '<button type="button" class="ah-ct" data-city="' + esc(c) + '" data-pick="1" aria-label="' + esc(fl(c)) + (zh ? '（' + REG[c].length + '）' : ' (' + REG[c].length + ')') + '">' + (CTH[c] ? '<img data-atm-src="/images/citythumb/' + CTH[c] + '.webp" alt="" decoding="async" width="90" height="120">' : '<span class="ah-ct-n"></span>') + '<b>' + lab + '</b></button>'; }
   function opt(c) { return '<button type="button" class="ah-dd-o" role="option" data-city="' + esc(c) + '" data-pick="1">' + esc(fl(c)) + (zh ? '（' + REG[c].length + '）' : ' (' + REG[c].length + ')') + '</button>'; }
   function ddHtml() {
     var o = S.dd ? '<div class="ah-dd-l" role="listbox">' + ordered(CITIES).map(opt).join('') + (TAILS.length ? '<hr class="ah-dd-hr">' : '') + TAILS.map(function (t) { return opt(t.k); }).join('') + '</div>' : '';
@@ -190,6 +190,7 @@
     if (r !== lastR) S.open = false;
     var c = r === 'city' ? decodeURIComponent(location.hash.slice(8)) : '';
     root.innerHTML = r === 'home' ? home() : r === 'feat' ? feat() : r === 'search' ? search() : r === 'reg' ? regView() : cityView(c);
+    if (window.atmArmImages) window.atmArmImages(root);
     root.setAttribute('data-view', r);
     if (r === 'city' && (r !== lastR || c !== lastC)) visit(c); lastC = c;
     if (r !== lastR) window.scrollTo(0, 0);
@@ -239,11 +240,46 @@
     var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { /* v11.7 H3: header 🔍 removed (route #h-search kept) */ void bS; /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
+  var FULL = '/asia/events.json?v=e215'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
+  function asList(d) { return Array.isArray(d) ? d : (d && d.events) || []; }
+  function favMissing(list) {
+    var m = {}, ids = [];
+    list.forEach(function (e) { if (e && e.id) m[e.id] = 1; });
+    try { ids = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); } catch (e) { ids = []; }
+    return ids.filter(function (id) { return id && !m[id]; });
+  }
   function start() {
     mount();
-    var sp = fetch('/data/suggested_favs.json?v=s3', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) { SUG = j.ids || []; }).catch(function () {});
-    var loadEv = window.atmDataJson || function (u) { return fetch(u, { cache: 'no-cache' }).then(function (r) { return r.json(); }); };
-    loadEv('/asia/events.json?v=e215').then(function (d) { return sp.then(function () { return d; }); }).then(function (d) { prep(Array.isArray(d) ? d : d.events || []); badge(); render(); }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
+    /* Hide the legacy list and its posters before events-core arrives, so that
+       grid is not on screen long enough to download every featured thumb. */
+    var early = route();
+    if (early) {
+      R.classList.add('atm-h-on');
+      if (early !== 'search') R.classList.add('atm-h-home');
+    }
+    var coreUrl = '/asia/events-core.json?v=china459';
+    var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
+    var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
+      var n = 0, t = setInterval(function () {
+        if (window._chinaData) { clearInterval(t); resolve(window._chinaData); }
+        else if (++n > 40) { clearInterval(t); resolve(null); }
+      }, 50);
+    });
+    coreWait.then(function (ready) {
+      if (ready) return ready;
+      return loadEv(coreUrl).then(asList);
+    }).then(function (list) {
+      list = asList(list);
+      prep(list); badge(); render();
+      var miss = favMissing(list);
+      if (!miss.length) return;
+      var more = window.atmLoadMore ? window.atmLoadMore() : loadEv(coreUrl.replace('events-core.json', 'events-more.json')).then(asList);
+      return Promise.resolve(more).then(function (extra) {
+        var merged = list.concat(extra || []);
+        if (!favMissing(merged).length) { prep(merged); badge(); render(); return; }
+        return loadEv(FULL).then(function (d) { prep(asList(d)); badge(); render(); });
+      });
+    }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
   if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start); else start();
   window.ATM_HOME = { feat: function () { return FEAT; }, cities: function () { return CITIES.map(function (c) { return [c, REG[c].length]; }); }, render: render, openFav: openFav };

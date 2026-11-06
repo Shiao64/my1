@@ -2,11 +2,29 @@
 (function(){
 var zh=location.pathname.indexOf('/zh/')===0; /* page language = path only */
 var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
+/* First view reads events-core (window._chinaData). events-more / events.json and the DJ/organizer profiles wait until scroll, search, expand, or a card that is not in core. */
+var EV=null, REG=zh?{}:null, DJPROF=[], ORGPROF=[], profP=null, fullP=null;
+var tradHold=zh&&!/[?&](card|mode|city|k)=/.test(location.search);
+var FULL='/asia/events.json?v=e215';
 function loadEv(u){ return (window.atmDataJson ? window.atmDataJson(u) : fetch(u).then(function(r){ return r.json(); })); }
-var evP = loadEv('/asia/events.json?v=e215');
-var EV=null; evP.then(function(d){d=Array.isArray(d)?d:(d.events||d);EV={};d.forEach(function(e){EV[e.id]=e});document.querySelectorAll('.ev-card.b-card').forEach(dj);p10mount()}).catch(function(){});
-var DJPROF=[]; fetch('/asia/djs.json?v=d1').then(function(r){return r.json()}).then(function(d){ DJPROF=Array.isArray(d)?d:[]; document.querySelectorAll('.p10-dj[data-name]').forEach(function(el){ paintDj(el, el.dataset.name); }); }).catch(function(){});
-var ORGPROF=[]; fetch('/asia/organizers.json?v=o1').then(function(r){return r.json()}).then(function(d){ ORGPROF=Array.isArray(d)?d:[]; document.querySelectorAll('.p10-orgs').forEach(function(el){ el.innerHTML=orgNamesHtml((el.dataset.orgs||'').split('||'), el.dataset.card||''); }); }).catch(function(){});
+function indexList(list){ if(!list) return; if(!EV) EV={}; list.forEach(function(e){ if(!e||!e.id) return; EV[e.id]=e; if(REG) REG[e.id]=e.region; }); }
+function indexNow(){ indexList(window._chinaData); indexList(window._atmMore); if(!EV) return; document.querySelectorAll('.ev-card.b-card').forEach(dj); p10mount(); if(zh) trad(); }
+function loadProfiles(){ if(profP) return profP; profP=Promise.all([
+  fetch('/asia/djs.json?v=d1').then(function(r){return r.json()}).then(function(d){ DJPROF=Array.isArray(d)?d:[]; document.querySelectorAll('.p10-dj[data-name]').forEach(function(el){ paintDj(el, el.dataset.name); }); }).catch(function(){}),
+  fetch('/asia/organizers.json?v=o1').then(function(r){return r.json()}).then(function(d){ ORGPROF=Array.isArray(d)?d:[]; document.querySelectorAll('.p10-orgs').forEach(function(el){ el.innerHTML=orgNamesHtml((el.dataset.orgs||'').split('||'), el.dataset.card||''); }); }).catch(function(){})
+]); return profP; }
+function ensureFull(){ if(fullP) return fullP; fullP=loadEv(FULL).then(function(d){ d=Array.isArray(d)?d:(d.events||[]); window._atmFull=d; indexList(d); indexNow(); return d; }).catch(function(){ return []; }); return fullP; }
+function ensureEvent(id){ loadProfiles(); releaseTrad(); indexNow(); if(EV&&EV[id]) return Promise.resolve(EV[id]); var more=window.atmLoadMore?window.atmLoadMore():Promise.resolve([]); return Promise.resolve(more).then(function(){ indexNow(); if(EV&&EV[id]) return EV[id]; return ensureFull().then(function(){ return EV&&EV[id]; }); }); }
+function armProfiles(){ loadProfiles(); if(window.atmLoadMore) window.atmLoadMore(); }
+if(/[?&]card=/.test(location.search)) loadProfiles();
+window.addEventListener('scroll', function atmProfScroll(){ if((window.scrollY||0)>48){ window.removeEventListener('scroll', atmProfScroll); armProfiles(); } }, {passive:true});
+window.addEventListener('wheel', function atmProfWheel(){ window.removeEventListener('wheel', atmProfWheel); armProfiles(); }, {passive:true});
+window.addEventListener('touchmove', function atmProfTouch(){ window.removeEventListener('touchmove', atmProfTouch); armProfiles(); }, {passive:true});
+document.addEventListener('click', function(e){ var t=e.target&&e.target.closest&&e.target.closest('details.b-more > summary, .atm-more, .p10-more, #china-search'); if(!t) return; armProfiles(); releaseTrad(); }, true);
+window.addEventListener('hashchange', function(){ if(location.hash==='#h-search') armProfiles(); });
+document.addEventListener('atm-more', indexNow);
+var coreWait=setInterval(function(){ if(window._chinaData){ clearInterval(coreWait); indexNow(); } }, 40);
+indexNow();
 /* DJ line: events.dj wins. Else names from the note (DJ or 乐师). Several people are joined. A name that is a case/space-insensitive substring of another is dropped. The face label stays "DJ:". */
 function djTrim(n){ n=String(n||'').replace(/\s*\(host[^)]*\)/i,'').replace(/\s*（主持[^）]*）/,'').replace(/\s+(who|which)\b[\s\S]*$/i,'').trim(); var lat=n.match(/^([A-Za-z][A-Za-z .'\-·]*[A-Za-z])/); if(lat&&/[\u4e00-\u9fff]/.test(n)) n=lat[1]; n=n.replace(/\s+[a-z][\s\S]*$/,'').trim(); return n.replace(/\s+/g,' ').trim(); }
 function djPieces(n){ return String(n||'').split(/\s*(?:、|\+|＆|&|\/|\band\b|与|與)\s*/i).map(djTrim).filter(Boolean); }
@@ -29,7 +47,7 @@ function dj(li){ if(!EV||li.dataset.dj) return; var e=EV[li.dataset.id]; if(!e) 
 /* draft 2026-10-31: one-step 更多/More — opening expands everything (notes unclamped, no second 展开全文 level); open state shows a single 收起/Less at the bottom */
 function H(x){return String(x==null?'':x).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
 function bad(x){return !x||/not found|没找到|未找到|unknown|未知|^tba$|待定/i.test(String(x))}
-function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in'); if(!inn||!EV||!li||inn.dataset.r) return; var e=EV[li.dataset.id]; if(!e) return; inn.dataset.r='1';
+function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in'); if(!inn||!li||inn.dataset.r) return; var e=EV&&EV[li.dataset.id]; if(!e){ if(!dt._atmWait){ dt._atmWait=1; ensureEvent(li.dataset.id).then(function(){ dt._atmWait=0; rebuild(dt); }); } return; } inn.dataset.r='1';
  var R=[], row=function(l,v,c){ if(v) R.push('<div class="b-row'+(c?' '+c:'')+'"><b>'+l+'</b><span>'+v+'</span></div>'); };
  var cn=e.country==='China', a1=bad(e.venue_address)?'':e.venue_address, a2=bad(e.venue_address_en)?'':e.venue_address_en, ad=[];
  if(zh){ if(a1) ad.push(a1); if(a2&&(!cn||!a1||e.addr_en_zh)&&a2!==a1) ad.push(a2); } else { if(a2||a1) ad.push(a2||a1); }
@@ -94,10 +112,10 @@ function fix(li){ if(li.dataset.b)return; li.dataset.b='1'; li.classList.add('b-
   ((rest.length||links)?'<details class="b-more"><summary>'+(zh?'更多':'More')+'</summary><div class="b-in">'+rest.filter(function(x){return !NOTE.test(x)}).join('')+(links?links.outerHTML:'')+rest.filter(function(x){return NOTE.test(x)}).map(function(x){return x.replace('<div class="b-row">','<div class="b-row b-note">')}).join('')+'</div></details>':'');
  html=html.replace(/\s*[（(]\s*[）)]/g,''); /* v11.1: drop empty （ ） anywhere on the card */ li.innerHTML=html; dj(li); if(cover){cover.removeAttribute('aria-hidden');cover.removeAttribute('tabindex');li.querySelector('.b-poster').appendChild(cover);}
 }
-var REG=null,CV={};
-if(zh){evP.then(function(d){d=Array.isArray(d)?d:(d.events||d);REG={};d.forEach(function(e){REG[e.id]=e.region});trad()}).catch(function(){});}
+var CV={};
+function releaseTrad(){ if(!tradHold) return; tradHold=false; trad(); }
 var occL=0; function conv(k){ if(!window.OpenCC){ if(!occL){occL=1;var sc=document.createElement('script');sc.src='/asia/opencc-cn2t.js';sc.onload=function(){document.querySelectorAll('.ev-card.b-card[data-t]').forEach(function(x){if(!x.lang)x.removeAttribute('data-t')});trad()};document.head.appendChild(sc);} return null; } return CV[k]||(CV[k]=OpenCC.Converter({from:'cn',to:k==='hk'?'hk':'twp'})); }
-function trad(){ if(!REG) return; document.querySelectorAll('.ev-card.b-card[data-b]:not([data-t]), .ev-card.b-card[lang]').forEach(function(li){ var r=REG[li.dataset.id]; li.dataset.t='1'; var k=r==='Taiwan'?'tw':r==='Hong Kong'?'hk':null; if(!k) return; var c=conv(k); if(!c){li.removeAttribute('data-t');return;} li.lang=k==='hk'?'zh-HK':'zh-TW';
+function trad(){ if(tradHold||!REG) return; var root=document.getElementById('atm-single')||document; root.querySelectorAll('.ev-card.b-card[data-b]:not([data-t]), .ev-card.b-card[lang]').forEach(function(li){ var ev=EV&&EV[li.dataset.id]; if(!ev) return; var r=ev.region||REG[li.dataset.id]; li.dataset.t='1'; var k=r==='Taiwan'?'tw':r==='Hong Kong'?'hk':null; if(!k) return; var c=conv(k); if(!c){li.removeAttribute('data-t');return;} li.lang=k==='hk'?'zh-HK':'zh-TW';
   var w=document.createTreeWalker(li,NodeFilter.SHOW_TEXT),n; while(n=w.nextNode()){ if(!/[\u4e00-\u9fff]/.test(n.nodeValue)) continue; if(n.parentElement&&n.parentElement.closest('.b-row')&&/^(城市|国家)$/.test((n.parentElement.closest('.b-row').querySelector('b')||{}).textContent||'')) continue; if(n.parentElement&&n.parentElement.closest('.atm-pt,.b-l,.b-label,.atm-mk,.china-badge,.atm-more,.ev-type,summary,.b-row>b,.china-links,.b-note-tg,.atm-heart,.p10-more,.p10-less,.p10-k,.p10-npill,.p10-ncollapse,.atm-chg')) continue; /* quickfix: fixed UI labels stay Simplified */ var nv=n.nodeValue.split(/([台里])/).map(function(p){return /^[台里]$/.test(p)?p:c(p)}).join(''); if(nv!==n.nodeValue) n.nodeValue=nv; } }); }
 /* v11.8 P10: weekly / regular single card (?card=). Featured event cards stay on the existing shell. */
 var P10TN=zh?{milonga:'舞会',practica:'练习场',festival:'探戈节',marathon:'马拉松',event:'活动',weekend:'周末',encuentro:'聚会',championship:'锦标赛',class:'课程'}:{milonga:'Milonga',practica:'Práctica',festival:'Festival',marathon:'Marathon',event:'Event',weekend:'Weekend',encuentro:'Encuentro',championship:'Championship',class:'Class'};
@@ -222,7 +240,7 @@ function p10(li, sg, e){ li.dataset.atm='1'; var CHG=p10change(e); if(CHG) e=p10
     var drag=null; stage.querySelector('.p10-frame').addEventListener('pointerdown', function(ev){ if(ev.target.closest&&ev.target.closest('button')) return; drag={x:ev.clientX,y:ev.clientY}; });
     stage.querySelector('.p10-frame').addEventListener('pointerup', function(ev){ if(!drag) return; var dx=ev.clientX-drag.x, dy=ev.clientY-drag.y; drag=null; if(!one&&Math.abs(dx)>36&&Math.abs(dx)>Math.abs(dy)){ if(dx<0&&i<slides.length-1) show(i+1); else if(dx>0&&i>0) show(i-1); } else if(Math.abs(dx)<12&&Math.abs(dy)<12){ var pv=document.getElementById('p10-pv'); if(!pv){ pv=document.createElement('div'); pv.id='p10-pv'; pv.className='p10-pv'; pv.hidden=true; pv.innerHTML='<img alt=""><button type="button" class="p10-pv-x" aria-label="'+(zh?'关闭':'Close')+'">✕</button>'; document.body.appendChild(pv); pv.querySelector('button').addEventListener('click', function(){ pv.hidden=true; }); } var full=img.getAttribute('data-full')||img.currentSrc||img.src; pv.querySelector('img').src=full; pv.querySelector('img').alt=img.alt; pv.hidden=false; } });
     stage.addEventListener('click', function(ev){ ev.stopPropagation(); }); }
-  li.dataset.p10='1'; li.classList.add('b-reg'); li.innerHTML=keep+'<h3 class="ev-name b-name p10-sr"></h3>'; li.querySelector('.ev-name').textContent=name; li.appendChild(info); if(stage) li.appendChild(stage); p10bar(name, li.dataset.id); try{ trad(); }catch(err){} }
+  li.dataset.p10='1'; li.classList.add('b-reg'); li.innerHTML=keep+'<h3 class="ev-name b-name p10-sr"></h3>'; li.querySelector('.ev-name').textContent=name; li.appendChild(info); if(stage) li.appendChild(stage); p10bar(name, li.dataset.id); li.removeAttribute('data-t'); try{ trad(); }catch(err){} }
 function p10mount(){ var sg=document.getElementById('atm-single'); if(!sg) return false; var li=sg.querySelector('.ev-card.b-card'); if(!li) return false; if(li.dataset.kind==='event'&&li.dataset.oneoff!=='1') return false; if(li.dataset.p10) return true; if(!EV||!EV[li.dataset.id]) return false; p10(li, sg, EV[li.dataset.id]); return true; }
 function single(){ var sg=document.getElementById('atm-single'); if(!sg) return; var li=sg.querySelector('.ev-card.b-card'); if(!li) return;
  var feat=li.dataset.kind==='event'&&li.dataset.oneoff!=='1'; li.classList.add(feat?'b-feat':'b-reg'); if(feat) return; p10mount(); }

@@ -143,7 +143,7 @@ def main():
         cj = Image.open(os.path.join(tmp, 'images/thumb800/images/asia/posters/R030.jpg'))
         check('card thumb not upscaled', cw.size == (100, 180) and cj.size == (100, 180) and res['replaced'][0]['card_px'] == [100, 180])
         parts = P.thumb_image(Image.new('RGB', (1600, 900), (1, 2, 3)))
-        check('list cap 480', parts[2] == (480, 270))
+        check('list cap 360', parts[2] == (360, 203))
         check('card cap 800', parts[5] == (800, 450))
         js = open(os.path.join(tmp, 'asia/asia-map.js'), encoding='utf-8').read()
         check('atm_th', '"/images/asia/posters/R030.jpg":' in js)

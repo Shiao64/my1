@@ -7,10 +7,21 @@
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
 <link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
-<link rel="stylesheet" href="../css/atm-map-page.css?v=m1">
-<link rel="stylesheet" href="../css/style.css?v=china335">
-<script src="lang-pref.js?v=china142"></script>
-<link rel="preload" href="events-core.json?v=china457" as="fetch" crossorigin>
+<link rel="stylesheet" href="atm-critical.css?v=ac2">
+<link rel="preconnect" href="https://data.tangoweekend.org" crossorigin>
+<script>
+/* Preload the events-core URL this host will actually fetch. Pages previews
+   stay on the git file. Production uses R2, without cache:'no-cache'. */
+(function(){
+  var host=''; try{host=location.hostname||'';}catch(e){}
+  var pages=/\.pages\.dev$/i.test(host);
+  var link=document.createElement('link');
+  link.rel='preload'; link.as='fetch';
+  if(pages){ link.href='/asia/events-core.json?v=china459'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json'; link.crossOrigin='anonymous'; }
+  document.head.appendChild(link);
+})();
+</script>
 
 
 <style>
@@ -132,11 +143,11 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
     <p class="note" id="china-date-hint" aria-live="polite"></p>
   </div>
 </section>
-<section class="tw-m-feat" aria-label="Favorites"><div class="wrap"><a class="tw-m-feat-card tw-feat-photo" href="../event/beijing-2027-tango-weekend/"><img class="tw-m-feat-img" src="../images/thumb/images/stw-feat.webp?v=t480" alt="" width="480" height="300" loading="eager" decoding="async"><span class="tw-m-feat-body"><span class="tw-m-feat-k">FAVORITES</span><strong style="color:#F6D58E!important;text-shadow:0 2px 6px rgba(0,0,0,.55)">4th Beijing Select Tango Weekend</strong><span class="tw-m-feat-meta" style="color:#F3E6CC!important">June 18–22, 2027 · AC Embassy Hotel</span></span></a></div></section>
+<section class="tw-m-feat" aria-label="Favorites"><div class="wrap"><a class="tw-m-feat-card tw-feat-photo" href="../event/beijing-2027-tango-weekend/"><img class="tw-m-feat-img" data-atm-src="../images/thumb/images/stw-feat.webp?v=t360" alt="" width="480" height="300" decoding="async"><span class="tw-m-feat-body"><span class="tw-m-feat-k">FAVORITES</span><strong style="color:#F6D58E!important;text-shadow:0 2px 6px rgba(0,0,0,.55)">4th Beijing Select Tango Weekend</strong><span class="tw-m-feat-meta" style="color:#F3E6CC!important">June 18–22, 2027 · AC Embassy Hotel</span></span></a></div></section>
 <section id="events" class="alt">
   <div class="wrap m-events-wrap">
 <div id="china-listings" aria-live="polite"><p class="note">Loading listings…</p></div>
-<script src="atm-nav.js?v=n7"></script><!-- first-load: early skeleton before asia-map -->
+<script src="atm-early.js?v=ea2"></script><!-- first-load: lang pref + skeleton, one file -->
 <noscript><p class="note">Listings need JavaScript. Raw data: <a href="events.json">events.json</a></p></noscript>
 <p class="china-empty note china-global-empty" hidden>No listings match these filters.</p>
 <p class="note china-disclaimer">All activity info reposted from WeChat and Facebook, with reference to the websites hongkongtango.com, milonga.tw, tangophilippines.com and tangomalaysia.wordpress.com. Event times are subject to the organizer's latest notice.</p>
@@ -226,7 +237,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <script>
 window.CHINA_UI = {
   lang: 'en',
-  eventsUrl: 'events-core.json?v=china457',
+  eventsUrl: 'events-core.json?v=china459',
   hideAddrEn: false,
   keepOrganizerZh: false,
   daysShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
@@ -278,16 +289,12 @@ window.CHINA_UI = {
   fsEmail: 'Your email', fsWechat: 'Your WeChat ID', fsUrl: 'Event website'
 };
 </script>
-<script src="atm-data.js?v=r2"></script>
-<script src="asia-map.js?v=china458"></script>
-<script defer src="asia-reglist.js?v=china278"></script>
-<script defer src="asia-fav.js?v=fav12"></script>
-<script defer src="/asia/atm-home.js?v=h126"></script>
-<script defer src="atm-menu.js?v=m10"></script>
+<script src="atm-data.js?v=r3"></script>
+<script src="asia-map.js?v=china459"></script>
+<script defer src="atm-later.js?v=lt2"></script>
+<script defer src="/asia/atm-home.js?v=h127"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script src="asia-howto.js?v=china278"></script> -->
-<script defer src="lang-keep.js?v=china242"></script>
 <script defer src="asia-subscribe.js?v=sub57"></script>
-<script defer src="/asia/atm-push.js?v=p2"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏|FAVORITES/i.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'Milonga',practica:'Práctica',festival:'Festival',event:'Event',marathon:'Marathon',championship:'Championship',encuentro:'Encuentro',weekend:'Weekend'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
@@ -350,7 +357,7 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<link rel="stylesheet" href="/asia/cardB.css?v=cb39"><script src="/asia/cardB.js?v=cb139"></script>
+<script defer src="/asia/cardB.js?v=cb140"></script>
 <!-- atm-stw-popup v5 (entry ad = E093; cover and card open the event page, not the poster file) -->
 
 <div id="atm-pop" role="dialog" aria-modal="true" aria-label="4th Beijing Select Tango Weekend"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">Ad</span></div><button type="button" class="ap-x" aria-label="Close">&times;</button></div>
@@ -415,7 +422,7 @@ function build(e){
   li.className='ev-card'+(poster?' ev-has-poster':'')+' china-stw-highlight';
   li.setAttribute('data-id',ID);li.setAttribute('data-atm-ad','event');li.setAttribute('data-type',e.type||'');li.setAttribute('data-kind',e.kind||'event');
   if(onsite)li.setAttribute('data-own',path);
-  var cover=poster?'<a class="ev-cover" href="'+esc(onsite?path:(pu?pu.full:poster))+'"'+(onsite?'':' target="_blank" rel="noopener"')+'><picture><source type="image/webp" srcset="'+esc(pu?pu.webp:pbase+'.webp?v=t480')+'"><img src="'+esc(pu?pu.jpg:pbase+'.jpg?v=t480')+'" data-full="'+esc(pu?pu.full:poster)+'"'+(pu&&window.ATM_DATA_OK?' data-local="'+esc(pu.localJpg)+'"':'')+' alt="" loading="eager" decoding="async" onerror="if(this.dataset.fell!==\'1\'&&this.dataset.full){this.dataset.fell=\'1\';this.src=this.dataset.full;return}if(this.dataset.fell!==\'2\'&&this.dataset.local){this.dataset.fell=\'2\';this.src=this.dataset.local}"></picture></a>':'';
+  var cover=poster?'<a class="ev-cover" href="'+esc(onsite?path:(pu?pu.full:poster))+'"'+(onsite?'':' target="_blank" rel="noopener"')+'><picture><source type="image/webp" data-atm-srcset="'+esc(pu?pu.webp:pbase+'.webp?v=t360')+'"><img data-atm-src="'+esc(pu?pu.jpg:pbase+'.jpg?v=t360')+'" data-full="'+esc(pu?pu.full:poster)+'"'+(pu&&window.ATM_DATA_OK?' data-local="'+esc(pu.localJpg)+'"':'')+' alt="" decoding="async" onerror="if(this.dataset.fell)return;this.dataset.fell=\'1\';var s=this.parentNode&&this.parentNode.querySelector(\'source\');if(s)s.removeAttribute(\'srcset\');if(this.dataset.full)this.src=this.dataset.full;else if(this.dataset.local)this.src=this.dataset.local"></picture></a>':'';
   var links='';
   if(!zh&&e.links&&e.links.facebook)links+='<a class="china-linkbtn" href="'+esc(e.links.facebook)+'" target="_blank" rel="noopener">Facebook</a>';
   if(path)links+='<a class="china-linkbtn" href="'+esc(path)+'"'+(onsite?'':' target="_blank" rel="noopener"')+'>'+(zh?'网站':'Website')+'</a>';
@@ -424,7 +431,7 @@ function build(e){
 }
 function fromListings(){var src=document.querySelector('#china-listings .ev-card[data-id="'+ID+'"]');return src?tidy(src):null}
 function fromData(cb){
-  var loadCore=window.atmDataJson?window.atmDataJson('/asia/events-core.json?v=china457'):fetch('/asia/events-core.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw new Error('http');return r.json()});
+  var loadCore=window.atmDataJson?window.atmDataJson('/asia/events-core.json?v=china459'):fetch('/asia/events-core.json?v=china459').then(function(r){if(!r.ok)throw new Error('http');return r.json()});
   loadCore.then(function(list){
     var e=null;for(var i=0;i<list.length;i++)if(list[i]&&list[i].id===ID&&!list[i].hidden){e=list[i];break}
     if(!e){cb(false);return}openWith(build(e));cb(true);
