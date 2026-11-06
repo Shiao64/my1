@@ -1994,13 +1994,16 @@
     "temp_notices": [
       {
         "status": "cancelled",
-        "date": "2026-11-08",
+        "date": "2026-11-07",
         "text": "本周六 Los Gatos Milonga 暂停一期，W BAR 当日没有舞会，大家别跑。岁末将至，这个周末暂别舞池，奔赴一年一度的家庭旅行。（Monica 朋友圈 2026-11-06）",
         "text_en": "This Saturday’s Los Gatos Milonga is paused for one week — no milonga at W BAR that day. End of year family travel; stepping away from the dance floor this weekend. (Monica Moments, 2026-11-06)",
         "start": "2026-11-06",
-        "end": "2026-11-08",
+        "end": "2026-11-07",
         "image": "/images/asia/notices/R0E9XeyL-20261108-cancel.jpg"
       }
+    ],
+    "cancelled_dates": [
+      "2026-11-07"
     ]
   },
   {
