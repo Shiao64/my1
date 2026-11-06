@@ -7,7 +7,15 @@
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
 <link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
-<link rel="stylesheet" href="atm-critical.css?v=ac2">
+<style id="atm-shell">/* first-paint shell; full atm-critical loads async — no layout redesign */
+html{background:#FBF5E9}body.china-page{margin:0;background:#FBF5E9;color:#5b7f84;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}
+.china-sticky-top{position:-webkit-sticky;position:sticky;top:0;z-index:60;background:#0e6e78;color:#fff}
+.china-map-hero{margin:0}.china-hero-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;min-height:44px;box-sizing:border-box}
+.china-map-hero h1{margin:0;font:700 18px/1.25 "Noto Serif SC",Georgia,serif;color:#F6D58E}
+.china-map-hero h1 a,.top-lang a{color:#F6D58E;text-decoration:none}
+</style>
+<link rel="stylesheet" href="atm-critical.css?v=ac3" media="print" onload="this.media='all';try{window.atmArmImages&&window.atmArmImages(document)}catch(e){}">
+<noscript><link rel="stylesheet" href="atm-critical.css?v=ac3"></noscript>
 <link rel="preconnect" href="https://data.tangoweekend.org" crossorigin>
 <script>
 /* Preload the events-core URL this host will actually fetch. Pages previews
@@ -20,6 +28,48 @@
   if(pages){ link.href='/asia/events-core.json?v=china459'; }
   else { link.href='https://data.tangoweekend.org/asia/events-core.json'; link.crossOrigin='anonymous'; }
   document.head.appendChild(link);
+})();
+</script>
+<script>
+/* ?card= : start that card's poster before deferred JS. t360 is the LCP
+   (high); thumb800 is the upgrade (low). Same R2 URLs the card will request. */
+(function(){
+  var cid=''; try{ cid=new URLSearchParams(location.search).get('card')||''; }catch(e){}
+  if(!cid) return;
+  var host=''; try{ host=location.hostname||''; }catch(e){}
+  var pages=/\.pages\.dev$/i.test(host);
+  var R2='https://data.tangoweekend.org';
+  var core=pages?'/asia/events-core.json?v=china459':R2+'/asia/events-core.json';
+  var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json';
+  function preload(href, pri){
+    if(!href) return;
+    var l=document.createElement('link');
+    l.rel='preload'; l.as='image'; l.href=href; l.type='image/webp';
+    l.setAttribute('fetchpriority', pri||'high');
+    l.setAttribute('data-atm-card-preload', pri||'high');
+    document.head.appendChild(l);
+  }
+  function posterOf(e){
+    var zh=/^zh/i.test(document.documentElement.lang||'')||/\/zh\//.test(location.pathname);
+    return (zh?e.poster_zh:e.poster_en)||e.poster||'';
+  }
+  function kick(p){
+    var raw=String(p||''), qi=raw.indexOf('?'), q=qi>=0?raw.slice(0,qi):raw, extra=qi>=0?raw.slice(qi):'';
+    if(!q||q.charAt(0)!=='/') return;
+    var stem=q.replace(/\.(jpe?g|png|webp)$/i,'');
+    preload(R2+'/images/thumb'+stem+'.webp'+(extra||'?v=t360'), 'high');
+    preload(R2+'/images/thumb800'+stem+'.webp'+(extra||'?v=t800'), 'low');
+  }
+  function find(list){
+    for(var i=0;i<(list||[]).length;i++) if(list[i]&&list[i].id===cid&&!list[i].hidden) return list[i];
+    return null;
+  }
+  fetch(core).then(function(r){ if(!r.ok) throw new Error('http'); return r.json(); }).then(function(list){
+    var e=find(list); if(e){ kick(posterOf(e)); return; }
+    return fetch(more).then(function(r){ if(!r.ok) throw new Error('http'); return r.json(); }).then(function(list2){
+      var e2=find(list2); if(e2) kick(posterOf(e2));
+    });
+  }).catch(function(){});
 })();
 </script>
 
@@ -289,10 +339,36 @@ window.CHINA_UI = {
   fsEmail: 'Your email', fsWechat: 'Your WeChat ID', fsUrl: 'Event website'
 };
 </script>
-<script src="atm-data.js?v=r3"></script>
-<script defer src="asia-map.js?v=china459"></script>
+<script>
+/* Sync stub: Pages preview may build covers before deferred atm-data.js.
+   Full atm-data.js redefines these with JSON/R2 logic. */
+(function(w){
+  var R2='https://data.tangoweekend.org';
+  function host(){ try{return (w.location&&w.location.hostname)||'';}catch(e){return '';} }
+  function onPages(){ return /\.pages\.dev$/i.test(host()); }
+  if(!w.atmPosterUrl){
+    w.atmPosterUrl=function(path){
+      if(!path) return path;
+      if(/^https?:\/\//i.test(path)) return path;
+      if(onPages() && path.charAt(0)==='/') return R2+path;
+      return path;
+    };
+  }
+  if(!w.atmPosterUrls){
+    w.atmPosterUrls=function(p, wide){
+      var raw=String(p||''), qi=raw.indexOf('?'), q=qi>=0?raw.slice(0,qi):raw, extra=qi>=0?raw.slice(qi):'';
+      var stem=q.replace(/\.(jpe?g|png|webp)$/i,''), root=(wide?'/images/thumb800':'/images/thumb')+stem;
+      var v=extra||('?v='+(wide?'t800':'t360'));
+      function pub(path){ return w.atmPosterUrl(path); }
+      return { webp:pub(root+'.webp')+v, jpg:pub(root+'.jpg')+v, full:pub(q)+(extra||''), key:q, localJpg:root+'.jpg'+v };
+    };
+  }
+})(window);
+</script>
+<script defer src="atm-data.js?v=r6"></script>
+<script defer src="asia-map.js?v=china461"></script>
 <script defer src="atm-later.js?v=lt2"></script>
-<script defer src="/asia/atm-home.js?v=h127"></script>
+<script defer src="/asia/atm-home.js?v=h129"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="asia-howto.js?v=china278"></script> -->
 <script defer src="asia-subscribe.js?v=sub57"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
@@ -357,7 +433,7 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<script defer src="/asia/cardB.js?v=cb140"></script>
+<script defer src="/asia/cardB.js?v=cb142"></script>
 <!-- atm-stw-popup v5 (entry ad = E093; cover and card open the event page, not the poster file) -->
 
 <div id="atm-pop" role="dialog" aria-modal="true" aria-label="4th Beijing Select Tango Weekend"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">Ad</span></div><button type="button" class="ap-x" aria-label="Close">&times;</button></div>
@@ -412,7 +488,10 @@ function build(e){
   var name=zh?'2027北京精選探戈週末':(e.name||'');
   var poster=(zh&&e.poster_zh)||e.poster||'';
   var pu=poster&&window.atmPosterUrls?window.atmPosterUrls(poster,false):null;
-  var pbase=poster?'/images/thumb'+String(poster).split('?')[0].replace(/\.(jpe?g|png|webp)$/i,''):'';
+  var _ph=''; try{_ph=(location&&location.hostname)||'';}catch(_e){}
+  var _abs=/\.pages\.dev$/i.test(_ph)?'https://data.tangoweekend.org':'';
+  var pbase=poster?(_abs+'/images/thumb'+String(poster).split('?')[0].replace(/\.(jpe?g|png|webp)$/i,'')):'';
+  var pfull=poster?(_abs+String(poster)):'';
   var when=whenOf(e);
   var TN=zh?{marathon:'马拉松',festival:'探戈节',event:'特色活动',milonga:'舞会',practica:'练习场',weekend:'周末',encuentro:'聚会',championship:'锦标赛'}:{marathon:'Marathon',festival:'Festival',event:'Event',milonga:'Milonga',practica:'Práctica',weekend:'Weekend',encuentro:'Encuentro',championship:'Championship'};
   var other=(e.links&&e.links.other)||'',path=ownPath(other),onsite=!!path;

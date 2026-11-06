@@ -53,8 +53,15 @@
     return p;
   };
   w.atmPosterUrl = function (path) {
-    if (!path || !w.ATM_DATA_OK) return path;
+    if (!path) return path;
     if (/^https?:\/\//i.test(path)) return path;
+    var host = '';
+    try { host = (w.location && w.location.hostname) || ''; } catch (e) {}
+    /* Pages preview keeps JSON local so unpublished card edits show, but the
+       direct-upload omits thumb800 + full posters (SPA HTML 200). Point poster
+       bytes at R2 so single-card / onerror fallbacks actually load. */
+    if (/\.pages\.dev$/i.test(host) && path.charAt(0) === '/') return DEFAULT_BASE + path;
+    if (!w.ATM_DATA_OK) return path;
     if (path.charAt(0) === '/') return base() + path;
     return path;
   };
@@ -76,6 +83,74 @@
       key: q,
       localJpg: root + '.jpg' + v
     };
+  };
+  /* Single-card poster: paint the list thumb (t360, often already in cache)
+     immediately, then upgrade to thumb800. The original file is last, and
+     only when both thumbs fail — a thumb800 that exists must not be skipped
+     for the ~500KB jpg. Probes own failure; img onerror from a src swap must
+     not jump to the original. */
+  w.atmCardPoster = function (img, sourceEl, path, opts) {
+    opts = opts || {};
+    if (!img || !path || !w.atmPosterUrls) return;
+    var small = w.atmPosterUrls(path, false);
+    var big = w.atmPosterUrls(path, true);
+    var token = String(Math.random()).slice(2);
+    img.setAttribute('data-atm-gen', token);
+    img.removeAttribute('data-atm-fell');
+    img.setAttribute('data-full', (big && big.full) || (small && small.full) || '');
+    img.decoding = 'async';
+    try { img.loading = 'eager'; } catch (e) {}
+    var pri = opts.priority || 'high';
+    img.setAttribute('fetchpriority', pri);
+    try { img.fetchPriority = pri; } catch (e2) {}
+    function alive() { return img.getAttribute('data-atm-gen') === token; }
+    function paint(step, webp, jpg) {
+      if (!alive()) return;
+      img.setAttribute('data-atm-step', step);
+      if (sourceEl) {
+        if (webp) { sourceEl.type = 'image/webp'; sourceEl.setAttribute('srcset', webp); }
+        else sourceEl.removeAttribute('srcset');
+      }
+      if (jpg) img.src = jpg;
+    }
+    img.onerror = function () {};
+    paint('t360', small.webp, small.jpg);
+    if (!big || !big.webp || big.webp === small.webp) return;
+    var smallBad = false, bigBad = false, bigOk = false;
+    function goFull() {
+      if (!alive() || bigOk || img.getAttribute('data-atm-fell') === '1') return;
+      img.setAttribute('data-atm-fell', '1');
+      paint('full', '', (big && big.full) || (small && small.full) || '');
+    }
+    function probe(urls, low, ok, bad) {
+      var im = new Image();
+      try { im.fetchPriority = low ? 'low' : 'high'; } catch (e3) {}
+      im.onload = function () { if (alive()) ok(true); };
+      im.onerror = function () {
+        if (!alive()) return;
+        if (!urls.jpg) { bad(); return; }
+        var j = new Image();
+        try { j.fetchPriority = low ? 'low' : 'high'; } catch (e4) {}
+        j.onload = function () { if (alive()) ok(false); };
+        j.onerror = function () { if (alive()) bad(); };
+        j.src = urls.jpg;
+      };
+      im.src = urls.webp || urls.jpg;
+    }
+    probe(small, false, function (webpOk) {
+      if (!webpOk) paint('t360', '', small.jpg);
+    }, function () {
+      smallBad = true;
+      if (bigOk) return;
+      if (bigBad) goFull();
+    });
+    probe(big, true, function (webpOk) {
+      bigOk = true;
+      paint('t800', webpOk ? big.webp : '', big.jpg);
+    }, function () {
+      bigBad = true;
+      if (smallBad) goFull();
+    });
   };
 
   /* Assign src only when the img is inside the viewport and inside every
