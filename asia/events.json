@@ -1914,7 +1914,7 @@
       "other": "https://www.tangobang.cn"
     },
     "source": "user directory 2026-10-24",
-    "updated": "2026-11-02",
+    "updated": "2026-11-06",
     "hidden": false,
     "tba": false,
     "contacts": {
@@ -1928,7 +1928,20 @@
     "organizers_en": [
       "Vivian Ye"
     ],
-    "venue_en": "Yonghui Building Tower A, Rm 1502"
+    "venue_en": "Yonghui Building Tower A, Rm 1502",
+    "cancelled_dates": [
+      "2026-11-06"
+    ],
+    "temp_notices": [
+      {
+        "status": "cancelled",
+        "date": "2026-11-06",
+        "text": "今晚（11/6）探戈帮周五舞会暂停一期。（张孝确认 2026-11-06；雷达今日未扫到公开取消帖）",
+        "text_en": "Tonight (6 Nov) TangoBang Friday milonga is cancelled for one week. (Confirmed by Zhang Xiao, 2026-11-06; radar saw no public cancel post today.)",
+        "start": "2026-11-06",
+        "end": "2026-11-06"
+      }
+    ]
   },
   {
     "id": "rccbKIYP",

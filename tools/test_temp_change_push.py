@@ -23,6 +23,19 @@ class T(unittest.TestCase):
         self.assertEqual([o.get('status') for o in tn], [None, 'cancelled'])  # replaced, not duplicated
         tc.main(['clear', 'A1', '2099-01-05']); self.assertEqual(len(self.cur()[0]['temp_notices']), 1)
         self.assertEqual(tc.main(['set', 'ZZ', '2099-01-05']), 1)
+    def test_cancel_weekly_cancelled_dates(self):
+        self.assertEqual(tc.main(['cancel', 'A1', '2099-01-05']), 0)
+        self.assertEqual(self.cur()[0]['cancelled_dates'], ['2099-01-05'])
+        tc.main(['cancel', 'A1', '2099-01-12'])
+        self.assertEqual(self.cur()[0]['cancelled_dates'], ['2099-01-05', '2099-01-12'])
+        tc.main(['cancel', 'A1', '2099-01-05'])  # dedupe, keep the other date
+        self.assertEqual(self.cur()[0]['cancelled_dates'], ['2099-01-12', '2099-01-05'])
+        tc.main(['cancel', 'B2', '2099-02-01'])
+        self.assertNotIn('cancelled_dates', self.cur()[1])
+        tc.main(['set', 'A1', '2099-01-05'])  # a change is not a cancel
+        self.assertEqual(self.cur()[0]['cancelled_dates'], ['2099-01-12'])
+        tc.main(['clear', 'A1', '2099-01-12'])
+        self.assertNotIn('cancelled_dates', self.cur()[0])
     def test_prune_expired(self):
         tc.main(['cancel', 'A1', '2000-01-01']); tc.main(['prune']); self.assertEqual(len(self.cur()[0]['temp_notices']), 1)
     def test_diff(self):

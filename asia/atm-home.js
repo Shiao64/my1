@@ -79,10 +79,35 @@
     if (!m) return location.pathname + '?card=' + encodeURIComponent(e.id);
     return '/event/' + m[1] + '/' + (zh ? 'zh/' : '') + '?from=' + encodeURIComponent(e.id) + '#' + m[2];
   }
+  function normISO(s) { var m = String(s || '').trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); return m ? m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]) : ''; }
+  function noticeCovers(o, iso) {
+    if (!o || !iso) return false;
+    var date = normISO(o.date), start = normISO(o.start) || date, end = normISO(o.end) || date || start;
+    if (!start) start = end; if (!end) end = start;
+    if (!start || !end) return false;
+    if (end < start) { var t = start; start = end; end = t; }
+    return iso >= start && iso <= end;
+  }
+  /* Red list bar: permanent status, cancelled_dates, or a temp_notices cancelled span covering this occurrence. */
+  function weekCx(e) {
+    if (e.status === 'cancelled') return 'perm';
+    var iso = e.kind === 'weekly' ? occOf(e) : (e.start || '');
+    if (!iso) return '';
+    if (e.cancelled_dates && e.cancelled_dates.indexOf(iso) !== -1) return 'week';
+    var list = e.temp_notices;
+    if (Array.isArray(list)) for (var i = 0; i < list.length; i++) { var o = list[i]; if (o && o.status === 'cancelled' && noticeCovers(o, iso)) return 'week'; }
+    return '';
+  }
+  function cxBar(e) {
+    var k = weekCx(e); if (!k) return '';
+    var ui = window.CHINA_UI || {};
+    var t = k === 'perm' ? (ui.cancelled || (zh ? '已取消' : 'Cancelled')) : (ui.cancelledWeek || (zh ? '本周暂停' : 'Paused this week'));
+    return '<em class="china-cancelled-bar">' + esc(t) + '</em>';
+  }
   function card(e, sub, tag, eager) {
     var v = (e.kind === 'weekly' || e.theme_of) ? (e.venue || '') : '';
-    var kt = oneTag(e);
-    return '<a class="ah-card" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
+    var kt = oneTag(e), bar = cxBar(e);
+    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
@@ -116,7 +141,8 @@
     '.ah-pw{position:relative;display:block;flex:0 0 auto;line-height:0}.ah-prev{position:absolute;left:2px;right:2px;bottom:4px;text-align:center;font:700 9px/1.2 system-ui,sans-serif;font-style:normal;color:#fff;background:rgba(0,0,0,.6);border-radius:6px;padding:2px 3px;white-space:nowrap;overflow:hidden;pointer-events:none}' +
     '#atm-home .ah-favhint{margin:10px 2px 0;font:400 13px/1.4 system-ui,sans-serif;color:#8a8a8a}' +
     '.ah-card{position:relative}.ah-card>.ah-tx{padding-right:34px}.ah-card>.ah-heart{top:6px;right:6px}' +
-    'html.atm-h-on #china-listings .ev-card>.atm-heart{display:none!important}';
+    'html.atm-h-on #china-listings .ev-card>.atm-heart{display:none!important}' +
+    '#atm-home a.ah-card.ah-cx{flex-wrap:wrap;padding-top:0}#atm-home a.ah-card>.china-cancelled-bar{flex:1 0 100%;box-sizing:border-box;margin:0 -8px 0;padding:5px 28px;border-radius:12px 12px 0 0;background:#b3261e;color:#fff;font:800 13px/1.35 system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif;font-style:normal;letter-spacing:.03em;text-align:center}#atm-home a.ah-card.ah-cx>.ah-heart{top:34px}';
   D.head.appendChild(css);
   var S = { a: -1, c: '', open: false };
   function route() { var h = location.hash; if (/^#v-/.test(h)) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} h = ''; } /* old #v-<id> card anchors (shared links, back from detail) -> new home, not the old list */ if (!h || h === '#') return 'home'; if (h === '#h-feat') return 'feat'; if (h === '#h-search') return 'search'; if (h === '#h-reg') return 'reg'; if (h.indexOf('#h-city-') === 0) return 'city'; return null; }
@@ -294,7 +320,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china462';
+    var coreUrl = '/asia/events-core.json?v=china463';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {
