@@ -59,7 +59,7 @@
     if (e.kind === 'weekly') return T.every + (e.weekdays || [e.weekday]).map(function (i) { return T.WD[i % 7]; }).join('/') + (e.time ? ' ' + e.time : '');
     var s = fd(e.start) + (e.end && e.end !== e.start ? '–' + fd(e.end) : ''); if (e.start && e.start.slice(0, 4) !== TODAY.slice(0, 4)) s = e.start.slice(0, 4) + '/' + s; if (e.theme_of) s += ' ' + T.WD[new Date(e.start + 'T12:00:00').getDay()] + (e.time ? ' ' + e.time : ''); return s;
   }
-  function posterUrls(p) { if (window.atmPosterUrls) return window.atmPosterUrls(p, false); var q = String(p || '').split('?')[0], base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, ''); return { webp: base + '.webp?v=t360', jpg: base + '.jpg?v=t360', full: q }; }
+  function posterUrls(p) { if (window.atmPosterUrls) return window.atmPosterUrls(p, false); var raw = String(p || ''), qi = raw.indexOf('?'), q = qi >= 0 ? raw.slice(0, qi) : raw, extra = qi >= 0 ? raw.slice(qi) : ''; var base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, ''), v = extra || '?v=t360'; var host = ''; try { host = (location && location.hostname) || ''; } catch (e) {} var abs = /\.pages\.dev$/i.test(host) ? 'https://data.tangoweekend.org' : ''; return { webp: abs + base + '.webp' + v, jpg: abs + base + '.jpg' + v, full: abs + q + (extra || '') }; }
   var SHT = (function () { try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); } catch (x) { return TODAY; } })();
   /* v11.10: honor eager — first strip / LCP thumbs set src immediately (was void eager, so hydrate waited). */
   function img(e, cls, eager) {
