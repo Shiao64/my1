@@ -137,14 +137,25 @@ def collect(root, event_id=None):
 
 
 def cache_control(key):
+    """JSON stays fresh when a card changes without a program version bump.
+    Images are long-lived; a new ?v= on the poster field is a new cache key."""
     if key.endswith('.json'):
-        return 'public, max-age=0, must-revalidate'
-    return 'public, max-age=86400'
+        return 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
+    return 'public, max-age=2592000'
 
 
 def content_type(key):
-    if key.endswith('.json'):
+    low = key.lower()
+    if low.endswith('.json'):
         return 'application/json; charset=utf-8'
+    if low.endswith('.webp'):
+        return 'image/webp'
+    if low.endswith('.jpg') or low.endswith('.jpeg'):
+        return 'image/jpeg'
+    if low.endswith('.png'):
+        return 'image/png'
+    if low.endswith('.gif'):
+        return 'image/gif'
     guess, _enc = mimetypes.guess_type(key)
     return guess or 'application/octet-stream'
 

@@ -1,0 +1,20 @@
+# Versioned static files are cache-busted with ?v=.
+# The cache key includes the query string, so a new ?v= is a new object.
+# Do not put events.json here: some detail pages fetch it without ?v= and it changes in place.
+# Do not put /images/* here: poster thumbs are overwritten at the same path while ?v= stays put.
+# R2 (data.tangoweekend.org) sets its own Cache-Control in tools/r2_sync_cards.py.
+
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/asia/*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/asia/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/asia/events-core.json
+  Cache-Control: public, max-age=31536000, immutable
+
+/asia/events-more.json
+  Cache-Control: public, max-age=31536000, immutable

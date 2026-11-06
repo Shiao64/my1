@@ -11,7 +11,7 @@ What it does, per item that passes the checks:
   2. Copy the previous poster to images/asia/posters/_backup/<id>-<utc>.<ext>
      before any bytes are overwritten. The previous file is never deleted.
   3. Store the new file under images/asia/posters/<id>.<ext>.
-  4. Write two thumbs, neither upscaled. The list thumb is at most 480px wide
+     4. Write two thumbs, neither upscaled. The list thumb is at most 360px wide
      (WebP and JPEG) at images/thumb/images/asia/posters/<id>.webp and .jpg.
      The opened-card thumb is at most 800px wide at
      images/thumb800/images/asia/posters/<id>.webp and .jpg. ATM_TH records
@@ -69,8 +69,10 @@ MAP_JS = 'asia/asia-map.js'
 MAX_BYTES = 20_000_000
 MIN_BYTES = 800
 MIN_PX = 80
-LIST_W = 480
+LIST_W = 360
 CARD_W = 800
+LIST_WEBP_Q = 64
+LIST_JPEG_Q = 72
 MAX_PAST = 4
 UA = 'AsiaTangoMap-radar/1.0'
 
@@ -413,11 +415,11 @@ def sniff_image(data):
     return im, ext
 
 
-def _encode(rgb):
+def _encode(rgb, webp_q=80, jpeg_q=82):
     webp = io.BytesIO()
-    rgb.save(webp, 'WEBP', quality=80, method=6)
+    rgb.save(webp, 'WEBP', quality=webp_q, method=6)
     jpg = io.BytesIO()
-    rgb.save(jpg, 'JPEG', quality=82, optimize=True)
+    rgb.save(jpg, 'JPEG', quality=jpeg_q, optimize=True)
     return webp.getvalue(), jpg.getvalue(), rgb.size
 
 
@@ -630,7 +632,7 @@ def thumb_image(im):
     listed.thumbnail((LIST_W, LIST_W * 8), Image.LANCZOS)
     card = rgb.copy()
     card.thumbnail((CARD_W, CARD_W * 8), Image.LANCZOS)
-    lw, lj, ls = _encode(listed)
+    lw, lj, ls = _encode(listed, LIST_WEBP_Q, LIST_JPEG_Q)
     cw, cj, cs = _encode(card)
     return lw, lj, ls, cw, cj, cs
 

@@ -55,7 +55,7 @@ On a real replace it:
 
 1. Copies the old poster to `images/asia/posters/_backup/<id>-<UTC timestamp>.<ext>` and does not delete the old file.
 2. Writes the new file under `images/asia/posters/<id>.<ext>` (a separate name if that path is another event's poster).
-3. Writes a 480px WebP thumb at `images/thumb/images/asia/posters/<id>.webp` and updates `ATM_TH` in `asia/asia-map.js`.
+3. Writes a 360px WebP list thumb at `images/thumb/images/asia/posters/<id>.webp` (and a JPEG fallback) and updates `ATM_TH` in `asia/asia-map.js`. The opened-card thumb stays 800px under `images/thumb800/`.
 4. Sets `poster` and `updated` on that id in `events.json` plus `events-core.json` / `events-more.json` when they contain the id.
 5. Appends `tools/radar-poster-log.jsonl` (one line per replace, unchanged, refusal, and per 异动 run).
 6. Bumps live cache keys `eNNN`, `chinaNNN`, `hNN`, `cbNN` (the same keys a publish commit bumps). `SITE_VERSION` stays. `--no-bump` skips the bump when the publish commit will do it. `--dry-run` does not write.
