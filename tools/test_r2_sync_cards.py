@@ -46,8 +46,13 @@ def main():
     en, zh = read('asia/index.html'), read('zh/asia/index.html')
     js, cards, home = read('asia/asia-map.js'), read('asia/cardB.js'), read('asia/atm-home.js')
     data = read('asia/atm-data.js')
-    check('en loads helper', 'atm-data.js?v=r3' in en)
-    check('zh loads helper', 'atm-data.js?v=r3' in zh)
+    check('en loads helper', 'atm-data.js?v=r7' in en)
+    check('zh loads helper', 'atm-data.js?v=r7' in zh)
+    r2_core = 'https://data.tangoweekend.org/asia/events-core.json?v=china465'
+    check('en r2 core keeps version', r2_core in en)
+    check('zh r2 core keeps version', r2_core in zh)
+    check('en no bare r2 core', 'events-core.json"' not in en and "events-core.json';" not in en)
+    check('zh no bare r2 core', 'events-core.json"' not in zh and "events-core.json';" not in zh)
     check('json cache', R.cache_control('asia/events-core.json') == 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400')
     check('json type', R.content_type('asia/events-core.json') == 'application/json; charset=utf-8')
     check('webp type', R.content_type('images/thumb/a.webp') == 'image/webp')
@@ -71,10 +76,13 @@ eval(fs.readFileSync('asia/atm-data.js', 'utf8'));
 if (w.ATM_DATA_BASE !== '') process.exit(8);
 w.ATM_DATA_BASE = '';
 let fetches = 0;
-global.fetch = (url, opts) => { fetches++; if (opts && opts.cache === 'no-cache') process.exit(9); return Promise.resolve({ ok: true, json: async () => [{ id: 'a' }] }); };
+let localUrl = '';
+global.fetch = (url, opts) => { fetches++; localUrl = String(url); if (opts && opts.cache === 'no-cache') process.exit(9); return Promise.resolve({ ok: true, json: async () => [{ id: 'a' }] }); };
 const p1 = w.atmDataJson('/asia/events-core.json?v=china459');
 const p2 = w.atmDataJson('events-core.json?v=china459');
 if (p1 !== p2 || fetches !== 1) process.exit(10);
+if (localUrl !== '/asia/events-core.json?v=china459') process.exit(16);
+w.location = { hostname: 'tangoweekend.org' };
 w.ATM_DATA_BASE = 'https://data.tangoweekend.org';
 const u = w.atmPosterUrls('/images/asia/posters/E158.jpg?v=20261105', false);
 if (!u.webp.endsWith('.webp?v=20261105')) process.exit(3);
@@ -84,6 +92,18 @@ w.ATM_DATA_OK = true;
 const live = w.atmPosterUrls('/images/asia/posters/E158.jpg?v=20261105', true);
 if (live.jpg.indexOf('https://data.tangoweekend.org/images/thumb800/images/asia/posters/E158.jpg?v=20261105') !== 0) process.exit(6);
 if (live.localJpg.indexOf('/images/thumb800/') !== 0) process.exit(7);
+let seen = [];
+global.fetch = (url) => { seen.push(String(url)); return Promise.resolve({ ok: true, json: async () => [] }); };
+w.atmDataJson('/asia/events-more.json?v=china465');
+w.atmDataJson('events-more.json?v=china465');
+w.atmDataJson('/asia/events.json?v=e216#frag');
+w.atmDataJson('/asia/djs.json');
+w.atmDataJson('/asia/organizers.json?v=o1&x=2');
+if (seen[0] !== 'https://data.tangoweekend.org/asia/events-more.json?v=china465') process.exit(11);
+if (seen[1] !== 'https://data.tangoweekend.org/asia/events.json?v=e216') process.exit(12);
+if (seen[2] !== 'https://data.tangoweekend.org/asia/djs.json') process.exit(13);
+if (seen[3] !== 'https://data.tangoweekend.org/asia/organizers.json?v=o1&x=2') process.exit(14);
+if (seen.length !== 4) process.exit(15);
 '''
     run = subprocess.run(['node', '-e', node], cwd=ROOT, capture_output=True, text=True)
     check('poster url helper ' + (run.stderr.strip() or run.stdout.strip()), run.returncode == 0)

@@ -18,6 +18,17 @@
     var m = String(url || '').match(/([^/?#]+\.json)(?:$|[?#])/);
     return m ? m[1] : '';
   }
+  /* The page's ?v=chinaNNN (or ?v=eNNN) is the cache key. R2 must keep it.
+     Dropping the query leaves one unversioned URL that mobile and WeChat
+     can hold after the card data changes. Preload uses the same query. */
+  function jsonQuery(url) {
+    var s = String(url || '');
+    var q = s.indexOf('?');
+    if (q < 0) return '';
+    var h = s.indexOf('#', q);
+    var query = h < 0 ? s.slice(q) : s.slice(q, h);
+    return query.length > 1 ? query : '';
+  }
   /* One in-flight promise per JSON file for this page load. Default cache
      mode so a preload and HTTP Cache-Control / ETag can satisfy it. Do not
      pass cache:'no-cache' — that is a different cache key from <link rel=preload>
@@ -37,7 +48,7 @@
     var p;
     if (!b || !file) p = localFetch(localUrl);
     else {
-      var remote = b + '/asia/' + file;
+      var remote = b + '/asia/' + file + jsonQuery(localUrl);
       var opts = {};
       if (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(2500);
       p = fetch(remote, opts).then(function (r) {
