@@ -53,8 +53,15 @@
     return p;
   };
   w.atmPosterUrl = function (path) {
-    if (!path || !w.ATM_DATA_OK) return path;
+    if (!path) return path;
     if (/^https?:\/\//i.test(path)) return path;
+    var host = '';
+    try { host = (w.location && w.location.hostname) || ''; } catch (e) {}
+    /* Pages preview keeps JSON local so unpublished card edits show, but the
+       direct-upload omits thumb800 + full posters (SPA HTML 200). Point poster
+       bytes at R2 so single-card / onerror fallbacks actually load. */
+    if (/\.pages\.dev$/i.test(host) && path.charAt(0) === '/') return DEFAULT_BASE + path;
+    if (!w.ATM_DATA_OK) return path;
     if (path.charAt(0) === '/') return base() + path;
     return path;
   };
