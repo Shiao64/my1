@@ -12,7 +12,7 @@ The program (HTML, `asia-map.js`, `cardB.js`, `atm-home.js`) stays on Pages / th
 | Public base | `https://data.tangoweekend.org` (custom domain on the `tangoweekend.org` zone, Cloudflare cache in front). `r2.dev` is only a rate-limited development URL the sync script may also enable. |
 | Object keys | Same paths as the site: `asia/events-core.json`, `asia/events-more.json`, `asia/events.json`, `images/asia/posters/…`, `images/thumb/…`, `images/thumb800/…` |
 | Loader | `asia/atm-data.js` (`window.ATM_DATA_BASE`, default the public base above) |
-| Fallback | The `?v=chinaNNN` / `?v=eNNN` URLs already in the pages, served from the same host as the HTML |
+| Fallback | The `?v=chinaNNN` / `?v=eNNN` URLs already in the pages, served from the same host as the HTML. `atmDataJson` appends that same query to the R2 URL, and the events-core preload uses it too, so preload and fetch share one cache key. |
 
 `events-core.json` is first paint (China / Taiwan / Hong Kong regular cards, plus featured), fetched once per page load. `events-more.json` waits for scroll, search, `?k=Seoul`, or a single card that is not in core. `events.json` is the full file, used only when an id is in neither core nor more.
 
