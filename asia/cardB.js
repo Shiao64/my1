@@ -5,7 +5,7 @@ var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
 /* First view reads events-core (window._chinaData). events-more / events.json and the DJ/organizer profiles wait until scroll, search, expand, or a card that is not in core. */
 var EV=null, REG=zh?{}:null, DJPROF=[], ORGPROF=[], profP=null, fullP=null;
 var tradHold=zh&&!/[?&](card|mode|city|k)=/.test(location.search);
-var FULL='/asia/events.json?v=e216';
+var FULL='/asia/events.json?v=e217';
 function loadEv(u){ return (window.atmDataJson ? window.atmDataJson(u) : fetch(u).then(function(r){ return r.json(); })); }
 function indexList(list){ if(!list) return; if(!EV) EV={}; list.forEach(function(e){ if(!e||!e.id) return; EV[e.id]=e; if(REG) REG[e.id]=e.region; }); }
 function indexNow(){ indexList(window._chinaData); indexList(window._atmMore); if(!EV) return; document.querySelectorAll('.ev-card.b-card').forEach(dj); p10mount(); if(zh) trad(); }
@@ -75,6 +75,7 @@ function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in
  if(L.other&&!/tangoweekend\.org\/event\//.test(L.other)) A(L.other, zh?'网站':'Website');
  if(L.register) A(L.register, zh?'报名':'Register');
  if(L.video) A(L.video, zh?'视频':'Video');
+ var CH=L.wechat_channels; if(CH&&(CH.name||CH.id)) lk.push('<span>'+(zh?'微信视频号：':'WeChat Channels: ')+H([CH.name, CH.id?((zh?'视频号 ID ':'video account ID ')+CH.id):''].filter(Boolean).join(' · '))+'</span>'); /* v12.2 */
  row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links');
  inn.innerHTML=R.join(''); }
 document.addEventListener('toggle',function(ev){ var dt=ev.target; if(!dt.classList||!dt.classList.contains('b-more')) return; var inn=dt.querySelector('.b-in')||dt;
@@ -181,6 +182,7 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   if(L.other&&!/tangoweekend\.org\/event\//.test(L.other)) A(L.other, zh?'网站':'Website');
   if(L.register) A(L.register, zh?'报名':'Register');
   if(L.video) A(L.video, zh?'视频':'Video');
+  var CH=L.wechat_channels; if(CH&&(CH.name||CH.id)) lk.push('<span>'+(zh?'微信视频号：':'WeChat Channels: ')+H([CH.name, CH.id?((zh?'视频号 ID ':'video account ID ')+CH.id):''].filter(Boolean).join(' · '))+'</span>'); /* v12.2 */
   row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links'); /* v11.8b: P10 links get the ↗ marker too */
   if(keep.length) row(zh?'备注':'Note', H(keep.join(zh?'':' ')));
   return R.join(''); }

@@ -5722,15 +5722,20 @@
     "organizers": [
       "Milonga 1758",
       "Sissi Zheng",
-      "Wing"
+      "Wing",
+      "Nam"
     ],
     "links": {
       "facebook": "https://www.facebook.com/groups/1210555827796246",
       "video": null,
-      "other": null
+      "other": null,
+      "wechat_channels": {
+        "name": "Milonga1758",
+        "id": "sphkvSg1Wnqp8gD"
+      }
     },
     "source": "jinshuju form (closed) by Milonga 1758",
-    "updated": "2026-11-05",
+    "updated": "2026-11-06",
     "hidden": false,
     "hidden_reason": null,
     "tba": false,
@@ -5738,9 +5743,7 @@
     "name_zh": "1758梧桐探戈周末",
     "venue_address_en": "3F, Building 8, FICS Xinhua 365 Park, No. 6, Lane 365, Xinhua Road, Changning District, Shanghai",
     "contacts": {
-      "phone": "+86 13817984858",
-      "wechat_label": "Wing",
-      "wechat_id": "q83155560",
+      "wechat_id": "q83155560 (Wing); nanmutelim (Nam)",
       "email": "WutongTangoWeekend@hotmail.com"
     },
     "poster": "/images/asia/posters/JHeguuQb_wutong2026.jpg",
@@ -5749,7 +5752,8 @@
     "organizers_en": [
       "Milonga 1758",
       "Sissi Zheng",
-      "Wing"
+      "Wing",
+      "Nam"
     ],
     "venue_en": "FICS Xinhua 365 Creative Park",
     "dj": [
@@ -5777,24 +5781,28 @@
     "organizers": [
       "Milonga 1758",
       "Sissi Zheng",
-      "Wing"
+      "Wing",
+      "Nam"
     ],
     "organizers_en": [
       "Milonga 1758",
       "Sissi Zheng",
-      "Wing"
+      "Wing",
+      "Nam"
     ],
     "links": {
-      "facebook": "https://www.facebook.com/groups/1210555827796246"
+      "facebook": "https://www.facebook.com/groups/1210555827796246",
+      "wechat_channels": {
+        "name": "Milonga1758",
+        "id": "sphkvSg1Wnqp8gD"
+      }
     },
     "contacts": {
-      "phone": "+86 13817984858",
-      "wechat_label": "Wing",
-      "wechat_id": "q83155560",
+      "wechat_id": "q83155560 (Wing); nanmutelim (Nam)",
       "email": "WutongTangoWeekend@hotmail.com"
     },
     "source": "Planned edition; details TBD",
-    "updated": "2026-11-05",
+    "updated": "2026-11-06",
     "hidden": false,
     "tba": false,
     "detail": "/event/shanghai-2026-wutong-tango-weekend/#2027",
