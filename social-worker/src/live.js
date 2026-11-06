@@ -2,7 +2,7 @@
 import SUB from '../../subscribe-worker/src/index.js';
 import { social, wxExpireSweep } from './social.js';
 import { unsubscribe as unsub2 } from './unsub.js';
-const hostOK = o => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(o);
+const hostOK = o => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\/\/api\.tangoweekend\.org$/.test(o) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(o);
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), og = req.headers.get('Origin') || '', allow = hostOK(og) ? og : 'https://tangoweekend.org';
@@ -10,7 +10,8 @@ export default {
     const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...h } });
     if (url.pathname.startsWith('/social/')) {
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
-      if (req.method === 'POST' && og && !hostOK(og) && !url.pathname.startsWith('/social/admin/')) return json({ error: 'forbidden_origin' }, 403);
+      // The confirm form is served on this host and checked by the magic token. Mail and WeChat clients may send Origin: null.
+      if (req.method === 'POST' && og && !hostOK(og) && !url.pathname.startsWith('/social/admin/') && url.pathname !== '/social/confirm') return json({ error: 'forbidden_origin' }, 403);
       return social(req, env, url, json);
     }
     if (url.pathname === '/unsubscribe' && (req.method === 'GET' || req.method === 'POST') && (url.searchParams.get('t') || '').includes('.')) return unsub2(url, env);   // signed update-mail link; POST is List-Unsubscribe one-click
