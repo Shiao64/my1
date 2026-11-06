@@ -2,6 +2,8 @@
 """Admin: mark one date of an event as temporarily changed or cancelled (no event is deleted).
 
 Writes a temp_notices item with status "changed"|"cancelled" into every asia/events*.json copy of the card.
+cancel on a weekly card also appends that date to cancelled_dates (deduped) so the list red bar
+matches the notice even when the page never reads temp_notices. clear/set drop that date again.
 The card shows 「临时变更」/"Temporarily changed" or 「已取消」/"Cancelled" until the date passes (Asia/Shanghai).
 Pushing to main triggers .github/workflows/push-notify.yml, which sends a web push.
 
@@ -26,6 +28,18 @@ def save(d, p): open(p, 'w', encoding='utf-8').write(json.dumps(d, ensure_ascii=
 
 def is_change(o): return isinstance(o, dict) and o.get('status') in ('changed', 'cancelled')
 def end_of(o): return o.get('end') or o.get('date') or o.get('start') or ''
+
+def sync_cancel_date(e, date, add):
+    """Weekly list bar reads cancelled_dates. Keep it aligned with a one-date cancel."""
+    if e.get('kind') != 'weekly':
+        return
+    dates = [d for d in (e.get('cancelled_dates') or []) if d != date]
+    if add:
+        dates.append(date)
+    if dates:
+        e['cancelled_dates'] = dates
+    else:
+        e.pop('cancelled_dates', None)
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -65,6 +79,7 @@ def main(argv=None):
                 tn.append(o)
             if tn: e['temp_notices'] = tn
             else: e.pop('temp_notices', None)
+            sync_cancel_date(e, a.date, a.cmd == 'cancel')
             e['updated'] = today(); dirty = True
         if dirty: save(d, p); print('wrote', f)
     if a.cmd in ('set', 'cancel', 'clear') and not hit:
