@@ -4,8 +4,15 @@
    The WeChat tab stays visible but disabled, including inside WeChat. */
 (function () {
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
+  var ko = document.documentElement.getAttribute('data-asia-lang') === 'ko';
   var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
-  var L = zh ? {
+  var L = ko ? {
+    btn: '✉ 새 행사 알림', title: '알림 구독', desc: '아시아 탱고 지도 행사 알림을 구독합니다. 이름, 도시, 역할, 이메일을 남기고 확인 메일의 링크를 누르면 가끔 소식을 받습니다.', name: '이름', namePh: '이름', city: '도시', cityPh: '도시', role: '역할', rolePh: '선택', rl: '리더', rf: '팔로워', rb: '둘 다', needName: '이름을 입력해 주세요.', needCity: '도시를 입력해 주세요.', needRole: '리더, 팔로워 또는 둘 다를 선택해 주세요.', wxNeed: '', okWx: '',
+    email: '이메일', emailPh: 'name@example.com', hint: '',
+    need: '이메일을 입력해 주세요.', sendfail: '확인 메일을 보내지 못했습니다. 주소를 확인하거나 잠시 후 다시 시도해 주세요.', bad: '이메일 형식을 확인해 주세요.',
+    submit: '구독', sending: '보내는 중…', ok: '확인 메일을 보냈습니다. 메일을 열고 링크를 누르세요(7일간 유효, 스팸함도 확인해 주세요).',
+    fail: '전송에 실패했습니다. 잠시 후 다시 시도해 주세요.', rate: '시도가 너무 많습니다. 잠시 후 다시 시도해 주세요.', foot: '언제든 구독을 취소할 수 있습니다. 정보를 다른 곳에 넘기지 않습니다.', close: '닫기'
+  } : zh ? {
     btn: '✉ 新活动通知', title: '订阅通知', desc: '订阅亚洲探戈地图的活动通知。留下姓名、城市、角色和邮箱，点确认邮件后即可收到不定期更新。', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '领舞', rf: '跟舞', rb: '双角色', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色（领舞、跟舞或双角色）。', wxNeed: '', okWx: '',
     email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '确认邮件发送失败，请检查邮箱地址或稍后再试。',
@@ -92,7 +99,7 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
     if ($('tsub-hp').value) { ok.textContent = L.ok; ok.hidden = false; return; }
     go.disabled = true; go.textContent = L.sending;
-    fetch(API + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ types: ['featured', 'regular'], cities: [], name: nm, email: em, wechat: '', lang: zh ? 'zh' : 'en', website: $('tsub-hp').value, city: cy, role: role }) })
+    fetch(API + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ types: ['featured', 'regular'], cities: [], name: nm, email: em, wechat: '', lang: ko ? 'ko' : (zh ? 'zh' : 'en'), website: $('tsub-hp').value, city: cy, role: role }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.ok) {

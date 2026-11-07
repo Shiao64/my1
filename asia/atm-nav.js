@@ -1,7 +1,7 @@
 /* draft 2026-10-31 design fixes (map side) n5 early-load: #v-ID deep link restored (code from asia-recent.js, which is no longer loaded),
    ?from=<ID> on links to detail pages, empty state with Clear filters, grey placeholder cards + hidden counts until events.json arrives. */
 (function () {
-  var D = document, H = D.documentElement, zh = /^zh/i.test(H.lang || '');
+  var D = document, H = D.documentElement, lang = (H.getAttribute('data-asia-lang') || H.lang || ''), zh = /^zh/i.test(lang), ko = /^ko/i.test(lang);
   /* ---- loading placeholders (item 7) ---- */
   var st = D.createElement('style');
   st.textContent = 'html:not(.atm-data) .atm-featstrip,html:not(.atm-data) .atm-onehead,html:not(.atm-data) .china-city-head,html:not(.atm-data) .atm-favbar .atm-fav-n{visibility:hidden!important}' +
@@ -26,7 +26,7 @@
   }
   function chk() {
     if (!window._chinaData || !root) return;
-    if (!em) { em = D.createElement('div'); em.id = 'atm-empty'; em.setAttribute('role', 'status'); em.innerHTML = '<p>' + (zh ? '没有找到活动' : 'No events found') + '</p><button type="button">' + (zh ? '清除筛选' : 'Clear filters') + '</button>'; em.querySelector('button').addEventListener('click', clearAll); root.parentNode.insertBefore(em, root); }
+    if (!em) { em = D.createElement('div'); em.id = 'atm-empty'; em.setAttribute('role', 'status'); em.innerHTML = '<p>' + (ko ? '행사를 찾지 못했습니다' : (zh ? '没有找到活动' : 'No events found')) + '</p><button type="button">' + (ko ? '필터 지우기' : (zh ? '清除筛选' : 'Clear filters')) + '</button>'; em.querySelector('button').addEventListener('click', clearAll); root.parentNode.insertBefore(em, root); }
     var presearch = D.body.classList.contains('china-presearch'), reg = D.querySelector('input[value=regular]');
     var regNoCity = reg && reg.checked && D.getElementById('china-city') && D.getElementById('china-city').value === '';
     /* v11.8b: home view (atm-h-home, no search) never shows the empty state; the legacy search controls behind regNoCity were removed in c812be9 */ var homeView = H.classList.contains('atm-h-home') || presearch;

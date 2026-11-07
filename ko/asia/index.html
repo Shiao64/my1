@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ko" data-asia-lang="ko" data-asia-en="../../asia/" data-asia-zh="../../zh/asia/" data-asia-ko="./">
+<head>
+<meta charset="utf-8">
+<!-- first-load: dropped http-equiv Cache-Control no-cache; CDN/browser cache HTML --><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아시아 탱고 지도 · 셀렉트 탱고 위켄드</title>
+<meta name="description" content="중국, 홍콩, 대만의 탱고 페스티벌, 밀롱가, 프락티카 — 아시아 탱고 지도">
+<link rel="canonical" href="https://tangoweekend.org/ko/asia/">
+<link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
+<link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
+<link rel="alternate" hreflang="ko" href="https://tangoweekend.org/ko/asia/">
+<style id="atm-shell">/* first-paint shell; full atm-critical loads async — no layout redesign */
+html{background:#FBF5E9}body.china-page{margin:0;background:#FBF5E9;color:#5b7f84;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}
+.china-sticky-top{position:-webkit-sticky;position:sticky;top:0;z-index:60;background:#0e6e78;color:#fff}
+.china-map-hero{margin:0}.china-hero-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;min-height:44px;box-sizing:border-box}
+.china-map-hero h1{margin:0;font:700 18px/1.25 "Noto Serif SC",Georgia,serif;color:#F6D58E}
+.china-map-hero h1 a,.top-lang a{color:#F6D58E;text-decoration:none}
+</style>
+<link rel="stylesheet" href="../../asia/atm-critical.css?v=ac3" media="print" onload="this.media='all';try{window.atmArmImages&&window.atmArmImages(document)}catch(e){}">
+<noscript><link rel="stylesheet" href="../../asia/atm-critical.css?v=ac3"></noscript>
+<link rel="preconnect" href="https://data.tangoweekend.org" crossorigin>
+<script>
+/* Preload the events-core URL this host will actually fetch. Pages previews
+   stay on the git file. Production uses R2 with the same ?v= as the page,
+   without cache:'no-cache', so preload and the later fetch share one cache key. */
+(function(){
+  var host=''; try{host=location.hostname||'';}catch(e){}
+  var pages=/\.pages\.dev$/i.test(host);
+  var link=document.createElement('link');
+  link.rel='preload'; link.as='fetch';
+  if(pages){ link.href='/asia/events-core.json?v=china466'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china466'; link.crossOrigin='anonymous'; }
+  document.head.appendChild(link);
+})();
+</script>
+<script>
+/* ?card= : start that card's poster before deferred JS. t360 is the LCP
+   (high); thumb800 is the upgrade (low). Same R2 URLs the card will request. */
+(function(){
+  var cid=''; try{ cid=new URLSearchParams(location.search).get('card')||''; }catch(e){}
+  if(!cid) return;
+  var host=''; try{ host=location.hostname||''; }catch(e){}
+  var pages=/\.pages\.dev$/i.test(host);
+  var R2='https://data.tangoweekend.org';
+  var core=pages?'/asia/events-core.json?v=china466':R2+'/asia/events-core.json?v=china466';
+  var more=pages?'/asia/events-more.json?v=china460':R2+'/asia/events-more.json?v=china460';
+  function preload(href, pri){
+    if(!href) return;
+    var l=document.createElement('link');
+    l.rel='preload'; l.as='image'; l.href=href; l.type='image/webp';
+    l.setAttribute('fetchpriority', pri||'high');
+    l.setAttribute('data-atm-card-preload', pri||'high');
+    document.head.appendChild(l);
+  }
+  function posterOf(e){
+    var zh=/^zh/i.test(document.documentElement.lang||'')||/\/zh\//.test(location.pathname);
+    return (zh?e.poster_zh:e.poster_en)||e.poster||'';
+  }
+  function kick(p){
+    var raw=String(p||''), qi=raw.indexOf('?'), q=qi>=0?raw.slice(0,qi):raw, extra=qi>=0?raw.slice(qi):'';
+    if(!q||q.charAt(0)!=='/') return;
+    var stem=q.replace(/\.(jpe?g|png|webp)$/i,'');
+    preload(R2+'/images/thumb'+stem+'.webp'+(extra||'?v=t360'), 'high');
+    preload(R2+'/images/thumb800'+stem+'.webp'+(extra||'?v=t800'), 'low');
+  }
+  function find(list){
+    for(var i=0;i<(list||[]).length;i++) if(list[i]&&list[i].id===cid&&!list[i].hidden) return list[i];
+    return null;
+  }
+  fetch(core).then(function(r){ if(!r.ok) throw new Error('http'); return r.json(); }).then(function(list){
+    var e=find(list); if(e){ kick(posterOf(e)); return; }
+    return fetch(more).then(function(r){ if(!r.ok) throw new Error('http'); return r.json(); }).then(function(list2){
+      var e2=find(list2); if(e2) kick(posterOf(e2));
+    });
+  }).catch(function(){});
+})();
+</script>
+
+
+<style>
+/* china145: Add event popup restyled to Asia map teal/cream palette */
+#china-suggest-modal .china-suggest-backdrop{background:rgba(6,51,58,.6)}
+#china-suggest-modal .china-suggest-dialog{background:#fbf5e9;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:18px 18px 16px;max-width:520px;box-shadow:0 16px 48px rgba(6,51,58,.35)}
+#china-suggest-modal h2{font-family:var(--serif);color:#0a4f57;font-size:1.3rem;margin:0 30px 6px 0}
+#china-suggest-modal .china-suggest-x{color:#7a6255}#china-suggest-modal .china-suggest-x:hover{color:#0a4f57}
+#china-suggest-modal .china-suggest-intro{margin:0 0 12px;padding:8px 10px;background:#fff;border:1px solid #ead9b8;border-left:3px solid #0e6e78;border-radius:8px;font-size:.86rem;line-height:1.45;color:#2a1a14}
+#china-suggest-modal .china-suggest-group{margin:0 0 9px;min-width:0}
+#china-suggest-modal .china-suggest-group label{font-size:.84rem;font-weight:700;color:#0a4f57;margin:0 0 3px;line-height:1.3}
+#china-suggest-modal .china-suggest-group label .req{color:#b5654a;font-weight:500;font-size:.8em}
+#china-suggest-modal .china-suggest-group label .opt{color:#7a6255;font-weight:400;font-size:.8em}
+#china-suggest-modal .m-input{min-height:38px;padding:6px 10px;border:1px solid #ead9b8;border-radius:8px;background:#fff;color:#2a1a14;font-size:16px;width:100%;box-sizing:border-box}
+#china-suggest-modal .m-input::placeholder{color:#a8968a}
+#china-suggest-modal .m-input:focus{outline:none;border-color:#0e6e78;box-shadow:0 0 0 3px rgba(14,110,120,.18)}
+#china-suggest-modal .china-suggest-note{margin:14px 0 6px;padding-top:10px;border-top:1px dashed #ead9b8;font-size:.84rem;color:#2a1a14;line-height:1.45}
+#china-suggest-modal .china-suggest-row{display:flex;gap:10px;flex-wrap:wrap}
+#china-suggest-modal .china-suggest-row .china-suggest-group{flex:1 1 170px}
+#china-suggest-modal .china-suggest-at{background:#f6e3b4;border-color:#ead9b8;color:#0a4f57;padding:0 10px;border-radius:8px 0 0 8px}
+#china-suggest-modal .china-suggest-email .m-input{border-radius:0 8px 8px 0;min-width:0}
+#china-suggest-modal .china-suggest-actions{margin-top:12px}
+#china-suggest-modal #suggest-submit{width:100%;display:flex;align-items:center;justify-content:center;text-align:center;margin:0 auto;min-height:44px;border-radius:999px;font-size:1rem;background:#0e6e78!important;color:#f6e3b4!important;border:1px solid #e8c06a!important}
+#china-suggest-modal #suggest-submit:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
+@media (max-width:560px){#china-suggest-modal{padding:10px}#china-suggest-modal .china-suggest-dialog{padding:14px 14px 12px;max-height:94vh}}
+</style>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#0e6e78">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#0e6e78">
+
+
+
+
+
+<!-- v10.2: body <style> blocks moved here (same order) so first paint uses final styles -->
+<style id="draft-fav-hover">/* draft 2026-10-28: 收藏 活动卡片 hover scale-up, mouse only */@media (hover:hover) and (pointer:fine){.ev-card,.atm-fav-card{position:relative;z-index:0;transform:translateZ(0);backface-visibility:hidden;will-change:transform;transition:transform .2s ease}.ev-card:not(.atm-fav-card):hover{transform:translateZ(0) scale(1.05);z-index:2}.atm-fav-card:hover{transform:translateZ(0) scale(1.1);z-index:2}a.tw-fc{transition:transform .2s ease,box-shadow .2s ease}a.tw-fc:hover{transform:scale(1.08);position:relative;z-index:2;box-shadow:0 10px 24px rgba(0,0,0,.25)}}</style>
+
+
+
+
+
+
+<script id="atm-header-v2-js">(function(){function f(){var h=document.querySelector('.china-sticky-top');if(h)document.documentElement.style.setProperty('--atm-hh',h.offsetHeight+'px')}addEventListener('resize',f);addEventListener('load',f);document.addEventListener('DOMContentLoaded',f);setTimeout(f,800)})();</script>
+
+<script id="atm-back-js">/* draft 2026-10-31: '〈' = real back when we came from another page of this site; otherwise the chevron is hidden (title keeps its old behaviour) */document.addEventListener('DOMContentLoaded',function(){var a=document.querySelector('.china-map-hero h1 .atm-back');if(!a)return;var r='';try{var u=new URL(document.referrer);if(u.origin===location.origin)r=u.pathname}catch(x){}var can=!!r&&!/\/asia\/?$/.test(r)&&history.length>1;document.documentElement.classList.toggle('atm-noback',!can);a.addEventListener('click',function(e){if(e.button||e.metaKey||e.ctrlKey||e.shiftKey)return;e.preventDefault();if(can){e.stopPropagation();history.back();}});});</script>
+
+
+<script id="atm-more-anchor">/* draft: keep the tapped card's top fixed when 更多 opens/closes (scroll-snap re-snap + card-lift caused the jump) */
+(function(){var D=document,de=D.documentElement;
+D.addEventListener('click',function(e){var s=e.target.closest&&e.target.closest('details.b-more>summary');if(!s)return;
+ e.stopPropagation(); /* not a card-lift tap */
+ D.querySelectorAll('.ev-card.atm-lift').forEach(function(c){c.classList.remove('atm-lift')});
+ var c=s.closest('.ev-card')||s,t0=c.getBoundingClientRect().top,end=Date.now()+900;
+ de.style.scrollSnapType='none';
+ (function fix(){var d=c.getBoundingClientRect().top-t0;if(Math.abs(d)>.5)scrollBy(0,d);if(Date.now()<end)requestAnimationFrame(fix);else if(!D.querySelector('details.b-more[open]'))de.style.scrollSnapType='';})();
+},true);})();</script>
+
+<script id="atm-wx-js">document.addEventListener('DOMContentLoaded',function(){function LL(){return {m:'더 보기',s:'공유',c:'링크 복사',r:'새로고침',x:'취소',ok:'복사됨'}}var L=LL();
+var bar=document.querySelector('.china-map-hero .china-hero-bar');if(!bar)return;
+var b=document.createElement('button');b.type='button';b.className='atm-wx-more';b.setAttribute('aria-label',L.m);b.textContent='···';/* draft 10/31: ··· removed from header & frozen bar; actions moved into ☰ (window.atmWxAct) */
+var sh=document.createElement('div');sh.id='atm-wx-sheet';sh.innerHTML='<div class="sh" role="menu"><button data-a="s">'+L.s+'</button><button data-a="c">'+L.c+'</button><button data-a="r">'+L.r+'</button><button class="x" data-a="x">'+L.x+'</button></div>';document.body.appendChild(sh);
+var t=document.createElement('div');t.id='atm-wx-toast';document.body.appendChild(t);
+function toast(m){t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(function(){t.style.display='none'},m.length>12?2600:1500)}
+var U=null;function cur(){return U||location.href}function copy(){var u=cur();function fb(){var a=document.createElement('textarea');a.value=u;document.body.appendChild(a);a.select();try{document.execCommand('copy')}catch(e){}a.remove();toast(L.ok)}if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(function(){toast(L.ok)},fb);else fb()}
+function op(u){U=u||null;L=LL();b.setAttribute('aria-label',L.m);var bs=sh.querySelectorAll('button');bs[0].textContent=L.s;bs[1].textContent=L.c;bs[2].textContent=L.r;bs[3].textContent=L.x;sh.classList.add('open')}window.atmWxSheet=op;
+b.addEventListener('click',function(e){e.stopPropagation();op();return;L=LL();b.setAttribute('aria-label',L.m);var bs=sh.querySelectorAll('button');bs[0].textContent=L.s;bs[1].textContent=L.c;bs[2].textContent=L.r;bs[3].textContent=L.x;sh.classList.add('open')});
+sh.addEventListener('click',function(e){var a=e.target.getAttribute&&e.target.getAttribute('data-a');sh.classList.remove('open');act(a)});
+function act(a){U=null;L=LL();
+ if(a=='s'){if(/MicroMessenger/i.test(navigator.userAgent)){copy();setTimeout(function(){toast('링크를 복사했습니다. 오른쪽 위 ··· 에서 친구에게 공유하세요')},50)}else if(navigator.share)navigator.share({title:document.title,url:cur()}).catch(function(){});else copy()}else if(a=='c')copy();else if(a=='r')location.reload()}window.atmWxAct=act;
+});</script>
+
+<script id="atm-wx-title-js">(function(){var D=document,R=D.documentElement,el,raf=0;
+function zh(){return (R.getAttribute('data-asia-lang')||R.lang||'').indexOf('zh')===0}
+function lab(reg,n,city){if(reg)return (city||'')+' 이번 주 행사 '+n+'개';return (city?city+' · ':'')+'특별 행사 '+n+'개'}
+function upd(){raf=0;var bar=D.querySelector('.china-map-hero');if(!bar)return;if(!el){var b=bar.querySelector('.china-hero-bar');if(!b)return;el=D.createElement('div');el.className='atm-wx-ttl';el.setAttribute('aria-hidden','true');b.appendChild(el)}
+var sc=(scrollY||D.documentElement.scrollTop||0)>4;R.classList.toggle('atm-wx-s',sc);
+var hs=[].filter.call(D.querySelectorAll('.atm-onehead'),function(h){if(h.hidden)return false;if(h.classList.contains('atm-oh-reg'))return !!(h.parentNode&&h.parentNode.offsetHeight&&!h.parentNode.hidden);return !!h.offsetHeight}),t='';
+var reg=hs.filter(function(h){return h.classList.contains('atm-oh-reg')});
+if(reg.length){var n=0;reg.forEach(function(h){n+=+h.getAttribute('data-n')||0});t=lab(true,n,reg.length===1?reg[0].getAttribute('data-city'):'')}
+else{var lim=bar.getBoundingClientRect().bottom,pick=null;hs.forEach(function(h){if(!pick)pick=h;if(h.getBoundingClientRect().bottom<=lim+2)pick=h});
+ if(pick){var m=pick.textContent.match(/(\d+)/);if(pick.hasAttribute('data-n'))t=lab(false,+pick.getAttribute('data-n'),pick.getAttribute('data-city'));else if(m)t=lab(false,+m[1],'')}}
+if(t&&sc){if(el.textContent!==t)el.textContent=t;R.classList.add('atm-wx-t')}else R.classList.remove('atm-wx-t')}
+function q(){if(!raf)raf=requestAnimationFrame(upd)}addEventListener('scroll',q,{passive:true});addEventListener('resize',q);D.addEventListener('DOMContentLoaded',q);addEventListener('load',q);
+new MutationObserver(q).observe(D.documentElement,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','data-n','data-asia-lang','lang']});})();</script>
+
+<script id="atm-cardpv-js">(function(){var D=document,R=D.documentElement,act=null,opened=null;
+function detail(c){if(c.matches('a.atm-favfc'))return c.href;var as=c.querySelectorAll('.china-links a[href]'),best=null;for(var i=0;i<as.length;i++){var a=as[i],h=a.getAttribute('href')||'';if(/^(tel:|mailto:|#)/.test(h)||/\.(jpe?g|png|webp|gif)$/i.test(h))continue;if(/官网|网站|详情|Website|Details|Info|活动页/i.test(a.textContent))return a.href;if(!best)best=a.href}return best}
+function reset(){if(act)act.classList.remove('atm-tapsel');if(opened)opened.open=false;act=opened=null}
+function barB(){var b=D.querySelector('.china-sticky-top')||D.querySelector('.china-map-hero');return b?Math.max(0,b.getBoundingClientRect().bottom):0}
+function first(c){reset();act=c;c.classList.add('atm-tapsel');c.classList.remove('atm-lift');var d=c.querySelector('details.b-more');if(d&&!d.open){d.open=true;opened=d}
+ R.style.scrollSnapType='none';var go=function(){var y=scrollY+c.getBoundingClientRect().top-barB()-8;scrollTo({top:Math.max(0,y),behavior:'smooth'})};go();setTimeout(go,450);setTimeout(function(){R.style.scrollSnapType=''},1200);
+ if(c.matches('a.atm-favfc'))try{c.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'})}catch(x){}}
+function second(c){var h=detail(c);if(!h)return;if(window.atmFromUrl)h=window.atmFromUrl(h,c.getAttribute('data-id')||'');reset();if(h){if(c.matches('a.atm-favfc'))location.href=h;else{var w=null;try{w=open(h,'_blank')}catch(x){}if(w){try{w.opener=null}catch(x){}}else location.href=h}}}
+D.addEventListener('click',function(e){var t=e.target;if(!t.closest||t.closest('#atm-pop,#atm-wx-sheet,.china-map-hero'))return;var c=t.closest('a.atm-favfc,li.ev-card');
+ if(!c){return}
+ if(t.closest('.atm-heart,details.b-more,.atm-more,button,input,label,select'))return;if(c.matches('li.ev-card')&&t.closest('a'))return;if(c.matches('a.atm-favfc'))return;/* draft 10/31: favorite tap -> ?card single view (asia-fav.js) */
+ e.preventDefault();e.stopPropagation();var d=c.querySelector('details.b-more');if(d&&!d.open)d.open=true;/* draft 10/31 spec: collapsed card tap = expand in place (one level); expanded card tap = nothing; detail page only via 活动详情 button; 收起 collapses */},true);
+window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
+</head>
+<body class="china-page">
+<div class="china-sticky-top">
+<section class="hero china-map-hero">
+  <div class="wrap china-hero-bar">
+    <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
+      <h1 style="color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)"><a class="atm-back" href="./" aria-label="뒤로"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg><span>아시아 탱고 지도<span class="atm-beta">베타</span></span></a></h1>
+    </div>
+    <button type="button" class="china-suggest-open" id="china-suggest-open" hidden style="margin-left:auto!important;margin-right:6px!important">행사 제안</button>
+    <nav class="top-lang china-map-lang" aria-label="언어" style="margin-left:0!important">
+      <a href="../../zh/asia/" hreflang="zh-CN" lang="zh-CN" data-asia-lang-set="zh">中文</a>
+      <a href="../../asia/" hreflang="en" lang="en" data-asia-lang-set="en">English</a>
+      <a href="./" hreflang="ko" lang="ko" aria-current="page" data-asia-lang-set="ko">한국어</a>
+    </nav>
+  </div>
+</section>
+</div>
+<section id="filters" class="m-filters">
+  <div class="wrap m-filters-inner china-filters-compact">
+    <a class="tw-m-ad" href="../../event/beijing-2027-tango-weekend/ko/"><span class="tw-m-ad-k">즐겨찾기</span>제4회 베이징 셀렉트 탱고 위켄드 2027/6/18–22 <span aria-hidden="true">→</span></a>
+    <p class="note" id="china-date-hint" aria-live="polite"></p>
+  </div>
+</section>
+<section class="tw-m-feat" aria-label="즐겨찾기"><div class="wrap"><a class="tw-m-feat-card tw-feat-photo" href="../../event/beijing-2027-tango-weekend/ko/"><img class="tw-m-feat-img" data-atm-src="../../images/thumb/images/stw-feat.webp?v=t360" alt="" width="480" height="300" decoding="async"><span class="tw-m-feat-body"><span class="tw-m-feat-k">즐겨찾기</span><strong style="color:#F6D58E!important;text-shadow:0 2px 6px rgba(0,0,0,.55)">제4회 베이징 셀렉트 탱고 위켄드</strong><span class="tw-m-feat-meta" style="color:#F3E6CC!important">2027/06/18–2027/06/22 · 베이징 오가 미술관 호텔</span></span></a></div></section>
+<section id="events" class="alt">
+  <div class="wrap m-events-wrap">
+<div id="china-listings" aria-live="polite"><p class="note">행사를 불러오는 중…</p></div>
+<script src="../../asia/atm-early.js?v=ea3"></script><!-- first-load: lang pref + skeleton, one file -->
+<noscript><p class="note">행사 목록을 보려면 JavaScript가 필요합니다. 원본 데이터: <a href="../../asia/events.json">events.json</a></p></noscript>
+<p class="china-empty note china-global-empty" hidden>조건에 맞는 행사가 없습니다。</p>
+<p class="note china-disclaimer">행사 정보는 위챗과 페이스북에서 옮겼고, hongkongtango.com, milonga.tw, tangophilippines.com, tangomalaysia.wordpress.com을 참고했습니다. 시간은 주최의 최신 안내를 따릅니다.</p>
+  </div>
+</section>
+<div class="china-suggest-modal" id="china-suggest-modal" hidden>
+  <div class="china-suggest-backdrop" data-suggest-close></div>
+  <div class="china-suggest-dialog" role="dialog" aria-modal="true" aria-labelledby="china-suggest-title">
+    <button type="button" class="china-suggest-x" data-suggest-close aria-label="닫기">&times;</button>
+    <h2 id="china-suggest-title">행사 제안</h2>
+    <form class="china-suggest" id="china-suggest" novalidate>
+      <div class="china-suggest-group">
+        <label for="sf-name">행사 이름</label>
+        <input type="text" id="sf-name" class="m-input sf-field" data-label="행사 이름">
+      </div>
+      <div class="china-suggest-pair">
+      <div class="china-suggest-group">
+        <label for="sf-date">날짜</label>
+        <input type="text" id="sf-date" class="m-input sf-field" data-label="날짜">
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-time">시간</label>
+        <input type="text" id="sf-time" class="m-input sf-field" data-label="시간">
+      </div>
+      </div>
+      <div class="china-suggest-pair">
+      <div class="china-suggest-group">
+        <label for="sf-city">도시</label>
+        <input type="text" id="sf-city" class="m-input sf-field" data-label="도시">
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-venue">장소</label>
+        <input type="text" id="sf-venue" class="m-input sf-field" data-label="장소">
+      </div>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-address">주소</label>
+        <input type="text" id="sf-address" class="m-input sf-field" data-label="주소">
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-org">주최</label>
+        <input type="text" id="sf-org" class="m-input sf-field" data-label="주최">
+      </div>
+      <div class="china-suggest-pair">
+      <div class="china-suggest-group">
+        <label for="sf-phone">전화</label>
+        <input type="text" id="sf-phone" class="m-input sf-field" data-label="전화">
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-owx">위챗</label>
+        <input type="text" id="sf-owx" class="m-input sf-field" data-label="위챗">
+      </div>
+      </div>
+      <div class="china-suggest-group">
+        <label for="sf-kind">메모</label>
+        <input type="text" id="sf-kind" class="m-input sf-field" data-label="단발 또는 정기" aria-label="단발 또는 정기" placeholder="단발인지 정기인지 적어 주세요. 정기는 매주·매월처럼 주기를 적어 주세요">
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-url">행사 웹사이트</label>
+        <input type="url" id="suggest-url" name="url" class="m-input" placeholder="http://...">
+      </div>
+      <div class="china-suggest-row">
+      <div class="china-suggest-group">
+        <label for="suggest-email">이메일<span class="req">（필수）</span></label>
+        <div class="china-suggest-email">
+          <input type="email" id="suggest-email" name="email" class="m-input" required>
+        </div>
+      </div>
+      <div class="china-suggest-group">
+        <label for="suggest-wechat">위챗 ID</label>
+        <input type="text" id="suggest-wechat" name="wechat" class="m-input" placeholder="위챗 ID">
+      </div>
+      </div>
+      <p class="china-suggest-note" style="font-size:.8em">행사가 올라가면 알려 드립니다. 이메일과 위챗 ID는 공개하지 않습니다.</p>
+      <div class="china-suggest-actions">
+        <button type="submit" class="btn m-btn china-search-btn" id="suggest-submit" disabled>보내기</button>
+      </div>
+      <p class="note china-suggest-thanks" id="suggest-thanks" hidden>감사합니다</p>
+    </form>
+  </div>
+</div>
+<footer id="contact">
+  <div class="wrap">
+    <p style="text-align:center;margin:0">연락 · 이메일: <a href="mailto:info@tangoweekend.org">info@tangoweekend.org</a></p>
+  </div>
+</footer>
+<script>
+window.CHINA_UI = {
+  lang: 'ko',
+  eventsUrl: '../../asia/events-core.json?v=china466',
+  hideAddrEn: false,
+  keepOrganizerZh: false,
+  cityNames: {
+    'Beijing':'베이징','Shanghai':'상하이','Chongqing':'충칭','Guangzhou':'광저우','Shenzhen':'선전',
+    'Tianjin':'톈진','Zhengzhou':'정저우','Qingdao':'칭다오','Chengdu':'청두','Wuhan':'우한',
+    'Nanjing':'난징','Xi-an':'시안',"Xi'an":'시안','Hangzhou':'항저우','Xiamen':'샤먼','Haikou':'하이커우',
+    'Shenyang':'선양','Changwon':'창원','Seoul':'서울','Busan':'부산','Daejeon':'대전','Gwangju':'광주','Daegu':'대구','Cheongju':'청주','Jinju':'진주','Pohang':'포항','Ulsan':'울산','Kuala Lumpur':'쿠알라룸푸르','Da Nang':'다낭','Tokyo':'도쿄','Dalian':'다롄','Zhongshan':'중산','Zhuhai':'주하이','Jinan':'지난',
+    'Ningbo':'닝보','Hong Kong':'홍콩','Taipei':'타이베이','Miaoli':'먀오리','Suzhou':'쑤저우',
+    'Taichung':'타이중','Tainan':'타이난','New Taipei':'신베이','Zhubei':'주베이','Macao':'마카오','ShaXi':'사시','Gunsan':'군산','Osaka':'오사카'
+  },
+  typeNames: {
+    milonga:'밀롱가', practica:'프락티카', festival:'페스티벌', marathon:'마라톤',
+    encuentro:'엔쿠엔트로', championship:'챔피언십', weekend:'위켄드', event:'특별 행사'
+  },
+  daysShort: ['일','월','화','수','목','금','토'],
+  daysFull: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'],
+  others: '기타',
+  anyDate: '날짜 무관',
+  allDates: '모든 날짜',
+  fromPrefix: '부터 ',
+  throughPrefix: '까지 ',
+  dates: '날짜',
+  time: '시간',
+  venue: '장소',
+  city: '도시',
+  organizer: '주최',
+  note: '메모',
+  wechat: '위챗',
+  phone: '전화',
+  email: '이메일',
+  website: '웹사이트',
+  facebook: '페이스북',
+  video: '영상',
+  ourEvent: '이 사이트',
+  paused: '일시중지',
+  venueChange: '장소 변경',
+  cancelled: '취소됨',
+  cancelledWeek: '이번 주 휴무',
+  every: '매주 ',
+  dayTba: '요일 미정',
+  datesTba: '날짜 미정',
+  tba: '미정',
+  weeklyHead: '주간 밀롱가와 프락티카',
+  events: '특별 행사',
+  allCitiesChrono: '모든 도시 · 시작일순',
+  taiwanSuffix: ' · 대만',
+  hkSuffix: ' · 홍콩',
+  taiwanLabel: '대만',
+  noMatchCity: '이 도시에는 조건에 맞는 행사가 없습니다.',
+  dateRangeLabel: '날짜 범위: ',
+  fromLabel: '부터',
+  countWord: '개',
+  weeklyWord: '매주',
+  showingSep: ' · 표시 ',
+  listingsWord: '개',
+  hintShowAll: '(지난 행사 포함).',
+  hintWeekly: '(정기 활동은 주 단위).',
+  loadError: '행사 목록을 불러오지 못했습니다',
+  refresh: '새로고침해 주세요.',
+  suggestSubject: '아시아 탱고 지도 행사 제안',
+  suggestBodyUrl: '행사 웹사이트: ',
+  suggestReplyTo: '답장 이메일: ',
+  suggestWechat: '위챗 ID: ',
+  fsEmail: '이메일', fsWechat: '위챗 ID', fsUrl: '행사 웹사이트',
+  suggestSending: '보내는 중…',
+  suggestAutoReply: '감사합니다. 아시아 탱고 지도에 제안해 주신 행사를 받았고, 올라가면 답장드립니다. — tangoweekend.org'
+};
+</script>
+<script>
+/* Sync stub: Pages preview may build covers before deferred atm-data.js.
+   Full atm-data.js redefines these with JSON/R2 logic. */
+(function(w){
+  var R2='https://data.tangoweekend.org';
+  function host(){ try{return (w.location&&w.location.hostname)||'';}catch(e){return '';} }
+  function onPages(){ return /\.pages\.dev$/i.test(host()); }
+  if(!w.atmPosterUrl){
+    w.atmPosterUrl=function(path){
+      if(!path) return path;
+      if(/^https?:\/\//i.test(path)) return path;
+      if(onPages() && path.charAt(0)==='/') return R2+path;
+      return path;
+    };
+  }
+  if(!w.atmPosterUrls){
+    w.atmPosterUrls=function(p, wide){
+      var raw=String(p||''), qi=raw.indexOf('?'), q=qi>=0?raw.slice(0,qi):raw, extra=qi>=0?raw.slice(qi):'';
+      var stem=q.replace(/\.(jpe?g|png|webp)$/i,''), root=(wide?'/images/thumb800':'/images/thumb')+stem;
+      var v=extra||('?v='+(wide?'t800':'t360'));
+      function pub(path){ return w.atmPosterUrl(path); }
+      return { webp:pub(root+'.webp')+v, jpg:pub(root+'.jpg')+v, full:pub(q)+(extra||''), key:q, localJpg:root+'.jpg'+v };
+    };
+  }
+})(window);
+</script>
+<script defer src="../../asia/atm-data.js?v=r7"></script>
+<script defer src="../../asia/asia-map.js?v=china466"></script>
+<script defer src="../../asia/atm-later.js?v=lt3"></script>
+<script defer src="/asia/atm-home.js?v=h134"></script>
+<!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="../../asia/asia-howto.js?v=china278"></script> -->
+<script defer src="../../asia/asia-subscribe.js?v=sub58"></script>
+<script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
+<script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/즐겨찾기/.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
+<script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'밀롱가',practica:'프락티카',festival:'페스티벌',event:'특별 행사',marathon:'마라톤',championship:'챔피언십',encuentro:'엔쿠엔트로',weekend:'위켄드'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
+function marks(li){var tp=li.querySelector(':scope>.ev-top');if(!tp||tp.querySelector('.atm-marks'))return;var t=li.dataset.type,ty=[];if(li.dataset.alsoRegular&&!li.dataset.oneoff&&t!=='event')ty.push('event');ty.push(t);
+ var w=document.createElement('span');w.className='atm-marks';ty.forEach(function(k){var m=document.createElement('span');m.className='atm-mk';m.style.setProperty('--c',TC[k]||'#7A6E64');m.innerHTML='<i></i>';m.appendChild(document.createTextNode(TN[k]||(tp.querySelector('.ev-type')||{}).textContent||k));w.appendChild(m);});
+ if(FAV[li.dataset.id]){var f=document.createElement('span');f.className='atm-mk atm-fav';f.innerHTML="<svg viewBox='0 0 24 24' width='13' height='13' aria-hidden='true'><path d='M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z' fill='#C8102E' stroke='#C8102E' stroke-width='1.6' stroke-linejoin='round'/></svg>"+'즐겨찾기';w.appendChild(f);}tp.insertBefore(w,tp.firstChild);}
+function favk(){document.querySelectorAll('.tw-m-feat-k').forEach(function(k){if(/즐겨찾기/.test(k.textContent))k.classList.add('atm-fav-k');});}
+function run(){document.querySelectorAll(".ev-card").forEach(marks);favk();}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",run);})();</script>
+<script id="draft-layout-card-js">/* draft v2: wrap 活动卡片 description, add 展开/收起 */
+(function(){if(!matchMedia('(max-width:600px)').matches)return;
+function stick(){var t=document.querySelector('.china-sticky-top');if(t)document.documentElement.style.setProperty('--atm-sticky',t.offsetHeight+'px');}
+var TC=window.ATM_TC,TN={milonga:'밀롱가',practica:'프락티카',festival:'페스티벌',event:'특별 행사',marathon:'마라톤',championship:'챔피언십',encuentro:'엔쿠엔트로',weekend:'위켄드'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
+function marks(li){var tp=li.querySelector(':scope>.ev-top');if(!tp||tp.querySelector('.atm-marks'))return;var t=li.dataset.type,ty=[];if(li.dataset.alsoRegular&&!li.dataset.oneoff&&t!=='event')ty.push('event');ty.push(t);
+ var w=document.createElement('span');w.className='atm-marks';ty.forEach(function(k){var m=document.createElement('span');m.className='atm-mk';m.style.setProperty('--c',TC[k]||'#7A6E64');m.innerHTML='<i></i>';m.appendChild(document.createTextNode(TN[k]||(tp.querySelector('.ev-type')||{}).textContent||k));w.appendChild(m);});
+ if(FAV[li.dataset.id]){var f=document.createElement('span');f.className='atm-mk atm-fav';f.innerHTML="<svg viewBox='0 0 24 24' width='13' height='13' aria-hidden='true'><path d='M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z' fill='#C8102E' stroke='#C8102E' stroke-width='1.6' stroke-linejoin='round'/></svg>"+'즐겨찾기';w.appendChild(f);}tp.insertBefore(w,tp.firstChild);}
+function favk(){document.querySelectorAll('.tw-m-feat-k').forEach(function(k){if(/즐겨찾기/.test(k.textContent))k.classList.add('atm-fav-k');});}
+function fix(li){if(li.dataset.atm||li.dataset.p10||li.classList.contains('b-reg'))return;li.dataset.atm=1;
+ if(!li.querySelector(':scope>.ev-cover')){var n=document.createElement('div');var id=li.dataset.id||'',hh=0;for(var k=0;k<id.length;k++)hh=(hh*31+id.charCodeAt(k))>>>0;n.className='atm-nocover p'+(hh%3);
+ var tx=function(e){return e?e.textContent.replace(/\s+/g,' ').trim():'';},nm0=li.querySelector(':scope>.ev-name'),tp=li.querySelector(':scope>.ev-top'),tg=tp&&tp.querySelector('[class*=tag],[class*=badge],span');
+ var wt=tx(tp);if(tg&&wt.indexOf(tx(tg))==0)wt=wt.slice(tx(tg).length).replace(/^[\s·]+/,'');var vn='';[].forEach.call(li.querySelectorAll('div'),function(r){var t=tx(r);if(!vn&&/^场地/.test(t)&&r.children.length<4)vn=t.replace(/^场地\s*/,'').split(' · ')[0];});
+ var pt=document.createElement('div');pt.className='atm-pt';[['b',tx(nm0)],['span',wt],['span',vn]].forEach(function(a){if(!a[1])return;var e=document.createElement(a[0]);e.textContent=a[1];pt.appendChild(e);});n.appendChild(pt);li.insertBefore(n,li.firstChild);}
+ var d=document.createElement('div');d.className='atm-desc';var nm=li.querySelector(':scope>.ev-name');
+ [].slice.call(li.children).forEach(function(c){if(c.matches('div:not(.ev-top):not(.atm-nocover):not(.china-cancelled-bar):not(.china-links)'))d.appendChild(c);});
+ li.insertBefore(d,nm?nm.nextSibling:null);
+ var b=document.createElement('button');b.type='button';b.className='atm-more';b.textContent='펼치기';b.hidden=true;li.insertBefore(b,d.nextSibling);
+ b.addEventListener('click',function(e){e.stopPropagation();var o=li.classList.toggle('atm-open');if(!o)size();b.textContent=o?'접기':'펼치기';});
+ li.addEventListener('click',function(e){var cv=e.target.closest&&e.target.closest('.ev-cover,.atm-nocover');if(!cv||cv.parentNode!==li)return;e.preventDefault();e.stopPropagation();b.click();},true);}
+var PEEK=50,GAP=10;
+function vis(){return [].slice.call(document.querySelectorAll('.ev-card')).filter(function(c){return c.offsetParent&&!c.closest('[hidden]');});}
+function size(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--atm-sticky'))||118,av=innerHeight-sh-GAP;
+ cs.forEach(function(c,i){if(c.classList.contains('atm-open'))return;var n=cs[i+1],d=20;if(n){d=(n.offsetParent&&n.offsetParent===c.offsetParent)?n.offsetTop-(c.offsetTop+c.offsetHeight):n.getBoundingClientRect().top-c.getBoundingClientRect().bottom;}/* v10.5: layout gap, not the transformed rect — a lifted (scaled) card must not resize the others */var h=Math.round(av-d-PEEK)+'px';if(c.style.height!==h)c.style.height=h;});}
+var lastY=scrollY,up=false;
+function dim(){var cs=vis(),sh=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--atm-sticky'))||118,line=sh+GAP,best=null,bd=1e9;var y=scrollY;if(y!==lastY){up=y<lastY;lastY=y;}
+ if(up){for(var i=0;i<cs.length;i++){var r0=cs[i].getBoundingClientRect();if(r0.bottom>line+120){best=cs[i];break;}}}
+ if(!best)cs.forEach(function(c){var r=c.getBoundingClientRect();if(r.bottom<line+40)return;var dd=Math.abs(r.top-line);if(dd<bd){bd=dd;best=c;}});
+ cs.forEach(function(c){c.classList.toggle('atm-dim',!!best&&c!==best);});
+ var hs=[].slice.call(document.querySelectorAll('.ev-list>:not(.ev-card)'));document.querySelectorAll('.ev-list').forEach(function(l){var q=l.previousElementSibling;if(q)hs.push(q);});hs.forEach(function(h){var x=h.nextElementSibling;if(x&&x.classList.contains('ev-list'))x=x.querySelector('.ev-card');while(x&&!x.classList.contains('ev-card'))x=x.nextElementSibling;h.classList.toggle('atm-dim-h',!!best&&!!x&&x.classList.contains('atm-dim')&&!!(best.compareDocumentPosition(h)&4));});}
+var rq;addEventListener('scroll',function(){if(rq)return;rq=requestAnimationFrame(function(){rq=0;dim();});},{passive:true});
+function chk(){stick();favk();size();document.querySelectorAll('.ev-card').forEach(function(li){fix(li);marks(li);if(li.classList.contains('atm-open'))return;var d=li.querySelector('.atm-desc'),b=li.querySelector('.atm-more');if(!d||!li.offsetParent)return;var ov=d.scrollHeight>d.clientHeight+2;d.classList.toggle('atm-over',ov);if(b.hidden!==!ov)b.hidden=!ov;});dim();}
+/* v10.4: chk() itself writes hidden/style; drop its own mutation records so the observer does not re-trigger it forever (was a ~16x/s DOM-write loop; on phones a tap during a DOM change can be swallowed as hover = links not opening) */var t,mo=new MutationObserver(function(){clearTimeout(t);t=setTimeout(chk2,60);});function chk2(){chk();mo.takeRecords();}mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['hidden','style']});
+addEventListener('resize',chk2);addEventListener('load',chk2);})();</script>
+<script id="draft-title-tap">/* draft: tap 亚洲探戈地图 title → smooth-scroll to 筛选区 below sticky header */
+(function(){var h=document.querySelector('.china-sticky-top h1')||document.querySelector('h1');var f=document.getElementById('filters');if(!h||!f)return;h.style.cursor='pointer';
+h.addEventListener('click',function(){var st=document.querySelector('.china-sticky-top'),off=(st&&getComputedStyle(st).position==='sticky'?st.offsetHeight:0)+10,de=document.documentElement,old=de.style.scrollSnapType;
+de.style.scrollSnapType='none';window.scrollTo({top:Math.max(0,f.getBoundingClientRect().top+scrollY-off),behavior:'smooth'});
+clearTimeout(h._t);h._t=setTimeout(function(){de.style.scrollSnapType=old;},900);});})();</script>
+<script id="design-v9-js">(function(){
+var D=document,B=D.body;
+function setStick(){var t=D.querySelector('.china-sticky-top');if(t&&!D.documentElement.classList.contains('atm-compact'))D.documentElement.style.setProperty('--atm-sticky-full',t.offsetHeight+'px');}
+var on=false;function sc(){setStick();var t=D.querySelector('.china-sticky-top'),dl=t?Math.max(0,t.offsetHeight-44):0,room=D.documentElement.scrollHeight-innerHeight;var c=on?scrollY>20:(scrollY>80&&room-dl>140);if(c!==on){on=c;var h0=t?t.offsetHeight:0;if(t)t.style.marginBottom='';D.documentElement.classList.toggle("atm-compact",c);if(t&&c){var g=h0-t.offsetHeight;if(g>0)t.style.marginBottom=g+'px';}}} /* v10.2: keep the in-flow height constant when the header collapses so the page does not jump */
+addEventListener('scroll',sc,{passive:true});sc();
+D.addEventListener('click',function(e){if(!D.documentElement.classList.contains("atm-compact"))return;var h=e.target.closest&&e.target.closest('.china-map-hero h1');if(!h)return;var f=D.getElementById('filters');if(f)scrollTo({top:0,behavior:'smooth'});});
+function cards(){D.querySelectorAll('.ev-card').forEach(function(li){if(li.dataset.v9)return;li.dataset.v9=1;
+ var w=li.querySelector(':scope>.ev-top .ev-when');var hasT=[].some.call(li.querySelectorAll('.ev-line .ev-k'),function(k){return /^(时间|Time)$/i.test(k.textContent.trim())});
+ if(w&&hasT&&w.textContent.indexOf(' · ')>0)w.textContent=w.textContent.split(' · ')[0];
+ li.querySelectorAll('.china-addr').forEach(function(a){var n=a.firstChild;if(n&&n.nodeType===3)n.nodeValue=n.nodeValue.replace(/^\s*·\s*/,'');});});}
+function dots(){var g=D.querySelector('.tw-m-feat-grid.tw-feat-ad:not(.atm-favgrid)');if(!g||g._d||!matchMedia('(max-width:600px)').matches)return;var n=g.children.length;if(n<2)return;g._d=1;var d=D.createElement('div');d.className='atm-dots';d.setAttribute('aria-hidden','true');for(var i=0;i<n;i++)d.appendChild(D.createElement('i'));g.parentNode.insertBefore(d,g.nextSibling);
+ function u(){var c=g.children[0],w=c?c.offsetWidth+10:1,k=Math.min(n-1,Math.round(g.scrollLeft/w));if(g.scrollLeft+g.clientWidth>=g.scrollWidth-4)k=n-1;[].forEach.call(d.children,function(x,j){x.classList.toggle('on',j===k)});}g.addEventListener('scroll',u,{passive:true});u();}
+var t;function run(){cards();dots();setStick();}new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,80)}).observe(D.body,{childList:true,subtree:true});addEventListener('load',run);run();
+new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
+})();</script>
+
+<script defer src="/asia/cardB.js?v=cb144"></script>
+<!-- atm-stw-popup v5 (entry ad = E093; cover and card open the event page, not the poster file) -->
+
+<div id="atm-pop" role="dialog" aria-modal="true" aria-label="제4회 베이징 셀렉트 탱고 위켄드"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">광고</span></div><button type="button" class="ap-x" aria-label="닫기">&times;</button></div>
+<script>(function(){
+var K='atm_stw_popup_dismissed_until_v2',DAYS=7*864e5,ID='E093',p=document.getElementById('atm-pop');
+if(!p)return;
+if(/[?&](card|via)=/.test(location.search))return;
+var ls=null;try{localStorage.setItem('__atm_t','1');localStorage.removeItem('__atm_t');ls=localStorage}catch(e){}
+if(ls){var until=+ls.getItem(K)||0;if(Date.now()<until)return}
+var x=p.querySelector('.ap-x'),ul=p.querySelector('ul'),n=0,shown=false;
+var zh=false;
+function close(){p.classList.remove('on');document.removeEventListener('keydown',kd);if(ls){try{ls.setItem(K,String(Date.now()+DAYS))}catch(e){}}}
+function kd(e){if(e.key==='Escape'||e.key==='Esc')close();else if(e.key==='Tab'){var f=[].slice.call(p.querySelectorAll('a[href],button')).filter(function(z){return z.offsetParent});if(!f.length)return;var i=f.indexOf(document.activeElement);e.preventDefault();f[(i+(e.shiftKey?f.length-1:1))%f.length].focus()}}
+x.addEventListener('click',close);
+p.addEventListener('click',function(e){if(e.target===p)close()});
+function legacy(){if(/[?&](mode|city|date|q|type)=/.test(location.search))return true;try{if(sessionStorage.getItem('atm_legacy_list')==='1')return true}catch(e){}return false}
+function homeOn(){return document.documentElement.classList.contains('atm-h-on')}
+function openWith(node){if(shown||!node)return;shown=true;wire(node);setTimeout(function(){ul.appendChild(node);p.classList.add('on');document.addEventListener('keydown',kd);try{x.focus({preventScroll:true})}catch(e){}},250)}
+function tidy(src){var c=src.cloneNode(true);c.removeAttribute('id');c.classList.remove('atm-flash','atm-viewed');c.querySelectorAll('[id]').forEach(function(z){z.removeAttribute('id')});c.querySelectorAll('img[loading="lazy"]').forEach(function(z){z.loading='eager'});if(zh){var nm=c.querySelector('.ev-name');if(nm)nm.textContent='2027北京精選探戈週末'}return c}
+function esc(t){return String(t==null?'':t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function pad(n){return(n<10?'0':'')+n}
+function whenOf(e){
+  if(!e.start)return '';
+  var end=e.end||e.start,A=e.start.split('-').map(Number),B=end.split('-').map(Number);
+  if(true){var s=A[0]+'/'+pad(A[1])+'/'+pad(A[2]);if(e.start===end)return s;return s+'–'+B[0]+'/'+pad(B[1])+'/'+pad(B[2])}
+  var M=['January','February','March','April','May','June','July','August','September','October','November','December'],ma=M[A[1]-1],mb=M[B[1]-1];
+  if(e.start===end)return ma+' '+A[2]+', '+A[0];
+  if(A[0]!==B[0])return ma+' '+A[2]+', '+A[0]+' – '+mb+' '+B[2]+', '+B[0];
+  if(A[1]!==B[1])return ma+' '+A[2]+' – '+mb+' '+B[2]+', '+A[0];
+  return ma+' '+A[2]+'–'+B[2]+', '+A[0];
+}
+function cityName(c){if(!c)return '';var m={Beijing:'베이징',Shanghai:'상하이','Hong Kong':'홍콩',Chengdu:'청두',Hangzhou:'항저우',Chongqing:'충칭',Guangzhou:'광저우',Taipei:'타이베이',Shenzhen:'선전',Tianjin:'톈진',Suzhou:'쑤저우',Nanjing:'난징',Wuhan:'우한',Qingdao:'칭다오',Shenyang:'선양'};return m[c]||c}
+function ownPath(other){var om=String(other||'').match(/^https?:\/\/(?:www\.)?tangoweekend\.org(\/event\/[^/]+\/)/);return om?om[1]+'ko/':''}
+function wire(li){
+  if(!li||li.dataset.atmAdGo)return;
+  var dest=li.getAttribute('data-own')||'';
+  if(!dest){var w=li.querySelector('a.china-linkbtn[href*="/event/"]');dest=(w&&w.getAttribute('href'))||'';}
+  if(!dest||dest.charAt(0)!=='/')return;
+  li.dataset.atmAdGo='1';li.setAttribute('data-own',dest);li.style.cursor='pointer';
+  var cov=li.querySelector('a.ev-cover');
+  if(cov){cov.setAttribute('href',dest);cov.removeAttribute('target');cov.removeAttribute('aria-hidden');cov.removeAttribute('tabindex');}
+}
+document.addEventListener('click',function(e){
+  if(!p.classList.contains('on')||!e.target||!e.target.closest)return;
+  if(e.target===p||e.target.closest('.ap-x,button,summary,a.china-linkbtn,a.b-det,a.b-map,.atm-heart,.b-less'))return;
+  var card=e.target.closest('#atm-pop .ev-card');if(!card)return;
+  var dest=card.getAttribute('data-own')||'';if(!dest)return;
+  if(e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  e.preventDefault();e.stopPropagation();location.assign(dest);
+},true);
+function build(e){
+  var name=e.name_ko||'제4회 베이징 셀렉트 탱고 위켄드';
+  var poster=(zh&&e.poster_zh)||e.poster||'';
+  var pu=poster&&window.atmPosterUrls?window.atmPosterUrls(poster,false):null;
+  var _ph=''; try{_ph=(location&&location.hostname)||'';}catch(_e){}
+  var _abs=/\.pages\.dev$/i.test(_ph)?'https://data.tangoweekend.org':'';
+  var pbase=poster?(_abs+'/images/thumb'+String(poster).split('?')[0].replace(/\.(jpe?g|png|webp)$/i,'')):'';
+  var pfull=poster?(_abs+String(poster)):'';
+  var when=whenOf(e);
+  var TN={marathon:'마라톤',festival:'페스티벌',event:'특별 행사',milonga:'밀롱가',practica:'프락티카',weekend:'위켄드',encuentro:'엔쿠엔트로',championship:'챔피언십'};
+  var other=(e.links&&e.links.other)||'',path=ownPath(other),onsite=!!path;
+  if(!path&&other)path=other;
+  var orgs=(e.organizers_ko&&e.organizers_ko.length)?e.organizers_ko:(e.organizers_en&&e.organizers_en.length?e.organizers_en:(e.organizers||[]));
+  var li=document.createElement('li');
+  li.className='ev-card'+(poster?' ev-has-poster':'')+' china-stw-highlight';
+  li.setAttribute('data-id',ID);li.setAttribute('data-atm-ad','event');li.setAttribute('data-type',e.type||'');li.setAttribute('data-kind',e.kind||'event');
+  if(onsite)li.setAttribute('data-own',path);
+  var cover=poster?'<a class="ev-cover" href="'+esc(onsite?path:(pu?pu.full:poster))+'"'+(onsite?'':' target="_blank" rel="noopener"')+'><picture><source type="image/webp" data-atm-srcset="'+esc(pu?pu.webp:pbase+'.webp?v=t360')+'"><img data-atm-src="'+esc(pu?pu.jpg:pbase+'.jpg?v=t360')+'" data-full="'+esc(pu?pu.full:poster)+'"'+(pu&&window.ATM_DATA_OK?' data-local="'+esc(pu.localJpg)+'"':'')+' alt="" decoding="async" onerror="if(this.dataset.fell)return;this.dataset.fell=\'1\';var s=this.parentNode&&this.parentNode.querySelector(\'source\');if(s)s.removeAttribute(\'srcset\');if(this.dataset.full)this.src=this.dataset.full;else if(this.dataset.local)this.src=this.dataset.local"></picture></a>':'';
+  var links='';
+  if(!zh&&e.links&&e.links.facebook)links+='<a class="china-linkbtn" href="'+esc(e.links.facebook)+'" target="_blank" rel="noopener">Facebook</a>';
+  if(path)links+='<a class="china-linkbtn" href="'+esc(path)+'"'+(onsite?'':' target="_blank" rel="noopener"')+'>웹사이트</a>';
+  li.innerHTML=cover+'<div class="ev-top"><span class="ev-type">'+esc(TN[e.type]||e.type||'')+'</span><span class="ev-when">'+esc(when)+'</span></div><h3 class="ev-name">'+esc(name)+'</h3><div class="ev-line"><span class="ev-k">날짜</span> '+esc(when)+'</div><div class="ev-line"><span class="ev-k">도시</span> '+esc(cityName(e.city))+'</div>'+(orgs.length?'<div class="ev-line"><span class="ev-k">주최</span> '+esc(orgs.join(', '))+'</div>':'')+(links?'<div class="ev-line china-links">'+links+'</div>':'');
+  wire(li);return li;
+}
+function fromListings(){var src=document.querySelector('#china-listings .ev-card[data-id="'+ID+'"]');return src?tidy(src):null}
+function fromData(cb){
+  var loadCore=window.atmDataJson?window.atmDataJson('/asia/events-core.json?v=china466'):fetch('/asia/events-core.json?v=china466').then(function(r){if(!r.ok)throw new Error('http');return r.json()});
+  loadCore.then(function(list){
+    var e=null;for(var i=0;i<list.length;i++)if(list[i]&&list[i].id===ID&&!list[i].hidden){e=list[i];break}
+    if(!e){cb(false);return}openWith(build(e));cb(true);
+  }).catch(function(){cb(false)});
+}
+function show(){
+  if(homeOn()){fromData(function(ok){if(!ok)openWith(fromListings())});return}
+  if(legacy()){var c=fromListings();if(c){openWith(c);return}if(++n<80)return setTimeout(show,100);fromData(function(){});return}
+  if(++n<80)return setTimeout(show,100);
+  fromData(function(ok){if(!ok)openWith(fromListings())});
+}
+show();
+})();</script>
+
+<script id="draft-favtall-js">(function(){var D=document;function fit(){var R=D.documentElement;if(!matchMedia('(max-width:600px)').matches||!D.body.classList.contains('china-presearch')){R.style.removeProperty('--atm-favh');return}
+var g=[].find.call(D.querySelectorAll('.tw-m-feat-grid.tw-feat-ad'),function(x){return x.offsetParent&&(x.classList.contains('atm-fold')||x.getBoundingClientRect().height>0)});if(!g||!g.firstElementChild)return;var top=g.getBoundingClientRect().top+scrollY,dots=g.nextElementSibling&&g.nextElementSibling.classList.contains('atm-dots')?g.nextElementSibling.offsetHeight+16:12;var fs=D.querySelector('.atm-featstrip');if(fs&&!fs.hidden)dots+=fs.offsetHeight+14;
+var h=Math.round(innerHeight-top-dots-16);if(h<228)h=228;if(h>640)h=640;R.style.setProperty('--atm-favh',h+'px')}
+var t;function q(){clearTimeout(t);t=setTimeout(fit,80)}addEventListener('load',q);D.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.atm-favbar'))setTimeout(fit,0)});addEventListener('resize',q);new MutationObserver(q).observe(D.body,{attributes:true,attributeFilter:['class']});setTimeout(fit,600);setTimeout(fit,1800)})();</script>
+
+<script id="draft-oneline-js">document.body.classList.add("atm-1l");</script>
+
+<script id="draft-featstrip-js">(function(){var D=document,s=D.createElement('button');s.type='button';s.className='atm-featstrip atm-onehead';s.hidden=true;
+function cnt(){var c=D.getElementById('china-city'),v=c&&c.value,h=null;if(v){var o=c.options[c.selectedIndex],nm=o?(o.textContent||'').replace(/[（(]\d+[)）]/g,'').trim():'';[].some.call(D.querySelectorAll('.china-city-block .china-city-head'),function(x){if(nm&&x.textContent.indexOf(nm)===0){h=x;return true}})}else h=D.querySelector('.china-chrono .china-city-head');
+if(!h)return null;var fl=h.parentNode.querySelector('.china-from-line'),t=(fl&&fl.textContent)||'',m=t.match(/共(\d+)项|(\d+) featured/)||h.textContent.match(/[（(](\d+)[)）]/);return m?+(m[1]||m[2]):null}
+function reg(){var r=D.querySelector('input[name=etype][value=regular]');return r&&r.checked}
+function upd(){var fb=D.querySelector('.atm-favbar'),sec=fb&&fb.parentNode;if(!sec)return;var hd=sec.querySelector('.tw-feat-head');if(hd){if(s.nextSibling!==hd)sec.insertBefore(s,hd)}else if(s.parentNode!==sec||s.nextSibling)sec.appendChild(s);
+var n=cnt();if(n==null||reg()){if(!s.hidden){s.hidden=true;dispatchEvent(new Event('resize'))}return}var t='특별 행사 '+n+'개 \u25BE';var hh='<span>특별 행사 <span class="atm-oh-n">'+n+'</span>개</span><span class="atm-oh-car">\u25BE</span>';var ch=s.hidden||s._h!==hh;if(s._h!==hh){s._h=hh;s.innerHTML=hh}s.hidden=false;if(ch)dispatchEvent(new Event('resize'))}
+s.addEventListener('click',function(){var b=D.getElementById('china-search');if(b)b.click()});
+function collapsedFirst(){if(!matchMedia('(max-width:600px)').matches)return;try{if(localStorage.getItem('atm_fav_collapsed_v1')!=='1')return}catch(e){return}var fg=D.querySelector('.atm-favgrid');if(!fg||fg.hidden)return;if(!D.body.classList.contains('china-presearch')){if(arguments[0]==='load'){var R0=D.documentElement;R0.classList.add('atm-nosnap');var u0=function(){R0.classList.remove('atm-nosnap');removeEventListener('touchstart',u0);removeEventListener('wheel',u0);removeEventListener('keydown',u0)};addEventListener('touchstart',u0,{passive:true});addEventListener('wheel',u0,{passive:true});addEventListener('keydown',u0);[0,300,800].forEach(function(ms){setTimeout(function(){scrollTo(0,0)},ms)})}return}var b=D.getElementById('china-search');if(b){var R=D.documentElement;R.classList.add('atm-nosnap');var un=function(){R.classList.remove('atm-nosnap');removeEventListener('touchstart',un);removeEventListener('wheel',un);removeEventListener('keydown',un)};addEventListener('touchstart',un,{passive:true});addEventListener('wheel',un,{passive:true});addEventListener('keydown',un);b.click();[60,400,900,1400,2000].forEach(function(ms){setTimeout(function(){scrollTo(0,0)},ms)})}}
+D.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('.atm-favbar'))setTimeout(collapsedFirst,260)});
+var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(upd,120)}).observe(D.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});D.addEventListener('change',function(){setTimeout(upd,150)});
+addEventListener('load',function(){upd();setTimeout(function(){upd();collapsedFirst('load')},900)})})();</script>
+
+<script id="draft-onehead-js">(function(){var D=document;function zh(){return (D.documentElement.getAttribute('data-asia-lang')||D.documentElement.lang||'').indexOf('zh')===0}
+function today(){var d=new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function run(){var Z=zh(),fe=D.querySelector('input[type=date]'),fv=fe&&fe.value||'',td=today();
+D.querySelectorAll('.china-city-head').forEach(function(h){var p=h.parentNode,t=h.textContent,m=t.match(/[（(](\d+)[)）]|(\d+)\s*场/);if(!m)return;var n=+(m[1]||m[2]);
+var reg=!!p.querySelector('.china-list > li[data-kind="weekly"]:not([hidden])')||/매주|每周|Weekly/.test(t),chrono=p.classList.contains('china-chrono');
+var city=chrono?'':t.split(/[（(]|\d+\s*场| — /)[0].trim();
+var from='';if(!reg&&fv&&fv!==td){var q=fv.split('-');from=(+q[1])+'/'+(+q[2])+'부터'}
+var lab=(reg?'정기 활동':'특별 행사')+' <span class="atm-oh-n">'+n+'</span>개';
+var html=(city?'<span class="atm-oh-city">'+esc(city)+' ·</span>':'')+'<span>'+lab+'</span>'+(from?'<span class="atm-oh-from">'+from+'</span>':'');
+var o=h.previousElementSibling;if(!o||!o.classList.contains('atm-onehead')){o=D.createElement('div');o.className='atm-onehead';o.setAttribute('role','heading');o.setAttribute('aria-level','2');p.insertBefore(o,h)}
+if(o._h!==html){o._h=html;o.innerHTML=html}o.classList.toggle('atm-oh-reg',reg);if(o.getAttribute('data-n')!==String(n))o.setAttribute('data-n',n);if((o.getAttribute('data-city')||'')!==city)o.setAttribute('data-city',city);if(!h.classList.contains('atm-oh-hide'))h.classList.add('atm-oh-hide');var fl=h.nextElementSibling;if(fl&&fl.classList.contains('china-from-line')&&!fl.classList.contains('atm-oh-hide'))fl.classList.add('atm-oh-hide')})}
+var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).observe(D.body,{childList:true,subtree:true,characterData:true});addEventListener('load',run);D.addEventListener('change',function(){setTimeout(run,120)})})();</script>
+<script defer src="/asia/atm-social.js?v=s29"></script>
+</body>
+</html>

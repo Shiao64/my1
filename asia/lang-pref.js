@@ -1,7 +1,7 @@
 /* Asia Tango Map language preference.
-   v11.8 draft: the URL decides the language. /zh/... always Chinese, /asia/ always English;
-   no redirect here (browser language / saved choice only apply on the bare homepage /, see /index.html).
-   Explicit switch click saves localStorage asiaMapLang = 'en' | 'zh' (used by / next time). */
+   The URL decides the language. /ko/... Korean, /zh/... Chinese, /asia/ English.
+   No redirect here (browser language / Korea IP / saved choice only apply on /, see /index.html).
+   Explicit switch click saves localStorage asiaMapLang = 'en' | 'zh' | 'ko' (used by / next time). */
 (function () {
   var KEY = 'asiaMapLang';
   var html = document.documentElement;
@@ -36,7 +36,7 @@
     while (t && t !== document && !(t.getAttribute && t.getAttribute('data-asia-lang-set'))) t = t.parentNode;
     if (!t || t === document) return;
     var v = t.getAttribute('data-asia-lang-set');
-    if (v === 'en' || v === 'zh') save(v);
+    if (v === 'en' || v === 'zh' || v === 'ko') save(v);
   }, true);
 
   void page; void enUrl; void zhUrl; void isZhBrowser;

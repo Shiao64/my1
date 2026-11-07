@@ -4,8 +4,9 @@
    while the visitor has no personal favorites (html.atm-has-fav hides them). Storage blocked → in-memory only. */
 (function () {
   var KEY = 'atm_fav_v1', mem = null;
-  var zh = /^zh/i.test(document.documentElement.lang || '');
-  var T = zh ? { title: '我的收藏', clear: '清除', add: '加入收藏', del: '取消收藏' } : { title: 'My favorites', clear: 'Clear', add: 'Add to favorites', del: 'Remove from favorites' };
+  var lang = (document.documentElement.getAttribute('data-asia-lang') || document.documentElement.lang || '');
+  var zh = /^zh/i.test(lang), ko = /^ko/i.test(lang);
+  var T = ko ? { title: '내 즐겨찾기', clear: '지우기', add: '즐겨찾기', del: '즐겨찾기 해제' } : zh ? { title: '我的收藏', clear: '清除', add: '加入收藏', del: '取消收藏' } : { title: 'My favorites', clear: 'Clear', add: 'Add to favorites', del: 'Remove from favorites' };
   function load() { if (mem) return mem.slice(); try { var a = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(a) ? a.filter(function (x) { return typeof x === 'string'; }) : []; } catch (e) { return []; } }
   function save(a) { mem = null; try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) { mem = a.slice(); } }
   function byId() { var m = {}; (window._chinaData || []).forEach(function (r) { if (!r.hidden) m[r.id] = r; }); return m; }
@@ -34,7 +35,7 @@
   var CK = 'atm_fav_collapsed_v1', TK = 'atm_fav_toasted_v1', memC = false, memT = false;
   function getC() { try { return localStorage.getItem(CK) === '1'; } catch (e) { return memC; } }
   function setC(v) { memC = v; try { localStorage.setItem(CK, v ? '1' : '0'); } catch (e) {} }
-  var T2 = zh ? { hint: '点卡片右上角的心，加入我的收藏', toast: '已加入我的收藏' } : { hint: 'Tap the heart on a card to save it', toast: 'Saved to My favorites' };
+  var T2 = ko ? { hint: '카드 오른쪽 위 하트를 눌러 즐겨찾기에 넣으세요', toast: '즐겨찾기에 저장했습니다' } : zh ? { hint: '点卡片右上角的心，加入我的收藏', toast: '已加入我的收藏' } : { hint: 'Tap the heart on a card to save it', toast: 'Saved to My favorites' };
   var bar = document.createElement('button'); bar.type = 'button'; bar.className = 'atm-favbar';
   var grid = document.createElement('div'); grid.className = 'tw-m-feat-grid tw-feat-ad atm-favgrid';
   function hostGrid() { return document.querySelector('.tw-m-feat-grid.tw-feat-ad:not(.atm-favgrid)'); }
@@ -49,7 +50,7 @@
     location.href = location.pathname + qs + '#v-' + encodeURIComponent(r.id);
   }
   function d(x) { return (x || '').replace(/-/g, '/'); }
-  var WD = zh ? ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  var WD = ko ? ['일', '월', '화', '수', '목', '금', '토'] : zh ? ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   function meta(r) {
     var w = r.kind === 'weekly' ? ((r.weekdays || (r.weekday != null ? [r.weekday] : [])).map(function (i) { return WD[i % 7]; }).join('/') + (r.time ? ' ' + r.time : '')) : (d(r.start) + (r.end && r.end !== r.start ? '–' + d(r.end) : ''));
     return w + ' · ' + cityName(r);
@@ -64,7 +65,7 @@
     var pos = r.poster || ls || '', q = String(pos).split('?')[0], base = '/images/thumb' + q.replace(/\.(jpe?g|png|webp)$/i, '');
     var urls = window.atmPosterUrls ? window.atmPosterUrls(q, false) : { webp: base + '.webp?v=t360', jpg: base + '.jpg?v=t360' };
     a.innerHTML = '<span class="tw-fc-img">' + (pos ? '<picture><source type="image/webp" data-atm-srcset="' + esc(urls.webp) + '"><img data-atm-src="' + esc(urls.jpg) + '" data-full="' + esc(q) + '" onerror="if(this.dataset.fell)return;this.dataset.fell=\'1\';var s=this.parentNode&&this.parentNode.querySelector(\'source\');if(s)s.removeAttribute(\'srcset\');if(this.dataset.full)this.src=this.dataset.full" decoding="async" alt="" style="object-position:center 20%"></picture>' : '<span class="atm-noimg">' + esc(cityName(r)) + '</span>') + '</span>' +
-      '<span class="tw-fc-body"><strong>' + esc((zh && r.name_zh) || r.name) + '</strong><span class="tw-fc-meta">' + esc(meta(r)) + '</span></span>' +
+      '<span class="tw-fc-body"><strong>' + esc((ko && r.name_ko) || (zh && r.name_zh) || r.name) + '</strong><span class="tw-fc-meta">' + esc(meta(r)) + '</span></span>' +
       '<span class="atm-heart" role="button" tabindex="0" aria-pressed="true" aria-label="' + T.del + '" title="' + T.del + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + HP + '"/></svg></span>';
     return a;
   }

@@ -48,7 +48,7 @@ def main():
     data = read('asia/atm-data.js')
     check('en loads helper', 'atm-data.js?v=r7' in en)
     check('zh loads helper', 'atm-data.js?v=r7' in zh)
-    r2_core = 'https://data.tangoweekend.org/asia/events-core.json?v=china465'
+    r2_core = 'https://data.tangoweekend.org/asia/events-core.json?v=china466'
     check('en r2 core keeps version', r2_core in en)
     check('zh r2 core keeps version', r2_core in zh)
     check('en no bare r2 core', 'events-core.json"' not in en and "events-core.json';" not in en)

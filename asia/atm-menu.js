@@ -1,7 +1,9 @@
 /* draft 2026-10-30: header hamburger menu (footer removed). Holds 分享/复制链接/刷新 (moved from ··· 10/31), 资料来源 (moved .china-disclaimer), 联系我们, 订阅, 提交活动, 语言. Only existing content. */
 (function () {
-  var zh = /^zh/i.test(document.documentElement.lang || '');
-  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅通知', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
+  var lang = (document.documentElement.getAttribute('data-asia-lang') || document.documentElement.lang || '');
+  var zh = /^zh/i.test(lang), ko = /^ko/i.test(lang);
+  var L = ko ? { menu: '메뉴', close: '닫기', src: '출처', contact: '연락', sub: '행사 알림', add: '행사 제안', langL: '언어', share: '공유', copy: '링크 복사', reload: '새로고침', lang: '한국어', site: '아시아 탱고 지도' }
+             : zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅通知', add: '提交活动', langL: '语言', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
              : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Event alerts', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
   var css = document.createElement('style');
   css.textContent = 'html body footer#contact,html body #contact{display:none!important}' +
@@ -22,13 +24,21 @@
     'html body.china-page nav.top-lang.china-map-lang{overflow:visible!important;border-radius:0!important;min-height:44px!important;padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;display:inline-flex!important;align-items:center}' +
     'html body.china-page nav.top-lang.china-map-lang a[aria-current]{display:none!important}' +
     'html body.china-page nav.top-lang.china-map-lang a.atm-langbtn,.atm-burger{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;padding:0!important;margin:0!important;border:0!important;background:transparent!important;box-shadow:none!important;color:#F6D58E!important;font-size:13px!important;font-weight:700!important;line-height:1!important;letter-spacing:.02em;text-decoration:none!important;display:inline-flex!important;align-items:center;justify-content:center;position:relative;border-radius:0!important}' +
+    'html body.china-page nav.top-lang.china-map-lang a.atm-langbtn[data-asia-lang-set="ko"]{width:auto!important;min-width:44px!important;padding:0 8px!important;font-size:12px!important}' +
     'html body.china-page nav.top-lang.china-map-lang a.atm-langbtn:before,html body .atm-burger:before{content:"";position:absolute!important;inset:4px!important;top:4px!important;bottom:4px!important;left:4px!important;right:4px!important;width:auto!important;height:auto!important;transform:none!important;display:block!important;border:1.5px solid rgba(246,213,142,.75);border-radius:10px;background:rgba(0,0,0,.12);pointer-events:none}' +
     'html body.china-page nav.top-lang.china-map-lang a.atm-langbtn:after{display:none!important}.atm-burger svg{position:relative;width:20px!important;height:20px!important}' +
     'html.atm-sug-on #china-suggest-modal:not([hidden]){display:flex!important}';
   document.head.appendChild(css);
   var nav = document.querySelector('nav.top-lang'); if (!nav) return;
-  var other = nav.querySelector('a:not([aria-current])');
-  if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', zh ? 'English' : '中文'); other.title = zh ? 'English' : '中文'; other.textContent = zh ? 'EN' : '中文'; }
+  var SHORT = { en: 'EN', zh: '中文', ko: '한국어' };
+  var others = [].slice.call(nav.querySelectorAll('a:not([aria-current])'));
+  others.forEach(function (other) {
+    var set = other.getAttribute('data-asia-lang-set') || '';
+    var label = SHORT[set] || other.textContent.trim();
+    other.classList.add('atm-langbtn');
+    other.setAttribute('aria-label', label); other.title = label; other.textContent = label;
+  });
+  var other = others[0];
   var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-burger'; b.setAttribute('aria-label', L.menu); b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
   nav.parentNode.insertBefore(b, nav.nextSibling);
@@ -36,7 +46,7 @@
   function ic(p) { return '<svg class="atm-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="' + p + '"/></svg>'; }
   var I = { lang: 'M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18', add: 'M12 5v14M5 12h14', sub: 'M6 16V11a6 6 0 0112 0v5l1.5 2h-15zM10 20h4', mail: 'M3 6h18v12H3zM3 6l9 7 9-7', src: 'M4 5h7v14H4zM13 5h7v14h-7z', share: 'M12 3v12M7 8l5-5 5 5M5 13v7h14v-7', copy: 'M9 9h11v11H9zM5 15H4V4h11v1', reload: 'M20 12a8 8 0 11-2.3-5.7M20 4v5h-5' };
   m.innerHTML = '<div class="atm-mbg" data-x></div><div class="atm-mp" role="dialog" aria-modal="true" aria-label="' + L.menu + '"><div class="atm-mhd"><span>' + L.site + '</span><button type="button" class="atm-mx" data-x aria-label="' + L.close + '">&times;</button></div>' +
-    (other ? '<a class="atm-mi atm-mlang" href="' + other.getAttribute('href') + '" hreflang="' + (other.getAttribute('hreflang') || '') + '" data-asia-lang-set="' + (other.getAttribute('data-asia-lang-set') || '') + '">' + ic(I.lang) + L.langL + '<small>' + L.lang + '</small></a>' : '') +
+    others.map(function (o) { var set = o.getAttribute('data-asia-lang-set') || ''; var label = SHORT[set] || o.textContent.trim(); return '<a class="atm-mi atm-mlang" href="' + o.getAttribute('href') + '" hreflang="' + (o.getAttribute('hreflang') || '') + '" data-asia-lang-set="' + set + '">' + ic(I.lang) + L.langL + '<small>' + label + '</small></a>'; }).join('') +
     '<button type="button" class="atm-mi" data-a="add">' + ic(I.add) + L.add + '</button>' +
     '<button type="button" class="atm-mi" data-a="sub">' + ic(I.sub) + L.sub + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-s">' + ic(I.share) + L.share + '</button>' +

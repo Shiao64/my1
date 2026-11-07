@@ -26,7 +26,8 @@
     "organizers_en": [
       "Shiao Chang",
       "Liu Zheng"
-    ]
+    ],
+    "name_ko": "제4회 베이징 셀렉트 탱고 위켄드"
   },
   {
     "id": "GpOaldUV",
@@ -84,7 +85,10 @@
     "organizers_en": [
       "Li Songyan"
     ],
-    "venue_en": "Liangmahe Wine House 1F"
+    "venue_en": "Liangmahe Wine House 1F",
+    "venue_ko": "량마허 와인하우스 1층",
+    "venue_address_ko": "베이징 · 1F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
+    "note_ko": "좌석 예약: 판판 17610773399."
   },
   {
     "id": "eRpBxkDC",
@@ -123,7 +127,9 @@
     ],
     "venue_en": "AS Tango Argentine Tango School",
     "poster": "/images/asia/posters/generated/eRpBxkDC.png",
-    "poster_pos": "center top"
+    "poster_pos": "center top",
+    "venue_ko": "AS Tango 아르헨티나 탱고 학교",
+    "venue_address_ko": "베이징 · Room 2320, 3F, Tower B, North Tower, Shangdu SOHO, Dongdaqiao Road, Chaoyang District, Beijing"
   },
   {
     "id": "NmkWjMxo",
@@ -171,7 +177,9 @@
       "/images/asia/posters/R009.jpg"
     ],
     "note_zh": "80元（含软饮和小吃）。",
-    "note": "80 RMB (includes soft drinks and snacks)."
+    "note": "80 RMB (includes soft drinks and snacks).",
+    "venue_address_ko": "베이징 · 2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing",
+    "note_ko": "80위안(음료와 간식 포함)."
   },
   {
     "id": "GxMrByRQ",
@@ -210,7 +218,8 @@
       "Gou Chen",
       "Yezi"
     ],
-    "venue_en": "Tango Union West"
+    "venue_en": "Tango Union West",
+    "venue_address_ko": "베이징 · Unit 20A, Tower C, Yingdu Building, Zhichun Road, Haidian District, Beijing"
   },
   {
     "id": "GqufXmMX",
@@ -265,7 +274,9 @@
     "dj": "Yelyn Woo",
     "poster_djs": {
       "/images/asia/posters/GqufXmMX.jpg": "Yelyn Woo"
-    }
+    },
+    "name_ko": "탱고 모임",
+    "venue_address_ko": "베이징 · 2F, No. 18 Liangmahe South Road, Chaoyang District, Beijing"
   },
   {
     "id": "R202",
@@ -319,7 +330,9 @@
       "/images/asia/posters/R202-no43-20261017.jpg": "孙越",
       "/images/asia/posters/R202-no42-20261010.jpg": "哈博"
     },
-    "poster_pos": "center top"
+    "poster_pos": "center top",
+    "venue_ko": "진상위안 요가·댄스 스튜디오",
+    "venue_address_ko": "베이징 · B1 Yoga & Dance Studio, Jinshangyuan Building, No. 20 Xinyuanli West, Chaoyang District, Beijing"
   },
   {
     "id": "wSeFVkSa",
@@ -357,7 +370,9 @@
       "Simona Wu",
       "Allen Ma"
     ],
-    "venue_en": "AS Tango Argentine Tango School"
+    "venue_en": "AS Tango Argentine Tango School",
+    "venue_ko": "AS Tango 아르헨티나 탱고 학교",
+    "venue_address_ko": "베이징 · Room 2320, 3F, Tower B, North Tower, Shangdu SOHO, Dongdaqiao Road, Chaoyang District, Beijing"
   },
   {
     "id": "AymclBjD",
@@ -399,7 +414,10 @@
     "organizers_en": [
       "Liu Zheng"
     ],
-    "venue_en": "Xiangheyuan Subdistrict Community Center"
+    "venue_en": "Xiangheyuan Subdistrict Community Center",
+    "venue_ko": "샹허위안 거리 주민 활동 센터",
+    "venue_address_ko": "베이징 · B1 Rehearsal Room, Xianghe Yuan Street Citizen Activity Center, between Buildings 2–3, Guangxi Jiayuan, Chaoyang District, Beijing (Guangximen Station, Line 13, Exit B, ~10 min walk)",
+    "note_ko": "프락티카 요금 60위안."
   },
   {
     "id": "ttLxDoyZ",
@@ -436,7 +454,9 @@
     "organizers_en": [
       "Nico Zhang"
     ],
-    "venue_en": "Vida Mia Club"
+    "venue_en": "Vida Mia Club",
+    "name_ko": "레드박스 밀롱가",
+    "venue_address_ko": "베이징 · Room 203, Unit 1, Tower A, Meihui Building, No. 58 Dongzhong Street, Dongcheng District, Beijing"
   },
   {
     "id": "UiQphCjS",
@@ -473,7 +493,11 @@
     ],
     "venue_en": "15 Space Dance Studio",
     "venue_address": "北京市朝阳区新源里西20号楼金尚源大厦B1层身心健康工作室",
-    "venue_address_en": "B1 Mind-Body Wellness Studio, Jinshangyuan Building, No. 20 Xinyuanli West, Chaoyang District, Beijing"
+    "venue_address_en": "B1 Mind-Body Wellness Studio, Jinshangyuan Building, No. 20 Xinyuanli West, Chaoyang District, Beijing",
+    "name_ko": "프락티카 밀롱가",
+    "venue_ko": "15 스페이스 댄스 스튜디오 (진상위안 B1)",
+    "venue_address_ko": "베이징 · B1 Mind-Body Wellness Studio, Jinshangyuan Building, No. 20 Xinyuanli West, Chaoyang District, Beijing",
+    "note_ko": "1인 60위안, 음료·간식·과일 셀프. 장소: 진상위안 빌딩 B1 심신 건강 스튜디오(이전 젠와이 SOHO에서 이전)."
   },
   {
     "id": "jtzZIdAx",
@@ -749,7 +773,11 @@
     ],
     "contacts": {
       "phone": "13042001750"
-    }
+    },
+    "name_ko": "광저우 탱고 페스티벌 2027",
+    "venue_ko": "구몽루 Old Dream (강남 대극원)",
+    "venue_address_ko": "광저우 · No.130, Changgang Middle Road, Haizhu District, Guangzhou",
+    "note_ko": "제8회 광저우 탱고 페스티벌, 2026-12-26–2027-01-03(마스터 클래스는 12/26부터, 페스티벌 밀롱가는 12/31–1/3). 마스터: Alejandro Larenas y Marisol Morales. 단체 수업 8회(G1–G8, 12/26·12/27·1/2·1/3 하루 2회. 최종 안내에서 12/27은 14:00과 15:30. 다른 날은 14:00/15:30 또는 15:00/16:30으로 안내가 갈리니 주최 확인). 밀롱가 7회: 12/31 송년 DJ Bella; 1/1 애프터눈 티 DJ Jeanette, 공연 밀롱가 DJ Raymond; 1/2 애프터눈 티 DJ Li-Yan, 갈라 DJ Xiao-xin; 1/3 애프터눈 티 DJ Xingchen, 작별 밀롱가 DJ Marisol(티 15:00–19:00, 밤 21:00–03:00). 밀롱가 티켓(12/12 이전 얼리버드/이후 정상): 애프터눈 티 150, 밤 300–350; 하루 2회 400/450(현장 500); 이틀 4회 700/900(현장 1000); 7회 패스 888/1200; 단체 800(5인 이상). 수업: 1회 260/300, 4회는 회당 240/260, 8회는 회당 200/240. 개인 레슨: 선생님 1명 1200, 2명 1600, 3회 3300. 패키지(얼리버드/정상): P1 하루 2밀롱가 400/450; P2 하루 수업+밀롱가 700/800; P3 이틀 4밀롱가 700/900; P4 이틀 수업+밀롱가 1300/1500; P5 애프터눈 티 3회 360/400; P6 수업 4+밤 4회 1500/1800; P7 수업+밀롱가 패스 1888/2400(선착 50명. 본문은 남 25·여 25). 신청: https://jsj.top/f/SlaIzg 작성 후 위챗으로 결제. 전화 13042001750. 환불: 12/12(포함) 이전 전액. 정책·안전 사유 취소도 전액. 밀롱가 장소: 강남 대극원 구몽루(하이주구 창강중로 130번지, 지하철 8호선 바오강다다오역 C출구). 수업: 이쟈 댄스 클럽(추이바오로 68번지 추이청후이 3층, 같은 역 D출구). 출처: 공식계정 TangoElAbrazo 2026-10-31 글(PoP_DaNcE가 2026-11-04 위챗으로 최종본 전달)."
   },
   {
     "id": "manual-hz-jinsha",
@@ -782,7 +810,10 @@
       "Lily Jiang"
     ],
     "name_zh": "Hangzhou Jinsha International Tango Festival",
-    "venue_en": "Jinsha Lake Grand Theatre"
+    "venue_en": "Jinsha Lake Grand Theatre",
+    "name_ko": "항저우 진사 국제 탱고 페스티벌",
+    "venue_ko": "진사호 대극장",
+    "venue_address_ko": "항저우 · Jinsha Lake, Hangzhou"
   },
   {
     "id": "manual-cq-spicy-2026",
@@ -818,7 +849,10 @@
       "LMC"
     ],
     "name_zh": "2026 Spicy Tango Weekend · 9th Chongqing Tango Festival",
-    "venue_en": "Lianhua Duoduo Jinyuan Dance Club"
+    "venue_en": "Lianhua Duoduo Jinyuan Dance Club",
+    "name_ko": "2026 스파이시 탱고 위켄드 · 제9회 충칭 탱고 페스티벌",
+    "venue_ko": "롄화 둬둬 진위안 댄스 클럽",
+    "venue_address_ko": "충칭 · Jinyuan Times Shopping Center, No. 368 Beibin 1st Road, Liangjiang New Area, Chongqing"
   },
   {
     "id": "RDrwgcit",
@@ -1391,7 +1425,10 @@
       }
     ],
     "venue": "上海虹桥雅高翰悦阁酒店 3楼",
-    "venue_en": "Hotel Shanghai Hongqiao – Handwritten Collection, 3F"
+    "venue_en": "Hotel Shanghai Hongqiao – Handwritten Collection, 3F",
+    "venue_ko": "상하이 홍차오 아코르 한위에거 호텔 3층",
+    "venue_address_ko": "상하이 · 3F, Hotel Shanghai Hongqiao – Handwritten Collection (翰悦阁酒店), No. 5 Zunyi South Road, Changning District, Shanghai",
+    "note_ko": "새 포스터는 11/19–22, Facebook은 11/19–23. 날짜는 주최에 확인해 주세요. 마라톤 + 페스티벌 + 대회(MTT International City Cup). 게스트: Simona & Allen(베이징), Ezequiel & Haruna(도쿄). 별도 공연 시간은 미공개. 연주: Duo TONO(tangofestivals.net). 부문: 신인상, 시니어, 프로+아마. 신청 https://jsj.top/f/n6y2Ld . 본 장소: 창닝구 쭌이남로 5번지 상하이 홍차오 아코르 한위에거 호텔 3층(이전 Points of Tango의 민항구 푸츠로 85번지는 사용하지 않음). 티켓 가격 미공개. 나흘 일정은 공식 Facebook 일정 포스터(Maria Ines Bogado 11/3, 목요일=11/19). 낮 워크숍과 저녁 밀롱가는 호텔 3F Venue Place. 토·일 오후 밀롱가는 STP(중산북로 3175번지 2층). 위챗: PerniPengSH(Perni Peng)."
   },
   {
     "id": "nTUlADFZ",
@@ -1426,7 +1463,10 @@
     "organizers_en": [
       "Sam"
     ],
-    "venue_en": "吴郡逸庭酒店（周五、周六舞会场地）"
+    "venue_en": "吴郡逸庭酒店（周五、周六舞会场地）",
+    "name_ko": "쑤저우 탱고 페스티벌",
+    "venue_ko": "우쥔이팅 호텔 (금·토 밀롱가)",
+    "note_ko": "패스 얼리버드 980위안, 단체 880위안(3인), 11월 1일 마감. 수업+공연: Sebastián Arce & Anna Arce. 공연: Sergey & Anna, Adrien & Iro. 중국 Tango Blast 단체 공연과 국내 게스트 6쌍. 쑤저우 테마 밀롱가 6회, 한국 등 DJ. 대게 탱고 파티와 아르헨티나 만두, 쑤저우 정원 산책. 금·토 밀롱가 장소는 우쥔이팅 호텔로 변경(위챗 공식계정 Tango Science 2026-10-11 「苏州探戈节Delta」)."
   },
   {
     "id": "aanirocB",
@@ -1506,7 +1546,8 @@
     "venue_en": "Tango Union West",
     "posters_past": [
       "/images/asia/posters/past/m0A3Rbyv-20261104T052329Z.jpg"
-    ]
+    ],
+    "venue_address_ko": "베이징 · Unit 20A, Tower C, Yingdu Building, Zhichun Road, Haidian District, Beijing"
   },
   {
     "id": "1hCBcWaP",
@@ -1541,7 +1582,10 @@
     "organizers_en": [
       "Fanfan"
     ],
-    "venue_en": "Liangmahe Wine House 1F"
+    "venue_en": "Liangmahe Wine House 1F",
+    "name_ko": "Milonga 놀이",
+    "venue_ko": "량마허 와인하우스 1층",
+    "venue_address_ko": "베이징 · 1F, No. 18 Liangmahe South Road, Chaoyang District, Beijing"
   },
   {
     "id": "DFBKYdPX",
@@ -1590,7 +1634,8 @@
       "/images/asia/posters/R015_993_2026-10-25.png",
       "/images/asia/posters/R015_991_2026-10-18.png",
       "/images/asia/posters/R015_989_2026-10-11.png"
-    ]
+    ],
+    "venue_address_ko": "상하이 · Te Amo Tango Lounge, No. 583 Yuyao Road, Jing'an District, Shanghai"
   },
   {
     "id": "bQFvmIuY",
@@ -1629,7 +1674,9 @@
       "Nam",
       "Wing"
     ],
-    "venue_en": "Campanile Hotel Shanghai Jing'an"
+    "venue_en": "Campanile Hotel Shanghai Jing'an",
+    "venue_ko": "캄파닐레 호텔 상하이 징안점",
+    "venue_address_ko": "상하이 · No. 425 North Urumqi Road, Jing'an District, Shanghai (Campanile Hotel Shanghai Jing'an)"
   },
   {
     "id": "JKQfiwMf",
@@ -1670,7 +1717,9 @@
       "Gaby",
       "Tangocool"
     ],
-    "venue_en": "Fantai Building 5, 3F"
+    "venue_en": "Fantai Building 5, 3F",
+    "venue_ko": "판타이 빌딩 5동 3층",
+    "venue_address_ko": "상하이 · 3F, Building 5, Pan-Pacific Building, No. 1221 West Yan'an Road, Changning District, Shanghai"
   },
   {
     "id": "eEHzQBzu",
@@ -1715,7 +1764,10 @@
     "poster_date": "2026-11-03",
     "poster_dates": {
       "/images/asia/posters/MiTango_Tue_2026-11-03.jpg": "2026-11-03"
-    }
+    },
+    "venue_ko": "화린 빌딩 6층",
+    "venue_address_ko": "상하이 · 6F, Hualin Building, No. 190 Caoxi Road, Xuhui District, Shanghai",
+    "note_ko": "요금 50위안."
   },
   {
     "id": "KmgJxDKM",
@@ -1760,7 +1812,10 @@
     "poster_date": "2026-11-03",
     "poster_dates": {
       "/images/asia/posters/MiTango_schedule_2026-11-03.jpg": "2026-11-03"
-    }
+    },
+    "venue_ko": "화린 빌딩 6층",
+    "venue_address_ko": "상하이 · 6F, Hualin Building, No. 190 Caoxi Road, Xuhui District, Shanghai",
+    "note_ko": "요금 50위안."
   },
   {
     "id": "2tbfzeS7",
@@ -1804,7 +1859,8 @@
     "dj": "Vuk",
     "poster_djs": {
       "/images/asia/posters/2tbfzeS7.jpg": "Vuk"
-    }
+    },
+    "venue_address_ko": "상하이 · Te Amo Tango Lounge, No. 583 Yuyao Road, Jing'an District, Shanghai"
   },
   {
     "id": "6Pcl1YgL",
@@ -1852,7 +1908,9 @@
     "poster_dates": {
       "/images/asia/posters/MiTango_2026-10-30.jpg": "2026-10-30",
       "/images/asia/posters/MiTango_Fri_2026-11-03.jpg": "2026-11-03"
-    }
+    },
+    "venue_ko": "화린 빌딩 6층",
+    "venue_address_ko": "상하이 · 6F, Hualin Building, No. 190 Caoxi Road, Xuhui District, Shanghai"
   },
   {
     "id": "DIVjezcE",
@@ -1902,9 +1960,13 @@
         "text": "今晚（11/6）探戈帮周五舞会暂停一期。（张孝确认 2026-11-06；雷达今日未扫到公开取消帖）",
         "text_en": "Tonight (6 Nov) TangoBang Friday milonga is cancelled for one week. (Confirmed by Zhang Xiao, 2026-11-06; radar saw no public cancel post today.)",
         "start": "2026-11-06",
-        "end": "2026-11-06"
+        "end": "2026-11-06",
+        "text_ko": "오늘(11/6) 탱고방 금요일 밀롱가는 한 회 쉽니다. (장샤오 확인 2026-11-06. 레이더는 오늘 공개 취소 글을 보지 못함.)"
       }
-    ]
+    ],
+    "name_ko": "탱고방 밀롱가",
+    "venue_ko": "융후이 빌딩 A동 1502호",
+    "venue_address_ko": "상하이 · Room 1502, Tower A, Yonghui Building, No. 765 South Xizang Road, Huangpu District, Shanghai (near Fangxie Branch Road)"
   },
   {
     "id": "rccbKIYP",
@@ -1951,7 +2013,10 @@
     "poster_date": "2026-11-07",
     "poster_dates": {
       "/images/asia/posters/rccbKIYP.jpg": "2026-11-07"
-    }
+    },
+    "name_ko": "인피니티 탱고",
+    "venue_ko": "마오밍 빌딩 313",
+    "venue_address_ko": "상하이 · Room 313, Maoming Building, No. 35 Yongjia Road, Shanghai"
   },
   {
     "id": "R0E9XeyL",
@@ -1999,12 +2064,15 @@
         "text_en": "This Saturday’s Los Gatos Milonga is paused for one week — no milonga at W BAR that day. End of year family travel; stepping away from the dance floor this weekend. (Monica Moments, 2026-11-06)",
         "start": "2026-11-06",
         "end": "2026-11-07",
-        "image": "/images/asia/notices/R0E9XeyL-20261108-cancel.jpg"
+        "image": "/images/asia/notices/R0E9XeyL-20261108-cancel.jpg",
+        "text_ko": "이번 토요일 Los Gatos 밀롱가는 한 회 쉽니다. 그날 W BAR에는 밀롱가가 없습니다. 연말 가족 여행으로 이번 주말은 플로어를 비웁니다. (Monica 모멘트, 2026-11-06)"
       }
     ],
     "cancelled_dates": [
       "2026-11-07"
-    ]
+    ],
+    "name_ko": "로스 가토스 탱고",
+    "venue_address_ko": "상하이 · Room 107, Building 3, M50 Creative Park, No. 50 Moganshan Road, Putuo District, Shanghai"
   },
   {
     "id": "xXxB330r",
@@ -2041,7 +2109,9 @@
     "organizers_en": [
       "PIPO YANG"
     ],
-    "venue_en": "Jinchao Dance Hall"
+    "venue_en": "Jinchao Dance Hall",
+    "venue_address_ko": "상하이 · Jinchao Dance Hub, 2F, Unit 117, Building 5, Jinchao 8 Lanes, No. 989 North Sichuan Road, Hongkou District, Shanghai",
+    "venue_ko": "진차오 댄스홀"
   },
   {
     "id": "ecyMAjFj",
@@ -2084,7 +2154,8 @@
     ],
     "venue_en": "Tango Palace",
     "poster": "/images/asia/posters/generated/ecyMAjFj.png",
-    "poster_pos": "center top"
+    "poster_pos": "center top",
+    "venue_address_ko": "상하이 · Tango Palace, 2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai"
   },
   {
     "id": "izAYSxss",
@@ -2124,7 +2195,8 @@
     ],
     "venue_en": "Tango Palace",
     "poster": "/images/asia/posters/generated/izAYSxss.png",
-    "poster_pos": "center top"
+    "poster_pos": "center top",
+    "venue_address_ko": "상하이 · Tango Palace, 2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai"
   },
   {
     "id": "juGlRrW2",
@@ -2159,7 +2231,9 @@
     "poster_date": "2026-10-22",
     "poster_dates": {
       "/images/asia/posters/juGlRrW2_2026-10-22.jpg": "2026-10-22"
-    }
+    },
+    "name_ko": "iTango 프락티카",
+    "venue_address_ko": "상하이 · Tango Palace, 2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai"
   },
   {
     "id": "LxcvweaE",
@@ -2193,7 +2267,10 @@
     "organizers_en": [
       "Zhengzhong"
     ],
-    "venue_en": "Tango Palace"
+    "venue_en": "Tango Palace",
+    "name_ko": "TD House 프락티카",
+    "venue_address_ko": "상하이 · Tango Palace, 2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai",
+    "note_ko": "1인 40위안(大众点评에서 Tango Dreamers 쿠폰 30위안). 공간의 반은 DJ 쪽 개인 연습/대화, 반은 화장실 쪽 밀롱가. Tanda+cortina. 선생님이 상주하며, 도움이 필요하면 손을 들어 주세요."
   },
   {
     "id": "QWdKPmum",
@@ -2224,7 +2301,10 @@
     "organizers_en": [
       "Infinity Tango"
     ],
-    "venue_en": "Maoming Building 313"
+    "venue_en": "Maoming Building 313",
+    "name_ko": "Infinitango 프락티카",
+    "venue_ko": "마오밍 빌딩 313",
+    "venue_address_ko": "상하이 · Room 313, Maoming Building, No. 35 Yongjia Road, Shanghai"
   },
   {
     "id": "vhkQ2Ltw",
@@ -2256,7 +2336,9 @@
     "organizers_en": [
       "Los Gatos"
     ],
-    "venue_en": "1438 N. Shaanxi Rd, Rm 1309"
+    "venue_en": "1438 N. Shaanxi Rd, Rm 1309",
+    "venue_ko": "산베이 북로 1438번지 1309",
+    "venue_address_ko": "상하이 · Room 1309, No. 1438 North Shaanxi Road, Shanghai"
   },
   {
     "id": "WPYNvSAB",
@@ -2293,7 +2375,10 @@
     "organizers_en": [
       "Angel"
     ],
-    "venue_en": "109 Guangrong Rd"
+    "venue_en": "109 Guangrong Rd",
+    "name_ko": "홍무방 프락티카",
+    "venue_ko": "광룽다오 109번지",
+    "venue_address_ko": "톈진 · No. 109 Guangrong Road, Tianjin"
   },
   {
     "id": "mBDeAKKW",
@@ -2329,7 +2414,10 @@
       "Janisa",
       "Chaoran"
     ],
-    "venue_en": "Shidai Aocheng Office C5-401"
+    "venue_en": "Shidai Aocheng Office C5-401",
+    "name_ko": "아오청 프락티카",
+    "venue_ko": "스다이 아오청 오피스 C5-401",
+    "venue_address_ko": "톈진 · Room 401, C5, Times Aocheng Office Tower, Nankai District, Tianjin (Metro Line 5 Tiyuzhongxin Station Exit B)"
   },
   {
     "id": "ZwJVD64Z",
@@ -2367,7 +2455,10 @@
       "Summer",
       "Kevin"
     ],
-    "venue_en": "Henghua Building 1, Rm 607"
+    "venue_en": "Henghua Building 1, Rm 607",
+    "name_ko": "살롱 밀롱가",
+    "venue_ko": "헝화 빌딩 1동 607",
+    "venue_address_ko": "톈진 · Room 607, Building 1, Henghua Building, Hexi District, Tianjin"
   },
   {
     "id": "TqqsVj5K",
@@ -2399,7 +2490,10 @@
     "organizers_en": [
       "Firebird"
     ],
-    "venue_en": "Henghua Building 1, Rm 607"
+    "venue_en": "Henghua Building 1, Rm 607",
+    "name_ko": "Firebird 프락티카",
+    "venue_ko": "헝화 빌딩 1동 607",
+    "venue_address_ko": "톈진 · Room 607, Building 1, Henghua Building, Hexi District, Tianjin"
   },
   {
     "id": "3UUmjMJZ",
@@ -2425,7 +2519,10 @@
     "poster": "/images/asia/posters/generated/R038.png",
     "poster_pos": "center top",
     "name_zh": "奥城舞会",
-    "venue_en": "Shidai Aocheng C5-401"
+    "venue_en": "Shidai Aocheng C5-401",
+    "name_ko": "아오청 밀롱가",
+    "venue_ko": "스다이 아오청 C5-401",
+    "venue_address_ko": "톈진 · Room 401, C5, Times Aocheng, Tianjin"
   },
   {
     "id": "R059",
@@ -2466,7 +2563,11 @@
     "dj": "修行",
     "poster_djs": {
       "/images/asia/posters/R059.jpg": "修行"
-    }
+    },
+    "name_ko": "탱고 프락티카",
+    "venue_ko": "홈인 호텔 6층",
+    "venue_address_ko": "톈진 · 6F, Home Inn, No.1 Xuzhou Road, Tianjin",
+    "note_ko": "40위안. 연락처를 찾지 못했습니다. 관심 있으면 주최 슈 선생님께 확인해 주세요."
   },
   {
     "id": "QbUzonBt",
@@ -2508,7 +2609,10 @@
     "organizers_en": [
       "POP"
     ],
-    "venue_en": "Red House, Mingmen Building 5F"
+    "venue_en": "Red House, Mingmen Building 5F",
+    "name_ko": "광저우 레드박스 밀롱가",
+    "venue_ko": "밍먼 빌딩 5층 레드박스",
+    "venue_address_ko": "광저우 · Red House Tango Club, 5F, Mingmen Building, No. 6 Huacheng Avenue, Guangzhou"
   },
   {
     "id": "EDPSh1eZ",
@@ -2549,7 +2653,10 @@
     "organizers_en": [
       "Alice"
     ],
-    "venue_en": "MSH Music Party House"
+    "venue_en": "MSH Music Party House",
+    "venue_ko": "MSH 뮤직 파티룸",
+    "venue_address_ko": "광저우 · Zone F6, B2, East Street 1, Fashion Tianhe Mall, No. 299 Tianhe Road, Tianhe District, Guangzhou (next to Gongfu Archery)",
+    "note_ko": "11/7(토) 한 주 휴무. 이번 달 다른 토요일은 그대로."
   },
   {
     "id": "9Nf1QY8C",
@@ -2591,7 +2698,10 @@
       "email": "renwwwei@sina.com",
       "wechat_id": "WX13042001750",
       "wechat_label": "POP"
-    }
+    },
+    "name_ko": "레드 스튜디오 화요 프락티카",
+    "venue_ko": "밍먼 빌딩 5층",
+    "venue_address_ko": "광저우 · Red House Tango Club, 5F, Mingmen Building, No. 6 Huacheng Avenue, Guangzhou"
   },
   {
     "id": "n3ENukGH",
@@ -2626,7 +2736,9 @@
     "contacts": {
       "phone": "13145763880",
       "wechat_id": "13145763880"
-    }
+    },
+    "venue_ko": "난톈 광장 황차오거 805",
+    "venue_address_ko": "광저우 · Room 804, Huangchao Ge, Nantian Plaza, Guangzhou"
   },
   {
     "id": "tSTMn9NF",
@@ -2664,7 +2776,9 @@
     "organizers_en": [
       "Bes"
     ],
-    "venue_en": "Shuxiang Mendi Mingyuan Bldg 6, Rm 401"
+    "venue_en": "Shuxiang Mendi Mingyuan Bldg 6, Rm 401",
+    "venue_ko": "수샹먼디 밍위안 6동 401",
+    "venue_address_ko": "선전 · Room 401, Building 6, Shuxiang Mendi Mingyuan, Longhua District, Shenzhen"
   },
   {
     "id": "SGk39A4O",
@@ -2690,7 +2804,10 @@
     "poster": "/images/asia/posters/generated/R051.png",
     "poster_pos": "center top",
     "name_zh": "Sola 舞会",
-    "venue_en": "Jinsong Building 8A, Chegongmiao"
+    "venue_en": "Jinsong Building 8A, Chegongmiao",
+    "name_ko": "Sola 밀롱가",
+    "venue_ko": "처궁먀오 진송 빌딩 8A",
+    "venue_address_ko": "선전 · 8A, Jinsong Building, Chegongmiao, Shenzhen"
   },
   {
     "id": "dLub3zK9",
@@ -2729,7 +2846,8 @@
       "Calix",
       "Momo"
     ],
-    "venue_en": "Banghai Residence Bldg 8, Rm 603"
+    "venue_en": "Banghai Residence Bldg 8, Rm 603",
+    "venue_ko": "방하이 단지 8동 604"
   },
   {
     "id": "w1RSOcni",
@@ -2761,7 +2879,10 @@
     "organizers_en": [
       "Jenny"
     ],
-    "venue_en": "Guotai Apartments Bldg 1, Rm 401"
+    "venue_en": "Guotai Apartments Bldg 1, Rm 401",
+    "name_ko": "TangoQ 프락티카",
+    "venue_ko": "궈타이 아파트 1동 401",
+    "venue_address_ko": "칭다오 · Room 401, Building 1, Guotai Apartments, No. 35 Zhangzhou 1st Road, Qingdao"
   },
   {
     "id": "cwCbtm27",
@@ -2825,7 +2946,11 @@
     "poster_date": "2026-10-31",
     "poster_dates": {
       "/images/asia/posters/E004.jpg": "2026-10-31"
-    }
+    },
+    "name_ko": "Infinity Tango 3주년 그랜드 밀롱가",
+    "venue_ko": "마오밍 빌딩 313",
+    "venue_address_ko": "상하이 · Room 313, Maoming Building, No. 35 Yongjia Road, Shanghai",
+    "note_ko": "그리스 문화주 게스트: Katerina y Giorgos(그리스 Tango Nomads). DJ: Alex(서울)."
   },
   {
     "id": "E005",
@@ -2862,7 +2987,8 @@
     "organizers_en": [
       "VidaMia (NICO)"
     ],
-    "venue_en": "Vida Mia Tango Club"
+    "venue_en": "Vida Mia Tango Club",
+    "venue_address_ko": "베이징 · Room 203, Unit 1, Block A, Meihui Building, No.58 Dongzhong Street, Dongcheng District, Beijing"
   },
   {
     "id": "U11",
@@ -2900,7 +3026,8 @@
     "poster_dates": {
       "/images/asia/posters/U11.jpg": "2026-11-01"
     },
-    "dj": "Oscar"
+    "dj": "Oscar",
+    "note_ko": "할로윈 코스프레 밀롱가, DJ Oscar(스페인). 40위안, 과일과 음료 포함. 주소와 연락처는 미확인. 주최에 확인해 주세요."
   },
   {
     "id": "E042",
@@ -3097,7 +3224,11 @@
     "organizers_en": [
       "Vamos tango"
     ],
-    "venue_en": "Tongfang Fortune Building 1202"
+    "venue_en": "Tongfang Fortune Building 1202",
+    "name_ko": "전갈자리 생일 밀롱가",
+    "venue_ko": "퉁팡 웰스 빌딩 1202",
+    "venue_address_ko": "항저우 · Room 1202, Tongfang Wealth Building, No.334 Fengqi Road, Hangzhou",
+    "note_ko": "현재 포스터는 10/30(금) 한 회만 안내합니다. 이후 금요일에 새 포스터가 없으면 「No」로 표시되니 주최에 확인해 주세요. Vamos tango 새 주소. 80위안, 수강생 반값, 연간권·전갈자리 무료. QR로 예약. 추첨 있음."
   },
   {
     "id": "R030",
@@ -3154,7 +3285,9 @@
     "poster": "/images/asia/posters/R030.jpg",
     "poster_pos": "center top",
     "poster_date": "2026-11-14",
-    "dj": "Jessie (SH)"
+    "dj": "Jessie (SH)",
+    "venue_ko": "위야오로 583번지",
+    "venue_address_ko": "상하이 · No. 583 Yuyao Road, Shanghai"
   },
   {
     "id": "R045",
@@ -3191,7 +3324,9 @@
     "organizers_en": [
       "Legends Tango (Antimo y Sunny)"
     ],
-    "venue_en": "Legends Tango Academy"
+    "venue_en": "Legends Tango Academy",
+    "venue_address_ko": "광저우 · Room 1706, 17F, Mingyuege, No.20 Mingyueyilu, Yuexiu District, Guangzhou",
+    "note_ko": "60위안. 19:30–20:30 수업이 따로 있습니다."
   },
   {
     "id": "rSFJaHtm",
@@ -3229,7 +3364,9 @@
     "organizers_en": [
       "Legends Tango (Antimo y Sunny)"
     ],
-    "venue_en": "Legends Tango Academy"
+    "venue_en": "Legends Tango Academy",
+    "venue_address_ko": "광저우 · Room 1706, 17F, Mingyuege, No.20 Mingyueyilu, Yuexiu District, Guangzhou",
+    "note_ko": "80위안, 간식과 음료 포함."
   },
   {
     "id": "R034",
@@ -3264,7 +3401,9 @@
     ],
     "venue_en": "Te Amo Tango Lounge",
     "dj": "小北",
-    "dj_en": "Xiaobei"
+    "dj_en": "Xiaobei",
+    "venue_address_ko": "상하이 · Te Amo Tango Lounge, No. 583 Yuyao Road, Jing'an District, Shanghai",
+    "note_ko": "포스터는 「월간·토요일 오후」, 첫 회 10/31. 매달 몇 번째 토요일인지는 확인하지 못했습니다. 주최 장전이에게 확인해 주세요. DJ 샤오베이(우시). 연락처 미확인."
   },
   {
     "id": "R073",
@@ -3305,7 +3444,10 @@
     "poster_djs": {
       "/images/asia/posters/R073.jpg": "Tayfun",
       "/images/asia/posters/R073.png": "Tayfun"
-    }
+    },
+    "venue_ko": "진상 1층",
+    "venue_address_ko": "베이징 · Room 109, 1F, Jinshang, Building 20, Xinyuanli West, Xindong Road, Chaoyang District, Beijing",
+    "note_ko": "80위안, 음료 1잔 포함. DJ Tayfun. 연락처 미확인. Tayfun 타이펑에게 확인해 주세요."
   },
   {
     "id": "R079",
@@ -4539,7 +4681,8 @@
       "Ban A",
       "Gerardo",
       "Hoon"
-    ]
+    ],
+    "venue_address_ko": "전북특별자치도 군산시 해망로 146-24"
   },
   {
     "id": "9oJFdQ64",
@@ -4588,9 +4731,14 @@
         "start": "2026-11-03",
         "end": "2026-11-04",
         "text": "郑州2026年常规舞会：时间 11月4号周三晚六点半至七点半课时，七点半至晚十一点舞会。DJ…马力。（主办方王勇 2026-11-03 23:08 发于微信群「河南郑州 Tango red」）",
-        "text_en": "Zhengzhou 2026 regular milonga: Wed 4 Nov — class 6:30–7:30pm, milonga 7:30–11pm. DJ: 马力 (Ma Li). (Posted by organizer 王勇 in WeChat group 河南郑州 Tango red, 2026-11-03 23:08.)"
+        "text_en": "Zhengzhou 2026 regular milonga: Wed 4 Nov — class 6:30–7:30pm, milonga 7:30–11pm. DJ: 马力 (Ma Li). (Posted by organizer 王勇 in WeChat group 河南郑州 Tango red, 2026-11-03 23:08.)",
+        "text_ko": "정저우 2026 정기 밀롱가: 11월 4일 수요일, 수업 18:30–19:30, 밀롱가 19:30–23:00. DJ 마력. (주최 왕융이 2026-11-03 23:08 위챗 그룹 「허난 정저우 Tango red」에 게시.)"
       }
-    ]
+    ],
+    "name_ko": "Tango Red 정기 밀롱가",
+    "venue_ko": "쯔진산 백화점 3층",
+    "venue_address_ko": "정저우 · 3F (Gate 1, Oscar Cinema, turn right), Zijinshan Department Store, Zhengzhou",
+    "note_ko": "매주 수·금·일 18:30–22:30 밀롱가. 자체 장소, 추가 연습 시간과 일부 수업. 48위안, 차와 과일 무료. DJ 핑판. 21시 이후에는 쯔진산로 동쪽 계단. 기존 회원은 신규 1명을 데려올 수 있고, 신규 첫 방문은 무료."
   },
   {
     "id": "manual-cd-ezequiel-2026",
@@ -4638,7 +4786,10 @@
       "Haotian",
       "Wang Wei",
       "Danger"
-    ]
+    ],
+    "name_ko": "Ezequiel 워크숍 & 청두 탱고 위켄드",
+    "venue_address_ko": "청두 · Room 808, Tower C, Poly Center, No. 1 Jinxiu Road, Wuhou District, Chengdu",
+    "note_ko": "집중 수업 6회(회당 280위안) + 밀롱가 3회(회당 188위안): 11/27 환영 밀롱가 DJ 하오톈(베이징), 11/28 메인 밀롱가 DJ 왕웨이(상하이), 11/29 송별 밀롱가 DJ Danger(충칭). 참고 합계 2244위안. 패키지: 수업 6회 1560위안, 밀롱가 3회 500위안, 6+3 1750위안."
   },
   {
     "id": "manual-cd-spitel-2027",
@@ -4676,7 +4827,10 @@
     "venue_en": "成都玫瑰探戈俱乐部",
     "organizers_en": [
       "成都玫瑰 Tango Rosa"
-    ]
+    ],
+    "venue_ko": "청두 장미 탱고 클럽",
+    "venue_address_ko": "청두 · Tango Rosa Chengdu, B1, Meile Street, Huayu Rongguofu, No. 12, Section 4, Renmin South Road, Wuhou District, Chengdu, Sichuan",
+    "note_ko": "2009 무대 탱고 세계 챔피언, 2026 세계 선수권 결승 심사. 수업 일정과 가격은 확인하지 못했습니다. 주최에 문의해 주세요."
   },
   {
     "id": "E121",
@@ -4730,7 +4884,11 @@
       "Alu",
       "Teo",
       "Lucila"
-    ]
+    ],
+    "name_ko": "ESSA 한중 합동 더블 밀롱가",
+    "venue_ko": "아르헨티나 문화 공간 Tango Palace",
+    "venue_address_ko": "상하이 · 2F, No. 3175 North Zhongshan Road, Putuo District, Shanghai",
+    "note_ko": "한중 밀롱가, 포스터 주제 「Handsome Guys」. 1부 14:00–18:30, DJ Alu + DJ Teo(창원), 현장 80위안. 2부 20:30–00:30, DJ Lucila(부산), 현장 90위안. 양일 얼리버드 150위안, ESSA 에코백, 11월 6일 예약 마감(포스터 QR). 공동 주최 Tango Palace(아르헨티나 문화 공간). 한국 댄서 약 35명."
   },
   {
     "id": "E122",
@@ -4857,7 +5015,11 @@
     },
     "posters_past": [
       "/images/asia/posters/past/AtrSun01-20261105T030516Z.jpg"
-    ]
+    ],
+    "name_ko": "ATer 주말 전통 밀롱가",
+    "venue_ko": "ATer Club (화제 빌딩 C동 7C2)",
+    "venue_address_ko": "베이징 · Room 7C2, Building C, Huajie Building, Courtyard 13, Dazhongsi, Haidian District, Beijing (Dazhongsi Station, Line 12 Exit D / Line 13 Exit B, about 400 m)",
+    "note_ko": "티켓 80위안(음료, 과일·간식, 추첨. 연간권 무료). 전화 13910807512(중국어), 13552402900(English)."
   },
   {
     "id": "E124",
@@ -4899,7 +5061,11 @@
     "poster_dates": {
       "/images/asia/posters/ATer_2026-11-01.jpg": "2026-11-01"
     },
-    "dj": "Tayfun"
+    "dj": "Tayfun",
+    "name_ko": "ATer 고스트 코스프레 밀롱가",
+    "venue_ko": "ATer Club (화제 빌딩 C동 7C2)",
+    "venue_address_ko": "베이징 · Room 7C2, Building C, HuaJie Plaza, No. 13 DaZhongSi, Haidian District, Beijing 100098",
+    "note_ko": "일요일 전통 코스프레 밀롱가, DJ Tayfun 타이펑(터키). 티켓 80위안."
   },
   {
     "id": "E125",
@@ -5115,7 +5281,9 @@
     "note": "Diego y Aldana workshop forum in Beijing: 6 themed sessions + 2 \"Pro Max\" specials. Early bird for 6 sessions RMB 1800 (incl. gala milonga ticket, priority for privates); 1 session 400, 2 for 760, 4 for 1400; 2 Pro Max sessions RMB 800/person. Pro Max special Sun 20 Dec 19:30–20:45 & 21:00–22:15 \"Dancing Pugliese\". Venue not announced.",
     "detail": "/event/beijing-2026-diego-aldana/",
     "venue_en": "TBA",
-    "poster": "/images/asia/posters/E131.png"
+    "poster": "/images/asia/posters/E131.png",
+    "name_ko": "Diego y Aldana 베이징 워크숍 2026",
+    "note_ko": "Diego y Aldana 베이징 워크숍: 주제 교류 6회 + Pro Max 특별 주제 2회. 장소 이용료: 6회 얼리버드 1800위안(대형 밀롱가 티켓, 1대1 우선 예약). 주제 1회 400, 2회 760, 4회 1400. Pro Max 2회 1인 800위안. Pro Max 12/20(일) 19:30–20:45, 21:00–22:15 《Dancing Pugliese》. 장소 미공개."
   },
   {
     "id": "E132",
@@ -5147,7 +5315,9 @@
     "organizers_en": [
       "One Last Tango 武汉 (静先生)"
     ],
-    "poster": "/images/asia/posters/E132.jpg"
+    "poster": "/images/asia/posters/E132.jpg",
+    "name_ko": "허쓰라다오 | 2027·우한·HSLD",
+    "note_ko": "“내년의 큰 행사, 3월 19–21일, 喝死拉倒가 옵니다. 날짜를 잡아 두세요. 자세한 내용은 이후에 공개됩니다.” 장소와 요금은 아직 발표되지 않았습니다."
   },
   {
     "id": "R251",
@@ -5187,7 +5357,10 @@
     "organizers_en": [
       "Jezebel"
     ],
-    "poster": "/images/asia/posters/R251.jpg"
+    "poster": "/images/asia/posters/R251.jpg",
+    "venue_ko": "TangoSang 클럽",
+    "venue_address_ko": "시안 · Rm 1929, Building 1, Haixing Weilai City, Beilin District, Xi'an City",
+    "note_ko": "매주 토요일 20:00–00:00. 1인 60위안."
   },
   {
     "id": "R252",
@@ -5222,7 +5395,10 @@
       "Tango La Vida (lily 文莉)"
     ],
     "poster": "/images/asia/posters/generated/R252.png",
-    "poster_pos": "center top"
+    "poster_pos": "center top",
+    "name_ko": "칭다오 토요일 밀롱가 · Tango La Vida",
+    "venue_ko": "Tango La Vida 칭다오 아르헨티나 탱고 클럽",
+    "note_ko": "매주 토요일 20:00–late, 40위안. DJ는 매주 다름(10/24 DJ 천위, 297회). 주소는 포스터에 없습니다."
   },
   {
     "id": "E133",
@@ -5266,7 +5442,10 @@
     "poster_dates": {
       "/images/asia/posters/E133.jpg": "2026-11-01"
     },
-    "dj": "Alan"
+    "dj": "Alan",
+    "name_ko": "Kai's Milonga 995회",
+    "venue_address_ko": "상하이 · Te Amo Tango Lounge, No. 583 Yuyao Road, Jing'an District, Shanghai",
+    "note_ko": "995회, DJ Alan(상하이)."
   },
   {
     "id": "E134",
@@ -5312,7 +5491,10 @@
         "caption_zh": "One So Mil 上海站 · DJ Bobby Moon 与工作人员",
         "current": true
       }
-    ]
+    ],
+    "name_ko": "완소 밀롱가",
+    "venue_address_ko": "상하이 · Te Amo Tango Lounge, No. 583 Yuyao Road, Jing'an District, Shanghai",
+    "note_ko": "티켓 90위안. DJ Bobby Moon(대전)."
   },
   {
     "id": "E150",
@@ -5625,7 +5807,9 @@
     },
     "dj": "Aykut",
     "note_zh": "有老师（Con Maestros）。DJ Aykut。70 RMB。联系：Aykut 13600168796 / Miranda 13764672772。",
-    "note": "Con Maestros. DJ Aykut. 70 RMB. Contact: Aykut 13600168796 / Miranda 13764672772."
+    "note": "Con Maestros. DJ Aykut. 70 RMB. Contact: Aykut 13600168796 / Miranda 13764672772.",
+    "venue_address_ko": "선전 · 18F Block B, Central Plaza, 7002 Hongli W Road, Futian, Shenzhen",
+    "note_ko": "선생님 있음(Con Maestros). DJ Aykut. 70 RMB. 연락: Aykut 13600168796 / Miranda 13764672772."
   },
   {
     "id": "E158",
@@ -5674,7 +5858,11 @@
     "poster_djs": {
       "/images/asia/posters/generated/E158.png": "修行",
       "/images/asia/posters/E158.jpg": "修行"
-    }
+    },
+    "name_ko": "베이징 홍우신 Milonga el Torito · 개장 더블 밀롱가",
+    "venue_ko": "베이징 홍우신 Milonga el Torito · 개장 더블 밀롱가",
+    "venue_address_ko": "베이징 · Beijing Hong Wu Xin Milonga el Torito · Opening Double Milonga",
+    "note_ko": "새 장소 개장 첫날 더블 밀롱가(시범 운영). 낮 15:30–19:30. 밤 20:00–24:00, 20:00–21:00은 프락티카, 21:00부터 밀롱가. DJ 슈싱. 11월 밀롱가는 무료, 과일과 물 제공, 음료 지참 가능. 탈의실 무료. 주차 3시간 4위안(지상/지하). 주소: 베이징시 차오양구 베이위안로 안위안베이리 26번지 주위안 문화교육산업단지 18동 3층. 주최 11/5 접수(단체 공지 + 샤오우 모멘트): 수용 인원 제한, 100명, 접수로 신청. 아르헨티나 탱고를 추는 분만 받으며, 그렇지 않으면 장소 이용료 80위안."
   },
   {
     "id": "YgirJagn",
@@ -5714,11 +5902,15 @@
         "date": "2026-11-08",
         "time": "16:30–19:30",
         "text": "因本周末重庆探戈节，本周日舞会临时调整为 16:30–19:30",
-        "text_en": "Due to Chongqing Tango Festival this weekend, Sunday milonga temporarily 16:30–19:30"
+        "text_en": "Due to Chongqing Tango Festival this weekend, Sunday milonga temporarily 16:30–19:30",
+        "text_ko": "이번 주말 충칭 탱고 페스티벌 때문에 일요일 밀롱가가 임시로 16:30–19:30입니다."
       }
     ],
     "poster": "/images/asia/posters/generated/YgirJagn.png",
-    "poster_pos": "center top"
+    "poster_pos": "center top",
+    "name_ko": "충칭 메이천 스튜디오 MC Tango 밀롱가",
+    "venue_ko": "쯔징 상업광장 3동 6-3",
+    "venue_address_ko": "충칭 · Unit 6-3, Building 3, Zijing Commercial Plaza, No. 121 Honghuang Road, Yubei District, Chongqing"
   },
   {
     "id": "JHeguuQb",
@@ -5777,7 +5969,11 @@
     ],
     "series_id": "wutong",
     "edition": 1,
-    "next_id": "XsFs5wm8"
+    "next_id": "XsFs5wm8",
+    "name_ko": "1758 오동 탱고 위켄드",
+    "venue_ko": "FICS 신화 365 아트 스페이스",
+    "venue_address_ko": "상하이 · 3F, Building 8, FICS Xinhua 365 Park, No. 6, Lane 365, Xinhua Road, Changning District, Shanghai",
+    "note_ko": "3일 5밀롱가(10/23–25). DJ: M1 Jim Yeh(상하이), M2 Kaiyu(홍콩), M3 Min(싱가포르), M4 Nico(베이징), M5 Ban-A(서울). 요금: T1 금요일【M1 M2】360위안; T2 토요일【M3 M4】500위안; T3 일요일+2회【M5+2】670위안; T4 풀패스 1030위안(매진). 나무 바닥, 간식과 음료, 금·토 간단한 식사. 리더/팔로워 비율과 춤 경력을 조절. 선생님/수업은 미기재. 제휴 호텔: 상하이 아이페이 가든 호텔. 출처: 진슈주 신청(마감)."
   },
   {
     "id": "XsFs5wm8",
@@ -5819,6 +6015,8 @@
     "note": "Details TBD. The 2nd Wutong Tango Weekend is set for 22–24 October 2027 in Shanghai. Poster and schedule are still being planned.",
     "series_id": "wutong",
     "edition": 2,
-    "prev_id": "JHeguuQb"
+    "prev_id": "JHeguuQb",
+    "name_ko": "제2회 오동 탱고 위켄드",
+    "note_ko": "세부 일정은 미정. 제2회 오동 탱고 위켄드는 2027년 10월 22–24일 상하이. 포스터와 일정은 주최가 준비 중."
   }
 ]

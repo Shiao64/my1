@@ -4,20 +4,23 @@
 (function () {
   var D = document, R = D.documentElement;
   /* v11.7: single card page (?card=) gets the same red heart toggle (asia-fav.js toggles via .ev-card[data-id]) */
-  if (/[?&]card=/.test(location.search)) (function () { var z = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || ''); function fav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
-    function lab(f) { return f ? (z ? '取消收藏' : 'Remove from favorites') : (z ? '收藏' : 'Add to favorites'); }
+  if (/[?&]card=/.test(location.search)) (function () { var lang0 = (R.getAttribute('data-asia-lang') || R.lang || ''); var z = /^zh/i.test(lang0), ko0 = /^ko/i.test(lang0); function fav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
+    function lab(f) { return f ? (ko0 ? '즐겨찾기 해제' : (z ? '取消收藏' : 'Remove from favorites')) : (ko0 ? '즐겨찾기' : (z ? '收藏' : 'Add to favorites')); }
     function sync(h) { var f = fav(h.getAttribute('data-sid')); h.setAttribute('aria-pressed', String(f)); h.setAttribute('aria-label', lab(f)); h.title = lab(f); }
     var k = 0, t = setInterval(function () { var c = D.querySelector('#atm-single .ev-card[data-id]'); if (c && !c.querySelector('.atm-heart')) { if (getComputedStyle(c).position === 'static') c.style.position = 'relative'; c.insertAdjacentHTML('beforeend', '<span class="atm-heart ah-sheart" role="button" tabindex="0" data-sid="' + c.getAttribute('data-id').replace(/"/g, '') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></span>'); sync(c.querySelector('.ah-sheart')); } if (++k > 40) clearInterval(t); }, 250);
     D.addEventListener('click', function (e) { var h = e.target.closest && e.target.closest('.ah-sheart'); if (h) setTimeout(function () { sync(h); }, 30); }, true);
     D.addEventListener('keydown', function (e) { var h = e.target.closest && e.target.closest('.ah-sheart'); if (h && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); h.click(); } }); })();
   if (/[?&](card|mode|city|via|date|q|type)=/.test(location.search)) return;
   try { if (sessionStorage.getItem('atm_legacy_list') === '1') return; } catch (e) {} /* regression hook: old full list for the pre-v11.6 test suite */
-  var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
-  var T = zh ? { feat: '特色活动', reg: '常规活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '每周常规活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。打开活动卡片，点 ♥ 收藏。', favnote: '收藏只保存在本机', back: '返回', theme: '每周舞会 · 本周专题', cats: ['大师课/工作坊', '马拉松', '探戈节', '特色舞会', '常规活动'], WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
+  var lang = (R.getAttribute('data-asia-lang') || R.lang || '').toLowerCase();
+  var zh = lang.indexOf('zh') === 0, ko = lang.indexOf('ko') === 0;
+  var T = ko ? { feat: '특별 행사', reg: '정기 활동', items: '개', from: '오늘부터', sort: '날짜순', regsub: '중국 본토 · 매주 · 도시 선택', weekly: '매주 정기 활동', fav: '내 즐겨찾기', close: '닫기', search: '볼 행사 선택', allA: '모든 행사', allC: '모든 도시', act: '행사', city: '도시', fold: '접기', exp: '펼치기', none: '행사 없음', favnone: '아직 즐겨찾기가 없습니다. 행사 카드를 열고 ♥ 를 누르세요.', favnote: '즐겨찾기는 이 기기에만 저장됩니다', back: '뒤로', theme: '주간 밀롱가 · 이번 주 테마', cats: ['클래스 / 워크숍', '마라톤', '페스티벌', '특별 밀롱가', '정기 활동'], WD: ['일', '월', '화', '수', '목', '금', '토'], every: '매주 ' }
+    : zh ? { feat: '特色活动', reg: '常规活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '每周常规活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。打开活动卡片，点 ♥ 收藏。', favnote: '收藏只保存在本机', back: '返回', theme: '每周舞会 · 本周专题', cats: ['大师课/工作坊', '马拉松', '探戈节', '特色舞会', '常规活动'], WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
     : { feat: 'Featured events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'weekly regular events', fav: 'My favorites', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No favorites yet. Open an event card and tap ♥ to save it.', favnote: 'Favorites are saved on this device only', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Classes / workshops', 'Marathons', 'Festivals', 'Special milongas', 'Regular events'], WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
   var CZ = { 'Seoul': '首尔', 'Busan': '釜山', 'Daejeon': '大田', 'Kuala Lumpur': '吉隆坡', 'Beijing': '北京', 'Hong Kong': '香港', 'Changwon': '昌原', 'Daegu': '大邱', 'Shanghai': '上海', 'Taipei': '台北', 'New Taipei': '新北', 'Zhubei': '竹北', 'Chengdu': '成都', 'Hangzhou': '杭州', 'Chongqing': '重庆', 'Tokyo': '东京', 'Osaka': '大阪', 'Guangzhou': '广州', 'Tianjin': '天津', 'Taichung': '台中', 'Tainan': '台南', 'Nanjing': '南京', 'Suzhou': '苏州', 'Bandar Seri Begawan': '斯里巴加湾', 'Penang': '槟城', 'Da Nang': '岘港', 'Miaoli': '苗栗', 'Wuhan': '武汉', 'Gunsan': '群山', 'Shenzhen': '深圳', 'Qingdao': '青岛', 'Haikou': '海口', 'Zhengzhou': '郑州', "Xi'an": '西安', 'Singapore': '新加坡', 'Bangkok': '曼谷', 'Hanoi': '河内', 'Ho Chi Minh City': '胡志明市', 'Manila': '马尼拉', 'Jakarta': '雅加达', 'Bali': '巴厘岛', 'Macau': '澳门', 'Incheon': '仁川', 'Gwangju': '光州', 'Jeju': '济州', 'Ulsan': '蔚山', 'Suwon': '水原', 'Ilsan': '一山', 'Goyang': '高阳', 'Seongnam': '城南', 'Cheongju': '清州', 'Jeonju': '全州', 'Pohang': '浦项', 'Gyeongju': '庆州', 'Kaohsiung': '高雄', 'Hsinchu': '新竹', 'Taoyuan': '桃园', 'Ulaanbaatar': '乌兰巴托', 'Phnom Penh': '金边', 'Yokohama': '横滨', 'Kyoto': '京都', 'Nagoya': '名古屋', 'Fukuoka': '福冈', 'Sapporo': '札幌', 'Kobe': '神户' };
-  function fl(c) { return (zh && c === 'Taiwan') ? '台湾地区' : cn(c); }
-  function cn(c) { if (c === 'Taiwan') return zh ? '台湾' : 'Taiwan'; return zh ? (CZ[c] || c) : c; }
+  var CK = { 'Seoul': '서울', 'Busan': '부산', 'Daejeon': '대전', 'Kuala Lumpur': '쿠알라룸푸르', 'Beijing': '베이징', 'Hong Kong': '홍콩', 'Changwon': '창원', 'Daegu': '대구', 'Shanghai': '상하이', 'Taipei': '타이베이', 'New Taipei': '신베이', 'Zhubei': '주베이', 'Chengdu': '청두', 'Hangzhou': '항저우', 'Chongqing': '충칭', 'Tokyo': '도쿄', 'Osaka': '오사카', 'Guangzhou': '광저우', 'Tianjin': '톈진', 'Taichung': '타이중', 'Tainan': '타이난', 'Nanjing': '난징', 'Suzhou': '쑤저우', 'Bandar Seri Begawan': '반다르스리브가완', 'Penang': '페낭', 'Da Nang': '다낭', 'Miaoli': '먀오리', 'Wuhan': '우한', 'Gunsan': '군산', 'Shenzhen': '선전', 'Qingdao': '칭다오', 'Haikou': '하이커우', 'Zhengzhou': '정저우', "Xi'an": '시안', 'Xi-an': '시안', 'Singapore': '싱가포르', 'Bangkok': '방콕', 'Hanoi': '하노이', 'Ho Chi Minh City': '호치민', 'Manila': '마닐라', 'Jakarta': '자카르타', 'Bali': '발리', 'Macau': '마카오', 'Macao': '마카오', 'Incheon': '인천', 'Gwangju': '광주', 'Jeju': '제주', 'Ulsan': '울산', 'Suwon': '수원', 'Ilsan': '일산', 'Goyang': '고양', 'Seongnam': '성남', 'Cheongju': '청주', 'Jeonju': '전주', 'Pohang': '포항', 'Gyeongju': '경주', 'Jinju': '진주', 'Kaohsiung': '가오슝', 'Hsinchu': '신주', 'Taoyuan': '타오위안', 'Ulaanbaatar': '울란바토르', 'Phnom Penh': '프놈펜', 'Yokohama': '요코하마', 'Kyoto': '교토', 'Nagoya': '나고야', 'Fukuoka': '후쿠오카', 'Sapporo': '삿포로', 'Kobe': '고베', 'Dalian': '다롄', 'Jinan': '지난', 'Ningbo': '닝보', 'Xiamen': '샤먼', 'Zhongshan': '중산', 'Zhuhai': '주하이', 'Shenyang': '선양' };
+  function fl(c) { return (zh && c === 'Taiwan') ? '台湾地区' : (ko && c === 'Taiwan') ? '대만' : cn(c); }
+  function cn(c) { if (c === 'Taiwan') return ko ? '대만' : zh ? '台湾' : 'Taiwan'; return ko ? (CK[c] || c) : zh ? (CZ[c] || c) : c; }
   function esc(t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   var now = new Date(), TODAY = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()), TWD = now.getDay();
@@ -52,10 +55,10 @@
   function rel(w) { return (w - TWD + 7) % 7; }
   function occDate(e) { return e.kind === 'weekly' ? occOf(e) : (e.start || ''); }
   function regSorted(c) { return (REG[c] || []).slice().sort(function (a, b) { var da = occDate(a), db = occDate(b); if (da !== db) return da < db ? -1 : 1; return (a.time || '') < (b.time || '') ? -1 : 1; }); }
-  function oneTag(e) { if (!(e.kind === 'event' && e.regular_oneoff)) return ''; return e.oneoff_kind === 'monthly' ? (zh ? '月度活动' : 'Monthly') : (zh ? '单次' : 'One-off'); }
+  function oneTag(e) { if (!(e.kind === 'event' && e.regular_oneoff)) return ''; return e.oneoff_kind === 'monthly' ? (ko ? '월간' : (zh ? '月度活动' : 'Monthly')) : (ko ? '단발' : (zh ? '单次' : 'One-off')); }
   function fd(s) { return s ? s.slice(5).replace('-', '/') + (s.slice(0, 4) !== TODAY.slice(0, 4) ? '' : '') : ''; }
   function dt(e) {
-    if (e.kind === 'weekly' && e.nth) return (zh ? '每月' + (e.nth === -1 ? '最后一个' : '第' + e.nth + '个') : (e.nth === -1 ? 'Last ' : ['', '1st ', '2nd ', '3rd ', '4th ', '5th '][e.nth])) + T.WD[wdOf(e)] + (zh ? '' : ' monthly') + (e.time ? ' ' + e.time : '');
+    if (e.kind === 'weekly' && e.nth) return (ko ? '매월 ' + (e.nth === -1 ? '마지막 ' : e.nth + '번째 ') : (zh ? '每月' + (e.nth === -1 ? '最后一个' : '第' + e.nth + '个') : (e.nth === -1 ? 'Last ' : ['', '1st ', '2nd ', '3rd ', '4th ', '5th '][e.nth]))) + T.WD[wdOf(e)] + (ko ? '요일' : (zh ? '' : ' monthly')) + (e.time ? ' ' + e.time : '');
     if (e.kind === 'weekly') return T.every + (e.weekdays || [e.weekday]).map(function (i) { return T.WD[i % 7]; }).join('/') + (e.time ? ' ' + e.time : '');
     var s = fd(e.start) + (e.end && e.end !== e.start ? '–' + fd(e.end) : ''); if (e.start && e.start.slice(0, 4) !== TODAY.slice(0, 4)) s = e.start.slice(0, 4) + '/' + s; if (e.theme_of) s += ' ' + T.WD[new Date(e.start + 'T12:00:00').getDay()] + (e.time ? ' ' + e.time : ''); return s;
   }
@@ -68,7 +71,7 @@
     var srcset = eager ? ' srcset="' + esc(u.webp) + '"' : '';
     var src = eager ? ' src="' + esc(u.jpg) + '" data-atm-on="1"' : '';
     var pri = eager ? ' fetchpriority="high"' : '';
-    return (pv ? '<span class="ah-pw">' : '') + '<picture><source type="image/webp" data-atm-srcset="' + esc(u.webp) + '"' + srcset + '><img class="' + cls + '" data-atm-src="' + esc(u.jpg) + '"' + src + ' data-full="' + esc(u.full) + '"' + pri + ' onerror="if(this.dataset.fell)return;this.dataset.fell=\'1\';var s=this.parentNode&&this.parentNode.querySelector(\'source\');if(s)s.removeAttribute(\'srcset\');if(this.dataset.full)this.src=this.dataset.full" alt="" decoding="async"></picture>' + (pv ? '<i class="ah-prev">' + (zh ? '上期海报' : 'Previous poster') + '</i></span>' : '');
+    return (pv ? '<span class="ah-pw">' : '') + '<picture><source type="image/webp" data-atm-srcset="' + esc(u.webp) + '"' + srcset + '><img class="' + cls + '" data-atm-src="' + esc(u.jpg) + '"' + src + ' data-full="' + esc(u.full) + '"' + pri + ' onerror="if(this.dataset.fell)return;this.dataset.fell=\'1\';var s=this.parentNode&&this.parentNode.querySelector(\'source\');if(s)s.removeAttribute(\'srcset\');if(this.dataset.full)this.src=this.dataset.full" alt="" decoding="async"></picture>' + (pv ? '<i class="ah-prev">' + (ko ? '지난 포스터' : (zh ? '上期海报' : 'Previous poster')) + '</i></span>' : '');
   }
   /* v11.9: DJ line under time, above venue (events.dj, else poster_djs for the current poster) */
   function djOf(e) { var d = (!zh && e.dj_en) ? e.dj_en : e.dj; if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || pd >= TODAY) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
@@ -77,7 +80,7 @@
     var raw = typeof e.detail === 'string' ? e.detail : '';
     var m = raw.match(/\/event\/([^\/?#]+)\/(?:[^#]*)#([A-Za-z0-9_-]+)\s*$/);
     if (!m) return location.pathname + '?card=' + encodeURIComponent(e.id);
-    return '/event/' + m[1] + '/' + (zh ? 'zh/' : '') + '?from=' + encodeURIComponent(e.id) + '#' + m[2];
+    return '/event/' + m[1] + '/' + (ko ? 'ko/' : (zh ? 'zh/' : '')) + '?from=' + encodeURIComponent(e.id) + '#' + m[2];
   }
   function normISO(s) { var m = String(s || '').trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); return m ? m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]) : ''; }
   /* Cancelled day is `date` when set. start/end is the show-until window (date 11/08, start 11/06 does not cancel 11/07).
@@ -105,18 +108,18 @@
   function cxBar(e) {
     var k = weekCx(e); if (!k) return '';
     var ui = window.CHINA_UI || {};
-    var t = k === 'perm' ? (ui.cancelled || (zh ? '已取消' : 'Cancelled')) : (ui.cancelledWeek || (zh ? '本周暂停' : 'Paused this week'));
+    var t = k === 'perm' ? (ui.cancelled || (ko ? '취소됨' : (zh ? '已取消' : 'Cancelled'))) : (ui.cancelledWeek || (ko ? '이번 주 휴무' : (zh ? '本周暂停' : 'Paused this week')));
     return '<em class="china-cancelled-bar">' + esc(t) + '</em>';
   }
   function card(e, sub, tag, eager) {
-    var v = (e.kind === 'weekly' || e.theme_of) ? (e.venue || '') : '';
+    var v = (e.kind === 'weekly' || e.theme_of) ? (ko ? (e.venue_ko || e.venue_en || e.venue || '') : (e.venue || '')) : '';
     var kt = oneTag(e), bar = cxBar(e);
-    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
+    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((ko && e.name_ko) || (zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
-  function heart(id) { var f = isFav(id), l = f ? (zh ? '取消收藏' : 'Remove from favorites') : (zh ? '收藏' : 'Add to favorites'); return '<span class="atm-heart ah-heart" role="button" tabindex="0" data-fid="' + esc(id) + '" aria-pressed="' + f + '" aria-label="' + l + '" title="' + l + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></span>'; }
-  function n(x) { return zh ? x + ' ' + T.items : String(x); }
+  function heart(id) { var f = isFav(id), l = f ? (ko ? '즐겨찾기 해제' : (zh ? '取消收藏' : 'Remove from favorites')) : (ko ? '즐겨찾기' : (zh ? '收藏' : 'Add to favorites')); return '<span class="atm-heart ah-heart" role="button" tabindex="0" data-fid="' + esc(id) + '" aria-pressed="' + f + '" aria-label="' + l + '" title="' + l + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></span>'; }
+  function n(x) { return (zh || ko) ? x + (T.items ? ' ' + T.items : '') : String(x); }
   var root = D.createElement('div'); root.id = 'atm-home'; root.className = 'wrap';
   var css = D.createElement('style'); css.id = 'atm-home-css';
   css.textContent = 'html.atm-h-on #filters,html.atm-h-on .atm-favbar,html.atm-h-on .atm-favgrid,html.atm-h-on .atm-featstrip,html.atm-h-on #china-listings,html.atm-h-on .tw-m-feat-grid,html.atm-h-on .atm-dots,html.atm-h-on .china-results,html.atm-h-on .atm-recent,html.atm-h-on .china-global-empty,html.atm-h-on .china-date-empty{display:none!important}' +
@@ -155,7 +158,7 @@
   var VK = 'atm_city_visits_v1';
   function visits() { try { return JSON.parse(localStorage.getItem(VK) || '{}') || {}; } catch (e) { return {}; } }
   function visit(c) { if (!c || !REG[c]) return; var v = visits(); v[c] = (v[c] || 0) + 1; try { localStorage.setItem(VK, JSON.stringify(v)); } catch (e) {} }
-  function nextOcc(e) { var w = wdOf(e), d = nthAdj(e, new Date(now.getFullYear(), now.getMonth(), now.getDate() + rel(w))); return (zh ? '下次 ' : 'Next ') + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + T.WD[w] + (e.time ? ' ' + e.time : ''); }
+  function nextOcc(e) { var w = wdOf(e), d = nthAdj(e, new Date(now.getFullYear(), now.getMonth(), now.getDate() + rel(w))); return (ko ? '다음 ' : (zh ? '下次 ' : 'Next ')) + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + T.WD[w] + (e.time ? ' ' + e.time : ''); }
   /* v11.7 homepage C: favorites carousel (own, else 系统建议 from /data/suggested_favs.json, ✕ remembered) + two entry rows; city grid moved to #h-reg */
   var SUG = [], HK = 'atm_sug_hidden_v1';
   function live(e) { return e && !(e.kind === 'event' && (e.end || e.start || '9') < TODAY); } /* weekly favorites never expire; past one-offs drop out */
@@ -167,15 +170,15 @@
   /* v11.8b: home 我的收藏 block is off unless intentionally enabled (window.ATM_HOME_FAV = true, or localStorage atm_home_fav_on = '1') */
   function favOn() { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').length > 0; } catch (e) { return false; } } /* RULE (user, 2026-11-04 — keep in future redesigns): home 我的收藏 row shows only when the user has ≥1 favorite (localStorage atm_fav_v1); never show 系统建议/suggested cards; ignore atm_home_fav_on. With 0 favorites, show one small hint line instead: zh「点 ❤️ 收藏活动，会显示在这里」/ en "Tap ❤️ to save events here"; the hint disappears once a favorite exists. Fav posters follow the 上期海报/Previous poster badge rule (poster_date < today, Asia/Shanghai). */
   function favBlock() {
-    var own = favOn() ? favLive() : [], L = own; if (!L.length) return '<p class="ah-favhint">' + (zh ? '点 ❤️ 收藏活动，会显示在这里' : 'Tap ❤️ to save events here') + '</p>';
-    var items = L.map(function (e, i) { var t = themed(e) || e; return '<div class="ah-fit">' + card(t, t.kind === 'weekly' ? nextOcc(t) : '', own.length ? '' : (zh ? '系统建议' : 'Suggested'), i < 1) + (own.length ? '' : '<button type="button" class="ah-unsug" aria-pressed="true" data-unsug="' + esc(e.id) + '" aria-label="' + (zh ? '移除建议' : 'Remove suggestion') + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></button>') + '</div>'; }).join('');
-    var sub = own.length ? (zh ? '左右滑动' : 'swipe') : (zh ? '系统建议，可换成你自己的' : 'Suggested, swap in your own');
-    return '<section class="ah-fav" aria-label="' + T.fav + '"><div class="ah-favh"><b><span style="color:#C0392B">♥</span> ' + T.fav + '</b><span class="ah-favs">' + sub + '</span>' + (own.length ? '<button type="button" class="ah-favall" data-fav="1">' + (zh ? '全部 ' + own.length + ' 项' : 'All ' + own.length) + ' ›</button>' : '') + '</div><div class="ah-car">' + items + '</div></section>';
+    var own = favOn() ? favLive() : [], L = own; if (!L.length) return '<p class="ah-favhint">' + (ko ? '❤️ 를 눌러 행사를 저장하면 여기에 표시됩니다' : (zh ? '点 ❤️ 收藏活动，会显示在这里' : 'Tap ❤️ to save events here')) + '</p>';
+    var items = L.map(function (e, i) { var t = themed(e) || e; return '<div class="ah-fit">' + card(t, t.kind === 'weekly' ? nextOcc(t) : '', own.length ? '' : (ko ? '추천' : (zh ? '系统建议' : 'Suggested')), i < 1) + (own.length ? '' : '<button type="button" class="ah-unsug" aria-pressed="true" data-unsug="' + esc(e.id) + '" aria-label="' + (ko ? '추천 제거' : (zh ? '移除建议' : 'Remove suggestion')) + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg></button>') + '</div>'; }).join('');
+    var sub = own.length ? (ko ? '밀어서 보기' : (zh ? '左右滑动' : 'swipe')) : (ko ? '추천입니다. 내 즐겨찾기로 바꿀 수 있습니다' : (zh ? '系统建议，可换成你自己的' : 'Suggested, swap in your own'));
+    return '<section class="ah-fav" aria-label="' + T.fav + '"><div class="ah-favh"><b><span style="color:#C0392B">♥</span> ' + T.fav + '</b><span class="ah-favs">' + sub + '</span>' + (own.length ? '<button type="button" class="ah-favall" data-fav="1">' + (ko ? '전체 ' + own.length + '개' : (zh ? '全部 ' + own.length + ' 项' : 'All ' + own.length)) + ' ›</button>' : '') + '</div><div class="ah-car">' + items + '</div></section>';
   }
   function home() {
     return favBlock() + '<div class="ah-rows">' +
-      '<button type="button" class="ah-ban" data-go="#h-feat"><span class="ah-ban-h"><span><span class="ah-ban-t" style="display:block">' + (zh ? T.feat + ' <i>' + FEAT.length + '</i> ' + T.items : T.feat + ' <i>' + FEAT.length + '</i>') + '</span><span class="ah-ban-s" style="display:block">' + T.from + ' · ' + T.sort + '</span></span><span class="ah-ban-a">›</span></span><span class="ah-strip">' + FEAT.filter(function (e) { return e.poster; }).slice(0, 6).map(function (e, i) { return img(e, '', i < 2); }).join('') + '</span></button>' +
-      '<div class="ah-rb"><button type="button" class="ah-rb-h" data-go="#h-reg"><span><span class="ah-rb-t">' + T.reg + ' <i>' + CITIES.length + '</i>' + (zh ? ' 城' : ' cities') + '</span><span class="ah-rb-s">' + (zh ? '选城市，看一周活动' : 'Pick a city, see the week') + '</span></span><span class="ah-ban-a">›</span></button><div class="ah-cts">' + ordered(CITIES).concat(TAILS.map(function (t) { return t.k; })).map(function (c, i) { return cthumb(c, i < 4); }).join('') + '</div><div class="ah-dd">' + ddHtml() + '</div></div></div>';
+      '<button type="button" class="ah-ban" data-go="#h-feat"><span class="ah-ban-h"><span><span class="ah-ban-t" style="display:block">' + ((zh || ko) ? T.feat + ' <i>' + FEAT.length + '</i> ' + T.items : T.feat + ' <i>' + FEAT.length + '</i>') + '</span><span class="ah-ban-s" style="display:block">' + T.from + ' · ' + T.sort + '</span></span><span class="ah-ban-a">›</span></span><span class="ah-strip">' + FEAT.filter(function (e) { return e.poster; }).slice(0, 6).map(function (e, i) { return img(e, '', i < 2); }).join('') + '</span></button>' +
+      '<div class="ah-rb"><button type="button" class="ah-rb-h" data-go="#h-reg"><span><span class="ah-rb-t">' + T.reg + ' <i>' + CITIES.length + '</i>' + (ko ? ' 도시' : (zh ? ' 城' : ' cities')) + '</span><span class="ah-rb-s">' + (ko ? '도시를 고르면 한 주 행사가 보입니다' : (zh ? '选城市，看一周活动' : 'Pick a city, see the week')) + '</span></span><span class="ah-ban-a">›</span></button><div class="ah-cts">' + ordered(CITIES).concat(TAILS.map(function (t) { return t.k; })).map(function (c, i) { return cthumb(c, i < 4); }).join('') + '</div><div class="ah-dd">' + ddHtml() + '</div></div></div>';
   }
   function mru() { try { var a = JSON.parse(localStorage.getItem(MRUK) || '[]'); return Array.isArray(a) ? a.filter(function (c) { return REG[c]; }) : []; } catch (e) { return []; } }
   function pick(c) { if (!REG[c] || tailOf(REG[c][0].region)) return; /* tail entries stay last, no MRU */ var a = mru().filter(function (x) { return x !== c; }); a.unshift(c); try { localStorage.setItem(MRUK, JSON.stringify(a.slice(0, 20))); } catch (e) {} }
@@ -191,24 +194,24 @@
         ? '<img src="' + cu + '" data-atm-src="' + cu + '" data-atm-on="1" alt="" decoding="async" width="90" height="120" fetchpriority="low">'
         : '<img data-atm-src="' + cu + '" alt="" decoding="async" width="90" height="120">';
     } else im = '<span class="ah-ct-n"></span>';
-    return '<button type="button" class="ah-ct" data-city="' + esc(c) + '" data-pick="1" aria-label="' + esc(fl(c)) + (zh ? '（' + REG[c].length + '）' : ' (' + REG[c].length + ')') + '">' + im + '<b>' + lab + '</b></button>';
+    return '<button type="button" class="ah-ct" data-city="' + esc(c) + '" data-pick="1" aria-label="' + esc(fl(c)) + ((zh || ko) ? ' (' + REG[c].length + ')' : ' (' + REG[c].length + ')') + '">' + im + '<b>' + lab + '</b></button>';
   }
-  function opt(c) { return '<button type="button" class="ah-dd-o" role="option" data-city="' + esc(c) + '" data-pick="1">' + esc(fl(c)) + (zh ? '（' + REG[c].length + '）' : ' (' + REG[c].length + ')') + '</button>'; }
+  function opt(c) { return '<button type="button" class="ah-dd-o" role="option" data-city="' + esc(c) + '" data-pick="1">' + esc(fl(c)) + ((zh || ko) ? ' (' + REG[c].length + ')' : ' (' + REG[c].length + ')') + '</button>'; }
   function ddHtml() {
     var o = S.dd ? '<div class="ah-dd-l" role="listbox">' + ordered(CITIES).map(opt).join('') + (TAILS.length ? '<hr class="ah-dd-hr">' : '') + TAILS.map(function (t) { return opt(t.k); }).join('') + '</div>' : '';
-    return '<button type="button" class="ah-dd-b" data-dd="1" aria-haspopup="listbox" aria-expanded="' + !!S.dd + '">' + (zh ? '选城市' : 'Choose city') + ' ' + (S.dd ? '▴' : '▾') + '</button>' + o;
+    return '<button type="button" class="ah-dd-b" data-dd="1" aria-haspopup="listbox" aria-expanded="' + !!S.dd + '">' + (ko ? '도시 선택' : (zh ? '选城市' : 'Choose city')) + ' ' + (S.dd ? '▴' : '▾') + '</button>' + o;
   }
   function regView() {
     var g = CITIES.map(function (c) { return '<button type="button" class="ah-city" data-city="' + esc(c) + '"><b>' + esc(fl(c)) + '</b><span>' + n(REG[c].length) + '</span></button>'; }).join('');
-    return top(T.reg + ' <i>' + CITIES.length + '</i>' + (zh ? ' 城' : ' cities')) + '<div class="ah-note">' + T.regsub + '</div><div class="ah-grid">' + g + '</div>';
+    return top(T.reg + ' <i>' + CITIES.length + '</i>' + (ko ? ' 도시' : (zh ? ' 城' : ' cities'))) + '<div class="ah-note">' + T.regsub + '</div><div class="ah-grid">' + g + '</div>';
   }
   function top(t) { return '<div class="ah-top"><button type="button" class="ah-back" data-go="" aria-label="' + T.back + '">‹</button><span class="ah-title">' + t + '</span></div>'; }
-  function feat() { return top(T.feat + ' <i>' + FEAT.length + '</i>' + (zh ? ' ' + T.items : '')) + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + FEAT.map(function (e, i) { return card(e, null, null, i < 2); }).join('') + '</div>'; }
+  function feat() { return top(T.feat + ' <i>' + FEAT.length + '</i>' + ((zh || ko) ? ' ' + T.items : '')) + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + FEAT.map(function (e, i) { return card(e, null, null, i < 2); }).join('') + '</div>'; }
   function cityView(c) {
     var L = regSorted(c), out = '', last = -1;
     L.forEach(function (e) { var d = occDate(e); if (d !== last) { out += '<div class="ah-wd">' + T.WD[wdOf(e)] + (d ? ' ' + d.slice(5).replace('-', '/') : '') + '</div>'; last = d; } out += card(e); });
     var chips = S.open ? '<div class="ah-chips" style="margin-top:10px">' + CITIES.map(function (x) { return '<button type="button" class="ah-chip" data-city="' + esc(x) + '" aria-pressed="' + (x === c) + '">' + (x === c ? '✓ ' : '') + esc(fl(x)) + '<small>' + REG[x].length + '</small></button>'; }).join('') + '</div><button type="button" class="ah-fold" data-tog="1">' + T.fold + ' ▴</button>' : '';
-    return top(esc(cn(c)) + ' · ' + T.weekly + ' <i>' + L.length + '</i>' + (zh ? ' ' + T.items : '')) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + '<div class="ah-list" style="margin-top:6px">' + (out || '<p>' + T.none + '</p>') + '</div>';
+    return top(esc(cn(c)) + ' · ' + T.weekly + ' <i>' + L.length + '</i>' + ((zh || ko) ? ' ' + T.items : '')) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + '<div class="ah-list" style="margin-top:6px">' + (out || '<p>' + T.none + '</p>') + '</div>';
   }
   function srchSet(a) { if (a === 4) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
   function search() {
@@ -225,7 +228,7 @@
       h += '<div class="ah-rowl">' + T.act + '</div><div class="ah-chips">' + ch(S.a < 0, 'data-a', -1, T.allA, FEAT.length) + T.cats.map(function (t, i) { return ch(S.a === i, 'data-a', i, t, srchSet(i).length); }).join('') + '</div>' +
         '<div class="ah-div" style="margin-top:14px"></div><div class="ah-rowl">' + T.city + '</div><div class="ah-chips">' + ch(!S.c, 'data-c', '', T.allC, base.length) + cl.map(function (c) { return ch(S.c === c, 'data-c', c, fl(c), cc[c]); }).join('') + '</div><button type="button" class="ah-fold" data-tog="1">' + T.fold + ' ▴</button>';
     }
-    h += '<div class="ah-h" style="margin-top:20px"><b>' + esc(an) + ' · ' + esc(ctn) + ' <i style="font-style:normal;color:#C0392B">' + res.length + '</i>' + (zh ? ' ' + T.items : '') + '</b><span>' + T.from + ' · ' + T.sort + '</span></div><div class="ah-list ah-2">' + (res.map(function (e) { return card(e); }).join('') || '<p>' + T.none + '</p>') + '</div>';
+    h += '<div class="ah-h" style="margin-top:20px"><b>' + esc(an) + ' · ' + esc(ctn) + ' <i style="font-style:normal;color:#C0392B">' + res.length + '</i>' + ((zh || ko) ? ' ' + T.items : '') + '</b><span>' + T.from + ' · ' + T.sort + '</span></div><div class="ah-list ah-2">' + (res.map(function (e) { return card(e); }).join('') || '<p>' + T.none + '</p>') + '</div>';
     return h;
   }
   var lastR = null, lastC = '';
@@ -275,7 +278,7 @@
     if (b.hasAttribute('data-c')) { S.c = b.getAttribute('data-c'); render(); return; }
   });
   D.addEventListener('click', function (e) { var h = e.target.closest && e.target.closest('.ah-heart'); if (!h) return; e.preventDefault(); var id = h.getAttribute('data-fid'), inCar = !!h.closest('.ah-fav');
-    setTimeout(function () { var f = isFav(id), l = f ? (zh ? '取消收藏' : 'Remove from favorites') : (zh ? '收藏' : 'Add to favorites'); D.querySelectorAll('.ah-heart[data-fid="' + id + '"]').forEach(function (x) { x.setAttribute('aria-pressed', String(f)); x.setAttribute('aria-label', l); x.title = l; }); if (inCar || (!!D.querySelector('#atm-home .ah-fav')) !== (favLive().length > 0)) setTimeout(render, 200); }, 30); }, true);
+    setTimeout(function () { var f = isFav(id), l = f ? (ko ? '즐겨찾기 해제' : (zh ? '取消收藏' : 'Remove from favorites')) : (ko ? '즐겨찾기' : (zh ? '收藏' : 'Add to favorites')); D.querySelectorAll('.ah-heart[data-fid="' + id + '"]').forEach(function (x) { x.setAttribute('aria-pressed', String(f)); x.setAttribute('aria-label', l); x.title = l; }); if (inCar || (!!D.querySelector('#atm-home .ah-fav')) !== (favLive().length > 0)) setTimeout(render, 200); }, 30); }, true);
   D.addEventListener('keydown', function (e) { var h = e.target.closest && e.target.closest('.ah-heart'); if (h && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); h.click(); } });
   var lastFromHome = false, prevHash = null;
   addEventListener('hashchange', function (e) { lastFromHome = true; try { prevHash = new URL(e.oldURL).hash; } catch (er) { prevHash = null; } render(); });
@@ -307,7 +310,7 @@
     var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { /* v11.7 H3: header 🔍 removed (route #h-search kept) */ void bS; /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
-  var FULL = '/asia/events.json?v=e216'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
+  var FULL = '/asia/events.json?v=e217'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
   function asList(d) { return Array.isArray(d) ? d : (d && d.events) || []; }
   function favMissing(list) {
     var m = {}, ids = [];
@@ -324,7 +327,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china465';
+    var coreUrl = '/asia/events-core.json?v=china466';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {
