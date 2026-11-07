@@ -1918,7 +1918,7 @@
     "weekdays": [
       6
     ],
-    "time": "17:00–21:00",
+    "time": "17:30–21:30",
     "venue": "茂名大厦313",
     "venue_address": "上海市永嘉路35号茂名大厦313",
     "venue_address_en": "Room 313, Maoming Building, No. 35 Yongjia Road, Shanghai",
@@ -1929,7 +1929,7 @@
     ],
     "links": {},
     "source": "user directory 2026-10-24",
-    "updated": "2026-11-03",
+    "updated": "2026-11-07",
     "hidden": false,
     "tba": false,
     "contacts": {
@@ -1951,7 +1951,8 @@
     "poster_date": "2026-11-07",
     "poster_dates": {
       "/images/asia/posters/rccbKIYP.jpg": "2026-11-07"
-    }
+    },
+    "dj": "TJ 老汉"
   },
   {
     "id": "R0E9XeyL",
@@ -5820,5 +5821,73 @@
     "series_id": "wutong",
     "edition": 2,
     "prev_id": "JHeguuQb"
+  },
+  {
+    "id": "E159",
+    "kind": "event",
+    "type": "milonga",
+    "name": "Milonga Musea",
+    "name_zh": "Milonga Musea",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": "2026-11-08",
+    "end": "2026-11-08",
+    "time": "15:30–18:30",
+    "venue": "洋派 Poema（永新汇店）",
+    "venue_en": "Poema (Yongxinhui)",
+    "venue_address": "深圳市南山区南油西站C口永新汇B1喷泉广场，洋派 Poema（永新汇店）",
+    "venue_address_en": "Poema (Yongxinhui), B1 Fountain Square, Yongxinhui, Exit C Nanyou West Station, Nanshan, Shenzhen",
+    "organizers": [
+      "金睿 Humphrey"
+    ],
+    "organizers_en": [
+      "Jinrui Humphrey"
+    ],
+    "links": {},
+    "contacts": {},
+    "source": "微信群 Milonga Cadencia GZ周六舞会（G03），金睿 Humphrey 2026-11-06 20:16 海报",
+    "updated": "2026-11-07",
+    "hidden": false,
+    "tba": false,
+    "note_zh": "周日下午。DJ 思哲（Sizhe）。¥80/人。着装建议：复古/半正式（Cocktail Attire）。",
+    "note": "Sunday afternoon. DJ Sizhe. ¥80/person. Dress code: cocktail / vintage semi-formal.",
+    "regular_oneoff": true,
+    "poster": "/images/asia/posters/E159.jpg?v=20261107",
+    "poster_date": "2026-11-08",
+    "poster_dates": {
+      "/images/asia/posters/E159.jpg": "2026-11-08"
+    },
+    "dj": "思哲（Sizhe）",
+    "price": "¥80/人"
+  },
+  {
+    "id": "E160",
+    "kind": "event",
+    "type": "festival",
+    "name": "2nd Wuhan Tango International Carnival",
+    "name_zh": "第二届武汉探戈国际嘉年华",
+    "city": "Wuhan",
+    "country": "China",
+    "region": "China",
+    "start": "2027-10-03",
+    "end": "2027-10-06",
+    "venue": "TBA",
+    "venue_en": "TBA",
+    "organizers": [],
+    "organizers_en": [],
+    "links": {},
+    "contacts": {},
+    "source": "活动更新邮件 shiaochang@icloud.com 2026-11-07（海报 38.jpg）",
+    "updated": "2026-11-07",
+    "hidden": false,
+    "tba": false,
+    "featured": true,
+    "note_zh": "海报宣布：第二届武汉探戈国际嘉年华（WHTIC）定档 2027年10月3–6日，武汉。同期含 Abrazo-International Grand Prix、第一届 Carnival Tango DJ Invitational Tournament。场地、老师、价格未公布。",
+    "note": "Poster announcement: 2nd Wuhan Tango International Carnival (WHTIC), 3–6 October 2027, Wuhan. Also listed: Abrazo-International Grand Prix; 1st Carnival Tango DJ Invitational Tournament. Venue, teachers and prices not announced.",
+    "detail": "/event/wuhan-2027-whtic/",
+    "poster": "/images/asia/posters/E160.jpg",
+    "poster_pos": "center top",
+    "edition": 2
   }
 ]
