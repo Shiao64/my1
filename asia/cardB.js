@@ -75,6 +75,7 @@ function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in
  if(L.other&&!/tangoweekend\.org\/event\//.test(L.other)) A(L.other, zh?'网站':'Website');
  if(L.register) A(L.register, zh?'报名':'Register');
  if(L.video) A(L.video, zh?'视频':'Video');
+ var CH=L.wechat_channels; if(CH&&(CH.name||CH.id)) lk.push('<span>'+(zh?'微信视频号：':'WeChat Channels: ')+H([CH.name, CH.id?((zh?'视频号 ID ':'video account ID ')+CH.id):''].filter(Boolean).join(' · '))+'</span>'); /* v12.2 */
  row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links');
  inn.innerHTML=R.join(''); }
 document.addEventListener('toggle',function(ev){ var dt=ev.target; if(!dt.classList||!dt.classList.contains('b-more')) return; var inn=dt.querySelector('.b-in')||dt;
@@ -181,6 +182,7 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   if(L.other&&!/tangoweekend\.org\/event\//.test(L.other)) A(L.other, zh?'网站':'Website');
   if(L.register) A(L.register, zh?'报名':'Register');
   if(L.video) A(L.video, zh?'视频':'Video');
+  var CH=L.wechat_channels; if(CH&&(CH.name||CH.id)) lk.push('<span>'+(zh?'微信视频号：':'WeChat Channels: ')+H([CH.name, CH.id?((zh?'视频号 ID ':'video account ID ')+CH.id):''].filter(Boolean).join(' · '))+'</span>'); /* v12.2 */
   row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links'); /* v11.8b: P10 links get the ↗ marker too */
   if(keep.length) row(zh?'备注':'Note', H(keep.join(zh?'':' ')));
   return R.join(''); }
