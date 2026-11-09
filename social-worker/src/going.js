@@ -212,7 +212,7 @@ async function sendVerify(env, kit, row, link, pending) {
   const zh = row.lang === 'zh';
   const subject = zh ? '请确认邮箱｜亚洲探戈地图' : 'Please confirm your email | Asia Tango Map';
   const extra = pending
-    ? (zh ? `\n\n你已确认「${pending.title}」的意向（${pending.intent === 'going' ? '要参加' : '感兴趣'}）。点下面的确认之后，意向才会进入发给主办的汇总，不会立刻逐封发送。只打开这封信不会发信。\n` : `\n\nYou already confirmed intent for "${pending.title}" (${pending.intent === 'going' ? 'Going' : 'Interested'}). After you tap Confirm, it joins the organizer summary. It is not emailed one by one. Opening this email does not send it.\n`)
+    ? (zh ? `\n\n你在「${pending.title}」选了${pending.intent === 'going' ? '要参加' : '感兴趣'}。这封邮件只确认邮箱，不会记录意向，也不会通知组织者。回到活动页面后再点「确认」。\n` : `\n\nYou chose ${pending.intent === 'going' ? 'Going' : 'Interested'} for "${pending.title}". This email only confirms your address. It does not save the intent or notify the organizer. Go back to the event and tap Confirm.\n`)
     : (zh ? '\n\n这只保存你的资料。确认邮箱不会通知组织者，也不会标记任何活动。\n' : '\n\nThis only saves your profile. Confirming does not email an organizer or mark an event.\n');
   const text = (zh ? `${row.name}，你好！\n\n请在 7 天内打开下面的链接，再点「确认」。\n\n${link}\n` : `Hi ${row.name},\n\nOpen the link below within 7 days, then tap Confirm.\n\n${link}\n`) + extra + (zh ? '\n如果不是你本人操作，忽略即可。\n\n探戈助理\nhttps://tangoweekend.org' : '\nIf this wasn\'t you, you can ignore this email.\n\n探戈助理\nhttps://tangoweekend.org');
   const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${kit.he(zh ? row.name + '，你好！' : 'Hi ' + row.name + ',')}</p><p>${zh ? '请在 7 天内点下面的按钮确认邮箱。' : 'Tap the button below within 7 days to confirm your email.'}</p><p style="margin:22px 0"><a href="${kit.he(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${zh ? '确认' : 'Confirm'}</a></p><p>${kit.he(extra.trim())}</p><p>探戈助理<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
@@ -325,31 +325,26 @@ export async function goingConfirm(req, env, url, kit) {
   }
   const lang = row.lang === 'zh' ? 'zh' : 'en';
   if (req.method !== 'POST' || !go) return confirmForm(kit, lang, email, tok, next);
-  const user = await upsertUser(env, kit, email, { name: row.name, city: row.city, role: row.role, lang, iph: '' });
-  await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?),name=?,city=?,role=?,lang=? WHERE id=?').bind(kit.now(), row.name, row.city, row.role, lang, user.id).run();
+  const user = await fillBlanks(env, kit, email, { name: row.name, city: row.city, role: row.role, lang, iph: '' });
   const token = await kit.issueSession(env, { ...user, lang }, { keepCode: true });
-  if (row.alert_opt_in) { try { await kit.applyList(env, { email, name: row.name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
-  const pend = (await env.SDB.prepare('SELECT * FROM going_pending WHERE email=? AND consumed_at IS NULL').bind(email).all()).results || [];
-  let saw = false, didQueue = false, failed = false;
-  for (const p of pend) {
-    saw = true;
-    const r = await materialize(env, kit, p, '');
-    await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE id=?').bind(kit.now(), p.id).run();
-    if (r.mail === 'queued') didQueue = true;
-    else if (r.mail === 'failed' || r.mail === 'rate_limited') failed = true;
-  }
-  const mail = failed ? 'fail' : (didQueue ? 'queued' : (saw ? 'unchanged' : 'none'));
+  if (row.alert_opt_in) { try { await kit.applyList(env, { email, name: user.name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
+  const latest = await env.SDB.prepare('SELECT card_id FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC LIMIT 1').bind(email).first();
   await env.SDB.prepare('DELETE FROM profile_verify WHERE email=?').bind(email).run();
   const dest = new URL(next);
-  dest.hash = 'atm=' + token + '&going=' + mail;
-  const msg = mail === 'queued'
-    ? (lang === 'zh' ? '已记录你的意向。会在汇总时通知主办（含抄送）。' : 'Your intent is saved. The organizer is notified in the next summary (with CC).')
-    : mail === 'fail'
-      ? (lang === 'zh' ? '意向已保存；通知邮件发送失败，请稍后重试。' : 'Intent saved; the notification failed to send. Please try again later.')
-      : mail === 'unchanged'
-        ? (lang === 'zh' ? '意向已保存。没有新的内容需要汇总。' : 'Intent saved. Nothing new is waiting for the summary.')
-        : (lang === 'zh' ? '邮箱已验证，资料已保存。可到活动五角星选择要参加或感兴趣。' : 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.');
+  dest.hash = 'atm=' + token + '&going=' + (latest ? 'ready' : 'none') + (latest ? '&card=' + encodeURIComponent(latest.card_id) : '');
+  const msg = latest
+    ? (lang === 'zh' ? '邮箱已确认。回到活动后，再点「确认」才会记录意向。' : 'Email confirmed. Go back to the event and tap Confirm to save your intent.')
+    : (lang === 'zh' ? '邮箱已验证，资料已保存。可到活动五角星选择要参加或感兴趣。' : 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.');
   return page(kit, true, lang, msg, dest.toString());
+}
+async function fillBlanks(env, kit, email, fields) {
+  const cur = await env.SDB.prepare('SELECT id,name,city,role FROM users WHERE email=?').bind(email).first();
+  if (!cur) return upsertUser(env, kit, email, fields);
+  const name = String(cur.name || '').trim() ? cur.name : (fields.name || '');
+  const city = String(cur.city || '').trim() ? cur.city : (fields.city || null);
+  const role = roleOf(cur.role) ? cur.role : (roleOf(fields.role) || null);
+  await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?),name=?,city=?,role=?,lang=? WHERE id=?').bind(kit.now(), name, city, role, fields.lang, cur.id).run();
+  return env.SDB.prepare('SELECT id,email,name,city,role,lang,verified_at FROM users WHERE email=?').bind(email).first();
 }
 
 function readProfile(b, kit) {
@@ -432,14 +427,12 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     await env.SDB.prepare('UPDATE users SET name=?,city=?,role=? WHERE id=?').bind(name, city, role, session.id).run();
     const result = await materialize(env, kit, { email, card_id: id, intent, occurrence_date: b.date || '', transport, notify, name, lang }, iph);
     if (result.error) return json({ error: result.error }, 400);
+    await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE email=? AND card_id=? AND consumed_at IS NULL').bind(kit.now(), email, id).run();
     return json({ ok: true, verified: true, mailed: !!result.mailed, mail: result.mail, date: result.date || '' });
   }
   const prof = readProfile(b, kit);
   name = prof.name; email = prof.email; city = prof.city; role = prof.role;
-  if (!name) return json({ error: 'need_name' }, 400);
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email' }, 400);
-  if (!city) return json({ error: 'need_city' }, 400);
-  if (!role) return json({ error: 'need_role' }, 400);
   let date = String(b.date || '');
   if (card.kind === 'event' || card.kind === 'featured') { date = ''; }
   else {
@@ -448,7 +441,9 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     if (!date || dates.indexOf(date) < 0) return json({ error: 'bad_date' }, 400);
   }
   const useTransport = (card.kind === 'event' || card.kind === 'featured') ? 0 : transport;
-  await upsertUser(env, kit, email, { name, city, role, lang, iph });
+  const existing = await env.SDB.prepare('SELECT id,name,city,role,verified_at FROM users WHERE email=?').bind(email).first();
+  if (!existing) await upsertUser(env, kit, email, { name, city, role, lang, iph });
+  else if (!existing.verified_at) await fillBlanks(env, kit, email, { name, city, role, lang, iph });
   await env.SDB.prepare(`INSERT INTO going_pending(email,card_id,intent,occurrence_date,transport,notify,name,created_at) VALUES(?,?,?,?,?,?,?,?)
     ON CONFLICT(email,card_id) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,transport=excluded.transport,notify=excluded.notify,name=excluded.name,created_at=excluded.created_at,consumed_at=NULL`)
     .bind(email, id, intent, date || null, useTransport, notify, name, kit.now()).run();
@@ -489,9 +484,11 @@ export async function goingMine(req, env, json) {
   const session = await sessionUser(req, env);
   if (!session) return json({ error: 'auth' }, 401);
   const rows = (await env.SDB.prepare("SELECT card_id,intent,occurrence_date,transport,notify,mail_status,status,updated_at FROM going_intents WHERE email=? AND status='active' ORDER BY updated_at DESC").bind(session.email).all()).results || [];
+  const drafts = (await env.SDB.prepare("SELECT card_id,intent,occurrence_date,transport,notify FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC").bind(session.email).all()).results || [];
   return json({
     email: session.email, name: session.name, city: session.city || '', role: session.role || '',
-    items: rows.map(r => ({ id: r.card_id, intent: r.intent, date: r.occurrence_date || '', transport: !!r.transport, notify: !!r.notify, mail: r.mail_status }))
+    items: rows.map(r => ({ id: r.card_id, intent: r.intent, date: r.occurrence_date || '', transport: !!r.transport, notify: !!r.notify, mail: r.mail_status })),
+    drafts: drafts.map(r => ({ id: r.card_id, intent: r.intent, date: r.occurrence_date || '', transport: !!r.transport, notify: !!r.notify }))
   });
 }
 

@@ -19,13 +19,14 @@
     optin: '勾选后，可接收早鸟报名及截止时间、场地交通指引、临时通知和主办方消息。',
     submit: '确认', needIntent: '请选择要参加或感兴趣。',
     profileTitle: '',
-    profileDesc: '先验证邮箱。验证后还要再确认，才会通知组织者。',
+    profileDesc: '先确认邮箱。回到本页后再点「确认」，才会记录意向。',
     req: '以下均为必填',
     name: '姓名', email: '邮箱', city: '城市', role: '角色',
     rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', rolePh: '请选择',
     once: '同一设备验证通过后，再选 Going／Interested 无需重复验证。',
-    verifyBtn: '发送验证邮件', pending: '验证邮件已发出，请查收。未验证前不会亮星，也不会通知组织者。',
+    verifyBtn: '确认邮箱并继续', pending: '确认邮件已发出，请查收。点开邮件里的确认后，再回到这里点「确认」。',
     resend: '重新发送验证邮件',
+    ready: '邮箱已确认。再点「确认」才会记录意向。',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
     sent: '已记录你的意向。已向组织者发送通知（含抄送）。',
     unchanged: '意向已保存。没有新的内容需要汇总。',
@@ -35,7 +36,7 @@
     bar: '我的活动意向', manage: '管理意向', cancel: '取消意向',
     cancelAsk: '取消意向？这不会再发邮件给组织者，也不会撤回已经发出的信。',
     cancelled: '已取消意向。没有新的邮件发给组织者。',
-    restore: '用邮箱恢复登录', restoreSent: '如果这个邮箱已验证，恢复链接已发出。输入邮箱本身不会登录。',
+    emailKept: '邮箱已确认',
     unsub: '退订本活动更新（不会取消你的 Going／Interested）',
     date: '参加日期（北京时间 UTC+8）', close: '关闭',
     hint: '点五角星选择 Going 或 Interested。验证邮箱后，意向会显示在这里，并可在其他设备恢复。',
@@ -53,13 +54,14 @@
     optin: 'Opt in to receive early-bird and registration deadlines, venue directions, last-minute notices, and organizer updates.',
     submit: 'Confirm', needIntent: 'Choose Going or Interested.',
     profileTitle: '',
-    profileDesc: 'Verify your email first. You still confirm afterward; that is when the organizer is told.',
+    profileDesc: 'Confirm your email first. After you come back, tap Confirm to save your intent.',
     req: 'All fields are required',
     name: 'Name', email: 'Email', city: 'City', role: 'Role',
     rl: 'Leader', rf: 'follower', rb: 'both', rolePh: 'Choose',
     once: 'After one verification on this device, you won’t need to verify again to choose Going or Interested.',
-    verifyBtn: 'Send verification email', pending: 'Verification email sent. We won’t light the star or notify the organizer until you verify.',
+    verifyBtn: 'Confirm email and continue', pending: 'Confirmation email sent. Open it, then come back and tap Confirm.',
     resend: 'Resend verification email',
+    ready: 'Email confirmed. Tap Confirm to save your intent.',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
     sent: 'Your intent is saved. The organizer has been notified (with CC).',
     unchanged: 'Intent saved. Nothing new is waiting for the summary.',
@@ -69,7 +71,7 @@
     bar: 'My event intents', manage: 'Manage intent', cancel: 'Cancel intent',
     cancelAsk: 'Cancel this intent? We will not email the organizer again, and mail already sent is not recalled.',
     cancelled: 'Intent cancelled. No new email was sent to the organizer.',
-    restore: 'Restore access with email', restoreSent: 'If this email is verified, a restore link is on its way. Typing the address does not sign you in.',
+    emailKept: 'Email confirmed',
     unsub: 'Unsubscribe from this event’s updates (keeps your Going / Interested)',
     date: 'Date (Beijing time, UTC+8)', close: 'Close',
     hint: 'Tap the star to choose Going or Interested. After you verify your email, intents show here and restore on your other devices.',
@@ -97,7 +99,7 @@
     '.atm-favbar b{color:#0a4f57}';
   document.head.appendChild(css);
 
-  var mine = {}, me = null, ready = false, eventsP = null, reach = {}, reachWait = {};
+  var mine = {}, drafts = {}, me = null, ready = false, eventsP = null, reach = {}, reachWait = {}, reopen = '';
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
   function ctxGet() { try { return JSON.parse(localStorage.getItem('atm_star_ctx') || 'null'); } catch (e) { return null; } }
@@ -191,11 +193,14 @@
     if (m) setToken(m[1]);
     var g = (h.match(/going=([a-z]+)/) || [])[1];
     if (m || g) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} }
+    var card = (h.match(/card=([A-Za-z0-9_-]+)/) || [])[1];
     if (g === 'queued') toast(L.queued);
     else if (g === 'sent') toast(L.sent);
     else if (g === 'fail') toast(L.fail);
     else if (g === 'unchanged') toast(L.unchanged);
     else if (g === 'none') toast(L.saved);
+    else if (g === 'ready') toast(L.ready);
+    if (card) reopen = card;
     if (m) refreshMine();
   }
   function toast(text) { var t = document.createElement('div'); t.className = 'atm-toast'; t.setAttribute('role', 'status'); t.textContent = text; document.body.appendChild(t); setTimeout(function () { t.remove(); }, 4200); }
@@ -205,7 +210,11 @@
     if (!e) { ensureEvents().then(function () { open(b); }); return; }
     if (canIntent(e, id) !== true) return;
     var saved = mine[id];
-    var draft = ctxGet(); if (!draft || draft.id !== id) draft = { id: id, intent: saved ? saved.intent : '', date: saved ? saved.date : '', notify: saved ? saved.notify : true, transport: saved ? !!saved.transport : false };
+    var local = ctxGet();
+    var server = drafts[id];
+    var draft = (local && local.id === id && local.intent) ? local
+      : (server ? { id: id, intent: server.intent, date: server.date || '', notify: server.notify !== false, transport: !!server.transport }
+      : { id: id, intent: saved ? saved.intent : '', date: saved ? saved.date || '' : '', notify: saved ? saved.notify !== false : true, transport: saved ? !!saved.transport : false });
     ctxSet(draft);
     h2().textContent = titleOf(e) || L.title;
     var dates = datesOf(e), reg = regular(e);
@@ -223,11 +232,12 @@
     html += '<label class="asg-check"><input type="checkbox" id="asg-notify"' + (draft.notify !== false ? ' checked' : '') + '>' + L.notify + '</label>';
     if (reg) html += '<label class="asg-check"><input type="checkbox" id="asg-dir"' + (draft.transport ? ' checked' : '') + '>' + L.transport + '</label>';
     if (!verified) {
-      html += '<p class="asg-note">' + L.profileDesc + '</p><p class="asg-req">' + L.req + '</p>';
-      html += '<div class="asg-grid">' + field(L.name, 'asg-name') + field(L.email, 'asg-email', 'email') + field(L.city, 'asg-city') + roleSelect() + '</div>';
-      html += '<p><button type="button" class="asg-x2" id="asg-restore">' + L.restore + '</button></p>';
+      html += '<p class="asg-note">' + L.profileDesc + '</p>';
+      html += field(L.email, 'asg-email', 'email');
     } else if (needProfile) {
-      html += '<p class="asg-note">' + L.fill + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect() + '</div>';
+      html += '<p class="asg-note">' + L.fill + '</p>';
+      if (me && me.email) html += '<p class="asg-note">' + L.emailKept + (zh ? '：' : ': ') + esc(me.email) + '</p>';
+      html += '<p class="asg-req">' + L.req + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect() + '</div>';
     }
     html += '<p class="asg-err" id="asg-err"></p><p class="asg-ok" id="asg-ok"></p>';
     html += '<button type="button" class="asg-go" id="asg-go">' + action + '</button>';
@@ -238,18 +248,12 @@
     if (me) { var n = body().querySelector('#asg-name'); if (n && me.name) n.value = me.name; var c = body().querySelector('#asg-city'); if (c && me.city) c.value = me.city; var rr = body().querySelector('#asg-role'); if (rr && me.role) rr.value = me.role; }
     body().querySelectorAll('[data-intent]').forEach(function (btn) { btn.onclick = function () { draft.intent = btn.getAttribute('data-intent'); ctxSet(draft); body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); }); }; });
     var dateEl = body().querySelector('#asg-date'); if (dateEl) dateEl.onchange = function () { draft.date = dateEl.value; ctxSet(draft); };
+    var noteEl = body().querySelector('#asg-notify'); if (noteEl) noteEl.onchange = function () { draft.notify = noteEl.checked; ctxSet(draft); };
+    var dirEl = body().querySelector('#asg-dir'); if (dirEl) dirEl.onchange = function () { draft.transport = dirEl.checked; ctxSet(draft); };
     var go = body().querySelector('#asg-go');
     go.onclick = function () { submit(e, draft, go); };
     var cancel = body().querySelector('#asg-cancel');
     if (cancel) cancel.onclick = function () { if (!window.confirm(L.cancelAsk)) return; api('/social/going/cancel', { id: id, explicit: 1 }).then(function (d) { if (d.ok && d.cancelled) { delete mine[id]; paint(); body().querySelector('#asg-ok').textContent = L.cancelled; } }); };
-    var restore = body().querySelector('#asg-restore');
-    if (restore) restore.onclick = function () {
-      var em = (body().querySelector('#asg-email') || {}).value || '';
-      api('/social/going/restore', { email: em.trim(), ret: location.href.split('#')[0], ts: tsToken(), lang: zh ? 'zh' : 'en' }).then(function (d) {
-        var err = body().querySelector('#asg-err'), ok = body().querySelector('#asg-ok');
-        if (d.confirm) { ok.textContent = L.restoreSent; err.textContent = ''; } else err.textContent = d.error || L.fail;
-      });
-    };
     mountTs(body().querySelector('.asg-ts'));
     box.hidden = false;
   }
@@ -351,12 +355,23 @@
     return true;
   }
   function refreshMine() {
-    if (!token()) { me = null; mine = {}; paint(); paintBar(); return; }
-    api('/social/going/mine').then(function (d) {
-      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; }
-      else { me = { email: d.email, name: d.name, city: d.city, role: d.role }; mine = {}; (d.items || []).forEach(function (it) { mine[it.id] = it; }); }
+    if (!token()) { me = null; mine = {}; drafts = {}; paint(); paintBar(); return Promise.resolve(); }
+    return api('/social/going/mine').then(function (d) {
+      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; drafts = {}; }
+      else {
+        me = { email: d.email, name: d.name, city: d.city, role: d.role };
+        mine = {}; drafts = {};
+        (d.items || []).forEach(function (it) { mine[it.id] = it; });
+        (d.drafts || []).forEach(function (it) { drafts[it.id] = it; });
+      }
       paint(); paintBar();
+      if (reopen) { var id = reopen; reopen = ''; openId(id); }
     }).catch(function () {});
+  }
+  function openId(id) {
+    var b = document.querySelector('[data-fid="' + id + '"], [data-sid="' + id + '"]');
+    if (!b) { b = document.createElement('button'); b.setAttribute('data-fid', id); }
+    open(b);
   }
   window.ATM_STAR = {
     take: function (b) { if (b.classList.contains('atm-star-off') || b.getAttribute('aria-disabled') === 'true') return true; open(b); return true; },
