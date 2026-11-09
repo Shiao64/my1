@@ -1,22 +1,22 @@
-/* Asia map event-alert form. Email path requires name, city, role, and email.
-   POST /subscribe stores name and email. `cities` on that API is an event filter (left empty = all), not the person's city.
-   city and role are included in the JSON; the live handler has no columns for them and ignores unknown fields.
-   The WeChat tab stays visible but disabled, including inside WeChat. */
+/* Profile form. POST /social/profile with alert:0.
+   No session: send a verification email and save nothing public.
+   Same verified session: update name, city, and role, and do not send another email.
+   This does not create Going or Interested and does not email an organizer. */
 (function () {
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
   var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
   var L = zh ? {
-    btn: '✉ 订阅与活动意向', title: '订阅与活动意向', desc: '填写姓名、邮箱、城市、角色并验证邮箱。验证后资料保存在账户下。此处不会向任何组织者发信，也不会自动标记某个活动。要表达参加意向，请到具体活动点五角星。', name: '姓名（必填）', namePh: '您的姓名', city: '城市（必填）', cityPh: '所在城市', role: '角色（必填）', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。', wxNeed: '', okWx: '',
-    email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '',
-    need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '确认邮件发送失败，请检查邮箱地址或稍后再试。',
-    submit: '发送验证邮件', sending: '提交中…', ok: '验证邮件已发出，请查收。未验证前不会亮星，也不会通知组织者。', saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
-    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '同一设备验证通过后，再选 Going／Interested 无需重复验证。此处只保存资料，不等于订阅全部城市或全部活动，也不会向组织者发信。', close: '关闭'
+    btn: '订阅', title: '订阅', desc: '填写姓名、城市、角色和邮箱，然后验证邮箱。资料记在你的账户上。', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
+    email: '邮箱', emailPh: 'name@example.com',
+    need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '验证邮件发送失败，请检查邮箱或稍后再试。',
+    submit: '发送验证邮件', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。', saved: '资料已保存。这个设备已经验证过，没有再发信。',
+    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '这里不报名，也不通知组织者。某个活动要参加或感兴趣，请到该活动点五角星再确认。', close: '关闭'
   } : {
-    btn: '✉ Subscribe & event intent', title: 'Subscribe & event intent', desc: 'Enter your name, email, city, and role, then verify your email. This saves your profile only—it does not email organizers or mark any event. To share intent, tap the star on an event.', name: 'Name (required)', namePh: 'Your name', city: 'City (required)', cityPh: 'Your city', role: 'Role (required)', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.', wxNeed: '', okWx: '',
-    email: 'Email', emailPh: 'name@example.com', hint: '',
-    need: 'Please enter your email.', sendfail: 'We couldn’t send the confirmation email. Please check the address or try again later.', bad: 'Please check your email address.',
-    submit: 'Send verification email', sending: 'Sending…', ok: 'Verification email sent. We won’t light the star or notify the organizer until you verify.', saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
-    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'After one verification on this device, you won’t need to verify again to choose Going or Interested. Saving your profile does not subscribe you to every city or every event, and it does not email organizers.', close: 'Close'
+    btn: '✉ Subscribe & event intent', title: 'Subscribe', desc: 'Enter your name, city, role, and email, then verify the email. This saves your profile.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
+    email: 'Email', emailPh: 'name@example.com',
+    need: 'Please enter your email.', sendfail: 'We couldn’t send the verification email. Check the address or try again.', bad: 'Please check your email address.',
+    submit: 'Send verification email', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish.', saved: 'Profile saved. This device is already verified, so no new email was sent.',
+    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'This does not register you for an event and does not email organizers. For Going or Interested, use the star on that event.', close: 'Close'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
     '.tsub-open{background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;border-radius:999px;padding:5px 14px;font-size:.78rem;font-weight:700;line-height:1.2;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:background .15s,transform .15s}' +
@@ -25,7 +25,7 @@
     '.tsub-bottom-wrap{display:flex;justify-content:center;padding:4px 0 12px}.tsub-bottom-wrap .tsub-pair{margin:0}' +
     '#tsub-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));box-sizing:border-box}#tsub-modal[hidden]{display:none}' +
     '#tsub-modal .tsub-bg{position:absolute;inset:0;background:rgba(6,51,58,.6)}' +
-    '#tsub-modal .tsub-dlg{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:0;max-width:440px;width:100%;box-sizing:border-box;box-shadow:0 16px 48px rgba(6,51,58,.35);max-height:90vh;max-height:90dvh;overflow:hidden}' +
+    '#tsub-modal .tsub-dlg{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:0;max-width:440px;width:100%;box-sizing:border-box;box-shadow:0 16px 48px rgba(6,51,58,.35);max-height:90vh;max-height:90dvh;overflow:hidden;overflow-x:hidden}' +
     '#tsub-modal .tsub-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;background:#fff;padding:6px 4px 4px 16px;border-radius:10px 10px 0 0}' +
     '#tsub-modal .tsub-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:0 16px 12px;min-height:0}' +
     '#tsub-modal h2{font-family:var(--serif);color:#0a4f57;font-size:1.15rem;line-height:1.25;margin:0}' +
@@ -56,8 +56,7 @@
   else if (lang) lang.parentNode.insertBefore(pair, lang);
   else { var f = document.querySelector('#filters .wrap') || document.getElementById('filters'); if (f) f.appendChild(pair); }
 
-  function WX(req) { return '<label class="tsub-lbl" for="tsub-w">' + L.wx + '</label><input type="text" class="tsub-in" id="tsub-w" autocomplete="off"' + (req ? ' required aria-required="true"' : '') + ' placeholder="' + L.wxPh + '">'; }
-  function EM(req) { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '</label><input type="email" class="tsub-in" id="tsub-e" autocomplete="email"' + (req ? ' required aria-required="true"' : '') + ' placeholder="' + L.emailPh + '">'; }
+  function EM() { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '</label><input type="email" class="tsub-in" id="tsub-e" autocomplete="email" required aria-required="true" placeholder="' + L.emailPh + '">'; }
   var m = document.createElement('div'); m.id = 'tsub-modal'; m.hidden = true;
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
     '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-desc">' + L.desc + '</p>' +
@@ -65,13 +64,12 @@
     '<label class="tsub-lbl" for="tsub-n">' + L.name + '</label><input type="text" class="tsub-in" id="tsub-n" autocomplete="name" maxlength="40" required aria-required="true" placeholder="' + L.namePh + '">' +
     '<div class="tsub-row"><div class="tsub-col"><label class="tsub-lbl" for="tsub-c">' + L.city + '</label><input type="text" class="tsub-in" id="tsub-c" autocomplete="address-level2" maxlength="40" required aria-required="true" placeholder="' + L.cityPh + '"></div>' +
     '<div class="tsub-col"><label class="tsub-lbl" for="tsub-r">' + L.role + '</label><select class="tsub-in" id="tsub-r" required aria-required="true"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div></div>' +
-    (zh ? '<div class="tsub-tabs" role="tablist"><button type="button" class="tsub-tab tsub-off" role="tab" data-t="wx" disabled aria-disabled="true" aria-selected="false">微信验证</button><button type="button" class="tsub-tab" role="tab" data-t="em" aria-selected="true">邮件验证</button></div><div class="tsub-wxf"><p class="tsub-stp"><b>①</b> 先扫码加探戈助理为好友</p><img class="tsub-qr" alt="探戈助理微信二维码" src="' + (window.ATM_WX_QR || 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect width="200" height="200" fill="#f6f1e7" stroke="#0e6e78" stroke-width="4" stroke-dasharray="8 6"/><text x="100" y="95" font-size="16" text-anchor="middle" fill="#0a4f57">探戈助理二维码</text><text x="100" y="120" font-size="13" text-anchor="middle" fill="#b5654a">（占位图，待换真图）</text></svg>')) + '"><div class="tsub-qa">' + (!/MicroMessenger/i.test(navigator.userAgent) && /Android|iPhone|iPad|iPod|HarmonyOS/i.test(navigator.userAgent) ? '<a class="tsub-wxb" href="weixin://"><svg viewBox="0 0 48 48" width="34" height="34" aria-hidden="true"><rect width="48" height="48" rx="11" fill="#07C160"/><ellipse cx="20" cy="21" rx="12" ry="10" fill="#fff"/><path d="M12 29l-1 5 5-3z" fill="#fff"/><ellipse cx="30" cy="28" rx="10" ry="8.5" fill="#fff" stroke="#07C160" stroke-width="1.5"/><path d="M37 34l1 4-4-2z" fill="#fff"/><circle cx="16" cy="19" r="1.6" fill="#07C160"/><circle cx="24" cy="19" r="1.6" fill="#07C160"/><circle cx="27" cy="27" r="1.3" fill="#07C160"/><circle cx="33" cy="27" r="1.3" fill="#07C160"/></svg><span>打开微信</span></a>' : '') + '<a class="tsub-qb" href="' + (window.ATM_WX_QR || '') + '" download="探戈助理二维码.jpg">保存二维码</a></div><p class="tsub-wid">微信号：<code>wxid_ixaen7sydccp12</code> <button type="button" class="tsub-qb" onclick="var b=this,t=\'wxid_ixaen7sydccp12\',d=function(){b.textContent=\'已复制\'};if(navigator.clipboard)navigator.clipboard.writeText(t).then(d);else{var x=document.createElement(\'textarea\');x.value=t;document.body.appendChild(x);x.select();try{document.execCommand(\'copy\');d()}catch(e){}x.remove()}">复制微信号</button></p><p class="tsub-qh">' + (/MicroMessenger/i.test(navigator.userAgent) ? '长按二维码识别，加探戈助理' : /Android|iPhone|iPad|iPod|HarmonyOS/i.test(navigator.userAgent) ? '保存后在微信扫一扫→右上角相册里选这张图' : '请用手机微信扫一扫上面的二维码') + '</p><p class="tsub-stp"><b>②</b> 填微信号，点下方按钮获取验证码</p>' + WX(false) + '<p class="tsub-stp"><b>③</b> 把页面给你的那句「订阅亚洲探戈地图，验证码 XXXX」发给探戈助理</p><p class="tsub-stp"><b>④</b> 助理通过后会邀请你进群</p></div><div class="tsub-emf">' + EM(true) + '<p class="tsub-stp">我们会不定时发送活动更新。</p></div>' : EM(true)) +
+    EM() +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
-    '<div class="tsub-ts"></div><p class="tsub-hint">' + L.hint + '</p><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
+    '<div class="tsub-ts"></div><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
     '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
     '<p class="tsub-foot">' + L.foot + '</p></div></div>';
   document.body.appendChild(m);
-  if (zh) { var sm = function (v) { if (v !== 'em') return; var f = document.getElementById('tsub-f'); f.setAttribute('data-m', 'em'); [].forEach.call(f.querySelectorAll('.tsub-tab'), function (t) { t.setAttribute('aria-selected', t.getAttribute('data-t') === 'em' ? 'true' : 'false'); }); var e = document.getElementById('tsub-err'); if (e) e.textContent = ''; }; [].forEach.call(m.querySelectorAll('.tsub-tab'), function (t) { t.onclick = function () { if (t.disabled || t.getAttribute('aria-disabled') === 'true') return; sm('em'); }; }); sm('em'); }
   var $ = function (id) { return document.getElementById(id); };
   var tmr = null;
   function open() { if (tmr) { clearTimeout(tmr); tmr = null; } $('tsub-ok').hidden = true; $('tsub-err').textContent = ''; m.hidden = false; }
