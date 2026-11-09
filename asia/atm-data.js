@@ -112,6 +112,20 @@
     if (!row && freshGroups) row = pickCard(freshGroups, id);
     return { row: row, fate: !row ? 'missing' : (w.atmEventEnded(row, today) ? 'ended' : 'found') };
   };
+  /* Old public ids that are the same event as another card. No alias field on
+     the row: ?card=E163 must leave the map before missing/ended UI. */
+  w.atmCardAliasHref = function (id, zh, search, hash) {
+    var base = ({ E163: '/event/chengdu-2027-ich-tango-festival/' })[id];
+    if (!base) return '';
+    var params;
+    try { params = new URLSearchParams(String(search || '').replace(/^\?/, '')); }
+    catch (e) { params = new URLSearchParams(); }
+    params.delete('card');
+    var q = params.toString();
+    var h = hash || '';
+    if (h && h.charAt(0) !== '#') h = '#' + h;
+    return base + (zh ? 'zh/' : '') + (q ? '?' + q : '') + h;
+  };
   w.atmPosterUrl = function (path) {
     if (!path) return path;
     if (/^https?:\/\//i.test(path)) return path;
