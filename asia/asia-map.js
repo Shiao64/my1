@@ -778,6 +778,8 @@
   /* draft 2026-10-31: single-card view ?card=ID (core, else events-more). Shows only that card + 查看全部活动 / View all events (opens the full page on its tab/city, scrolled to the card via #v-ID). #v-ID / ?id= unchanged. */
   (function(){
     var cid = new URLSearchParams(location.search).get('card'); if (!cid) return;
+    var aliasHref = window.atmCardAliasHref && window.atmCardAliasHref(cid, /\/zh\//.test(location.pathname), location.search, location.hash);
+    if (aliasHref) { location.replace(aliasHref); return; }
     var R = document.documentElement; R.classList.add('atm-card-mode');
     /* draft 2026-11-01: single-card header = only white ‹ (back) + magnifier (search). Logo / lang / ☰ hidden on this page only. */
     (function(){ var zhP = /\/zh\//.test(location.pathname), list = location.pathname;
