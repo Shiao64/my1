@@ -46,8 +46,11 @@ def main():
     en, zh = read('asia/index.html'), read('zh/asia/index.html')
     js, cards, home = read('asia/asia-map.js'), read('asia/cardB.js'), read('asia/atm-home.js')
     data = read('asia/atm-data.js')
-    check('en loads helper', 'atm-data.js?v=r7' in en)
-    check('zh loads helper', 'atm-data.js?v=r7' in zh)
+    check('en loads helper', 'atm-data.js?v=r8' in en)
+    check('zh loads helper', 'atm-data.js?v=r8' in zh)
+    check('en map script', 'asia-map.js?v=r8' in en)
+    check('zh map script', 'asia-map.js?v=r8' in zh)
+    check('json version stays', 'events-core.json?v=china465' in en and 'events-core.json?v=china465' in zh)
     r2_core = 'https://data.tangoweekend.org/asia/events-core.json?v=china465'
     check('en r2 core keeps version', r2_core in en)
     check('zh r2 core keeps version', r2_core in zh)
@@ -104,6 +107,35 @@ if (seen[1] !== 'https://data.tangoweekend.org/asia/events.json?v=e216') process
 if (seen[2] !== 'https://data.tangoweekend.org/asia/djs.json') process.exit(13);
 if (seen[3] !== 'https://data.tangoweekend.org/asia/organizers.json?v=o1&x=2') process.exit(14);
 if (seen.length !== 4) process.exit(15);
+const e164 = '/images/asia/posters/E164.jpg?v=20261109fix';
+const thumb = w.atmPosterUrls(e164, false);
+const card = w.atmPosterUrls(e164, true);
+if (thumb.webp !== 'https://data.tangoweekend.org/images/thumb/images/asia/posters/E164.webp?v=20261109fix') process.exit(17);
+if (thumb.jpg !== 'https://data.tangoweekend.org/images/thumb/images/asia/posters/E164.jpg?v=20261109fix') process.exit(18);
+if (card.webp.indexOf('thumb800/images/asia/posters/E164.webp?v=20261109fix') < 0) process.exit(19);
+if (card.full !== 'https://data.tangoweekend.org/images/asia/posters/E164.jpg?v=20261109fix') process.exit(20);
+if (thumb.webp.indexOf('?v=t360') >= 0 || card.webp.indexOf('?v=t800') >= 0) process.exit(21);
+const bust = w.atmPosterRetryUrl(thumb.webp);
+if (bust !== thumb.webp + '&atmbust=1') process.exit(22);
+if (w.atmPosterRetryUrl(bust) !== '') process.exit(23);
+const today = '2026-11-09';
+const future = { id: 'E162', kind: 'event', start: '2027-04-21', end: '2027-04-26' };
+if (w.atmResolveCard([[future]], null, 'E162', today).fate !== 'found') process.exit(25);
+const past = { id: 'OLD', kind: 'event', start: '2020-01-01', end: '2020-01-02' };
+if (w.atmResolveCard([[past]], null, 'OLD', today).fate !== 'ended') process.exit(26);
+if (w.atmResolveCard([[]], null, 'NOPE', today).fate !== 'missing') process.exit(27);
+if (w.atmResolveCard([[{ id: 'E164', hidden: true, kind: 'event', start: '2026-12-30', end: '2027-01-03' }]], null, 'E164', today).fate !== 'missing') process.exit(28);
+const stale = [[{ id: 'E160', kind: 'event', start: '2027-10-03', end: '2027-10-06' }]];
+const fresh = [[{ id: 'E162', kind: 'event', start: '2027-04-21', end: '2027-04-26' }, { id: 'E163', kind: 'event', start: '2027-04-21', end: '2027-04-26' }, { id: 'E164', kind: 'event', start: '2026-12-30', end: '2027-01-03' }]];
+const got = w.atmResolveCard(stale, fresh, 'E164', today);
+if (got.fate !== 'found' || got.row.id !== 'E164') process.exit(29);
+if (w.atmResolveCard(stale, null, 'E162', today).fate !== 'missing') process.exit(30);
+if (w.atmEventEnded({ kind: 'event', start: '2027-04-21', end: '2027-04-26', status: 'ended' }, today) !== true) process.exit(31);
+let freshUrls = [];
+global.fetch = (url) => { freshUrls.push(String(url)); return Promise.resolve({ ok: true, json: async () => [{ id: 'E162' }] }); };
+w.atmDataJsonFresh('/asia/events-core.json?v=china465');
+if (freshUrls[0] !== 'https://data.tangoweekend.org/asia/events-core.json?v=china465&atmbust=1') process.exit(32);
+if (freshUrls.length !== 1) process.exit(33);
 '''
     run = subprocess.run(['node', '-e', node], cwd=ROOT, capture_output=True, text=True)
     check('poster url helper ' + (run.stderr.strip() or run.stdout.strip()), run.returncode == 0)
