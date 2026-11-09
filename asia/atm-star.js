@@ -224,16 +224,27 @@
     mountTs(body().querySelector('.asg-ts'));
     box.hidden = false;
   }
+  var sitekeyP = null;
+  function loadSitekey() {
+    if (window.ATM_TS_KEY) return Promise.resolve(window.ATM_TS_KEY);
+    if (sitekeyP) return sitekeyP;
+    sitekeyP = fetch(API + '/social/going/config').then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.sitekey) window.ATM_TS_KEY = d.sitekey;
+      return window.ATM_TS_KEY || '';
+    }).catch(function () { return ''; });
+    return sitekeyP;
+  }
   function tsToken() {
     var inp = box.querySelector('[name="cf-turnstile-response"]');
     return inp ? inp.value : '';
   }
   function mountTs(el) {
-    var key = window.ATM_TS_KEY || '';
-    if (!key || !el || el.dataset.ts) return;
-    function render() { if (!window.turnstile || el.dataset.ts) return; el.dataset.ts = '1'; window.turnstile.render(el, { sitekey: key }); }
-    if (window.turnstile) render();
-    else { var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = render; document.head.appendChild(s); }
+    loadSitekey().then(function (key) {
+      if (!key || !el || el.dataset.ts) return;
+      function render() { if (!window.turnstile || el.dataset.ts) return; el.dataset.ts = '1'; window.turnstile.render(el, { sitekey: key }); }
+      if (window.turnstile) render();
+      else { var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = render; document.head.appendChild(s); }
+    });
   }
   function submit(e, draft, go) {
     var err = body().querySelector('#asg-err'), ok = body().querySelector('#asg-ok');

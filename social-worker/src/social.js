@@ -48,7 +48,10 @@ async function deliver(env, to, subject, text, html, headers, opt) {
   const cc = opt.cc && opt.cc !== to && !/[\r\n]/.test(opt.cc) ? String(opt.cc) : '';
   const replyTo = opt.replyTo && !/[\r\n]/.test(opt.replyTo) ? String(opt.replyTo) : '';
   const fromName = opt.fromName || 'Asia Tango Map';
-  const p = env.SOCIAL_MAIL || 'log';
+  // SOCIAL_MAIL is a plain var, not a binding. Production sets it to resend.
+  // EMAIL and SUB_MAIL are the send_email bindings. EMAIL can only mail its
+  // fixed destination, so organizer mail uses SUB_MAIL when the var is unset.
+  const p = String(env.SOCIAL_MAIL || '').trim() || (env.SUB_MAIL && typeof env.SUB_MAIL.send === 'function' ? 'sub_mail' : 'log');
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
   const hdrs = Object.assign({}, headers || {});
   if (cc) hdrs.Cc = cc;
@@ -58,7 +61,11 @@ async function deliver(env, to, subject, text, html, headers, opt) {
       body: JSON.stringify({ from: resendFrom(env, fromName), to: [to], subject, text, ...(html ? { html } : {}), ...(cc ? { cc: [cc] } : {}), ...(replyTo ? { reply_to: replyTo } : {}), ...(hasH ? { headers: hasH } : {}) }) });
     if (!r.ok) throw new Error('resend ' + r.status + ' ' + (await r.text()).slice(0, 150)); }
   else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName, to, cc, replyTo, subject, text, html, headers: hasH });
-  else if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: fromName }, to, ...(cc ? { cc: [cc] } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}) });
+  else if (p === 'sub_mail' || p === 'cloudflare') {
+    const binding = env.SUB_MAIL;
+    if (!binding || typeof binding.send !== 'function') throw new Error('SUB_MAIL binding missing');
+    await binding.send({ from: { email: env.SENDER || 'subscribe@tangoweekend.org', name: fromName }, to, ...(cc ? { cc: [cc] } : {}), ...(replyTo ? { replyTo } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}) });
+  }
   else console.log(`[mail:log] from=${fromName} to=${to}${cc ? ' cc=' + cc : ''}${replyTo ? ' reply-to=' + replyTo : ''} subject=${subject}${hasH ? ' ' + JSON.stringify(hasH) : ''}\n${text}${html ? '\n' + html : ''}`);
   return p;
 }
@@ -239,6 +246,7 @@ function goingKit() { return { sha, he, clean, now, rnd, turnstile, deliver, saf
 export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
   if (p === '/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return confirmLink(req, env, url);
+  if (p === '/going/config' && req.method === 'GET') return json({ sitekey: env.TURNSTILE_SITEKEY || '' });
   if (p === '/going/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingConfirm(req, env, url, goingKit());
   if (p === '/going/unsub' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingUnsub(req, env, url, goingKit());
   if (p === '/going/counts' && req.method === 'GET') return goingCounts(url, env, json);

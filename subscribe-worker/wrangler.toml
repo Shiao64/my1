@@ -1,47 +1,46 @@
+# Live worker for api.tangoweekend.org. Deploy only with --keep-vars.
+# main must stay the social entry. src/index.js alone drops /social/*.
+# Do not put secret values in this file. Do not set GOING_STATS or GOING_NOTICE_SEND.
+keep_vars = true
 name = "tango-subscribe"
-main = "src/index.js"
+main = "../social-worker/src/live.js"
 compatibility_date = "2026-10-15"
 routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
 
-[vars]
-SENDER = "subscribe@tangoweekend.org"
-SENDER_NAME = "Asia Tango Map"
-NOTIFY_TO = "selecttango@gmail.com,guazong@mail.grokbot.com"
-API_BASE = "https://api.tangoweekend.org"
-# Subscriber mail provider: 'gmail' (default; Gmail SMTP as GMAIL_USER via TCP sockets, From "Asia Tango Map <selecttango@gmail.com>").
-#   REQUIRED at release time, before deploy:  npx wrangler secret put GMAIL_APP_PASSWORD   (16-char Google app password)
-#   Gmail limit: ~500 recipients/day for a consumer account.
-# Others: 'log' (print only), 'cloudflare' (Email Sending, Workers Paid), 'resend' (secret RESEND_API_KEY).
-# TEST_ONLY_RECIPIENT (optional) limits sends to one address.
-MAIL_PROVIDER = "gmail"
-GMAIL_USER = "selecttango@gmail.com"
-# Web push (draft). Secrets, set before deploy (placeholders only in repo):
-#   npx wrangler secret put VAPID_PUBLIC   # base64url uncompressed P-256 public key
-#   npx wrangler secret put VAPID_PRIVATE  # base64url 32-byte private key
-#   npx wrangler secret put PUSH_ADMIN_TOKEN  # >=24 chars; same value as GitHub secret PUSH_ADMIN_TOKEN
-VAPID_SUBJECT = "mailto:selecttango@gmail.com"
-PUSH_ADHOC_PER_DAY = "2"
+# Dashboard vars stay because keep_vars is true. Do not copy GMAIL_USER,
+# NOTIFY_TO, WX_NOTIFY_TO, or TURNSTILE_SITEKEY into this file: production
+# already has them, and a wrong value here would replace them if keep_vars
+# were ignored. SOCIAL_MAIL is a plain var (currently resend), not a binding.
+# GOING_STATS and GOING_NOTICE_SEND stay unset.
 
-# Daily cleanup of pending (unconfirmed) rows older than 7 days.
-# Star-intent stats and per-event notices are NOT on this cron.
-# Sample only — do not enable until a deploy is approved (see social-worker/going.cron.example.toml):
-#   GOING_STATS = "on"          # drafts only, never emails
-#   GOING_NOTICE_SEND = "on"    # user update mail; still no organizer CC
-#   extra cron "30 16 * * *"    # 00:30 Asia/Shanghai
+# Both crons are already live. The 10-minute one runs the WeChat sweep.
+# The 03:17 UTC one cleans unconfirmed subscribe rows. Do not drop either.
+# Do not add the sample stats/notice cron from going.cron.example.toml.
 [triggers]
-crons = ["17 3 * * *"]
+crons = ["*/10 * * * *", "17 3 * * *"]
 
 [[d1_databases]]
 binding = "DB"
 database_name = "tango-subscribe"
 database_id = "1b462639-75a1-4dcf-9b15-eab807e4b295"
 
+# Same database as DB. Going tables live here. Do not create a second D1.
+[[d1_databases]]
+binding = "SDB"
+database_name = "tango-subscribe"
+database_id = "1b462639-75a1-4dcf-9b15-eab807e4b295"
+
+# Destination-locked. Owner notices to that one address only. Not organizer mail.
 [[send_email]]
 name = "EMAIL"
 destination_address = "selecttango@gmail.com"
 
-# Subscriber mail via Cloudflare Email Sending (needs tangoweekend.org onboarded to Email Sending + Workers Paid).
-# Only used when MAIL_PROVIDER = "cloudflare".
+# Allowed sender. Subscriber mail when MAIL_PROVIDER=cloudflare, and social
+# mail when SOCIAL_MAIL is unset or sub_mail. Production SOCIAL_MAIL is resend,
+# so this binding stays in place and is not the current social sender.
 [[send_email]]
 name = "SUB_MAIL"
 allowed_sender_addresses = ["subscribe@tangoweekend.org"]
+
+[ai]
+binding = "AI"

@@ -1,18 +1,13 @@
-# Sample only. Do not deploy this file. Production cron stays the existing
-# "17 3 * * *" cleanup. These flags default off; turning them on is a deploy approval.
+# NOT a deploy file. Do not pass this to wrangler deploy.
+# Production already has two crons. Keep both. Do not replace them with this sample.
+#   */10 * * * *   WeChat expire sweep (already live)
+#   17 3 * * *     unconfirmed subscribe cleanup (already live)
 #
-# 30 16 * * * UTC = 00:30 the next calendar day in Asia/Shanghai.
-# Stats drafts never email anyone. Notice send emails only people who left
-# "get updates for this event" on, and it does not CC the organizer.
-
-# name = "tango-subscribe"
-# main = "social-worker/src/live.js"
-
-[vars]
-GOING_STATS = "off"
-GOING_STATS_CRON = "30 16 * * *"
-GOING_NOTICE_SEND = "off"
-GOING_NOTICE_CRON = "30 16 * * *"
-
-# [triggers]
-# crons = ["17 3 * * *", "30 16 * * *"]
+# Stats drafts and per-event notice mail stay off.
+# Do not set these vars and do not add this cron until a later approval:
+#   GOING_STATS = "on"           # writes review drafts only, never emails
+#   GOING_NOTICE_SEND = "on"     # user update mail, no organizer CC
+#   extra cron "30 16 * * *"     # 00:30 Asia/Shanghai
+#
+# The live config is subscribe-worker/wrangler.toml.
+# Deploy steps: docs/going-deploy.md

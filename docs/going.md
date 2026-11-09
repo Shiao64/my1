@@ -57,14 +57,6 @@ Free-text notes are never parsed. A missing date is skipped, not guessed.
 
 `GET /social/going/unsub` only shows a button. `POST` sets `notify=0` for that card. The intent stays.
 
-## Deploy (do not run from this PR)
+## Deploy
 
-1. Apply `social-worker/migrations/0009_going.sql` and `0010_going_notices.sql` on the social D1 (`SDB`). Do not import production rows into a test database.
-2. Deploy the worker that serves `social-worker/src/live.js`. Leave `SOCIAL_MAIL` as it is (Resend in the preview vars). No new secret. CC is a field on that existing send.
-3. If `TURNSTILE_SECRET` is set, the pages need `window.ATM_TS_KEY` (the preview worker already injects `TURNSTILE_SITEKEY`). Static pages do not set it today.
-4. Do **not** set `GOING_STATS=on` or add the stats cron until someone wants drafts. Adding the cron without the flag still no-ops.
-5. `TEST_ONLY_RECIPIENT`, when set, rewrites the organizer recipient to that address and drops the CC, so a preview cannot mail a real organizer.
-
-Pages publish is enough for the star and the copy. The buttons call the API; until the worker and migration are deployed, submit returns an error and must not be described as live.
-
-There is no preview URL for this branch. Nothing was deployed.
+The executable order, bindings, and rollback are in `docs/going-deploy.md`. Short form: bookmark D1 `tango-subscribe` (`1b462639-75a1-4dcf-9b15-eab807e4b295`, bound as both `DB` and `SDB`), apply `0009` then `0010`, deploy `subscribe-worker/wrangler.toml` with `--keep-vars`. Keep crons `*/10 * * * *` and `17 3 * * *`. Keep send_email bindings `EMAIL` and `SUB_MAIL`. `SOCIAL_MAIL` is a plain var (`resend`), not a binding. Do not deploy Pages or sync R2 in the worker pass. Do not set `GOING_STATS` or `GOING_NOTICE_SEND`.
