@@ -41,6 +41,17 @@ check('card private email is used when the card shows none', organizerAddress({ 
 check('organizer code O9 resolves', organizerAddress({ id: 'LIST', email: '' }, env, kit) === 'org-list@example.com');
 check('site CC is not an organizer', organizerAddress({ id: 'CCARD', email: '' }, env, kit) === '' && organizerAddress({ id: 'ORGCC', email: '' }, env, kit) === '');
 check('no address stays empty', organizerAddress({ id: 'NONE', email: '' }, env, kit) === '');
+const sheetEnv = { GOING_ORG_DIR: JSON.stringify({
+  v: 1,
+  cards: { 'manual-cd-example': '邮箱：card-cell@example.com（备注）' },
+  orgs: { o901: 'selecttango@gmail.com', O900: '名单：list-cell@example.com（11/3）' },
+  links: { 'sheet-card': 'O901、O900（联合 O901+O900） 张三' }
+}), GOING_ORG_DIR_2: '{"orgs":{"O900":"later@example.com"},"links":{"sheet-card":["O902"]}}', GOING_ORG_DIR_3: '{not json' };
+check('sheet cell text and O codes resolve without the site CC', organizerAddress({ id: 'manual-cd-example', email: '' }, sheetEnv, kit) === 'card-cell@example.com');
+check('link text uses the first usable O code and ignores a name', organizerAddress({ id: 'sheet-card', email: '' }, sheetEnv, kit) === 'list-cell@example.com');
+check('a later directory part does not replace the first address', organizerAddress({ id: 'sheet-card', email: '' }, sheetEnv, kit) === 'list-cell@example.com');
+const off = await runGoingDigests({ GOING_DIGEST_SEND: '' }, kit);
+check('digest stays off without the digest table', off.enabled === false && off.sent === 0);
 
 const db = new DatabaseSync(':memory:');
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql'), 'utf8'));

@@ -15,16 +15,49 @@ const INVALID = '链接无效。请重新请求验证邮件。 / This link is in
 let cardCache = null;
 
 function pickEmail(raw, EMAIL_RE) {
-  const parts = String(raw || '').toLowerCase().split(/[\s,;<>]+/);
-  for (const p of parts) if (EMAIL_RE.test(p)) return p;
+  const found = String(raw || '').toLowerCase().match(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/g) || [];
+  for (const p of found) if (EMAIL_RE.test(p)) return p;
   return '';
 }
+function normCode(code) {
+  const m = String(code || '').toUpperCase().match(/O\d+/);
+  return m ? m[0] : '';
+}
+function codesOf(value) {
+  const text = Array.isArray(value) ? value.map(v => String(v || '')).join(' ') : String(value || '');
+  const out = [];
+  for (const code of text.match(/O\d+/gi) || []) {
+    const id = code.toUpperCase();
+    if (!out.includes(id)) out.push(id);
+  }
+  return out;
+}
+function readDirPart(raw) {
+  if (raw == null || raw === '') return null;
+  if (typeof raw === 'object') return raw;
+  try { return JSON.parse(String(raw)); }
+  catch { return null; }
+}
 function orgDirectory(env) {
-  const raw = env && env.GOING_ORG_DIR;
-  const empty = { cards: {}, orgs: {}, links: {} };
-  if (!raw) return empty;
-  const d = typeof raw === 'object' ? raw : (() => { try { return JSON.parse(String(raw)); } catch { return empty; } })();
-  return { cards: d.cards || {}, orgs: d.orgs || {}, links: d.links || {} };
+  const cards = {}, orgs = {}, links = {};
+  const keys = ['GOING_ORG_DIR'];
+  for (let i = 2; i <= 8; i++) keys.push('GOING_ORG_DIR_' + i);
+  for (const key of keys) {
+    const d = readDirPart(env && env[key]);
+    if (!d || typeof d !== 'object' || Array.isArray(d)) continue;
+    for (const [id, value] of Object.entries(d.cards || {})) if (id && cards[id] == null) cards[id] = value;
+    for (const [code, value] of Object.entries(d.orgs || {})) {
+      const id = normCode(code);
+      if (id && orgs[id] == null) orgs[id] = value;
+    }
+    for (const [id, value] of Object.entries(d.links || {})) if (id) links[id] = (links[id] || []).concat(codesOf(value));
+  }
+  for (const id of Object.keys(links)) {
+    const out = [];
+    for (const code of links[id]) if (!out.includes(code)) out.push(code);
+    links[id] = out;
+  }
+  return { cards, orgs, links };
 }
 function usableEmail(raw, kit) {
   const email = pickEmail(raw, kit.EMAIL_RE);
