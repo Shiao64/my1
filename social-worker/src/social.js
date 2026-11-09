@@ -1,6 +1,6 @@
 import { gmailSend } from './smtp.js';
 import { updateFooter } from './unsub.js';
-import { goingConfirm, goingSubmit, goingCancel, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, generateGoingStats, runGoingNotices } from './going.js';
+import { goingConfirm, goingSubmit, goingCancel, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
 export { generateGoingStats, runGoingNotices };
 // Asia Tango Map likes API, plus email confirm for the update list. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
@@ -251,6 +251,7 @@ export async function social(req, env, url, json) {
   if (p === '/going/unsub' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingUnsub(req, env, url, goingKit());
   if (p === '/going/counts' && req.method === 'GET') return goingCounts(url, env, json);
   if (p === '/going/dates' && req.method === 'GET') return goingDates(url, env, json, goingKit());
+  if (p === '/going/reach' && req.method === 'GET') return goingReach(url, env, json, goingKit());
   if (p === '/going/mine' && req.method === 'GET') return goingMine(req, env, json);
   let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400); } }
   if (p === '/profile' && req.method === 'POST') return goingProfile(req, env, b, ip, iph, json, goingKit());
