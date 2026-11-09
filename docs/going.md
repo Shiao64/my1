@@ -6,6 +6,10 @@ The earlier uncommitted Going draft was never on a branch and is not in git. Thi
 
 ## What the star counts
 
+The star is clickable when the card’s public `contacts.email` is a real address, or when the server can resolve one from the organizer directory. The directory is `GOING_ORG_DIR` (unset here). It may map a card id to an address, or a card id to stable `O###` organizer codes and those codes to addresses. The public site CC `selecttango@gmail.com` is never treated as the organizer. The browser only receives `GET /social/going/reach` booleans. A missing session does not grey the star. `asia/organizers.json` has no email field and is not the source. The readable registry is the private radar sheet `雷达表`, joined by `组织者代号` to `雷达编号`. Those contact cells are marked internal and are not copied into this repo.
+
+Card JSON for the worker is read from `https://data.tangoweekend.org/asia/events.json` unless `EVENTS_ORIGIN` is set. That is the same public file the map shows.
+
 The number beside a star is the count of **distinct verified emails** with an **active** Going or Interested row on that card (`going_intents.status = 'active'`).
 
 - Switching Going ↔ Interested updates the same row. It does not add a second person.

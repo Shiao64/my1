@@ -1,5 +1,6 @@
 /* Star intent. Replaces the local heart as the way to say Going or Interested.
-   The star stays disabled when the card has no organizer email. The public
+   The star stays disabled only when neither the card nor the linked organizer
+   record has a usable email. A visitor without a session can still open it. The public
    Going+Interested total stays on the server and is not drawn on the card. */
 (function () {
   var R = document.documentElement;
@@ -96,7 +97,7 @@
     '.atm-favbar b{color:#0a4f57}';
   document.head.appendChild(css);
 
-  var mine = {}, me = null, ready = false, eventsP = null;
+  var mine = {}, me = null, ready = false, eventsP = null, reach = {}, reachWait = {};
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
   function ctxGet() { try { return JSON.parse(localStorage.getItem('atm_star_ctx') || 'null'); } catch (e) { return null; } }
@@ -113,6 +114,29 @@
     return null;
   }
   function hasEmail(e) { var c = e && e.contacts; var raw = c && !Array.isArray(c) ? String(c.email || '').trim() : ''; return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(raw); }
+  function canIntent(e, id) { if (e && hasEmail(e)) return true; if (reach[id] === true) return true; if (reach[id] === false) return false; return null; }
+  function queueReach() {
+    var ids = [];
+    document.querySelectorAll('.atm-heart').forEach(function (b) {
+      if (!b.querySelector('path')) return;
+      var id = idOf(b); if (!id || reachWait[id] || Object.prototype.hasOwnProperty.call(reach, id)) return;
+      var e = eventOf(id);
+      if (e && hasEmail(e)) return;
+      if (!e && !ready) return;
+      ids.push(id); reachWait[id] = 1;
+    });
+    if (!ids.length) return;
+    for (var i = 0; i < ids.length; i += 80) {
+      (function (chunk) {
+        api('/social/going/reach?ids=' + chunk.map(encodeURIComponent).join(',')).then(function (d) {
+          chunk.forEach(function (id) { delete reachWait[id]; });
+          if (!d || d.error || !d.reach) return;
+          chunk.forEach(function (id) { reach[id] = !!d.reach[id]; });
+          paint();
+        }).catch(function () { chunk.forEach(function (id) { delete reachWait[id]; }); });
+      })(ids.slice(i, i + 80));
+    }
+  }
   function ensureEvents() {
     if (eventsP) return eventsP;
     eventsP = fetch('/asia/events.json?v=e216').then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }).then(function (d) { window._atmStarEvents = Array.isArray(d) ? d : (d.events || []); ready = true; paint(); }).catch(function () { ready = true; paint(); });
@@ -179,7 +203,7 @@
     var id = idOf(b); if (!id) return;
     var e = eventOf(id);
     if (!e) { ensureEvents().then(function () { open(b); }); return; }
-    if (!hasEmail(e)) return;
+    if (canIntent(e, id) !== true) return;
     var saved = mine[id];
     var draft = ctxGet(); if (!draft || draft.id !== id) draft = { id: id, intent: saved ? saved.intent : '', date: saved ? saved.date : '', notify: saved ? saved.notify : true, transport: saved ? !!saved.transport : false };
     ctxSet(draft);
@@ -283,13 +307,16 @@
       var path = b.querySelector('path'); if (path && path.getAttribute('d') !== STAR) path.setAttribute('d', STAR);
       var id = idOf(b); if (!id) return;
       var e = eventOf(id); var known = !!(e || ready);
-      var ok = !!(e && hasEmail(e));
-      b.classList.toggle('atm-star-off', known && !ok);
-      if (known && !ok) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
+      var state = canIntent(e, id);
+      var off = state === false || (state !== true && known && !(e && hasEmail(e)) && reach[id] !== true);
+      if (state === null && !known) off = false;
+      b.classList.toggle('atm-star-off', off);
+      if (off) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
       else if (mine[id]) { b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var lab = L.manage + ' ' + (mine[id].intent === 'going' ? L.going : L.interested); b.title = lab; b.setAttribute('aria-label', lab); }
       else { b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-disabled', 'false'); b.title = L.title; b.setAttribute('aria-label', L.title); }
     });
     document.querySelectorAll('.atm-star-n').forEach(function (n) { n.remove(); });
+    queueReach();
   }
   function savedText(n) { return '☆ 已收藏 ' + n + ' 个活动'; }
   function syncSaved() {

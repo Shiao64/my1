@@ -19,6 +19,33 @@ function pickEmail(raw, EMAIL_RE) {
   for (const p of parts) if (EMAIL_RE.test(p)) return p;
   return '';
 }
+function orgDirectory(env) {
+  const raw = env && env.GOING_ORG_DIR;
+  const empty = { cards: {}, orgs: {}, links: {} };
+  if (!raw) return empty;
+  const d = typeof raw === 'object' ? raw : (() => { try { return JSON.parse(String(raw)); } catch { return empty; } })();
+  return { cards: d.cards || {}, orgs: d.orgs || {}, links: d.links || {} };
+}
+function usableEmail(raw, kit) {
+  const email = pickEmail(raw, kit.EMAIL_RE);
+  if (!email || email === CC_DEFAULT) return '';
+  return email;
+}
+export function organizerAddress(card, env, kit) {
+  const pub = usableEmail(card && card.email, kit);
+  if (pub) return pub;
+  const dir = orgDirectory(env);
+  const id = card && card.id;
+  const direct = usableEmail(dir.cards[id], kit);
+  if (direct) return direct;
+  const codes = Array.isArray(dir.links[id]) ? dir.links[id] : [];
+  for (const code of codes) {
+    if (!/^O\d+$/.test(String(code || ''))) continue;
+    const email = usableEmail(dir.orgs[code], kit);
+    if (email) return email;
+  }
+  return '';
+}
 function oneLine(clean, s, n) { return clean(s, n).replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); }
 function roleOf(v) { return ROLES.includes(v) ? v : ''; }
 function intentOf(v) { return INTENTS.includes(v) ? v : ''; }
@@ -83,7 +110,7 @@ async function goingIndex(env, kit) {
   if (env.GOING_CARDS) return env.GOING_CARDS;
   kit = kit || { ID_RE: /^(?:(?:org|dj):)?[A-Za-z0-9_-]{1,64}$/, EMAIL_RE: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, clean: (s, n) => String(s || '').trim().slice(0, n) };
   if (cardCache && Date.now() - cardCache.at < 10 * 60e3) return cardCache.map;
-  const base = String(env.EVENTS_ORIGIN || 'https://tangoweekend.org').replace(/\/$/, '');
+  const base = String(env.EVENTS_ORIGIN || 'https://data.tangoweekend.org').replace(/\/$/, '');
   const r = await fetch(base + '/asia/events.json');
   if (!r.ok) throw new Error('events ' + r.status);
   const data = await r.json();
@@ -105,8 +132,19 @@ async function goingIndex(env, kit) {
 async function goingCard(env, id, kit) {
   const row = (await goingIndex(env, kit))[id];
   if (!row) return null;
-  const email = pickEmail(row.email, kit.EMAIL_RE);
-  return { ...row, id, email };
+  const card = { ...row, id };
+  return { ...card, email: organizerAddress(card, env, kit) };
+}
+export async function goingReach(url, env, json, kit) {
+  const ids = (url.searchParams.get('ids') || '').split(',').map(s => s.trim()).filter(s => kit.ID_RE.test(s)).slice(0, 100);
+  const reach = {};
+  for (const id of ids) {
+    let card = null;
+    try { card = await goingCard(env, id, kit); }
+    catch (e) { return json({ error: 'lookup_failed' }, 503); }
+    reach[id] = !!(card && card.email);
+  }
+  return json({ reach });
 }
 function fpOf(intent, date, transport) { return intent + '|' + (date || '') + '|' + (transport ? '1' : '0'); }
 async function sessionUser(req, env) {
