@@ -8,19 +8,20 @@
   var STAR = 'M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z';
   var L = zh ? {
     grey: '组织者尚未提供邮箱',
-    title: '你的活动意向',
-    explain: '五角星表示参加意向，不是点赞，也不是购票或正式报名。',
+    title: '活动意向',
+    explain: '不是购票或正式报名。',
     going: 'Going · 要参加', interested: 'Interested · 感兴趣',
-    notify: '收本活动更新（可关）',
-    scope: '早鸟／截止／异动／已审核主办消息等。与一般通知偏好分开；不等于订阅全站。',
-    transport: '请组织者寄送前往场地的交通指引（可选）',
-    noPromise: '组织者自行回复，不保证送达或回复时间。',
-    disclose: '确认后，系统将把你的姓名、邮箱与意向发给本活动组织者，并抄送 Selecttango@gmail.com。城市与角色不会默认转交。',
-    discloseDate: '确认后，系统将把你的姓名、邮箱、意向和场次日期发给本活动组织者，并抄送 Selecttango@gmail.com。若勾选交通指引，请求会一并转交。城市与角色不会默认转交。',
+    notify: '接收本活动通知',
+    scope: '',
+    transport: '交通指引（可选）',
+    noPromise: '',
+    disclose: '确认后，姓名、邮箱和意向会发给主办，并抄送 Selecttango@gmail.com。城市和角色不附上。邮箱不公开。',
+    discloseDate: '确认后，姓名、邮箱、意向和参加日期会发给主办，并抄送 Selecttango@gmail.com。勾了交通指引才会一并转交。城市和角色不附上。邮箱不公开。',
     submit: '确认意向', needIntent: '请选择 Going 或 Interested。',
-    profileTitle: '完成资料以继续',
-    profileDesc: '验证通过后将返回「{event}」，再确认你的 Going／Interested。仅完成验证不会通知组织者。',
-    name: '姓名（必填）', email: '邮箱（必填）', city: '城市（必填）', role: '角色（必填）',
+    profileTitle: '',
+    profileDesc: '先验证邮箱。验证后还要再确认，才会通知组织者。',
+    req: '以下均为必填',
+    name: '姓名', email: '邮箱', city: '城市', role: '角色',
     rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', rolePh: '请选择',
     once: '同一设备验证通过后，再选 Going／Interested 无需重复验证。',
     verifyBtn: '发送验证邮件', pending: '验证邮件已发出，请查收。未验证前不会亮星，也不会通知组织者。',
@@ -42,19 +43,20 @@
     notTicket: 'Going 不是购票或正式报名。'
   } : {
     grey: 'Organizer email not available yet',
-    title: 'Your event intent',
-    explain: 'The star means intent to attend—not a like, ticket purchase, or formal registration.',
-    going: 'Going · I’ll attend', interested: 'Interested · I’m interested',
-    notify: 'Get updates for this event (optional)',
-    scope: 'Early-bird, deadlines, changes, reviewed host messages. Separate from general prefs; not a site-wide subscription.',
-    transport: 'Ask the organizer for venue directions (optional)',
-    noPromise: 'The organizer replies directly. Delivery and timing are not guaranteed.',
-    disclose: 'On confirm, we’ll send your name, email, and intent to the organizer, CC Selecttango@gmail.com. City and role are not shared by default.',
-    discloseDate: 'On confirm, we’ll send your name, email, intent, and the date to the organizer, CC Selecttango@gmail.com. A directions request is included only if you check it. City and role are not shared by default.',
+    title: 'Event intent',
+    explain: 'Not a ticket or a formal registration.',
+    going: 'Going', interested: 'Interested',
+    notify: 'Notify me about this event',
+    scope: '',
+    transport: 'Directions (optional)',
+    noPromise: '',
+    disclose: 'On confirm, your name, email, and intent go to the organizer, CC Selecttango@gmail.com. City and role are not included. Your email is not shown publicly.',
+    discloseDate: 'On confirm, your name, email, intent, and date go to the organizer, CC Selecttango@gmail.com. Directions are included only if checked. City and role are not included. Your email is not shown publicly.',
     submit: 'Confirm intent', needIntent: 'Choose Going or Interested.',
-    profileTitle: 'Complete your profile to continue',
-    profileDesc: 'After verification you will return to “{event}” to confirm Going or Interested. Verifying alone does not notify the organizer.',
-    name: 'Name (required)', email: 'Email (required)', city: 'City (required)', role: 'Role (required)',
+    profileTitle: '',
+    profileDesc: 'Verify your email first. You still confirm afterward; that is when the organizer is told.',
+    req: 'All fields are required',
+    name: 'Name', email: 'Email', city: 'City', role: 'Role',
     rl: 'Leader', rf: 'follower', rb: 'both', rolePh: 'Choose',
     once: 'After one verification on this device, you won’t need to verify again to choose Going or Interested.',
     verifyBtn: 'Send verification email', pending: 'Verification email sent. We won’t light the star or notify the organizer until you verify.',
@@ -82,7 +84,9 @@
     '#atm-star{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-end;justify-content:center;background:rgba(6,51,58,.55)}#atm-star[hidden]{display:none}' +
     '#atm-star .asg{background:#fffdf8;width:100%;max-width:480px;max-height:92dvh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px 22px;box-sizing:border-box;color:#2a1a14}' +
     '@media(min-width:700px){#atm-star{align-items:center}#atm-star .asg{border-radius:16px;max-height:88vh}}' +
-    '#atm-star h2{font:700 1.15rem Georgia,serif;color:#0a4f57;margin:0 28px 8px 0}#atm-star p{margin:6px 0;line-height:1.45;font-size:.92rem}' +
+    '#atm-star h2{font:700 1.05rem Georgia,serif;color:#0a4f57;margin:0 36px 6px 0}#atm-star p{margin:4px 0;line-height:1.4;font-size:.88rem}' +
+    '#atm-star .asg-note{color:#5b5148}#atm-star .asg-req{font-size:.78rem;font-weight:700;color:#0a4f57;margin:8px 0 0}#atm-star .asg-dis{font-size:.78rem;color:#5b5148}' +
+    '#atm-star .asg-grid{display:flex;flex-wrap:wrap;gap:0 8px}#atm-star .asg-grid .asg-f{flex:1 1 140px;min-width:0}#atm-star .asg{overflow-x:hidden}' +
     '#atm-star label.asg-l{display:block;font-weight:700;color:#0a4f57;margin:10px 0 4px;font-size:.84rem}' +
     '#atm-star input,#atm-star select{width:100%;box-sizing:border-box;min-height:44px;font-size:16px;padding:8px 10px;border:1px solid #ead9b8;border-radius:8px}' +
     '#atm-star .asg-opt{display:flex;gap:8px;margin:8px 0}#atm-star .asg-opt button{flex:1;min-height:44px;border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:10px;font-weight:700}' +
@@ -147,10 +151,10 @@
   function h2() { return box.querySelector('h2'); }
   function body() { return box.querySelector('.asg-body'); }
   function field(label, id, type) {
-    return '<label class="asg-l" for="' + id + '">' + label + '</label><input id="' + id + '" ' + (type === 'email' ? 'type="email" autocomplete="email"' : 'type="text"') + ' maxlength="80">';
+    return '<div class="asg-f"><label class="asg-l" for="' + id + '">' + label + '</label><input id="' + id + '" ' + (type === 'email' ? 'type="email" autocomplete="email"' : 'type="text"') + ' maxlength="80"></div>';
   }
   function roleSelect() {
-    return '<label class="asg-l" for="asg-role">' + L.role + '</label><select id="asg-role"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select>';
+    return '<div class="asg-f"><label class="asg-l" for="asg-role">' + L.role + '</label><select id="asg-role"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>';
   }
   function statusText(mail) {
     if (mail === 'sent') return L.sent;
@@ -179,28 +183,32 @@
     var saved = mine[id];
     var draft = ctxGet(); if (!draft || draft.id !== id) draft = { id: id, intent: saved ? saved.intent : '', date: saved ? saved.date : '', notify: saved ? saved.notify : true, transport: saved ? !!saved.transport : false };
     ctxSet(draft);
-    h2().textContent = saved ? L.manage : L.title;
+    h2().textContent = titleOf(e) || L.title;
     var dates = datesOf(e), reg = regular(e);
-    var html = '<p>' + L.explain + '</p><p><b>' + esc(titleOf(e)) + '</b>' + (reg && dates[0] ? ' · ' + esc(draft.date || dates[0]) : '') + '</p><p>' + L.notTicket + '</p>';
+    var html = '<p class="asg-note">' + L.explain + '</p>';
     html += '<div class="asg-opt"><button type="button" data-intent="going" aria-pressed="' + (draft.intent === 'going') + '">' + L.going + '</button><button type="button" data-intent="interested" aria-pressed="' + (draft.intent === 'interested') + '">' + L.interested + '</button></div>';
     if (reg && dates.length) {
       html += '<label class="asg-l" for="asg-date">' + L.date + '</label><select id="asg-date">';
       dates.forEach(function (d) { html += '<option value="' + d + '"' + ((draft.date || dates[0]) === d ? ' selected' : '') + '>' + d + '</option>'; });
       html += '</select>';
     }
-    html += '<label class="asg-check"><input type="checkbox" id="asg-notify"' + (draft.notify !== false ? ' checked' : '') + '>' + L.notify + '</label><p>' + L.scope + '</p>';
-    if (reg) html += '<label class="asg-check"><input type="checkbox" id="asg-dir"' + (draft.transport ? ' checked' : '') + '>' + L.transport + '</label><p>' + L.noPromise + '</p>';
+    html += '<label class="asg-check"><input type="checkbox" id="asg-notify"' + (draft.notify !== false ? ' checked' : '') + '>' + L.notify + '</label>';
+    if (reg) html += '<label class="asg-check"><input type="checkbox" id="asg-dir"' + (draft.transport ? ' checked' : '') + '>' + L.transport + '</label>';
     var needProfile = !me || !me.city || !me.role || !me.name;
+    var action = L.submit;
     if (!token()) {
-      html += '<h2 style="font-size:1rem">' + L.profileTitle + '</h2><p>' + L.profileDesc.replace('{event}', esc(titleOf(e))) + '</p>';
-      html += field(L.name, 'asg-name') + field(L.email, 'asg-email', 'email') + field(L.city, 'asg-city') + roleSelect();
-      html += '<p>' + L.once + '</p><p><button type="button" class="asg-x2" id="asg-restore">' + L.restore + '</button></p>';
+      action = L.verifyBtn;
+      html += '<p class="asg-note">' + L.profileDesc + '</p><p class="asg-req">' + L.req + '</p>';
+      html += '<div class="asg-grid">' + field(L.name, 'asg-name') + field(L.email, 'asg-email', 'email') + field(L.city, 'asg-city') + roleSelect() + '</div>';
+      html += '<p><button type="button" class="asg-x2" id="asg-restore">' + L.restore + '</button></p>';
     } else if (needProfile) {
-      html += '<p>' + L.fill + '</p>' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect();
+      html += '<p class="asg-note">' + L.fill + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect() + '</div>';
+      html += '<p class="asg-dis">' + (reg ? L.discloseDate : L.disclose) + '</p>';
+    } else {
+      html += '<p class="asg-dis">' + (reg ? L.discloseDate : L.disclose) + '</p>';
     }
-    html += '<p>' + (reg ? L.discloseDate : L.disclose) + '</p>';
     html += '<p class="asg-err" id="asg-err"></p><p class="asg-ok" id="asg-ok"></p>';
-    html += '<button type="button" class="asg-go" id="asg-go">' + L.submit + '</button>';
+    html += '<button type="button" class="asg-go" id="asg-go">' + action + '</button>';
     if (saved) html += '<button type="button" class="asg-x2" id="asg-cancel">' + L.cancel + '</button>';
     html += '<div class="asg-ts"></div>';
     body().innerHTML = html;

@@ -18,8 +18,9 @@ check('form en', sub.includes('does not email organizers') && sub.includes("titl
 check('form posts profile', sub.includes('/social/profile') && sub.includes('alert: 0'));
 check('roles not old labels', !sub.includes("rl: '领舞'"));
 check('grey copy', star.includes('组织者尚未提供邮箱') && star.includes('Organizer email not available yet'));
-check('disclose cc', star.includes('Selecttango@gmail.com') && star.includes('确认意向') && star.includes('Confirm intent'));
-check('not a like', star.includes('不是点赞') && star.includes('not a like'));
+check('disclose cc', star.includes('Selecttango@gmail.com') && star.includes('确认意向') && star.includes('Confirm intent') && star.includes('邮箱不公开') && star.includes('接收本活动通知'));
+check('not a like', !star.includes('不是点赞') && !star.includes('not a like'));
+check('star cache', read('zh/asia/index.html').includes('atm-star.js?v=st5'));
 check('bar', star.includes('我的活动意向') && star.includes('My event intents'));
 check('chinese saved count', star.includes('☆ 已收藏 ') && star.includes(' 个活动') && star.includes('data-atm-saved'));
 check('english hint stays', star.includes('Tap the star to choose Going or Interested. After you verify your email, intents show here and restore on your other devices.'));
@@ -33,6 +34,6 @@ check('site key comes from the worker', star.includes('/social/going/config') &&
 check('home chinese count', home.includes('data-atm-saved="1">☆ 已收藏 ') && home.includes(' 个活动</p>') && !home.includes('点五角星选择 Going 或 Interested。验证邮箱后显示在「我的活动意向」。'));
 check('home english hint stays', home.includes('Tap the star to choose Going or Interested. After you verify your email, intents show under My event intents.'));
 check('fav fallback chinese count', fav.includes('☆ 已收藏 ') && fav.includes('Tap the star to choose Going or Interested. It shows here after you verify your email.'));
-check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h135') && read('zh/asia/index.html').includes('atm-star.js?v=st4') && read('asia/index.html').includes('atm-data.js?v=r9') && read('asia/index.html').includes('asia-map.js?v=r10') && read('asia/index.html').includes('cardB.js?v=cb145'));
+check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h135') && read('zh/asia/index.html').includes('atm-star.js?v=st5') && read('asia/index.html').includes('atm-data.js?v=r9') && read('asia/index.html').includes('asia-map.js?v=r10') && read('asia/index.html').includes('cardB.js?v=cb145'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going copy ok');
