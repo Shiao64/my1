@@ -5874,10 +5874,16 @@
     "end": "2027-10-06",
     "venue": "TBA",
     "venue_en": "TBA",
-    "organizers": [],
-    "organizers_en": [],
+    "organizers": [
+      "向前"
+    ],
+    "organizers_en": [
+      "Forward"
+    ],
     "links": {},
-    "contacts": {},
+    "contacts": {
+      "email": "756416106@qq.com"
+    },
     "source": "活动更新邮件 shiaochang@icloud.com 2026-11-07（海报 38.jpg）",
     "updated": "2026-11-07",
     "hidden": false,
