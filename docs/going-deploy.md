@@ -14,7 +14,7 @@ Read-only check of the live worker on 2026-11-09:
 | `SUB_MAIL` | `send_email`, allowed sender `subscribe@tangoweekend.org`. |
 | `SOCIAL_MAIL` | Not a binding. Plain var, value `resend`. Social and Going mail use the Resend HTTP API while this stays `resend`. |
 | `MAIL_PROVIDER` | Plain var `gmail`. This is subscriber mail in `subscribe-worker`, not Going mail. |
-| `GOING_STATS`, `GOING_NOTICE_SEND` | Unset. Leave them unset. |
+| `GOING_STATS`, `GOING_NOTICE_SEND`, `GOING_DIGEST_SEND` | Unset. Leave them unset. |
 | Going tables | Not present. `users` already has `city` and `role`. |
 | Crons | `*/10 * * * *` and `17 3 * * *`. Keep both. |
 | Secrets present, do not rotate or paste | `ADMIN_TOKEN`, `GMAIL_APP_PASSWORD`, `RESEND_API_KEY`, `TURNSTILE_SECRET`, `VAPID_PUBLIC`, `VAPID_PRIVATE`, `PUSH_ADMIN_TOKEN` |
@@ -115,6 +115,12 @@ npx wrangler rollback
 
 That does not drop the new tables and does not restore vars changed without `--keep-vars`.
 
+## Digest is in the repo and not part of this deploy
+
+`social-worker/migrations/0011_going_digests.sql` creates `going_digests`. Do not apply it in this pass. Do not set `GOING_DIGEST_SEND`. Do not add a cron for it. The live crons stay `*/10 * * * *` and `17 3 * * *`, and `social-worker/src/live.js` does not call the digest from either one.
+
+Monday 09:00 Asia/Shanghai is only the pending-review default for a future weekly featured summary. It is not an approved send time. Regular summaries would use each card’s stored start, three hours before that occurrence. Until a later approval applies `0011`, sets the flag, and adds a cron, a deployed worker would queue confirms and would not email organizers.
+
 ## 4. Do not do these in this pass
 
 - Do not deploy Cloudflare Pages. The star UI is not live until that later deploy. Production HTML does not load `atm-star.js` yet.
@@ -124,10 +130,10 @@ That does not drop the new tables and does not restore vars changed without `--k
 
 ## 5. Pages, later
 
-After the worker checks pass, the site deploy publishes `asia/index.html`, `zh/asia/index.html`, `atm-star.js?v=st3`, `atm-data.js?v=r9`, and `asia-map.js?v=r9`. That deploy must keep the E163 redirect and the r9 missing-card copy (missing is not ended). It must not be treated as a card publish. Visitors on `tangoweekend.org` still read cards from `https://data.tangoweekend.org` first.
+After the worker checks pass, the site deploy publishes `asia/index.html`, `zh/asia/index.html`, `atm-star.js?v=st6`, `atm-data.js?v=r9`, and `asia-map.js?v=r10`. That deploy must keep the E163 redirect and the r9 missing-card copy (missing is not ended). It must not be treated as a card publish. Visitors on `tangoweekend.org` still read cards from `https://data.tangoweekend.org` first. This PR does not publish Pages.
 
 The star asks `GET /social/going/config` for `TURNSTILE_SITEKEY` because `TURNSTILE_SECRET` is already set. An empty token is rejected. Do not paste the site key into the HTML.
 
 ## What a real user email is
 
-After Pages is deployed, a person who confirms Going or Interested is emailed to the organizer through the existing Resend path (`SOCIAL_MAIL=resend`), CC `selecttango@gmail.com`, From name 探戈助理. That is the feature. A test of that path against a real card is not part of this runbook.
+A confirmed intent is queued for an organizer summary. It is not mailed once per confirm. The summary uses the existing Resend path (`SOCIAL_MAIL=resend`) only when `GOING_DIGEST_SEND=on` and something calls `runGoingDigests`. CC stays `selecttango@gmail.com`. From name stays 探戈助理. This PR does not enable that call, does not apply `0011`, and does not send a test to an organizer.

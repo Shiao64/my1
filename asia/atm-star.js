@@ -10,14 +10,13 @@
     grey: '组织者尚未提供邮箱',
     title: '活动意向',
     explain: '不是购票或正式报名。',
-    going: 'Going · 要参加', interested: 'Interested · 感兴趣',
-    notify: '接收本活动通知',
+    going: '要参加', interested: '感兴趣',
+    notify: '接收主办方讯息',
     scope: '',
     transport: '交通指引（可选）',
     noPromise: '',
-    disclose: '确认后，姓名、邮箱和意向会发给主办，并抄送 Selecttango@gmail.com。城市和角色不附上。邮箱不公开。',
-    discloseDate: '确认后，姓名、邮箱、意向和参加日期会发给主办，并抄送 Selecttango@gmail.com。勾了交通指引才会一并转交。城市和角色不附上。邮箱不公开。',
-    submit: '确认意向', needIntent: '请选择 Going 或 Interested。',
+    optin: '勾选后，可接收早鸟报名及截止时间、场地交通指引、临时通知和主办方消息。',
+    submit: '确认', needIntent: '请选择要参加或感兴趣。',
     profileTitle: '',
     profileDesc: '先验证邮箱。验证后还要再确认，才会通知组织者。',
     req: '以下均为必填',
@@ -28,9 +27,9 @@
     resend: '重新发送验证邮件',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
     sent: '已记录你的意向。已向组织者发送通知（含抄送）。',
-    unchanged: '意向已保存。相同意向已经通知过组织者，这次没有再发信。',
+    unchanged: '意向已保存。没有新的内容需要汇总。',
     fail: '意向已保存；通知邮件发送失败，请稍后重试。',
-    queued: '意向已保存；通知邮件排队中，请稍后查看。',
+    queued: '已记录你的意向。会在汇总时通知主办（含抄送）。',
     fill: '请补全城市与角色等信息后继续。无需再次验证同一邮箱。',
     bar: '我的活动意向', manage: '管理意向', cancel: '取消意向',
     cancelAsk: '取消意向？这不会再发邮件给组织者，也不会撤回已经发出的信。',
@@ -46,13 +45,12 @@
     title: 'Event intent',
     explain: 'Not a ticket or a formal registration.',
     going: 'Going', interested: 'Interested',
-    notify: 'Notify me about this event',
+    notify: 'Receive organizer updates',
     scope: '',
     transport: 'Directions (optional)',
     noPromise: '',
-    disclose: 'On confirm, your name, email, and intent go to the organizer, CC Selecttango@gmail.com. City and role are not included. Your email is not shown publicly.',
-    discloseDate: 'On confirm, your name, email, intent, and date go to the organizer, CC Selecttango@gmail.com. Directions are included only if checked. City and role are not included. Your email is not shown publicly.',
-    submit: 'Confirm intent', needIntent: 'Choose Going or Interested.',
+    optin: 'Opt in to receive early-bird and registration deadlines, venue directions, last-minute notices, and organizer updates.',
+    submit: 'Confirm', needIntent: 'Choose Going or Interested.',
     profileTitle: '',
     profileDesc: 'Verify your email first. You still confirm afterward; that is when the organizer is told.',
     req: 'All fields are required',
@@ -63,9 +61,9 @@
     resend: 'Resend verification email',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
     sent: 'Your intent is saved. The organizer has been notified (with CC).',
-    unchanged: 'Intent saved. The organizer was already notified, so nothing new was sent.',
+    unchanged: 'Intent saved. Nothing new is waiting for the summary.',
     fail: 'Intent saved; notification failed to send. Please try again later.',
-    queued: 'Intent saved; notification is queued. Check again later.',
+    queued: 'Your intent is saved. The organizer is notified in the next summary (with CC).',
     fill: 'Please complete city, role, and any missing fields. No need to re-verify the same email.',
     bar: 'My event intents', manage: 'Manage intent', cancel: 'Cancel intent',
     cancelAsk: 'Cancel this intent? We will not email the organizer again, and mail already sent is not recalled.',
@@ -89,9 +87,10 @@
     '#atm-star .asg-grid{display:flex;flex-wrap:wrap;gap:0 8px}#atm-star .asg-grid .asg-f{flex:1 1 140px;min-width:0}#atm-star .asg{overflow-x:hidden}' +
     '#atm-star label.asg-l{display:block;font-weight:700;color:#0a4f57;margin:10px 0 4px;font-size:.84rem}' +
     '#atm-star input,#atm-star select{width:100%;box-sizing:border-box;min-height:44px;font-size:16px;padding:8px 10px;border:1px solid #ead9b8;border-radius:8px}' +
-    '#atm-star .asg-opt{display:flex;gap:8px;margin:8px 0}#atm-star .asg-opt button{flex:1;min-height:44px;border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:10px;font-weight:700}' +
+    '#atm-star .asg-opt{display:flex;gap:8px;margin:8px 0;padding:4px;background:#f3ece0;border-radius:14px}#atm-star .asg-opt button{flex:1;min-height:48px;border:0;background:transparent;color:#0a4f57;border-radius:12px;font-weight:700}' +
     '#atm-star .asg-opt button[aria-pressed="true"]{background:#0e6e78;color:#f6e3b4}' +
-    '#atm-star .asg-go,#atm-star .asg-x2{min-height:44px;border-radius:999px;font-weight:700;border:0;width:100%;margin-top:10px}#atm-star .asg-go{background:#0e6e78;color:#f6e3b4}#atm-star .asg-x2{background:#f3ece0;color:#2a1a14}' +
+    '#atm-star .asg-go,#atm-star .asg-x2{min-height:48px;font-weight:700;border:0;width:100%;margin-top:10px}#atm-star .asg-go{background:#0e6e78;color:#f6e3b4;border-radius:12px}#atm-star .asg-x2{background:#f3ece0;color:#2a1a14;border-radius:999px}' +
+    '#atm-star .asg-hint{margin:10px 2px 0;color:#6b5d52;font-size:.8rem;line-height:1.45}' +
     '#atm-star .asg-x{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;background:transparent;font-size:28px;color:#7a6255}' +
     '#atm-star .asg-err{color:#b5654a;min-height:1.2em}#atm-star .asg-ok{color:#0a4f57;font-weight:700}#atm-star .asg-check{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:.88rem}#atm-star .asg-check input{width:auto;min-height:0;margin-top:3px}' +
     '.atm-favbar b{color:#0a4f57}';
@@ -168,7 +167,8 @@
     if (m) setToken(m[1]);
     var g = (h.match(/going=([a-z]+)/) || [])[1];
     if (m || g) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} }
-    if (g === 'sent') toast(L.sent);
+    if (g === 'queued') toast(L.queued);
+    else if (g === 'sent') toast(L.sent);
     else if (g === 'fail') toast(L.fail);
     else if (g === 'unchanged') toast(L.unchanged);
     else if (g === 'none') toast(L.saved);
@@ -185,7 +185,11 @@
     ctxSet(draft);
     h2().textContent = titleOf(e) || L.title;
     var dates = datesOf(e), reg = regular(e);
-    var html = '<p class="asg-note">' + L.explain + '</p>';
+    var verified = !!token();
+    var needProfile = verified && (!me || !me.city || !me.role || !me.name);
+    var action = verified ? L.submit : L.verifyBtn;
+    var html = '';
+    if (!verified || needProfile) html += '<p class="asg-note">' + L.explain + '</p>';
     html += '<div class="asg-opt"><button type="button" data-intent="going" aria-pressed="' + (draft.intent === 'going') + '">' + L.going + '</button><button type="button" data-intent="interested" aria-pressed="' + (draft.intent === 'interested') + '">' + L.interested + '</button></div>';
     if (reg && dates.length) {
       html += '<label class="asg-l" for="asg-date">' + L.date + '</label><select id="asg-date">';
@@ -194,21 +198,16 @@
     }
     html += '<label class="asg-check"><input type="checkbox" id="asg-notify"' + (draft.notify !== false ? ' checked' : '') + '>' + L.notify + '</label>';
     if (reg) html += '<label class="asg-check"><input type="checkbox" id="asg-dir"' + (draft.transport ? ' checked' : '') + '>' + L.transport + '</label>';
-    var needProfile = !me || !me.city || !me.role || !me.name;
-    var action = L.submit;
-    if (!token()) {
-      action = L.verifyBtn;
+    if (!verified) {
       html += '<p class="asg-note">' + L.profileDesc + '</p><p class="asg-req">' + L.req + '</p>';
       html += '<div class="asg-grid">' + field(L.name, 'asg-name') + field(L.email, 'asg-email', 'email') + field(L.city, 'asg-city') + roleSelect() + '</div>';
       html += '<p><button type="button" class="asg-x2" id="asg-restore">' + L.restore + '</button></p>';
     } else if (needProfile) {
       html += '<p class="asg-note">' + L.fill + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect() + '</div>';
-      html += '<p class="asg-dis">' + (reg ? L.discloseDate : L.disclose) + '</p>';
-    } else {
-      html += '<p class="asg-dis">' + (reg ? L.discloseDate : L.disclose) + '</p>';
     }
     html += '<p class="asg-err" id="asg-err"></p><p class="asg-ok" id="asg-ok"></p>';
     html += '<button type="button" class="asg-go" id="asg-go">' + action + '</button>';
+    if (verified) html += '<p class="asg-hint">' + L.optin + '</p>';
     if (saved) html += '<button type="button" class="asg-x2" id="asg-cancel">' + L.cancel + '</button>';
     html += '<div class="asg-ts"></div>';
     body().innerHTML = html;
@@ -287,7 +286,7 @@
       var ok = !!(e && hasEmail(e));
       b.classList.toggle('atm-star-off', known && !ok);
       if (known && !ok) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
-      else if (mine[id]) { b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var lab = L.manage + ' ' + (mine[id].intent === 'going' ? 'Going' : 'Interested'); b.title = lab; b.setAttribute('aria-label', lab); }
+      else if (mine[id]) { b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var lab = L.manage + ' ' + (mine[id].intent === 'going' ? L.going : L.interested); b.title = lab; b.setAttribute('aria-label', lab); }
       else { b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-disabled', 'false'); b.title = L.title; b.setAttribute('aria-label', L.title); }
     });
     document.querySelectorAll('.atm-star-n').forEach(function (n) { n.remove(); });
@@ -317,7 +316,7 @@
         var row = mine[id], e = eventOf(id), a = document.createElement('a');
         a.className = 'tw-fc atm-favfc'; a.href = location.pathname + '?card=' + encodeURIComponent(id); a.setAttribute('data-fid', id);
         var name = titleOf(e) || id;
-        a.innerHTML = '<span class="tw-fc-body"><strong>' + esc(name) + '</strong><span class="tw-fc-meta">' + esc((row.intent === 'going' ? 'Going' : 'Interested') + (row.date ? ' · ' + row.date : '') + (row.notify ? '' : (zh ? ' · 不收更新' : ' · no updates'))) + '</span></span>';
+        a.innerHTML = '<span class="tw-fc-body"><strong>' + esc(name) + '</strong><span class="tw-fc-meta">' + esc((row.intent === 'going' ? L.going : L.interested) + (row.date ? ' · ' + row.date : '') + (row.notify ? '' : (zh ? ' · 不收更新' : ' · no updates'))) + '</span></span>';
         var btn = document.createElement('span'); btn.className = 'atm-heart'; btn.setAttribute('role', 'button'); btn.tabIndex = 0; btn.setAttribute('aria-pressed', 'true'); btn.title = L.manage; btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR + '"/></svg>';
         a.appendChild(btn); grid.appendChild(a);
       });

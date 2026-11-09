@@ -3,11 +3,18 @@
 #   */10 * * * *   WeChat expire sweep (already live)
 #   17 3 * * *     unconfirmed subscribe cleanup (already live)
 #
-# Stats drafts and per-event notice mail stay off.
-# Do not set these vars and do not add this cron until a later approval:
+# Stats drafts, per-event user notices, and organizer digests stay off.
+# Do not set these vars and do not add a cron until a later approval:
 #   GOING_STATS = "on"           # writes review drafts only, never emails
 #   GOING_NOTICE_SEND = "on"     # user update mail, no organizer CC
-#   extra cron "30 16 * * *"     # 00:30 Asia/Shanghai
+#   GOING_DIGEST_SEND = "on"     # organizer summaries. Not registered here.
+#   extra cron "30 16 * * *"     # 00:30 Asia/Shanghai, stats/notices only
+#
+# Featured digest clock when the three vars below are unset: Monday 09:00 Asia/Shanghai.
+# That clock is a pending-review default. It is not a user-approved send time.
+#   GOING_DIGEST_WEEKDAY = "1"
+#   GOING_DIGEST_HOUR = "9"
+#   GOING_DIGEST_MINUTE = "0"
 #
 # The live config is subscribe-worker/wrangler.toml.
 # Deploy steps: docs/going-deploy.md

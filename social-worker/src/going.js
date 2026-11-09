@@ -1,6 +1,9 @@
 // Star intent. Profile verify is separate from organizer mail.
-// A menu profile confirm never emails an organizer. An organizer mail is sent only after an
-// explicit Going/Interested confirm, and only once the address is verified.
+// A menu profile confirm never emails an organizer. An explicit Going/Interested confirm
+// from a verified address only queues a digest. It does not send one email per intent.
+// Featured cards: at most one summary per week, and only when there is something new.
+// Regular cards: one summary for that occurrence, three hours before its start.
+// GOING_DIGEST_SEND stays off and no live cron calls the digest, so this does not send.
 // Stats drafts are written for review. This module never sends them.
 const PROFILE_MS = 7 * 24 * 3600e3;
 const DAY = 24 * 3600e3;
@@ -91,7 +94,7 @@ async function goingIndex(env, kit) {
     const email = pickEmail(e.contacts && !Array.isArray(e.contacts) ? e.contacts.email : '', kit.EMAIL_RE);
     map[e.id] = {
       email, kind: e.kind || '', title: oneLine(kit.clean, e.name || e.id, 120), title_zh: oneLine(kit.clean, e.name_zh || e.name || e.id, 120),
-      weekday: e.weekday, weekdays: e.weekdays, every: e.every, nth: e.nth, start: e.start || '', end: e.end || e.start || '',
+      weekday: e.weekday, weekdays: e.weekdays, every: e.every, nth: e.nth, start: e.start || '', end: e.end || e.start || '', time: e.time || '',
       temp_notices: Array.isArray(e.temp_notices) ? e.temp_notices : [],
       alerts: Array.isArray(e.alerts) ? e.alerts : []
     };
@@ -138,30 +141,37 @@ async function sendVerify(env, kit, row, link, pending) {
   const zh = row.lang === 'zh';
   const subject = zh ? '请确认邮箱｜亚洲探戈地图' : 'Please confirm your email | Asia Tango Map';
   const extra = pending
-    ? (zh ? `\n\n你已确认「${pending.title}」的意向（${pending.intent === 'going' ? 'Going（要参加）' : 'Interested（感兴趣）'}）。点下面的确认之后，才会通知组织者。只打开这封信不会发信。\n` : `\n\nYou already confirmed intent for "${pending.title}" (${pending.intent === 'going' ? 'Going' : 'Interested'}). The organizer is notified only after you tap Confirm below. Opening this email does not send it.\n`)
+    ? (zh ? `\n\n你已确认「${pending.title}」的意向（${pending.intent === 'going' ? '要参加' : '感兴趣'}）。点下面的确认之后，意向才会进入发给主办的汇总，不会立刻逐封发送。只打开这封信不会发信。\n` : `\n\nYou already confirmed intent for "${pending.title}" (${pending.intent === 'going' ? 'Going' : 'Interested'}). After you tap Confirm, it joins the organizer summary. It is not emailed one by one. Opening this email does not send it.\n`)
     : (zh ? '\n\n这只保存你的资料。确认邮箱不会通知组织者，也不会标记任何活动。\n' : '\n\nThis only saves your profile. Confirming does not email an organizer or mark an event.\n');
   const text = (zh ? `${row.name}，你好！\n\n请在 7 天内打开下面的链接，再点「确认」。\n\n${link}\n` : `Hi ${row.name},\n\nOpen the link below within 7 days, then tap Confirm.\n\n${link}\n`) + extra + (zh ? '\n如果不是你本人操作，忽略即可。\n\n探戈助理\nhttps://tangoweekend.org' : '\nIf this wasn\'t you, you can ignore this email.\n\n探戈助理\nhttps://tangoweekend.org');
   const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${kit.he(zh ? row.name + '，你好！' : 'Hi ' + row.name + ',')}</p><p>${zh ? '请在 7 天内点下面的按钮确认邮箱。' : 'Tap the button below within 7 days to confirm your email.'}</p><p style="margin:22px 0"><a href="${kit.he(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${zh ? '确认' : 'Confirm'}</a></p><p>${kit.he(extra.trim())}</p><p>探戈助理<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
   return kit.deliver(env, row.email, subject, text, html, undefined, { fromName: '探戈助理' });
 }
-async function sendOrganizer(env, kit, row, card) {
+function intentLabel(intent) {
+  return intent === 'going' ? 'Going / 要参加' : 'Interested / 感兴趣';
+}
+async function sendDigest(env, kit, card, rows, period) {
   const org = pickEmail(card.email, kit.EMAIL_RE);
   if (!org) return { error: 'no_organizer' };
   const dest = rewriteTo(env, org);
   const cc = dest.intended ? '' : goingCc(env, dest.to);
-  const title = cardTitle(card, row.lang);
-  const zh = row.lang === 'zh';
-  const intentEn = row.intent === 'going' ? 'Going' : 'Interested';
-  const intentZh = row.intent === 'going' ? 'Going（要参加）' : 'Interested（感兴趣）';
-  const when = row.occurrence_date
-    ? `Date / 场次: ${row.occurrence_date} (Beijing time UTC+8, Asia/Shanghai)\n`
-    : `Dates / 档期: ${(card.start || '') + (card.end && card.end !== card.start ? ' – ' + card.end : '')} (Beijing time UTC+8, Asia/Shanghai)\n`;
-  const transport = row.transport ? 'Directions / 交通指引: please send directions to the venue. The organizer replies directly. Delivery and timing are not guaranteed.\n请寄送前往场地的交通指引。组织者自行回复，不保证送达或回复时间。\n' : '';
-  let text = `探戈助理\n\n${row.name} <${row.email}> confirmed event intent on Asia Tango Map.\n${row.name}（${row.email}）在亚洲探戈地图确认了活动意向。\n\nEvent / 活动: ${title}\nCard: ${row.card_id}\nIntent / 意向: ${intentEn} / ${intentZh}\n${when}${transport}\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\nCity and role are not included.\n城市与角色未附在本信。\nReply to this message to reach them.\n请直接回复这封邮件联系对方。\n`;
+  const title = cardTitle(card, 'zh');
+  const titleEn = cardTitle(card, 'en');
+  const featured = card.kind === 'event' || card.kind === 'featured';
+  const lines = rows.map(r => {
+    const date = !featured && r.occurrence_date ? `Date / 场次: ${r.occurrence_date} (Beijing time UTC+8, Asia/Shanghai)\n` : '';
+    const transport = r.transport ? 'Directions / 交通指引: please send directions to the venue. The organizer replies directly. Delivery and timing are not guaranteed.\n请寄送前往场地的交通指引。组织者自行回复，不保证送达或回复时间。\n' : '';
+    return `${r.name} <${r.email}>\nIntent / 意向: ${intentLabel(r.intent)}\n${date}${transport}`.trim();
+  }).join('\n\n');
+  const when = featured
+    ? `Week / 本周汇总: ${period} (Asia/Shanghai). One summary for new intents on this event.\n`
+    : `Occurrence / 场次: ${period} (Asia/Shanghai). One summary, three hours before the listed start.\n`;
+  let text = `探戈助理\n\nNew event intent on Asia Tango Map.\n亚洲探戈地图有新的活动意向。\n\nEvent / 活动: ${title}\n${titleEn && titleEn !== title ? titleEn + '\n' : ''}Card: ${card.id}\n${when}\n${lines}\n\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\nCity and role are not included.\n城市与角色未附在本信。\nThe “receive updates” choice does not decide whether this summary is sent.\n「接收主办方讯息」不影响这封汇总是否发出。\n`;
   if (dest.intended) text = `[test] Intended organizer: ${dest.intended}\n【测试】原收件主办方：${dest.intended}\n\n` + text;
-  const subject = (`${intentEn}: ${row.name} — ${title}`).slice(0, 180);
-  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p><b>探戈助理</b></p><p>${kit.he(row.name)} &lt;${kit.he(row.email)}&gt;<br>${kit.he(title)}<br>${kit.he(intentEn)} / ${kit.he(intentZh)}</p><p>${kit.he(when)}${row.transport ? kit.he('Directions requested.') : ''}</p><p>This is not a ticket or a formal registration. City and role are not included.<br>这不是购票或正式报名。城市与角色未附在本信。</p>${dest.intended ? `<p>[test] Intended organizer: ${kit.he(dest.intended)}</p>` : ''}</div></body></html>`;
-  await kit.deliver(env, dest.to, subject, text, html, undefined, { cc, replyTo: row.email, fromName: '探戈助理' });
+  const subject = (featured ? `Intent summary: ${titleEn || title}` : `Intent summary ${period}: ${titleEn || title}`).slice(0, 180);
+  const replyTo = rows.length === 1 ? rows[0].email : '';
+  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p><b>探戈助理</b></p><p>${kit.he(title)}<br>${kit.he(period)}</p><ul>${rows.map(r => `<li>${kit.he(r.name)} &lt;${kit.he(r.email)}&gt; — ${kit.he(intentLabel(r.intent))}${r.occurrence_date && !featured ? ' · ' + kit.he(r.occurrence_date) : ''}${r.transport ? ' · directions' : ''}</li>`).join('')}</ul><p>This is not a ticket or a formal registration. City and role are not included.<br>这不是购票或正式报名。城市与角色未附在本信。</p>${dest.intended ? `<p>[test] Intended organizer: ${kit.he(dest.intended)}</p>` : ''}</div></body></html>`;
+  await kit.deliver(env, dest.to, subject, text, html, undefined, { cc, replyTo, fromName: '探戈助理' });
   return { ok: true };
 }
 async function rateOk(env, email, cardId, iph) {
@@ -189,26 +199,27 @@ async function materialize(env, kit, row, iph) {
   }
   const transport = (card.kind === 'event' || card.kind === 'featured') ? 0 : (row.transport ? 1 : 0);
   const fp = fpOf(row.intent, date, transport);
-  const prev = await env.SDB.prepare('SELECT mail_status,mail_fp,status FROM going_intents WHERE email=? AND card_id=?').bind(row.email, row.card_id).first();
+  const prev = await env.SDB.prepare('SELECT intent,occurrence_date,transport,mail_status,mail_fp,status FROM going_intents WHERE email=? AND card_id=?').bind(row.email, row.card_id).first();
   const ts = kit.now();
-  await env.SDB.prepare(`INSERT INTO going_intents(email,card_id,intent,occurrence_date,transport,notify,status,mail_status,mail_fp,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)
-    ON CONFLICT(email,card_id) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,transport=excluded.transport,notify=excluded.notify,status='active',updated_at=excluded.updated_at`)
-    .bind(row.email, row.card_id, row.intent, date || null, transport, row.notify ? 1 : 0, 'active', prev && prev.mail_fp === fp ? prev.mail_status : 'none', fp, ts, ts).run();
-  if (prev && prev.mail_fp === fp && prev.mail_status === 'sent') return { ok: true, mailed: false, mail: 'unchanged', date };
-  if (!(await rateOk(env, row.email, row.card_id, iph || ''))) {
-    await env.SDB.prepare("UPDATE going_intents SET mail_status='failed',updated_at=? WHERE email=? AND card_id=?").bind(ts, row.email, row.card_id).run();
+  const prevFp = prev ? fpOf(prev.intent, prev.occurrence_date || '', prev.transport) : '';
+  const sameFacts = !!(prev && prev.status === 'active' && prevFp === fp && (prev.mail_status === 'sent' || prev.mail_status === 'queued'));
+  if (sameFacts) {
+    await env.SDB.prepare('UPDATE going_intents SET notify=?,updated_at=? WHERE email=? AND card_id=?').bind(row.notify ? 1 : 0, ts, row.email, row.card_id).run();
+    return { ok: true, mailed: false, mail: 'unchanged', date };
+  }
+  const alreadySent = !!(prev && prev.mail_fp === fp && prev.mail_status === 'sent');
+  const mailStatus = alreadySent ? 'sent' : 'queued';
+  if (!alreadySent && !(await rateOk(env, row.email, row.card_id, iph || ''))) {
+    await saveIntent(env, row, date, transport, 'failed', prev && prev.mail_fp || null, ts);
     return { ok: true, mailed: false, mail: 'rate_limited', date };
   }
-  try {
-    await sendOrganizer(env, kit, { ...row, occurrence_date: date, transport }, card);
-  } catch (e) {
-    await env.SDB.prepare("UPDATE going_intents SET mail_status='failed',updated_at=? WHERE email=? AND card_id=?").bind(kit.now(), row.email, row.card_id).run();
-    console.log('going send', String(e && e.message || e).slice(0, 180));
-    return { ok: true, mailed: false, mail: 'failed', date };
-  }
-  await env.SDB.prepare("UPDATE going_intents SET mail_status='sent',mail_fp=?,sent_at=?,updated_at=? WHERE email=? AND card_id=?").bind(fp, kit.now(), kit.now(), row.email, row.card_id).run();
-  await env.SDB.prepare('INSERT INTO going_sends(email,card_id,ip_hash,created_at) VALUES(?,?,?,?)').bind(row.email, row.card_id, iph || '', kit.now()).run();
-  return { ok: true, mailed: true, mail: 'sent', date };
+  await saveIntent(env, row, date, transport, mailStatus, prev && prev.mail_fp || null, ts);
+  return { ok: true, mailed: false, mail: alreadySent ? 'unchanged' : 'queued', date };
+}
+async function saveIntent(env, row, date, transport, mailStatus, mailFp, ts) {
+  await env.SDB.prepare(`INSERT INTO going_intents(email,card_id,intent,occurrence_date,transport,notify,status,mail_status,mail_fp,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)
+    ON CONFLICT(email,card_id) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,transport=excluded.transport,notify=excluded.notify,status='active',mail_status=excluded.mail_status,mail_fp=excluded.mail_fp,updated_at=excluded.updated_at`)
+    .bind(row.email, row.card_id, row.intent, date || null, transport, row.notify ? 1 : 0, 'active', mailStatus, mailFp, ts, ts).run();
 }
 function page(kit, ok, lang, msg, dest) {
   const zh = lang === 'zh';
@@ -248,25 +259,25 @@ export async function goingConfirm(req, env, url, kit) {
   const token = await kit.issueSession(env, { ...user, lang }, { keepCode: true });
   if (row.alert_opt_in) { try { await kit.applyList(env, { email, name: row.name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
   const pend = (await env.SDB.prepare('SELECT * FROM going_pending WHERE email=? AND consumed_at IS NULL').bind(email).all()).results || [];
-  let saw = false, didSend = false, failed = false;
+  let saw = false, didQueue = false, failed = false;
   for (const p of pend) {
     saw = true;
     const r = await materialize(env, kit, p, '');
     await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE id=?').bind(kit.now(), p.id).run();
-    if (r.mail === 'sent') didSend = true;
+    if (r.mail === 'queued') didQueue = true;
     else if (r.mail === 'failed' || r.mail === 'rate_limited') failed = true;
   }
-  const mail = didSend ? 'sent' : (failed ? 'fail' : (saw ? 'unchanged' : 'none'));
+  const mail = failed ? 'fail' : (didQueue ? 'queued' : (saw ? 'unchanged' : 'none'));
   await env.SDB.prepare('DELETE FROM profile_verify WHERE email=?').bind(email).run();
   const dest = new URL(next);
   dest.hash = 'atm=' + token + '&going=' + mail;
-  const msg = mail === 'sent'
-    ? (lang === 'zh' ? '已记录你的意向。已向组织者发送通知（含抄送）。' : 'Your intent is saved. The organizer has been notified (with CC).')
+  const msg = mail === 'queued'
+    ? (lang === 'zh' ? '已记录你的意向。会在汇总时通知主办（含抄送）。' : 'Your intent is saved. The organizer is notified in the next summary (with CC).')
     : mail === 'fail'
       ? (lang === 'zh' ? '意向已保存；通知邮件发送失败，请稍后重试。' : 'Intent saved; the notification failed to send. Please try again later.')
       : mail === 'unchanged'
-        ? (lang === 'zh' ? '意向已保存。相同意向已经通知过组织者，这次没有再发信。' : 'Intent saved. The organizer was already notified of this intent, so nothing new was sent.')
-        : (lang === 'zh' ? '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。' : 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.');
+        ? (lang === 'zh' ? '意向已保存。没有新的内容需要汇总。' : 'Intent saved. Nothing new is waiting for the summary.')
+        : (lang === 'zh' ? '邮箱已验证，资料已保存。可到活动五角星选择要参加或感兴趣。' : 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.');
   return page(kit, true, lang, msg, dest.toString());
 }
 
@@ -496,6 +507,168 @@ export async function goingAdmin(req, env, url, b, json, kit) {
   }
   const items = (await env.SDB.prepare('SELECT report_key,kind,status,tz,range_start,range_end,generated_at FROM going_reports ORDER BY generated_at DESC').all()).results || [];
   return json({ items, sent: false });
+}
+
+const SH_MS = 8 * 3600e3;
+const DIGEST_CAP = 500;
+export function digestSchedule(env) {
+  const rawW = env.GOING_DIGEST_WEEKDAY, rawH = env.GOING_DIGEST_HOUR, rawM = env.GOING_DIGEST_MINUTE;
+  const w = Number(rawW == null || rawW === '' ? 1 : rawW);
+  const h = Number(rawH == null || rawH === '' ? 9 : rawH);
+  const m = Number(rawM == null || rawM === '' ? 0 : rawM);
+  return {
+    weekday: Number.isInteger(w) && w >= 0 && w <= 6 ? w : 1,
+    hour: Number.isInteger(h) && h >= 0 && h <= 23 ? h : 9,
+    minute: Number.isInteger(m) && m >= 0 && m <= 59 ? m : 0,
+    tz: 'Asia/Shanghai',
+    // Monday 09:00 is only the pending-review default. It is not a user decision.
+    pendingReview: rawW == null && rawH == null && rawM == null,
+    approved: false
+  };
+}
+export function shParts(ms) {
+  const d = new Date(ms + SH_MS);
+  const y = d.getUTCFullYear(), m = d.getUTCMonth() + 1, day = d.getUTCDate();
+  return { y, m, day, h: d.getUTCHours(), min: d.getUTCMinutes(), wd: d.getUTCDay(), ymd: y + '-' + pad(m) + '-' + pad(day) };
+}
+export function shanghaiMs(y, m, d, h, min) { return Date.UTC(y, m - 1, d, h || 0, min || 0) - SH_MS; }
+export function weekSlot(ms, schedule) {
+  let cursor = ms + SH_MS;
+  for (let i = 0; i < 8; i++) {
+    const d = new Date(cursor);
+    const y = d.getUTCFullYear(), m = d.getUTCMonth() + 1, day = d.getUTCDate();
+    const slot = shanghaiMs(y, m, day, schedule.hour, schedule.minute);
+    if (shParts(slot).wd === schedule.weekday && slot <= ms) return { key: shParts(slot).ymd, slotMs: slot, prevMs: slot - 7 * DAY, nextMs: slot + 7 * DAY };
+    cursor -= DAY;
+  }
+  return null;
+}
+export function startClock(time) {
+  const s = String(time || '').trim();
+  if (!s || /[ap]\.?m/i.test(s)) return null;
+  const m = s.match(/^(\d{1,2}):(\d{2})(?!\d)/);
+  if (!m) return null;
+  const h = Number(m[1]), min = Number(m[2]);
+  if (!Number.isInteger(h) || !Number.isInteger(min) || h > 23 || min > 59) return null;
+  return { h, min };
+}
+export function regularWindow(ymd, time) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(ymd || ''))) return null;
+  const clock = startClock(time);
+  if (!clock) return null;
+  const [y, m, d] = ymd.split('-').map(Number);
+  const startMs = shanghaiMs(y, m, d, clock.h, clock.min);
+  return { startMs, sendMs: startMs - 3 * 3600e3 };
+}
+function featuredCard(card) { return !!(card && (card.kind === 'event' || card.kind === 'featured')); }
+function occurrenceHold(card, ymd) {
+  for (const n of (Array.isArray(card.temp_notices) ? card.temp_notices : [])) {
+    if (!n || (n.date || n.start) !== ymd) continue;
+    if (n.status === 'cancelled') return 'cancelled';
+    if (n.status === 'changed') return 'rescheduled';
+  }
+  return '';
+}
+function changesOf(r) { return r && r.meta && r.meta.changes || 0; }
+async function markDigest(env, key, cardId, kind, period, status, reason, nowIso) {
+  await env.SDB.prepare(`INSERT OR IGNORE INTO going_digests(digest_key,card_id,kind,period,status,reason,snapshot,created_at) VALUES(?,?,?,?,?,?,NULL,?)`)
+    .bind(key, cardId, kind, period, status, reason, nowIso).run();
+  await env.SDB.prepare(`UPDATE going_digests SET status=?,reason=? WHERE digest_key=? AND status NOT IN ('sent','sending','skipped')`).bind(status, reason, key).run();
+}
+async function claimDigest(env, key, cardId, kind, period, nowIso, staleIso) {
+  await env.SDB.prepare(`INSERT OR IGNORE INTO going_digests(digest_key,card_id,kind,period,status,reason,snapshot,created_at) VALUES(?,?,?,?,'open',NULL,NULL,?)`)
+    .bind(key, cardId, kind, period, nowIso).run();
+  const r = await env.SDB.prepare(`UPDATE going_digests SET status='sending',reason=NULL,created_at=? WHERE digest_key=? AND (status IN ('open','failed','held') OR (status='sending' AND created_at < ?))`)
+    .bind(nowIso, key, staleIso).run();
+  return changesOf(r) === 1;
+}
+async function queuedRows(env, cardId) {
+  return (await env.SDB.prepare(`SELECT i.email email,i.card_id card_id,i.intent intent,i.occurrence_date occurrence_date,i.transport transport,i.mail_status mail_status,i.updated_at updated_at,u.name name,u.verified_at verified_at
+    FROM going_intents i JOIN users u ON u.email=i.email
+    WHERE i.card_id=? AND i.status='active' AND i.mail_status='queued' AND u.verified_at IS NOT NULL
+    ORDER BY i.email`).bind(cardId).all()).results || [];
+}
+async function finishSent(env, rows, nowIso) {
+  for (const row of rows) {
+    const cur = await env.SDB.prepare('SELECT intent,occurrence_date,transport,status,mail_status FROM going_intents WHERE email=? AND card_id=?').bind(row.email, row.card_id).first();
+    if (!cur || cur.status !== 'active' || cur.mail_status !== 'queued') continue;
+    const fp = fpOf(cur.intent, cur.occurrence_date || '', cur.transport);
+    if (fp !== row.fp) continue;
+    await env.SDB.prepare("UPDATE going_intents SET mail_status='sent',mail_fp=?,sent_at=?,updated_at=? WHERE email=? AND card_id=? AND mail_status='queued'").bind(fp, nowIso, nowIso, row.email, row.card_id).run();
+  }
+}
+function packRow(r, date) {
+  return { email: r.email, name: oneLine((s, n) => String(s || '').trim().slice(0, n), r.name, 80) || r.email, intent: r.intent, occurrence_date: date || '', transport: r.transport ? 1 : 0, card_id: r.card_id, fp: fpOf(r.intent, date || '', r.transport ? 1 : 0), updated_at: r.updated_at };
+}
+export async function runGoingDigests(env, kit) {
+  const schedule = digestSchedule(env);
+  const base = { pendingReview: schedule.pendingReview, approved: false, schedule: { weekday: schedule.weekday, hour: schedule.hour, minute: schedule.minute, tz: schedule.tz }, sent: 0, skipped: 0, held: 0, failed: 0 };
+  if (env.GOING_DIGEST_SEND !== 'on') return { enabled: false, ...base };
+  const nowMs = clock(env);
+  const nowIso = new Date(nowMs).toISOString();
+  const staleIso = new Date(nowMs - 15 * 60e3).toISOString();
+  const slot = weekSlot(nowMs, schedule);
+  const ids = (await env.SDB.prepare("SELECT DISTINCT card_id id FROM going_intents WHERE status='active' AND mail_status='queued'").all()).results || [];
+  for (const item of ids) {
+    let card;
+    try { card = await goingCard(env, item.id, kit); }
+    catch (e) { base.failed++; continue; }
+    if (!card || !card.email) { base.held++; continue; }
+    const rows = await queuedRows(env, card.id);
+    if (!rows.length) continue;
+    if (featuredCard(card)) {
+      if (!slot) { base.held++; continue; }
+      const due = rows.filter(r => { const t = Date.parse(r.updated_at || ''); return Number.isFinite(t) && t > slot.prevMs && t <= slot.slotMs; }).map(r => packRow(r, ''));
+      if (!due.length) { base.skipped++; continue; }
+      if (due.length > DIGEST_CAP) { await markDigest(env, 'featured:' + card.id + ':' + slot.key, card.id, 'featured', slot.key, 'held', 'too_many', nowIso); base.held++; continue; }
+      const key = 'featured:' + card.id + ':' + slot.key;
+      if (!(await claimDigest(env, key, card.id, 'featured', slot.key, nowIso, staleIso))) { base.skipped++; continue; }
+      if (typeof env.GOING_DIGEST_AFTER_CLAIM === 'function') await env.GOING_DIGEST_AFTER_CLAIM(key);
+      try {
+        await sendDigest(env, kit, card, due, slot.key);
+      } catch (e) {
+        await env.SDB.prepare("UPDATE going_digests SET status='failed',reason='send_failed',snapshot=?,error=?,created_at=? WHERE digest_key=? AND status='sending'").bind(JSON.stringify(due), String(e && e.message || e).slice(0, 180), nowIso, key).run();
+        base.failed++;
+        continue;
+      }
+      await env.SDB.prepare("UPDATE going_digests SET status='sent',reason=NULL,snapshot=?,error=NULL,sent_at=? WHERE digest_key=? AND status='sending'").bind(JSON.stringify(due), nowIso, key).run();
+      await finishSent(env, due, nowIso);
+      base.sent++;
+      continue;
+    }
+    const byDate = new Map();
+    for (const r of rows) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(r.occurrence_date || '')) { base.held++; continue; }
+      const list = byDate.get(r.occurrence_date) || [];
+      list.push(r);
+      byDate.set(r.occurrence_date, list);
+    }
+    for (const [date, list] of byDate) {
+      const key = 'regular:' + card.id + ':' + date;
+      const hold = occurrenceHold(card, date);
+      if (hold === 'cancelled') { await markDigest(env, key, card.id, 'regular', date, 'skipped', 'cancelled', nowIso); base.skipped++; continue; }
+      if (hold === 'rescheduled') { await markDigest(env, key, card.id, 'regular', date, 'held', 'rescheduled', nowIso); base.held++; continue; }
+      const window = regularWindow(date, card.time);
+      if (!window) { await markDigest(env, key, card.id, 'regular', date, 'held', 'missing_time', nowIso); base.held++; continue; }
+      if (nowMs >= window.startMs) { await markDigest(env, key, card.id, 'regular', date, 'skipped', 'past_start', nowIso); base.skipped++; continue; }
+      if (nowMs < window.sendMs) continue;
+      const due = list.map(r => packRow(r, date));
+      if (due.length > DIGEST_CAP) { await markDigest(env, key, card.id, 'regular', date, 'held', 'too_many', nowIso); base.held++; continue; }
+      if (!(await claimDigest(env, key, card.id, 'regular', date, nowIso, staleIso))) { base.skipped++; continue; }
+      if (typeof env.GOING_DIGEST_AFTER_CLAIM === 'function') await env.GOING_DIGEST_AFTER_CLAIM(key);
+      try {
+        await sendDigest(env, kit, card, due, date);
+      } catch (e) {
+        await env.SDB.prepare("UPDATE going_digests SET status='failed',reason='send_failed',snapshot=?,error=?,created_at=? WHERE digest_key=? AND status='sending'").bind(JSON.stringify(due), String(e && e.message || e).slice(0, 180), nowIso, key).run();
+        base.failed++;
+        continue;
+      }
+      await env.SDB.prepare("UPDATE going_digests SET status='sent',reason=NULL,snapshot=?,error=NULL,sent_at=? WHERE digest_key=? AND status='sending'").bind(JSON.stringify(due), nowIso, key).run();
+      await finishSent(env, due, nowIso);
+      base.sent++;
+    }
+  }
+  return { enabled: true, ...base };
 }
 
 export async function goingDates(url, env, json, kit) {
