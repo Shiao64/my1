@@ -11,12 +11,16 @@ SLUGS = {
  'E086':'da-nang-2026-tango-marathon','E122':'brunei-2027-tango-week','E123':'taipei-2027-lorena-gianpiero',
  'E125':'kuala-lumpur-2026-swango-roxana','E126':'kuala-lumpur-2026-christmas-milonga','E127':'kuala-lumpur-2027-tango-intensivo',
  'E128':'kuala-lumpur-2027-tango-marathon','E129':'penang-2026-halloween-milonga','E130':'penang-2026-bridgerton-christmas-milonga',
- 'E131':'beijing-2026-diego-aldana','E132':'wuhan-2027-hsld-tango-weekend','E153':'hong-kong-2026-milonga-artistica-3','JHeguuQb':'shanghai-2026-wutong-tango-weekend','E134':'shanghai-2026-wanso-milonga'}
-# Hand-written recap pages. Regenerating would replace them with the generic template
-# and put closed-form ticket prices back on the page.
-HANDWRITTEN = {'JHeguuQb'}
+ 'E131':'beijing-2026-diego-aldana','E132':'wuhan-2027-hsld-tango-weekend','E153':'hong-kong-2026-milonga-artistica-3','JHeguuQb':'shanghai-2026-wutong-tango-weekend','E134':'shanghai-2026-wanso-milonga',
+ 'E162':'chengdu-2027-ich-tango-festival','E163':'chengdu-2027-tangotoworldcup-ich-competition'}
+# Hand-written pages. Regenerating would replace them with the generic template.
+# JHeguuQb would put closed-form ticket prices back on the page.
+# E162/E163 show a TBA venue, a cross-link, and (E163) the prize poster. The template
+# drops TBA venues and would not keep those sections. If the row is missing from
+# asia/events.json, main() prints "missing <id>" and does not invent a page.
+HANDWRITTEN = {'JHeguuQb', 'E162', 'E163'}
 CITY_ZH = {'Guangzhou':'广州','Hong Kong':'香港','Shanghai':'上海','Taipei':'台北','Beijing':'北京','Kuala Lumpur':'吉隆坡',
- 'Da Nang':'岘港','Bandar Seri Begawan':'斯里巴加湾','Penang':'槟城','Wuhan':'武汉'}
+ 'Da Nang':'岘港','Bandar Seri Begawan':'斯里巴加湾','Penang':'槟城','Wuhan':'武汉','Chengdu':'成都'}
 TYPE = {'festival':('探戈节','Festival'),'marathon':('马拉松','Marathon'),'milonga':('舞会','Milonga'),'event':('活动','Event')}
 MON = ['January','February','March','April','May','June','July','August','September','October','November','December']
 E = lambda s: html.escape(str(s), quote=True)
@@ -146,7 +150,15 @@ def main():
     for f in files:
         p = os.path.join(ROOT, f); raw = open(p).read(); d = json.loads(raw)
         for e in d:
+            if only and e['id'] not in only: continue
             if e['id'] in SLUGS: e['detail'] = f'/event/{SLUGS[e["id"]]}/'
-        open(p, 'w').write(json.dumps(d, ensure_ascii=False, separators=(',', ':')) + ('\n' if raw.endswith('\n') else ''))
+        # Pretty files stay pretty. Compact files (events-more.json) stay compact.
+        # A full run with no ids still rewrites every slug's detail; pass ids to limit that.
+        pretty = raw.startswith('[\n')
+        if pretty:
+            out = json.dumps(d, ensure_ascii=False, indent=2) + '\n'
+        else:
+            out = json.dumps(d, ensure_ascii=False, separators=(',', ':')) + ('\n' if raw.endswith('\n') else '')
+        open(p, 'w').write(out)
     print('built', n)
 if __name__ == '__main__': main()

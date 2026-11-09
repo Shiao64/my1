@@ -11613,5 +11613,82 @@
     "poster": "/images/asia/posters/E160.jpg",
     "poster_pos": "center top",
     "edition": 2
+  },
+  {
+    "id": "E162",
+    "kind": "event",
+    "type": "festival",
+    "name": "The 12th International ICH Tango Festival",
+    "name_zh": "第12届成都国际非遗探戈节",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": "2027-04-21",
+    "end": "2027-04-26",
+    "venue": "TBA",
+    "venue_en": "TBA",
+    "organizers": [
+      "Panda"
+    ],
+    "organizers_en": [
+      "Panda"
+    ],
+    "links": {},
+    "contacts": {
+      "email": "5788260@qq.com"
+    },
+    "source": "用户海报 2026-11-09；联络人 Panda / 5788260@qq.com",
+    "updated": "2026-11-09",
+    "hidden": false,
+    "tba": false,
+    "featured": true,
+    "note_zh": "海报宣布：第12届成都国际非遗探戈节（The 12th International ICH Tango Festival），2027年4月21–26日，成都（海报所印日期，北京时间）。同一张海报同时列出 2027 TangotoWorldCUP Chengdu（Preliminary）与第5届成都国际非遗探戈比赛（The 5th Chengdu International ICH Tango Competition）。海报印出的名字与国家／地区：现场乐队 Solo Tango Orquesta（俄罗斯）；Anthony（澳大利亚）、Murat（土耳其）、Siro（韩国）、Meng Wang（加拿大）；Vanesa y Facundo（阿根廷）、Aldana y Diego（阿根廷）、Naima y Lucas（希腊／阿根廷）、Alina y Dmitrii（俄罗斯）、Simona y Allen（中国）、Polina y Artem（俄罗斯）、Yanina y Neri（阿根廷）、Laura y Meng（中国／加拿大）；另见 Murat（土耳其）、Ryuga（韩国）；团体：Tango Blast（中国）、Iris Tango Performance Team（韩国）、Team Ryu（韩国）。海报没有给这些个人标注老师、DJ 或表演者身份。场地、票价、报名链接未公布。",
+    "note": "Poster announcement: The 12th International ICH Tango Festival, 21–26 April 2027, Chengdu (dates as printed on the poster; Beijing time). The same poster also names 2027 TangotoWorldCUP Chengdu (Preliminary) and The 5th Chengdu International ICH Tango Competition. Names and places printed on the poster: live orchestra Solo Tango Orquesta (Russia); Anthony (Australia), Murat (Turkey), Siro (Korea), Meng Wang (Canada); Vanesa y Facundo (Argentina), Aldana y Diego (Argentina), Naima y Lucas (Greece/Argentina), Alina y Dmitrii (Russia), Simona y Allen (China), Polina y Artem (Russia), Yanina y Neri (Argentina), Laura y Meng (China/Canada); also Murat (Turkey), Ryuga (Korea); groups: Tango Blast (China), Iris Tango Performance Team (Korea), Team Ryu (Korea). The poster does not label those individuals as teachers, DJs, or performers. Venue, ticket prices and registration link are not announced.",
+    "detail": "/event/chengdu-2027-ich-tango-festival/",
+    "poster": "/images/asia/posters/E162.jpg",
+    "poster_pos": "center top",
+    "edition": 12
+  },
+  {
+    "id": "E163",
+    "kind": "event",
+    "type": "festival",
+    "name": "2027 TangotoWorldCUP Chengdu (Preliminary) · 5th Chengdu ICH Tango Competition",
+    "name_zh": "2027 TangotoWorldCUP 成都预选赛 · 第5届成都国际非遗探戈比赛",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": "2027-04-21",
+    "end": "2027-04-26",
+    "venue": "TBA",
+    "venue_en": "TBA",
+    "organizers": [
+      "Panda"
+    ],
+    "organizers_en": [
+      "Panda"
+    ],
+    "links": {},
+    "contacts": {
+      "email": "5788260@qq.com"
+    },
+    "source": "用户海报 2026-11-09；联络人 Panda / 5788260@qq.com",
+    "updated": "2026-11-09",
+    "hidden": false,
+    "tba": false,
+    "featured": true,
+    "note_zh": "海报宣布：2027 TangotoWorldCUP Chengdu（Preliminary）与第5届成都国际非遗探戈比赛（The 5th Chengdu International ICH Tango Competition），总档期 2027年4月21–26日，成都（海报所印日期，北京时间）；与第12届成都国际非遗探戈节同期。总奖金 ¥90,000 RMB（$13,500 USD）。各组别冠／亚／季：探戈沙龙 Tango Salon ¥12,000.00（冠军另含往返伊斯坦布尔机票）／¥6,000.00／¥3,000.00；沙龙亚洲 Salon Asian ¥8,000.00／¥4,000.00／¥2,000.00；华尔兹 Vals、米隆加 Milonga、常青 Senior（合计年龄 Combined Age ≥100）、Dance to Di Sarli、Dance to D'Arienzo、Dance to Pugliese、Dance to Troilo 均为 ¥3,000.00／¥2,000.00／¥1,000.00；随机搭档-引带 Jack、随机搭档-跟随 Jill 各 ¥1,500.00／¥1,000.00／¥500.00；短视频 Video Challenge ¥3,000.00／¥2,000.00／¥1,000.00。最佳创意视频 Most Creative Short 海报只列出 ¥1,000.00，未分冠亚季。具体比赛日未在海报单独标出。场地、报名链接、票价未公布。",
+    "note": "Poster announcement: 2027 TangotoWorldCUP Chengdu (Preliminary) and The 5th Chengdu International ICH Tango Competition, overall dates 21–26 April 2027, Chengdu (dates as printed on the poster; Beijing time); same window as The 12th International ICH Tango Festival. Total prize money ¥90,000 RMB ($13,500 USD). Champion / runner-up / third: Tango Salon ¥12,000.00 (champion also receives round-trip airfare to Istanbul) / ¥6,000.00 / ¥3,000.00; Salon Asian ¥8,000.00 / ¥4,000.00 / ¥2,000.00; Vals, Milonga, Senior (combined age ≥100), Dance to Di Sarli, Dance to D'Arienzo, Dance to Pugliese, and Dance to Troilo: each ¥3,000.00 / ¥2,000.00 / ¥1,000.00; Jack (random partner, lead) and Jill (random partner, follow): ¥1,500.00 / ¥1,000.00 / ¥500.00 each; Video Challenge ¥3,000.00 / ¥2,000.00 / ¥1,000.00. Most Creative Short is printed as a single amount, ¥1,000.00, with no 1st/2nd/3rd split. Individual competition days are not listed on the poster. Venue, registration link and ticket prices are not announced.",
+    "detail": "/event/chengdu-2027-tangotoworldcup-ich-competition/",
+    "poster": "/images/asia/posters/E162.jpg",
+    "poster_pos": "center top",
+    "edition": 5,
+    "posters_extra": [
+      {
+        "src": "/images/asia/posters/E163_2.jpg",
+        "caption": "Prize table · total ¥90,000 RMB ($13,500 USD)",
+        "caption_zh": "奖金表 · 总奖金 ¥90,000 RMB（$13,500 USD）"
+      }
+    ]
   }
 ]
