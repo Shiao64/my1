@@ -98,35 +98,34 @@ check('no intent from menu', db.prepare('SELECT COUNT(*) n FROM going_intents').
 
 const auth = { Authorization: 'Bearer ' + token };
 const star = await post('/going', { ...base, id: 'W1', intent: 'going', date: dates[0], notify: 1, transport: 0 }, auth);
-check('session submit mails organizer', star._s === 200 && star.verified && star.mailed && star.mail === 'sent' && orgMails().length === 1);
-const org = orgMails()[0];
-check('cc and reply-to and assistant', org.includes('cc=selecttango@gmail.com') && org.includes('reply-to=ana@example.com') && org.includes('from=探戈助理') && org.includes('not a ticket') && !org.includes('Seoul') && !org.includes('leader'));
+check('session submit queues and does not mail', star._s === 200 && star.verified && star.mailed === false && star.mail === 'queued' && orgMails().length === 0);
+check('queued row keeps notify and does not mark sent', db.prepare("SELECT mail_status s, notify n FROM going_intents WHERE email=? AND card_id=?").get('ana@example.com', 'W1').s === 'queued');
 const again = await post('/going', { ...base, id: 'W1', intent: 'going', date: dates[0], notify: 0 }, auth);
-check('same intent is idempotent', again.mail === 'unchanged' && again.mailed === false && orgMails().length === 1);
-check('notify change did not mail', db.prepare('SELECT notify n FROM going_intents WHERE email=? AND card_id=?').get('ana@example.com', 'W1').n === 0);
+check('same intent is idempotent', again.mail === 'unchanged' && again.mailed === false && orgMails().length === 0);
+check('notify change did not mail', db.prepare('SELECT notify n, mail_status s FROM going_intents WHERE email=? AND card_id=?').get('ana@example.com', 'W1').n === 0 && db.prepare('SELECT mail_status s FROM going_intents WHERE email=? AND card_id=?').get('ana@example.com', 'W1').s === 'queued');
 const changed = await post('/going', { ...base, id: 'W1', intent: 'interested', date: dates[1], transport: 1 }, auth);
-check('changed intent mails once more', changed.mail === 'sent' && orgMails().length === 2 && orgMails()[1].includes('Interested') && orgMails()[1].includes('Directions'));
+check('changed intent stays queued', changed.mail === 'queued' && changed.mailed === false && orgMails().length === 0 && db.prepare('SELECT intent i, transport t FROM going_intents WHERE email=? AND card_id=?').get('ana@example.com', 'W1').i === 'interested');
 const counts = await get('/going/counts?ids=W1,F1,NONE');
 check('deduped count is one and empty cards are zero', counts.counts.W1 === 1 && counts.counts.F1 === 0 && counts.counts.NONE === 0);
 const cancel = await post('/going/cancel', { id: 'W1', explicit: 1 }, auth);
-check('cancel sends nothing', cancel.cancelled && cancel.mailed === false && orgMails().length === 2);
+check('cancel sends nothing', cancel.cancelled && cancel.mailed === false && orgMails().length === 0);
 check('cancel drops the count to zero', (await get('/going/counts?ids=W1')).counts.W1 === 0);
 
 const pendingBefore = mails.length;
 const fresh = await post('/going', { ...base, email: 'bea@example.com', name: 'Bea', id: 'F1', intent: 'interested', role: 'follower' });
-check('unverified explicit does not mail organizer', fresh.confirm && fresh.mailed === false && orgMails().length === 2 && userMails('bea@example.com').length === 1);
+check('unverified explicit does not mail organizer', fresh.confirm && fresh.mailed === false && orgMails().length === 0 && userMails('bea@example.com').length === 1 && userMails('bea@example.com')[0].includes('not emailed one by one'));
 check('pending stored', db.prepare("SELECT intent i FROM going_pending WHERE email=? AND consumed_at IS NULL").get('bea@example.com').i === 'interested');
 check('unverified not counted', (await get('/going/counts?ids=F1')).counts.F1 === 0);
 const beaLink = fresh.preview_link;
 const beaDone = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'bea@example.com', t: new URL(beaLink).searchParams.get('t'), next: 'https://tangoweekend.org/asia/?card=F1', confirm: '1' }).toString());
 const beaText = await beaDone.text();
-check('verify then organizer', beaText.includes('notified') && mails.some(m => m.includes('to=fest@example.com') && m.includes('cc=selecttango@gmail.com') && m.includes('reply-to=bea@example.com')));
+check('verify queues the summary and does not mail', beaText.includes('next summary') && !mails.some(m => m.includes('to=fest@example.com')) && db.prepare("SELECT mail_status s FROM going_intents WHERE email=?").get('bea@example.com').s === 'queued');
 check('featured counted after verify', (await get('/going/counts?ids=F1')).counts.F1 === 1);
 
 const none = await post('/going', { ...base, id: 'NONE', intent: 'going' }, auth);
-check('no organizer email rejected', none._s === 404 && none.error === 'no_organizer' && orgMails().length === 2);
+check('no organizer email rejected', none._s === 404 && none.error === 'no_organizer' && orgMails().length === 0);
 const openOnly = await post('/going', { ...base, id: 'W1', intent: 'going', explicit: 0 }, auth);
-check('opening without confirm does not mail', openOnly._s === 400 && openOnly.error === 'need_explicit' && orgMails().length === 2);
+check('opening without confirm does not mail', openOnly._s === 400 && openOnly.error === 'need_explicit' && orgMails().length === 0);
 
 const imp = await post('/going', { ...base, email: 'ana@example.com', id: 'F1', intent: 'going' });
 check('typed verified email is not a session', !imp.token && imp.confirm && imp.mailed === false);

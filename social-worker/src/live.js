@@ -31,7 +31,8 @@ export default {
   },
   async scheduled(event, env, ctx) {
     if (event.cron === '17 3 * * *') return SUB.scheduled(event, env, ctx);
-    // Both stay off until the matching flag is on AND the cron is added at deploy time. Not enabled here.
+    // Stats drafts and per-event user notices stay off until the matching flag is on AND that cron is added at deploy time.
+    // Organizer digests are not hooked to either live cron. GOING_DIGEST_SEND stays unset.
     const statsCron = env.GOING_STATS_CRON || '30 16 * * *';
     const noticeCron = env.GOING_NOTICE_CRON || '30 16 * * *';
     const jobs = [];
