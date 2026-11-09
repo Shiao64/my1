@@ -200,6 +200,12 @@
     if (OA && OA.name) { var oaT = (isZh ? '微信公众号：' : 'WeChat Official Account: ') + esc(OA.name); out.push(OA.biz ? '<a class="china-linkbtn atm-wxoa" href="https://mp.weixin.qq.com/mp/profile_ext?action=home&amp;__biz=' + OA.biz.replace(/[^A-Za-z0-9+\/=]/g,'') + '#wechat_redirect" target="_blank" rel="noopener">' + oaT + '</a>' : '<span class="china-linkbtn atm-wxoa">' + oaT + '</span>'); }
     if (L.wechat && !(OA && OA.name && OA.biz)) out.push('<a class="china-linkbtn" href="' + esc(L.wechat) + '" target="_blank" rel="noopener">' + (isZh ? '微信文章' : 'WeChat Article') /* v11.1: one label for all WeChat article links */ + '</a>');
     if (L.video && !isZh) out.push('<a class="china-linkbtn" href="' + esc(L.video) + '" target="_blank" rel="noopener">' + (UI.video || 'Video') + '</a>');
+    var CH = L.wechat_channels; /* v12.2: {name, id} shown as text; Channels has no public web URL */
+    if (CH && (CH.name || CH.id)) {
+      var chT = (isZh ? '微信视频号：' : 'WeChat Channels: ') + esc(CH.name || '');
+      if (CH.id) chT += (CH.name ? ' · ' : '') + (isZh ? '视频号 ID ' : 'video account ID ') + esc(CH.id);
+      out.push('<span class="china-linkbtn atm-wxch">' + chT + '</span>');
+    }
     return out.length ? '<div class="ev-line china-links">' + out.join('') + '</div>' : '';
   }
   function cityLabel(r){
