@@ -1,0 +1,6 @@
+# Old Chengdu competition URLs are the same event as the festival page.
+# Query strings are kept. These paths do not redirect back.
+/event/chengdu-2027-tangotoworldcup-ich-competition /event/chengdu-2027-ich-tango-festival/ 301
+/event/chengdu-2027-tangotoworldcup-ich-competition/ /event/chengdu-2027-ich-tango-festival/ 301
+/event/chengdu-2027-tangotoworldcup-ich-competition/zh /event/chengdu-2027-ich-tango-festival/zh/ 301
+/event/chengdu-2027-tangotoworldcup-ich-competition/zh/ /event/chengdu-2027-ich-tango-festival/zh/ 301

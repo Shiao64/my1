@@ -46,8 +46,11 @@ def main():
     en, zh = read('asia/index.html'), read('zh/asia/index.html')
     js, cards, home = read('asia/asia-map.js'), read('asia/cardB.js'), read('asia/atm-home.js')
     data = read('asia/atm-data.js')
-    check('en loads helper', 'atm-data.js?v=r7' in en)
-    check('zh loads helper', 'atm-data.js?v=r7' in zh)
+    check('en loads helper', 'atm-data.js?v=r9' in en)
+    check('zh loads helper', 'atm-data.js?v=r9' in zh)
+    check('en map script', 'asia-map.js?v=r9' in en)
+    check('zh map script', 'asia-map.js?v=r9' in zh)
+    check('json version stays', 'events-core.json?v=china465' in en and 'events-core.json?v=china465' in zh)
     r2_core = 'https://data.tangoweekend.org/asia/events-core.json?v=china465'
     check('en r2 core keeps version', r2_core in en)
     check('zh r2 core keeps version', r2_core in zh)
@@ -104,10 +107,71 @@ if (seen[1] !== 'https://data.tangoweekend.org/asia/events.json?v=e216') process
 if (seen[2] !== 'https://data.tangoweekend.org/asia/djs.json') process.exit(13);
 if (seen[3] !== 'https://data.tangoweekend.org/asia/organizers.json?v=o1&x=2') process.exit(14);
 if (seen.length !== 4) process.exit(15);
+const e164 = '/images/asia/posters/E164.jpg?v=20261109fix';
+const thumb = w.atmPosterUrls(e164, false);
+const card = w.atmPosterUrls(e164, true);
+if (thumb.webp !== 'https://data.tangoweekend.org/images/thumb/images/asia/posters/E164.webp?v=20261109fix') process.exit(17);
+if (thumb.jpg !== 'https://data.tangoweekend.org/images/thumb/images/asia/posters/E164.jpg?v=20261109fix') process.exit(18);
+if (card.webp.indexOf('thumb800/images/asia/posters/E164.webp?v=20261109fix') < 0) process.exit(19);
+if (card.full !== 'https://data.tangoweekend.org/images/asia/posters/E164.jpg?v=20261109fix') process.exit(20);
+if (thumb.webp.indexOf('?v=t360') >= 0 || card.webp.indexOf('?v=t800') >= 0) process.exit(21);
+const bust = w.atmPosterRetryUrl(thumb.webp);
+if (bust !== thumb.webp + '&atmbust=1') process.exit(22);
+if (w.atmPosterRetryUrl(bust) !== '') process.exit(23);
+const today = '2026-11-09';
+const future = { id: 'E162', kind: 'event', start: '2027-04-21', end: '2027-04-26' };
+if (w.atmResolveCard([[future]], null, 'E162', today).fate !== 'found') process.exit(25);
+const past = { id: 'OLD', kind: 'event', start: '2020-01-01', end: '2020-01-02' };
+if (w.atmResolveCard([[past]], null, 'OLD', today).fate !== 'ended') process.exit(26);
+if (w.atmResolveCard([[]], null, 'NOPE', today).fate !== 'missing') process.exit(27);
+if (w.atmResolveCard([[{ id: 'E164', hidden: true, kind: 'event', start: '2026-12-30', end: '2027-01-03' }]], null, 'E164', today).fate !== 'missing') process.exit(28);
+const stale = [[{ id: 'E160', kind: 'event', start: '2027-10-03', end: '2027-10-06' }]];
+const fresh = [[{ id: 'E162', kind: 'event', start: '2027-04-21', end: '2027-04-26' }, { id: 'E163', kind: 'event', start: '2027-04-21', end: '2027-04-26' }, { id: 'E164', kind: 'event', start: '2026-12-30', end: '2027-01-03' }]];
+const got = w.atmResolveCard(stale, fresh, 'E164', today);
+if (got.fate !== 'found' || got.row.id !== 'E164') process.exit(29);
+if (w.atmResolveCard(stale, null, 'E162', today).fate !== 'missing') process.exit(30);
+if (w.atmEventEnded({ kind: 'event', start: '2027-04-21', end: '2027-04-26', status: 'ended' }, today) !== true) process.exit(31);
+let freshUrls = [];
+global.fetch = (url) => { freshUrls.push(String(url)); return Promise.resolve({ ok: true, json: async () => [{ id: 'E162' }] }); };
+w.atmDataJsonFresh('/asia/events-core.json?v=china465');
+if (freshUrls[0] !== 'https://data.tangoweekend.org/asia/events-core.json?v=china465&atmbust=1') process.exit(32);
+if (freshUrls.length !== 1) process.exit(33);
+const aliasEn = w.atmCardAliasHref('E163', false, '?card=E163&via=card', '#top');
+const aliasZh = w.atmCardAliasHref('E163', true, '?card=E163', '');
+if (aliasEn !== '/event/chengdu-2027-ich-tango-festival/?via=card#top') process.exit(34);
+if (aliasZh !== '/event/chengdu-2027-ich-tango-festival/zh/') process.exit(35);
+if (aliasEn.indexOf('tangotoworldcup') >= 0 || aliasEn.indexOf('card=') >= 0) process.exit(36);
+if (w.atmCardAliasHref('E162', false, '?card=E162', '') !== '') process.exit(37);
+if (w.atmCardAliasHref('E164', true, '?card=E164', '') !== '') process.exit(38);
 '''
     run = subprocess.run(['node', '-e', node], cwd=ROOT, capture_output=True, text=True)
     check('poster url helper ' + (run.stderr.strip() or run.stdout.strip()), run.returncode == 0)
     print('objects', len(keys), 'bytes', sum(os.path.getsize(p) for p in keys.values()))
+    import json as _json
+    for rel in ('asia/events.json', 'asia/events-core.json'):
+        rows = _json.load(open(os.path.join(ROOT, rel), encoding='utf-8'))
+        by = {e['id']: e for e in rows}
+        check(rel + ' one public chengdu', by['E162']['hidden'] is False and by['E162']['featured'] is True and by['E163']['hidden'] is True and by['E163']['featured'] is False)
+        check(rel + ' merged title', 'TangotoWorldCUP' in by['E162']['name'] and '5th' in by['E162']['name'] and '第5届' in by['E162']['name_zh'] and '预选赛' in by['E162']['name_zh'])
+        check(rel + ' prize kept', by['E162']['posters_extra'][0]['src'].endswith('E163_2.jpg?v=20261109fix2'))
+        check(rel + ' poster fix2', by['E162']['poster'].endswith('?v=20261109fix2'))
+        check(rel + ' E163 detail merged', by['E163']['detail'] == '/event/chengdu-2027-ich-tango-festival/')
+        check(rel + ' no see-E163 note', '见卡 E163' not in by['E162'].get('note_zh', '') and 'see card E163' not in by['E162'].get('note', '').lower())
+        check(rel + ' E160 untouched name', by['E160']['name'].startswith('2nd Wuhan'))
+        check(rel + ' E164 absent', 'E164' not in by)
+    fest = read('event/chengdu-2027-ich-tango-festival/index.html')
+    fest_zh = read('event/chengdu-2027-ich-tango-festival/zh/index.html')
+    old = read('event/chengdu-2027-tangotoworldcup-ich-competition/index.html')
+    old_zh = read('event/chengdu-2027-tangotoworldcup-ich-competition/zh/index.html')
+    check('festival has prize and cup', '¥12,000.00' in fest and 'TangotoWorldCUP' in fest and 'E163_2.jpg?v=20261109fix2' in fest)
+    check('zh festival has three names', '第5届' in fest_zh and '预选赛' in fest_zh and '第12届' in fest_zh)
+    check('old en redirects', 'location.replace("/event/chengdu-2027-ich-tango-festival/"' in old and 'tangotoworldcup' not in old.split('location.replace', 1)[1])
+    check('old zh redirects', 'location.replace("/event/chengdu-2027-ich-tango-festival/zh/"' in old_zh)
+    check('pages redirects', '/event/chengdu-2027-tangotoworldcup-ich-competition/zh/ /event/chengdu-2027-ich-tango-festival/zh/ 301' in read('_redirects'))
+    check('inline card alias', "cid==='E163'" in en and "cid==='E163'" in zh)
+    raw = open(os.path.join(ROOT, 'images/asia/posters/E162.jpg'), 'rb').read(3)
+    prize = open(os.path.join(ROOT, 'images/asia/posters/E163_2.jpg'), 'rb').read(3)
+    check('posters decode as jpeg', raw == b'\xff\xd8\xff' and prize == b'\xff\xd8\xff')
 
 
 if __name__ == '__main__':
