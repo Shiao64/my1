@@ -163,8 +163,16 @@
   function themed(e) { if (e.kind !== 'weekly') return null; var o = occOf(e), t = null; DATA.forEach(function (x) { if (x.theme_of === e.id && x.start === o) t = x; }); return t; }
   /* v11.8b: home 我的收藏 block is off unless intentionally enabled (window.ATM_HOME_FAV = true, or localStorage atm_home_fav_on = '1') */
   function favOn() { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').length > 0; } catch (e) { return false; } } /* RULE (user, 2026-11-04 — keep in future redesigns): home 我的收藏 row shows only when the user has ≥1 favorite (localStorage atm_fav_v1); never show 系统建议/suggested cards; ignore atm_home_fav_on. With 0 favorites, show one small hint line instead: zh「点 ❤️ 收藏活动，会显示在这里」/ en "Tap ❤️ to save events here"; the hint disappears once a favorite exists. Fav posters follow the 上期海报/Previous poster badge rule (poster_date < today, Asia/Shanghai). */
+  function listedSaved() {
+    if (window.ATM_STAR && typeof window.ATM_STAR.listed === 'function') {
+      var n = window.ATM_STAR.listed();
+      if (typeof n === 'number' && n >= 0) return n;
+    }
+    return 0;
+  }
   function favBlock() {
-    return '<p class="ah-favhint">' + (zh ? '点五角星选择 Going 或 Interested。验证邮箱后显示在「我的活动意向」。' : 'Tap the star to choose Going or Interested. After you verify your email, intents show under My event intents.') + '</p>';
+    if (!zh) return '<p class="ah-favhint">Tap the star to choose Going or Interested. After you verify your email, intents show under My event intents.</p>';
+    return '<p class="ah-favhint" data-atm-saved="1">☆ 已收藏 ' + listedSaved() + ' 个活动</p>';
   }
   function home() {
     return favBlock() + '<div class="ah-rows">' +

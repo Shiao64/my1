@@ -1,6 +1,6 @@
 /* Star intent. Replaces the local heart as the way to say Going or Interested.
-   The star stays disabled when the card has no organizer email. Counts are verified
-   Going+Interested people, one per email, from /social/going/counts. */
+   The star stays disabled when the card has no organizer email. The public
+   Going+Interested total stays on the server and is not drawn on the card. */
 (function () {
   var R = document.documentElement;
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || document.body.getAttribute('data-lang') || R.lang || '') || location.pathname.indexOf('/zh/') === 0;
@@ -79,8 +79,6 @@
   css.textContent = '.atm-heart svg path{d:path("' + STAR + '")}.atm-heart path{fill:none;stroke:#b8913a;stroke-width:1.6;stroke-linejoin:round}.atm-heart[aria-pressed="true"] path{fill:#b8913a;stroke:#b8913a}' +
     '.atm-heart.atm-star-off{opacity:1;cursor:not-allowed;background:#e7e2da}.atm-heart.atm-star-off path{stroke:#b0a89c;fill:none}' +
     'html.atm-p10 #atm-c1bar .p10-heart.atm-star-off{cursor:not-allowed!important;background:transparent!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-off path{fill:none!important;stroke:#b0a89c!important}' +
-    '.atm-star-n{position:absolute;z-index:5;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#0e6e78;color:#fff;font:700 11px/18px system-ui,sans-serif;text-align:center;pointer-events:none}' +
-    '.ev-card>.atm-star-n,.atm-favfc>.atm-star-n,.tw-fc>.atm-star-n{top:10px;right:44px}.p10-heart+.atm-star-n,.atm-star-n.atm-star-inline{position:static;margin-right:6px}' +
     '#atm-star{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-end;justify-content:center;background:rgba(6,51,58,.55)}#atm-star[hidden]{display:none}' +
     '#atm-star .asg{background:#fffdf8;width:100%;max-width:480px;max-height:92dvh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px 22px;box-sizing:border-box;color:#2a1a14}' +
     '@media(min-width:700px){#atm-star{align-items:center}#atm-star .asg{border-radius:16px;max-height:88vh}}' +
@@ -95,7 +93,7 @@
     '.atm-favbar b{color:#0a4f57}';
   document.head.appendChild(css);
 
-  var counts = {}, mine = {}, me = null, ready = false, eventsP = null;
+  var mine = {}, me = null, ready = false, eventsP = null;
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
   function ctxGet() { try { return JSON.parse(localStorage.getItem('atm_star_ctx') || 'null'); } catch (e) { return null; } }
@@ -283,20 +281,28 @@
       if (known && !ok) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
       else if (mine[id]) { b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var lab = L.manage + ' ' + (mine[id].intent === 'going' ? 'Going' : 'Interested'); b.title = lab; b.setAttribute('aria-label', lab); }
       else { b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-disabled', 'false'); b.title = L.title; b.setAttribute('aria-label', L.title); }
-      var n = counts[id] || 0;
-      var badge = b.parentNode && b.parentNode.querySelector(':scope>.atm-star-n[data-for="' + id + '"]');
-      if (!badge && b.parentNode) { badge = document.createElement('span'); badge.className = 'atm-star-n' + (b.classList.contains('p10-heart') ? ' atm-star-inline' : ''); badge.setAttribute('data-for', id); b.parentNode.insertBefore(badge, b); }
-      if (badge && badge.textContent !== String(n)) badge.textContent = String(n);
     });
+    document.querySelectorAll('.atm-star-n').forEach(function (n) { n.remove(); });
+  }
+  function savedText(n) { return '☆ 已收藏 ' + n + ' 个活动'; }
+  function syncSaved() {
+    if (!zh) return;
+    var t = savedText(Object.keys(mine).length);
+    document.querySelectorAll('[data-atm-saved]').forEach(function (el) { if (el.textContent !== t) el.textContent = t; });
   }
   function paintBar() {
-    var bar = document.querySelector('.atm-favbar'); if (!bar) return false;
+    var bar = document.querySelector('.atm-favbar'); if (!bar) { syncSaved(); return false; }
     var grid = document.querySelector('.atm-favgrid');
     var items = Object.keys(mine);
-    bar.classList.toggle('atm-on', items.length > 0);
-    if (!token()) { bar.innerHTML = '<b>★ ' + L.bar + '</b><span class="atm-hint">' + L.hint + '</span>'; if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
-    if (!items.length) { bar.innerHTML = '<b>★ ' + L.bar + '</b><span class="atm-hint">' + L.empty + '</span>'; if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
-    bar.innerHTML = '<b>★ ' + L.bar + (zh ? '（' + items.length + '）' : ' (' + items.length + ')') + '</b>';
+    var n = items.length;
+    bar.classList.toggle('atm-on', n > 0);
+    if (zh) {
+      bar.innerHTML = '<b>' + L.bar + '</b><span class="atm-hint" data-atm-saved="1">' + savedText(n) + '</span>';
+      syncSaved();
+    } else if (!token()) { bar.innerHTML = '<b>★ ' + L.bar + '</b><span class="atm-hint">' + L.hint + '</span>'; if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
+    else if (!n) { bar.innerHTML = '<b>★ ' + L.bar + '</b><span class="atm-hint">' + L.empty + '</span>'; if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
+    else bar.innerHTML = '<b>★ ' + L.bar + ' (' + n + ')</b>';
+    if (zh && !n) { if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
     if (grid) {
       grid.hidden = false; grid.innerHTML = '';
       items.forEach(function (id) {
@@ -310,11 +316,6 @@
     }
     return true;
   }
-  function refreshCounts() {
-    var ids = []; document.querySelectorAll('.ev-card[data-id],.atm-heart').forEach(function (el) { var id = el.getAttribute('data-id') || idOf(el); if (id && ids.indexOf(id) < 0) ids.push(id); });
-    if (!ids.length) return;
-    api('/social/going/counts?ids=' + encodeURIComponent(ids.slice(0, 80).join(','))).then(function (d) { counts = d.counts || {}; paint(); }).catch(function () {});
-  }
   function refreshMine() {
     if (!token()) { me = null; mine = {}; paint(); paintBar(); return; }
     api('/social/going/mine').then(function (d) {
@@ -325,14 +326,12 @@
   }
   window.ATM_STAR = {
     take: function (b) { if (b.classList.contains('atm-star-off') || b.getAttribute('aria-disabled') === 'true') return true; open(b); return true; },
-    paintBar: paintBar, paint: paint
+    paintBar: paintBar, paint: paint, listed: function () { return Object.keys(mine).length; }
   };
-  document.addEventListener('atm-more', function () { paint(); refreshCounts(); });
+  document.addEventListener('atm-more', function () { paint(); });
   readHash();
   ensureEvents();
   refreshMine();
-  refreshCounts();
-  setInterval(refreshCounts, 60000);
   var mo = new MutationObserver(function () { if (!painting) paint(); });
   mo.observe(document.documentElement, { childList: true, subtree: true });
 })();
