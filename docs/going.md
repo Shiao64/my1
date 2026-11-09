@@ -43,11 +43,23 @@ Active intents at generation time are counted. Cancelled rows are left out. Ther
 
 ## Per-event updates
 
-“Get updates for this event” is stored on the intent (default on) and can be turned off without emailing the organizer. Early-bird, deadline, change, and host messages are **not dispatched** by this change. There is no reviewed publish queue yet, so the worker does not invent those times or claim they were sent.
+“Get updates for this event” defaults on. Turning it off does not cancel Going or Interested and does not recall mail already sent.
+
+The queue (`going_notice_queue`, migration `0010_going_notices.sql`) accepts only confirmed facts:
+
+- A `temp_notices` item with status `changed` or `cancelled` and a real `date` or `start`. A time is included only when that item already has `time`.
+- An `alerts` item with `reviewed: true` and kind `early_bird_start`, `early_bird_end`, or `register_deadline`, and a `YYYY-MM-DD` date.
+- A host message posted with `POST /social/admin/going-notices` (`reviewed: 1`, Bearer `ADMIN_TOKEN`). Unreviewed text is refused.
+
+Free-text notes are never parsed. A missing date is skipped, not guessed.
+
+`POST /social/admin/going-notices/run` enqueues those facts. It emails opted-in people only when `GOING_NOTICE_SEND=on`. That mail goes to the user, From 探戈助理, with an unsubscribe link, and **no CC**. Failures are stored on `going_notice_sends` as `failed`. The same notice is not sent twice to the same address. Default is off, so a deploy does not start sending. The sample is `social-worker/going.cron.example.toml`. The live cron list is unchanged.
+
+`GET /social/going/unsub` only shows a button. `POST` sets `notify=0` for that card. The intent stays.
 
 ## Deploy (do not run from this PR)
 
-1. Apply `social-worker/migrations/0009_going.sql` on the social D1 (`SDB`). Do not import production rows into a test database.
+1. Apply `social-worker/migrations/0009_going.sql` and `0010_going_notices.sql` on the social D1 (`SDB`). Do not import production rows into a test database.
 2. Deploy the worker that serves `social-worker/src/live.js`. Leave `SOCIAL_MAIL` as it is (Resend in the preview vars). No new secret. CC is a field on that existing send.
 3. If `TURNSTILE_SECRET` is set, the pages need `window.ATM_TS_KEY` (the preview worker already injects `TURNSTILE_SITEKEY`). Static pages do not set it today.
 4. Do **not** set `GOING_STATS=on` or add the stats cron until someone wants drafts. Adding the cron without the flag still no-ops.

@@ -1,7 +1,7 @@
 import { gmailSend } from './smtp.js';
 import { updateFooter } from './unsub.js';
-import { goingConfirm, goingSubmit, goingCancel, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, generateGoingStats } from './going.js';
-export { generateGoingStats };
+import { goingConfirm, goingSubmit, goingCancel, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, generateGoingStats, runGoingNotices } from './going.js';
+export { generateGoingStats, runGoingNotices };
 // Asia Tango Map likes API, plus email confirm for the update list. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
 // POST /social/like {id, dev}              -> toggle; one per device per card; {id, n, liked}
@@ -240,6 +240,7 @@ export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
   if (p === '/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return confirmLink(req, env, url);
   if (p === '/going/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingConfirm(req, env, url, goingKit());
+  if (p === '/going/unsub' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingUnsub(req, env, url, goingKit());
   if (p === '/going/counts' && req.method === 'GET') return goingCounts(url, env, json);
   if (p === '/going/dates' && req.method === 'GET') return goingDates(url, env, json, goingKit());
   if (p === '/going/mine' && req.method === 'GET') return goingMine(req, env, json);
@@ -249,6 +250,7 @@ export async function social(req, env, url, json) {
   if (p === '/going/cancel' && req.method === 'POST') return goingCancel(req, env, b, json, goingKit());
   if (p === '/going/restore' && req.method === 'POST') return goingRestore(req, env, b, ip, json, goingKit());
   if ((p === '/admin/going-reports' || p === '/admin/going-reports/run') && (req.method === 'GET' || req.method === 'POST')) return goingAdmin(req, env, url, b, json, goingKit());
+  if ((p === '/admin/going-notices' || p === '/admin/going-notices/run') && (req.method === 'GET' || req.method === 'POST')) return goingNoticeAdmin(req, env, url, b, json, goingKit());
   if (p === '/likes' && req.method === 'GET') {
     const ids = (url.searchParams.get('ids') || '').split(',').filter(x => ID_RE.test(x)).slice(0, 100), dev = url.searchParams.get('dev') || '';
     const counts = {}, mine = []; if (!ids.length) return json({ counts, mine });

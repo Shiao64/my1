@@ -107,16 +107,16 @@ check('notify change did not mail', db.prepare('SELECT notify n FROM going_inten
 const changed = await post('/going', { ...base, id: 'W1', intent: 'interested', date: dates[1], transport: 1 }, auth);
 check('changed intent mails once more', changed.mail === 'sent' && orgMails().length === 2 && orgMails()[1].includes('Interested') && orgMails()[1].includes('Directions'));
 const counts = await get('/going/counts?ids=W1,F1,NONE');
-check('deduped count is one', counts.counts.W1 === 1 && !counts.counts.F1);
+check('deduped count is one and empty cards are zero', counts.counts.W1 === 1 && counts.counts.F1 === 0 && counts.counts.NONE === 0);
 const cancel = await post('/going/cancel', { id: 'W1', explicit: 1 }, auth);
 check('cancel sends nothing', cancel.cancelled && cancel.mailed === false && orgMails().length === 2);
-check('cancel drops the count', (await get('/going/counts?ids=W1')).counts.W1 === undefined);
+check('cancel drops the count to zero', (await get('/going/counts?ids=W1')).counts.W1 === 0);
 
 const pendingBefore = mails.length;
 const fresh = await post('/going', { ...base, email: 'bea@example.com', name: 'Bea', id: 'F1', intent: 'interested', role: 'follower' });
 check('unverified explicit does not mail organizer', fresh.confirm && fresh.mailed === false && orgMails().length === 2 && userMails('bea@example.com').length === 1);
 check('pending stored', db.prepare("SELECT intent i FROM going_pending WHERE email=? AND consumed_at IS NULL").get('bea@example.com').i === 'interested');
-check('unverified not counted', (await get('/going/counts?ids=F1')).counts.F1 === undefined);
+check('unverified not counted', (await get('/going/counts?ids=F1')).counts.F1 === 0);
 const beaLink = fresh.preview_link;
 const beaDone = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'bea@example.com', t: new URL(beaLink).searchParams.get('t'), next: 'https://tangoweekend.org/asia/?card=F1', confirm: '1' }).toString());
 const beaText = await beaDone.text();
@@ -159,6 +159,16 @@ check('stats sent no mail', mails.length === beforeStats);
 const denied = await get('/admin/going-reports');
 check('stats admin is closed', denied._s === 401);
 check('no public report route', (await get('/going/reports'))._s === 404 || (await get('/going/reports')).error === 'not_found');
+
+db.prepare('DELETE FROM going_pending WHERE email=?').run('ana@example.com');
+const mailAt = mails.length;
+const restored = await post('/going/restore', { email: 'ana@example.com', ret, ts: 'x', lang: 'en' });
+check('restore link is not a session', restored.confirm && restored.preview_link && !restored.token);
+const back = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'ana@example.com', t: new URL(restored.preview_link).searchParams.get('t'), next: ret, confirm: '1' }).toString());
+const token2 = ((await back.text()).match(/atm=([0-9a-f]{64})/) || [])[1];
+const mine2 = await get('/going/mine', { Authorization: 'Bearer ' + token2 });
+check('restored device sees the same intents', mine2.email === 'ana@example.com' && (mine2.items || []).some(i => i.id === 'W1' && i.intent === 'going'));
+check('restore did not email an organizer', !mails.slice(mailAt).some(m => m.includes('cc=selecttango@gmail.com')));
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going tests ok', { mails: mails.length, pendingBefore });

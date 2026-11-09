@@ -23,6 +23,11 @@ VAPID_SUBJECT = "mailto:selecttango@gmail.com"
 PUSH_ADHOC_PER_DAY = "2"
 
 # Daily cleanup of pending (unconfirmed) rows older than 7 days.
+# Star-intent stats and per-event notices are NOT on this cron.
+# Sample only — do not enable until a deploy is approved (see social-worker/going.cron.example.toml):
+#   GOING_STATS = "on"          # drafts only, never emails
+#   GOING_NOTICE_SEND = "on"    # user update mail; still no organizer CC
+#   extra cron "30 16 * * *"    # 00:30 Asia/Shanghai
 [triggers]
 crons = ["17 3 * * *"]
 

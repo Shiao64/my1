@@ -91,7 +91,9 @@ async function goingIndex(env, kit) {
     const email = pickEmail(e.contacts && !Array.isArray(e.contacts) ? e.contacts.email : '', kit.EMAIL_RE);
     map[e.id] = {
       email, kind: e.kind || '', title: oneLine(kit.clean, e.name || e.id, 120), title_zh: oneLine(kit.clean, e.name_zh || e.name || e.id, 120),
-      weekday: e.weekday, weekdays: e.weekdays, every: e.every, nth: e.nth, start: e.start || '', end: e.end || e.start || ''
+      weekday: e.weekday, weekdays: e.weekdays, every: e.every, nth: e.nth, start: e.start || '', end: e.end || e.start || '',
+      temp_notices: Array.isArray(e.temp_notices) ? e.temp_notices : [],
+      alerts: Array.isArray(e.alerts) ? e.alerts : []
     };
   }
   cardCache = { at: Date.now(), map };
@@ -393,6 +395,7 @@ export async function goingCancel(req, env, b, json, kit) {
 export async function goingCounts(url, env, json) {
   const ids = (url.searchParams.get('ids') || '').split(',').map(s => s.trim()).filter(s => /^[A-Za-z0-9_-]{1,64}$/.test(s)).slice(0, 100);
   const counts = {};
+  ids.forEach(id => { counts[id] = 0; });
   if (!ids.length) return json({ counts });
   const q = ids.map(() => '?').join(',');
   (await env.SDB.prepare(`SELECT card_id,COUNT(DISTINCT email) n FROM going_intents WHERE status='active' AND card_id IN (${q}) GROUP BY card_id`).bind(...ids).all()).results
@@ -505,4 +508,154 @@ export async function goingDates(url, env, json, kit) {
   const today = shYmd(clock(env));
   const dates = occurrenceDates(card, today, 8);
   return json({ email: !!card.email, kind: card.kind || '', dates, today, tz: 'Asia/Shanghai' });
+}
+
+const DATE_KINDS = ['early_bird_start', 'early_bird_end', 'register_deadline', 'change', 'cancel'];
+const ALERT_KINDS = ['early_bird_start', 'early_bird_end', 'register_deadline', 'host'];
+const ymdOk = s => /^\d{4}-\d{2}-\d{2}$/.test(String(s || ''));
+function reviewed(v) { return v === true || v === 1 || v === '1'; }
+function clip(s, n) { return String(s || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n); }
+
+export function noticesFromCard(card) {
+  const out = [], id = card.id;
+  for (const n of (Array.isArray(card.temp_notices) ? card.temp_notices : [])) {
+    if (!n || (n.status !== 'changed' && n.status !== 'cancelled')) continue;
+    const date = n.date || n.start;
+    if (!ymdOk(date)) continue;
+    const kind = n.status === 'cancelled' ? 'cancel' : 'change';
+    const time = clip(n.time, 40);
+    const text = clip(n.text, 400), textEn = clip(n.text_en, 400);
+    const titleZh = kind === 'cancel' ? '本场取消' : '临时变更';
+    const titleEn = kind === 'cancel' ? 'Cancelled' : 'Temporary change';
+    const bodyZh = date + (time ? ' ' + time : '') + (text ? '。' + text : '');
+    const bodyEn = date + (time ? ' ' + time : '') + (textEn ? '. ' + textEn : (text ? '. ' + text : ''));
+    out.push({ card_id: id, kind, event_date: date, title_zh: titleZh, title_en: titleEn, body_zh: bodyZh, body_en: bodyEn, source: 'temp_notice' });
+  }
+  for (const a of (Array.isArray(card.alerts) ? card.alerts : [])) {
+    if (!a || !reviewed(a.reviewed) || !ALERT_KINDS.includes(a.kind)) continue;
+    if (a.kind !== 'host' && !ymdOk(a.date)) continue;
+    const text = clip(a.text, 400), textEn = clip(a.text_en, 400);
+    if (a.kind === 'host' && !text && !textEn) continue;
+    const labels = { early_bird_start: ['早鸟开始', 'Early bird starts'], early_bird_end: ['早鸟截止', 'Early bird ends'], register_deadline: ['报名截止', 'Registration deadline'], host: ['主办消息', 'Organizer message'] };
+    const [titleZh, titleEn] = labels[a.kind];
+    const date = ymdOk(a.date) ? a.date : '';
+    out.push({ card_id: id, kind: a.kind, event_date: date || null, title_zh: titleZh, title_en: titleEn, body_zh: (date ? date + '。' : '') + (text || textEn), body_en: (date ? date + '. ' : '') + (textEn || text), source: 'alert' });
+  }
+  return out;
+}
+function noticeKey(n) { return [n.card_id, n.kind, n.event_date || '', n.source, n.body_en.slice(0, 60)].join('|'); }
+async function unsubSig(env, kit, email, card) {
+  return kit.sha('going-unsub|' + email + '|' + card + '|' + (env.ADMIN_TOKEN || env.UNSUB_SECRET || 'going-unsub'));
+}
+export async function enqueueGoingNotices(env, kit) {
+  const map = await goingIndex(env, kit);
+  const created = [];
+  const ts = new Date().toISOString();
+  for (const [id, card] of Object.entries(map)) {
+    for (const n of noticesFromCard({ ...card, id })) {
+      if (DATE_KINDS.includes(n.kind) && !ymdOk(n.event_date)) continue;
+      const key = noticeKey(n);
+      const hit = await env.SDB.prepare('SELECT notice_key FROM going_notice_queue WHERE notice_key=?').bind(key).first();
+      if (hit) continue;
+      await env.SDB.prepare(`INSERT INTO going_notice_queue(notice_key,card_id,kind,event_date,title_zh,title_en,body_zh,body_en,source,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,'queued',?)`)
+        .bind(key, n.card_id, n.kind, n.event_date, n.title_zh, n.title_en, n.body_zh, n.body_en, n.source, ts).run();
+      created.push(key);
+    }
+  }
+  return { created };
+}
+async function noticeMail(env, kit, notice, person) {
+  const zh = person.lang === 'zh';
+  const title = zh ? notice.title_zh : notice.title_en;
+  const body = zh ? notice.body_zh : notice.body_en;
+  const card = await goingCard(env, notice.card_id, kit);
+  const name = card ? cardTitle(card, person.lang) : notice.card_id;
+  const sig = await unsubSig(env, kit, person.email, notice.card_id);
+  const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+  const unsub = base + '/social/going/unsub?e=' + encodeURIComponent(person.email) + '&c=' + encodeURIComponent(notice.card_id) + '&t=' + sig;
+  const subject = (zh ? `本活动更新：${name}` : `Update for ${name}: ${title}`).slice(0, 180);
+  const text = `探戈助理\n\n${name}\n${title}\n${body}\n\n` + (zh
+    ? `这只发给打开了「收本活动更新」的人。退订本活动更新不会取消 Going／Interested：\n${unsub}\n\n没有写明的时间不会编造。`
+    : `This goes only to people who opted in for this event. Unsubscribing does not cancel Going or Interested:\n${unsub}\n\nTimes that were not confirmed are not included.`);
+  await kit.deliver(env, person.email, subject, text, undefined, undefined, { fromName: '探戈助理' });
+}
+export async function sendGoingNotices(env, kit) {
+  if (env.GOING_NOTICE_SEND !== 'on') return { enabled: false, sent: 0, failed: 0, skipped: 0 };
+  const queued = (await env.SDB.prepare("SELECT * FROM going_notice_queue WHERE status='queued'").all()).results || [];
+  let sent = 0, failed = 0, skipped = 0;
+  for (const n of queued) {
+    const people = (await env.SDB.prepare("SELECT i.email email, i.notify notify, COALESCE(u.lang,'en') lang FROM going_intents i LEFT JOIN users u ON u.email=i.email WHERE i.card_id=? AND i.status='active'").bind(n.card_id).all()).results || [];
+    let anyFail = false;
+    for (const p of people) {
+      const done = await env.SDB.prepare('SELECT status FROM going_notice_sends WHERE notice_key=? AND email=?').bind(n.notice_key, p.email).first();
+      if (done && done.status === 'sent') continue;
+      const at = new Date().toISOString();
+      if (!p.notify) {
+        await env.SDB.prepare(`INSERT INTO going_notice_sends(notice_key,email,status,error,at) VALUES(?,?, 'skipped_unsub', NULL, ?)
+          ON CONFLICT(notice_key,email) DO UPDATE SET status='skipped_unsub',at=excluded.at`).bind(n.notice_key, p.email, at).run();
+        skipped++;
+        continue;
+      }
+      try {
+        await noticeMail(env, kit, n, p);
+        await env.SDB.prepare(`INSERT INTO going_notice_sends(notice_key,email,status,error,at) VALUES(?,?, 'sent', NULL, ?)
+          ON CONFLICT(notice_key,email) DO UPDATE SET status='sent',error=NULL,at=excluded.at`).bind(n.notice_key, p.email, at).run();
+        sent++;
+      } catch (e) {
+        anyFail = true; failed++;
+        await env.SDB.prepare(`INSERT INTO going_notice_sends(notice_key,email,status,error,at) VALUES(?,?, 'failed', ?, ?)
+          ON CONFLICT(notice_key,email) DO UPDATE SET status='failed',error=excluded.error,at=excluded.at`).bind(n.notice_key, p.email, String(e && e.message || e).slice(0, 180), at).run();
+      }
+    }
+    await env.SDB.prepare("UPDATE going_notice_queue SET status=?,sent_at=?,error=? WHERE notice_key=?").bind(anyFail ? 'failed' : 'sent', anyFail ? null : new Date().toISOString(), anyFail ? 'recipient_failed' : null, n.notice_key).run();
+  }
+  return { enabled: true, sent, failed, skipped };
+}
+export async function runGoingNotices(env, kit) {
+  const enq = await enqueueGoingNotices(env, kit);
+  const send = await sendGoingNotices(env, kit);
+  return { ...enq, ...send, cc: false };
+}
+export async function goingUnsub(req, env, url, kit) {
+  const sp = url.searchParams;
+  let email = kit.emailParam(sp.get('e')), card = String(sp.get('c') || ''), tok = String(sp.get('t') || ''), go = false;
+  if (req.method === 'POST') {
+    let raw = ''; try { raw = await req.text(); } catch { raw = ''; }
+    const form = new URLSearchParams(raw);
+    email = kit.emailParam(form.get('e')); card = String(form.get('c') || ''); tok = String(form.get('t') || ''); go = form.get('confirm') === '1';
+  }
+  if (!kit.EMAIL_RE.test(email) || !kit.ID_RE.test(card) || tok !== await unsubSig(env, kit, email, card)) return kit.confirmPage(false, '链接无效。 / This link is invalid.');
+  const row = await env.SDB.prepare('SELECT status,intent FROM going_intents WHERE email=? AND card_id=?').bind(email, card).first();
+  if (req.method !== 'POST' || !go) {
+    return new Response(`<!doctype html><meta charset="utf-8"><title>Unsubscribe</title><body style="font-family:system-ui;padding:24px"><p>退订本活动更新不会取消 Going／Interested。 / Unsubscribing does not cancel Going or Interested.</p><form method="post"><input type="hidden" name="e" value="${kit.he(email)}"><input type="hidden" name="c" value="${kit.he(card)}"><input type="hidden" name="t" value="${kit.he(tok)}"><input type="hidden" name="confirm" value="1"><button type="submit">退订本活动更新 / Unsubscribe from this event’s updates</button></form></body>`, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
+  }
+  if (row && row.status === 'active') await env.SDB.prepare('UPDATE going_intents SET notify=0,updated_at=? WHERE email=? AND card_id=?').bind(kit.now(), email, card).run();
+  const still = await env.SDB.prepare('SELECT status,intent,notify FROM going_intents WHERE email=? AND card_id=?').bind(email, card).first();
+  const kept = still && still.status === 'active';
+  return kit.confirmPage(true, kept ? '已退订本活动更新。Going／Interested 还在。 / Unsubscribed from this event’s updates. Going / Interested is unchanged.' : '已退订。 / Unsubscribed.');
+}
+export async function goingNoticeAdmin(req, env, url, b, json, kit) {
+  const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  if (!env.ADMIN_TOKEN || a.length < 24 || a !== env.ADMIN_TOKEN) return json({ error: 'auth' }, 401);
+  if (req.method === 'POST' && url.pathname.endsWith('/run')) {
+    const r = await runGoingNotices(env, kit);
+    return json({ ok: true, ...r });
+  }
+  if (req.method === 'POST') {
+    if (!reviewed(b.reviewed)) return json({ error: 'need_review' }, 400);
+    const id = String(b.card_id || '');
+    if (!kit.ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
+    const kind = b.kind === 'host' ? 'host' : '';
+    const text = clip(b.text, 400), textEn = clip(b.text_en, 400);
+    if (kind !== 'host' || (!text && !textEn)) return json({ error: 'need_text' }, 400);
+    if (b.date && !ymdOk(b.date)) return json({ error: 'bad_date' }, 400);
+    const n = { card_id: id, kind, event_date: ymdOk(b.date) ? b.date : null, title_zh: '主办消息', title_en: 'Organizer message', body_zh: (b.date && ymdOk(b.date) ? b.date + '。' : '') + (text || textEn), body_en: (b.date && ymdOk(b.date) ? b.date + '. ' : '') + (textEn || text), source: 'admin' };
+    const key = noticeKey(n);
+    const hit = await env.SDB.prepare('SELECT notice_key FROM going_notice_queue WHERE notice_key=?').bind(key).first();
+    if (!hit) await env.SDB.prepare(`INSERT INTO going_notice_queue(notice_key,card_id,kind,event_date,title_zh,title_en,body_zh,body_en,source,status,created_at) VALUES(?,?,?,?,?,?,?,?,?,'queued',?)`)
+      .bind(key, n.card_id, n.kind, n.event_date, n.title_zh, n.title_en, n.body_zh, n.body_en, n.source, kit.now()).run();
+    return json({ ok: true, queued: !hit, key, sent: false });
+  }
+  const items = (await env.SDB.prepare('SELECT notice_key,card_id,kind,event_date,status,source,created_at,sent_at,error FROM going_notice_queue ORDER BY created_at DESC LIMIT 100').all()).results || [];
+  return json({ items, send_enabled: env.GOING_NOTICE_SEND === 'on' });
 }

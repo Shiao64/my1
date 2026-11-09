@@ -24,5 +24,6 @@ check('timezone label', star.includes('北京时间'));
 check('cancel no mail copy', star.includes('不会再发邮件给组织者'));
 check('no anonymous like button', !social.includes('>Like<') && !/>\s*赞\s*</.test(social));
 check('star path on fav', fav.includes('M12 2.6l2.6 5.3') && fav.includes('我的活动意向') && fav.includes('ATM_STAR.take'));
+check('zero count stays visible', star.includes('badge.textContent = String(n)') && !star.includes('if (n > 0)'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going copy ok');

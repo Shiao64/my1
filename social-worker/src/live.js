@@ -1,6 +1,6 @@
 // LIVE: tango-subscribe Worker (api.tangoweekend.org). Subscribe/confirm/push from subscribe-worker, plus /social/* (likes, email confirm, WeChat flow v3). The WeChat tab stays disabled.
 import SUB from '../../subscribe-worker/src/index.js';
-import { social, wxExpireSweep, generateGoingStats } from './social.js';
+import { social, wxExpireSweep, generateGoingStats, runGoingNotices } from './social.js';
 import { unsubscribe as unsub2 } from './unsub.js';
 const hostOK = o => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\/\/api\.tangoweekend\.org$/.test(o) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(o);
 export default {
@@ -11,7 +11,7 @@ export default {
     if (url.pathname.startsWith('/social/')) {
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
       // The confirm form is served on this host and checked by the magic token. Mail and WeChat clients may send Origin: null.
-      const postedForm = url.pathname === '/social/confirm' || url.pathname === '/social/going/confirm';
+      const postedForm = url.pathname === '/social/confirm' || url.pathname === '/social/going/confirm' || url.pathname === '/social/going/unsub';
       if (req.method === 'POST' && og && !hostOK(og) && !url.pathname.startsWith('/social/admin/') && !postedForm) return json({ error: 'forbidden_origin' }, 403);
       return social(req, env, url, json);
     }
@@ -31,11 +31,13 @@ export default {
   },
   async scheduled(event, env, ctx) {
     if (event.cron === '17 3 * * *') return SUB.scheduled(event, env, ctx);
-    // Stats drafts stay off until GOING_STATS=on AND this cron is added at deploy time. Not enabled here.
-    if (env.GOING_STATS === 'on' && event.cron === (env.GOING_STATS_CRON || '30 16 * * *')) {
-      ctx.waitUntil(generateGoingStats(env, null).catch(e => console.log('going stats', String(e && e.message || e).slice(0, 160))));
-      return;
-    }
+    // Both stay off until the matching flag is on AND the cron is added at deploy time. Not enabled here.
+    const statsCron = env.GOING_STATS_CRON || '30 16 * * *';
+    const noticeCron = env.GOING_NOTICE_CRON || '30 16 * * *';
+    const jobs = [];
+    if (env.GOING_STATS === 'on' && event.cron === statsCron) jobs.push(generateGoingStats(env, null).catch(e => console.log('going stats', String(e && e.message || e).slice(0, 160))));
+    if (env.GOING_NOTICE_SEND === 'on' && event.cron === noticeCron) jobs.push(runGoingNotices(env, null).catch(e => console.log('going notices', String(e && e.message || e).slice(0, 160))));
+    if (jobs.length) { ctx.waitUntil(Promise.all(jobs)); return; }
     ctx.waitUntil(wxExpireSweep(env).then(r => console.log('wx sweep', JSON.stringify(r))));
   }
 };

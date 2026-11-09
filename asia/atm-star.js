@@ -255,7 +255,13 @@
     }).catch(function () { go.disabled = false; err.textContent = L.fail; });
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  var painting = false;
   function paint() {
+    if (painting) return;
+    painting = true;
+    try { paintHearts(); } finally { painting = false; }
+  }
+  function paintHearts() {
     document.querySelectorAll('.atm-heart').forEach(function (b) {
       if (!b.querySelector('path')) return;
       var path = b.querySelector('path'); if (path && path.getAttribute('d') !== STAR) path.setAttribute('d', STAR);
@@ -266,9 +272,10 @@
       if (known && !ok) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
       else if (mine[id]) { b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var lab = L.manage + ' ' + (mine[id].intent === 'going' ? 'Going' : 'Interested'); b.title = lab; b.setAttribute('aria-label', lab); }
       else { b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-disabled', 'false'); b.title = L.title; b.setAttribute('aria-label', L.title); }
-      var n = counts[id] || 0; var badge = b.parentNode && b.parentNode.querySelector(':scope>.atm-star-n[data-for="' + id + '"]');
-      if (n > 0) { if (!badge && b.parentNode) { badge = document.createElement('span'); badge.className = 'atm-star-n' + (b.classList.contains('p10-heart') ? ' atm-star-inline' : ''); badge.setAttribute('data-for', id); b.parentNode.insertBefore(badge, b); } if (badge) badge.textContent = String(n); }
-      else if (badge) badge.remove();
+      var n = counts[id] || 0;
+      var badge = b.parentNode && b.parentNode.querySelector(':scope>.atm-star-n[data-for="' + id + '"]');
+      if (!badge && b.parentNode) { badge = document.createElement('span'); badge.className = 'atm-star-n' + (b.classList.contains('p10-heart') ? ' atm-star-inline' : ''); badge.setAttribute('data-for', id); b.parentNode.insertBefore(badge, b); }
+      if (badge && badge.textContent !== String(n)) badge.textContent = String(n);
     });
   }
   function paintBar() {
@@ -315,6 +322,6 @@
   refreshMine();
   refreshCounts();
   setInterval(refreshCounts, 60000);
-  var moWait = 0; var mo = new MutationObserver(function () { paint(); if (moWait++ % 8 === 0) refreshCounts(); });
+  var mo = new MutationObserver(function () { if (!painting) paint(); });
   mo.observe(document.documentElement, { childList: true, subtree: true });
 })();

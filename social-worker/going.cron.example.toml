@@ -1,0 +1,18 @@
+# Sample only. Do not deploy this file. Production cron stays the existing
+# "17 3 * * *" cleanup. These flags default off; turning them on is a deploy approval.
+#
+# 30 16 * * * UTC = 00:30 the next calendar day in Asia/Shanghai.
+# Stats drafts never email anyone. Notice send emails only people who left
+# "get updates for this event" on, and it does not CC the organizer.
+
+# name = "tango-subscribe"
+# main = "social-worker/src/live.js"
+
+[vars]
+GOING_STATS = "off"
+GOING_STATS_CRON = "30 16 * * *"
+GOING_NOTICE_SEND = "off"
+GOING_NOTICE_CRON = "30 16 * * *"
+
+# [triggers]
+# crons = ["17 3 * * *", "30 16 * * *"]
