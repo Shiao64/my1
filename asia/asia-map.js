@@ -822,22 +822,37 @@
     function keepLang(){ Array.prototype.forEach.call(document.querySelectorAll('a.atm-langbtn,#atm-menu a.atm-mlang'), function(a){ try { var u = new URL(a.getAttribute('href'), location.href); u.search = '?card=' + encodeURIComponent(cid); u.hash = ''; a.setAttribute('href', u.pathname + u.search); } catch(e){} }); }
     var fullUrl = eventsUrl.replace('events-core.json', 'events.json');
     function get(u){ return loadJson(u).catch(function(){ return []; }); }
+    function freshGet(u){
+      if (!window.atmDataJsonFresh) return Promise.resolve([]);
+      return window.atmDataJsonFresh(u).catch(function(){ return []; });
+    }
     function findCard(L){ return (L || []).filter(function(r){ return r.id === cid && !r.hidden; })[0]; }
-    /* Core first. events-more only when this id is not in core. events.json only if it is in neither. */
-    get(eventsUrl).then(function(core){
-      core = core || [];
-      var hit = findCard(core);
-      if (hit) return [hit, false, core];
-      return get(moreUrl).then(function(more){
-        more = more || [];
-        window._atmMore = more;
-        hit = findCard(more);
-        if (hit) return [hit, true, core.concat(more)];
-        return get(fullUrl).then(function(F){ return [findCard(F), false, core.concat(more)]; });
+    function asList(x){ return Array.isArray(x) ? x : []; }
+    /* Core first. events-more only when this id is not in core. events.json only if it is in neither.
+       A miss can be a stale ?v= cache or the git fallback. One fresh R2 read before calling the card missing. */
+    function search(loader){
+      return loader(eventsUrl).then(function(core){
+        core = asList(core);
+        var hit = findCard(core);
+        if (hit) return [hit, false, core];
+        return loader(moreUrl).then(function(more){
+          more = asList(more);
+          window._atmMore = more;
+          hit = findCard(more);
+          if (hit) return [hit, true, core.concat(more)];
+          return loader(fullUrl).then(function(F){
+            F = asList(F);
+            return [findCard(F), false, core.concat(more, F)];
+          });
+        });
       });
+    }
+    search(get).then(function(res){
+      if (res[0]) return res;
+      return search(freshGet);
     }).then(function(res){
       var r = res[0], more = res[1], all = res[2], T = todayISO();
-      function ended(x){ return !!(x.start && (x.kind === 'event' || x.regular_oneoff) && (x.end || x.start) < T) || x.status === 'ended'; }
+      function ended(x){ return window.atmEventEnded ? window.atmEventEnded(x, T) : (!!(x && x.start && (x.kind === 'event' || x.regular_oneoff) && (x.end || x.start) < T) || !!(x && x.status === 'ended')); }
       var cy = r && r.city ? '&city=' + encodeURIComponent(cityId(r.city)) : '', kr = r && (more || !/^(China|Taiwan|Hong Kong)$/.test(r.country || r.region || '')) ? '&k=Seoul' : '';
       if (r && ended(r) && r.kind === 'event' && !r.regular_oneoff) { /* draft 10/31: expired FEATURED -> original card + ENDED stamp, next edition, recap, city + featured buttons */
         var cn2 = r.city ? cityDisplay(r.city) : '', base2 = location.pathname;
@@ -860,7 +875,14 @@
         Array.prototype.forEach.call(box.querySelectorAll('.atm-recap-a'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); var v = document.createElement('div'); v.className = 'atm-rv'; var i = ph.indexOf(a.getAttribute('href')); v.innerHTML = '<button type="button" aria-label="close">×</button><div class="atm-rv-s">' + ph.map(function(u){ return '<img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">'; }).join('') + '</div>'; document.body.appendChild(v); var sc = v.querySelector('.atm-rv-s'); sc.scrollLeft = i * sc.clientWidth; v.addEventListener('click', function(ev){ if (ev.target.tagName !== 'IMG') v.remove(); }); }); });
         try { document.title = ((isZh && r.name_zh) || r.name) + ' · ' + (isZh ? '已结束 · ' : 'Ended · ') + document.title; } catch(e){}
         keepLang(); setTimeout(keepLang, 1500); return; }
-      if (!r || ended(r)) { /* draft 10/31 v2: proper "ended" card + city View all + 特色活动 + up to 3 upcoming in that city */
+      if (!r) { /* not in core, more, full, or the one fresh R2 retry — not the same as ended */
+        var missH = location.pathname + '?card=' + encodeURIComponent(cid);
+        var missIco = '<svg class="atm-nf-ico" viewBox="0 0 96 96" aria-hidden="true"><rect x="10" y="10" width="68" height="68" rx="16" fill="#0e6e78"/><circle cx="44" cy="42" r="14" fill="none" stroke="#fbf5e9" stroke-width="4"/><path d="M54 52l12 12" stroke="#fbf5e9" stroke-width="4" stroke-linecap="round"/></svg>';
+        box.innerHTML = '<div class="atm-nf-card">' + missIco + '<h2>' + (isZh ? '暂时没有这张活动卡' : 'This card is not on the map') + '</h2><p>' + (isZh ? '地图没有载入这张卡。这不表示活动已结束。' : 'The map could not load this card. That does not mean the event has ended.') + '</p>' +
+          '<a class="atm-all" href="' + esc(missH) + '">' + (isZh ? '再试一次' : 'Try again') + '</a><a class="atm-nf-feat" href="' + esc(location.pathname + '?mode=featured&via=card') + '">' + (isZh ? '★ 特色活动' : '★ Featured events') + '</a></div>';
+        try { document.title = (isZh ? '未找到活动卡 · ' : 'Card not found · ') + document.title; } catch(e){}
+        keepLang(); setTimeout(keepLang, 1500); return; }
+      if (ended(r)) { /* a card that was found and is actually over */
         var cn = r && r.city ? cityDisplay(r.city) : '', base = location.pathname;
         var nx = !r || !r.city ? [] : all.filter(function(x){ return x.city === r.city && !x.hidden && x.id !== r.id && !ended(x) && (x.kind === 'weekly' || (x.end || x.start) >= T); })
           .sort(function(a, b){ var fa = a.kind === 'weekly' ? 1 : 0, fb = b.kind === 'weekly' ? 1 : 0; return fa - fb || String(a.start || '').localeCompare(String(b.start || '')); }).slice(0, 3);
