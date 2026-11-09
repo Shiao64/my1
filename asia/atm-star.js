@@ -9,6 +9,7 @@
   var STAR = 'M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z';
   var L = zh ? {
     grey: '组织者尚未提供邮箱',
+    checking: '正在确认组织者邮箱',
     title: '活动意向',
     explain: '不是购票或正式报名。',
     going: '要参加', interested: '感兴趣',
@@ -44,6 +45,7 @@
     notTicket: 'Going 不是购票或正式报名。'
   } : {
     grey: 'Organizer email not available yet',
+    checking: 'Checking organizer email',
     title: 'Event intent',
     explain: 'Not a ticket or a formal registration.',
     going: 'Going', interested: 'Interested',
@@ -81,7 +83,9 @@
   var css = document.createElement('style');
   css.textContent = '.atm-heart svg path{d:path("' + STAR + '")}.atm-heart path{fill:none;stroke:#b8913a;stroke-width:1.6;stroke-linejoin:round}.atm-heart[aria-pressed="true"] path{fill:#b8913a;stroke:#b8913a}' +
     '.atm-heart.atm-star-off{opacity:1;cursor:not-allowed;background:#e7e2da}.atm-heart.atm-star-off path{stroke:#b0a89c;fill:none}' +
+    '.atm-heart.atm-star-wait{cursor:pointer;background:transparent}.atm-heart.atm-star-wait path{stroke:#0e6e78;fill:none;stroke-dasharray:2.2 1.4}' +
     'html.atm-p10 #atm-c1bar .p10-heart.atm-star-off{cursor:not-allowed!important;background:transparent!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-off path{fill:none!important;stroke:#b0a89c!important}' +
+    'html.atm-p10 #atm-c1bar .p10-heart.atm-star-wait{cursor:pointer!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-wait path{fill:none!important;stroke:#0e6e78!important;stroke-dasharray:2.2 1.4}' +
     '#atm-star{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-end;justify-content:center;background:rgba(6,51,58,.55)}#atm-star[hidden]{display:none}' +
     '#atm-star .asg{background:#fffdf8;width:100%;max-width:480px;max-height:92dvh;overflow:auto;border-radius:16px 16px 0 0;padding:16px 16px 22px;box-sizing:border-box;color:#2a1a14}' +
     '@media(min-width:700px){#atm-star{align-items:center}#atm-star .asg{border-radius:16px;max-height:88vh}}' +
@@ -99,7 +103,8 @@
     '.atm-favbar b{color:#0a4f57}';
   document.head.appendChild(css);
 
-  var mine = {}, drafts = {}, me = null, ready = false, eventsP = null, reach = {}, reachWait = {}, reopen = '';
+  var mine = {}, drafts = {}, me = null, ready = false, eventsP = null, reach = {}, reachWait = {}, reachTries = {}, reachNext = {}, reachTimer = 0, reachWaiters = {}, reopen = '';
+  var REACH_MAX = 3;
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
   function ctxGet() { try { return JSON.parse(localStorage.getItem('atm_star_ctx') || 'null'); } catch (e) { return null; } }
@@ -117,25 +122,68 @@
   }
   function hasEmail(e) { var c = e && e.contacts; var raw = c && !Array.isArray(c) ? String(c.email || '').trim() : ''; return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(raw); }
   function canIntent(e, id) { if (e && hasEmail(e)) return true; if (reach[id] === true) return true; if (reach[id] === false) return false; return null; }
+  function scheduleReach(ms) {
+    if (reachTimer) return;
+    reachTimer = setTimeout(function () { reachTimer = 0; queueReach(); }, ms);
+  }
+  function wakeReach(id) {
+    var list = reachWaiters[id] || [];
+    delete reachWaiters[id];
+    list.forEach(function (fn) { fn(reach[id] === true || reach[id] === false ? reach[id] : null); });
+  }
+  function awaitReach(id) {
+    if (reach[id] === true || reach[id] === false) return Promise.resolve(reach[id]);
+    queueReach();
+    return new Promise(function (resolve) {
+      var done = false;
+      function finish(v) { if (done) return; done = true; resolve(v); }
+      (reachWaiters[id] || (reachWaiters[id] = [])).push(finish);
+      setTimeout(function () { finish(reach[id] === true || reach[id] === false ? reach[id] : null); }, 8000);
+    });
+  }
+  function noteReachFail(chunk) {
+    var wait = 800;
+    chunk.forEach(function (id) {
+      delete reachWait[id];
+      var n = reachTries[id] || 1;
+      wait = Math.max(wait, 700 * Math.pow(2, Math.min(n - 1, 3)));
+      reachNext[id] = Date.now() + wait;
+    });
+    if (chunk.some(function (id) { return (reachTries[id] || 0) < REACH_MAX; })) scheduleReach(wait);
+    chunk.forEach(wakeReach);
+    paint();
+  }
   function queueReach() {
-    var ids = [];
+    var now = Date.now(), ids = [];
     document.querySelectorAll('.atm-heart').forEach(function (b) {
       if (!b.querySelector('path')) return;
-      var id = idOf(b); if (!id || reachWait[id] || Object.prototype.hasOwnProperty.call(reach, id)) return;
+      var id = idOf(b);
+      if (!id || reachWait[id] || reach[id] === true || reach[id] === false) return;
       var e = eventOf(id);
       if (e && hasEmail(e)) return;
       if (!e && !ready) return;
-      ids.push(id); reachWait[id] = 1;
+      if ((reachTries[id] || 0) >= REACH_MAX) return;
+      if (reachNext[id] && now < reachNext[id]) return;
+      if (ids.indexOf(id) < 0) ids.push(id);
     });
     if (!ids.length) return;
     for (var i = 0; i < ids.length; i += 80) {
       (function (chunk) {
+        chunk.forEach(function (id) { reachWait[id] = 1; reachTries[id] = (reachTries[id] || 0) + 1; });
         api('/social/going/reach?ids=' + chunk.map(encodeURIComponent).join(',')).then(function (d) {
-          chunk.forEach(function (id) { delete reachWait[id]; });
-          if (!d || d.error || !d.reach) return;
-          chunk.forEach(function (id) { reach[id] = !!d.reach[id]; });
+          if (!d || d._s >= 400 || d.error || !d.reach || typeof d.reach !== 'object') { noteReachFail(chunk); return; }
+          var again = false;
+          chunk.forEach(function (id) {
+            delete reachWait[id];
+            if (!Object.prototype.hasOwnProperty.call(d.reach, id)) { again = true; reachNext[id] = Date.now() + 800; return; }
+            if (d.reach[id] === true) reach[id] = true;
+            else if (d.reach[id] === false) reach[id] = false;
+            else { again = true; reachNext[id] = Date.now() + 800; }
+          });
+          if (again && chunk.some(function (id) { return reach[id] !== true && reach[id] !== false && (reachTries[id] || 0) < REACH_MAX; })) scheduleReach(800);
+          chunk.forEach(wakeReach);
           paint();
-        }).catch(function () { chunk.forEach(function (id) { delete reachWait[id]; }); });
+        }).catch(function () { noteReachFail(chunk); });
       })(ids.slice(i, i + 80));
     }
   }
@@ -208,7 +256,8 @@
     var id = idOf(b); if (!id) return;
     var e = eventOf(id);
     if (!e) { ensureEvents().then(function () { open(b); }); return; }
-    if (canIntent(e, id) !== true) return;
+    if (canIntent(e, id) === false) return;
+    if (canIntent(e, id) !== true) { awaitReach(id).then(function (v) { if (v === true) open(b); }); return; }
     var saved = mine[id];
     var local = ctxGet();
     var server = drafts[id];
@@ -310,14 +359,16 @@
       if (!b.querySelector('path')) return;
       var path = b.querySelector('path'); if (path && path.getAttribute('d') !== STAR) path.setAttribute('d', STAR);
       var id = idOf(b); if (!id) return;
-      var e = eventOf(id); var known = !!(e || ready);
+      var e = eventOf(id);
       var state = canIntent(e, id);
-      var off = state === false || (state !== true && known && !(e && hasEmail(e)) && reach[id] !== true);
-      if (state === null && !known) off = false;
+      var off = state === false;
+      var waiting = state === null && !!(e || ready) && !(e && hasEmail(e));
       b.classList.toggle('atm-star-off', off);
-      if (off) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
-      else if (mine[id]) { b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var lab = L.manage + ' ' + (mine[id].intent === 'going' ? L.going : L.interested); b.title = lab; b.setAttribute('aria-label', lab); }
-      else { b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-disabled', 'false'); b.title = L.title; b.setAttribute('aria-label', L.title); }
+      b.classList.toggle('atm-star-wait', waiting);
+      if (off) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
+      else if (waiting) { b.setAttribute('aria-disabled', 'false'); b.setAttribute('aria-busy', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.checking; b.setAttribute('aria-label', L.checking); }
+      else if (mine[id]) { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var lab = L.manage + ' ' + (mine[id].intent === 'going' ? L.going : L.interested); b.title = lab; b.setAttribute('aria-label', lab); }
+      else { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-disabled', 'false'); b.title = L.title; b.setAttribute('aria-label', L.title); }
     });
     document.querySelectorAll('.atm-star-n').forEach(function (n) { n.remove(); });
     queueReach();
@@ -374,7 +425,14 @@
     open(b);
   }
   window.ATM_STAR = {
-    take: function (b) { if (b.classList.contains('atm-star-off') || b.getAttribute('aria-disabled') === 'true') return true; open(b); return true; },
+    take: function (b) {
+      if (b.classList.contains('atm-star-off') || b.getAttribute('aria-disabled') === 'true') return true;
+      var id = idOf(b), e = id ? eventOf(id) : null;
+      if (!id || (e && hasEmail(e)) || reach[id] === true) { open(b); return true; }
+      if (reach[id] === false) return true;
+      awaitReach(id).then(function (v) { if (v === true) open(b); else paint(); });
+      return true;
+    },
     paintBar: paintBar, paint: paint, listed: function () { return Object.keys(mine).length; }
   };
   document.addEventListener('atm-more', function () { paint(); });
