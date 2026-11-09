@@ -13,7 +13,7 @@ const home = read('asia/atm-home.js');
 const social = read('asia/atm-social.js');
 check('menu zh is short', menu.includes("sub: '订阅'") && !menu.includes('先登记资料并验证邮箱；之后可在活动五角星选择'));
 check('menu en', menu.includes('Subscribe & event intent') && menu.includes('Register once and verify your email'));
-check('form zh', sub.includes("title: '订阅'") && sub.includes('填写姓名、城市、角色和邮箱，然后验证邮箱') && sub.includes('这里不报名，也不通知组织者') && sub.includes('引带（Leader）') && sub.includes('跟随（follower）') && sub.includes('两者皆可（both）') && !sub.includes('微信验证') && !sub.includes('不定时发送活动更新'));
+check('form zh', sub.includes("title: '订阅'") && sub.includes("desc: '按需发送活动资讯'") && sub.includes('这里不报名，也不通知组织者') && sub.includes('引带（Leader）') && sub.includes('跟随（follower）') && sub.includes('两者皆可（both）') && !sub.includes('微信验证') && !sub.includes('不定时发送活动更新') && sub.includes('alert: 0'));
 check('form en', sub.includes('does not email organizers') && sub.includes("title: 'Subscribe'") && sub.includes("rl: 'Leader'") && sub.includes("rf: 'follower'") && sub.includes("rb: 'both'"));
 check('form posts profile', sub.includes('/social/profile') && sub.includes('alert: 0'));
 check('roles not old labels', !sub.includes("rl: '领舞'"));
