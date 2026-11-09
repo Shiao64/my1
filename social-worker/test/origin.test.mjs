@@ -11,7 +11,7 @@ const dir = '/tmp/atm-origin';
 fs.mkdirSync(dir, { recursive: true });
 const src = fs.readFileSync(path.join(root, 'social-worker/src/live.js'), 'utf8')
   .replace("import SUB from '../../subscribe-worker/src/index.js';\n", 'const SUB = { fetch: async () => new Response("sub") };\n')
-  .replace("import { social, wxExpireSweep } from './social.js';\n", 'const social = async (req, env, url, json) => json({ reached: url.pathname });\nconst wxExpireSweep = async () => ({});\n')
+  .replace("import { social, wxExpireSweep, generateGoingStats, runGoingNotices } from './social.js';\n", 'const social = async (req, env, url, json) => json({ reached: url.pathname });\nconst wxExpireSweep = async () => ({});\nconst generateGoingStats = async () => ({});\nconst runGoingNotices = async () => ({});\n')
   .replace("import { unsubscribe as unsub2 } from './unsub.js';\n", 'const unsub2 = async () => new Response("unsub");\n');
 if (/from ['"]/.test(src)) throw new Error('live.js import stub failed');
 fs.writeFileSync(path.join(dir, 'live.js'), src);
@@ -42,7 +42,7 @@ check('confirm with query still passes', confirmQuery.status === 200 && confirmQ
 check('confirm from api reflects that origin', (await post('/social/confirm', api)).allow === api);
 check('confirm from evil does not reflect it', (await post('/social/confirm', evil)).allow === 'https://tangoweekend.org');
 
-for (const path of ['/social/signup', '/social/like', '/social/comment', '/social/verify', '/social/confirmation']) {
+for (const path of ['/social/signup', '/social/like', '/social/comment', '/social/verify', '/social/confirmation', '/social/going', '/social/profile']) {
   const r = await post(path, evil);
   check(path + ' evil is forbidden', r.status === 403 && r.body.error === 'forbidden_origin' && r.body.reached === undefined);
 }
@@ -62,6 +62,12 @@ const opt = await post('/social/like', evil, 'OPTIONS');
 check('OPTIONS is not the origin gate', opt.status === 204);
 const getConfirm = await post('/social/confirm', evil, 'GET');
 check('GET confirm is not the origin gate', getConfirm.status === 200 && getConfirm.body.reached === '/social/confirm');
+for (const origin of [api, 'null', evil, undefined]) {
+  const r = await post('/social/going/confirm', origin);
+  check('going confirm passes ' + (origin === undefined ? 'missing' : origin), r.status === 200 && r.body.reached === '/social/going/confirm' && r.body.error !== 'forbidden_origin');
+  const u = await post('/social/going/unsub', origin);
+  check('going unsub passes ' + (origin === undefined ? 'missing' : origin), u.status === 200 && u.body.reached === '/social/going/unsub' && u.body.error !== 'forbidden_origin');
+}
 
 if (fail.length) { console.error('FAIL', fail.join(', ')); process.exit(1); }
 console.log('origin gate tests ok');

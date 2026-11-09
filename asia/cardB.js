@@ -209,9 +209,9 @@ function p10bar(name, id){ document.documentElement.classList.add('atm-p10'); va
   var back=bar.querySelector('.atm-c1-back'); if(back&&!back.dataset.p10){ var nb=back.cloneNode(true); nb.dataset.p10='1'; var path=nb.querySelector('path'); if(path) path.setAttribute('stroke','#0A4F57'); back.parentNode.replaceChild(nb, back);
     nb.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); /* v12 fix: no ‹ loop with organizer/DJ pages — only go back in history when we came from a same-site page that is not an organizer/DJ page; else replace with the list */ var rf=null; try{ rf=new URL(document.referrer); }catch(err){} if(rf&&rf.origin===location.origin&&!/\/(organizer|dj)\//.test(rf.pathname)&&history.length>1) history.back(); else if(rf&&rf.origin===location.origin) location.replace(location.pathname); else location.assign(zh?'https://tangoweekend.org/zh/':'https://tangoweekend.org/'); }); }
   if(!bar.querySelector('.p10-heart')){ var host=bar.querySelector('.p10-in')||bar, h=document.createElement('span'); h.className='atm-heart p10-heart ah-sheart'; h.setAttribute('role','button'); h.tabIndex=0; h.setAttribute('data-fid', id); h.setAttribute('data-sid', id);
-    var on=false; try{ on=JSON.parse(localStorage.getItem('atm_fav_v1')||'[]').indexOf(id)>=0; }catch(err){} var lab=on?(zh?'取消收藏':'Remove from favorites'):(zh?'加入收藏':'Add to favorites');
-    h.setAttribute('aria-pressed', on?'true':'false'); h.setAttribute('aria-label', lab); h.title=lab;
-    h.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z"/></svg>'; host.appendChild(h); } }
+    var lab=zh?'活动意向':'Event intent';
+    h.setAttribute('aria-pressed', 'false'); h.setAttribute('aria-label', lab); h.title=lab;
+    h.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z"/></svg>'; host.appendChild(h); } }
 function p10(li, sg, e){ li.dataset.atm='1'; var CHG=p10change(e); if(CHG) e=p10apply(e,CHG); var nameEl=li.querySelector('.ev-name'), name=(nameEl&&nameEl.textContent||'').trim()||((zh&&e.name_zh)||e.name||''); if(/^S[01]$/.test(name)) name=(zh&&e.name_zh)||e.name||name;
   var keep=''; li.querySelectorAll(':scope>.china-cancelled-bar,:scope>.atm-theme-bar').forEach(function(n){ keep+=n.outerHTML; });
   var ven=(!zh&&e.venue_en)||e.venue||''; if(!zh&&/[\u4e00-\u9fff]/.test(ven)&&e.venue_en) ven=e.venue_en;

@@ -1,8 +1,8 @@
 /* draft 2026-10-30: header hamburger menu (footer removed). Holds 分享/复制链接/刷新 (moved from ··· 10/31), 资料来源 (moved .china-disclaimer), 联系我们, 订阅, 提交活动, 语言. Only existing content. */
 (function () {
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅通知', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
-             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Event alerts', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
+  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅与活动意向', subNote: '先登记资料并验证邮箱；之后可在活动五角星选择 Going（要参加）或 Interested（感兴趣）。', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
+             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Subscribe & event intent', subNote: 'Register once and verify your email. Then use the star on an event to choose Going or Interested.', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
   var css = document.createElement('style');
   css.textContent = 'html body footer#contact,html body #contact{display:none!important}' +
     '.atm-burger{width:44px;height:44px;margin:0 0 0 4px;padding:0;border:0;background:transparent;color:#F6D58E;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;position:relative;z-index:5}' +
@@ -13,6 +13,7 @@
     '#atm-menu .atm-mx{float:right;width:44px;height:44px;border:0;background:transparent;font-size:28px;line-height:1;color:#7a6255;cursor:pointer;margin:-4px -10px 0 0}' +
     '#atm-menu .atm-mi{display:flex;align-items:center;width:100%;min-height:48px;padding:0 4px;border:0;border-bottom:1px solid #ead9b8;background:transparent;font:inherit;font-size:1rem;font-weight:700;color:#0a4f57;text-align:left;text-decoration:none;cursor:pointer;box-sizing:border-box}' +
     '#atm-menu .atm-mi small{margin-left:auto;font-weight:400;color:#6B6390;font-size:.85rem}' +
+    '#atm-menu .atm-msubbtn{align-items:flex-start;height:auto;padding-top:10px;padding-bottom:10px}#atm-menu .atm-msubbtn span{display:block;min-width:0}#atm-menu .atm-msubbtn small.atm-md{display:block;margin:2px 0 0;font-weight:400;font-size:.78rem;line-height:1.35;white-space:normal;color:#6B6390}' +
     '#atm-menu .atm-mhd{display:flex;align-items:center;justify-content:space-between;min-height:48px;border-bottom:1px solid #ead9b8;font-size:.85rem;font-weight:700;color:#6B6390;padding-left:4px}#atm-menu .atm-mhd .atm-mx{float:none;margin:0 -10px 0 0}' +
     '#atm-menu .atm-ic{width:20px;height:20px;flex:0 0 20px;margin-right:12px;fill:none;stroke:#0e6e78;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}' +
     'html body #atm-menu details.atm-msrcd{border:0!important;background:none!important;padding:0!important;margin:0!important;box-shadow:none!important;border-radius:0!important}html body #atm-menu details.atm-msrcd>summary{padding:0 4px!important;margin:0!important;border:0!important;border-bottom:1px solid #ead9b8!important;background:none!important;font-size:1rem!important;color:#0a4f57!important}html body #atm-menu details.atm-msrcd>summary:before,html body #atm-menu details.atm-msrcd>summary:after{content:none!important;display:none!important}' +
@@ -38,7 +39,7 @@
   m.innerHTML = '<div class="atm-mbg" data-x></div><div class="atm-mp" role="dialog" aria-modal="true" aria-label="' + L.menu + '"><div class="atm-mhd"><span>' + L.site + '</span><button type="button" class="atm-mx" data-x aria-label="' + L.close + '">&times;</button></div>' +
     (other ? '<a class="atm-mi atm-mlang" href="' + other.getAttribute('href') + '" hreflang="' + (other.getAttribute('hreflang') || '') + '" data-asia-lang-set="' + (other.getAttribute('data-asia-lang-set') || '') + '">' + ic(I.lang) + L.langL + '<small>' + L.lang + '</small></a>' : '') +
     '<button type="button" class="atm-mi" data-a="add">' + ic(I.add) + L.add + '</button>' +
-    '<button type="button" class="atm-mi" data-a="sub">' + ic(I.sub) + L.sub + '</button>' +
+    '<button type="button" class="atm-mi atm-msubbtn" data-a="sub">' + ic(I.sub) + '<span><b>' + L.sub + '</b><small class="atm-md">' + L.subNote + '</small></span></button>' +
     '<button type="button" class="atm-mi" data-a="wx-s">' + ic(I.share) + L.share + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-c">' + ic(I.copy) + L.copy + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-r">' + ic(I.reload) + L.reload + '</button>' +

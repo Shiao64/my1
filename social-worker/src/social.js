@@ -1,5 +1,7 @@
 import { gmailSend } from './smtp.js';
 import { updateFooter } from './unsub.js';
+import { goingConfirm, goingSubmit, goingCancel, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, generateGoingStats, runGoingNotices } from './going.js';
+export { generateGoingStats, runGoingNotices };
 // Asia Tango Map likes API, plus email confirm for the update list. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
 // POST /social/like {id, dev}              -> toggle; one per device per card; {id, n, liked}
@@ -36,16 +38,35 @@ export function safeNext(raw) {
   u.hash = '';
   return u.toString();
 }
-async function deliver(env, to, subject, text, html, headers) {
-  const p = env.SOCIAL_MAIL || 'log';
+function resendFrom(env, name) {
+  const raw = env.RESEND_FROM || 'Asia Tango Map <onboarding@resend.dev>';
+  const m = String(raw).match(/<([^>]+)>/);
+  return (name || 'Asia Tango Map') + ' <' + (m ? m[1] : raw) + '>';
+}
+async function deliver(env, to, subject, text, html, headers, opt) {
+  opt = opt || {};
+  const cc = opt.cc && opt.cc !== to && !/[\r\n]/.test(opt.cc) ? String(opt.cc) : '';
+  const replyTo = opt.replyTo && !/[\r\n]/.test(opt.replyTo) ? String(opt.replyTo) : '';
+  const fromName = opt.fromName || 'Asia Tango Map';
+  // SOCIAL_MAIL is a plain var, not a binding. Production sets it to resend.
+  // EMAIL and SUB_MAIL are the send_email bindings. EMAIL can only mail its
+  // fixed destination, so organizer mail uses SUB_MAIL when the var is unset.
+  const p = String(env.SOCIAL_MAIL || '').trim() || (env.SUB_MAIL && typeof env.SUB_MAIL.send === 'function' ? 'sub_mail' : 'log');
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
-  const hdrs = headers && Object.keys(headers).length ? headers : undefined;
+  const hdrs = Object.assign({}, headers || {});
+  if (cc) hdrs.Cc = cc;
+  if (replyTo) hdrs['Reply-To'] = replyTo;
+  const hasH = Object.keys(hdrs).length ? hdrs : undefined;
   if (p === 'resend') { const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <onboarding@resend.dev>', to: [to], subject, text, ...(html ? { html } : {}), ...(hdrs ? { headers: hdrs } : {}) }) });
+      body: JSON.stringify({ from: resendFrom(env, fromName), to: [to], subject, text, ...(html ? { html } : {}), ...(cc ? { cc: [cc] } : {}), ...(replyTo ? { reply_to: replyTo } : {}), ...(hasH ? { headers: hasH } : {}) }) });
     if (!r.ok) throw new Error('resend ' + r.status + ' ' + (await r.text()).slice(0, 150)); }
-  else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName: 'Asia Tango Map', to, subject, text, html, headers: hdrs });
-  else if (p === 'cloudflare') await env.SOCIAL_MAIL_BINDING.send({ from: { email: env.SENDER, name: 'Asia Tango Map' }, to, subject, text, ...(html ? { html } : {}), ...(hdrs ? { headers: hdrs } : {}) });
-  else console.log(`[mail:log] to=${to} subject=${subject}${hdrs ? ' ' + JSON.stringify(hdrs) : ''}\n${text}${html ? '\n' + html : ''}`);
+  else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName, to, cc, replyTo, subject, text, html, headers: hasH });
+  else if (p === 'sub_mail' || p === 'cloudflare') {
+    const binding = env.SUB_MAIL;
+    if (!binding || typeof binding.send !== 'function') throw new Error('SUB_MAIL binding missing');
+    await binding.send({ from: { email: env.SENDER || 'subscribe@tangoweekend.org', name: fromName }, to, ...(cc ? { cc: [cc] } : {}), ...(replyTo ? { replyTo } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}) });
+  }
+  else console.log(`[mail:log] from=${fromName} to=${to}${cc ? ' cc=' + cc : ''}${replyTo ? ' reply-to=' + replyTo : ''} subject=${subject}${hasH ? ' ' + JSON.stringify(hasH) : ''}\n${text}${html ? '\n' + html : ''}`);
   return p;
 }
 async function sendCode(env, to, name, code, lang) {
@@ -62,9 +83,9 @@ async function sendMagic(env, to, name, url, lang) {
   const cta = zh ? '确认订阅' : 'Confirm subscription';
   const subject = zh ? '请确认订阅亚洲探戈地图' : 'Please confirm your Asia Tango Map subscription';
   const text = zh
-    ? `你好 ${name}，\n\n请在 60 分钟内打开下面的链接，再点「确认」完成订阅：\n\n${url}\n\n确认后，若你选择了接收更新，会不定时收到亚洲探戈地图的活动更新。\n\n若你并未申请订阅，忽略即可。\n\n随时可退订，我们不会把你的信息给别人。\n退订：${foot.url}\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
-    : `Hello ${name},\n\nOpen the link below within 60 minutes, then tap Confirm to finish subscribing:\n\n${url}\n\nAfter you confirm, you'll get occasional Asia Tango Map event updates if you chose to receive them.\n\nIf you didn't ask to subscribe, you can ignore this email.\n\nUnsubscribe anytime. We never share your information.\nUnsubscribe: ${foot.url}\n\nAsia Tango Map\nhttps://tangoweekend.org`;
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? '你好 ' + name + '，' : 'Hello ' + name + ',')}</p><p>${zh ? '请在 60 分钟内打开下面的链接，再点「确认」完成订阅：' : 'Open the link below within 60 minutes, then tap Confirm to finish subscribing:'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p>${zh ? '确认后，若你选择了接收更新，会不定时收到亚洲探戈地图的活动更新。' : 'After you confirm, you\'ll get occasional Asia Tango Map event updates if you chose to receive them.'}</p><p>${zh ? '若你并未申请订阅，忽略即可。' : 'If you didn\'t ask to subscribe, you can ignore this email.'}</p><p>${zh ? '随时可退订，我们不会把你的信息给别人。' : 'Unsubscribe anytime. We never share your information.'}<br><a href="${he(foot.url)}">${zh ? '退订' : 'Unsubscribe'}</a></p><p>亚洲探戈地图 Asia Tango Map<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
+    ? `你好 ${name}，\n\n请在 60 分钟内打开下面的链接，再点「确认」完成订阅：\n\n${url}\n\n确认后，若你选择了接收更新，会不定时收到亚洲探戈地图的活动更新。\n\n若你并未申请订阅，忽略即可。\n\n随时可退订。我们不会出售你的信息。点五角星确认 Going 或 Interested 时，姓名和邮箱会发给该活动的组织者。\n退订：${foot.url}\n\n亚洲探戈地图 Asia Tango Map\nhttps://tangoweekend.org`
+    : `Hello ${name},\n\nOpen the link below within 60 minutes, then tap Confirm to finish subscribing:\n\n${url}\n\nAfter you confirm, you'll get occasional Asia Tango Map event updates if you chose to receive them.\n\nIf you didn't ask to subscribe, you can ignore this email.\n\nUnsubscribe anytime. We do not sell your information. If you confirm Going or Interested on a star, your name and email go to that organizer.\nUnsubscribe: ${foot.url}\n\nAsia Tango Map\nhttps://tangoweekend.org`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${he(zh ? '你好 ' + name + '，' : 'Hello ' + name + ',')}</p><p>${zh ? '请在 60 分钟内打开下面的链接，再点「确认」完成订阅：' : 'Open the link below within 60 minutes, then tap Confirm to finish subscribing:'}</p><p style="margin:22px 0"><a href="${he(url)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${cta}</a></p><p>${zh ? '确认后，若你选择了接收更新，会不定时收到亚洲探戈地图的活动更新。' : 'After you confirm, you\'ll get occasional Asia Tango Map event updates if you chose to receive them.'}</p><p>${zh ? '若你并未申请订阅，忽略即可。' : 'If you didn\'t ask to subscribe, you can ignore this email.'}</p><p>${zh ? '随时可退订。我们不会出售你的信息。点五角星确认 Going 或 Interested 时，姓名和邮箱会发给该活动的组织者。' : 'Unsubscribe anytime. We do not sell your information. If you confirm Going or Interested on a star, your name and email go to that organizer.'}<br><a href="${he(foot.url)}">${zh ? '退订' : 'Unsubscribe'}</a></p><p>亚洲探戈地图 Asia Tango Map<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
   if (/ATM互动|探戈雷达/.test(subject + text + html)) throw new Error('internal name in mail');
   return deliver(env, to, subject, text, html, foot.headers);
 }
@@ -221,10 +242,23 @@ async function confirmLink(req, env, url) {
   return donePage(u.lang === 'zh' ? 'zh' : 'en', dest.toString(), unsub);
 }
 
+function goingKit() { return { sha, he, clean, now, rnd, turnstile, deliver, safeNext, emailParam, confirmPage, confirmFields, issueSession, applyList, EMAIL_RE, ID_RE, DEV_RE }; }
 export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
   if (p === '/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return confirmLink(req, env, url);
+  if (p === '/going/config' && req.method === 'GET') return json({ sitekey: env.TURNSTILE_SITEKEY || '' });
+  if (p === '/going/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingConfirm(req, env, url, goingKit());
+  if (p === '/going/unsub' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingUnsub(req, env, url, goingKit());
+  if (p === '/going/counts' && req.method === 'GET') return goingCounts(url, env, json);
+  if (p === '/going/dates' && req.method === 'GET') return goingDates(url, env, json, goingKit());
+  if (p === '/going/mine' && req.method === 'GET') return goingMine(req, env, json);
   let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400); } }
+  if (p === '/profile' && req.method === 'POST') return goingProfile(req, env, b, ip, iph, json, goingKit());
+  if (p === '/going' && req.method === 'POST') return goingSubmit(req, env, b, ip, iph, json, goingKit());
+  if (p === '/going/cancel' && req.method === 'POST') return goingCancel(req, env, b, json, goingKit());
+  if (p === '/going/restore' && req.method === 'POST') return goingRestore(req, env, b, ip, json, goingKit());
+  if ((p === '/admin/going-reports' || p === '/admin/going-reports/run') && (req.method === 'GET' || req.method === 'POST')) return goingAdmin(req, env, url, b, json, goingKit());
+  if ((p === '/admin/going-notices' || p === '/admin/going-notices/run') && (req.method === 'GET' || req.method === 'POST')) return goingNoticeAdmin(req, env, url, b, json, goingKit());
   if (p === '/likes' && req.method === 'GET') {
     const ids = (url.searchParams.get('ids') || '').split(',').filter(x => ID_RE.test(x)).slice(0, 100), dev = url.searchParams.get('dev') || '';
     const counts = {}, mine = []; if (!ids.length) return json({ counts, mine });

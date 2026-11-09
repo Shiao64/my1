@@ -1,0 +1,13 @@
+# NOT a deploy file. Do not pass this to wrangler deploy.
+# Production already has two crons. Keep both. Do not replace them with this sample.
+#   */10 * * * *   WeChat expire sweep (already live)
+#   17 3 * * *     unconfirmed subscribe cleanup (already live)
+#
+# Stats drafts and per-event notice mail stay off.
+# Do not set these vars and do not add this cron until a later approval:
+#   GOING_STATS = "on"           # writes review drafts only, never emails
+#   GOING_NOTICE_SEND = "on"     # user update mail, no organizer CC
+#   extra cron "30 16 * * *"     # 00:30 Asia/Shanghai
+#
+# The live config is subscribe-worker/wrangler.toml.
+# Deploy steps: docs/going-deploy.md

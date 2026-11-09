@@ -1,0 +1,30 @@
+// Copy checks for the star / subscribe UI. Run: node social-worker/test/going-copy.test.mjs
+import fs from 'node:fs';
+import path from 'node:path';
+const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
+const read = f => fs.readFileSync(path.join(root, f), 'utf8');
+const fail = [];
+const check = (name, ok) => { if (!ok) fail.push(name); };
+const star = read('asia/atm-star.js');
+const sub = read('asia/asia-subscribe.js');
+const menu = read('asia/atm-menu.js');
+const fav = read('asia/asia-fav.js');
+const social = read('asia/atm-social.js');
+check('menu zh', menu.includes('订阅与活动意向') && menu.includes('先登记资料并验证邮箱'));
+check('menu en', menu.includes('Subscribe & event intent') && menu.includes('Register once and verify your email'));
+check('form zh', sub.includes('此处不会向任何组织者发信') && sub.includes('引带（Leader）') && sub.includes('跟随（follower）') && sub.includes('两者皆可（both）'));
+check('form en', sub.includes('does not email organizers') && sub.includes("rl: 'Leader'") && sub.includes("rf: 'follower'") && sub.includes("rb: 'both'"));
+check('form posts profile', sub.includes('/social/profile') && sub.includes('alert: 0'));
+check('roles not old labels', !sub.includes("rl: '领舞'"));
+check('grey copy', star.includes('组织者尚未提供邮箱') && star.includes('Organizer email not available yet'));
+check('disclose cc', star.includes('Selecttango@gmail.com') && star.includes('确认意向') && star.includes('Confirm intent'));
+check('not a like', star.includes('不是点赞') && star.includes('not a like'));
+check('bar', star.includes('我的活动意向') && star.includes('My event intents'));
+check('timezone label', star.includes('北京时间'));
+check('cancel no mail copy', star.includes('不会再发邮件给组织者'));
+check('no anonymous like button', !social.includes('>Like<') && !/>\s*赞\s*</.test(social));
+check('star path on fav', fav.includes('M12 2.6l2.6 5.3') && fav.includes('我的活动意向') && fav.includes('ATM_STAR.take'));
+check('zero count stays visible', star.includes('badge.textContent = String(n)') && !star.includes('if (n > 0)'));
+check('site key comes from the worker', star.includes('/social/going/config') && !star.includes('TURNSTILE_SECRET'));
+if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
+console.log('going copy ok');
