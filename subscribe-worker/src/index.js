@@ -21,7 +21,7 @@ const T = {
     wBody: '谢谢订阅！以后有新活动，我们会发邮件通知您。',
     okPage: '订阅成功！欢迎邮件已发到您的邮箱。', already: '您已经订阅过了，不需要再确认。',
     bad: '链接无效或已过期（7天），请重新订阅。', unsub: '已退订，您不会再收到新活动通知。',
-    unsubLine: '退订', foot: '随时可退订，不会把您的信息给别人。', back: '返回亚洲探戈地图', home: 'https://tangoweekend.org/zh/asia/'
+    unsubLine: '退订', foot: '随时可退订。这封信只关于地图通知。点五角星确认 Going 或 Interested 时，姓名和邮箱才会发给该活动组织者。', back: '返回亚洲探戈地图', home: 'https://tangoweekend.org/zh/asia/'
   },
   en: {
     cSubj: 'Please confirm: Asia Tango Map event alerts',
@@ -30,7 +30,7 @@ const T = {
     wBody: "Thanks for subscribing! We'll email you when new events are added.",
     okPage: "You're subscribed! A welcome email is on its way.", already: "You're already subscribed. Nothing more to do.",
     bad: 'This link is invalid or has expired (7 days). Please subscribe again.', unsub: "You're unsubscribed. You won't get any more event alerts.",
-    unsubLine: 'Unsubscribe', foot: 'Unsubscribe anytime. We never share your info.', back: 'Back to the Asia Tango Map', home: 'https://tangoweekend.org/asia/'
+    unsubLine: 'Unsubscribe', foot: 'Unsubscribe anytime. This mail is only about map alerts. Your name and email go to an organizer only if you confirm Going or Interested on a star.', back: 'Back to the Asia Tango Map', home: 'https://tangoweekend.org/asia/'
   }
 };
 

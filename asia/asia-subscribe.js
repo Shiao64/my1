@@ -6,17 +6,17 @@
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
   var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
   var L = zh ? {
-    btn: '✉ 新活动通知', title: '订阅通知', desc: '订阅亚洲探戈地图的活动通知。留下姓名、城市、角色和邮箱，点确认邮件后即可收到不定期更新。', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '领舞', rf: '跟舞', rb: '双角色', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色（领舞、跟舞或双角色）。', wxNeed: '', okWx: '',
+    btn: '✉ 订阅与活动意向', title: '订阅与活动意向', desc: '填写姓名、邮箱、城市、角色并验证邮箱。验证后资料保存在账户下。此处不会向任何组织者发信，也不会自动标记某个活动。要表达参加意向，请到具体活动点五角星。', name: '姓名（必填）', namePh: '您的姓名', city: '城市（必填）', cityPh: '所在城市', role: '角色（必填）', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。', wxNeed: '', okWx: '',
     email: '邮箱', emailPh: 'name@example.com', wx: '微信号', wxPh: '您的微信号', hint: '',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '确认邮件发送失败，请检查邮箱地址或稍后再试。',
-    submit: '订阅', sending: '提交中…', ok: '确认邮件已发出。请打开邮箱，点邮件里的链接（7天内有效，没收到请看垃圾邮件）。',
-    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '随时可退订，不会把您的信息给别人。', close: '关闭'
+    submit: '发送验证邮件', sending: '提交中…', ok: '验证邮件已发出，请查收。未验证前不会亮星，也不会通知组织者。', saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
+    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '同一设备验证通过后，再选 Going／Interested 无需重复验证。此处只保存资料，不等于订阅全部城市或全部活动，也不会向组织者发信。', close: '关闭'
   } : {
-    btn: '✉ Get event alert', title: 'Subscribe for alerts', desc: 'Subscribe to Asia Tango Map event alerts. Leave your name, city, role, and email. After you confirm the email, you\'ll get occasional updates.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'Follower', rb: 'Both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose leader, follower, or both.', wxNeed: '', okWx: '',
+    btn: '✉ Subscribe & event intent', title: 'Subscribe & event intent', desc: 'Enter your name, email, city, and role, then verify your email. This saves your profile only—it does not email organizers or mark any event. To share intent, tap the star on an event.', name: 'Name (required)', namePh: 'Your name', city: 'City (required)', cityPh: 'Your city', role: 'Role (required)', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.', wxNeed: '', okWx: '',
     email: 'Email', emailPh: 'name@example.com', hint: '',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the confirmation email. Please check the address or try again later.', bad: 'Please check your email address.',
-    submit: 'Subscribe', sending: 'Sending…', ok: 'Confirmation email sent. Open it and tap the link (valid 7 days; check spam).',
-    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Unsubscribe anytime. We never share your info.', close: 'Close'
+    submit: 'Send verification email', sending: 'Sending…', ok: 'Verification email sent. We won’t light the star or notify the organizer until you verify.', saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
+    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'After one verification on this device, you won’t need to verify again to choose Going or Interested. Saving your profile does not subscribe you to every city or every event, and it does not email organizers.', close: 'Close'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
     '.tsub-open{background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;border-radius:999px;padding:5px 14px;font-size:.78rem;font-weight:700;line-height:1.2;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:background .15s,transform .15s}' +
@@ -92,11 +92,12 @@
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
     if ($('tsub-hp').value) { ok.textContent = L.ok; ok.hidden = false; return; }
     go.disabled = true; go.textContent = L.sending;
-    fetch(API + '/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ types: ['featured', 'regular'], cities: [], name: nm, email: em, wechat: '', lang: zh ? 'zh' : 'en', website: $('tsub-hp').value, city: cy, role: role }) })
+    var headers = { 'Content-Type': 'application/json' }; try { var tok = localStorage.getItem('atm_session'); if (tok) headers.Authorization = 'Bearer ' + tok; } catch (e2) {}
+    fetch(API + '/social/profile', { method: 'POST', headers: headers, body: JSON.stringify({ name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: 0, ret: location.href.split('#')[0], website: $('tsub-hp').value, ts: '' }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.ok) {
-          ok.textContent = L.ok; ok.hidden = false; $('tsub-f').reset();
+          ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false; if (!d.session) $('tsub-f').reset();
           if (tmr) clearTimeout(tmr);
           tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 6000);
         }

@@ -368,10 +368,10 @@ window.CHINA_UI = {
 </script>
 <script defer src="atm-data.js?v=r7"></script>
 <script defer src="asia-map.js?v=china465"></script>
-<script defer src="atm-later.js?v=lt2"></script>
-<script defer src="/asia/atm-home.js?v=h133"></script>
+<script defer src="atm-later.js?v=lt3"></script>
+<script defer src="/asia/atm-home.js?v=h134"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="asia-howto.js?v=china278"></script> -->
-<script defer src="asia-subscribe.js?v=sub57"></script>
+<script defer src="asia-subscribe.js?v=sub58"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏|FAVORITES/i.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'Milonga',practica:'Práctica',festival:'Festival',event:'Event',marathon:'Marathon',championship:'Championship',encuentro:'Encuentro',weekend:'Weekend'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
@@ -434,7 +434,7 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<script defer src="/asia/cardB.js?v=cb143"></script>
+<script defer src="/asia/cardB.js?v=cb144"></script>
 <!-- atm-stw-popup v5 (entry ad = E093; cover and card open the event page, not the poster file) -->
 
 <div id="atm-pop" role="dialog" aria-modal="true" aria-label="4th Beijing Select Tango Weekend"><div class="ap-wrap"><ul class="china-list ev-list"></ul><span class="ap-ad">Ad</span></div><button type="button" class="ap-x" aria-label="Close">&times;</button></div>
@@ -559,6 +559,7 @@ var html=(city?'<span class="atm-oh-city">'+esc(city)+' ·</span>':'')+'<span>'+
 var o=h.previousElementSibling;if(!o||!o.classList.contains('atm-onehead')){o=D.createElement('div');o.className='atm-onehead';o.setAttribute('role','heading');o.setAttribute('aria-level','2');p.insertBefore(o,h)}
 if(o._h!==html){o._h=html;o.innerHTML=html}o.classList.toggle('atm-oh-reg',reg);if(o.getAttribute('data-n')!==String(n))o.setAttribute('data-n',n);if((o.getAttribute('data-city')||'')!==city)o.setAttribute('data-city',city);if(!h.classList.contains('atm-oh-hide'))h.classList.add('atm-oh-hide');var fl=h.nextElementSibling;if(fl&&fl.classList.contains('china-from-line')&&!fl.classList.contains('atm-oh-hide'))fl.classList.add('atm-oh-hide')})}
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).observe(D.body,{childList:true,subtree:true,characterData:true});addEventListener('load',run);D.addEventListener('change',function(){setTimeout(run,120)})})();</script>
-<script defer src="/asia/atm-social.js?v=s29"></script>
+<script defer src="/asia/atm-social.js?v=s30"></script>
+<script defer src="/asia/atm-star.js?v=st1"></script>
 </body>
 </html>

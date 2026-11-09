@@ -9,6 +9,7 @@ const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../.
 const dir = '/tmp/atm-confirm';
 fs.mkdirSync(dir, { recursive: true });
 fs.copyFileSync(path.join(root, 'social-worker/src/unsub.js'), path.join(dir, 'unsub.js'));
+fs.copyFileSync(path.join(root, 'social-worker/src/going.js'), path.join(dir, 'going.js'));
 const src = fs.readFileSync(path.join(root, 'social-worker/src/social.js'), 'utf8')
   .replace("import { gmailSend } from './smtp.js';\n", 'const gmailSend = async () => { throw new Error("no smtp"); };\n');
 fs.writeFileSync(path.join(dir, 'social.js'), src);

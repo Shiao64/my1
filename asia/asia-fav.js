@@ -5,7 +5,7 @@
 (function () {
   var KEY = 'atm_fav_v1', mem = null;
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var T = zh ? { title: '我的收藏', clear: '清除', add: '加入收藏', del: '取消收藏' } : { title: 'My favorites', clear: 'Clear', add: 'Add to favorites', del: 'Remove from favorites' };
+  var T = zh ? { title: '我的活动意向', clear: '清除', add: '活动意向', del: '管理意向' } : { title: 'My event intents', clear: 'Clear', add: 'Event intent', del: 'Manage intent' };
   function load() { if (mem) return mem.slice(); try { var a = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(a) ? a.filter(function (x) { return typeof x === 'string'; }) : []; } catch (e) { return []; } }
   function save(a) { mem = null; try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) { mem = a.slice(); } }
   function byId() { var m = {}; (window._chinaData || []).forEach(function (r) { if (!r.hidden) m[r.id] = r; }); return m; }
@@ -15,7 +15,7 @@
      so un-saving persists. Cards un-saved this session stay in the row with a hollow heart so a second tap re-saves. */
   var SK = 'atm_fav_seeded_v1', SEED = ['manual-hz-jinsha', 'cwCbtm27', 'E093'], ghost = [];
   (function () { try { if (localStorage.getItem(SK) === '1') return; /* v11.6: no more seeding — seeded ids made a first heart tap UN-save (e.g. 杭州金沙 vanished from favorites) */ localStorage.setItem(SK, '1'); } catch (e) {} })();
-  var HP = 'M12 21s-7.5-4.6-9.5-9.2C1 8.3 3.2 5 6.6 5c2.1 0 3.5 1.1 5.4 3.1C13.9 6.1 15.3 5 17.4 5 20.8 5 23 8.3 21.5 11.8 19.5 16.4 12 21 12 21z';
+  var HP = 'M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z';
   var css = document.createElement('style');
   css.textContent = '.atm-heart{position:absolute;top:6px;right:6px;z-index:4;width:34px;height:34px;padding:0;border:0;border-radius:50%;background:rgba(255,255,255,.92);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center}' +
     '.atm-heart svg{width:20px;height:20px;display:block}.atm-heart path{fill:none;stroke:#C8102E;stroke-width:2;stroke-linejoin:round}' +
@@ -34,7 +34,7 @@
   var CK = 'atm_fav_collapsed_v1', TK = 'atm_fav_toasted_v1', memC = false, memT = false;
   function getC() { try { return localStorage.getItem(CK) === '1'; } catch (e) { return memC; } }
   function setC(v) { memC = v; try { localStorage.setItem(CK, v ? '1' : '0'); } catch (e) {} }
-  var T2 = zh ? { hint: '点卡片右上角的心，加入我的收藏', toast: '已加入我的收藏' } : { hint: 'Tap the heart on a card to save it', toast: 'Saved to My favorites' };
+  var T2 = zh ? { hint: '点五角星选择 Going 或 Interested。验证邮箱后显示在这里。', toast: '已记录活动意向' } : { hint: 'Tap the star to choose Going or Interested. It shows here after you verify your email.', toast: 'Intent saved' };
   var bar = document.createElement('button'); bar.type = 'button'; bar.className = 'atm-favbar';
   var grid = document.createElement('div'); grid.className = 'tw-m-feat-grid tw-feat-ad atm-favgrid';
   function hostGrid() { return document.querySelector('.tw-m-feat-grid.tw-feat-ad:not(.atm-favgrid)'); }
@@ -112,12 +112,14 @@
     });
   }
   var busy = false, mo = null, tm = null;
-  function refresh() { busy = true; try { place(); var ids = valid(), m0 = byId(); ghost = ghost.filter(function (x) { return ids.indexOf(x) < 0 && m0[x]; }); var show = ids.slice(); ghost.forEach(function (g) { var p = (grid._k || '').split(',').indexOf(g); if (p < 0 || p > show.length) show.push(g); else show.splice(p, 0, g); }); document.documentElement.classList.toggle('atm-has-fav', show.length > 0); hearts(ids); var on = {}; ids.forEach(function (x) { on[x] = 1; }); hostHearts(on); drawRow(ids, show); } finally { busy = false; } if (mo) mo.takeRecords(); }
+  function refresh() { busy = true; try { place(); var ids = valid(); hearts(ids); var on = {}; ids.forEach(function (x) { on[x] = 1; }); hostHearts(on); if (window.ATM_STAR && window.ATM_STAR.paintBar && window.ATM_STAR.paintBar()) { if (window.ATM_STAR.paint) window.ATM_STAR.paint(); } else { var m0 = byId(); ghost = ghost.filter(function (x) { return ids.indexOf(x) < 0 && m0[x]; }); var show = ids.slice(); ghost.forEach(function (g) { var p = (grid._k || '').split(',').indexOf(g); if (p < 0 || p > show.length) show.push(g); else show.splice(p, 0, g); }); document.documentElement.classList.toggle('atm-has-fav', show.length > 0); drawRow(ids, show); } } finally { busy = false; } if (mo) mo.takeRecords(); }
   function toggle(id) { var a = load(), i = a.indexOf(id); if (i >= 0) { a.splice(i, 1); if (grid.querySelector('[data-fid="' + id + '"]')) ghost.push(id); } else { var gp = ghost.indexOf(id) >= 0 ? (grid._k || '').split(',').indexOf(id) : -1; if (gp >= 0) a.splice(Math.min(gp, a.length), 0, id); else a.unshift(id); firstToast(); } save(a); refresh(); }
-  document.addEventListener('keydown', function (e) { var b = e.target.closest && e.target.closest('.atm-favfc .atm-heart,.atm-hostfc .atm-heart'); if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); b.click(); } }, true);
+  document.addEventListener('keydown', function (e) { var b = e.target.closest && e.target.closest('.atm-heart'); if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); if (window.ATM_STAR && window.ATM_STAR.take(b)) return; b.click(); } }, true);
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('.atm-heart'); if (!b) return;
-    e.preventDefault(); e.stopPropagation(); var li = b.closest('.ev-card[data-id]'); if (li) toggle(li.getAttribute('data-id')); else if ((li = b.closest('[data-fid]'))) toggle(li.getAttribute('data-fid'));
+    e.preventDefault(); e.stopPropagation();
+    if (window.ATM_STAR && window.ATM_STAR.take(b)) return;
+    var li = b.closest('.ev-card[data-id]'); if (li) toggle(li.getAttribute('data-id')); else if ((li = b.closest('[data-fid]'))) toggle(li.getAttribute('data-fid'));
   }, true);
   window.ATM_FAV = { get: valid, toggle: toggle, refresh: refresh };
   var lst = document.getElementById('china-listings');
