@@ -18,6 +18,17 @@
     var m = String(url || '').match(/([^/?#]+\.json)(?:$|[?#])/);
     return m ? m[1] : '';
   }
+  /* The page's ?v=chinaNNN (or ?v=eNNN) is the cache key. R2 must keep it.
+     Dropping the query leaves one unversioned URL that mobile and WeChat
+     can hold after the card data changes. Preload uses the same query. */
+  function jsonQuery(url) {
+    var s = String(url || '');
+    var q = s.indexOf('?');
+    if (q < 0) return '';
+    var h = s.indexOf('#', q);
+    var query = h < 0 ? s.slice(q) : s.slice(q, h);
+    return query.length > 1 ? query : '';
+  }
   /* One in-flight promise per JSON file for this page load. Default cache
      mode so a preload and HTTP Cache-Control / ETag can satisfy it. Do not
      pass cache:'no-cache' — that is a different cache key from <link rel=preload>
@@ -37,7 +48,7 @@
     var p;
     if (!b || !file) p = localFetch(localUrl);
     else {
-      var remote = b + '/asia/' + file;
+      var remote = b + '/asia/' + file + jsonQuery(localUrl);
       var opts = {};
       if (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(2500);
       p = fetch(remote, opts).then(function (r) {
@@ -51,6 +62,69 @@
     inflight[name] = p;
     p.catch(function () { if (inflight[name] === p) delete inflight[name]; });
     return p;
+  };
+  /* One extra R2 read for a ?card= id the cached/fallback lists did not have.
+     A new query misses the long-lived ?v=china object. It does not replace
+     the normal inflight fetch, and it does not fall back to the git file. */
+  w.atmDataJsonFresh = function (localUrl) {
+    var b = base(), file = jsonName(localUrl);
+    if (!b || !file) return localFetch(localUrl);
+    var q = jsonQuery(localUrl);
+    var remote = b + '/asia/' + file + q + (q ? '&' : '?') + 'atmbust=1';
+    var opts = {};
+    if (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opts.signal = AbortSignal.timeout(4000);
+    return fetch(remote, opts).then(function (r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }).then(function (data) {
+      w.ATM_DATA_OK = true;
+      return data;
+    });
+  };
+  /* A poisoned CDN image (null bytes, or a 404 cached for 30 days) is skipped
+     once. A second call returns '' so a probe cannot loop. */
+  w.atmPosterRetryUrl = function (url) {
+    var s = String(url || '');
+    if (!s || s.indexOf('atmbust=') >= 0) return '';
+    return s + (s.indexOf('?') >= 0 ? '&' : '?') + 'atmbust=1';
+  };
+  function pickCard(groups, id) {
+    if (!groups) return null;
+    for (var g = 0; g < groups.length; g++) {
+      var list = groups[g] || [];
+      for (var i = 0; i < list.length; i++) {
+        var row = list[i];
+        if (row && row.id === id && !row.hidden) return row;
+      }
+    }
+    return null;
+  }
+  w.atmEventEnded = function (row, today) {
+    if (!row) return false;
+    var end = row.end || row.start || '';
+    var dated = !!(row.start && (row.kind === 'event' || row.regular_oneoff) && end && String(end) < String(today || ''));
+    return dated || row.status === 'ended';
+  };
+  /* staleGroups missed the id (old ?v= cache or git fallback). freshGroups is
+     the one retry, or null when that retry failed. Missing is not ended. */
+  w.atmResolveCard = function (staleGroups, freshGroups, id, today) {
+    var row = pickCard(staleGroups, id);
+    if (!row && freshGroups) row = pickCard(freshGroups, id);
+    return { row: row, fate: !row ? 'missing' : (w.atmEventEnded(row, today) ? 'ended' : 'found') };
+  };
+  /* Old public ids that are the same event as another card. No alias field on
+     the row: ?card=E163 must leave the map before missing/ended UI. */
+  w.atmCardAliasHref = function (id, zh, search, hash) {
+    var base = ({ E163: '/event/chengdu-2027-ich-tango-festival/' })[id];
+    if (!base) return '';
+    var params;
+    try { params = new URLSearchParams(String(search || '').replace(/^\?/, '')); }
+    catch (e) { params = new URLSearchParams(); }
+    params.delete('card');
+    var q = params.toString();
+    var h = hash || '';
+    if (h && h.charAt(0) !== '#') h = '#' + h;
+    return base + (zh ? 'zh/' : '') + (q ? '?' + q : '') + h;
   };
   w.atmPosterUrl = function (path) {
     if (!path) return path;
@@ -120,33 +194,40 @@
     function goFull() {
       if (!alive() || bigOk || img.getAttribute('data-atm-fell') === '1') return;
       img.setAttribute('data-atm-fell', '1');
-      paint('full', '', (big && big.full) || (small && small.full) || '');
+      var full = (big && big.full) || (small && small.full) || '';
+      var again = w.atmPosterRetryUrl(full);
+      paint('full', '', again || full);
     }
-    function probe(urls, low, ok, bad) {
+    function loadImg(src, low, ok, bad) {
+      if (!src) { bad(); return; }
       var im = new Image();
       try { im.fetchPriority = low ? 'low' : 'high'; } catch (e3) {}
-      im.onload = function () { if (alive()) ok(true); };
-      im.onerror = function () {
-        if (!alive()) return;
-        if (!urls.jpg) { bad(); return; }
-        var j = new Image();
-        try { j.fetchPriority = low ? 'low' : 'high'; } catch (e4) {}
-        j.onload = function () { if (alive()) ok(false); };
-        j.onerror = function () { if (alive()) bad(); };
-        j.src = urls.jpg;
-      };
-      im.src = urls.webp || urls.jpg;
+      im.onload = function () { if (alive()) ok(); };
+      im.onerror = function () { if (alive()) bad(); };
+      im.src = src;
     }
-    probe(small, false, function (webpOk) {
-      if (!webpOk) paint('t360', '', small.jpg);
+    /* webp, then the same URL once with atmbust, then jpg, then jpg atmbust. */
+    function probe(urls, low, ok, bad) {
+      var webp = urls.webp, jpg = urls.jpg, webp2 = w.atmPosterRetryUrl(webp), jpg2 = w.atmPosterRetryUrl(jpg);
+      loadImg(webp, low, function () { ok(webp, ''); }, function () {
+        loadImg(webp2, low, function () { ok(webp2, ''); }, function () {
+          loadImg(jpg, low, function () { ok('', jpg); }, function () {
+            loadImg(jpg2, low, function () { ok('', jpg2); }, bad);
+          });
+        });
+      });
+    }
+    probe(small, false, function (webpUrl, jpgUrl) {
+      if (webpUrl && webpUrl !== small.webp) paint('t360', webpUrl, '');
+      else if (!webpUrl) paint('t360', '', jpgUrl || small.jpg);
     }, function () {
       smallBad = true;
       if (bigOk) return;
       if (bigBad) goFull();
     });
-    probe(big, true, function (webpOk) {
+    probe(big, true, function (webpUrl, jpgUrl) {
       bigOk = true;
-      paint('t800', webpOk ? big.webp : '', big.jpg);
+      paint('t800', webpUrl, jpgUrl);
     }, function () {
       bigBad = true;
       if (smallBad) goFull();

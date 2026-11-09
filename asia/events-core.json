@@ -1877,7 +1877,7 @@
       "other": "https://www.tangobang.cn"
     },
     "source": "user directory 2026-10-24",
-    "updated": "2026-11-02",
+    "updated": "2026-11-06",
     "hidden": false,
     "tba": false,
     "contacts": {
@@ -1891,7 +1891,20 @@
     "organizers_en": [
       "Vivian Ye"
     ],
-    "venue_en": "Yonghui Building Tower A, Rm 1502"
+    "venue_en": "Yonghui Building Tower A, Rm 1502",
+    "cancelled_dates": [
+      "2026-11-06"
+    ],
+    "temp_notices": [
+      {
+        "status": "cancelled",
+        "date": "2026-11-06",
+        "text": "今晚（11/6）探戈帮周五舞会暂停一期。（张孝确认 2026-11-06；雷达今日未扫到公开取消帖）",
+        "text_en": "Tonight (6 Nov) TangoBang Friday milonga is cancelled for one week. (Confirmed by Zhang Xiao, 2026-11-06; radar saw no public cancel post today.)",
+        "start": "2026-11-06",
+        "end": "2026-11-06"
+      }
+    ]
   },
   {
     "id": "rccbKIYP",
@@ -1905,7 +1918,7 @@
     "weekdays": [
       6
     ],
-    "time": "17:00–21:00",
+    "time": "17:30–21:30",
     "venue": "茂名大厦313",
     "venue_address": "上海市永嘉路35号茂名大厦313",
     "venue_address_en": "Room 313, Maoming Building, No. 35 Yongjia Road, Shanghai",
@@ -1916,7 +1929,7 @@
     ],
     "links": {},
     "source": "user directory 2026-10-24",
-    "updated": "2026-11-03",
+    "updated": "2026-11-07",
     "hidden": false,
     "tba": false,
     "contacts": {
@@ -1938,7 +1951,8 @@
     "poster_date": "2026-11-07",
     "poster_dates": {
       "/images/asia/posters/rccbKIYP.jpg": "2026-11-07"
-    }
+    },
+    "dj": "TJ 老汉"
   },
   {
     "id": "R0E9XeyL",
@@ -1981,13 +1995,16 @@
     "temp_notices": [
       {
         "status": "cancelled",
-        "date": "2026-11-08",
+        "date": "2026-11-07",
         "text": "本周六 Los Gatos Milonga 暂停一期，W BAR 当日没有舞会，大家别跑。岁末将至，这个周末暂别舞池，奔赴一年一度的家庭旅行。（Monica 朋友圈 2026-11-06）",
         "text_en": "This Saturday’s Los Gatos Milonga is paused for one week — no milonga at W BAR that day. End of year family travel; stepping away from the dance floor this weekend. (Monica Moments, 2026-11-06)",
         "start": "2026-11-06",
-        "end": "2026-11-08",
+        "end": "2026-11-07",
         "image": "/images/asia/notices/R0E9XeyL-20261108-cancel.jpg"
       }
+    ],
+    "cancelled_dates": [
+      "2026-11-07"
     ]
   },
   {
@@ -5812,5 +5829,163 @@
     "series_id": "wutong",
     "edition": 2,
     "prev_id": "JHeguuQb"
+  },
+  {
+    "id": "E159",
+    "kind": "event",
+    "type": "milonga",
+    "name": "Milonga Musea",
+    "name_zh": "Milonga Musea",
+    "city": "Shenzhen",
+    "country": "China",
+    "region": "China",
+    "start": "2026-11-08",
+    "end": "2026-11-08",
+    "time": "15:30–18:30",
+    "venue": "洋派 Poema（永新汇店）",
+    "venue_en": "Poema (Yongxinhui)",
+    "venue_address": "深圳市南山区南油西站C口永新汇B1喷泉广场，洋派 Poema（永新汇店）",
+    "venue_address_en": "Poema (Yongxinhui), B1 Fountain Square, Yongxinhui, Exit C Nanyou West Station, Nanshan, Shenzhen",
+    "organizers": [
+      "金睿 Humphrey"
+    ],
+    "organizers_en": [
+      "Jinrui Humphrey"
+    ],
+    "links": {},
+    "contacts": {},
+    "source": "微信群 Milonga Cadencia GZ周六舞会（G03），金睿 Humphrey 2026-11-06 20:16 海报",
+    "updated": "2026-11-07",
+    "hidden": false,
+    "tba": false,
+    "note_zh": "周日下午。DJ 思哲（Sizhe）。¥80/人。着装建议：复古/半正式（Cocktail Attire）。",
+    "note": "Sunday afternoon. DJ Sizhe. ¥80/person. Dress code: cocktail / vintage semi-formal.",
+    "regular_oneoff": true,
+    "poster": "/images/asia/posters/E159.jpg?v=20261107",
+    "poster_date": "2026-11-08",
+    "poster_dates": {
+      "/images/asia/posters/E159.jpg": "2026-11-08"
+    },
+    "dj": "思哲（Sizhe）",
+    "price": "¥80/人"
+  },
+  {
+    "id": "E160",
+    "kind": "event",
+    "type": "festival",
+    "name": "2nd Wuhan Tango International Carnival",
+    "name_zh": "第二届武汉探戈国际嘉年华",
+    "city": "Wuhan",
+    "country": "China",
+    "region": "China",
+    "start": "2027-10-03",
+    "end": "2027-10-06",
+    "venue": "TBA",
+    "venue_en": "TBA",
+    "organizers": [
+      "向前"
+    ],
+    "organizers_en": [
+      "Forward"
+    ],
+    "links": {},
+    "contacts": {
+      "email": "756416106@qq.com"
+    },
+    "source": "活动更新邮件 shiaochang@icloud.com 2026-11-07（海报 38.jpg）",
+    "updated": "2026-11-07",
+    "hidden": false,
+    "tba": false,
+    "featured": true,
+    "note_zh": "海报宣布：第二届武汉探戈国际嘉年华（WHTIC）定档 2027年10月3–6日，武汉。同期含 Abrazo-International Grand Prix、第一届 Carnival Tango DJ Invitational Tournament。场地、老师、价格未公布。",
+    "note": "Poster announcement: 2nd Wuhan Tango International Carnival (WHTIC), 3–6 October 2027, Wuhan. Also listed: Abrazo-International Grand Prix; 1st Carnival Tango DJ Invitational Tournament. Venue, teachers and prices not announced.",
+    "detail": "/event/wuhan-2027-whtic/",
+    "poster": "/images/asia/posters/E160.jpg",
+    "poster_pos": "center top",
+    "edition": 2
+  },
+  {
+    "id": "E162",
+    "kind": "event",
+    "type": "festival",
+    "name": "The 12th International ICH Tango Festival · The 5th Chengdu ICH Tango Competition · 2027 TangotoWorldCUP Chengdu (Preliminary)",
+    "name_zh": "第12届成都国际非遗探戈节 · 第5届成都国际非遗探戈比赛 · 2027 TangotoWorldCUP 成都预选赛",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": "2027-04-21",
+    "end": "2027-04-26",
+    "venue": "TBA",
+    "venue_en": "TBA",
+    "organizers": [
+      "Panda"
+    ],
+    "organizers_en": [
+      "Panda"
+    ],
+    "links": {},
+    "contacts": {
+      "email": "5788260@qq.com"
+    },
+    "source": "用户海报 2026-11-09；联络人 Panda / 5788260@qq.com",
+    "updated": "2026-11-09",
+    "hidden": false,
+    "tba": false,
+    "featured": true,
+    "note_zh": "同一活动，2027年4月21–26日，成都（海报所印日期，北京时间）：第12届成都国际非遗探戈节、第5届成都国际非遗探戈比赛，以及 2027 TangotoWorldCUP 成都预选赛。比赛不是另一场独立活动，海报没有单独比赛日。总奖金 ¥90,000 RMB（$13,500 USD）。探戈沙龙冠军 ¥12,000.00，另含往返伊斯坦布尔机票；亚军 ¥6,000.00；季军 ¥3,000.00。沙龙亚洲 ¥8,000.00／¥4,000.00／¥2,000.00。华尔兹 Vals、米隆加 Milonga、常青 Senior（合计年龄 Combined Age ≥100）、Dance to Di Sarli、Dance to D'Arienzo、Dance to Pugliese、Dance to Troilo 均为 ¥3,000.00／¥2,000.00／¥1,000.00。随机搭档-引带 Jack、随机搭档-跟随 Jill 各 ¥1,500.00／¥1,000.00／¥500.00。短视频 Video Challenge ¥3,000.00／¥2,000.00／¥1,000.00。最佳创意视频 Most Creative Short 只列出 ¥1,000.00，未分冠亚季。海报印出的名字与国家／地区：现场乐队 Solo Tango Orquesta（俄罗斯）；Anthony（澳大利亚）、Murat（土耳其）、Siro（韩国）、Meng Wang（加拿大）；Vanesa y Facundo（阿根廷）、Aldana y Diego（阿根廷）、Naima y Lucas（希腊／阿根廷）、Alina y Dmitrii（俄罗斯）、Simona y Allen（中国）、Polina y Artem（俄罗斯）、Yanina y Neri（阿根廷）、Laura y Meng（中国／加拿大）；另见 Murat（土耳其）、Ryuga（韩国）；团体 Tango Blast（中国）、Iris Tango Performance Team（韩国）、Team Ryu（韩国）。海报没有给这些个人标注老师、DJ 或表演者身份。场地、票价、报名链接未公布。",
+    "note": "One event, 21–26 April 2027, Chengdu (dates as printed on the poster; Beijing time): The 12th International ICH Tango Festival, The 5th Chengdu ICH Tango Competition, and 2027 TangotoWorldCUP Chengdu (Preliminary). The competition is not a separate event and has no separate dates. Total prize money ¥90,000 RMB ($13,500 USD). Tango Salon champion ¥12,000.00 plus round-trip airfare to Istanbul; runner-up ¥6,000.00; third ¥3,000.00. Salon Asian ¥8,000.00 / ¥4,000.00 / ¥2,000.00. Vals, Milonga, Senior (combined age ≥100), Dance to Di Sarli, Dance to D'Arienzo, Dance to Pugliese, and Dance to Troilo: each ¥3,000.00 / ¥2,000.00 / ¥1,000.00. Jack (random partner, lead) and Jill (random partner, follow): ¥1,500.00 / ¥1,000.00 / ¥500.00 each. Video Challenge ¥3,000.00 / ¥2,000.00 / ¥1,000.00. Most Creative Short is a single ¥1,000.00, with no 1st/2nd/3rd split. Names and places printed on the poster: live orchestra Solo Tango Orquesta (Russia); Anthony (Australia), Murat (Turkey), Siro (Korea), Meng Wang (Canada); Vanesa y Facundo (Argentina), Aldana y Diego (Argentina), Naima y Lucas (Greece/Argentina), Alina y Dmitrii (Russia), Simona y Allen (China), Polina y Artem (Russia), Yanina y Neri (Argentina), Laura y Meng (China/Canada); also Murat (Turkey), Ryuga (Korea); groups Tango Blast (China), Iris Tango Performance Team (Korea), Team Ryu (Korea). The poster does not label those individuals as teachers, DJs, or performers. Venue, ticket prices and registration link are not announced.",
+    "detail": "/event/chengdu-2027-ich-tango-festival/",
+    "poster": "/images/asia/posters/E162.jpg?v=20261109fix2",
+    "poster_pos": "center top",
+    "edition": 12,
+    "posters_extra": [
+      {
+        "src": "/images/asia/posters/E163_2.jpg?v=20261109fix2",
+        "caption": "Prize table · total ¥90,000 RMB ($13,500 USD)",
+        "caption_zh": "奖金表 · 总奖金 ¥90,000 RMB（$13,500 USD）"
+      }
+    ]
+  },
+  {
+    "id": "E163",
+    "kind": "event",
+    "type": "festival",
+    "name": "2027 TangotoWorldCUP Chengdu (Preliminary) · 5th Chengdu ICH Tango Competition",
+    "name_zh": "2027 TangotoWorldCUP 成都预选赛 · 第5届成都国际非遗探戈比赛",
+    "city": "Chengdu",
+    "country": "China",
+    "region": "China",
+    "start": "2027-04-21",
+    "end": "2027-04-26",
+    "venue": "TBA",
+    "venue_en": "TBA",
+    "organizers": [
+      "Panda"
+    ],
+    "organizers_en": [
+      "Panda"
+    ],
+    "links": {},
+    "contacts": {
+      "email": "5788260@qq.com"
+    },
+    "source": "用户海报 2026-11-09；联络人 Panda / 5788260@qq.com",
+    "updated": "2026-11-09",
+    "hidden": true,
+    "tba": false,
+    "featured": false,
+    "note_zh": "与 E162 同一场成都活动的隐藏档案，不是第二场公开活动。不要放进特色活动。",
+    "note": "Hidden archive of the same Chengdu event as E162. Not a second public event. Do not feature.",
+    "detail": "/event/chengdu-2027-ich-tango-festival/",
+    "poster": "/images/asia/posters/E163.jpg?v=20261109fix2",
+    "poster_pos": "center top",
+    "edition": 5,
+    "posters_extra": [
+      {
+        "src": "/images/asia/posters/E163_2.jpg?v=20261109fix2",
+        "caption": "Prize table · total ¥90,000 RMB ($13,500 USD)",
+        "caption_zh": "奖金表 · 总奖金 ¥90,000 RMB（$13,500 USD）"
+      }
+    ]
   }
 ]

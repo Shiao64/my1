@@ -20,14 +20,15 @@ html{background:#FBF5E9}body.china-page{margin:0;background:#FBF5E9;color:#5b7f8
 <link rel="preconnect" href="https://data.tangoweekend.org" crossorigin>
 <script>
 /* Preload the events-core URL this host will actually fetch. Pages previews
-   stay on the git file. Production uses R2, without cache:'no-cache'. */
+   stay on the git file. Production uses R2 with the same ?v= as the page,
+   without cache:'no-cache', so preload and the later fetch share one cache key. */
 (function(){
   var host=''; try{host=location.hostname||'';}catch(e){}
   var pages=/\.pages\.dev$/i.test(host);
   var link=document.createElement('link');
   link.rel='preload'; link.as='fetch';
-  if(pages){ link.href='/asia/events-core.json?v=china463'; }
-  else { link.href='https://data.tangoweekend.org/asia/events-core.json'; link.crossOrigin='anonymous'; }
+  if(pages){ link.href='/asia/events-core.json?v=china465'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china465'; link.crossOrigin='anonymous'; }
   document.head.appendChild(link);
 })();
 </script>
@@ -36,12 +37,19 @@ html{background:#FBF5E9}body.china-page{margin:0;background:#FBF5E9;color:#5b7f8
    (high); thumb800 is the upgrade (low). Same R2 URLs the card will request. */
 (function(){
   var cid=''; try{ cid=new URLSearchParams(location.search).get('card')||''; }catch(e){}
+  if(cid==='E163'){
+    var zh= /\/zh\//.test(location.pathname);
+    var params=new URLSearchParams(location.search); params.delete('card');
+    var q=params.toString();
+    location.replace('/event/chengdu-2027-ich-tango-festival/'+(zh?'zh/':'')+(q?'?'+q:'')+location.hash);
+    return;
+  }
   if(!cid) return;
   var host=''; try{ host=location.hostname||''; }catch(e){}
   var pages=/\.pages\.dev$/i.test(host);
   var R2='https://data.tangoweekend.org';
-  var core=pages?'/asia/events-core.json?v=china463':R2+'/asia/events-core.json';
-  var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json';
+  var core=pages?'/asia/events-core.json?v=china465':R2+'/asia/events-core.json?v=china465';
+  var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json?v=china459';
   function preload(href, pri){
     if(!href) return;
     var l=document.createElement('link');
@@ -287,7 +295,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <script>
 window.CHINA_UI = {
   lang: 'zh',
-  eventsUrl: '../../asia/events-core.json?v=china463',
+  eventsUrl: '../../asia/events-core.json?v=china465',
   hideAddrEn: true,
   keepOrganizerZh: true,
   cityNames: {
@@ -325,7 +333,7 @@ window.CHINA_UI = {
   paused: '暂停',
   venueChange: '场地变更',
   cancelled: '已取消',
-  cancelledWeek: '已取消 · 本周',
+  cancelledWeek: '本周暂停',
   every: '每周',
   dayTba: '日期待定',
   datesTba: '日期待定',
@@ -382,10 +390,10 @@ window.CHINA_UI = {
   }
 })(window);
 </script>
-<script defer src="../../asia/atm-data.js?v=r6"></script>
-<script defer src="../../asia/asia-map.js?v=china463"></script>
+<script defer src="../../asia/atm-data.js?v=r9"></script>
+<script defer src="../../asia/asia-map.js?v=r9"></script>
 <script defer src="../../asia/atm-later.js?v=lt2"></script>
-<script defer src="/asia/atm-home.js?v=h131"></script>
+<script defer src="/asia/atm-home.js?v=h133"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="../../asia/asia-howto.js?v=china278"></script> -->
 <script defer src="../../asia/asia-subscribe.js?v=sub57"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
@@ -527,7 +535,7 @@ function build(e){
 }
 function fromListings(){var src=document.querySelector('#china-listings .ev-card[data-id="'+ID+'"]');return src?tidy(src):null}
 function fromData(cb){
-  var loadCore=window.atmDataJson?window.atmDataJson('/asia/events-core.json?v=china463'):fetch('/asia/events-core.json?v=china463').then(function(r){if(!r.ok)throw new Error('http');return r.json()});
+  var loadCore=window.atmDataJson?window.atmDataJson('/asia/events-core.json?v=china465'):fetch('/asia/events-core.json?v=china465').then(function(r){if(!r.ok)throw new Error('http');return r.json()});
   loadCore.then(function(list){
     var e=null;for(var i=0;i<list.length;i++)if(list[i]&&list[i].id===ID&&!list[i].hidden){e=list[i];break}
     if(!e){cb(false);return}openWith(build(e));cb(true);

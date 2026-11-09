@@ -81,6 +81,20 @@
   }
   function pad(n){ return (n < 10 ? '0' : '') + n; }
   function occISO(wd){ var t = baseDate(), n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((wd - t.getDay() + 7) % 7)); return n.getFullYear() + '-' + pad(n.getMonth()+1) + '-' + pad(n.getDate()); }
+  function normISO(s){ var m = String(s || '').trim().match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/); return m ? m[1] + '-' + pad(+m[2]) + '-' + pad(+m[3]) : ''; }
+  function shToday(){ try { return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); } catch (e) { var n = new Date(Date.now() + 8 * 3600000); return n.getUTCFullYear() + '-' + pad(n.getUTCMonth() + 1) + '-' + pad(n.getUTCDate()); } }
+  /* Cancelled day is `date` when set. start/end is the show-until window (date 11/08, start 11/06 does not cancel 11/07).
+     No date: start===iso, or a start–end range that is itself the cancelled dates. Hide once Shanghai today is past end/date. */
+  function noticeHits(o, iso){
+    if (!o || o.status !== 'cancelled' || !iso) return false;
+    var date = normISO(o.date), start = normISO(o.start), end = normISO(o.end), hit = false;
+    if (date) hit = date === iso;
+    else if (start && end && start !== end) { var a = start, b = end; if (b < a) { var t = a; a = b; b = t; } hit = iso >= a && iso <= b; }
+    else hit = (start || end) === iso;
+    if (!hit) return false;
+    var until = end || date || start;
+    return !until || shToday() <= until;
+  }
   function nthOk(r){
     if (!r.nth) return true;
     var t = baseDate();
@@ -282,7 +296,7 @@
     if (r.status === 'paused') badges += '<span class="china-badge china-badge-paused">' + (UI.paused || 'Paused') + '</span>';
     else if (r.status === 'venue_change') badges += '<span class="china-badge china-badge-venue">' + (UI.venueChange || 'Venue change') + '</span>';
     var cx = r.status === 'cancelled';
-    if (!cx && r.cancelled_dates && r.weekday != null) { var t0 = baseDate(); var nx = new Date(t0.getFullYear(), t0.getMonth(), t0.getDate() + ((r.weekday - t0.getDay() + 7) % 7)); cx = r.cancelled_dates.indexOf(nx.getFullYear() + '-' + pad(nx.getMonth()+1) + '-' + pad(nx.getDate())) !== -1; }
+    if (!cx && r.weekday != null) { var iso = occISO(r.weekday); if (r.cancelled_dates && r.cancelled_dates.indexOf(iso) !== -1) cx = true; else if (Array.isArray(r.temp_notices)) { for (var ti = 0; ti < r.temp_notices.length && !cx; ti++) { if (noticeHits(r.temp_notices[ti], iso)) cx = true; } } }
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
     return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + ((r.region === 'Taiwan' || r.region === 'Hong Kong' || r.country === 'Taiwan' || r.country === 'Hong Kong') ? ' data-hant="1"' : '') + (r.also_regular ? ' data-also-regular="1"' : '') + (r.regular_oneoff ? ' data-oneoff="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (r.theme_of ? '<div class="atm-theme-bar">' + (isZh ? '每周舞会 · 本周专题' : 'Weekly milonga · This week\'s theme') + '</div>' : '') + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">' + thPicture(pp, 'alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"', wide) + '</a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true">' + thPicture(c[0], 'decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"', wide) + '</a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
@@ -761,7 +775,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china463';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china465';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
@@ -770,6 +784,8 @@
   /* draft 2026-10-31: single-card view ?card=ID (core, else events-more). Shows only that card + 查看全部活动 / View all events (opens the full page on its tab/city, scrolled to the card via #v-ID). #v-ID / ?id= unchanged. */
   (function(){
     var cid = new URLSearchParams(location.search).get('card'); if (!cid) return;
+    var aliasHref = window.atmCardAliasHref && window.atmCardAliasHref(cid, /\/zh\//.test(location.pathname), location.search, location.hash);
+    if (aliasHref) { location.replace(aliasHref); return; }
     var R = document.documentElement; R.classList.add('atm-card-mode');
     /* draft 2026-11-01: single-card header = only white ‹ (back) + magnifier (search). Logo / lang / ☰ hidden on this page only. */
     (function(){ var zhP = /\/zh\//.test(location.pathname), list = location.pathname;
@@ -814,22 +830,37 @@
     function keepLang(){ Array.prototype.forEach.call(document.querySelectorAll('a.atm-langbtn,#atm-menu a.atm-mlang'), function(a){ try { var u = new URL(a.getAttribute('href'), location.href); u.search = '?card=' + encodeURIComponent(cid); u.hash = ''; a.setAttribute('href', u.pathname + u.search); } catch(e){} }); }
     var fullUrl = eventsUrl.replace('events-core.json', 'events.json');
     function get(u){ return loadJson(u).catch(function(){ return []; }); }
+    function freshGet(u){
+      if (!window.atmDataJsonFresh) return Promise.resolve([]);
+      return window.atmDataJsonFresh(u).catch(function(){ return []; });
+    }
     function findCard(L){ return (L || []).filter(function(r){ return r.id === cid && !r.hidden; })[0]; }
-    /* Core first. events-more only when this id is not in core. events.json only if it is in neither. */
-    get(eventsUrl).then(function(core){
-      core = core || [];
-      var hit = findCard(core);
-      if (hit) return [hit, false, core];
-      return get(moreUrl).then(function(more){
-        more = more || [];
-        window._atmMore = more;
-        hit = findCard(more);
-        if (hit) return [hit, true, core.concat(more)];
-        return get(fullUrl).then(function(F){ return [findCard(F), false, core.concat(more)]; });
+    function asList(x){ return Array.isArray(x) ? x : []; }
+    /* Core first. events-more only when this id is not in core. events.json only if it is in neither.
+       A miss can be a stale ?v= cache or the git fallback. One fresh R2 read before calling the card missing. */
+    function search(loader){
+      return loader(eventsUrl).then(function(core){
+        core = asList(core);
+        var hit = findCard(core);
+        if (hit) return [hit, false, core];
+        return loader(moreUrl).then(function(more){
+          more = asList(more);
+          window._atmMore = more;
+          hit = findCard(more);
+          if (hit) return [hit, true, core.concat(more)];
+          return loader(fullUrl).then(function(F){
+            F = asList(F);
+            return [findCard(F), false, core.concat(more, F)];
+          });
+        });
       });
+    }
+    search(get).then(function(res){
+      if (res[0]) return res;
+      return search(freshGet);
     }).then(function(res){
       var r = res[0], more = res[1], all = res[2], T = todayISO();
-      function ended(x){ return !!(x.start && (x.kind === 'event' || x.regular_oneoff) && (x.end || x.start) < T) || x.status === 'ended'; }
+      function ended(x){ return window.atmEventEnded ? window.atmEventEnded(x, T) : (!!(x && x.start && (x.kind === 'event' || x.regular_oneoff) && (x.end || x.start) < T) || !!(x && x.status === 'ended')); }
       var cy = r && r.city ? '&city=' + encodeURIComponent(cityId(r.city)) : '', kr = r && (more || !/^(China|Taiwan|Hong Kong)$/.test(r.country || r.region || '')) ? '&k=Seoul' : '';
       if (r && ended(r) && r.kind === 'event' && !r.regular_oneoff) { /* draft 10/31: expired FEATURED -> original card + ENDED stamp, next edition, recap, city + featured buttons */
         var cn2 = r.city ? cityDisplay(r.city) : '', base2 = location.pathname;
@@ -852,7 +883,14 @@
         Array.prototype.forEach.call(box.querySelectorAll('.atm-recap-a'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); var v = document.createElement('div'); v.className = 'atm-rv'; var i = ph.indexOf(a.getAttribute('href')); v.innerHTML = '<button type="button" aria-label="close">×</button><div class="atm-rv-s">' + ph.map(function(u){ return '<img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">'; }).join('') + '</div>'; document.body.appendChild(v); var sc = v.querySelector('.atm-rv-s'); sc.scrollLeft = i * sc.clientWidth; v.addEventListener('click', function(ev){ if (ev.target.tagName !== 'IMG') v.remove(); }); }); });
         try { document.title = ((isZh && r.name_zh) || r.name) + ' · ' + (isZh ? '已结束 · ' : 'Ended · ') + document.title; } catch(e){}
         keepLang(); setTimeout(keepLang, 1500); return; }
-      if (!r || ended(r)) { /* draft 10/31 v2: proper "ended" card + city View all + 特色活动 + up to 3 upcoming in that city */
+      if (!r) { /* not in core, more, full, or the one fresh R2 retry — not the same as ended */
+        var missH = location.pathname + '?card=' + encodeURIComponent(cid);
+        var missIco = '<svg class="atm-nf-ico" viewBox="0 0 96 96" aria-hidden="true"><rect x="10" y="10" width="68" height="68" rx="16" fill="#0e6e78"/><circle cx="44" cy="42" r="14" fill="none" stroke="#fbf5e9" stroke-width="4"/><path d="M54 52l12 12" stroke="#fbf5e9" stroke-width="4" stroke-linecap="round"/></svg>';
+        box.innerHTML = '<div class="atm-nf-card">' + missIco + '<h2>' + (isZh ? '暂时没有这张活动卡' : 'This card is not on the map') + '</h2><p>' + (isZh ? '地图没有载入这张卡。这不表示活动已结束。' : 'The map could not load this card. That does not mean the event has ended.') + '</p>' +
+          '<a class="atm-all" href="' + esc(missH) + '">' + (isZh ? '再试一次' : 'Try again') + '</a><a class="atm-nf-feat" href="' + esc(location.pathname + '?mode=featured&via=card') + '">' + (isZh ? '★ 特色活动' : '★ Featured events') + '</a></div>';
+        try { document.title = (isZh ? '未找到活动卡 · ' : 'Card not found · ') + document.title; } catch(e){}
+        keepLang(); setTimeout(keepLang, 1500); return; }
+      if (ended(r)) { /* a card that was found and is actually over */
         var cn = r && r.city ? cityDisplay(r.city) : '', base = location.pathname;
         var nx = !r || !r.city ? [] : all.filter(function(x){ return x.city === r.city && !x.hidden && x.id !== r.id && !ended(x) && (x.kind === 'weekly' || (x.end || x.start) >= T); })
           .sort(function(a, b){ var fa = a.kind === 'weekly' ? 1 : 0, fb = b.kind === 'weekly' ? 1 : 0; return fa - fb || String(a.start || '').localeCompare(String(b.start || '')); }).slice(0, 3);
