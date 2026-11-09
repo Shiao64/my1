@@ -113,14 +113,17 @@ check('cancel drops the count to zero', (await get('/going/counts?ids=W1')).coun
 
 const pendingBefore = mails.length;
 const fresh = await post('/going', { ...base, email: 'bea@example.com', name: 'Bea', id: 'F1', intent: 'interested', role: 'follower' });
-check('unverified explicit does not mail organizer', fresh.confirm && fresh.mailed === false && orgMails().length === 0 && userMails('bea@example.com').length === 1 && userMails('bea@example.com')[0].includes('not emailed one by one'));
+check('unverified explicit does not mail organizer', fresh.confirm && fresh.mailed === false && orgMails().length === 0 && userMails('bea@example.com').length === 1 && userMails('bea@example.com')[0].includes('does not save the intent'));
 check('pending stored', db.prepare("SELECT intent i FROM going_pending WHERE email=? AND consumed_at IS NULL").get('bea@example.com').i === 'interested');
 check('unverified not counted', (await get('/going/counts?ids=F1')).counts.F1 === 0);
 const beaLink = fresh.preview_link;
 const beaDone = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'bea@example.com', t: new URL(beaLink).searchParams.get('t'), next: 'https://tangoweekend.org/asia/?card=F1', confirm: '1' }).toString());
 const beaText = await beaDone.text();
-check('verify queues the summary and does not mail', beaText.includes('next summary') && !mails.some(m => m.includes('to=fest@example.com')) && db.prepare("SELECT mail_status s FROM going_intents WHERE email=?").get('bea@example.com').s === 'queued');
-check('featured counted after verify', (await get('/going/counts?ids=F1')).counts.F1 === 1);
+check('verify does not queue or mail', beaText.includes('tap Confirm') && !beaText.includes('next summary') && !mails.some(m => m.includes('to=fest@example.com')) && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('bea@example.com'));
+check('featured still zero after email confirm', (await get('/going/counts?ids=F1')).counts.F1 === 0);
+const beaToken = (beaText.match(/atm=([0-9a-f]{64})/) || [])[1];
+const beaFinal = await post('/going', { id: 'F1', intent: 'interested', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' }, { Authorization: 'Bearer ' + beaToken });
+check('final confirm after email queues', beaFinal.mail === 'queued' && (await get('/going/counts?ids=F1')).counts.F1 === 1);
 
 const none = await post('/going', { ...base, id: 'NONE', intent: 'going' }, auth);
 check('no organizer email rejected', none._s === 404 && none.error === 'no_organizer' && orgMails().length === 0);
