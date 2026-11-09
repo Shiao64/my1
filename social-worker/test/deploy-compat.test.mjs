@@ -27,7 +27,8 @@ check('gmail user is not hardcoded over production', !/^GMAIL_USER\s*=/m.test(to
 check('no secret material in wrangler', !/API_KEY|APP_PASSWORD|BEGIN PRIVATE/i.test(toml));
 
 for (const html of [en, zh]) {
-  check('r9 data and map', html.includes('atm-data.js?v=r9') && html.includes('asia-map.js?v=r9'));
+  check('r9 data stays and map is newer than the cached r9', html.includes('atm-data.js?v=r9') && html.includes('asia-map.js?v=r10'));
+  check('merged card script is newer than either cb144', html.includes('/asia/cardB.js?v=cb145'));
   check('star script', html.includes('/asia/atm-star.js?v=st3'));
   check('E163 leaves the map', html.includes("cid==='E163'") && html.includes('/event/chengdu-2027-ich-tango-festival/'));
   check('no merge markers', !html.includes('<<<<<<<'));
@@ -43,6 +44,13 @@ check('E163 is hidden in git', e163 && e163.hidden === true);
 check('git JSON has no E164', !byId(events, 'E164') && !byId(core, 'E164'));
 check('PR35 Wuhan contact is kept', e160 && e160.organizers && e160.organizers.includes('向前') && e160.contacts && e160.contacts.email === '756416106@qq.com');
 check('poster query is preserved', data.includes("raw.indexOf('?')") && data.includes('full: pub(q) + (extra || \'\')'));
+check('video account text is in the map and the card', map.includes('wechat_channels') && read('asia/cardB.js').includes('微信视频号'));
+const weekly = byId(events, 'bQFvmIuY');
+check('weekly bQFvmIuY remains', weekly && weekly.hidden !== true && weekly.kind === 'weekly');
+for (const id of ['JHeguuQb', 'XsFs5wm8']) {
+  const row = byId(events, id);
+  check('wutong card ' + id, row && row.hidden !== true);
+}
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('deploy compat ok', { events: events.length, core: core.length });
