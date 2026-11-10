@@ -817,9 +817,8 @@
     paint(); paintBar();
     if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
   }
-  function savedText(n) { return '☆ 已收藏 ' + n + ' 个活动'; }
+  function savedText(n) { return zh ? ('☆ 已收藏 ' + n + ' 个活动') : ('☆ ' + n + ' saved event' + (n === 1 ? '' : 's')); }
   function syncSaved() {
-    if (!zh) return;
     var t = savedText(Object.keys(mine).length);
     document.querySelectorAll('[data-atm-saved]').forEach(function (el) { if (el.textContent !== t) el.textContent = t; });
   }
@@ -829,13 +828,9 @@
     var items = Object.keys(favs);
     var n = items.length;
     bar.classList.toggle('atm-on', n > 0);
-    if (zh) {
-      bar.innerHTML = '<b>' + L.bar + '</b><span class="atm-hint" data-atm-saved="1">' + savedText(n) + '</span>';
-      syncSaved();
-    } else if (!token()) { bar.innerHTML = '<b>★ ' + L.bar + '</b><span class="atm-hint">' + L.hint + '</span>'; if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
-    else if (!n) { bar.innerHTML = '<b>★ ' + L.bar + '</b><span class="atm-hint">' + L.empty + '</span>'; if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
-    else bar.innerHTML = '<b>★ ' + L.bar + ' (' + n + ')</b>';
-    if (zh && !n) { if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
+    bar.innerHTML = '<b>' + L.bar + '</b><span class="atm-hint" data-atm-saved="1">' + savedText(n) + '</span>';
+    syncSaved();
+    if (!token() || !n) { if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
     if (grid) {
       grid.hidden = false; grid.innerHTML = '';
       items.forEach(function (id) {

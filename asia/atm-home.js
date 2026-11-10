@@ -171,9 +171,9 @@
     }
     return 0;
   }
+  function favLine(n) { return zh ? ('☆ 已收藏 ' + n + ' 个活动') : ('☆ ' + n + ' saved event' + (n === 1 ? '' : 's')); }
   function favBlock() {
-    if (!zh) return '<p class="ah-favhint">Tap the star to choose Going or Interested. After you verify your email, intents show under My event intents.</p>';
-    return '<p class="ah-favhint" data-atm-saved="1">☆ 已收藏 ' + listedSaved() + ' 个活动</p>';
+    return '<p class="ah-favhint" data-atm-saved="1">' + favLine(listedSaved()) + '</p>';
   }
   function home() {
     return favBlock() + '<div class="ah-rows">' +
