@@ -355,3 +355,13 @@ html body.china-page button.atm-featstrip:hover .atm-oh-car{transform:translateY
 html.atm-compact body.china-page section.china-map-hero .china-hero-bar button.atm-burger{display:inline-flex!important;margin-left:auto!important;position:relative;z-index:6}
 html.atm-compact body.china-page section.china-map-hero .china-hero-bar{display:flex!important;align-items:center}
 html.atm-wx-s body.china-page .china-map-hero .atm-burger:before{border-color:#d6d6d6!important;background:#fff!important}
+
+/* Beta notice replaces the entry ad. It covers the map until the visitor confirms. */
+#atm-notice{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;background:rgba(6,51,58,.72);padding:16px;box-sizing:border-box}
+#atm-notice[hidden]{display:none!important}
+#atm-notice .atm-notice-card{display:flex;flex-direction:column;width:100%;max-width:480px;max-height:min(92dvh,640px);background:#fffdf8;color:#2a1a14;border-radius:16px;border-top:4px solid #0e6e78;box-shadow:0 16px 48px rgba(6,51,58,.35);padding:22px 18px 16px;box-sizing:border-box}
+#atm-notice h2{margin:0 0 12px;font:700 1.15rem/1.35 Georgia,"Noto Serif SC",serif;color:#0a4f57}
+#atm-notice .atm-notice-body{overflow:auto;-webkit-overflow-scrolling:touch}
+#atm-notice p{margin:0 0 12px;font:16px/1.55 system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}
+#atm-notice button{flex:0 0 auto;width:100%;min-height:48px;margin-top:4px;border:0;border-radius:12px;background:#0e6e78;color:#f6e3b4;font:700 16px/1.2 system-ui,sans-serif;cursor:pointer}
+#atm-notice button:focus-visible{outline:3px solid #F6D58E;outline-offset:2px}
