@@ -48,8 +48,8 @@ def main():
     data = read('asia/atm-data.js')
     check('en loads helper', 'atm-data.js?v=r9' in en)
     check('zh loads helper', 'atm-data.js?v=r9' in zh)
-    check('en map script', 'asia-map.js?v=r9' in en)
-    check('zh map script', 'asia-map.js?v=r9' in zh)
+    check('en map script', 'asia-map.js?v=r10' in en)
+    check('zh map script', 'asia-map.js?v=r10' in zh)
     check('json version stays', 'events-core.json?v=china465' in en and 'events-core.json?v=china465' in zh)
     r2_core = 'https://data.tangoweekend.org/asia/events-core.json?v=china465'
     check('en r2 core keeps version', r2_core in en)
