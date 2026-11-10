@@ -172,6 +172,29 @@ if (w.atmCardAliasHref('E164', true, '?card=E164', '') !== '') process.exit(38);
     raw = open(os.path.join(ROOT, 'images/asia/posters/E162.jpg'), 'rb').read(3)
     prize = open(os.path.join(ROOT, 'images/asia/posters/E163_2.jpg'), 'rb').read(3)
     check('posters decode as jpeg', raw == b'\xff\xd8\xff' and prize == b'\xff\xd8\xff')
+    legends = open(os.path.join(ROOT, 'images/asia/posters/E167.jpg'), 'rb').read(3)
+    sched = open(os.path.join(ROOT, 'images/asia/posters/E167_2.jpg'), 'rb').read(3)
+    check('E167 posters decode as jpeg', legends == b'\xff\xd8\xff' and sched == b'\xff\xd8\xff')
+    for rel in ('asia/events.json', 'asia/events-core.json'):
+        rows = _json.load(open(os.path.join(ROOT, rel), encoding='utf-8'))
+        by = {e['id']: e for e in rows}
+        e = by['E167']
+        check(rel + ' E167 featured festival', e['kind'] == 'event' and e['type'] == 'festival' and e['featured'] is True and e['hidden'] is False)
+        check(rel + ' E167 title', e['name'] == 'Legends Tango Festival 2027' and e['name_zh'] == 'Legends Tango Festival 2027')
+        check(rel + ' E167 dates', e['start'] == '2027-02-25' and e['end'] == '2027-02-28' and e['city'] == 'Guangzhou')
+        check(rel + ' E167 email only', e['contacts'] == {'email': 'legendstango@gmail.com'} and '18676479599' not in _json.dumps(e))
+        check(rel + ' E167 LTA address', e['venue_address'] == '广州市越秀区明月一路明月阁1706' and e['venue'] == 'Legends Tango Academy')
+        check(rel + ' E167 detail', e['detail'] == '/event/guangzhou-2027-legends-tango-festival/' and e['detail'] != by['ONKkPuWH']['detail'])
+        check(rel + ' E167 posters', e['poster'] == '/images/asia/posters/E167.jpg' and e['posters_extra'][0]['src'] == '/images/asia/posters/E167_2.jpg')
+        check(rel + ' E167 schedule', len(e['schedule']) == 14 and e['schedule'][0]['time'].startswith('7:15pm') and 'tbc' in e['schedule'][8]['dj'] and e['schedule'][10]['dj'] == 'tbc')
+        check(rel + ' E167 prices and Iara', '3480' in e['note'] and 'Iara Duarte' in e['note'] and '330 each' in e['note'])
+    en_page = read('event/guangzhou-2027-legends-tango-festival/index.html')
+    zh_page = read('event/guangzhou-2027-legends-tango-festival/zh/index.html')
+    check('E167 en page', 'legendstango@gmail.com' in en_page and 'E167_2.jpg' in en_page and 'Iara Duarte' in en_page and 'RMB 3480' in en_page and 'DJ1 tbc' in en_page)
+    check('E167 zh page', 'Legends Tango Festival 2027' in zh_page and '广州市越秀区明月一路明月阁1706' in zh_page and '2nd Academy Anniversary' in zh_page)
+    check('E167 pages skip the other Guangzhou festival', 'ONKkPuWH' not in en_page and 'ONKkPuWH' not in zh_page and 'guangzhou-2027-tango-festival' not in en_page)
+    check('E167 schedule is stacked', 'lg-sess' in en_page and 'lg-sess' in zh_page and 'overflow-x:auto' not in en_page and 'overflow-x:auto' not in zh_page and '---' not in en_page and '---' not in zh_page)
+    check('E167 pages drop transcription notes', '按日程原文' not in zh_page and '海报就是这样印的' not in zh_page and 'not merged with Cor Leung' not in en_page and '12-hour' not in en_page)
 
 
 if __name__ == '__main__':
