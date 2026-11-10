@@ -86,7 +86,7 @@
     scope: '',
     transport: 'Directions (optional)',
     noPromise: '',
-    optin: 'Opt in to receive early-bird and registration deadlines, venue directions, last-minute notices, and organizer updates.',
+    optin: 'Get early-bird deadlines, directions and updates from the organizer.',
     submit: 'Confirm', needIntent: 'Choose Going, Interested, or Not Going.',
     profileTitle: '',
     profileDesc: 'Confirm your email first. After you come back, tap Confirm to save your intent.',
