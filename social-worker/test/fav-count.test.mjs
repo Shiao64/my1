@@ -9,11 +9,16 @@ function check(name, ok) { n++; if (!ok) { failed++; console.error('FAIL', name)
 check('listed counts favs', star.includes('listed: function () { return Object.keys(favs).length; }'));
 check('syncSaved uses favCount', star.includes('function favCount() { return Object.keys(favs).length; }') && star.includes('savedText(favCount())'));
 check('401 reloads local favs instead of wiping them', /if \(d\._s === 401\)[\s\S]{0,280}loadLocalFavs\(\)/.test(star) && !/if \(d\._s === 401\)[\s\S]{0,200}favs = \{\}/.test(star));
-check('mine success merges local and server favs', /\(d\.favs \|\| \[\]\)\.forEach\(function \(fid\) \{ addLocalFav\(fid\); \}\);\s*loadLocalFavs\(\);/.test(star));
+check('mine success merges local and server favs, skipping tombstones', /\(d\.favs \|\| \[\]\)\.forEach\(function \(fid\) \{ if \(!isRemoved\(fid\)\) addLocalFav\(fid\); \}\);\s*loadLocalFavs\(\);/.test(star));
 check('boot loads local favs before refreshMine', /loadLocalFavs\(\);\s*refreshMine\(\);/.test(star));
 check('home listedSaved falls back to favIds', home.includes('favIds().length'));
 check('home fav block hides strip when empty', home.includes("list.length ? '<div class=\"ah-strip\">'") || home.includes("list.length ? '<div class='"));
 // the string in home is: list.length ? '<div class="ah-strip">'
 check('home fav strip markup', home.includes("var strip = list.length ? '<div class=\"ah-strip\">'".replace(/\\"/g,'"')) || home.includes('class="ah-strip"'));
+check('tombstone helpers exist', star.includes("atm_fav_removed_v1") && star.includes('function isRemoved') && star.includes('function markRemoved') && star.includes('function unmarkRemoved') && star.includes('function requestUnfav') && star.includes('function seriesFavIds'));
+check('unfav without token stays local', /function requestUnfav\([\s\S]*if \(!token\(\)\)[\s\S]*dropLocalOne/.test(star) && star.includes("/social/going/unfav"));
+check('take in fav list unfavs instead of opening intent', star.includes("b.closest('.ah-ly')") && star.includes('requestUnfav(uid)'));
+check('addLocalFav clears tombstone', /function addLocalFav\([\s\S]*unmarkRemoved\(id\)/.test(star));
+check('loadLocalFavs drops tombstoned ids', /function loadLocalFavs\([\s\S]*rem\.indexOf\(id\) < 0/.test(star));
 if (failed) { console.error(failed + '/' + n + ' failed'); process.exit(1); }
 console.log('fav count ok');

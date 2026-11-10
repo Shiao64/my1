@@ -5,7 +5,7 @@
 (function () {
   var KEY = 'atm_fav_v1', mem = null;
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var T = zh ? { title: '我的活动意向', clear: '清除', add: '活动意向', del: '管理意向' } : { title: 'My event intents', clear: 'Clear', add: 'Event intent', del: 'Manage intent' };
+  var T = zh ? { title: '我的收藏', clear: '清除', add: '活动意向', del: '管理意向' } : { title: 'My saved events', clear: 'Clear', add: 'Event intent', del: 'Manage intent' };
   function load() { if (mem) return mem.slice(); try { var a = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(a) ? a.filter(function (x) { return typeof x === 'string'; }) : []; } catch (e) { return []; } }
   function save(a) { mem = null; try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) { mem = a.slice(); } }
   function byId() { var m = {}; (window._chinaData || []).forEach(function (r) { if (!r.hidden) m[r.id] = r; }); return m; }
