@@ -86,7 +86,7 @@ check('bad profile sent nothing', mails.length === 0);
 
 const menu = await post('/profile', base);
 check('menu verify', menu._s === 200 && menu.confirm && menu.mailed === false && menu.preview_link);
-check('menu mail is not organizer', userMails('ana@example.com').length === 1 && orgMails().length === 0 && userMails('ana@example.com')[0].includes('does not email an organizer'));
+check('menu mail is not organizer', userMails('ana@example.com').length === 1 && orgMails().length === 0 && userMails('ana@example.com')[0].includes('Thanks for subscribing to Asia Tango Map') && !userMails('ana@example.com')[0].includes('organizer'));
 const link = menu.preview_link;
 const got = async (method, u, body) => social(new Request(u, { method, ...(body ? { body, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } } : {}) }), env, new URL(u), json);
 const scan = await got('GET', link);
@@ -116,7 +116,7 @@ check('cancel drops the count to zero', (await get('/going/counts?ids=W1')).coun
 
 const pendingBefore = mails.length;
 const fresh = await post('/going', { ...base, email: 'bea@example.com', name: 'Bea', id: 'F1', intent: 'interested', role: 'follower' });
-check('unverified explicit does not mail organizer', fresh.confirm && fresh.mailed === false && orgMails().length === 0 && userMails('bea@example.com').length === 1 && userMails('bea@example.com')[0].includes('does not save the intent'));
+check('unverified explicit does not mail organizer', fresh.confirm && fresh.mailed === false && orgMails().length === 0 && userMails('bea@example.com').length === 1 && userMails('bea@example.com')[0].includes('Please confirm your Asia Tango Map subscription') && !userMails('bea@example.com')[0].includes('intent'));
 check('pending stored', db.prepare("SELECT intent i FROM going_pending WHERE email=? AND consumed_at IS NULL").get('bea@example.com').i === 'interested');
 check('unverified not counted', (await get('/going/counts?ids=F1')).counts.F1 === 0);
 const beaLink = fresh.preview_link;
