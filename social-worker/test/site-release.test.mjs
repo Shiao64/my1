@@ -12,9 +12,10 @@ function attr(html, name) {
   const m = html.match(new RegExp('data-' + name + '="([^"]*)"'));
   return m ? m[1] : null;
 }
-check('both pages continue the menu v11.9 as 11.9.1', attr(zh, 'site-release') === '11.9.1' && attr(en, 'site-release') === '11.9.1');
-check('publish date stays empty until a real publish', attr(zh, 'site-release-date') === '' && attr(en, 'site-release-date') === '');
-check('beta label stays and shows the same number', zh.includes('<span class="atm-beta">测试版 11.9.1</span>') && en.includes('<span class="atm-beta">beta 11.9.1</span>'));
+check('both pages show 11.9.3 and leave 11.9.2 reserved', attr(zh, 'site-release') === '11.9.3' && attr(en, 'site-release') === '11.9.3' && zh.includes('11.9.2 stays reserved') && en.includes('11.9.2 stays reserved'));
+check('publish date stays empty', attr(zh, 'site-release-date') === '' && attr(en, 'site-release-date') === '');
+check('beta label stays and shows the same number', zh.includes('<span class="atm-beta">测试版 11.9.3</span>') && en.includes('<span class="atm-beta">beta 11.9.3</span>'));
+check('sources note is the approved copy', zh.includes('活动资讯整理自微信、Facebook，并参考 hongkongtango.com、milonga.tw、tangophilippines.com、tangomalaysia.wordpress.com。活动时间与内容请以主办方最新公告为准。') && zh.includes('特别感谢上海 TeAmo 王凯、北京 V Tango 刘峥、探戈帮 Vivian Yeh 协助。') && en.includes('Event info compiled from WeChat and Facebook, with reference to hongkongtango.com, milonga.tw, tangophilippines.com and tangomalaysia.wordpress.com.') && en.includes('Special thanks to Kai Wang (TeAmo, Shanghai), Liu Zheng (V Tango, Beijing) and Vivian Yeh (Tango Bang) for their help.') && !zh.includes('所有活动讯息转载自微信及脸书') && !en.includes('All activity info reposted from WeChat'));
 check('menu keeps the v prefix on the same number', sub.includes("getAttribute('data-site-release')") && sub.includes("'· v' + rel") && !sub.includes("SITE_VERSION = 'v11.9'"));
 check('menu script cache moves with the label', zh.includes('asia-subscribe.js?v=sub61') && en.includes('asia-subscribe.js?v=sub61') && !zh.includes('asia-subscribe.js?v=sub60') && !en.includes('asia-subscribe.js?v=sub60'));
 check('header css cache moves with the longer badge', zh.includes('atm-critical.css?v=ac4') && en.includes('atm-critical.css?v=ac4') && !zh.includes('atm-critical.css?v=ac3') && !en.includes('atm-critical.css?v=ac3'));
