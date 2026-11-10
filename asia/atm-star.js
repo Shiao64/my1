@@ -26,7 +26,7 @@
     limited: '确认邮件已达上限，请稍后再试。',
     withheld: '已记下。这一场不会交给主办。',
     unfav: '取消收藏',
-    notify: '接收主办方讯息',
+    notify: '接收主办方信息',
     scope: '',
     transport: '交通指引（可选）',
     noPromise: '',
