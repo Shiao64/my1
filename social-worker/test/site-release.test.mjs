@@ -17,7 +17,7 @@ check('publish date stays empty', attr(zh, 'site-release-date') === '' && attr(e
 check('beta label stays and shows the candidate number', zh.includes('<span class="atm-beta">测试版 11.9.4</span>') && en.includes('<span class="atm-beta">beta 11.9.4</span>'));
 check('live sources note stays', zh.includes('活动资讯整理自微信、Facebook') && zh.includes('特别感谢上海 TeAmo 王凯') && en.includes('Event info compiled from WeChat and Facebook') && en.includes('Special thanks to Kai Wang') && !zh.includes('所有活动讯息转载自微信及脸书'));
 check('menu keeps the v prefix on the same number', sub.includes("getAttribute('data-site-release')") && sub.includes("'· v' + rel") && !sub.includes("SITE_VERSION = 'v11.9'"));
-check('menu script cache moves with the label', zh.includes('asia-subscribe.js?v=sub61') && en.includes('asia-subscribe.js?v=sub61') && !zh.includes('asia-subscribe.js?v=sub60') && !en.includes('asia-subscribe.js?v=sub60'));
+check('menu script cache moves with the label', zh.includes('asia-subscribe.js?v=sub62') && en.includes('asia-subscribe.js?v=sub62') && !zh.includes('asia-subscribe.js?v=sub61') && !en.includes('asia-subscribe.js?v=sub61'));
 check('header css cache moves with the longer badge', zh.includes('atm-critical.css?v=ac4') && en.includes('atm-critical.css?v=ac4') && !zh.includes('atm-critical.css?v=ac3') && !en.includes('atm-critical.css?v=ac3'));
 check('release comment does not claim this number is already live', zh.includes('does not mean other unreleased work is live') && en.includes('does not mean other unreleased work is live'));
 const going = read('social-worker/src/going.js');

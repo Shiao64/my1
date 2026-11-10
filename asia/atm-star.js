@@ -19,13 +19,17 @@
     again: '这次没有提交成功，请再试一次。',
     title: '活动意向',
     explain: '不是购票或正式报名。',
-    going: '要参加', interested: '感兴趣',
+    going: '要参加', interested: '感兴趣', absent: '去不了',
+    promo: '同时订阅 ATM 活动资讯',
+    later: '请稍后再试。',
+    withheld: '已记下。这一场不会交给主办。',
+    unfav: '取消收藏',
     notify: '接收主办方讯息',
     scope: '',
     transport: '交通指引（可选）',
     noPromise: '',
     optin: '勾选后，可接收早鸟报名及截止时间、场地交通指引、临时通知和主办方消息。',
-    submit: '确认', needIntent: '请选择要参加或感兴趣。',
+    submit: '确认', needIntent: '请选择要参加、感兴趣或去不了。',
     profileTitle: '',
     profileDesc: '先确认邮箱。回到本页后再点「确认」，才会记录意向。',
     req: '以下均为必填',
@@ -62,13 +66,17 @@
     again: 'This did not go through. Please try again.',
     title: 'Event intent',
     explain: 'Not a ticket or a formal registration.',
-    going: 'Going', interested: 'Interested',
+    going: 'Going', interested: 'Interested', absent: 'Not Going',
+    promo: 'Also subscribe to ATM event updates',
+    later: 'Please try again later.',
+    withheld: 'Saved. This one is not sent to the organizer.',
+    unfav: 'Remove from favorites',
     notify: 'Receive organizer updates',
     scope: '',
     transport: 'Directions (optional)',
     noPromise: '',
     optin: 'Opt in to receive early-bird and registration deadlines, venue directions, last-minute notices, and organizer updates.',
-    submit: 'Confirm', needIntent: 'Choose Going or Interested.',
+    submit: 'Confirm', needIntent: 'Choose Going, Interested, or Not Going.',
     profileTitle: '',
     profileDesc: 'Confirm your email first. After you come back, tap Confirm to save your intent.',
     req: 'All fields are required',
@@ -108,7 +116,9 @@
     '#atm-star .asg-grid{display:flex;flex-wrap:wrap;gap:0 8px}#atm-star .asg-grid .asg-f{flex:1 1 140px;min-width:0}#atm-star .asg{overflow-x:hidden}' +
     '#atm-star label.asg-l{display:block;font-weight:700;color:#0a4f57;margin:10px 0 4px;font-size:.84rem}' +
     '#atm-star input,#atm-star select{width:100%;box-sizing:border-box;min-height:44px;font-size:16px;padding:8px 10px;border:1px solid #ead9b8;border-radius:8px}' +
-    '#atm-star .asg-opt{display:flex;gap:8px;margin:8px 0;padding:4px;background:#f3ece0;border-radius:14px}#atm-star .asg-opt button{flex:1;min-height:48px;border:0;background:transparent;color:#0a4f57;border-radius:12px;font-weight:700}' +
+    '#atm-star .asg-opt{display:flex;gap:6px;margin:8px 0;padding:4px;background:#f3ece0;border-radius:14px}#atm-star .asg-opt button{flex:1;min-height:48px;border:0;background:transparent;color:#0a4f57;border-radius:12px;font-weight:700;font-size:.92rem;padding:4px}' +
+    '#atm-star select:disabled{opacity:.55;background:#f3ece0}' +
+    '.atm-unfav{min-height:44px;margin:6px 0 0;padding:0 12px;border:1px solid #ead9b8;border-radius:999px;background:#fff;color:#2a1a14;font-weight:700}' +
     '#atm-star .asg-opt button[aria-pressed="true"]{background:#0e6e78;color:#f6e3b4}' +
     '#atm-star .asg-go{min-height:48px;font-weight:700;border:0;width:100%;margin-top:10px;background:#0e6e78;color:#f6e3b4;border-radius:12px}#atm-star .asg-go[aria-busy="true"]{opacity:.72}' +
     '#atm-star .asg-hint{margin:10px 2px 0;color:#6b5d52;font-size:.8rem;line-height:1.45}' +
@@ -121,7 +131,7 @@
     '.atm-favbar b{color:#0a4f57}';
   document.head.appendChild(css);
 
-  var mine = {}, drafts = {}, me = null, ready = false, eventsP = null, reach = {}, reachWait = {}, reachTries = {}, reachNext = {}, reachTimer = 0, reachWaiters = {}, reopen = '';
+  var mine = {}, occ = {}, favs = {}, drafts = {}, me = null, ready = false, eventsP = null, reach = {}, reachWait = {}, reachTries = {}, reachNext = {}, reachTimer = 0, reachWaiters = {}, reopen = '';
   var REACH_MAX = 3;
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
@@ -264,7 +274,8 @@
   function statusText(mail) {
     if (mail === 'sent') return L.sent;
     if (mail === 'unchanged') return L.unchanged;
-    if (mail === 'failed' || mail === 'rate_limited' || mail === 'no_organizer') return L.fail;
+    if (mail === 'withheld') return L.withheld;
+    if (mail === 'failed' || mail === 'no_organizer') return L.fail;
     return L.queued;
   }
   function readHash() {
@@ -290,30 +301,33 @@
     if (!e) { ensureEvents().then(function () { open(b); }); return; }
     if (canIntent(e, id) === false) return;
     if (canIntent(e, id) !== true) { awaitReach(id).then(function (v) { if (v === true) open(b); }); return; }
-    var saved = mine[id];
+    var dates = datesOf(e), reg = regular(e);
+    var anchor0 = reg ? (dates[0] || '') : '';
+    var saved = (occ[id] && occ[id][anchor0]) || null;
     var local = ctxGet();
-    var server = drafts[id];
-    var draft = (local && local.id === id && local.intent) ? local
-      : (server ? { id: id, intent: server.intent, date: server.date || '', notify: server.notify !== false, transport: !!server.transport }
-      : { id: id, intent: saved ? saved.intent : '', date: saved ? saved.date || '' : '', notify: saved ? saved.notify !== false : true, transport: saved ? !!saved.transport : false });
+    var draft = (local && local.id === id && local.anchor === anchor0 && local.intent) ? local
+      : (saved ? { id: id, anchor: anchor0, intent: saved.intent, date: saved.intent === 'going' ? (saved.date || anchor0) : '', notify: saved.notify !== false, transport: !!saved.transport }
+      : { id: id, anchor: anchor0, intent: reg ? 'going' : '', date: reg ? anchor0 : '', notify: true, transport: false });
     ctxSet(draft);
     h2().textContent = titleOf(e) || L.title;
-    var dates = datesOf(e), reg = regular(e);
     var verified = !!token();
     var needProfile = verified && (!me || !me.city || !me.role || !me.name);
     var action = verified ? L.submit : L.verifyBtn;
     var html = '';
     if (!verified || needProfile) html += '<p class="asg-note">' + L.explain + '</p>';
-    html += '<div class="asg-opt"><button type="button" data-intent="going" aria-pressed="' + (draft.intent === 'going') + '">' + L.going + '</button><button type="button" data-intent="interested" aria-pressed="' + (draft.intent === 'interested') + '">' + L.interested + '</button></div>';
+    html += '<div class="asg-opt">';
+    ['going', 'interested', 'absent'].forEach(function (k) { html += '<button type="button" data-intent="' + k + '" aria-pressed="' + (draft.intent === k) + '">' + L[k] + '</button>'; });
+    html += '</div>';
     if (reg && dates.length) {
-      html += '<label class="asg-l" for="asg-date">' + L.date + '</label><select id="asg-date">';
-      dates.forEach(function (d) { html += '<option value="' + d + '"' + ((draft.date || dates[0]) === d ? ' selected' : '') + '>' + d + '</option>'; });
+      html += '<label class="asg-l" for="asg-date">' + L.date + '</label><select id="asg-date"' + (draft.intent === 'going' ? '' : ' disabled') + '>';
+      dates.forEach(function (d) { html += '<option value="' + d + '"' + ((draft.date || anchor0) === d ? ' selected' : '') + '>' + d + '</option>'; });
       html += '</select>';
     }
     html += '<label class="asg-check"><input type="checkbox" id="asg-notify"' + (draft.notify !== false ? ' checked' : '') + '>' + L.notify + '</label>';
-    if (reg) html += '<label class="asg-check"><input type="checkbox" id="asg-dir"' + (draft.transport ? ' checked' : '') + '>' + L.transport + '</label>';
+    if (reg) html += '<label class="asg-check"><input type="checkbox" id="asg-dir"' + (draft.intent === 'going' && draft.transport ? ' checked' : '') + (draft.intent === 'going' ? '' : ' disabled') + '>' + L.transport + '</label>';
     if (!verified) {
       html += '<p class="asg-note">' + L.profileDesc + '</p>';
+      html += '<label class="asg-check"><input type="checkbox" id="asg-promo">' + L.promo + '</label>';
       html += field(L.email, 'asg-email', 'email');
     } else if (needProfile) {
       html += '<p class="asg-note">' + L.fill + '</p>';
@@ -328,8 +342,23 @@
     dropTs();
     body().innerHTML = html;
     if (me) { var n = body().querySelector('#asg-name'); if (n && me.name) n.value = me.name; var c = body().querySelector('#asg-city'); if (c && me.city) c.value = me.city; var rr = body().querySelector('#asg-role'); if (rr && me.role) rr.value = me.role; }
-    body().querySelectorAll('[data-intent]').forEach(function (btn) { btn.onclick = function () { draft.intent = btn.getAttribute('data-intent'); ctxSet(draft); body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); }); }; });
-    var dateEl = body().querySelector('#asg-date'); if (dateEl) dateEl.onchange = function () { draft.date = dateEl.value; ctxSet(draft); };
+    var dateEl = body().querySelector('#asg-date');
+    var dirEl0 = body().querySelector('#asg-dir');
+    function lockDate() {
+      var going = draft.intent === 'going';
+      if (dateEl) dateEl.disabled = !going;
+      if (dirEl0) dirEl0.disabled = !going;
+    }
+    body().querySelectorAll('[data-intent]').forEach(function (btn) { btn.onclick = function () {
+      if (draft.intent === 'going' && dateEl) { draft.anchor = dateEl.value; draft.date = dateEl.value; }
+      draft.intent = btn.getAttribute('data-intent');
+      if (draft.intent === 'going' && dateEl) { draft.date = dateEl.value; draft.anchor = dateEl.value; }
+      else draft.date = '';
+      lockDate();
+      ctxSet(draft);
+      body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
+    }; });
+    if (dateEl) dateEl.onchange = function () { if (draft.intent !== 'going') return; draft.date = dateEl.value; draft.anchor = dateEl.value; ctxSet(draft); };
     var noteEl = body().querySelector('#asg-notify'); if (noteEl) noteEl.onchange = function () { draft.notify = noteEl.checked; ctxSet(draft); };
     var dirEl = body().querySelector('#asg-dir'); if (dirEl) dirEl.onchange = function () { draft.transport = dirEl.checked; ctxSet(draft); };
     var go = body().querySelector('#asg-go');
@@ -467,7 +496,7 @@
     if (!err || !ok) return;
     if (go.dataset.busy === '1') return;
     err.textContent = ''; ok.textContent = '';
-    if (draft.intent !== 'going' && draft.intent !== 'interested') { err.textContent = L.needIntent; return; }
+    if (draft.intent !== 'going' && draft.intent !== 'interested' && draft.intent !== 'absent') { err.textContent = L.needIntent; return; }
     go.dataset.busy = '1';
     var tsEl = body().querySelector('.asg-ts');
     var ts = takeToken(tsEl);
@@ -482,7 +511,10 @@
       return;
     }
     var wid = tsEl.dataset.wid || '';
-    var payload = { id: e.id, intent: draft.intent, explicit: 1, disclose: 1, notify: body().querySelector('#asg-notify').checked ? 1 : 0, transport: (body().querySelector('#asg-dir') && body().querySelector('#asg-dir').checked) ? 1 : 0, date: (body().querySelector('#asg-date') || {}).value || draft.date || '', lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: ts, dev: dev() };
+    var dateEl = body().querySelector('#asg-date');
+    var going = draft.intent === 'going';
+    var promo = body().querySelector('#asg-promo');
+    var payload = { id: e.id, intent: draft.intent, explicit: 1, disclose: 1, notify: body().querySelector('#asg-notify').checked ? 1 : 0, transport: (going && body().querySelector('#asg-dir') && body().querySelector('#asg-dir').checked) ? 1 : 0, anchor: draft.anchor || '', date: going ? ((dateEl && dateEl.value) || draft.date || '') : '', alert: promo && promo.checked ? 1 : 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: ts, dev: dev() };
     ['name', 'email', 'city'].forEach(function (k) { var el = body().querySelector('#asg-' + k); if (el) payload[k] = el.value.trim(); });
     var role = body().querySelector('#asg-role'); if (role) payload.role = role.value;
     ctxSet({ id: e.id, intent: draft.intent, date: payload.date, notify: payload.notify !== 0, transport: !!payload.transport });
@@ -514,9 +546,11 @@
         else if (d.need_profile || d.error === 'need_city' || d.error === 'need_role' || d.error === 'need_name') err.textContent = L.fill;
         else if (d.error === 'no_organizer') err.textContent = L.grey;
         else if (d.error === 'turnstile') err.textContent = L.tsVerify;
+        else if (d.error === 'rate_limited') err.textContent = L.later;
         else if (!d.ok) err.textContent = L.again;
         else if (mailBad(d)) ok.textContent = L.fail;
       }
+      if (savedOk || (d && d.confirm)) addLocalFav(e.id);
       if (savedOk) { toast(statusText(d.mail)); finish(false); return; }
       finish(true);
     }).catch(function () { if (sameView() && err.isConnected) err.textContent = L.net; if (sameView()) finish(true); });
@@ -541,11 +575,29 @@
       b.classList.toggle('atm-star-wait', waiting);
       if (off) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
       else if (waiting) { b.setAttribute('aria-disabled', 'false'); b.setAttribute('aria-busy', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.checking; b.setAttribute('aria-label', L.checking); }
-      else if (mine[id]) { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var lab = L.manage + ' ' + (mine[id].intent === 'going' ? L.going : L.interested); b.title = lab; b.setAttribute('aria-label', lab); }
+      else if (showSolid(id, e)) { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var st = occNow(id, e); var lab = L.manage + ' ' + (st && st.intent === 'going' ? L.going : L.interested); b.title = lab; b.setAttribute('aria-label', lab); }
       else { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'false'); b.setAttribute('aria-disabled', 'false'); b.title = L.title; b.setAttribute('aria-label', L.title); }
     });
     document.querySelectorAll('.atm-star-n').forEach(function (n) { n.remove(); });
     queueReach();
+  }
+  function nextAnchor(e) { if (!e || !regular(e)) return ''; var ds = datesOf(e); return ds[0] || ''; }
+  function occNow(id, e) { var bag = occ[id]; if (!bag) return null; return bag[nextAnchor(e)] || null; }
+  function showSolid(id, e) { var st = occNow(id, e); return !!(st && (st.intent === 'going' || st.intent === 'interested')); }
+  function loadLocalFavs() {
+    favs = {};
+    try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); if (Array.isArray(a)) a.forEach(function (id) { if (typeof id === 'string') favs[id] = 1; }); } catch (e) {}
+  }
+  function addLocalFav(id) {
+    favs[id] = 1;
+    try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); if (!Array.isArray(a)) a = []; if (a.indexOf(id) < 0) a.unshift(id); localStorage.setItem('atm_fav_v1', JSON.stringify(a)); } catch (e) {}
+    if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
+  }
+  function dropLocalFav(id) {
+    delete favs[id]; delete occ[id]; delete mine[id];
+    try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); localStorage.setItem('atm_fav_v1', JSON.stringify((a || []).filter(function (x) { return x !== id; }))); } catch (e) {}
+    paint(); paintBar();
+    if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
   }
   function savedText(n) { return '☆ 已收藏 ' + n + ' 个活动'; }
   function syncSaved() {
@@ -556,7 +608,7 @@
   function paintBar() {
     var bar = document.querySelector('.atm-favbar'); if (!bar) { syncSaved(); return false; }
     var grid = document.querySelector('.atm-favgrid');
-    var items = Object.keys(mine);
+    var items = Object.keys(favs);
     var n = items.length;
     bar.classList.toggle('atm-on', n > 0);
     if (zh) {
@@ -569,25 +621,29 @@
     if (grid) {
       grid.hidden = false; grid.innerHTML = '';
       items.forEach(function (id) {
-        var row = mine[id], e = eventOf(id), a = document.createElement('a');
+        var e = eventOf(id), a = document.createElement('a');
         a.className = 'tw-fc atm-favfc'; a.href = location.pathname + '?card=' + encodeURIComponent(id); a.setAttribute('data-fid', id);
         var name = titleOf(e) || id;
-        a.innerHTML = '<span class="tw-fc-body"><strong>' + esc(name) + '</strong><span class="tw-fc-meta">' + esc((row.intent === 'going' ? L.going : L.interested) + (row.date ? ' · ' + row.date : '') + (row.notify ? '' : (zh ? ' · 不收更新' : ' · no updates'))) + '</span></span>';
-        var btn = document.createElement('span'); btn.className = 'atm-heart'; btn.setAttribute('role', 'button'); btn.tabIndex = 0; btn.setAttribute('aria-pressed', 'true'); btn.title = L.manage; btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR + '"/></svg>';
-        a.appendChild(btn); grid.appendChild(a);
+        var st = occNow(id, e);
+        var meta = st ? ((st.intent === 'going' ? L.going : st.intent === 'interested' ? L.interested : L.absent) + (st.intent === 'going' && st.date ? ' · ' + st.date : '')) : (zh ? '已收藏' : 'Saved');
+        a.innerHTML = '<span class="tw-fc-body"><strong>' + esc(name) + '</strong><span class="tw-fc-meta">' + esc(meta) + '</span></span>';
+        var btn = document.createElement('span'); btn.className = 'atm-heart'; btn.setAttribute('role', 'button'); btn.tabIndex = 0; btn.setAttribute('aria-pressed', showSolid(id, e) ? 'true' : 'false'); btn.title = L.manage; btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR + '"/></svg>';
+        var ux = document.createElement('button'); ux.type = 'button'; ux.className = 'atm-unfav'; ux.setAttribute('data-unfav', id); ux.textContent = L.unfav;
+        a.appendChild(btn); a.appendChild(ux); grid.appendChild(a);
       });
     }
     return true;
   }
   function refreshMine() {
-    if (!token()) { me = null; mine = {}; drafts = {}; paint(); paintBar(); return Promise.resolve(); }
+    if (!token()) { me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); paint(); paintBar(); return Promise.resolve(); }
     return api('/social/going/mine').then(function (d) {
-      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; drafts = {}; }
+      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; occ = {}; favs = {}; drafts = {}; }
       else {
         me = { email: d.email, name: d.name, city: d.city, role: d.role };
-        mine = {}; drafts = {};
-        (d.items || []).forEach(function (it) { mine[it.id] = it; });
+        mine = {}; occ = {}; favs = {}; drafts = {};
+        (d.items || []).forEach(function (it) { mine[it.id] = it; if (!occ[it.id]) occ[it.id] = {}; occ[it.id][it.anchor || ''] = it; });
         (d.drafts || []).forEach(function (it) { drafts[it.id] = it; });
+        (d.favs || []).forEach(function (fid) { favs[fid] = 1; addLocalFav(fid); });
       }
       paint(); paintBar();
       if (reopen) { var id = reopen; reopen = ''; openId(id); }
@@ -600,6 +656,7 @@
   }
   window.ATM_STAR = {
     take: function (b) {
+      if (b.closest && b.closest('[data-unfav]')) return false;
       if (b.classList.contains('atm-star-off') || b.getAttribute('aria-disabled') === 'true') return true;
       var id = idOf(b), e = id ? eventOf(id) : null;
       if (!id || (e && hasEmail(e)) || reach[id] === true) { open(b); return true; }
@@ -609,6 +666,15 @@
     },
     paintBar: paintBar, paint: paint, listed: function () { return Object.keys(mine).length; }
   };
+  document.addEventListener('click', function (e) {
+    var u = e.target.closest && e.target.closest('[data-unfav]');
+    if (!u) return;
+    e.preventDefault(); e.stopPropagation();
+    var id = u.getAttribute('data-unfav');
+    var done = function () { dropLocalFav(id); };
+    if (!token()) { done(); return; }
+    api('/social/going/unfav', { id: id, explicit: 1 }).then(done).catch(done);
+  }, true);
   document.addEventListener('atm-more', function () { paint(); });
   readHash();
   ensureEvents();

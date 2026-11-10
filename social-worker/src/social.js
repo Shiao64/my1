@@ -1,6 +1,6 @@
 import { gmailSend } from './smtp.js';
 import { updateFooter } from './unsub.js';
-import { goingConfirm, goingSubmit, goingCancel, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
+import { goingConfirm, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
 export { generateGoingStats, runGoingNotices };
 // Asia Tango Map likes API, plus email confirm for the update list. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
@@ -257,6 +257,7 @@ export async function social(req, env, url, json) {
   if (p === '/profile' && req.method === 'POST') return goingProfile(req, env, b, ip, iph, json, goingKit());
   if (p === '/going' && req.method === 'POST') return goingSubmit(req, env, b, ip, iph, json, goingKit());
   if (p === '/going/cancel' && req.method === 'POST') return goingCancel(req, env, b, json, goingKit());
+  if (p === '/going/unfav' && req.method === 'POST') return goingUnfav(req, env, b, json, goingKit());
   if (p === '/going/restore' && req.method === 'POST') return goingRestore(req, env, b, ip, json, goingKit());
   if ((p === '/admin/going-reports' || p === '/admin/going-reports/run') && (req.method === 'GET' || req.method === 'POST')) return goingAdmin(req, env, url, b, json, goingKit());
   if ((p === '/admin/going-notices' || p === '/admin/going-notices/run') && (req.method === 'GET' || req.method === 'POST')) return goingNoticeAdmin(req, env, url, b, json, goingKit());
