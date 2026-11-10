@@ -6,7 +6,7 @@ const hostOK = o => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), og = req.headers.get('Origin') || '', allow = hostOK(og) ? og : 'https://tangoweekend.org';
-    const h = { 'Access-Control-Allow-Origin': allow, 'Access-Control-Allow-Headers': 'Content-Type,Authorization', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', Vary: 'Origin' };
+    const h = { 'Access-Control-Allow-Origin': allow, 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Headers': 'Content-Type,Authorization', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', Vary: 'Origin' };
     const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...h } });
     if (url.pathname.startsWith('/social/')) {
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });

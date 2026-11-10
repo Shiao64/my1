@@ -12,10 +12,11 @@ const fav = read('asia/asia-fav.js');
 const home = read('asia/atm-home.js');
 const social = read('asia/atm-social.js');
 check('menu zh is short', menu.includes("sub: '订阅'") && !menu.includes('先登记资料并验证邮箱；之后可在活动五角星选择'));
-check('menu en', menu.includes('Subscribe & event intent') && menu.includes('Register once and verify your email'));
-check('form zh', sub.includes("title: '订阅'") && sub.includes("desc: '按需发送活动资讯'") && sub.includes('这里不报名，也不通知组织者') && sub.includes('引带（Leader）') && sub.includes('跟随（follower）') && sub.includes('两者皆可（both）') && !sub.includes('微信验证') && !sub.includes('不定时发送活动更新') && sub.includes('alert: 0'));
-check('form en', sub.includes('does not email organizers') && sub.includes("title: 'Subscribe'") && sub.includes("rl: 'Leader'") && sub.includes("rf: 'follower'") && sub.includes("rb: 'both'"));
-check('form posts profile', sub.includes('/social/profile') && sub.includes('alert: 0'));
+check('menu en', menu.includes("sub: 'Subscribe'") && menu.includes("mine: 'My profile'"));
+check('menu profile label', menu.includes("mine: '我的资料'") && menu.includes('sessionOn') && !menu.includes('Subscribe & event intent'));
+check('form zh', sub.includes("title: '订阅'") && sub.includes("mine: '我的资料'") && sub.includes("desc: '按需发送活动资讯'") && sub.includes('这里不报名，也不通知组织者') && sub.includes('引带（Leader）') && sub.includes('跟随（follower）') && sub.includes('两者皆可（both）') && sub.includes('加入 ATM 全站订阅') && sub.includes('id="tsub-site" checked') && !sub.includes('微信验证') && !sub.includes('不定时发送活动更新') && !sub.includes('alert: 0'));
+check('form en', sub.includes('does not email organizers') && sub.includes("title: 'Subscribe'") && sub.includes('Join ATM site-wide subscription') && sub.includes("rl: 'Leader'") && sub.includes("rf: 'follower'") && sub.includes("rb: 'both'"));
+check('form posts profile', sub.includes('/social/profile') && sub.includes('alert: site'));
 check('roles not old labels', !sub.includes("rl: '领舞'"));
 check('grey copy', star.includes('组织者尚未提供邮箱') && star.includes('Organizer email not available yet') && star.includes('正在确认组织者邮箱') && star.includes('Checking organizer email'));
 check('verified zh dialog', star.includes("going: '要参加'") && star.includes("interested: '感兴趣'") && star.includes('接收主办方讯息') && star.includes("submit: '确认'") && star.includes('勾选后，可接收早鸟报名及截止时间、场地交通指引、临时通知和主办方消息。'));
@@ -23,7 +24,7 @@ check('verified en dialog', star.includes("going: 'Going'") && star.includes("in
 check('old disclosure is not in the dialog', !star.includes('Selecttango@gmail.com') && !star.includes('确认意向') && !star.includes('Confirm intent') && !star.includes('资料说明') && !star.includes('详细说明') && !star.includes('姓名、邮箱及意向将发给主办') && !star.includes('设计预览') && !star.includes('Going · 要参加'));
 check('confirm is still explicit', star.includes('explicit: 1') && star.includes('disclose: 1') && star.includes('data-intent'));
 check('not a like', !star.includes('不是点赞') && !star.includes('not a like'));
-check('star cache', read('zh/asia/index.html').includes('atm-star.js?v=st17'));
+check('star cache', read('zh/asia/index.html').includes('atm-star.js?v=st18'));
 check('reach is a boolean and a missing session is not the grey switch', star.includes('/social/going/reach') && star.includes('canIntent') && !star.includes('if (!token()) grey'));
 check('one confirm button', star.includes("submit: '确认'") && star.includes("submit: 'Confirm'") && star.includes("verifyBtn: '确认'") && star.includes("verifyBtn: 'Confirm'") && !star.includes('确认邮箱并继续') && !star.includes('Confirm email and continue') && !star.includes('asg-restore'));
 check('bar', star.includes('我的活动意向') && star.includes('My event intents'));
@@ -40,7 +41,7 @@ check('intent dialog no longer renders or resets the human check', !star.include
 check('home chinese count', home.includes('data-atm-saved="1">☆ 已收藏 ') && home.includes(' 个活动</p>') && !home.includes('点五角星选择 Going 或 Interested。验证邮箱后显示在「我的活动意向」。'));
 check('home english hint stays', home.includes('Tap the star to choose Going or Interested. After you verify your email, intents show under My event intents.'));
 check('fav fallback chinese count', fav.includes('☆ 已收藏 ') && fav.includes('Tap the star to choose Going or Interested. It shows here after you verify your email.'));
-check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h135') && read('zh/asia/index.html').includes('atm-star.js?v=st17') && read('asia/index.html').includes('atm-star.js?v=st17') && read('asia/index.html').includes('atm-data.js?v=r9') && read('asia/index.html').includes('asia-map.js?v=r10') && read('asia/index.html').includes('cardB.js?v=cb145'));
+check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h135') && read('zh/asia/index.html').includes('atm-star.js?v=st18') && read('asia/index.html').includes('atm-star.js?v=st18') && read('asia/index.html').includes('atm-data.js?v=r9') && read('asia/index.html').includes('asia-map.js?v=r10') && read('asia/index.html').includes('cardB.js?v=cb145'));
 check('close replaces the cancel-intent button', star.includes('class="asg-x"') && star.includes("close: '关闭'") && star.includes("close: 'Close'") && !star.includes('id="asg-cancel"') && !star.includes('/social/going/cancel'));
 check('favorite unfavorite label stays', home.includes('取消收藏') && home.includes('Remove from favorites'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }

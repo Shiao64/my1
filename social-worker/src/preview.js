@@ -7,7 +7,7 @@ const LIVE = 'https://tangoweekend.org';
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), o = url.origin;
-    const h = { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Headers': 'Content-Type,Authorization', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
+    const h = { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Headers': 'Content-Type,Authorization', 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS' };
     const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...h } });
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
     if (url.pathname.startsWith('/social/')) return social(req, env, url, json);

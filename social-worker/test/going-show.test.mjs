@@ -18,6 +18,7 @@ const db = new DatabaseSync(':memory:');
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_confirm_show.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);
@@ -58,7 +59,7 @@ check('guest confirm mail is only the short subscription letter', first.confirm 
 check('guest row is pending, not an intent', !db.prepare('SELECT id FROM going_intents WHERE email=?').get('ann@example.com') && db.prepare('SELECT anchor a, intent i FROM going_pending WHERE email=?').get('ann@example.com').a === dates[0]);
 const link = first.preview_link;
 const done = await social(new Request('https://api.example.test/social/going/confirm', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ e: 'ann@example.com', t: new URL(link).searchParams.get('t'), next: ret, confirm: '1' }).toString() }), env, new URL('https://api.example.test/social/going/confirm'), json);
-const token = ((await done.text()).match(/atm=([0-9a-f]{64})/) || [])[1];
+const token = ((await done.text()).match(/s=([0-9a-f]{64})/) || [])[1];
 check('the checked subscribe choice starts only after the link is confirmed', db.prepare("SELECT status s FROM email_subs WHERE email=?").get('ann@example.com').s === 'active');
 const plain = await post('/going', { ...base, email: 'plain@example.com', name: 'Plain', id: 'F1', intent: 'interested', alert: 0 });
 const plainDone = await social(new Request('https://api.example.test/social/going/confirm', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ e: 'plain@example.com', t: new URL(plain.preview_link).searchParams.get('t'), next: ret, confirm: '1' }).toString() }), env, new URL('https://api.example.test/social/going/confirm'), json);

@@ -87,10 +87,17 @@ await zh.waitForFunction(() => document.querySelector('#atm-star').hidden);
 check('unverified not going closes locally and does not post', await zh.evaluate(() => window.__posts.length === 0 && document.querySelector('#atm-star').hidden === true));
 await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
 await zh.waitForSelector('#asg-go');
-await zh.evaluate(() => { document.querySelector('[data-intent="going"]').click(); document.querySelector('#asg-email').value = 'guest@example.com'; document.querySelector('#asg-go').click(); });
+await zh.evaluate(() => {
+  document.querySelector('[data-intent="going"]').click();
+  document.querySelector('#asg-email').value = 'guest@example.com';
+  document.querySelector('#asg-name').value = 'Guest';
+  document.querySelector('#asg-city').value = 'Osaka';
+  document.querySelector('#asg-role').value = 'leader';
+  document.querySelector('#asg-go').click();
+});
 await zh.waitForFunction(() => window.__posts.length === 1);
-const posted = await zh.evaluate(() => ({ body: window.__posts[0], go: document.querySelector('#asg-go').textContent, off: document.querySelector('#asg-go').disabled, hidden: document.querySelector('#atm-star').hidden }));
-check('confirm posts once and keeps the button disabled', posted.body.intent === 'going' && posted.body.email === 'guest@example.com' && posted.go === '已发送邮件，请到邮箱确认' && posted.off === true && posted.hidden === false);
+const posted = await zh.evaluate(() => ({ body: window.__posts[0], go: document.querySelector('#asg-go').textContent, off: document.querySelector('#asg-go').disabled, hidden: document.querySelector('#atm-star').hidden, promo: document.querySelector('#asg-promo').checked }));
+check('confirm posts once and keeps the button disabled', posted.body.intent === 'going' && posted.body.email === 'guest@example.com' && posted.body.name === 'Guest' && posted.body.city === 'Osaka' && posted.body.role === 'leader' && posted.body.alert === 1 && posted.promo === true && posted.go === '已发送邮件，请到邮箱确认' && posted.off === true && posted.hidden === false);
 await zh.evaluate(() => document.querySelector('#asg-go').click());
 check('a second tap in the same dialog does not send', await zh.evaluate(() => window.__posts.length === 1));
 await zh.click('[data-x]');
@@ -113,6 +120,11 @@ await zh.waitForSelector('#asg-go');
 await zh.evaluate(() => document.querySelector('[data-intent="going"]').click());
 await zh.waitForFunction(() => document.querySelector('#asg-go').disabled === false && document.querySelector('#asg-go').textContent === '确认');
 check('after one minute the same show can be resent once', await zh.evaluate(() => document.querySelector('#asg-resend').textContent === '请先检查垃圾邮件；1 分钟后可重发一次' && document.querySelector('#asg-go').textContent === '确认'));
+await zh.evaluate(() => {
+  document.querySelector('#asg-name').value = 'Guest';
+  document.querySelector('#asg-city').value = 'Osaka';
+  document.querySelector('#asg-role').value = 'leader';
+});
 await zh.click('#asg-go');
 await zh.waitForFunction(() => window.__posts.length === 2);
 check('the resend locks the button again', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').textContent === '已发送邮件，请到邮箱确认'));
@@ -125,12 +137,25 @@ check('a third open says the resend was used', await zh.evaluate(() => document.
 await zh.close();
 
 const en = await open('en');
-await en.evaluate(() => { window.__mode = 'limited'; document.querySelector('#asg-email').value = 'guest@example.com'; document.querySelector('#asg-go').click(); });
+await en.evaluate(() => {
+  window.__mode = 'limited';
+  document.querySelector('#asg-email').value = 'guest@example.com';
+  document.querySelector('#asg-name').value = 'Guest';
+  document.querySelector('#asg-city').value = 'Osaka';
+  document.querySelector('#asg-role').value = 'leader';
+  document.querySelector('#asg-go').click();
+});
 await en.waitForFunction(() => (document.querySelector('#asg-err') || {}).textContent);
 check('english limit copy is explicit and the widget stays absent', await en.evaluate(() => document.querySelector('#asg-err').textContent === 'Too many confirmation emails. Please try again later.' && document.querySelector('#asg-go').disabled === false && document.querySelector('#asg-go').textContent === 'Confirm' && document.querySelectorAll('.asg-ts').length === 0 && window.__renders === 0 && document.querySelector('#atm-star').hidden === false && !('ts' in window.__posts[0])));
 await en.close();
 const enSent = await open('en');
-await enSent.evaluate(() => { document.querySelector('#asg-email').value = 'guest@example.com'; document.querySelector('#asg-go').click(); });
+await enSent.evaluate(() => {
+  document.querySelector('#asg-email').value = 'guest@example.com';
+  document.querySelector('#asg-name').value = 'Guest';
+  document.querySelector('#asg-city').value = 'Osaka';
+  document.querySelector('#asg-role').value = 'leader';
+  document.querySelector('#asg-go').click();
+});
 await enSent.waitForFunction(() => window.__posts.length === 1);
 check('english sent label stays disabled', await enSent.evaluate(() => document.querySelector('#asg-go').textContent === 'Email sent — please confirm in your inbox' && document.querySelector('#asg-go').disabled === true && window.__posts.length === 1));
 await enSent.evaluate(() => document.querySelector('#asg-go').click());

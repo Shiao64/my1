@@ -6,16 +6,16 @@
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
   var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
   var L = zh ? {
-    btn: '订阅', title: '订阅', desc: '按需发送活动资讯', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
-    email: '邮箱', emailPh: 'name@example.com',
+    btn: '订阅', title: '订阅', mine: '我的资料', desc: '按需发送活动资讯', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
+    email: '邮箱', emailPh: 'name@example.com', site: '加入 ATM 全站订阅',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '验证邮件发送失败，请检查邮箱或稍后再试。',
-    submit: '发送验证邮件', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。', saved: '资料已保存。这个设备已经验证过，没有再发信。',
+    submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。', saved: '资料已保存。这个设备已经验证过，没有再发信。',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '这里不报名，也不通知组织者。某个活动要参加或感兴趣，请到该活动点五角星再确认。', close: '关闭'
   } : {
-    btn: '✉ Subscribe & event intent', title: 'Subscribe', desc: 'Enter your name, city, role, and email, then verify the email. This saves your profile.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
-    email: 'Email', emailPh: 'name@example.com',
+    btn: 'Subscribe', title: 'Subscribe', mine: 'My profile', desc: 'Enter your name, city, role, and email, then verify the email. This saves your profile.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
+    email: 'Email', emailPh: 'name@example.com', site: 'Join ATM site-wide subscription',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the verification email. Check the address or try again.', bad: 'Please check your email address.',
-    submit: 'Send verification email', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish.', saved: 'Profile saved. This device is already verified, so no new email was sent.',
+    submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish.', saved: 'Profile saved. This device is already verified, so no new email was sent.',
     fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'This does not register you for an event and does not email organizers. For Going or Interested, use the star on that event.', close: 'Close'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
@@ -39,6 +39,8 @@
     '#tsub-modal .tsub-hint{font-size:.8rem;color:#7a6255;margin:6px 0 0}#tsub-modal .tsub-err{color:#b5654a;font-size:.85rem;margin:8px 0 0;min-height:1em}' +
     '#tsub-modal .tsub-tabs{display:flex;margin:10px 0 6px;border:1px solid #0e6e78;border-radius:8px;overflow:hidden}#tsub-modal .tsub-tab{flex:1;padding:9px 0;border:0;background:#fff;color:#0e6e78;font:600 .95rem system-ui;cursor:pointer}#tsub-modal .tsub-tab[aria-selected=true]{background:#0e6e78;color:#fff}#tsub-modal .tsub-tab.tsub-off,#tsub-modal .tsub-tab:disabled{opacity:.45;cursor:not-allowed;background:#eee;color:#9a9a9a;pointer-events:none}#tsub-modal [data-m=wx] .tsub-emf,#tsub-modal [data-m=em] .tsub-wxf,#tsub-modal [data-m] .tsub-hint{display:none!important}#tsub-modal .tsub-qa{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}#tsub-modal .tsub-qb{padding:7px 14px;border:1px solid #0e6e78;border-radius:8px;color:#0e6e78;text-decoration:none;font:600 .9rem system-ui;background:#fff}#tsub-modal .tsub-wid{text-align:center;font-size:.88rem;margin:6px 0 2px}#tsub-modal .tsub-wid .tsub-qb{padding:4px 10px;font-size:.82rem;cursor:pointer}#tsub-modal .tsub-wxb{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#07a050;font:600 .72rem system-ui}#tsub-modal .tsub-qr{-webkit-touch-callout:default;user-select:auto}#tsub-modal .tsub-qh{text-align:center;font-size:.82rem;color:#7a6255;margin:2px 0 6px}#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;margin:8px 0 0;line-height:1.6}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:auto;margin:10px auto 0;border-radius:8px}' +
     '#tsub-modal .tsub-go{width:100%;min-height:44px;margin-top:10px;border-radius:999px;font-size:1rem;background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;cursor:pointer}#tsub-modal .tsub-go:disabled{opacity:.5}' +
+    '#tsub-modal .tsub-check{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;font-size:.88rem;color:#2a1a14}#tsub-modal .tsub-check input{width:auto;min-height:0;margin-top:3px}' +
+    '#tsub-modal .tsub-unsub{width:100%;min-height:44px;margin-top:8px;border-radius:999px;background:#fff;color:#7a6255;border:1px solid #ead9b8;cursor:pointer}' +
     '#tsub-modal .tsub-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}' +
     '#tsub-modal .tsub-foot{font-size:.78rem;color:#7a6255;margin:12px 0 0;padding-top:8px;border-top:1px dashed #ead9b8}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -61,13 +63,15 @@
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
     '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate data-m="em">' +
-    '<label class="tsub-lbl" for="tsub-n">' + L.name + '</label><input type="text" class="tsub-in" id="tsub-n" autocomplete="name" maxlength="40" required aria-required="true" placeholder="' + L.namePh + '">' +
-    '<div class="tsub-row"><div class="tsub-col"><label class="tsub-lbl" for="tsub-c">' + L.city + '</label><input type="text" class="tsub-in" id="tsub-c" autocomplete="address-level2" maxlength="40" required aria-required="true" placeholder="' + L.cityPh + '"></div>' +
-    '<div class="tsub-col"><label class="tsub-lbl" for="tsub-r">' + L.role + '</label><select class="tsub-in" id="tsub-r" required aria-required="true"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div></div>' +
     EM() +
+    '<label class="tsub-lbl" for="tsub-n">' + L.name + '</label><input type="text" class="tsub-in" id="tsub-n" autocomplete="name" maxlength="40" required aria-required="true" placeholder="' + L.namePh + '">' +
+    '<div class="tsub-row"><div class="tsub-col"><label class="tsub-lbl" for="tsub-r">' + L.role + '</label><select class="tsub-in" id="tsub-r" required aria-required="true"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>' +
+    '<div class="tsub-col"><label class="tsub-lbl" for="tsub-c">' + L.city + '</label><input type="text" class="tsub-in" id="tsub-c" autocomplete="address-level2" maxlength="40" required aria-required="true" placeholder="' + L.cityPh + '"></div></div>' +
+    '<label class="tsub-check" for="tsub-site"><input type="checkbox" id="tsub-site" checked>' + L.site + '</label>' +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
     '<div class="tsub-ts"></div><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
-    '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
+    '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button>' +
+    '<button type="submit" class="tsub-unsub" id="tsub-unsub" hidden>' + L.unsub + '</button><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
     '<p class="tsub-foot">' + L.foot + '</p></div></div>';
   document.body.appendChild(m);
   var $ = function (id) { return document.getElementById(id); };
@@ -85,7 +89,43 @@
     if (key) start(key);
     else fetch((window.TANGO_SUB_API || 'https://api.tangoweekend.org') + '/social/going/config').then(function (r) { return r.json(); }).then(function (d) { if (d && d.sitekey) { window.ATM_TS_KEY = d.sitekey; start(d.sitekey); } }).catch(function () {});
   }
-  function open() { if (tmr) { clearTimeout(tmr); tmr = null; } $('tsub-ok').hidden = true; $('tsub-err').textContent = ''; m.hidden = false; mountSubTs(); }
+  function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
+  function pageRet() {
+    try {
+      var u = new URL(location.href);
+      u.hash = '';
+      var y = Math.round(window.scrollY || window.pageYOffset || 0);
+      if (y > 0) u.searchParams.set('atm_y', String(y));
+      else u.searchParams.delete('atm_y');
+      return u.toString();
+    } catch (e) { return location.href.split('#')[0]; }
+  }
+  function paintMode(on) {
+    $('tsub-t').textContent = on ? L.mine : L.title;
+    var go = $('tsub-go');
+    if (go && go.dataset.busy !== '1') go.textContent = on ? L.save : L.submit;
+    var un = $('tsub-unsub'); if (un) un.hidden = !on;
+    var em = $('tsub-e'); if (em) em.disabled = !!on;
+    var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = !!on;
+  }
+  function open() {
+    if (tmr) { clearTimeout(tmr); tmr = null; }
+    $('tsub-ok').hidden = true; $('tsub-err').textContent = '';
+    var tok = token();
+    paintMode(!!tok);
+    m.hidden = false;
+    if (!tok) { mountSubTs(); return; }
+    var headers = { Authorization: 'Bearer ' + tok };
+    fetch(API + '/social/going/mine', { headers: headers }).then(function (r) { return r.json(); }).then(function (d) {
+      if (!d || !d.email) { paintMode(false); mountSubTs(); return; }
+      $('tsub-n').value = d.name || '';
+      if ($('tsub-c')) $('tsub-c').value = d.city || '';
+      if ($('tsub-r')) $('tsub-r').value = d.role || '';
+      if ($('tsub-e')) $('tsub-e').value = d.email || '';
+      if ($('tsub-site')) $('tsub-site').checked = !!d.sitewide;
+      paintMode(true);
+    }).catch(function () { paintMode(false); mountSubTs(); });
+  }
   function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; }
   $('tsub-open').addEventListener('click', open);
   m.addEventListener('click', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-x')) close(); });
@@ -94,7 +134,10 @@
 
   $('tsub-f').addEventListener('submit', function (e) {
     e.preventDefault();
+    var profile = $('tsub-e') && $('tsub-e').disabled;
+    var unsubmitting = e.submitter && e.submitter.id === 'tsub-unsub';
     var em = $('tsub-e') ? $('tsub-e').value.trim() : '', nm = $('tsub-n').value.trim(), cy = $('tsub-c') ? $('tsub-c').value.trim() : '', role = $('tsub-r') ? $('tsub-r').value : '', err = $('tsub-err'), ok = $('tsub-ok'), go = $('tsub-go');
+    var site = unsubmitting ? 0 : ($('tsub-site') && $('tsub-site').checked ? 1 : 0);
     err.textContent = ''; ok.hidden = true;
     if (!nm) { err.textContent = L.needName; $('tsub-n').focus(); return; }
     if (!cy) { err.textContent = L.needCity; $('tsub-c').focus(); return; }
@@ -102,17 +145,19 @@
     if (!em) { err.textContent = L.need; if ($('tsub-e')) $('tsub-e').focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
     if ($('tsub-hp').value) { ok.textContent = L.ok; ok.hidden = false; return; }
-    go.disabled = true; go.textContent = L.sending;
+    go.disabled = true; go.dataset.busy = '1'; go.textContent = profile ? L.saving : L.sending;
     var headers = { 'Content-Type': 'application/json' }; try { var tok = localStorage.getItem('atm_session'); if (tok) headers.Authorization = 'Bearer ' + tok; } catch (e2) {}
     var tsEl = document.querySelector('#tsub-f .tsub-ts');
     var ts = '';
-    if (tsEl) { var inp = tsEl.querySelector('[name="cf-turnstile-response"]'); ts = inp ? String(inp.value || '').trim() : ''; }
-    if (!ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.textContent = L.submit; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
-    fetch(API + '/social/profile', { method: 'POST', headers: headers, body: JSON.stringify({ name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: 0, ret: location.href.split('#')[0], website: $('tsub-hp').value, ts: ts }) })
+    if (tsEl && !tsEl.hidden) { var inp = tsEl.querySelector('[name="cf-turnstile-response"]'); ts = inp ? String(inp.value || '').trim() : ''; }
+    if (!profile && !ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.dataset.busy = ''; go.textContent = L.submit; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
+    fetch(API + '/social/profile', { method: 'POST', credentials: 'include', headers: headers, body: JSON.stringify({ name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: site, ret: pageRet(), website: $('tsub-hp').value, ts: ts }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.ok) {
           ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false; if (!d.session) $('tsub-f').reset();
+          if (d.session && $('tsub-site')) $('tsub-site').checked = !!d.sitewide;
+          if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
           if (tmr) clearTimeout(tmr);
           tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 6000);
         }
@@ -121,7 +166,7 @@
         }
       })
       .catch(function () { err.textContent = L.fail; })
-      .then(function () { go.disabled = false; go.textContent = L.submit; });
+      .then(function () { go.disabled = false; go.dataset.busy = ''; paintMode(!!($('tsub-e') && $('tsub-e').disabled && token())); });
   });
 })();
 
@@ -146,9 +191,25 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put();
 })();
 
+/* Return from a menu confirm to the scroll position stored in atm_y. */
+(function () {
+  var y = '';
+  try { y = new URLSearchParams(location.search).get('atm_y') || ''; } catch (e) { return; }
+  if (!/^\d+$/.test(y)) return;
+  var n = +y;
+  function go() { window.scrollTo(0, n); }
+  go();
+  window.addEventListener('load', function () { go(); setTimeout(go, 80); });
+  try {
+    var u = new URL(location.href);
+    u.searchParams.delete('atm_y');
+    history.replaceState(history.state, '', u.pathname + u.search + u.hash);
+  } catch (e) {}
+})();
+
 /* Open at top: don't restore an old scroll position (e.g. footer) on reload */
 (function(){
-  if (location.hash) return;
+  if (location.hash || /[?&]atm_y=\d+/.test(location.search) || /[?&]intent=resume(?:&|$)/.test(location.search)) return;
   try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
   function top(){ if (!location.hash) window.scrollTo(0, 0); }
   top(); window.addEventListener('load', function(){ top(); setTimeout(top, 60); });

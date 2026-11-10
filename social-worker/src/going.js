@@ -203,11 +203,61 @@ async function upsertUser(env, kit, email, fields) {
 async function saveVerify(env, kit, row) {
   const mag = kit.rnd(32);
   const hash = await kit.sha(row.email + ':' + mag);
-  await env.SDB.prepare(`INSERT INTO profile_verify(email,token_hash,sent_at,tries,lang,name,city,role,alert_opt_in,ret) VALUES(?,?,?,0,?,?,?,?,?,?)
-    ON CONFLICT(email) DO UPDATE SET token_hash=excluded.token_hash,sent_at=excluded.sent_at,tries=0,lang=excluded.lang,name=excluded.name,city=excluded.city,role=excluded.role,alert_opt_in=excluded.alert_opt_in,ret=excluded.ret`)
-    .bind(row.email, hash, kit.now(), row.lang, row.name, row.city, row.role, row.alert, row.ret).run();
+  const site = row.alert ? 1 : 0;
+  const intent = intentOf(row.intent);
+  const card = kit.ID_RE.test(String(row.card || '')) ? String(row.card) : '';
+  await env.SDB.prepare(`INSERT INTO profile_verify(email,token_hash,sent_at,tries,lang,name,city,role,alert_opt_in,ret,pending_intent,card_id,wants_sitewide) VALUES(?,?,?,0,?,?,?,?,?,?,?,?,?)
+    ON CONFLICT(email) DO UPDATE SET token_hash=excluded.token_hash,sent_at=excluded.sent_at,tries=0,lang=excluded.lang,name=excluded.name,city=excluded.city,role=excluded.role,alert_opt_in=excluded.alert_opt_in,ret=excluded.ret,pending_intent=excluded.pending_intent,card_id=excluded.card_id,wants_sitewide=excluded.wants_sitewide`)
+    .bind(row.email, hash, kit.now(), row.lang, row.name || '', row.city || '', row.role || '', site, row.ret, intent || '', card, site).run();
   const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
-  return base + '/social/going/confirm?e=' + encodeURIComponent(row.email) + '&t=' + mag + '&next=' + encodeURIComponent(row.ret);
+  return base + '/social/going/confirm?e=' + encodeURIComponent(row.email) + '&t=' + mag;
+}
+function allowOrigin(req) {
+  const og = req.headers.get('Origin') || '';
+  if (/^https:\/\/(www\.)?tangoweekend\.org$/.test(og) || /^https:\/\/api\.tangoweekend\.org$/.test(og) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(og)) return og;
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(og)) return og;
+  return '';
+}
+const VERIFY_COOKIE = 'atm_verify=1; Path=/; Max-Age=1800; SameSite=None; Secure';
+function confirmJson(req, body, status = 200) {
+  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+  const og = allowOrigin(req);
+  if (og) {
+    headers['Access-Control-Allow-Origin'] = og;
+    headers['Access-Control-Allow-Credentials'] = 'true';
+    headers.Vary = 'Origin';
+  }
+  if (body && body.confirm) headers['Set-Cookie'] = VERIFY_COOKIE;
+  return new Response(JSON.stringify(body), { status, headers });
+}
+function sessionCookie(token) {
+  return `atm_session=${token}; Path=/; Max-Age=34560000; Domain=.tangoweekend.org; Secure; SameSite=Lax`;
+}
+function sameBrowser(req) {
+  return /(?:^|;\s*)atm_verify=1(?:;|$)/.test(req.headers.get('Cookie') || '');
+}
+function wechatUa(req) {
+  return /MicroMessenger/i.test(req.headers.get('User-Agent') || '');
+}
+function resumeDest(row, card, token) {
+  let origin = 'https://tangoweekend.org';
+  try { origin = new URL(row.ret).origin; } catch { /* keep production */ }
+  const u = new URL(row.lang === 'zh' ? '/zh/asia/' : '/asia/', origin);
+  u.search = '';
+  u.hash = '';
+  u.searchParams.set('card', card);
+  u.searchParams.set('intent', 'resume');
+  u.searchParams.set('s', token);
+  return u.toString();
+}
+function menuDest(kit, ret, token) {
+  const back = kit.safeNext(ret);
+  if (!back) return '';
+  const u = new URL(back);
+  if (u.searchParams.get('intent') === 'resume') u.searchParams.delete('intent');
+  u.hash = '';
+  u.searchParams.set('s', token);
+  return u.toString();
 }
 const ZH_SIGN = '探戈助理 · 亚洲探戈地图';
 const EN_SIGN = 'Tango Assistant · Asia Tango Map';
@@ -370,6 +420,22 @@ function page(kit, ok, lang, msg, dest) {
 <p style="font-size:1.05rem;line-height:1.5;color:#0a4f57;font-weight:700">${kit.he(msg)}</p>${back}</div></body></html>`,
     { status: ok ? 200 : 400, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' } });
 }
+function resultPage(kit, lang, msg, dest, opt) {
+  const zh = lang === 'zh';
+  const href = dest ? kit.he(dest) : '';
+  const backWord = opt.event ? (zh ? '返回活动' : 'Back to event') : (zh ? '返回' : 'Back');
+  const refresh = opt.redirect && href ? `<meta http-equiv="refresh" content="0;url=${href}">` : '';
+  const hint = opt.wechat ? `<p style="font-size:.85rem;line-height:1.45;color:#7a6255">${zh
+    ? '你正在微信内置浏览器中。请点下面的按钮返回。如果页面没有打开，请点右上角「···」，选择在浏览器中打开。'
+    : 'You are in WeChat’s built-in browser. Tap the button below to go back. If the page does not open, use the ··· menu and choose Open in Browser.'}</p>` : '';
+  const back = href ? `<p><a href="${href}" style="display:inline-block;margin-top:8px;background:#0e6e78;color:#f6e3b4;border-radius:999px;padding:12px 22px;font-weight:700;text-decoration:none">${backWord}</a></p>` : '';
+  const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' };
+  if (opt.cookie) headers['Set-Cookie'] = opt.cookie;
+  return new Response(`<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${refresh}<title>${kit.he(msg)}</title>
+<body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
+<p style="font-size:1.05rem;line-height:1.5;color:#0a4f57;font-weight:700">${kit.he(msg)}</p>${back}${hint}</div></body></html>`,
+    { status: 200, headers });
+}
 function confirmForm(kit, lang, email, tok, next) {
   const zh = lang === 'zh';
   const msg = zh ? '请点下面的按钮确认邮箱。打开链接本身不会通知组织者。' : 'Tap the button to confirm your email. Opening this page does not notify an organizer.';
@@ -383,7 +449,7 @@ function confirmForm(kit, lang, email, tok, next) {
 
 export async function goingConfirm(req, env, url, kit) {
   const { email, tok, next, go } = await kit.confirmFields(req, url);
-  if (!kit.EMAIL_RE.test(email) || !/^[0-9a-f]{64}$/.test(tok) || !next) return page(kit, false, 'en', INVALID, '');
+  if (!kit.EMAIL_RE.test(email) || !/^[0-9a-f]{64}$/.test(tok)) return page(kit, false, 'en', INVALID, '');
   const hash = await kit.sha(email + ':' + tok);
   const row = await env.SDB.prepare('SELECT * FROM profile_verify WHERE email=?').bind(email).first();
   const sent = Date.parse(row && row.sent_at || '');
@@ -392,18 +458,24 @@ export async function goingConfirm(req, env, url, kit) {
     return page(kit, false, row && row.lang === 'zh' ? 'zh' : 'en', !row || sent + PROFILE_MS < Date.now() ? EXPIRED : INVALID, '');
   }
   const lang = row.lang === 'zh' ? 'zh' : 'en';
-  if (req.method !== 'POST' || !go) return confirmForm(kit, lang, email, tok, next);
+  if (req.method !== 'POST' || !go) return confirmForm(kit, lang, email, tok, next || row.ret || '');
   const user = await fillBlanks(env, kit, email, { name: row.name, city: row.city, role: row.role, lang, iph: '' });
   const token = await kit.issueSession(env, { ...user, lang }, { keepCode: true });
-  if (row.alert_opt_in) { try { await kit.applyList(env, { email, name: user.name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
-  const latest = await env.SDB.prepare('SELECT card_id FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC LIMIT 1').bind(email).first();
+  const want = row.wants_sitewide === 1 || row.wants_sitewide === '1' || row.alert_opt_in === 1 || row.alert_opt_in === '1';
+  if (want) { try { await kit.applyList(env, { email, name: user.name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
+  let card = '';
+  if (row.card_id == null) {
+    const latest = await env.SDB.prepare('SELECT card_id FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC LIMIT 1').bind(email).first();
+    card = latest && kit.ID_RE.test(String(latest.card_id || '')) ? String(latest.card_id) : '';
+  } else if (kit.ID_RE.test(String(row.card_id))) card = String(row.card_id);
   await env.SDB.prepare('DELETE FROM profile_verify WHERE email=?').bind(email).run();
-  const dest = new URL(next);
-  dest.hash = 'atm=' + token + '&going=' + (latest ? 'ready' : 'none') + (latest ? '&card=' + encodeURIComponent(latest.card_id) : '');
-  const msg = latest
+  const star = !!card;
+  const dest = star ? resumeDest({ ...row, lang }, card, token) : menuDest(kit, row.ret, token);
+  const msg = star
     ? (lang === 'zh' ? '邮箱已确认。回到活动后，再点「确认」才会记录意向。' : 'Email confirmed. Go back to the event and tap Confirm to save your intent.')
     : (lang === 'zh' ? '邮箱已验证，资料已保存。可到活动五角星选择要参加或感兴趣。' : 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.');
-  return page(kit, true, lang, msg, dest.toString());
+  const wx = wechatUa(req);
+  return resultPage(kit, lang, msg, dest, { event: star, redirect: sameBrowser(req) && !wx, wechat: wx, cookie: sessionCookie(token) });
 }
 async function fillBlanks(env, kit, email, fields) {
   const cur = await env.SDB.prepare('SELECT id,name,city,role FROM users WHERE email=?').bind(email).first();
@@ -423,6 +495,24 @@ function readProfile(b, kit) {
   return { name, email, city, role };
 }
 
+async function setSitewide(env, kit, user, want) {
+  if (want) {
+    try { await kit.applyList(env, user, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); }
+    return;
+  }
+  const email = String(user.email || '').toLowerCase();
+  const ts = kit.now();
+  await env.DB.prepare('INSERT INTO mail_unsub(email,at) VALUES(?,?) ON CONFLICT(email) DO UPDATE SET at=excluded.at').bind(email, ts).run();
+  await env.DB.prepare("UPDATE email_subs SET status='unsubscribed',unsubscribed_at=? WHERE lower(email)=? AND status='active'").bind(ts, email).run();
+}
+async function sitewideOn(env, email) {
+  try {
+    const addr = String(email || '').toLowerCase();
+    const active = await env.DB.prepare("SELECT 1 ok FROM email_subs WHERE lower(email)=? AND status='active'").bind(addr).first();
+    const blocked = await env.DB.prepare('SELECT 1 ok FROM mail_unsub WHERE email=?').bind(addr).first();
+    return !!(active && !blocked);
+  } catch (e) { return false; }
+}
 export async function goingProfile(req, env, b, ip, iph, json, kit) {
   if (b.website) return json({ ok: true, confirm: true });
   const { name, email, city, role } = readProfile(b, kit);
@@ -434,15 +524,16 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   if (!ret) return json({ error: 'bad_return' }, 400);
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const alert = flag(b.alert, 0);
-  if (!(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
   const session = await sessionUser(req, env);
-  if (!session || session.email !== email) {
+  const same = !!(session && session.email === email);
+  if (!same && !(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
+  if (!same) {
     if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
   }
-  if (session && session.email === email) {
+  if (same) {
     await env.SDB.prepare('UPDATE users SET name=?,city=?,role=?,lang=? WHERE id=?').bind(name, city, role, lang, session.id).run();
-    if (alert) { try { await kit.applyList(env, { email, name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
-    return json({ ok: true, verified: true, session: true, mailed: false });
+    await setSitewide(env, kit, { email, name, lang }, alert === 1);
+    return json({ ok: true, verified: true, session: true, mailed: false, sitewide: alert === 1 });
   }
   const recent = await env.SDB.prepare('SELECT sent_at FROM profile_verify WHERE email=?').bind(email).first();
   if (recent && Date.now() - Date.parse(recent.sent_at) < 60e3) return json({ error: 'rate_limited' }, 429);
@@ -454,7 +545,7 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1 }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return json({ ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
 export async function goingRestore(req, env, b, ip, json, kit) {
@@ -473,7 +564,7 @@ export async function goingRestore(req, env, b, ip, json, kit) {
   try { via = await sendVerify(env, kit, { email, name: u.name || email, lang, promo: false }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return json({ ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
 export async function goingSubmit(req, env, b, ip, iph, json, kit) {
@@ -523,20 +614,28 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
   const useTransport = featured || intent !== 'going' ? 0 : transport;
   const existing = await env.SDB.prepare('SELECT id,name,city,role,verified_at FROM users WHERE email=?').bind(email).first();
+  if (existing && existing.verified_at) {
+    if (!name) name = existing.name || '';
+    if (!city) city = existing.city || '';
+    if (!role) role = roleOf(existing.role);
+  }
+  if (!name) return json({ error: 'need_name' }, 400);
+  if (!city) return json({ error: 'need_city' }, 400);
+  if (!role) return json({ error: 'need_role' }, 400);
   if (!existing) await upsertUser(env, kit, email, { name, city, role, lang, iph });
   else if (!existing.verified_at) await fillBlanks(env, kit, email, { name, city, role, lang, iph });
   await env.SDB.prepare(`INSERT INTO going_pending(email,card_id,anchor,intent,occurrence_date,attend_date,transport,notify,name,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(email,card_id,anchor) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,attend_date=excluded.attend_date,transport=excluded.transport,notify=excluded.notify,name=excluded.name,created_at=excluded.created_at,consumed_at=NULL`)
     .bind(email, id, anchor, intent, attend || null, attend || null, useTransport, notify, name, kit.now()).run();
-  const link = await saveVerify(env, kit, { email, name, city, role, lang, alert: promo, ret });
+  const link = await saveVerify(env, kit, { email, name: name || (existing && existing.name) || '', city: city || (existing && existing.city) || '', role: role || (existing && existing.role) || '', lang, alert: promo, ret, intent, card: id });
   let via;
-  try { via = await sendVerify(env, kit, { email, name, lang, promo: promo === 1 }, link, { title: cardTitle(card, lang), intent }); }
+  try { via = await sendVerify(env, kit, { email, name: name || (existing && existing.name) || '', lang, promo: promo === 1 }, link, { title: cardTitle(card, lang), intent }); }
   catch (e) {
     await env.SDB.prepare('DELETE FROM going_pending WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(email, id, anchor).run();
     return json({ error: 'send_failed' }, 502);
   }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph, id, anchor);
-  return json({ ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
 export async function goingCancel(req, env, b, json, kit) {
@@ -578,8 +677,9 @@ export async function goingMine(req, env, json) {
   const rows = (await env.SDB.prepare("SELECT card_id,anchor,intent,occurrence_date,attend_date,transport,notify,mail_status,status,updated_at FROM going_intents WHERE email=? AND status='active' ORDER BY updated_at DESC").bind(session.email).all()).results || [];
   const drafts = (await env.SDB.prepare("SELECT card_id,anchor,intent,occurrence_date,attend_date,transport,notify FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC").bind(session.email).all()).results || [];
   const favs = (await env.SDB.prepare('SELECT card_id FROM going_favs WHERE email=? ORDER BY created_at DESC').bind(session.email).all()).results || [];
+  const sitewide = await sitewideOn(env, session.email);
   return json({
-    email: session.email, name: session.name, city: session.city || '', role: session.role || '',
+    email: session.email, name: session.name, city: session.city || '', role: session.role || '', sitewide,
     favs: favs.map(r => r.card_id),
     items: rows.map(r => ({ id: r.card_id, anchor: r.anchor || '', intent: r.intent, date: r.attend_date || '', transport: !!r.transport, notify: !!r.notify, mail: r.mail_status })),
     drafts: drafts.map(r => ({ id: r.card_id, anchor: r.anchor || '', intent: r.intent, date: r.attend_date || '', transport: !!r.transport, notify: !!r.notify }))
@@ -914,7 +1014,9 @@ async function noticeMail(env, kit, notice, person) {
   const text = `探戈助理\n\n${name}\n${title}\n${body}\n\n` + (zh
     ? `这只发给打开了「收本活动更新」的人。退订本活动更新不会取消 Going／Interested：\n${unsub}\n\n没有写明的时间不会编造。`
     : `This goes only to people who opted in for this event. Unsubscribing does not cancel Going or Interested:\n${unsub}\n\nTimes that were not confirmed are not included.`);
-  await kit.deliver(env, person.email, subject, text, undefined, undefined, { fromName: '探戈助理' });
+  const foot = zh ? '退订本活动更新' : 'Unsubscribe from this event’s updates';
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${kit.he(name)}</p><p><b>${kit.he(title)}</b></p><p>${kit.he(body)}</p><hr style="border:0;border-top:1px dashed #ead9b8"><p style="font-size:12px;color:#777"><a href="${kit.he(unsub)}">${foot}</a></p></div></body></html>`;
+  await kit.deliver(env, person.email, subject, text, html, { 'List-Unsubscribe': `<${unsub}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' }, { fromName: '探戈助理' });
 }
 export async function sendGoingNotices(env, kit) {
   if (env.GOING_NOTICE_SEND !== 'on') return { enabled: false, sent: 0, failed: 0, skipped: 0 };

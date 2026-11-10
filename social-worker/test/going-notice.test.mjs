@@ -19,6 +19,7 @@ const db = new DatabaseSync(':memory:');
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_confirm_show.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0010_going_notices.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
@@ -100,7 +101,7 @@ check('review list is readable and send flag is visible', list.items.length >= 2
 check('public cannot read the queue', (await get('/admin/going-notices'))._s === 401);
 
 const linkMail = mails.find(m => m.includes('to=on@example.com') && m.includes('/social/going/unsub'));
-const unsubUrl = (linkMail.match(/https:\/\/api\.tangoweekend\.org\/social\/going\/unsub\?[^\s]+/) || [])[0];
+const unsubUrl = (linkMail.match(/https:\/\/api\.tangoweekend\.org\/social\/going\/unsub\?e=[^&\s"]+&c=[^&\s"]+&t=[0-9a-f]+/) || [])[0];
 check('mail has an unsubscribe link', !!unsubUrl);
 const got = (method, u, body) => social(new Request(u, { method, ...(body ? { body, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } } : {}) }), env, new URL(u), json);
 const scan = await got('GET', unsubUrl);

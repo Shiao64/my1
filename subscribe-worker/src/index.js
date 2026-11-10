@@ -146,8 +146,9 @@ async function subscribe(req, env, h) {
     .bind(email, name || null, wechat || null, types.join(','), cities.join(',') || 'all', lang, hash, now, unsub, now, ip, isTest).run();
 
   const t = T[lang], link = `${env.API_BASE}/confirm?t=${token}`;
+  const unsubUrl = `${env.API_BASE}/unsubscribe?t=${unsub}`;
   let st;
-  try { st = await sendToSubscriber(env, email, t.cSubj, `${t.cBody(link)}\n\n${t.foot}`, mailHtml(t.cBody('').split('\n').filter(Boolean), link, t)); }
+  try { st = await sendToSubscriber(env, email, t.cSubj, `${t.cBody(link)}\n\n${t.foot}\n${t.unsubLine}: ${unsubUrl}`, mailHtml(t.cBody('').split('\n').filter(Boolean), link, t, unsubUrl), unsubUrl); }
   catch (e) { st = 'fail: ' + String(e.message || e).slice(0, 150); }
   await env.DB.prepare('UPDATE email_subs SET confirm_mail_status=? WHERE email=?').bind(st, email).run();
   if (st.startsWith('fail')) return json({ error: 'send_failed', ...(wxCode ? { wechat_code: wxCode } : {}) }, 502, h);
