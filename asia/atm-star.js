@@ -26,7 +26,7 @@
     limited: '确认邮件已达上限，请稍后再试。',
     withheld: '已记下。这一场不会交给主办。',
     unfav: '取消收藏',
-    notify: '接收主办方讯息',
+    notify: '接收主办方信息',
     scope: '',
     transport: '交通指引（可选）',
     noPromise: '',
@@ -86,7 +86,7 @@
     scope: '',
     transport: 'Directions (optional)',
     noPromise: '',
-    optin: 'Opt in to receive early-bird and registration deadlines, venue directions, last-minute notices, and organizer updates.',
+    optin: 'Get early-bird deadlines, directions and updates from the organizer.',
     submit: 'Confirm', needIntent: 'Choose Going, Interested, or Not Going.',
     profileTitle: '',
     profileDesc: 'Confirm your email first. After you come back, tap Confirm to save your intent.',
@@ -817,11 +817,14 @@
     paint(); paintBar();
     if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
   }
-  function savedText(n) { return '☆ 已收藏 ' + n + ' 个活动'; }
+  function savedText(n) { return zh ? ('☆ 已收藏 ' + n + ' 个活动') : ('☆ ' + n + ' saved event' + (n === 1 ? '' : 's')); }
+  function favCount() { return Object.keys(favs).length; }
   function syncSaved() {
-    if (!zh) return;
-    var t = savedText(Object.keys(mine).length);
+    var t = savedText(favCount());
     document.querySelectorAll('[data-atm-saved]').forEach(function (el) { if (el.textContent !== t) el.textContent = t; });
+    if (window.ATM_HOME && typeof window.ATM_HOME.render === 'function') {
+      try { window.ATM_HOME.render(); } catch (e) {}
+    }
   }
   function paintBar() {
     var bar = document.querySelector('.atm-favbar'); if (!bar) { syncSaved(); return false; }
@@ -829,13 +832,9 @@
     var items = Object.keys(favs);
     var n = items.length;
     bar.classList.toggle('atm-on', n > 0);
-    if (zh) {
-      bar.innerHTML = '<b>' + L.bar + '</b><span class="atm-hint" data-atm-saved="1">' + savedText(n) + '</span>';
-      syncSaved();
-    } else if (!token()) { bar.innerHTML = '<b>★ ' + L.bar + '</b><span class="atm-hint">' + L.hint + '</span>'; if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
-    else if (!n) { bar.innerHTML = '<b>★ ' + L.bar + '</b><span class="atm-hint">' + L.empty + '</span>'; if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
-    else bar.innerHTML = '<b>★ ' + L.bar + ' (' + n + ')</b>';
-    if (zh && !n) { if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
+    bar.innerHTML = '<b>' + L.bar + '</b><span class="atm-hint" data-atm-saved="1">' + savedText(n) + '</span>';
+    syncSaved();
+    if (!token() || !n) { if (grid) { grid.hidden = true; grid.innerHTML = ''; } return true; }
     if (grid) {
       grid.hidden = false; grid.innerHTML = '';
       items.forEach(function (id) {
@@ -858,13 +857,14 @@
     reopen = '';
     if (!token()) { me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); mergeLocalOcc(); paint(); paintBar(); return Promise.resolve(); }
     return api('/social/going/mine').then(function (d) {
-      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; occ = {}; favs = {}; drafts = {}; }
+      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); }
       else {
         me = { email: d.email, name: d.name, city: d.city, role: d.role };
-        mine = {}; occ = {}; favs = {}; drafts = {};
+        mine = {}; occ = {}; drafts = {};
         (d.items || []).forEach(function (it) { mine[it.id] = it; if (!occ[it.id]) occ[it.id] = {}; occ[it.id][it.anchor || ''] = it; });
         (d.drafts || []).forEach(function (it) { drafts[it.id] = it; });
-        (d.favs || []).forEach(function (fid) { favs[fid] = 1; addLocalFav(fid); });
+        (d.favs || []).forEach(function (fid) { addLocalFav(fid); });
+        loadLocalFavs();
         mergeLocalOcc();
       }
       paint(); paintBar();
@@ -888,7 +888,7 @@
       awaitReach(id).then(function (v) { if (v === true) open(b); else if (v === false) toast(L.noRsvp, 'off', b); else paint(); });
       return true;
     },
-    paintBar: paintBar, paint: paint, listed: function () { return Object.keys(mine).length; }
+    paintBar: paintBar, paint: paint, listed: function () { return Object.keys(favs).length; }
   };
   document.addEventListener('click', function (e) {
     var u = e.target.closest && e.target.closest('[data-unfav]');
@@ -910,6 +910,7 @@
   takeSession();
   readHash();
   ensureEvents();
+  loadLocalFavs();
   refreshMine();
   var mo = new MutationObserver(function () { if (!painting) paint(); });
   mo.observe(document.documentElement, { childList: true, subtree: true });

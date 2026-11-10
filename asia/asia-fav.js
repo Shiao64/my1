@@ -72,8 +72,10 @@
     var m = byId(), c = getC(), n = ids.filter(function (id) { return m[id]; }).length, sv = {}; ids.forEach(function (x) { sv[x] = 1; });
     ids = show;
     bar.classList.toggle('atm-on', n > 0);
-    if (!n) { bar.innerHTML = zh ? '<b>' + T.title + '</b><span class="atm-hint" data-atm-saved="1">☆ 已收藏 0 个活动</span>' : '<b>\u2661 ' + T.title + '</b><span class="atm-hint">' + T2.hint + '</span>'; bar.removeAttribute('aria-expanded'); bar.tabIndex = -1; }
-    else { bar.innerHTML = zh ? '<b>' + T.title + '</b><span class="atm-hint" data-atm-saved="1">☆ 已收藏 ' + n + ' 个活动</span><span class="atm-car">' + (c ? '\u25B8' : '\u25BE') + '</span>' : '<b>\u2764\uFE0E ' + T.title + ' (' + n + ')</b><span class="atm-car">' + (c ? '\u25B8' : '\u25BE') + '</span>'; bar.setAttribute('aria-expanded', String(!c)); bar.tabIndex = 0; }
+    var saved = zh ? ('☆ 已收藏 ' + n + ' 个活动') : ('☆ ' + n + ' saved event' + (n === 1 ? '' : 's'));
+    var hint = '<b>' + T.title + '</b><span class="atm-hint" data-atm-saved="1">' + saved + '</span>';
+    if (!n) { bar.innerHTML = hint; bar.removeAttribute('aria-expanded'); bar.tabIndex = -1; }
+    else { bar.innerHTML = hint + '<span class="atm-car">' + (c ? '\u25B8' : '\u25BE') + '</span>'; bar.setAttribute('aria-expanded', String(!c)); bar.tabIndex = 0; }
     var key = ids.join(',');
     if (grid._k !== key) { grid._k = key; grid.innerHTML = ''; var ncard = 0; ids.forEach(function (id) { if (m[id]) grid.appendChild(card(m[id], ncard++ < 1 && !c)); }); }
     grid.querySelectorAll('.atm-favfc').forEach(function (a) { var b = a.querySelector('.atm-heart'), f = !!sv[a.getAttribute('data-fid')]; if (b && b.getAttribute('aria-pressed') !== String(f)) { b.setAttribute('aria-pressed', String(f)); b.setAttribute('aria-label', f ? T.del : T.add); b.title = f ? T.del : T.add; } });

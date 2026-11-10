@@ -1,0 +1,49 @@
+/* ATM visual tokens and overrides (11.9.11 design review). Last in the critical bundle. */
+:root{
+  --teal-900:#06333A; --teal-700:#0B5C64; --teal-600:#0E6E78;
+  --gold-300:#F2CF7F; --gold-600:#A98A4A; --line-gold:rgba(242,207,127,.45);
+  --cream:#FBF5E9; --paper:#FFFFFF; --hair:#EADFC8; --hair-2:#EFE6D3;
+  --title:#0A4F57; --ink:#1E2B2D; --muted:#4A6B70; --red:#B3261E; --on-teal-muted:#D6E6E4;
+  --serif:"Iowan Old Style",Palatino,"Palatino Linotype",Georgia,"Noto Serif SC","Noto Serif CJK SC","Songti SC",STSong,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+html{background:var(--cream)}
+body.china-page{background:var(--cream);color:var(--muted);font-family:var(--sans)}
+.num,time,.ev-when,.ah-wd,.ah-pt-cap,#atm-home .ah-title i,html.atm-p10 .p10-info{font-variant-numeric:tabular-nums lining-nums}
+.china-sticky-top{background:linear-gradient(180deg,#0E6E78,#0B5C64);color:#fff}
+.china-hero-bar{min-height:56px;height:56px;padding:0 8px 0 16px;box-sizing:border-box;gap:8px;align-items:center}
+.china-map-hero h1,.china-map-hero h1 a{font-family:var(--serif)!important;font-weight:700!important;font-size:20px!important;line-height:28px!important;letter-spacing:.02em;color:var(--gold-300)!important;text-shadow:none!important}
+.atm-beta,span.atm-beta,.china-map-hero h1 .atm-beta{font-family:var(--sans)!important;font-size:11px!important;line-height:16px!important;font-weight:600!important;letter-spacing:0!important;border:1px solid var(--line-gold);border-radius:999px;padding:0 6px;margin-left:6px;opacity:.95;vertical-align:middle;display:inline-block;color:var(--gold-300)!important}
+/* P2 unified 56px cream bar: back + title + lang/menu remain */
+html.atm-h-inner .china-sticky-top{display:block!important;background:var(--cream);color:var(--title);border-bottom:1px solid var(--hair)}
+html.atm-h-inner .china-map-hero,html.atm-h-inner .china-hero-bar{background:transparent}
+html.atm-h-inner .china-title-wrap,html.atm-h-inner .china-map-hero h1{display:none!important}
+html.atm-h-inner .atm-p2-back{display:flex}html.atm-h-inner .atm-p2-title{display:block}
+html.atm-h-home:not(.atm-h-inner) .atm-p2-back,html.atm-h-home:not(.atm-h-inner) .atm-p2-title,html:not(.atm-h-inner) .atm-p2-back,html:not(.atm-h-inner) .atm-p2-title{display:none!important}
+html.atm-h-inner .ah-top{display:none!important}
+html.atm-h-inner .china-hero-bar,html.atm-h-inner.atm-compact .china-hero-bar,html.atm-h-inner body.china-page .china-hero-bar{height:56px!important;min-height:56px!important;padding-top:0!important;padding-bottom:0!important}
+html.atm-h-inner body.china-page .china-hero-bar button.atm-burger,html.atm-h-inner body.china-page .china-hero-bar nav.top-lang,html.atm-h-inner body.china-page .china-hero-bar a.atm-langbtn,html.atm-h-inner.atm-compact body.china-page section.china-map-hero .china-hero-bar button.atm-burger,html.atm-h-inner.atm-compact body.china-page section.china-map-hero .china-hero-bar nav.top-lang,html.atm-h-inner.atm-compact body.china-page section.china-map-hero .china-hero-bar a.atm-langbtn{display:inline-flex!important}
+.atm-p2-back{width:44px;height:44px;flex:0 0 44px;border:0;background:transparent;color:var(--teal-600);display:none;align-items:center;justify-content:center;padding:0;cursor:pointer;margin:0 0 0 -4px}
+.atm-p2-back svg{width:22px;height:22px}
+.atm-p2-title{display:none;flex:1 1 auto;min-width:0;font-family:var(--serif);font-size:19px;line-height:56px;font-weight:700;color:var(--title);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.atm-p2-title i,.atm-p2-title .num{font-style:normal;color:var(--red);font-variant-numeric:tabular-nums}
+html.atm-h-inner .atm-burger,html.atm-h-inner nav.top-lang a.atm-langbtn{color:var(--teal-600)!important}
+html.atm-h-inner nav.top-lang a.atm-langbtn:before,html.atm-h-inner .atm-burger:before{border-color:rgba(14,110,120,.45)!important;background:transparent!important}
+/* card page */
+html.atm-p10 .p10-info{background:var(--paper)!important;border:1px solid var(--hair-2);border-radius:12px}
+html.atm-p10 .p10-info,html.atm-p10 .p10-info *{font-family:var(--sans)!important}
+html.atm-p10 #atm-c1bar .p10-heart path{stroke:var(--red);stroke-width:1.8}
+html.atm-p10 #atm-c1bar .p10-heart[aria-pressed="true"] path{fill:var(--red);stroke:var(--red)}
+/* retire off-palette purple / lavender / second red where we can reach them */
+.atm-mi small,#atm-menu .atm-mhd,#atm-menu .atm-msubbtn small.atm-md{color:var(--muted)!important}
+input,select,textarea{border-color:var(--gold-600)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--teal-600);box-shadow:0 0 0 2px rgba(14,110,120,.25)}
+
+html.atm-p10 #atm-c1bar,html.atm-p10 #atm-c1bar .p10-in,html.atm-p10 #atm-c1bar .atm-c1-t{height:56px!important;min-height:56px}
+html.atm-p10 #atm-c1bar .atm-c1-t{line-height:56px!important;font-size:20px!important}
+.b-more summary,.b-more .b-less{background:#EFE6D3!important;color:#0A4F57!important}
+.b-m i{background:#EFE6D3!important}
+.b-l,.b-row b,body .ev-card.b-card .b-head .atm-marks{color:#4A6B70!important}
+body .ev-card.b-card .b-name{color:#0A4F57!important}
+.b-m,.b-in{color:#4A6B70!important}

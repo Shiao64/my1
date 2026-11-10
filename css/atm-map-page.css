@@ -154,7 +154,7 @@ body .ev-card:is([data-type="festival"],[data-type="marathon"],[data-type="event
 body .ev-card[data-type] .b-label{color:var(--b)!important}
 /* from asia map page inline */
 /* draft 2026-10-30 quickfix: contrast, tap targets, no generated poster */
-body.china-page .ev-card .b-l{color:#6B6390!important}
+body.china-page .ev-card .b-l{color:#4A6B70!important}
 body.china-page .ev-card .b-more summary:after{color:inherit!important;opacity:.85}
 body.china-page .ev-card:is([data-type="festival"],[data-type="marathon"],[data-type="event"],[data-type="encuentro"]) .b-more summary{color:#7A5700!important}
 .atm-favbar .atm-hint{color:#6F5D4F!important}
