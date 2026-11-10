@@ -12,9 +12,10 @@ function attr(html, name) {
   const m = html.match(new RegExp('data-' + name + '="([^"]*)"'));
   return m ? m[1] : null;
 }
-check('both pages use candidate 11.9.2 and say it is not published', attr(zh, 'site-release') === '11.9.2' && attr(en, 'site-release') === '11.9.2' && zh.includes('It is not published') && en.includes('Live Pages stays 11.9.1'));
-check('publish date stays empty until a real publish', attr(zh, 'site-release-date') === '' && attr(en, 'site-release-date') === '');
-check('beta label stays and shows the candidate number', zh.includes('<span class="atm-beta">测试版 11.9.2</span>') && en.includes('<span class="atm-beta">beta 11.9.2</span>'));
+check('both pages use candidate 11.9.4 and say it is not published', attr(zh, 'site-release') === '11.9.4' && attr(en, 'site-release') === '11.9.4' && zh.includes('It is not published') && en.includes('It is not published'));
+check('publish date stays empty', attr(zh, 'site-release-date') === '' && attr(en, 'site-release-date') === '');
+check('beta label stays and shows the candidate number', zh.includes('<span class="atm-beta">测试版 11.9.4</span>') && en.includes('<span class="atm-beta">beta 11.9.4</span>'));
+check('live sources note stays', zh.includes('活动资讯整理自微信、Facebook') && zh.includes('特别感谢上海 TeAmo 王凯') && en.includes('Event info compiled from WeChat and Facebook') && en.includes('Special thanks to Kai Wang') && !zh.includes('所有活动讯息转载自微信及脸书'));
 check('menu keeps the v prefix on the same number', sub.includes("getAttribute('data-site-release')") && sub.includes("'· v' + rel") && !sub.includes("SITE_VERSION = 'v11.9'"));
 check('menu script cache moves with the label', zh.includes('asia-subscribe.js?v=sub61') && en.includes('asia-subscribe.js?v=sub61') && !zh.includes('asia-subscribe.js?v=sub60') && !en.includes('asia-subscribe.js?v=sub60'));
 check('header css cache moves with the longer badge', zh.includes('atm-critical.css?v=ac4') && en.includes('atm-critical.css?v=ac4') && !zh.includes('atm-critical.css?v=ac3') && !en.includes('atm-critical.css?v=ac3'));

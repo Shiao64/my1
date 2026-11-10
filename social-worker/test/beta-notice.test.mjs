@@ -17,6 +17,6 @@ for (const html of [zh, en]) {
   check('escape does not dismiss', html.includes("e.key==='Escape'") && html.includes('preventDefault()'));
   check('star script is the candidate st11', html.includes('/asia/atm-star.js?v=st11'));
 }
-check('candidate label is 11.9.2', zh.includes('data-site-release="11.9.2"') && en.includes('data-site-release="11.9.2"') && zh.includes('测试版 11.9.2') && en.includes('beta 11.9.2'));
+check('candidate label is 11.9.4', zh.includes('data-site-release="11.9.4"') && en.includes('data-site-release="11.9.4"') && zh.includes('测试版 11.9.4') && en.includes('beta 11.9.4'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('beta notice ok');
