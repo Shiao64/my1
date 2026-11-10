@@ -124,7 +124,7 @@
   function put(){ if (document.getElementById('site-ver')) return; var f = document.querySelector('#atm-menu .atm-mp'); if (!f) return;
     var st = document.createElement('style'); st.id = 'site-ver-css'; st.textContent = css; document.head.appendChild(st);
     var s = document.createElement('div'); s.id = 'site-ver';
-    { var zhN = document.documentElement.getAttribute('data-asia-lang') === 'zh'; s.appendChild(document.createTextNode('By ')); var a = document.createElement('a'); a.href = 'https://www.facebook.com/shiao.chang'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = zhN ? '张孝立' : 'Shiao Chang'; a.style.cssText = 'color:inherit;text-decoration:underline;text-underline-offset:2px'; s.appendChild(a); s.appendChild(document.createTextNode(' ')); } var b = document.createElement('b'); if (rel) b.textContent = '· ' + rel; s.appendChild(b);
+    { var zhN = document.documentElement.getAttribute('data-asia-lang') === 'zh'; s.appendChild(document.createTextNode('By ')); var a = document.createElement('a'); a.href = 'https://www.facebook.com/shiao.chang'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = zhN ? '张孝立' : 'Shiao Chang'; a.style.cssText = 'color:inherit;text-decoration:underline;text-underline-offset:2px'; s.appendChild(a); s.appendChild(document.createTextNode(' ')); } var b = document.createElement('b'); if (rel) b.textContent = '· v' + rel; s.appendChild(b);
     f.appendChild(s); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', put); else put();
 })();
