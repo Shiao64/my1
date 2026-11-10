@@ -193,6 +193,8 @@ if (w.atmCardAliasHref('E164', true, '?card=E164', '') !== '') process.exit(38);
     check('E167 en page', 'legendstango@gmail.com' in en_page and 'E167_2.jpg' in en_page and 'Iara Duarte' in en_page and 'RMB 3480' in en_page and 'DJ1 tbc' in en_page)
     check('E167 zh page', 'Legends Tango Festival 2027' in zh_page and '广州市越秀区明月一路明月阁1706' in zh_page and '2nd Academy Anniversary' in zh_page)
     check('E167 pages skip the other Guangzhou festival', 'ONKkPuWH' not in en_page and 'ONKkPuWH' not in zh_page and 'guangzhou-2027-tango-festival' not in en_page)
+    check('E167 schedule is stacked', 'lg-sess' in en_page and 'lg-sess' in zh_page and 'overflow-x:auto' not in en_page and 'overflow-x:auto' not in zh_page and '---' not in en_page and '---' not in zh_page)
+    check('E167 pages drop transcription notes', '按日程原文' not in zh_page and '海报就是这样印的' not in zh_page and 'not merged with Cor Leung' not in en_page and '12-hour' not in en_page)
 
 
 if __name__ == '__main__':
