@@ -236,10 +236,12 @@
   function titleOf(e) { return (zh && e && (e.name_zh || e.title_zh)) || (e && (e.name || e.title)) || ''; }
 
   var box = document.createElement('div'); box.id = 'atm-star'; box.hidden = true;
+  var view = 0;
   box.innerHTML = '<div class="asg" role="dialog" aria-modal="true"><button type="button" class="asg-x" data-x aria-label="' + L.close + '">&times;</button><h2></h2><div class="asg-body"></div></div>';
   document.body.appendChild(box);
   function shut() {
     if (box.hidden) return;
+    view++;
     dropTs();
     var host = body().querySelector('.asg-ts');
     if (host) host.remove();
@@ -322,6 +324,7 @@
     html += '<p class="asg-tslab" id="asg-tslab">' + L.tsWait + '</p><div class="asg-ts"></div>';
     html += '<button type="button" class="asg-go" id="asg-go" aria-busy="false">' + action + '</button>';
     if (verified) html += '<p class="asg-hint">' + L.optin + '</p>';
+    view++;
     dropTs();
     body().innerHTML = html;
     if (me) { var n = body().querySelector('#asg-name'); if (n && me.name) n.value = me.name; var c = body().querySelector('#asg-city'); if (c && me.city) c.value = me.city; var rr = body().querySelector('#asg-role'); if (rr && me.role) rr.value = me.role; }
@@ -485,21 +488,28 @@
     ctxSet({ id: e.id, intent: draft.intent, date: payload.date, notify: payload.notify !== 0, transport: !!payload.transport });
     go.disabled = true;
     go.setAttribute('aria-busy', 'true');
+    var seen = view;
     var settled = false;
+    function sameView() { return seen === view && go.isConnected && !box.hidden; }
     function finish(stay) {
       if (settled) return;
       settled = true;
-      if (!stay || box.hidden) { shut(); return; }
-      if (go.isConnected) { go.disabled = false; go.dataset.busy = ''; go.setAttribute('aria-busy', 'false'); }
+      if (!sameView()) return;
+      if (!stay) { shut(); return; }
+      go.disabled = false;
+      go.dataset.busy = '';
+      go.setAttribute('aria-busy', 'false');
       var lab = body().querySelector('#asg-tslab');
       if (lab) lab.hidden = false;
       releaseWidget(wid);
     }
     function mailBad(d) { return d.mail === 'failed' || d.mail === 'rate_limited' || d.mail === 'no_organizer'; }
     api('/social/going', payload).then(function (d) {
-      var left = box.hidden;
+      var here = sameView();
       var savedOk = !!(d && d.ok && !d.confirm && !d.need_profile && !d.error && !mailBad(d));
-      if (!left && err.isConnected) {
+      if (d && d.ok && !d.confirm) refreshMine();
+      if (!here) return;
+      if (err.isConnected) {
         if (d.confirm) ok.textContent = L.pending;
         else if (d.need_profile || d.error === 'need_city' || d.error === 'need_role' || d.error === 'need_name') err.textContent = L.fill;
         else if (d.error === 'no_organizer') err.textContent = L.grey;
@@ -507,16 +517,9 @@
         else if (!d.ok) err.textContent = L.again;
         else if (mailBad(d)) ok.textContent = L.fail;
       }
-      if (savedOk) {
-        refreshMine();
-        if (!left) toast(statusText(d.mail));
-        finish(false);
-        return;
-      }
-      if (left) { finish(false); return; }
-      if (d.ok && !d.confirm) refreshMine();
+      if (savedOk) { toast(statusText(d.mail)); finish(false); return; }
       finish(true);
-    }).catch(function () { if (!box.hidden && err.isConnected) err.textContent = L.net; finish(!box.hidden); });
+    }).catch(function () { if (sameView() && err.isConnected) err.textContent = L.net; if (sameView()) finish(true); });
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var painting = false;

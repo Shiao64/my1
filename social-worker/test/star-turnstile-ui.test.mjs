@@ -47,6 +47,7 @@ window.fetch=function(url,opt){
     window.__posts.push(body);
     window.__urls.push(u);
     if(window.__mode==='hold') return new Promise(function(){});
+    if(window.__mode==='later') return new Promise(function(resolve, reject){ window.__later={ ok:function(d){ resolve({ok:true,status:200,json:async function(){return d;}}); }, fail:function(){ reject(new Error('late')); } }; });
     if(window.__mode==='net') return Promise.reject(new Error('net'));
     if(window.__mode==='turnstile') return json({error:'turnstile'},403);
     if(window.__mode==='other') return json({error:'lookup_failed'},503);
@@ -75,6 +76,8 @@ const browser = await puppeteer.launch({ executablePath: '/usr/local/bin/google-
 async function boot(lang) {
   const p = await browser.newPage();
   await p.goto('http://127.0.0.1:' + port + '/' + (lang || 'zh'), { waitUntil: 'domcontentloaded' });
+  await p.evaluate(() => localStorage.clear());
+  await p.reload({ waitUntil: 'domcontentloaded' });
   await p.waitForFunction(() => window.ATM_STAR && window._atmStarEvents);
   return p;
 }
@@ -283,6 +286,102 @@ check('an existing intent has no cancel button', await mine.evaluate(() => !docu
 await mine.click('.asg-x');
 check('closing an existing intent does not cancel it', await mine.evaluate(() => document.querySelector('[data-fid="A"]').getAttribute('aria-pressed') === 'true' && window.__posts.length === 0 && window.__urls.every(u => u.indexOf('/going/cancel') < 0)));
 await mine.close();
+
+async function armLate(p, id) {
+  await openCard(p, id);
+  await p.evaluate(() => { window.__mode = 'later'; window.__issue('token-late'); });
+  await p.click('#asg-go');
+  await p.waitForFunction(() => window.__later && window.__posts.length === 1);
+}
+async function reopenCard(p, id) {
+  await p.click('.asg-x');
+  await p.evaluate(card => window.ATM_STAR.take(document.querySelector('[data-fid="' + card + '"]')), id);
+  await p.waitForFunction(() => { const el = document.querySelector('.asg-ts'); return el && el.dataset.wid && document.querySelector('#atm-star').hidden === false; });
+}
+function snap(p) {
+  return p.evaluate(() => {
+    const ts = document.querySelector('.asg-ts');
+    const go = document.querySelector('#asg-go');
+    return {
+      hidden: document.querySelector('#atm-star').hidden,
+      title: document.querySelector('#atm-star h2').textContent,
+      email: document.querySelector('#asg-email') ? document.querySelector('#asg-email').value : '',
+      interested: document.querySelector('[data-intent="interested"]').getAttribute('aria-pressed'),
+      wid: ts ? ts.dataset.wid : '',
+      live: !!(ts && window.__ts.widgets[ts.dataset.wid]),
+      posts: window.__posts.length,
+      resets: window.__ts.resets.slice(),
+      removed: window.__ts.removed.slice(),
+      toast: document.querySelector('.atm-toast') ? document.querySelector('.atm-toast').textContent : '',
+      err: document.querySelector('#asg-err').textContent,
+      ok: document.querySelector('#asg-ok').textContent,
+      busy: go.getAttribute('aria-busy'),
+      disabled: go.disabled
+    };
+  });
+}
+function untouched(before, after, title) {
+  return after.hidden === false && after.title === title && after.email === 'kept@example.com' && after.interested === 'true' && after.wid === before.wid && after.live && after.posts === 1 && JSON.stringify(after.resets) === JSON.stringify(before.resets) && JSON.stringify(after.removed) === JSON.stringify(before.removed) && after.toast === '' && after.err === '' && after.ok === '' && after.busy === 'false' && after.disabled === false;
+}
+async function editNew(p) {
+  await p.evaluate(() => { document.querySelector('#asg-email').value = 'kept@example.com'; document.querySelector('[data-intent="interested"]').click(); });
+}
+
+const sameOk = await boot('zh');
+await armLate(sameOk, 'A');
+await reopenCard(sameOk, 'A');
+await editNew(sameOk);
+{
+  const before = await snap(sameOk);
+  await sameOk.evaluate(() => window.__later.ok({ ok: true, mail: 'queued' }));
+  await new Promise(r => setTimeout(r, 80));
+  check('late success does not close a reopened card', untouched(before, await snap(sameOk), '演示甲'));
+}
+await sameOk.close();
+
+const otherOk = await boot('zh');
+await armLate(otherOk, 'A');
+await reopenCard(otherOk, 'B');
+await editNew(otherOk);
+{
+  const before = await snap(otherOk);
+  await otherOk.evaluate(() => window.__later.ok({ ok: true, mail: 'queued' }));
+  await new Promise(r => setTimeout(r, 80));
+  check('late success is not shown as the next card being confirmed', untouched(before, await snap(otherOk), '演示乙'));
+}
+await otherOk.close();
+
+const sameErr = await boot('zh');
+await armLate(sameErr, 'A');
+await reopenCard(sameErr, 'A');
+await editNew(sameErr);
+{
+  const before = await snap(sameErr);
+  await sameErr.evaluate(() => window.__later.fail());
+  await new Promise(r => setTimeout(r, 80));
+  check('a late network error does not mark the reopened card', untouched(before, await snap(sameErr), '演示甲'));
+}
+await sameErr.close();
+
+const otherErr = await boot('zh');
+await armLate(otherErr, 'A');
+await reopenCard(otherErr, 'B');
+await editNew(otherErr);
+{
+  const before = await snap(otherErr);
+  await otherErr.evaluate(() => window.__later.ok({ ok: false, error: 'lookup_failed' }));
+  await new Promise(r => setTimeout(r, 80));
+  check('a late server error does not enter the next card', untouched(before, await snap(otherErr), '演示乙'));
+}
+await otherErr.close();
+
+const stayed = await boot('zh');
+await armLate(stayed, 'A');
+await stayed.click('.asg-x');
+await stayed.evaluate(() => window.__later.ok({ ok: true, mail: 'queued' }));
+await new Promise(r => setTimeout(r, 80));
+check('a late success after close does not reopen or toast', await stayed.evaluate(() => document.querySelector('#atm-star').hidden === true && !document.querySelector('.atm-toast') && window.__posts.length === 1));
+await stayed.close();
 
 await browser.close();
 server.close();
