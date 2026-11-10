@@ -9,12 +9,15 @@
 <link rel="canonical" href="https://tangoweekend.org/zh/asia/">
 <link rel="alternate" hreflang="en" href="https://tangoweekend.org/asia/">
 <link rel="alternate" hreflang="zh-CN" href="https://tangoweekend.org/zh/asia/">
-<style id="atm-shell">/* first-paint shell; full atm-critical loads async — no layout redesign */
-html{background:#FBF5E9}body.china-page{margin:0;background:#FBF5E9;color:#5b7f84;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}
-.china-sticky-top{position:-webkit-sticky;position:sticky;top:0;z-index:60;background:#0e6e78;color:#fff}
-.china-map-hero{margin:0}.china-hero-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;min-height:44px;box-sizing:border-box}
-.china-map-hero h1{margin:0;font:700 18px/1.25 "Noto Serif SC",Georgia,serif;color:#F6D58E}
-.china-map-hero h1 a,.top-lang a{color:#F6D58E;text-decoration:none}
+<style id="atm-shell">/* first-paint shell; full atm-critical loads async */
+:root{--teal-900:#06333A;--teal-700:#0B5C64;--teal-600:#0E6E78;--gold-300:#F2CF7F;--gold-600:#A98A4A;--line-gold:rgba(242,207,127,.45);--cream:#FBF5E9;--paper:#FFF;--hair:#EADFC8;--title:#0A4F57;--muted:#4A6B70;--red:#B3261E;--serif:"Iowan Old Style",Palatino,"Palatino Linotype",Georgia,"Noto Serif SC","Noto Serif CJK SC","Songti SC",STSong,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans","PingFang SC","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}
+html{background:var(--cream)}body.china-page{margin:0;background:var(--cream);color:var(--muted);font-family:var(--sans)}
+button,input,select,textarea{font:inherit}
+.china-sticky-top{position:-webkit-sticky;position:sticky;top:0;z-index:60;background:linear-gradient(180deg,#0E6E78,#0B5C64);color:#fff}
+.china-map-hero{margin:0}.china-hero-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 8px 0 16px;min-height:56px;height:56px;box-sizing:border-box}
+.china-map-hero h1{margin:0;font:700 20px/28px var(--serif);letter-spacing:.02em;color:var(--gold-300)}
+.china-map-hero h1 a,.top-lang a{color:var(--gold-300);text-decoration:none}
+.atm-beta{font:600 11px/16px var(--sans);border:1px solid var(--line-gold);border-radius:999px;padding:0 6px;margin-left:6px;vertical-align:middle;display:inline-block}
 html.atm-notice-ack #atm-notice{display:none!important}
 </style>
 <script id="atm-notice-gate">
@@ -44,8 +47,8 @@ window.atmNoticeGate=function(storage,perf){
   }catch(e){}
 })();
 </script>
-<link rel="stylesheet" href="../../asia/atm-critical.css?v=ac4" media="print" onload="this.media='all';try{window.atmArmImages&&window.atmArmImages(document)}catch(e){}">
-<noscript><link rel="stylesheet" href="../../asia/atm-critical.css?v=ac4"></noscript>
+<link rel="stylesheet" href="../../asia/atm-critical.css?v=ac6" media="print" onload="this.media='all';try{window.atmArmImages&&window.atmArmImages(document)}catch(e){}">
+<noscript><link rel="stylesheet" href="../../asia/atm-critical.css?v=ac6"></noscript>
 <link rel="preconnect" href="https://data.tangoweekend.org" crossorigin>
 <script>
 /* Preload the events-core URL this host will actually fetch. Pages previews
@@ -214,7 +217,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <section class="hero china-map-hero">
   <div class="wrap china-hero-bar">
     <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
-      <h1 style="color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)"><a class="atm-back" href="./" aria-label="返回"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg><span>亚洲探戈地图<span class="atm-beta">测试版 11.9.11</span></span></a></h1>
+      <h1 style="color:var(--gold-300)"><a class="atm-back" href="./" aria-label="返回"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg><span>亚洲探戈地图<span class="atm-beta">测试版 11.9.11</span></span></a></h1>
     </div>
     <button type="button" class="china-suggest-open" id="china-suggest-open" hidden style="margin-left:auto!important;margin-right:6px!important">添加活动</button>
     <nav class="top-lang china-map-lang" aria-label="语言" style="margin-left:0!important">
@@ -420,10 +423,10 @@ window.CHINA_UI = {
 </script>
 <script defer src="../../asia/atm-data.js?v=r9"></script>
 <script defer src="../../asia/asia-map.js?v=r12"></script>
-<script defer src="../../asia/atm-later.js?v=lt8"></script>
-<script defer src="/asia/atm-home.js?v=h138"></script>
+<script defer src="../../asia/atm-later.js?v=lt9"></script>
+<script defer src="/asia/atm-home.js?v=h141"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="../../asia/asia-howto.js?v=china278"></script> -->
-<script defer src="../../asia/asia-subscribe.js?v=sub64"></script>
+<script defer src="../../asia/asia-subscribe.js?v=sub65"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏/.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
@@ -575,6 +578,6 @@ var o=h.previousElementSibling;if(!o||!o.classList.contains('atm-onehead')){o=D.
 if(o._h!==html){o._h=html;o.innerHTML=html}o.classList.toggle('atm-oh-reg',reg);if(o.getAttribute('data-n')!==String(n))o.setAttribute('data-n',n);if((o.getAttribute('data-city')||'')!==city)o.setAttribute('data-city',city);if(!h.classList.contains('atm-oh-hide'))h.classList.add('atm-oh-hide');var fl=h.nextElementSibling;if(fl&&fl.classList.contains('china-from-line')&&!fl.classList.contains('atm-oh-hide'))fl.classList.add('atm-oh-hide')})}
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).observe(D.body,{childList:true,subtree:true,characterData:true});addEventListener('load',run);D.addEventListener('change',function(){setTimeout(run,120)})})();</script>
 <script defer src="/asia/atm-social.js?v=s30"></script>
-<script defer src="/asia/atm-star.js?v=st22"></script>
+<script defer src="/asia/atm-star.js?v=st23"></script>
 </body>
 </html>

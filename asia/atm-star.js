@@ -818,9 +818,13 @@
     if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
   }
   function savedText(n) { return zh ? ('☆ 已收藏 ' + n + ' 个活动') : ('☆ ' + n + ' saved event' + (n === 1 ? '' : 's')); }
+  function favCount() { return Object.keys(favs).length; }
   function syncSaved() {
-    var t = savedText(Object.keys(mine).length);
+    var t = savedText(favCount());
     document.querySelectorAll('[data-atm-saved]').forEach(function (el) { if (el.textContent !== t) el.textContent = t; });
+    if (window.ATM_HOME && typeof window.ATM_HOME.render === 'function') {
+      try { window.ATM_HOME.render(); } catch (e) {}
+    }
   }
   function paintBar() {
     var bar = document.querySelector('.atm-favbar'); if (!bar) { syncSaved(); return false; }
@@ -853,13 +857,14 @@
     reopen = '';
     if (!token()) { me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); mergeLocalOcc(); paint(); paintBar(); return Promise.resolve(); }
     return api('/social/going/mine').then(function (d) {
-      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; occ = {}; favs = {}; drafts = {}; }
+      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); }
       else {
         me = { email: d.email, name: d.name, city: d.city, role: d.role };
-        mine = {}; occ = {}; favs = {}; drafts = {};
+        mine = {}; occ = {}; drafts = {};
         (d.items || []).forEach(function (it) { mine[it.id] = it; if (!occ[it.id]) occ[it.id] = {}; occ[it.id][it.anchor || ''] = it; });
         (d.drafts || []).forEach(function (it) { drafts[it.id] = it; });
-        (d.favs || []).forEach(function (fid) { favs[fid] = 1; addLocalFav(fid); });
+        (d.favs || []).forEach(function (fid) { addLocalFav(fid); });
+        loadLocalFavs();
         mergeLocalOcc();
       }
       paint(); paintBar();
@@ -883,7 +888,7 @@
       awaitReach(id).then(function (v) { if (v === true) open(b); else if (v === false) toast(L.noRsvp, 'off', b); else paint(); });
       return true;
     },
-    paintBar: paintBar, paint: paint, listed: function () { return Object.keys(mine).length; }
+    paintBar: paintBar, paint: paint, listed: function () { return Object.keys(favs).length; }
   };
   document.addEventListener('click', function (e) {
     var u = e.target.closest && e.target.closest('[data-unfav]');
@@ -905,6 +910,7 @@
   takeSession();
   readHash();
   ensureEvents();
+  loadLocalFavs();
   refreshMine();
   var mo = new MutationObserver(function () { if (!painting) paint(); });
   mo.observe(document.documentElement, { childList: true, subtree: true });

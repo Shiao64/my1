@@ -150,12 +150,15 @@ await page.waitForFunction(() => document.getElementById('atm-star').hidden, { t
 check('confirm records the preselected intent without asking for the profile again', Array.isArray(page.__posts) && page.__posts.length === 1 && page.__posts[0].intent === 'interested' && !page.__posts[0].email);
 
 await page.evaluate(() => document.querySelector('.atm-burger').click());
-await page.waitForSelector('#atm-menu:not([hidden]) [data-a="sub"]');
-const menuLabel = await page.$eval('[data-a="sub"]', el => el.textContent.trim());
-check('a confirmed session renames the menu item', menuLabel === '我的资料');
+await page.waitForSelector('#atm-menu:not([hidden]) [data-a="mine"]');
+const menuLabels = await page.evaluate(() => ({
+  sub: document.querySelector('[data-a="sub"]') && document.querySelector('[data-a="sub"]').textContent.trim(),
+  mine: document.querySelector('[data-a="mine"]') && document.querySelector('[data-a="mine"]').textContent.trim(),
+}));
+check('a confirmed session keeps Subscribe and shows My profile as its own item', menuLabels.sub === '订阅' && menuLabels.mine === '我的资料');
 await page.evaluate(() => document.querySelectorAll('.atm-toast').forEach(t => t.remove()));
 await shot(page, '11-9-9-menu-profile-zh');
-await page.click('[data-a="sub"]');
+await page.click('[data-a="mine"]');
 await page.waitForFunction(() => document.getElementById('tsub-t') && document.getElementById('tsub-t').textContent === '我的资料' && document.getElementById('tsub-e') && document.getElementById('tsub-e').value === 'wei@example.com');
 const profile = await page.evaluate(() => ({
   title: document.getElementById('tsub-t').textContent,

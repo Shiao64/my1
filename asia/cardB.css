@@ -1,20 +1,20 @@
-html body li.ev-card.b-card.b-card:not(.x),html body li.ev-card.b-card.atm-dim{height:auto!important;min-height:0!important;display:flex!important;flex-direction:column;gap:10px;padding:16px!important;border:0!important;border-radius:24px!important;background:#fff!important;box-shadow:0 8px 24px rgba(123,97,255,.14)!important;border-top:6px solid var(--b)!important;font-family:"Poppins","PingFang SC","Noto Sans SC",system-ui,sans-serif;overflow:hidden}
+html body li.ev-card.b-card.b-card:not(.x),html body li.ev-card.b-card.atm-dim{height:auto!important;min-height:0!important;display:flex!important;flex-direction:column;gap:10px;padding:16px!important;border:0!important;border-radius:24px!important;background:#fff!important;box-shadow:0 2px 8px rgba(6,51,58,.12)!important;border-top:6px solid var(--b)!important;font-family:var(--sans);overflow:hidden}
 body .ev-card.b-card>*{margin:0!important;order:0!important}
 .b-head{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .b-date{background:var(--b);color:#fff;font-weight:800;font-size:.95rem;padding:5px 12px;border-radius:999px}
 .b-type{border:2px solid var(--b);color:var(--b);font-weight:800;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:999px}
-body .ev-card.b-card .b-name{order:0;font-size:1.35rem!important;line-height:1.25;font-weight:900;color:#1d1640;margin:0!important;overflow-wrap:anywhere}
+body .ev-card.b-card .b-name{order:0;font-size:1.35rem!important;line-height:1.25;font-weight:900;color:#0A4F57;margin:0!important;overflow-wrap:anywhere}
 .b-meta{display:grid;gap:6px}
-.b-m{display:grid;grid-template-columns:28px 44px 1fr;align-items:start;font-size:.95rem;color:#2b2550}
-.b-m i{font-style:normal;width:26px;height:26px;border-radius:9px;background:#F3F0FF;display:grid;place-items:center;font-size:.85rem}
-.b-l{font-weight:700;color:#8a84a8;font-size:.78rem;padding-top:4px}.b-v{font-weight:600;overflow-wrap:anywhere;padding-top:2px}
+.b-m{display:grid;grid-template-columns:28px 44px 1fr;align-items:start;font-size:.95rem;color:#4A6B70}
+.b-m i{font-style:normal;width:26px;height:26px;border-radius:9px;background:#EFE6D3;display:grid;place-items:center;font-size:.85rem}
+.b-l{font-weight:700;color:#4A6B70;font-size:.78rem;padding-top:4px}.b-v{font-weight:600;overflow-wrap:anywhere;padding-top:2px}
 .b-poster a{display:block!important;position:static!important;padding:0!important;height:auto!important;border-radius:18px!important;overflow:hidden}
 .b-poster img{position:static!important;width:100%!important;height:auto!important;aspect-ratio:3/4;object-fit:cover!important;border-radius:18px!important;display:block}
 .b-poster a:after{display:none!important}
-.b-more summary{cursor:pointer;list-style:none;font-weight:800;color:var(--b);background:#F7F5FF;border-radius:14px;padding:10px 14px;font-size:.9rem}
+.b-more summary{cursor:pointer;list-style:none;font-weight:800;color:var(--b);background:#EFE6D3;border-radius:14px;padding:10px 14px;font-size:.9rem}
 .b-more summary:after{content:" ▾"}.b-more[open] summary:after{content:" ▴"}
-.b-in{display:grid;gap:8px;padding:10px 0 0;font-size:.88rem;color:#3a3460}
-.b-row{display:grid;grid-template-columns:64px 1fr;gap:6px}.b-row b{color:#8a84a8;font-size:.78rem}.b-row span{overflow-wrap:anywhere}
+.b-in{display:grid;gap:8px;padding:10px 0 0;font-size:.88rem;color:#4A6B70}
+.b-row{display:grid;grid-template-columns:64px 1fr;gap:6px}.b-row b{color:#4A6B70;font-size:.78rem}.b-row span{overflow-wrap:anywhere}
 .b-in .china-links{display:flex;flex-wrap:wrap;gap:8px}
 .b-in .china-linkbtn{background:var(--b)!important;color:#fff!important;border:0!important;border-radius:999px!important;padding:7px 14px!important;font-weight:700;text-decoration:none}
 html body .ev-card.b-card>.atm-nocover,html body .ev-card.b-card>.atm-more,html body .ev-card.b-card>.ev-top:not(.b-head),html body .ev-card.b-card>.ev-name:not(.b-name),html body .ev-card.b-card>.china-links{display:none!important}
@@ -27,7 +27,7 @@ html body .ev-card.b-card .b-poster{width:100%!important;margin:0!important;padd
 html body .ev-card.b-card .b-poster>a.ev-cover{margin:0!important;width:100%!important;max-width:100%!important;box-sizing:border-box}
 html body .ev-card.b-card .atm-viewed-mark{display:none!important}html body .ev-card.b-card .b-more{border:0!important;padding:0!important;background:none!important}
 html body .ev-card.b-card .b-head{border:0!important;padding:0!important;margin:0!important}
-html body .ev-card.b-card .b-head .atm-marks{order:3;margin:0 0 0 auto!important;gap:4px 8px!important;font-size:.72rem;color:#8a84a8}
+html body .ev-card.b-card .b-head .atm-marks{order:3;margin:0 0 0 auto!important;gap:4px 8px!important;font-size:.72rem;color:#4A6B70}
 html body .ev-card.b-card .b-head .atm-mk{font-size:.72rem}
 
 /* v10.7 draft card: dots only on top, one merged label, More box, 3-line notes */
@@ -49,7 +49,7 @@ html body .ev-card.b-card[data-kind=event] .b-head .atm-marks{display:contents!i
 /* draft 2026-10-31: one-step 更多 / 收起 */
 .b-more[open]>summary{display:none}
 .b-note>span.b-open{-webkit-line-clamp:unset;display:block;overflow:visible}
-.b-more .b-less{display:block;width:100%;margin:12px 0 0;cursor:pointer;font:inherit;font-weight:800;color:#7A5700;background:#F7F5FF;border:0;border-radius:14px;padding:10px 14px;font-size:.9rem;text-align:left}
+.b-more .b-less{display:block;width:100%;margin:12px 0 0;cursor:pointer;font:inherit;font-weight:800;color:#7A5700;background:#EFE6D3;border:0;border-radius:14px;padding:10px 14px;font-size:.9rem;text-align:left}
 .b-note-tg{display:none!important}
 .b-more .b-less::after{content:"▴";float:right}
 .b-more a.b-det{display:flex;align-items:center;justify-content:center;min-height:50px;margin:14px 0 0;border-radius:14px;background:#0E6E78;color:#fff!important;font-weight:800;font-size:1rem;text-decoration:none;box-shadow:0 5px 14px rgba(14,110,120,.28)}
@@ -90,19 +90,19 @@ html body .ev-card.b-card .b-m{grid-template-columns:28px minmax(52px,max-conten
 
 /* v11.8 P10 regular/weekly single card. Featured cards do not get html.atm-p10. */
 html.atm-p10,html.atm-p10 body.china-page{background:#FBF5E9!important}
-html.atm-p10 #atm-c1bar{height:48px!important;padding:0!important;gap:0!important;background:#FBF5E9!important;border-bottom:1px solid #e4e0d8!important;box-shadow:none!important;justify-content:center!important}
-html.atm-p10 #atm-c1bar .p10-in{position:relative;width:100%;max-width:480px;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 4px;box-sizing:border-box}
+html.atm-p10 #atm-c1bar{height:56px!important;padding:0!important;gap:0!important;background:#FBF5E9!important;border-bottom:1px solid #e4e0d8!important;box-shadow:none!important;justify-content:center!important}
+html.atm-p10 #atm-c1bar .p10-in{position:relative;width:100%;max-width:480px;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 4px;box-sizing:border-box}
 html.atm-p10 #atm-c1bar .atm-c1-back{position:relative;z-index:1;color:#0A4F57}
-html.atm-p10 #atm-c1bar .atm-c1-t{position:absolute!important;left:48px;right:48px;top:0;height:48px;margin:0!important;display:flex!important;align-items:center;justify-content:center;flex:none!important;font:700 22px/1 "Noto Serif SC","Songti SC",serif!important;color:#0A4F57!important;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+html.atm-p10 #atm-c1bar .atm-c1-t{position:absolute!important;left:48px;right:48px;top:0;height:56px;margin:0!important;display:flex!important;align-items:center;justify-content:center;flex:none!important;font:700 22px/1 "Noto Serif SC","Songti SC",serif!important;color:#0A4F57!important;pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
 html.atm-p10 #atm-c1bar .p10-heart{position:relative!important;top:auto!important;right:auto!important;z-index:2;width:40px;height:40px;margin:0;padding:0;border:0;border-radius:0;background:transparent!important;box-shadow:none!important;flex:none;display:grid;place-items:center;cursor:pointer}
 html.atm-p10 #atm-c1bar .p10-heart svg{width:26px;height:26px}
-html.atm-p10 #atm-c1bar .p10-heart path{fill:none;stroke:#C8102E;stroke-width:2.2;stroke-linejoin:round}
-html.atm-p10 #atm-c1bar .p10-heart[aria-pressed="true"] path{fill:#C8102E;stroke:#C8102E}
+html.atm-p10 #atm-c1bar .p10-heart path{fill:none;stroke:#B3261E;stroke-width:2.2;stroke-linejoin:round}
+html.atm-p10 #atm-c1bar .p10-heart[aria-pressed="true"] path{fill:#B3261E;stroke:#B3261E}
 html.atm-p10 #atm-single{max-width:480px!important;margin:0 auto 28px!important;padding:8px 8px 20px!important}
 html.atm-p10 #atm-single li.ev-card.b-card.b-reg{height:auto!important;min-height:0!important;overflow:visible!important;display:flex!important;flex-direction:column;gap:0!important;padding:0!important;margin:0!important;border:0!important;border-top:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important}
 html.atm-p10 #atm-single .ev-card>.atm-heart{display:none!important}
 html.atm-p10 .p10-sr{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;border:0!important}
-html.atm-p10 .p10-info{width:100%;margin:0;padding:10px 14px;background:#E8E6EC;border-radius:12px;position:relative;z-index:2;box-sizing:border-box}
+html.atm-p10 .p10-info{width:100%;margin:0;padding:10px 14px;background:#FFFFFF;border:1px solid #EFE6D3;border-radius:12px;position:relative;z-index:2;box-sizing:border-box}
 html.atm-p10 .p10-npill-wrap{margin:8px 0 0}
 html.atm-p10 .p10-npill{display:inline-flex;align-items:center;border:0;border-radius:999px;background:#9E1020;color:#fff;font:800 13px/1 inherit;padding:6px 10px;cursor:pointer}
 html.atm-p10 .p10-npanel{margin:8px 0 0;color:#2a1a14;font-size:15px;font-weight:600}

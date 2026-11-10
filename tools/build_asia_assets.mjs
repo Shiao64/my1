@@ -38,7 +38,7 @@ bundle(
 
 const cssSrc = join(root, 'asia/.atm-critical.src.css');
 const cssOut = join(root, 'asia/atm-critical.css');
-writeFileSync(cssSrc, ['css/atm-map-page.css', 'css/style.css', 'asia/cardB.css'].map((f) => readFileSync(join(root, f), 'utf8')).join('\n'));
+writeFileSync(cssSrc, ['css/atm-map-page.css', 'css/style.css', 'asia/cardB.css', 'asia/atm-theme.css'].map((f) => readFileSync(join(root, f), 'utf8')).join('\n'));
 const cssRun = spawnSync('npx', ['--yes', 'esbuild', cssSrc, '--minify', `--outfile=${cssOut}`], { cwd: root, encoding: 'utf8' });
 if (cssRun.status !== 0) {
   process.stderr.write(cssRun.stderr || cssRun.stdout || 'css minify failed\n');
