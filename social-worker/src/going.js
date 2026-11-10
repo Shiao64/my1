@@ -261,8 +261,20 @@ async function confirmBlocked(env, email, dev, iph) {
   const dh = dev ? await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE dev=? AND created_at>?').bind(dev, hour).first('n') : 0;
   return (eh || 0) >= 3 || (ed || 0) >= 10 || (ih || 0) >= 10 || (dh || 0) >= 10;
 }
-async function noteConfirm(env, kit, email, dev, iph) {
-  await env.SDB.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').bind(email, dev || '', iph || '', kit.now()).run();
+const RESEND_GAP_MS = 60e3;
+const RESEND_WINDOW_MS = 24 * 3600e3;
+async function noteConfirm(env, kit, email, dev, iph, cardId, anchor) {
+  await env.SDB.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at,card_id,anchor) VALUES(?,?,?,?,?,?)').bind(email, dev || '', iph || '', kit.now(), cardId || '', anchor || '').run();
+}
+async function resendGate(env, email, cardId, anchor) {
+  const since = new Date(Date.now() - RESEND_WINDOW_MS).toISOString();
+  const rows = (await env.SDB.prepare('SELECT created_at FROM going_confirm_log WHERE email=? AND card_id=? AND anchor=? AND created_at>? ORDER BY created_at DESC').bind(email, cardId, anchor || '', since).all()).results || [];
+  if (rows.length >= 2) return { error: 'resend_used' };
+  if (rows[0]) {
+    const left = RESEND_GAP_MS - (Date.now() - Date.parse(rows[0].created_at));
+    if (left > 0) return { error: 'resend_wait', wait: Math.max(1, Math.ceil(left / 1000)) };
+  }
+  return null;
 }
 async function rateOk(env, email, cardId, iph) {
   const since = new Date(Date.now() - DAY).toISOString();
@@ -482,6 +494,8 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   const prof = readProfile(b, kit);
   name = prof.name; email = prof.email; city = prof.city; role = prof.role;
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email' }, 400);
+  const again = await resendGate(env, email, id, anchor);
+  if (again) return json(again, 429);
   if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
   const useTransport = featured || intent !== 'going' ? 0 : transport;
   const existing = await env.SDB.prepare('SELECT id,name,city,role,verified_at FROM users WHERE email=?').bind(email).first();
@@ -497,7 +511,7 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     await env.SDB.prepare('DELETE FROM going_pending WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(email, id, anchor).run();
     return json({ error: 'send_failed' }, 502);
   }
-  await noteConfirm(env, kit, email, String(b.dev || ''), iph);
+  await noteConfirm(env, kit, email, String(b.dev || ''), iph, id, anchor);
   return json({ ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 

@@ -17,6 +17,7 @@ const { occurrenceDates, shYmd, digestSchedule } = await import(pathToFileURL(pa
 const db = new DatabaseSync(':memory:');
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_confirm_show.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);
@@ -80,8 +81,10 @@ const mine = await get('/going/mine', auth);
 check('mine returns favorites and per-show rows', mine.favs.includes('W1') && mine.items.some(x => x.anchor === dates[1] && x.intent === 'interested' && x.date === ''));
 const drop = await post('/going/unfav', { id: 'W1', explicit: 1 }, auth);
 check('unfavorite cancels every saved show', drop.removed && !db.prepare("SELECT id FROM going_intents WHERE email=? AND status='active'").get('ann@example.com') && !db.prepare('SELECT card_id FROM going_favs WHERE email=?').get('ann@example.com'));
-for (let n = 0; n < 3; n++) await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'F1', intent: 'interested', dev: 'device-show-0002' });
-const blocked = await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'F1', intent: 'interested', dev: 'device-show-0002' });
+await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'F1', intent: 'interested', dev: 'device-show-0002' });
+await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], dev: 'device-show-0002' });
+await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'W1', intent: 'going', anchor: dates[1], date: dates[1], dev: 'device-show-0002' });
+const blocked = await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'W1', intent: 'going', anchor: dates[2], date: dates[2], dev: 'device-show-0002' });
 check('the fourth mail in an hour is a plain retry', blocked._s === 429 && blocked.error === 'rate_limited' && !JSON.stringify(blocked).includes('cap@'));
 const now = new Date().toISOString();
 for (let n = 0; n < 10; n++) db.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').run('d' + n + '@example.com', 'device-full-0001', 'ip-other', now);
@@ -111,6 +114,16 @@ const ipHash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new Text
 for (let n = 0; n < 10; n++) db.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').run('ip' + n + '@example.com', 'device-ip-other-' + n, ipHash, dayNow);
 const overIp = await post('/going', { ...base, email: 'ipfresh@example.com', name: 'Ip', id: 'F1', intent: 'interested', dev: 'device-ip-fresh1' }, { 'CF-Connecting-IP': '203.0.113.9' });
 check('the eleventh address from one ip in an hour is the same retry', overIp._s === 429 && overIp.error === 'rate_limited' && !JSON.stringify(overIp).includes('ipfresh@'));
+const re = { ...base, email: 'resend@example.com', name: 'Re', id: 'F1', intent: 'interested', dev: 'device-resend-01' };
+const firstMail = await post('/going', re);
+const tooSoon = await post('/going', re);
+check('a second mail for the same show waits a minute', firstMail.confirm === true && tooSoon._s === 429 && tooSoon.error === 'resend_wait' && tooSoon.wait >= 1 && tooSoon.wait <= 60 && !JSON.stringify(tooSoon).includes('resend@'));
+db.prepare('UPDATE going_confirm_log SET created_at=? WHERE email=? AND card_id=?').run(new Date(Date.now() - 61000).toISOString(), 'resend@example.com', 'F1');
+const resent = await post('/going', re);
+const third = await post('/going', re);
+check('only one resend is sent for that show within a day', resent.confirm === true && third._s === 429 && third.error === 'resend_used' && !JSON.stringify(third).includes('resend@'));
+const otherShow = await post('/going', { ...base, email: 'resend@example.com', name: 'Re', id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], dev: 'device-resend-02' });
+check('another show is not blocked by the first show cap', otherShow.confirm === true);
 const sched = digestSchedule({});
 check('featured default is Monday 14:00 and still not approved', sched.weekday === 1 && sched.hour === 14 && sched.approved === false && sched.pendingReview === true);
 const sub = fs.readFileSync(path.join(root, 'asia/asia-subscribe.js'), 'utf8');

@@ -38,7 +38,10 @@
     rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', rolePh: '请选择',
     once: '同一设备验证通过后，再选 Going／Interested 无需重复验证。',
     verifyBtn: '确认', pending: '确认邮件已发出，请查收。点开邮件里的确认后，再回到这里点「确认」。',
-    sentHold: '已发送，请查收',
+    sentHold: '已发送邮件，请到邮箱确认',
+    resendHint: '请先检查垃圾邮件；1 分钟后可重发一次',
+    resendWait: '{n} 秒后可重发',
+    resendUsed: '已重发过，请查收或稍后再试。',
     resend: '重新发送验证邮件',
     ready: '邮箱已确认。再点「确认」才会记录意向。',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
@@ -87,7 +90,10 @@
     rl: 'Leader', rf: 'follower', rb: 'both', rolePh: 'Choose',
     once: 'After one verification on this device, you won’t need to verify again to choose Going or Interested.',
     verifyBtn: 'Confirm', pending: 'Confirmation email sent. Open it, then come back and tap Confirm.',
-    sentHold: 'Sent — please check your email',
+    sentHold: 'Email sent — please confirm in your inbox',
+    resendHint: 'Check your spam folder first. You can resend once after 1 minute.',
+    resendWait: 'Resend in {n}s',
+    resendUsed: 'Already resent. Please check your inbox, or try again later.',
     resend: 'Resend verification email',
     ready: 'Email confirmed. Tap Confirm to save your intent.',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
@@ -269,6 +275,7 @@
   function shut() {
     if (box.hidden) return;
     view++;
+    if (resendTick) { clearInterval(resendTick); resendTick = 0; }
     box.hidden = true;
   }
   box.addEventListener('click', function (e) { if (e.target === box || (e.target.closest && e.target.closest('[data-x]'))) shut(); });
@@ -323,7 +330,26 @@
     delete o[id];
     try { localStorage.setItem('atm_occ_v1', JSON.stringify(o)); } catch (e) {}
   }
-  var mailed = {};
+  var resendTick = 0;
+  var refreshResend = function () {};
+  var HOLD_KEY = 'atm_mail_hold_v1';
+  function holds() { try { var o = JSON.parse(sessionStorage.getItem(HOLD_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
+  function holdKey(id, anchor, email) { return id + '|' + (anchor || '') + '|' + String(email || '').trim().toLowerCase(); }
+  function getHold(id, anchor, email) { return holds()[holdKey(id, anchor, email)] || null; }
+  function putHold(id, anchor, email, n, at) {
+    var o = holds();
+    o[holdKey(id, anchor, email)] = { n: n, at: at || Date.now() };
+    try { sessionStorage.setItem(HOLD_KEY, JSON.stringify(o)); } catch (e) {}
+  }
+  function latestHold(id, anchor) {
+    var o = holds(), best = null, email = '', mark = anchor || '';
+    Object.keys(o).forEach(function (k) {
+      var parts = k.split('|');
+      if (parts[0] !== id || parts[1] !== mark) return;
+      if (!best || (o[k].at || 0) > best.at) { best = o[k]; email = parts.slice(2).join('|'); }
+    });
+    return best ? { email: email, n: best.n || 0, at: best.at || 0 } : null;
+  }
   function holdSent(go) {
     go.disabled = true;
     go.dataset.busy = '';
@@ -427,18 +453,73 @@
       var rest = body().querySelector('#asg-rest'); if (rest) rest.hidden = false;
       lockFields();
       var goNow = body().querySelector('#asg-go');
-      if (mailed[id] && next !== 'absent') holdSent(goNow);
-      else if (goNow && goNow.dataset.sent === '1') { goNow.disabled = false; goNow.dataset.sent = ''; goNow.textContent = L.submit; }
+      if (goNow && goNow.dataset.sent === '1') holdSent(goNow);
+      else paintResend();
       ctxSet(draft);
       body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
     }; });
-    if (dateEl) dateEl.onchange = function () { if (draft.intent !== 'going') return; draft.date = dateEl.value; draft.anchor = dateEl.value; ctxSet(draft); };
+    if (dateEl) dateEl.onchange = function () { if (draft.intent !== 'going') return; draft.date = dateEl.value; draft.anchor = dateEl.value; ctxSet(draft); paintResend(); };
     var noteEl = body().querySelector('#asg-notify'); if (noteEl) noteEl.onchange = function () { draft.notify = noteEl.checked; ctxSet(draft); };
     var dirEl = body().querySelector('#asg-dir'); if (dirEl) dirEl.onchange = function () { draft.transport = dirEl.checked; ctxSet(draft); };
+    var emailEl = body().querySelector('#asg-email');
+    if (emailEl) emailEl.oninput = function () { paintResend(); };
+    var known = latestHold(id, draft.anchor || '');
+    if (emailEl && known && known.email && !emailEl.value) emailEl.value = known.email;
     var go = body().querySelector('#asg-go');
-    if (mailed[id]) holdSent(go);
+    function paintResend() {
+      if (resendTick) { clearInterval(resendTick); resendTick = 0; }
+      var btn = body().querySelector('#asg-go');
+      if (!btn || btn.dataset.sent === '1') return;
+      if (draft.intent === 'absent') {
+        var awayNote = body().querySelector('#asg-resend');
+        if (awayNote) awayNote.hidden = true;
+        btn.disabled = false;
+        btn.textContent = L.submit;
+        return;
+      }
+      var mail = body().querySelector('#asg-email');
+      var addr = mail ? mail.value.trim().toLowerCase() : '';
+      var row = addr ? getHold(id, draft.anchor || '', addr) : null;
+      var hint = body().querySelector('#asg-resend');
+      if (!row) {
+        if (hint) hint.hidden = true;
+        btn.disabled = false;
+        btn.textContent = L.submit;
+        return;
+      }
+      if (!hint) {
+        hint = document.createElement('p');
+        hint.id = 'asg-resend';
+        hint.className = 'asg-note';
+        btn.parentNode.insertBefore(hint, btn);
+      }
+      hint.hidden = false;
+      if ((row.n || 0) >= 2) {
+        hint.textContent = L.resendUsed;
+        btn.disabled = true;
+        btn.textContent = L.resendUsed;
+        return;
+      }
+      hint.textContent = L.resendHint;
+      var left = Math.ceil((60000 - (Date.now() - row.at)) / 1000);
+      if (left > 0) {
+        btn.disabled = true;
+        btn.textContent = L.resendWait.replace('{n}', String(left));
+        resendTick = setInterval(function () {
+          if (!btn.isConnected || box.hidden || btn.dataset.sent === '1') { if (resendTick) { clearInterval(resendTick); resendTick = 0; } return; }
+          var n = Math.ceil((60000 - (Date.now() - row.at)) / 1000);
+          if (n > 0) btn.textContent = L.resendWait.replace('{n}', String(n));
+          else { clearInterval(resendTick); resendTick = 0; btn.disabled = false; btn.textContent = L.submit; }
+        }, 250);
+      } else {
+        btn.disabled = false;
+        btn.textContent = L.submit;
+      }
+    }
     go.onclick = function () { submit(e, draft, go); };
+    refreshResend = paintResend;
     lockFields();
+    paintResend();
     box.hidden = false;
   }
   function submit(e, draft, go) {
@@ -448,7 +529,6 @@
     err.textContent = ''; ok.textContent = '';
     if (draft.intent !== 'going' && draft.intent !== 'interested' && draft.intent !== 'absent') { err.textContent = L.needIntent; return; }
     if (draft.intent === 'absent') { saveAbsent(e, e.id, draft.anchor || ''); return; }
-    if (mailed[e.id]) return;
     go.dataset.busy = '1';
     var dateEl = body().querySelector('#asg-date');
     var going = draft.intent === 'going';
@@ -476,9 +556,22 @@
       var here = sameView();
       var savedOk = !!(d && d.ok && !d.confirm && !d.need_profile && !d.error && !mailBad(d));
       if (d && d.ok && !d.confirm) refreshMine();
-      if (d && d.confirm) mailed[e.id] = 1;
+      if (d && d.confirm) {
+        var prev = getHold(e.id, payload.anchor, payload.email) || { n: 0 };
+        putHold(e.id, payload.anchor, payload.email, (prev.n || 0) + 1, Date.now());
+      }
       if (!here) return;
       if (d && d.confirm) { addLocalFav(e.id); holdSent(go); return; }
+      if (d && (d.error === 'resend_wait' || d.error === 'resend_used')) {
+        if (d.error === 'resend_used') putHold(e.id, payload.anchor, payload.email, 2, Date.now());
+        else putHold(e.id, payload.anchor, payload.email, Math.max(1, ((getHold(e.id, payload.anchor, payload.email) || {}).n) || 1), Date.now() - Math.max(0, 60000 - (Number(d.wait) || 1) * 1000));
+        if (err.isConnected) err.textContent = '';
+        go.dataset.busy = '';
+        go.setAttribute('aria-busy', 'false');
+        settled = true;
+        refreshResend();
+        return;
+      }
       if (err.isConnected) {
         if (d.need_profile || d.error === 'need_city' || d.error === 'need_role' || d.error === 'need_name') err.textContent = L.fill;
         else if (d.error === 'no_organizer') err.textContent = L.grey;
