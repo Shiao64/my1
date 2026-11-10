@@ -38,6 +38,7 @@
     rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', rolePh: '请选择',
     once: '同一设备验证通过后，再选 Going／Interested 无需重复验证。',
     verifyBtn: '确认', pending: '确认邮件已发出，请查收。点开邮件里的确认后，再回到这里点「确认」。',
+    sentHold: '已发送，请查收',
     resend: '重新发送验证邮件',
     ready: '邮箱已确认。再点「确认」才会记录意向。',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
@@ -86,6 +87,7 @@
     rl: 'Leader', rf: 'follower', rb: 'both', rolePh: 'Choose',
     once: 'After one verification on this device, you won’t need to verify again to choose Going or Interested.',
     verifyBtn: 'Confirm', pending: 'Confirmation email sent. Open it, then come back and tap Confirm.',
+    sentHold: 'Sent — please check your email',
     resend: 'Resend verification email',
     ready: 'Email confirmed. Tap Confirm to save your intent.',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
@@ -122,7 +124,7 @@
     '#atm-star select:disabled,#atm-star input:disabled{opacity:.55;background:#f3ece0}' +
     '.atm-unfav{min-height:44px;margin:6px 0 0;padding:0 12px;border:1px solid #ead9b8;border-radius:999px;background:#fff;color:#2a1a14;font-weight:700}' +
     '#atm-star .asg-opt button[aria-pressed="true"]{background:#0e6e78;color:#f6e3b4}' +
-    '#atm-star .asg-go{min-height:48px;font-weight:700;border:0;width:100%;margin-top:10px;background:#0e6e78;color:#f6e3b4;border-radius:12px}#atm-star .asg-go[aria-busy="true"]{opacity:.72}' +
+    '#atm-star .asg-go{min-height:48px;font-weight:700;border:0;width:100%;margin-top:10px;background:#0e6e78;color:#f6e3b4;border-radius:12px}#atm-star .asg-go[aria-busy="true"],#atm-star .asg-go:disabled{opacity:.72}' +
     '#atm-star .asg-hint{margin:10px 2px 0;color:#6b5d52;font-size:.8rem;line-height:1.45}' +
     '#atm-star .asg-tslab{margin:10px 0 4px;color:#0a4f57;font-size:.84rem;font-weight:700}' +
     '#atm-star .asg-ts{min-height:65px;margin:0 0 4px}' +
@@ -321,6 +323,14 @@
     delete o[id];
     try { localStorage.setItem('atm_occ_v1', JSON.stringify(o)); } catch (e) {}
   }
+  var mailed = {};
+  function holdSent(go) {
+    go.disabled = true;
+    go.dataset.busy = '';
+    go.dataset.sent = '1';
+    go.setAttribute('aria-busy', 'false');
+    go.textContent = L.sentHold;
+  }
   function saveAbsent(ev, id, anchor) {
     rememberAbsent(id, anchor);
     addLocalFav(id);
@@ -416,6 +426,9 @@
       else if (wasAway) draft.notify = true;
       var rest = body().querySelector('#asg-rest'); if (rest) rest.hidden = false;
       lockFields();
+      var goNow = body().querySelector('#asg-go');
+      if (mailed[id] && next !== 'absent') holdSent(goNow);
+      else if (goNow && goNow.dataset.sent === '1') { goNow.disabled = false; goNow.dataset.sent = ''; goNow.textContent = L.submit; }
       ctxSet(draft);
       body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
     }; });
@@ -423,6 +436,7 @@
     var noteEl = body().querySelector('#asg-notify'); if (noteEl) noteEl.onchange = function () { draft.notify = noteEl.checked; ctxSet(draft); };
     var dirEl = body().querySelector('#asg-dir'); if (dirEl) dirEl.onchange = function () { draft.transport = dirEl.checked; ctxSet(draft); };
     var go = body().querySelector('#asg-go');
+    if (mailed[id]) holdSent(go);
     go.onclick = function () { submit(e, draft, go); };
     lockFields();
     box.hidden = false;
@@ -430,10 +444,11 @@
   function submit(e, draft, go) {
     var err = body().querySelector('#asg-err'), ok = body().querySelector('#asg-ok');
     if (!err || !ok) return;
-    if (go.dataset.busy === '1') return;
+    if (go.dataset.busy === '1' || go.dataset.sent === '1') return;
     err.textContent = ''; ok.textContent = '';
     if (draft.intent !== 'going' && draft.intent !== 'interested' && draft.intent !== 'absent') { err.textContent = L.needIntent; return; }
     if (draft.intent === 'absent') { saveAbsent(e, e.id, draft.anchor || ''); return; }
+    if (mailed[e.id]) return;
     go.dataset.busy = '1';
     var dateEl = body().querySelector('#asg-date');
     var going = draft.intent === 'going';
@@ -461,16 +476,17 @@
       var here = sameView();
       var savedOk = !!(d && d.ok && !d.confirm && !d.need_profile && !d.error && !mailBad(d));
       if (d && d.ok && !d.confirm) refreshMine();
+      if (d && d.confirm) mailed[e.id] = 1;
       if (!here) return;
+      if (d && d.confirm) { addLocalFav(e.id); holdSent(go); return; }
       if (err.isConnected) {
-        if (d.confirm) ok.textContent = L.pending;
-        else if (d.need_profile || d.error === 'need_city' || d.error === 'need_role' || d.error === 'need_name') err.textContent = L.fill;
+        if (d.need_profile || d.error === 'need_city' || d.error === 'need_role' || d.error === 'need_name') err.textContent = L.fill;
         else if (d.error === 'no_organizer') err.textContent = L.grey;
         else if (d.error === 'rate_limited') err.textContent = L.limited;
         else if (!d.ok) err.textContent = L.again;
         else if (mailBad(d)) ok.textContent = L.fail;
       }
-      if (savedOk || (d && d.confirm)) addLocalFav(e.id);
+      if (savedOk) addLocalFav(e.id);
       if (savedOk) { toast(statusText(d.mail)); finish(false); return; }
       finish(true);
     }).catch(function () { if (sameView() && err.isConnected) err.textContent = L.net; if (sameView()) finish(true); });
