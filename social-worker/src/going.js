@@ -5,13 +5,13 @@
 // Regular cards: one summary for that occurrence, three hours before its start.
 // GOING_DIGEST_SEND stays off and no live cron calls the digest, so this does not send.
 // Stats drafts are written for review. This module never sends them.
-const PROFILE_MS = 7 * 24 * 3600e3;
+const PROFILE_MS = 30 * 60e3;
 const DAY = 24 * 3600e3;
 const CC_DEFAULT = 'selecttango@gmail.com';
 const ROLES = ['leader', 'follower', 'both'];
 const INTENTS = ['going', 'interested', 'absent'];
 const DELETE_NOTE = '\n要删除资料，请回信到 selecttango@gmail.com\nTo delete your information, reply to selecttango@gmail.com\n';
-const EXPIRED = '链接已过期。请重新请求验证邮件。 / This link has expired. Request a new verification email.';
+const EXPIRED = '链接已过期。请回到页面，再次点五角星，即可收到一封新邮件。 / This link has expired. Go back and tap the star again to get a new email.';
 const INVALID = '链接无效。请重新请求验证邮件。 / This link is invalid. Request a new verification email.';
 let cardCache = null;
 
@@ -209,18 +209,44 @@ async function saveVerify(env, kit, row) {
   const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
   return base + '/social/going/confirm?e=' + encodeURIComponent(row.email) + '&t=' + mag + '&next=' + encodeURIComponent(row.ret);
 }
-async function sendVerify(env, kit, row, link, pending) {
+const ZH_SIGN = '探戈助理';
+const EN_SIGN = 'Tango Assistant · Asia Tango Map';
+const CONFIRM_ASK = {
+  zh: '请在 30 分钟内点击下方按钮确认邮箱。',
+  en: 'Please confirm your email within 30 minutes by tapping the button below.'
+};
+function mailName(name) {
+  return String(name || '').replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function confirmHello(name, zh) {
+  const n = mailName(name);
+  if (zh) return n ? n + '，你好！' : '你好！';
+  return n ? 'Hi ' + n + ',' : 'Hi,';
+}
+// Star submit, menu profile, and restore all send this letter.
+// social.js sendMagic and subscribe-worker /confirm are different letters.
+export function buildConfirmLetter(row, link, pending, he) {
   const zh = row.lang === 'zh';
+  const esc = typeof he === 'function' ? he : (s => String(s == null ? '' : s));
+  const hello = confirmHello(row.name, zh);
+  const ask = zh ? CONFIRM_ASK.zh : CONFIRM_ASK.en;
   const subject = zh ? '请确认邮箱｜亚洲探戈地图' : 'Please confirm your email | Asia Tango Map';
   const extra = pending
     ? (zh ? `\n\n你在「${pending.title}」选了${pending.intent === 'going' ? '要参加' : '感兴趣'}。这封邮件只确认邮箱，不会记录意向，也不会通知组织者。回到活动页面后再点「确认」。\n` : `\n\nYou chose ${pending.intent === 'going' ? 'Going' : 'Interested'} for "${pending.title}". This email only confirms your address. It does not save the intent or notify the organizer. Go back to the event and tap Confirm.\n`)
     : (zh ? '\n\n这只保存你的资料。确认邮箱不会通知组织者，也不会标记任何活动。\n' : '\n\nThis only saves your profile. Confirming does not email an organizer or mark an event.\n');
   const choice = row.promo
-    ? (zh ? '\n你勾选了同时订阅 ATM 活动资讯。点确认后才会加入。\nYou chose to also subscribe to ATM event updates. That starts only after you tap Confirm.\n' : '\nYou chose to also subscribe to ATM event updates. That starts only after you tap Confirm.\n你勾选了同时订阅 ATM 活动资讯。点确认后才会加入。\n')
-    : (zh ? '\n你没有勾选订阅 ATM 活动资讯。点确认只验证邮箱，方便以后登记活动意向。\nYou did not choose the ATM event updates. Tapping Confirm only verifies your email so you can register an intent later.\n' : '\nYou did not choose the ATM event updates. Tapping Confirm only verifies your email so you can register an intent later.\n你没有勾选订阅 ATM 活动资讯。点确认只验证邮箱，方便以后登记活动意向。\n');
-  const text = (zh ? `${row.name}，你好！\n\n请在 7 天内打开下面的链接，再点「确认」。\n\n${link}\n` : `Hi ${row.name},\n\nOpen the link below within 7 days, then tap Confirm.\n\n${link}\n`) + extra + choice + DELETE_NOTE + (zh ? '\n如果不是你本人操作，忽略即可。\n\n探戈助理\nhttps://tangoweekend.org' : '\nIf this wasn\'t you, you can ignore this email.\n\n探戈助理\nhttps://tangoweekend.org');
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${kit.he(zh ? row.name + '，你好！' : 'Hi ' + row.name + ',')}</p><p>${zh ? '请在 7 天内点下面的按钮确认邮箱。' : 'Tap the button below within 7 days to confirm your email.'}</p><p style="margin:22px 0"><a href="${kit.he(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${zh ? '确认' : 'Confirm'}</a></p><p>${kit.he(extra.trim())}</p><p>探戈助理<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
-  return kit.deliver(env, row.email, subject, text, html, undefined, { fromName: '探戈助理' });
+    ? (zh ? '\n你勾选了同时订阅 ATM 活动资讯。点确认后才会加入。\nYou chose to also subscribe to ATM event updates. That starts only after you tap Confirm.\n' : '\nYou chose to also subscribe to ATM event updates. That starts only after you tap Confirm.\n')
+    : (zh ? '\n你没有勾选订阅 ATM 活动资讯。点确认只验证邮箱，方便以后登记活动意向。\nYou did not choose the ATM event updates. Tapping Confirm only verifies your email so you can register an intent later.\n' : '\nYou did not choose the ATM event updates. Tapping Confirm only verifies your email so you can register an intent later.\n');
+  const deleteNote = zh ? DELETE_NOTE : '\nTo delete your information, reply to selecttango@gmail.com\n';
+  const sign = zh ? ZH_SIGN : EN_SIGN;
+  const ignore = zh ? '\n如果不是你本人操作，忽略即可。\n\n' : '\nIf this wasn\'t you, you can ignore this email.\n\n';
+  const text = `${hello}\n\n${ask}\n\n${link}\n` + extra + choice + deleteNote + ignore + sign + '\nhttps://tangoweekend.org';
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${esc(hello)}</p><p>${esc(ask)}</p><p style="margin:22px 0"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${zh ? '确认' : 'Confirm'}</a></p><p>${esc(extra.trim())}</p><p>${esc(sign)}<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
+  return { subject, text, html, fromName: sign };
+}
+async function sendVerify(env, kit, row, link, pending) {
+  const letter = buildConfirmLetter(row, link, pending, kit.he);
+  return kit.deliver(env, row.email, letter.subject, letter.text, letter.html, undefined, { fromName: letter.fromName });
 }
 function intentLabel(intent) {
   return intent === 'going' ? 'Going / 要参加' : 'Interested / 感兴趣';
