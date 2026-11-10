@@ -22,6 +22,7 @@
     going: '要参加', interested: '感兴趣', absent: '去不了',
     promo: '同时订阅 ATM 活动资讯',
     later: '请稍后再试。',
+    limited: '确认邮件已达上限，请稍后再试。',
     withheld: '已记下。这一场不会交给主办。',
     unfav: '取消收藏',
     notify: '接收主办方讯息',
@@ -69,6 +70,7 @@
     going: 'Going', interested: 'Interested', absent: 'Not Going',
     promo: 'Also subscribe to ATM event updates',
     later: 'Please try again later.',
+    limited: 'Too many confirmation emails. Please try again later.',
     withheld: 'Saved. This one is not sent to the organizer.',
     unfav: 'Remove from favorites',
     notify: 'Receive organizer updates',
@@ -265,9 +267,6 @@
   function shut() {
     if (box.hidden) return;
     view++;
-    dropTs();
-    var host = body().querySelector('.asg-ts');
-    if (host) host.remove();
     box.hidden = true;
   }
   box.addEventListener('click', function (e) { if (e.target === box || (e.target.closest && e.target.closest('[data-x]'))) shut(); });
@@ -329,7 +328,7 @@
     toast(L.withheld);
     shut();
     if (!token()) return;
-    api('/social/going', { id: id, intent: 'absent', anchor: anchor || '', date: '', explicit: 1, disclose: 1, notify: 0, transport: 0, alert: 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: '', dev: dev() }).then(function (d) {
+    api('/social/going', { id: id, intent: 'absent', anchor: anchor || '', date: '', explicit: 1, disclose: 1, notify: 0, transport: 0, alert: 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], dev: dev() }).then(function (d) {
       if (!(d && d.ok && !d.confirm)) toast(L.later);
       else refreshMine();
     }).catch(function () { toast(L.later); });
@@ -373,12 +372,10 @@
       html += '<p class="asg-req">' + L.req + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect() + '</div></div>';
     }
     html += '<p class="asg-err" id="asg-err"></p><p class="asg-ok" id="asg-ok"></p>';
-    html += '<p class="asg-tslab" id="asg-tslab">' + L.tsWait + '</p><div class="asg-ts"></div>';
     html += '<button type="button" class="asg-go" id="asg-go" aria-busy="false">' + action + '</button>';
     if (verified) html += '<p class="asg-hint">' + L.optin + '</p>';
     html += '</div>';
     view++;
-    dropTs();
     body().innerHTML = html;
     if (me) { var n = body().querySelector('#asg-name'); if (n && me.name) n.value = me.name; var c = body().querySelector('#asg-city'); if (c && me.city) c.value = me.city; var rr = body().querySelector('#asg-role'); if (rr && me.role) rr.value = me.role; }
     var dateEl = body().querySelector('#asg-date');
@@ -404,10 +401,6 @@
       if (mailNote) mailNote.hidden = away;
       if (promoLab) promoLab.hidden = away;
       if (profile) profile.hidden = away;
-      var ts = body().querySelector('.asg-ts');
-      var lab = body().querySelector('#asg-tslab');
-      if (ts) ts.hidden = away;
-      if (lab) lab.hidden = away;
     }
     body().querySelectorAll('[data-intent]').forEach(function (btn) { btn.onclick = function () {
       var next = btn.getAttribute('data-intent');
@@ -432,133 +425,7 @@
     var go = body().querySelector('#asg-go');
     go.onclick = function () { submit(e, draft, go); };
     lockFields();
-    mountTs(body().querySelector('.asg-ts'));
     box.hidden = false;
-  }
-  var sitekeyP = null;
-  function loadSitekey() {
-    if (window.ATM_TS_KEY) return Promise.resolve(window.ATM_TS_KEY);
-    if (sitekeyP) return sitekeyP;
-    sitekeyP = fetch(API + '/social/going/config').then(function (r) { return r.json(); }).then(function (d) {
-      if (d && d.sitekey) window.ATM_TS_KEY = d.sitekey;
-      return window.ATM_TS_KEY || '';
-    }).catch(function () { return ''; });
-    return sitekeyP;
-  }
-  var TS_RESET_MAX = 3;
-  function tsMessage(el) {
-    var phase = el && el.dataset.phase;
-    if (phase === 'challenge') return L.tsChallenge;
-    if (phase === 'expired') return L.tsExpired;
-    if (phase === 'timeout') return L.tsTimeout;
-    return L.tsWait;
-  }
-  function clearTsNote() {
-    var err = body().querySelector('#asg-err');
-    if (!err) return;
-    if (err.textContent === L.tsChallenge || err.textContent === L.tsExpired || err.textContent === L.tsTimeout || err.textContent === L.tsWait || err.textContent === L.tsVerify) err.textContent = '';
-  }
-  function paintTsLab(el) {
-    var lab = body().querySelector('#asg-tslab');
-    if (!lab) return;
-    lab.hidden = !!(el && el.dataset.ready === '1' && !el.dataset.phase);
-  }
-  function wipeToken(el) {
-    if (!el) return;
-    el.dataset.ready = '';
-    var inp = el.querySelector('[name="cf-turnstile-response"]');
-    if (inp) inp.value = '';
-  }
-  function takeToken(el) {
-    if (!el || el.dataset.ready !== '1' || el.dataset.phase) return '';
-    var inp = el.querySelector('[name="cf-turnstile-response"]');
-    var v = inp ? String(inp.value || '').trim() : '';
-    if (!v) return '';
-    el.dataset.ready = '';
-    inp.value = '';
-    return v;
-  }
-  function scheduleChallengeReset(el) {
-    if (!el || el.dataset.resetQueued === '1') return;
-    if (Number(el.dataset.resets || 0) >= TS_RESET_MAX) return;
-    el.dataset.resetQueued = '1';
-    setTimeout(function () {
-      if (!el.isConnected) return;
-      el.dataset.resetQueued = '';
-      var n = Number(el.dataset.resets || 0);
-      if (n >= TS_RESET_MAX) return;
-      el.dataset.resets = String(n + 1);
-      wipeToken(el);
-      if (el.dataset.wid && window.turnstile) { try { window.turnstile.reset(el.dataset.wid); } catch (e) {} }
-    }, 800);
-  }
-  function widgetById(wid) {
-    var all = box.querySelectorAll('.asg-ts'), i;
-    for (i = 0; i < all.length; i++) if (all[i].dataset.wid === String(wid)) return all[i];
-    return null;
-  }
-  function releaseWidget(wid) {
-    var el = wid ? widgetById(wid) : null;
-    if (el) wipeToken(el);
-    if (wid && window.turnstile) { try { window.turnstile.reset(wid); } catch (e) {} }
-  }
-  function dropTs() {
-    var old = body().querySelector('.asg-ts');
-    if (!old) return;
-    var wid = old.dataset.wid;
-    wipeToken(old);
-    if (wid && window.turnstile) { try { window.turnstile.remove(wid); } catch (e) {} }
-  }
-  function mountTs(el) {
-    loadSitekey().then(function (key) {
-      if (!key || !el || !el.isConnected || el.dataset.ts) return;
-      function render() {
-        if (!window.turnstile || !el.isConnected || el.dataset.ts) return;
-        el.dataset.ts = '1';
-        el.dataset.ready = '';
-        el.dataset.phase = '';
-        el.dataset.resets = '0';
-        var wid = window.turnstile.render(el, {
-          sitekey: key,
-          action: 'going',
-          retry: 'never',
-          callback: function () {
-            if (!el.isConnected) return;
-            el.dataset.ready = '1';
-            el.dataset.phase = '';
-            clearTsNote();
-            paintTsLab(el);
-          },
-          'expired-callback': function () {
-            if (!el.isConnected) return;
-            el.dataset.phase = 'expired';
-            wipeToken(el);
-            paintTsLab(el);
-            var err = body().querySelector('#asg-err'); if (err) err.textContent = L.tsExpired;
-            scheduleChallengeReset(el);
-          },
-          'timeout-callback': function () {
-            if (!el.isConnected) return;
-            el.dataset.phase = 'timeout';
-            wipeToken(el);
-            paintTsLab(el);
-            var err = body().querySelector('#asg-err'); if (err) err.textContent = L.tsTimeout;
-            scheduleChallengeReset(el);
-          },
-          'error-callback': function () {
-            if (!el.isConnected) return;
-            el.dataset.phase = 'challenge';
-            wipeToken(el);
-            paintTsLab(el);
-            var err = body().querySelector('#asg-err'); if (err) err.textContent = L.tsChallenge;
-            scheduleChallengeReset(el);
-          }
-        });
-        el.dataset.wid = wid == null ? '' : String(wid);
-      }
-      if (window.turnstile) render();
-      else { var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = render; document.head.appendChild(s); }
-    });
   }
   function submit(e, draft, go) {
     var err = body().querySelector('#asg-err'), ok = body().querySelector('#asg-ok');
@@ -568,23 +435,10 @@
     if (draft.intent !== 'going' && draft.intent !== 'interested' && draft.intent !== 'absent') { err.textContent = L.needIntent; return; }
     if (draft.intent === 'absent') { saveAbsent(e, e.id, draft.anchor || ''); return; }
     go.dataset.busy = '1';
-    var tsEl = body().querySelector('.asg-ts');
-    var ts = takeToken(tsEl);
-    if (!ts) {
-      go.dataset.busy = '';
-      go.setAttribute('aria-busy', 'false');
-      err.textContent = tsMessage(tsEl);
-      var lab = body().querySelector('#asg-tslab');
-      if (lab) lab.hidden = false;
-      var mark = lab || tsEl;
-      if (mark && mark.scrollIntoView) { try { mark.scrollIntoView({ block: 'nearest' }); } catch (e2) {} }
-      return;
-    }
-    var wid = tsEl.dataset.wid || '';
     var dateEl = body().querySelector('#asg-date');
     var going = draft.intent === 'going';
     var promo = body().querySelector('#asg-promo');
-    var payload = { id: e.id, intent: draft.intent, explicit: 1, disclose: 1, notify: body().querySelector('#asg-notify').checked ? 1 : 0, transport: (going && body().querySelector('#asg-dir') && body().querySelector('#asg-dir').checked) ? 1 : 0, anchor: draft.anchor || '', date: going ? ((dateEl && dateEl.value) || draft.date || '') : '', alert: promo && promo.checked ? 1 : 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: ts, dev: dev() };
+    var payload = { id: e.id, intent: draft.intent, explicit: 1, disclose: 1, notify: body().querySelector('#asg-notify').checked ? 1 : 0, transport: (going && body().querySelector('#asg-dir') && body().querySelector('#asg-dir').checked) ? 1 : 0, anchor: draft.anchor || '', date: going ? ((dateEl && dateEl.value) || draft.date || '') : '', alert: promo && promo.checked ? 1 : 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], dev: dev() };
     ['name', 'email', 'city'].forEach(function (k) { var el = body().querySelector('#asg-' + k); if (el) payload[k] = el.value.trim(); });
     var role = body().querySelector('#asg-role'); if (role) payload.role = role.value;
     ctxSet({ id: e.id, intent: draft.intent, date: payload.date, notify: payload.notify !== 0, transport: !!payload.transport });
@@ -601,9 +455,6 @@
       go.disabled = false;
       go.dataset.busy = '';
       go.setAttribute('aria-busy', 'false');
-      var lab = body().querySelector('#asg-tslab');
-      if (lab) lab.hidden = false;
-      releaseWidget(wid);
     }
     function mailBad(d) { return d.mail === 'failed' || d.mail === 'rate_limited' || d.mail === 'no_organizer'; }
     api('/social/going', payload).then(function (d) {
@@ -615,8 +466,7 @@
         if (d.confirm) ok.textContent = L.pending;
         else if (d.need_profile || d.error === 'need_city' || d.error === 'need_role' || d.error === 'need_name') err.textContent = L.fill;
         else if (d.error === 'no_organizer') err.textContent = L.grey;
-        else if (d.error === 'turnstile') err.textContent = L.tsVerify;
-        else if (d.error === 'rate_limited') err.textContent = L.later;
+        else if (d.error === 'rate_limited') err.textContent = L.limited;
         else if (!d.ok) err.textContent = L.again;
         else if (mailBad(d)) ok.textContent = L.fail;
       }
