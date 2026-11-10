@@ -139,7 +139,7 @@
     '.ah-hbtn{display:inline-flex!important;align-items:center;justify-content:center;position:relative;width:40px;height:40px;margin-right:4px;border:0;background:none;color:#F6D58E;cursor:pointer;padding:0;flex:0 0 auto}.ah-hbtn svg{width:22px;height:22px}.ah-hbtn .ah-hrt{color:#ff8a80;font-size:21px;line-height:1}.ah-badge{position:absolute;top:0;right:-2px;min-width:18px;height:18px;border-radius:9px;background:#C0392B;color:#fff;font:700 11px system-ui;display:flex;align-items:center;justify-content:center;padding:0 4px;box-sizing:border-box}.ah-badge[hidden]{display:none}' +
     'html:not(.atm-h-home) .ah-hbtn{display:none!important}' +
     '.ah-ly{position:fixed;inset:0;z-index:10050;background:rgba(0,0,0,.45);display:flex;justify-content:center;align-items:flex-end}.ah-box{background:#FBF5E9;width:100%;max-height:78vh;border-radius:20px 20px 0 0;overflow:auto;padding:12px 14px 20px;box-sizing:border-box}@media(min-width:700px){.ah-ly{align-items:center}.ah-box{width:560px;max-height:80vh;border-radius:20px}}' +
-    '.ah-lyh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.ah-lyh b{font:700 19px "Noto Serif SC",serif;color:#C0392B}.ah-lyh b i{font-style:normal;color:#0A4F57}.ah-x{width:44px;height:44px;border-radius:50%;background:#E9F2F2;border:0;font:700 24px system-ui;color:#0A4F57;cursor:pointer}.ah-lyn{margin-top:12px;color:#5f6f66;font:600 12px system-ui;text-align:center}' +
+    '.ah-lyh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.ah-lyh b{display:inline-flex;align-items:center;gap:6px;font:700 19px "Noto Serif SC",serif;color:#C0392B}.ah-lyh .ah-star,.ah-hfav .ah-star{width:18px;height:18px;flex:none;fill:#B3261E;stroke:none}.ah-lyh b i{font-style:normal;color:#0A4F57}.ah-x{width:44px;height:44px;border-radius:50%;background:#E9F2F2;border:0;font:700 24px system-ui;color:#0A4F57;cursor:pointer}.ah-lyn{margin-top:12px;color:#5f6f66;font:600 12px system-ui;text-align:center}' +
     '.ah-pw{position:relative;display:block;flex:0 0 auto;line-height:0}.ah-prev{position:absolute;left:2px;right:2px;bottom:4px;text-align:center;font:700 9px/1.2 system-ui,sans-serif;font-style:normal;color:#fff;background:rgba(0,0,0,.6);border-radius:6px;padding:2px 3px;white-space:nowrap;overflow:hidden;pointer-events:none}' +
     '#atm-home .ah-favhint{margin:0;padding:14px;border-radius:16px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.08);font:700 18px/1.3 "Noto Serif SC",serif;color:#0A4F57}' +
     '.ah-card{position:relative}.ah-card>.ah-tx{padding-right:34px}.ah-card>.ah-heart{top:6px;right:6px}' +
@@ -344,7 +344,7 @@
   /* title bar: magnifier + ♥ (with count) */
   var MG = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><line x1="15" y1="15" x2="20.5" y2="20.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
   var bS = D.createElement('button'); bS.type = 'button'; bS.className = 'ah-hbtn ah-hsearch'; bS.innerHTML = MG; bS.setAttribute('aria-label', T.search);
-  var bF = D.createElement('button'); bF.type = 'button'; bF.className = 'ah-hbtn ah-hfav'; bF.innerHTML = '<span class="ah-hrt" aria-hidden="true">♥</span><span class="ah-badge" hidden></span>'; bF.setAttribute('aria-label', T.fav);
+  var bF = D.createElement('button'); bF.type = 'button'; bF.className = 'ah-hbtn ah-hfav'; bF.innerHTML = starIc() + '<span class="ah-badge" hidden></span>'; bF.setAttribute('aria-label', T.fav);
   bS.addEventListener('click', function () { S.open = false; S.a = -1; S.c = ''; go('#h-search'); });
   bF.addEventListener('click', openFav);
   function favIds() { var a = []; try { a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); } catch (e) {} if (window.ATM_FAV && window.ATM_FAV.get && !a.length) a = window.ATM_FAV.get(); if (!DATA) return a; var m = {}; DATA.forEach(function (e) { m[e.id] = e; }); return a.filter(function (id) { return live(m[id]); }); }
@@ -366,7 +366,7 @@
     if (!ly) return;
     var ids = favIds();
     var title = ly.querySelector('.ah-lyh b');
-    if (title) title.innerHTML = '♥ ' + T.fav + ' <i>' + ids.length + '</i>';
+    if (title) title.innerHTML = starIc() + T.fav + ' <i>' + ids.length + '</i>';
     ly.setAttribute('aria-label', T.fav);
     var listEl = ly.querySelector('.ah-list');
     if (listEl) listEl.innerHTML = favListHtml();
@@ -374,7 +374,7 @@
   function openFav() {
     rmFav(); var ids = favIds();
     ly = D.createElement('div'); ly.className = 'ah-ly'; ly.setAttribute('role', 'dialog'); ly.setAttribute('aria-modal', 'true'); ly.setAttribute('aria-label', T.fav);
-    ly.innerHTML = '<div class="ah-box"><div class="ah-lyh"><b>♥ ' + T.fav + ' <i>' + ids.length + '</i></b><button type="button" class="ah-x" aria-label="' + T.close + '">×</button></div><div class="ah-list">' + favListHtml() + '</div><div class="ah-lyn">' + T.favnote + '</div></div>';
+    ly.innerHTML = '<div class="ah-box"><div class="ah-lyh"><b>' + starIc() + T.fav + ' <i>' + ids.length + '</i></b><button type="button" class="ah-x" aria-label="' + T.close + '">×</button></div><div class="ah-list">' + favListHtml() + '</div><div class="ah-lyn">' + T.favnote + '</div></div>';
     ly.addEventListener('click', function (e) { if (e.target === ly || e.target.closest('.ah-x')) closeFav(); });
     D.body.appendChild(ly); D.body.style.overflow = 'hidden';
     try { if (!(history.state && history.state.ahFav)) history.pushState({ ahFav: 1 }, '', location.href); } catch (e) {}

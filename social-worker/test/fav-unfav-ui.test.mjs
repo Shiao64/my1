@@ -119,6 +119,8 @@ async function openList(page) {
 async function state(page) {
   return page.evaluate(() => ({
     title: (document.querySelector('.ah-lyh b') || {}).innerText || '',
+    star: !!(document.querySelector('.ah-lyh .ah-star')),
+    heartGlyph: /[♥❤♡]/.test((document.querySelector('.ah-lyh b') || {}).innerHTML || ''),
     aria: (document.querySelector('.ah-ly') || {}).getAttribute('aria-label') || '',
     unfav: [...document.querySelectorAll('.ah-ly .atm-unfav')].map((el) => ({
       id: el.getAttribute('data-unfav'),
@@ -142,6 +144,7 @@ await page.goto(origin + '/zh/asia/', { waitUntil: 'networkidle0', timeout: 4000
 await openList(page);
 let st = await state(page);
 check('zh title', st.title.includes('我的收藏') && st.title.includes('3') && !st.title.includes('意向'));
+check('zh title star not heart', st.star && !st.heartGlyph);
 check('zh unfav visible x3', st.unfav.length === 3 && st.unfav.every((u) => u.text === '取消收藏' && u.h >= 44 && u.w >= 44 && u.visible));
 check('zh seeded favs', st.favs.slice().sort().join() === FAVS.slice().sort().join());
 await page.screenshot({ path: path.join(shotDir, 'zh-list-before.png'), fullPage: false });
@@ -173,6 +176,7 @@ await en.goto(origin + '/asia/', { waitUntil: 'networkidle0', timeout: 40000 });
 await openList(en);
 st = await state(en);
 check('en title', st.title.includes('My saved events') && st.title.includes('3') && !/intent/i.test(st.title));
+check('en title star not heart', st.star && !st.heartGlyph);
 check('en unfav visible x3', st.unfav.length === 3 && st.unfav.every((u) => u.text === 'Remove from favorites' && u.h >= 44 && u.visible));
 await en.screenshot({ path: path.join(shotDir, 'en-list-before.png'), fullPage: false });
 await en.evaluate((id) => { const b = document.querySelector('.ah-ly .atm-unfav[data-unfav="' + id + '"]'); if (b) b.click(); }, DROP);
