@@ -18,6 +18,7 @@ const { occurrenceDates, shYmd, generateGoingStats } = await import(pathToFileUR
 
 const db = new DatabaseSync(':memory:');
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ.sql'), 'utf8'));
 db.exec(`
 CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT, wx_used INTEGER);
@@ -103,8 +104,9 @@ check('queued row keeps notify and does not mark sent', db.prepare("SELECT mail_
 const again = await post('/going', { ...base, id: 'W1', intent: 'going', date: dates[0], notify: 0 }, auth);
 check('same intent is idempotent', again.mail === 'unchanged' && again.mailed === false && orgMails().length === 0);
 check('notify change did not mail', db.prepare('SELECT notify n, mail_status s FROM going_intents WHERE email=? AND card_id=?').get('ana@example.com', 'W1').n === 0 && db.prepare('SELECT mail_status s FROM going_intents WHERE email=? AND card_id=?').get('ana@example.com', 'W1').s === 'queued');
-const changed = await post('/going', { ...base, id: 'W1', intent: 'interested', date: dates[1], transport: 1 }, auth);
-check('changed intent stays queued', changed.mail === 'queued' && changed.mailed === false && orgMails().length === 0 && db.prepare('SELECT intent i, transport t FROM going_intents WHERE email=? AND card_id=?').get('ana@example.com', 'W1').i === 'interested');
+const changed = await post('/going', { ...base, id: 'W1', intent: 'interested', anchor: dates[0], date: '', transport: 1 }, auth);
+const changedRow = db.prepare('SELECT intent i, attend_date a, anchor n, mail_status s FROM going_intents WHERE email=? AND card_id=? AND anchor=?').get('ana@example.com', 'W1', dates[0]);
+check('changed intent stays queued without an attendance date', changed.mail === 'queued' && changed.mailed === false && orgMails().length === 0 && changedRow.i === 'interested' && !changedRow.a && changedRow.n === dates[0] && changedRow.s === 'queued');
 const counts = await get('/going/counts?ids=W1,F1,NONE');
 check('deduped count is one and empty cards are zero', counts.counts.W1 === 1 && counts.counts.F1 === 0 && counts.counts.NONE === 0);
 const cancel = await post('/going/cancel', { id: 'W1', explicit: 1 }, auth);

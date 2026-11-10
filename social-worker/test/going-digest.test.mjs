@@ -16,7 +16,7 @@ const check = (name, ok) => { if (!ok) fail.push(name); };
 const monday9 = '2026-11-09T01:00:00.000Z';
 const sched = digestSchedule({});
 const slot = weekSlot(Date.parse(monday9), sched);
-check('pending default is Monday 09:00 and not approved', sched.pendingReview === true && sched.approved === false && sched.weekday === 1 && sched.hour === 9 && sched.minute === 0 && sched.tz === 'Asia/Shanghai' && slot.key === '2026-11-09');
+check('pending default is Monday 14:00 and not approved', sched.pendingReview === true && sched.approved === false && sched.weekday === 1 && sched.hour === 14 && sched.minute === 0 && sched.tz === 'Asia/Shanghai' && weekSlot(Date.parse('2026-11-09T06:00:00.000Z'), sched).key === '2026-11-09');
 const wed = digestSchedule({ GOING_DIGEST_WEEKDAY: '3', GOING_DIGEST_HOUR: '15', GOING_DIGEST_MINUTE: '0' });
 check('weekday and hour are configurable', wed.pendingReview === false && wed.approved === false && weekSlot(Date.parse('2026-11-11T07:00:00.000Z'), wed).key === '2026-11-11');
 check('sunday uses the previous Monday', weekSlot(Date.parse('2026-11-08T16:00:00.000Z'), sched).key === '2026-11-02');
@@ -27,6 +27,7 @@ check('missing or late-looking time is not guessed', regularWindow('2026-11-13',
 
 const db = new DatabaseSync(':memory:');
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0011_going_digests.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, city TEXT, role TEXT, created_at TEXT NOT NULL);`);
@@ -83,7 +84,7 @@ check('regular is not sent before the three-hour mark', early.sent === 0 && mail
 env.GOING_NOW = '2026-11-13T09:30:00.000Z';
 const regular = await runGoingDigests(env, kit);
 const org = mails.filter(m => m.includes('to=org@example.com'));
-check('regular occurrence sends once at three hours before', regular.sent >= 1 && org.length === 1 && org[0].includes('cc=selecttango@gmail.com') && org[0].includes('2026-11-13') && org[0].includes('Directions') && org[0].includes('reply-to=ana@example.com') && !org[0].includes('Seoul'));
+check('regular occurrence sends once at three hours before', regular.sent >= 1 && org.length === 1 && org[0].includes('cc=selecttango@gmail.com') && org[0].includes('2026-11-13') && org[0].includes('Directions') && org[0].includes('reply-to=ana@example.com') && org[0].includes('Seoul') && org[0].includes('leader') && org[0].includes('selecttango@gmail.com'));
 const regularAgain = await runGoingDigests(env, kit);
 check('regular occurrence does not repeat', regularAgain.sent === 0 && mails.filter(m => m.includes('to=org@example.com')).length === 1);
 user('dee@example.com', 'Dee', 'Kyoto', 'leader', true);
@@ -97,19 +98,19 @@ intent('bea@example.com', 'F1', 'interested', null, 0, 1, 'active', 'queued', '2
 intent('cy@example.com', 'F1', 'going', null, 0, 1, 'active', 'queued', '2026-11-08T03:00:00.000Z');
 intent('old@example.com', 'F1', 'going', null, 0, 1, 'active', 'sent', '2026-10-01T00:00:00.000Z');
 intent('nix@example.com', 'F1', 'going', null, 0, 1, 'cancelled', 'queued', '2026-11-08T04:00:00.000Z');
-env.GOING_NOW = monday9;
+env.GOING_NOW = '2026-11-09T06:00:00.000Z';
 const featured = await runGoingDigests(env, kit);
 const fest = mails.filter(m => m.includes('to=fest@example.com'));
 check('featured week sends one summary', featured.sent === 1 && fest.length === 1 && fest[0].includes('cc=selecttango@gmail.com') && fest[0].includes('from=探戈助理') && fest[0].includes('subject=Intent summary:'));
-check('summary lists new people and not city role or the unverified row', fest[0].includes('Ana <ana@example.com>') && fest[0].includes('Bea <bea@example.com>') && fest[0].includes('Going / 要参加') && fest[0].includes('Interested / 感兴趣') && !fest[0].includes('Seoul') && !fest[0].includes('leader') && !fest[0].includes('Cy') && !fest[0].includes('Old') && !fest[0].includes('Nix'));
+check('summary lists new people with city and role, not the unverified row', fest[0].includes('Ana <ana@example.com>') && fest[0].includes('Bea <bea@example.com>') && fest[0].includes('Going / 要参加') && fest[0].includes('Interested / 感兴趣') && fest[0].includes('Seoul') && fest[0].includes('leader') && fest[0].includes('Osaka') && !fest[0].includes('Cy') && !fest[0].includes('Old') && !fest[0].includes('Nix') && fest[0].includes('要删除资料'));
 check('notify off is still forwarded', fest[0].includes('ana@example.com') && db.prepare("SELECT notify n FROM going_intents WHERE email=? AND card_id='F1' AND status='active'").get('ana@example.com').n === 0);
 check('sent rows are marked once', db.prepare("SELECT mail_status s, mail_fp f FROM going_intents WHERE email=? AND card_id='F1' AND status='active'").get('ana@example.com').s === 'sent');
 const againF = await runGoingDigests(env, kit);
 check('same week does not send twice', againF.sent === 0 && mails.filter(m => m.includes('to=fest@example.com')).length === 1);
-db.prepare("UPDATE going_intents SET intent='going', mail_status='queued', updated_at='2026-11-09T02:00:00.000Z' WHERE email=? AND card_id='F1'").run('bea@example.com');
+db.prepare("UPDATE going_intents SET intent='going', mail_status='queued', updated_at='2026-11-09T07:00:00.000Z' WHERE email=? AND card_id='F1'").run('bea@example.com');
 const laterSameWeek = await runGoingDigests({ ...env, GOING_NOW: '2026-11-11T02:00:00.000Z' }, kit);
 check('a change after the weekly slot waits', laterSameWeek.sent === 0 && mails.filter(m => m.includes('to=fest@example.com')).length === 1 && db.prepare("SELECT mail_status s FROM going_intents WHERE email=? AND card_id='F1'").get('bea@example.com').s === 'queued');
-const nextWeek = await runGoingDigests({ ...env, GOING_NOW: '2026-11-16T01:00:00.000Z' }, kit);
+const nextWeek = await runGoingDigests({ ...env, GOING_NOW: '2026-11-16T06:00:00.000Z' }, kit);
 const fest2 = mails.filter(m => m.includes('to=fest@example.com'));
 check('next week sends only the new change', nextWeek.sent === 1 && fest2.length === 2 && fest2[1].includes('Bea <bea@example.com>') && !fest2[1].includes('Ana <ana@example.com>'));
 
@@ -164,7 +165,7 @@ intent('hoa@example.com', 'W2', 'interested', '2026-12-04', 0, 1, 'active', 'que
 env.GOING_NOW = '2026-12-04T11:30:00.000Z';
 const inside = await runGoingDigests(env, kit);
 const lateFirst = mails.filter(m => m.includes('to=org2@example.com'));
-check('a first summary inside the last three hours is still one mail', lateFirst.length === 1 && lateFirst[0].includes('Gia <gia@example.com>') && lateFirst[0].includes('Hoa <hoa@example.com>') && !lateFirst[0].includes('Hanoi'));
+check('a first summary inside the last three hours is still one mail', lateFirst.length === 1 && lateFirst[0].includes('Gia <gia@example.com>') && lateFirst[0].includes('Hoa <hoa@example.com>') && lateFirst[0].includes('Hanoi'));
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going digest ok', { mails: mails.length });
