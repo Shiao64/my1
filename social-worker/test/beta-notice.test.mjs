@@ -80,9 +80,9 @@ for (const html of [zh, en]) {
   check('escape overlay and tab do not dismiss', notice.includes("e.key==='Escape'") && notice.includes('preventDefault()') && notice.includes('if(e.target===n)e.stopPropagation()') && notice.includes("e.key==='Tab'"));
   check('bfcache return does not re-arm', !notice.includes('pageshow') && !notice.includes('persisted') && !notice.includes('__atmNoticeAck=false'));
   check('storage access cannot freeze the page', notice.includes('catch(e){show=true;}') && html.includes('try{store=window.sessionStorage;}catch(e){}') && html.includes("html.atm-notice-ack #atm-notice{display:none!important}"));
-  check('star script is the candidate st18', html.includes('/asia/atm-star.js?v=st18') && !html.includes('/asia/atm-star.js?v=st17'));
+  check('star script is the candidate st19', html.includes('/asia/atm-star.js?v=st19') && !html.includes('/asia/atm-star.js?v=st18'));
 }
 check('home cards stay full page links', home.includes("location.pathname + '?card=' + encodeURIComponent(e.id)"));
-check('release label is 11.9.9', zh.includes('data-site-release="11.9.9"') && en.includes('data-site-release="11.9.9"') && zh.includes('测试版 11.9.9') && en.includes('beta 11.9.9'));
+check('release label is 11.9.10', zh.includes('data-site-release="11.9.10"') && en.includes('data-site-release="11.9.10"') && zh.includes('测试版 11.9.10') && en.includes('beta 11.9.10'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('beta notice ok');

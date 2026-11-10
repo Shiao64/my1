@@ -46,10 +46,13 @@
     resend: '重新发送验证邮件',
     ready: '邮箱已确认。再点「确认」才会记录意向。',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
-    sent: '已记录你的意向。已向组织者发送通知（含抄送）。',
-    unchanged: '意向已保存。没有新的内容需要汇总。',
+    savedNotify: '✓ 已保存，主办方会收到通知',
+    savedShort: '✓ 已保存',
+    noRsvp: '暂不支持在线登记，请联系主办方',
+    sent: '✓ 已保存，主办方会收到通知',
+    unchanged: '✓ 已保存，主办方会收到通知',
     fail: '意向已保存；通知邮件发送失败，请稍后重试。',
-    queued: '已记录你的意向。会在汇总时通知主办（含抄送）。',
+    queued: '✓ 已保存，主办方会收到通知',
     fill: '请补全城市与角色等信息后继续。无需再次验证同一邮箱。',
     bar: '我的活动意向', manage: '管理意向', cancel: '取消意向',
     cancelAsk: '取消意向？这不会再发邮件给组织者，也不会撤回已经发出的信。',
@@ -99,10 +102,13 @@
     resend: 'Resend verification email',
     ready: 'Email confirmed. Tap Confirm to save your intent.',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
-    sent: 'Your intent is saved. The organizer has been notified (with CC).',
-    unchanged: 'Intent saved. Nothing new is waiting for the summary.',
+    savedNotify: '✓ Saved. The organizer will be notified.',
+    savedShort: '✓ Saved.',
+    noRsvp: 'RSVP unavailable. Please contact the organizer.',
+    sent: '✓ Saved. The organizer will be notified.',
+    unchanged: '✓ Saved. The organizer will be notified.',
     fail: 'Intent saved; notification failed to send. Please try again later.',
-    queued: 'Your intent is saved. The organizer is notified in the next summary (with CC).',
+    queued: '✓ Saved. The organizer will be notified.',
     fill: 'Please complete city, role, and any missing fields. No need to re-verify the same email.',
     bar: 'My event intents', manage: 'Manage intent', cancel: 'Cancel intent',
     cancelAsk: 'Cancel this intent? We will not email the organizer again, and mail already sent is not recalled.',
@@ -116,9 +122,9 @@
   };
   var css = document.createElement('style');
   css.textContent = '.atm-heart svg path{d:path("' + STAR + '")}.atm-heart path{fill:none;stroke:#b8913a;stroke-width:1.6;stroke-linejoin:round}.atm-heart[aria-pressed="true"] path{fill:#b8913a;stroke:#b8913a}' +
-    '.atm-heart.atm-star-off{opacity:1;cursor:not-allowed;background:#e7e2da}.atm-heart.atm-star-off path{stroke:#b0a89c;fill:none}' +
+    '.atm-heart.atm-star-off{opacity:1;cursor:pointer}.atm-heart.atm-star-off path{stroke:#b8913a;stroke-width:1.15;fill:none;opacity:.25}' +
     '.atm-heart.atm-star-wait{cursor:pointer;background:transparent}.atm-heart.atm-star-wait path{stroke:#0e6e78;fill:none;stroke-dasharray:2.2 1.4}' +
-    'html.atm-p10 #atm-c1bar .p10-heart.atm-star-off{cursor:not-allowed!important;background:transparent!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-off path{fill:none!important;stroke:#b0a89c!important}' +
+    'html.atm-p10 #atm-c1bar .p10-heart.atm-star-off{cursor:pointer!important;background:transparent!important;opacity:1!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-off path{fill:none!important;stroke:#b8913a!important;stroke-width:1.15!important;opacity:.25!important}' +
     'html.atm-p10 #atm-c1bar .p10-heart.atm-star-wait{cursor:pointer!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-wait path{fill:none!important;stroke:#0e6e78!important;stroke-dasharray:2.2 1.4}' +
     '#atm-star{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-end;justify-content:center;background:rgba(6,51,58,.55)}#atm-star[hidden]{display:none}' +
     '#atm-star .asg{position:relative;background:#fffdf8;width:100%;max-width:480px;max-height:92dvh;overflow:hidden;display:flex;flex-direction:column;border-radius:16px 16px 0 0;padding:16px 16px 22px;box-sizing:border-box;color:#2a1a14}' +
@@ -139,7 +145,9 @@
     '#atm-star .asg-x{position:absolute;top:6px;right:6px;z-index:2;width:44px;height:44px;border:0;border-radius:8px;background:transparent;font-size:28px;line-height:44px;padding:0;color:#7a6255;cursor:pointer}' +
     '#atm-star .asg-x:focus-visible{outline:2px solid #0e6e78;outline-offset:2px}' +
     '#atm-star .asg-err{color:#b5654a;min-height:1.2em}#atm-star .asg-ok{color:#0a4f57;font-weight:700}#atm-star .asg-check{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:.88rem}#atm-star .asg-check input{width:auto;min-height:0;margin-top:3px}#atm-star [hidden]{display:none!important}' +
-    '.atm-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:4000;background:rgba(42,26,20,.92);color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;max-width:calc(100vw - 32px);text-align:center;box-sizing:border-box}' +
+    '.atm-savebar{box-sizing:border-box;display:block;width:100%;margin:0 0 8px;padding:8px 12px;border-radius:8px;font:600 13px/1.35 system-ui,-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Helvetica Neue",sans-serif;text-align:left;pointer-events:none;-webkit-tap-highlight-color:transparent}' +
+    '.atm-savebar-ok{background:#e5f4ee;color:#1b7a46}.atm-savebar-off,.atm-savebar-note{background:#f4efe6;color:#6a5e52}' +
+    '.atm-savebar-fixed{position:fixed;z-index:80;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));width:auto;top:var(--atm-save-top,calc(env(safe-area-inset-top,0px) + 8px));margin:0}' +
     '.atm-favbar b{color:#0a4f57}';
   document.head.appendChild(css);
 
@@ -335,16 +343,118 @@
     var g = (h.match(/going=([a-z]+)/) || [])[1];
     if (m || g) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} }
     var card = (h.match(/card=([A-Za-z0-9_-]+)/) || [])[1];
-    if (g === 'queued') toast(L.queued);
-    else if (g === 'sent') toast(L.sent);
-    else if (g === 'fail') toast(L.fail);
-    else if (g === 'unchanged') toast(L.unchanged);
+    if (g === 'queued' || g === 'sent' || g === 'unchanged') toast(L.savedNotify);
+    else if (g === 'fail') toast(L.fail, 'note');
     else if (g === 'none') toast(L.saved);
     else if (g === 'ready') toast(L.ready);
     if (card) reopen = card;
     if (m) refreshMine();
   }
-  function toast(text) { var t = document.createElement('div'); t.className = 'atm-toast'; t.setAttribute('role', 'status'); t.textContent = text; document.body.appendChild(t); setTimeout(function () { t.remove(); }, 4200); }
+  var barEl = null, barTimer = 0, barHold = 0, barAnchor = null;
+  function shown(el) {
+    var n = el;
+    while (n && n !== document.documentElement) {
+      if (n.hidden) return false;
+      var s = getComputedStyle(n);
+      if (s.display === 'none' || s.visibility === 'hidden') return false;
+      n = n.parentElement;
+    }
+    return !!el;
+  }
+  function sectionSlot(from) {
+    if (!from || !from.closest) return null;
+    var ly = from.closest('.ah-ly');
+    if (ly && shown(ly)) {
+      var lyList = ly.querySelector('.ah-list');
+      if (lyList) return { parent: lyList.parentNode, before: lyList };
+    }
+    var home = from.closest('#atm-home');
+    if (home && shown(home)) {
+      var homeList = home.querySelector('.ah-list');
+      if (homeList) return { parent: homeList.parentNode, before: homeList };
+    }
+    var block = from.closest('.china-city-block, .china-chrono');
+    if (block && shown(block)) {
+      var title = block.querySelector('.atm-onehead:not(.atm-oh-hide)') || block.querySelector('.china-city-head');
+      if (title && shown(title)) {
+        var after = title, n = title.nextElementSibling;
+        if (n && (n.classList.contains('china-from-line') || n.classList.contains('atm-oh-from'))) after = n;
+        return { parent: after.parentNode, before: after.nextSibling };
+      }
+    }
+    return null;
+  }
+  function bannerSlot() {
+    var from = barAnchor && barAnchor.isConnected ? barAnchor : null;
+    var local = from ? sectionSlot(from) : null;
+    if (local) return local;
+    var home = document.getElementById('atm-home');
+    if (home && shown(home)) {
+      var list = home.querySelector('.ah-list');
+      if (list) return { parent: list.parentNode, before: list };
+      var note = home.querySelector('.ah-note');
+      if (note) return { parent: note.parentNode, before: note.nextSibling };
+      var top = home.querySelector('.ah-top');
+      if (top) return { parent: top.parentNode, before: top.nextSibling };
+    }
+    var heads = document.querySelectorAll('.atm-onehead, .china-city-head');
+    for (var i = 0; i < heads.length; i++) {
+      if (!shown(heads[i]) || heads[i].classList.contains('atm-oh-hide')) continue;
+      var after = heads[i], n = after.nextElementSibling;
+      if (n && (n.classList.contains('china-from-line') || n.classList.contains('atm-oh-from')) && !n.classList.contains('atm-oh-hide')) after = n;
+      return { parent: after.parentNode, before: after.nextSibling };
+    }
+    return null;
+  }
+  function placeBar() {
+    if (!barEl || !barHold) return;
+    var slot = bannerSlot();
+    if (slot && slot.parent && slot.before !== barEl) {
+      barEl.classList.remove('atm-savebar-fixed');
+      if (barEl.parentNode !== slot.parent || barEl.nextSibling !== slot.before) slot.parent.insertBefore(barEl, slot.before);
+      return;
+    }
+    var head = document.querySelector('.china-sticky-top');
+    var below = 8;
+    if (head && shown(head)) {
+      var r = head.getBoundingClientRect();
+      if (r.bottom > 0) below = Math.round(r.bottom) + 6;
+    }
+    document.documentElement.style.setProperty('--atm-save-top', below + 'px');
+    barEl.classList.add('atm-savebar-fixed');
+    if (barEl.parentNode !== document.body) document.body.appendChild(barEl);
+  }
+  function revealBar() {
+    if (!barEl || !barEl.isConnected || barEl.classList.contains('atm-savebar-fixed')) return;
+    var limit = 8, head = document.querySelector('.china-sticky-top'), sticky = document.querySelector('#atm-home .ah-top');
+    if (head && shown(head)) { var hb = head.getBoundingClientRect().bottom; if (hb > 0) limit = hb + 4; }
+    if (sticky && shown(sticky) && getComputedStyle(sticky).position === 'sticky') {
+      var sb = sticky.getBoundingClientRect().bottom;
+      if (sb > limit) limit = sb + 4;
+    }
+    var rect = barEl.getBoundingClientRect();
+    if (rect.top < limit - 2 || rect.bottom > window.innerHeight - 12) window.scrollBy(0, rect.top - limit);
+  }
+  function toast(text, kind, anchor) {
+    if (anchor) barAnchor = anchor;
+    kind = kind || 'ok';
+    if (!barEl) {
+      barEl = document.createElement('div');
+      barEl.id = 'atm-savebar';
+      barEl.setAttribute('role', 'status');
+      barEl.setAttribute('aria-live', 'polite');
+    }
+    barEl.className = 'atm-savebar atm-savebar-' + (kind === 'off' || kind === 'note' ? kind : 'ok');
+    barEl.textContent = text;
+    barHold = Date.now() + 2000;
+    placeBar();
+    revealBar();
+    clearTimeout(barTimer);
+    barTimer = setTimeout(function () {
+      barHold = 0;
+      if (barEl && barEl.parentNode) barEl.parentNode.removeChild(barEl);
+    }, 2000);
+  }
   function localOcc() { try { var o = JSON.parse(localStorage.getItem('atm_occ_v1') || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
   function rememberAbsent(id, anchor) {
     var o = localOcc();
@@ -390,13 +500,13 @@
     rememberAbsent(id, anchor);
     addLocalFav(id);
     paint();
-    toast(L.withheld);
+    toast(L.savedShort, 'ok', document.querySelector('.atm-heart[data-fid="' + id + '"], .atm-heart[data-sid="' + id + '"]'));
     shut();
     if (!token()) return;
     api('/social/going', { id: id, intent: 'absent', anchor: anchor || '', date: '', explicit: 1, disclose: 1, notify: 0, transport: 0, alert: 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], dev: dev() }).then(function (d) {
-      if (!(d && d.ok && !d.confirm)) toast(L.later);
+      if (!(d && d.ok && !d.confirm)) toast(L.later, 'note');
       else refreshMine();
-    }).catch(function () { toast(L.later); });
+    }).catch(function () { toast(L.later, 'note'); });
   }
   function open(b, opt) {
     opt = opt || {};
@@ -643,7 +753,12 @@
         else if (mailBad(d)) ok.textContent = L.fail;
       }
       if (savedOk) addLocalFav(e.id);
-      if (savedOk) { toast(statusText(d.mail)); finish(false); return; }
+      if (savedOk) {
+        var line = statusText(d.mail);
+        toast(line, line === L.fail ? 'note' : 'ok', document.querySelector('.atm-heart[data-fid="' + e.id + '"], .atm-heart[data-sid="' + e.id + '"]'));
+        finish(false);
+        return;
+      }
       finish(true);
     }).catch(function () { if (sameView() && err.isConnected) err.textContent = L.net; if (sameView()) finish(true); });
   }
@@ -652,7 +767,7 @@
   function paint() {
     if (painting) return;
     painting = true;
-    try { paintHearts(); } finally { painting = false; }
+    try { paintHearts(); placeBar(); } finally { painting = false; }
   }
   function paintHearts() {
     document.querySelectorAll('.atm-heart').forEach(function (b) {
@@ -765,11 +880,12 @@
   window.ATM_STAR = {
     take: function (b) {
       if (b.closest && b.closest('[data-unfav]')) return false;
-      if (b.classList.contains('atm-star-off') || b.getAttribute('aria-disabled') === 'true') return true;
+      if (b.classList.contains('atm-star-off')) { toast(L.noRsvp, 'off', b); return true; }
+      if (b.getAttribute('aria-disabled') === 'true') return true;
       var id = idOf(b), e = id ? eventOf(id) : null;
       if (!id || (e && hasEmail(e)) || reach[id] === true) { open(b); return true; }
-      if (reach[id] === false) return true;
-      awaitReach(id).then(function (v) { if (v === true) open(b); else paint(); });
+      if (reach[id] === false) { toast(L.noRsvp, 'off', b); return true; }
+      awaitReach(id).then(function (v) { if (v === true) open(b); else if (v === false) toast(L.noRsvp, 'off', b); else paint(); });
       return true;
     },
     paintBar: paintBar, paint: paint, listed: function () { return Object.keys(mine).length; }
@@ -780,7 +896,7 @@
     e.preventDefault(); e.stopPropagation();
     var id = u.getAttribute('data-unfav');
     if (!token()) { dropLocalFav(id); return; }
-    api('/social/going/unfav', { id: id, explicit: 1 }).then(function (d) { if (d && d.ok) dropLocalFav(id); else toast(L.later); }).catch(function () { toast(L.later); });
+    api('/social/going/unfav', { id: id, explicit: 1 }).then(function (d) { if (d && d.ok) dropLocalFav(id); else toast(L.later, 'note'); }).catch(function () { toast(L.later, 'note'); });
   }, true);
   document.addEventListener('atm-more', function () { paint(); });
   (function () {

@@ -137,10 +137,19 @@ await no.waitForFunction(() => document.querySelector('[data-fid="NO"]').classLi
 const noSnap = await snap(no, 'NO');
 const opened = await no.evaluate(() => {
   const b = document.querySelector('[data-fid="NO"]');
+  const path = b.querySelector('path');
+  const paint = path ? getComputedStyle(path) : null;
   window.ATM_STAR.take(b);
-  return !document.querySelector('#atm-star').hidden;
+  const bar = document.getElementById('atm-savebar');
+  return {
+    dialog: !document.querySelector('#atm-star').hidden,
+    text: bar ? bar.textContent : '',
+    off: !!(bar && bar.classList.contains('atm-savebar-off')),
+    opacity: paint ? paint.opacity : '',
+    fill: paint ? paint.fill : ''
+  };
 });
-check('explicit false disables and does not open', noSnap.off && noSnap.label === '组织者尚未提供邮箱' && opened === false);
+check('explicit false stays a faint outline, does not open, and explains RSVP is unavailable', noSnap.off && noSnap.label === '组织者尚未提供邮箱' && opened.dialog === false && opened.text === '暂不支持在线登记，请联系主办方' && opened.off && opened.opacity === '0.25' && (opened.fill === 'none' || opened.fill === 'rgba(0, 0, 0, 0)'));
 await no.close();
 
 const batch = await boot('batch');
