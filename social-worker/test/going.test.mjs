@@ -20,6 +20,7 @@ const db = new DatabaseSync(':memory:');
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_confirm_show.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(`
 CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT, wx_used INTEGER);
@@ -94,7 +95,7 @@ check('scanner does not confirm', (await scan.text()).includes('name="confirm"')
 const done = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'ana@example.com', t: new URL(link).searchParams.get('t'), next: ret, confirm: '1' }).toString());
 const doneText = await done.text();
 check('profile confirm is not organizer mail', done.status === 200 && doneText.includes('Profile saved') && !doneText.includes('notified') && orgMails().length === 0);
-const token = (doneText.match(/atm=([0-9a-f]{64})/) || [])[1];
+const token = (doneText.match(/s=([0-9a-f]{64})/) || [])[1];
 check('session issued', !!token && db.prepare('SELECT COUNT(*) n FROM sessions').get().n === 1);
 check('no intent from menu', db.prepare('SELECT COUNT(*) n FROM going_intents').get().n === 0);
 
@@ -124,7 +125,7 @@ const beaDone = await got('POST', 'https://api.tangoweekend.org/social/going/con
 const beaText = await beaDone.text();
 check('verify does not queue or mail', beaText.includes('tap Confirm') && !beaText.includes('next summary') && !mails.some(m => m.includes('to=fest@example.com')) && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('bea@example.com'));
 check('featured still zero after email confirm', (await get('/going/counts?ids=F1')).counts.F1 === 0);
-const beaToken = (beaText.match(/atm=([0-9a-f]{64})/) || [])[1];
+const beaToken = (beaText.match(/s=([0-9a-f]{64})/) || [])[1];
 const beaFinal = await post('/going', { id: 'F1', intent: 'interested', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' }, { Authorization: 'Bearer ' + beaToken });
 check('final confirm after email queues', beaFinal.mail === 'queued' && (await get('/going/counts?ids=F1')).counts.F1 === 1);
 
@@ -170,7 +171,7 @@ const mailAt = mails.length;
 const restored = await post('/going/restore', { email: 'ana@example.com', ret, ts: 'x', lang: 'en' });
 check('restore link is not a session', restored.confirm && restored.preview_link && !restored.token);
 const back = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'ana@example.com', t: new URL(restored.preview_link).searchParams.get('t'), next: ret, confirm: '1' }).toString());
-const token2 = ((await back.text()).match(/atm=([0-9a-f]{64})/) || [])[1];
+const token2 = ((await back.text()).match(/s=([0-9a-f]{64})/) || [])[1];
 const mine2 = await get('/going/mine', { Authorization: 'Bearer ' + token2 });
 check('restored device sees the same intents', mine2.email === 'ana@example.com' && (mine2.items || []).some(i => i.id === 'W1' && i.intent === 'going'));
 check('restore did not email an organizer', !mails.slice(mailAt).some(m => m.includes('cc=selecttango@gmail.com')));

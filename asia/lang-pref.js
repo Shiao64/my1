@@ -3,6 +3,25 @@
    no redirect here (browser language / saved choice only apply on the bare homepage /, see /index.html).
    Explicit switch click saves localStorage asiaMapLang = 'en' | 'zh' (used by / next time). */
 (function () {
+  try {
+    var q = new URLSearchParams(location.search);
+    var s = q.get('s') || '';
+    if (/^[0-9a-f]{64}$/.test(s)) {
+      try { localStorage.setItem('atm_session', s); } catch (e) {}
+      q.delete('s');
+      var next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
+      try { history.replaceState(history.state, '', next); } catch (e2) {}
+    } else {
+      var have = '';
+      try { have = localStorage.getItem('atm_session') || ''; } catch (e3) {}
+      if (!/^[0-9a-f]{64}$/.test(have)) {
+        var m = (document.cookie || '').match(/(?:^|; )atm_session=([0-9a-f]{64})/);
+        if (m) { try { localStorage.setItem('atm_session', m[1]); } catch (e4) {} }
+      }
+    }
+  } catch (e) {}
+})();
+(function () {
   var KEY = 'asiaMapLang';
   var html = document.documentElement;
   var page = html.getAttribute('data-asia-lang') || 'en';

@@ -65,6 +65,7 @@ const db = new DatabaseSync(':memory:');
 db.exec(read('social-worker/migrations/0009_going.sql'));
 db.exec(read('social-worker/migrations/0012_going_occ.sql'));
 db.exec(read('social-worker/migrations/0013_going_confirm_show.sql'));
+db.exec(read('social-worker/migrations/0014_profile_verify_pending.sql'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);
@@ -101,8 +102,10 @@ async function openConfirm(preview, method) {
 
 const menu = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Osaka', role: 'follower', lang: 'en', alert: 0, ret, ts: 'x' });
 check('menu profile sends the english letter', menu.confirm && mails.some(m => m.includes('from=Tango Assistant · Asia Tango Map') && m.includes('to=mei@example.com') && m.includes('Hi Mei,') && m.includes(body.en) && m.includes('Confirm subscription') && !cjk.test(m)));
-const star = await post('/going', { id: 'F1', intent: 'interested', email: 'noname@example.com', name: '', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' });
-check('star mail with no name stays chinese', star.confirm && mails.some(m => m.includes('from=探戈助理 · 亚洲探戈地图') && m.includes('to=noname@example.com') && m.includes('你好！') && !m.includes('，你好') && m.includes(body.zh) && !m.includes('节日')));
+const blank = await post('/going', { id: 'F1', intent: 'interested', email: 'noname@example.com', name: '', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' });
+check('a star submit without a name is refused', blank._s === 400 && blank.error === 'need_name' && !mails.some(m => m.includes('to=noname@example.com')));
+const star = await post('/going', { id: 'F1', intent: 'interested', email: 'named@example.com', name: '安', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' });
+check('star mail with a name stays the short chinese letter', star.confirm && mails.some(m => m.includes('from=探戈助理 · 亚洲探戈地图') && m.includes('to=named@example.com') && m.includes('安，你好！') && m.includes(body.zh) && !m.includes('节日')));
 
 const fresh = await openConfirm(menu.preview_link, 'GET');
 check('a new link still shows the confirm button', fresh.status === 200 && fresh.html.includes('Confirm') && !fresh.html.includes('expired'));
@@ -112,7 +115,7 @@ check('29 minutes is still valid', within.status === 200 && within.html.includes
 db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 31 * 60e3).toISOString(), 'mei@example.com');
 const late = await openConfirm(menu.preview_link, 'GET');
 check('31 minutes is the expired page', late.status === 400 && late.html.includes(expiredCopy) && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('mei@example.com').v);
-db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 31 * 60e3).toISOString(), 'noname@example.com');
+db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 31 * 60e3).toISOString(), 'named@example.com');
 const lateZh = await openConfirm(star.preview_link, 'GET');
 check('the chinese expired page says the same thing', lateZh.status === 400 && lateZh.html.includes('链接已过期') && lateZh.html.includes('tap the star again') && lateZh.html.includes('lang="zh-CN"'));
 

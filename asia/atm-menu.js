@@ -1,8 +1,8 @@
 /* draft 2026-10-30: header hamburger menu (footer removed). Holds 分享/复制链接/刷新 (moved from ··· 10/31), 资料来源 (moved .china-disclaimer), 联系我们, 订阅, 提交活动, 语言. Only existing content. */
 (function () {
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅', subNote: '', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
-             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Subscribe & event intent', subNote: 'Register once and verify your email. Then use the star on an event to choose Going or Interested.', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
+  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅', mine: '我的资料', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
+             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Subscribe', mine: 'My profile', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
   var css = document.createElement('style');
   css.textContent = 'html body footer#contact,html body #contact{display:none!important}' +
     '.atm-burger{width:44px;height:44px;margin:0 0 0 4px;padding:0;border:0;background:transparent;color:#F6D58E;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;position:relative;z-index:5}' +
@@ -39,9 +39,7 @@
   m.innerHTML = '<div class="atm-mbg" data-x></div><div class="atm-mp" role="dialog" aria-modal="true" aria-label="' + L.menu + '"><div class="atm-mhd"><span>' + L.site + '</span><button type="button" class="atm-mx" data-x aria-label="' + L.close + '">&times;</button></div>' +
     (other ? '<a class="atm-mi atm-mlang" href="' + other.getAttribute('href') + '" hreflang="' + (other.getAttribute('hreflang') || '') + '" data-asia-lang-set="' + (other.getAttribute('data-asia-lang-set') || '') + '">' + ic(I.lang) + L.langL + '<small>' + L.lang + '</small></a>' : '') +
     '<button type="button" class="atm-mi" data-a="add">' + ic(I.add) + L.add + '</button>' +
-    (L.subNote
-      ? '<button type="button" class="atm-mi atm-msubbtn" data-a="sub" aria-label="' + L.sub + '">' + ic(I.sub) + '<span><b>' + L.sub + '</b><small class="atm-md">' + L.subNote + '</small></span></button>'
-      : '<button type="button" class="atm-mi" data-a="sub" aria-label="' + L.sub + '">' + ic(I.sub) + L.sub + '</button>') +
+    '<button type="button" class="atm-mi" data-a="sub" aria-label="' + L.sub + '">' + ic(I.sub) + L.sub + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-s">' + ic(I.share) + L.share + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-c">' + ic(I.copy) + L.copy + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-r">' + ic(I.reload) + L.reload + '</button>' +
@@ -51,7 +49,14 @@
   var d = document.querySelector('.china-disclaimer');
   if (d) { d.innerHTML = d.innerHTML.replace(/\b([a-z0-9-]+\.(?:com|jp|tw|kr|wordpress\.com))\b/g, function (x) { return '<a href="https://' + x + '" target="_blank" rel="noopener">' + x + '</a>'; }).replace(/<a href="https:\/\/([a-z0-9-]+)\.<a[^>]*>wordpress\.com<\/a>/g, '<a href="https://$1.wordpress.com'); m.querySelector('.atm-msrc').appendChild(d); }
   var last = null;
-  function open() { last = document.activeElement; m.hidden = false; b.setAttribute('aria-expanded', 'true'); document.documentElement.style.overflow = 'hidden'; m.querySelector('.atm-mx').focus(); }
+  function sessionOn() { try { return /^[0-9a-f]{64}$/.test(localStorage.getItem('atm_session') || ''); } catch (e) { return false; } }
+  function paintSub() {
+    var btn = m.querySelector('[data-a="sub"]'); if (!btn) return;
+    var label = sessionOn() ? L.mine : L.sub;
+    btn.setAttribute('aria-label', label);
+    btn.innerHTML = ic(I.sub) + label;
+  }
+  function open() { paintSub(); last = document.activeElement; m.hidden = false; b.setAttribute('aria-expanded', 'true'); document.documentElement.style.overflow = 'hidden'; m.querySelector('.atm-mx').focus(); }
   function close() { if (m.hidden) return; m.hidden = true; b.setAttribute('aria-expanded', 'false'); document.documentElement.style.overflow = ''; if (last && last.focus) last.focus(); }
   b.addEventListener('click', open);
   m.addEventListener('click', function (e) {
@@ -63,5 +68,6 @@
     else { document.documentElement.classList.add('atm-sug-on'); var s = document.getElementById('china-suggest-open'); if (s) s.click(); }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
-  window.ATM_MENU = { open: open, close: close };
+  paintSub();
+  window.ATM_MENU = { open: open, close: close, paintSub: paintSub };
 })();

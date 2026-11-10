@@ -20,7 +20,8 @@
     title: '活动意向',
     explain: '不是购票或正式报名。',
     going: '要参加', interested: '感兴趣', absent: '去不了',
-    promo: '同时订阅 ATM 活动资讯',
+    promo: '加入 ATM 全站订阅',
+    needName: '请填写姓名。', needEmail: '请填写邮箱。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     later: '请稍后再试。',
     limited: '确认邮件已达上限，请稍后再试。',
     withheld: '已记下。这一场不会交给主办。',
@@ -72,7 +73,8 @@
     title: 'Event intent',
     explain: 'Not a ticket or a formal registration.',
     going: 'Going', interested: 'Interested', absent: 'Not Going',
-    promo: 'Also subscribe to ATM event updates',
+    promo: 'Join ATM site-wide subscription',
+    needName: 'Please enter your name.', needEmail: 'Please enter your email.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
     later: 'Please try again later.',
     limited: 'Too many confirmation emails. Please try again later.',
     withheld: 'Saved. This one is not sent to the organizer.',
@@ -145,12 +147,27 @@
   var REACH_MAX = 3;
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
+  function takeSession() {
+    var q;
+    try { q = new URLSearchParams(location.search); } catch (e) { q = null; }
+    var s = q ? (q.get('s') || '') : '';
+    if (/^[0-9a-f]{64}$/.test(s)) {
+      setToken(s);
+      q.delete('s');
+      var next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
+      try { history.replaceState(history.state, '', next); } catch (e2) {}
+      return;
+    }
+    if (token()) return;
+    var m = (document.cookie || '').match(/(?:^|; )atm_session=([0-9a-f]{64})/);
+    if (m) setToken(m[1]);
+  }
   function ctxGet() { try { return JSON.parse(localStorage.getItem('atm_star_ctx') || 'null'); } catch (e) { return null; } }
   function ctxSet(o) { try { localStorage.setItem('atm_star_ctx', JSON.stringify(o)); } catch (e) {} }
   function dev() { var k = 'atm_dev_id', v = ''; try { v = localStorage.getItem(k) || ''; if (!/^[A-Za-z0-9-]{16,64}$/.test(v)) { v = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())); localStorage.setItem(k, v); } } catch (e) { v = 'going-device-web1'; } return v; }
   function api(path, body) {
     var h = { 'Content-Type': 'application/json' }; var t = token(); if (t) h.Authorization = 'Bearer ' + t;
-    return fetch(API + path, { method: body ? 'POST' : 'GET', headers: h, body: body ? JSON.stringify(body) : undefined }).then(function (r) { return r.json().then(function (d) { d._s = r.status; return d; }); });
+    return fetch(API + path, { method: body ? 'POST' : 'GET', credentials: body ? 'include' : 'same-origin', headers: h, body: body ? JSON.stringify(body) : undefined }).then(function (r) { return r.json().then(function (d) { d._s = r.status; return d; }); });
   }
   function eventLists() { return [window._chinaData, window._atmMore, window._atmFull, window._atmStarEvents]; }
   function eventOf(id) {
@@ -289,8 +306,14 @@
   function field(label, id, type) {
     return '<div class="asg-f"><label class="asg-l" for="' + id + '">' + label + '</label><input id="' + id + '" ' + (type === 'email' ? 'type="email" autocomplete="email"' : 'type="text"') + ' maxlength="80"></div>';
   }
-  function roleSelect() {
-    return '<div class="asg-f"><label class="asg-l" for="asg-role">' + L.role + '</label><select id="asg-role"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>';
+  function roleSelect(disabled) {
+    return '<div class="asg-f"><label class="asg-l" for="asg-role">' + L.role + '</label><select id="asg-role"' + (disabled ? ' disabled' : '') + '><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>';
+  }
+  function roleLabel(role) {
+    if (role === 'leader') return L.rl;
+    if (role === 'follower') return L.rf;
+    if (role === 'both') return L.rb;
+    return '';
   }
   function statusText(mail) {
     if (mail === 'sent') return L.sent;
@@ -298,6 +321,12 @@
     if (mail === 'withheld') return L.withheld;
     if (mail === 'failed' || mail === 'no_organizer') return L.fail;
     return L.queued;
+  }
+  function whenAck(fn) {
+    if (window.__atmNoticeAck || document.documentElement.classList.contains('atm-notice-ack')) { fn(); return; }
+    var go = document.getElementById('atm-notice-go');
+    if (!go) { fn(); return; }
+    go.addEventListener('click', function () { setTimeout(fn, 0); });
   }
   function readHash() {
     var h = location.hash || '';
@@ -369,7 +398,8 @@
       else refreshMine();
     }).catch(function () { toast(L.later); });
   }
-  function open(b) {
+  function open(b, opt) {
+    opt = opt || {};
     var id = idOf(b); if (!id) return;
     var e = eventOf(id);
     if (!e) { ensureEvents().then(function () { open(b); }); return; }
@@ -378,13 +408,17 @@
     var dates = datesOf(e), reg = regular(e);
     var anchor0 = reg ? (dates[0] || '') : '';
     var saved = (occ[id] && occ[id][anchor0]) || null;
-    var draft = saved
+    var pending = drafts[id] || null;
+    var draft = pending && (pending.intent === 'going' || pending.intent === 'interested' || pending.intent === 'absent')
+      ? { id: id, anchor: pending.anchor || anchor0, intent: pending.intent, date: pending.intent === 'going' ? (pending.date || pending.anchor || anchor0) : '', notify: pending.intent === 'absent' ? false : pending.notify !== false, transport: pending.intent === 'going' && !!pending.transport }
+      : saved
       ? { id: id, anchor: anchor0, intent: saved.intent, date: saved.intent === 'going' ? (saved.date || anchor0) : '', notify: saved.intent === 'absent' ? false : saved.notify !== false, transport: saved.intent === 'going' && !!saved.transport }
-      : { id: id, anchor: anchor0, intent: reg ? 'going' : '', date: reg ? anchor0 : '', notify: true, transport: false };
+      : { id: id, anchor: anchor0, intent: 'going', date: reg ? anchor0 : '', notify: true, transport: false };
     ctxSet(draft);
     h2().textContent = titleOf(e) || L.title;
     var verified = !!token();
     var needProfile = verified && (!me || !me.city || !me.role || !me.name);
+    var showFilled = verified && !needProfile && !!opt.resume;
     var action = L.submit;
     var html = '';
     if (!verified || needProfile) html += '<p class="asg-note">' + L.explain + '</p>';
@@ -400,12 +434,17 @@
     if (reg) html += '<label class="asg-check"><input type="checkbox" id="asg-dir"' + (draft.intent === 'going' && draft.transport ? ' checked' : '') + (draft.intent === 'going' ? '' : ' disabled') + '>' + L.transport + '</label>';
     if (!verified) {
       html += '<p class="asg-note" id="asg-mailnote">' + L.profileDesc + '</p>';
-      html += '<label class="asg-check" id="asg-promolab"><input type="checkbox" id="asg-promo">' + L.promo + '</label>';
+      html += '<p class="asg-req">' + L.req + '</p><div id="asg-profile">';
       html += field(L.email, 'asg-email', 'email');
+      html += '<div class="asg-grid">' + field(L.name, 'asg-name') + roleSelect(false) + field(L.city, 'asg-city') + '</div></div>';
+      html += '<label class="asg-check" id="asg-promolab"><input type="checkbox" id="asg-promo" checked>' + L.promo + '</label>';
     } else if (needProfile) {
       html += '<div id="asg-profile"><p class="asg-note">' + L.fill + '</p>';
       if (me && me.email) html += '<p class="asg-note">' + L.emailKept + (zh ? '：' : ': ') + esc(me.email) + '</p>';
-      html += '<p class="asg-req">' + L.req + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect() + '</div></div>';
+      html += '<p class="asg-req">' + L.req + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect(false) + '</div></div>';
+    } else if (showFilled) {
+      html += '<div id="asg-profile"><p class="asg-note">' + L.emailKept + (zh ? '：' : ': ') + esc(me.email || '') + '</p>';
+      html += '<div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect(true) + '</div></div>';
     }
     html += '<p class="asg-err" id="asg-err"></p><p class="asg-ok" id="asg-ok"></p>';
     html += '<button type="button" class="asg-go" id="asg-go" aria-busy="false">' + action + '</button>';
@@ -429,8 +468,21 @@
       }
       var email = body().querySelector('#asg-email');
       if (email) email.disabled = away;
+      ['#asg-name', '#asg-city', '#asg-role'].forEach(function (sel) {
+        var el = body().querySelector(sel);
+        if (el) el.disabled = away || showFilled;
+      });
       var promo = body().querySelector('#asg-promo');
-      if (promo) { promo.disabled = away; if (away) promo.checked = false; }
+      if (promo) {
+        if (away) {
+          if (!promo.disabled) promo.dataset.was = promo.checked ? '1' : '0';
+          promo.disabled = true;
+          promo.checked = false;
+        } else {
+          promo.disabled = false;
+          if (promo.dataset.was) { promo.checked = promo.dataset.was === '1'; promo.dataset.was = ''; }
+        }
+      }
       var mailNote = body().querySelector('#asg-mailnote');
       var promoLab = body().querySelector('#asg-promolab');
       var profile = body().querySelector('#asg-profile');
@@ -529,6 +581,17 @@
     err.textContent = ''; ok.textContent = '';
     if (draft.intent !== 'going' && draft.intent !== 'interested' && draft.intent !== 'absent') { err.textContent = L.needIntent; return; }
     if (draft.intent === 'absent') { saveAbsent(e, e.id, draft.anchor || ''); return; }
+    if (!token()) {
+      var nm = (body().querySelector('#asg-name') || {}).value || '';
+      var em = (body().querySelector('#asg-email') || {}).value || '';
+      var cy = (body().querySelector('#asg-city') || {}).value || '';
+      var rl = (body().querySelector('#asg-role') || {}).value || '';
+      if (!String(nm).trim()) { err.textContent = L.needName; return; }
+      if (!String(em).trim()) { err.textContent = L.needEmail; return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(em).trim())) { err.textContent = L.needEmail; return; }
+      if (!String(cy).trim()) { err.textContent = L.needCity; return; }
+      if (rl !== 'leader' && rl !== 'follower' && rl !== 'both') { err.textContent = L.needRole; return; }
+    }
     go.dataset.busy = '1';
     var dateEl = body().querySelector('#asg-date');
     var going = draft.intent === 'going';
@@ -675,6 +738,9 @@
     return true;
   }
   function refreshMine() {
+    var back = resumeId || reopen;
+    resumeId = '';
+    reopen = '';
     if (!token()) { me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); mergeLocalOcc(); paint(); paintBar(); return Promise.resolve(); }
     return api('/social/going/mine').then(function (d) {
       if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; occ = {}; favs = {}; drafts = {}; }
@@ -687,13 +753,14 @@
         mergeLocalOcc();
       }
       paint(); paintBar();
-      if (reopen) { var id = reopen; reopen = ''; openId(id); }
+      if (back) whenAck(function () { openId(back, { resume: true }); });
     }).catch(function () {});
   }
-  function openId(id) {
+  var resumeId = '';
+  function openId(id, opt) {
     var b = document.querySelector('[data-fid="' + id + '"], [data-sid="' + id + '"]');
     if (!b) { b = document.createElement('button'); b.setAttribute('data-fid', id); }
-    open(b);
+    open(b, opt);
   }
   window.ATM_STAR = {
     take: function (b) {
@@ -716,6 +783,15 @@
     api('/social/going/unfav', { id: id, explicit: 1 }).then(function (d) { if (d && d.ok) dropLocalFav(id); else toast(L.later); }).catch(function () { toast(L.later); });
   }, true);
   document.addEventListener('atm-more', function () { paint(); });
+  (function () {
+    var q;
+    try { q = new URLSearchParams(location.search); } catch (e) { return; }
+    if (q.get('intent') === 'resume') {
+      var card = q.get('card') || '';
+      if (/^[A-Za-z0-9_-]{1,64}$/.test(card)) resumeId = card;
+    }
+  })();
+  takeSession();
   readHash();
   ensureEvents();
   refreshMine();
