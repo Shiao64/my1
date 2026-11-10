@@ -10,6 +10,13 @@
   var L = zh ? {
     grey: '组织者尚未提供邮箱',
     checking: '正在确认组织者邮箱',
+    tsWait: '请先完成上方验证，再继续。',
+    tsChallenge: '验证暂时没有完成，请稍等后重试。',
+    tsExpired: '验证已过期，请等它重新完成后再试。',
+    tsTimeout: '验证超时，请再试一次。',
+    tsVerify: '验证没有被接受，请等它重新完成后再试。',
+    net: '网络异常，请再试一次。',
+    again: '这次没有提交成功，请再试一次。',
     title: '活动意向',
     explain: '不是购票或正式报名。',
     going: '要参加', interested: '感兴趣',
@@ -46,6 +53,13 @@
   } : {
     grey: 'Organizer email not available yet',
     checking: 'Checking organizer email',
+    tsWait: 'Finish the check above, then continue.',
+    tsChallenge: 'The check did not finish. Wait a moment and try again.',
+    tsExpired: 'The check expired. Wait until it finishes, then try again.',
+    tsTimeout: 'The check timed out. Please try again.',
+    tsVerify: 'The check was not accepted. Wait until it finishes, then try again.',
+    net: 'Network error. Please try again.',
+    again: 'This did not go through. Please try again.',
     title: 'Event intent',
     explain: 'Not a ticket or a formal registration.',
     going: 'Going', interested: 'Interested',
@@ -293,6 +307,7 @@
     if (verified) html += '<p class="asg-hint">' + L.optin + '</p>';
     if (saved) html += '<button type="button" class="asg-x2" id="asg-cancel">' + L.cancel + '</button>';
     html += '<div class="asg-ts"></div>';
+    dropTs();
     body().innerHTML = html;
     if (me) { var n = body().querySelector('#asg-name'); if (n && me.name) n.value = me.name; var c = body().querySelector('#asg-city'); if (c && me.city) c.value = me.city; var rr = body().querySelector('#asg-role'); if (rr && me.role) rr.value = me.role; }
     body().querySelectorAll('[data-intent]').forEach(function (btn) { btn.onclick = function () { draft.intent = btn.getAttribute('data-intent'); ctxSet(draft); body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); }); }; });
@@ -316,36 +331,146 @@
     }).catch(function () { return ''; });
     return sitekeyP;
   }
-  function tsToken() {
-    var inp = box.querySelector('[name="cf-turnstile-response"]');
-    return inp ? inp.value : '';
+  var TS_RESET_MAX = 3;
+  function tsMessage(el) {
+    var phase = el && el.dataset.phase;
+    if (phase === 'challenge') return L.tsChallenge;
+    if (phase === 'expired') return L.tsExpired;
+    if (phase === 'timeout') return L.tsTimeout;
+    return L.tsWait;
+  }
+  function clearTsNote() {
+    var err = body().querySelector('#asg-err');
+    if (!err) return;
+    if (err.textContent === L.tsChallenge || err.textContent === L.tsExpired || err.textContent === L.tsTimeout || err.textContent === L.tsWait || err.textContent === L.tsVerify) err.textContent = '';
+  }
+  function wipeToken(el) {
+    if (!el) return;
+    el.dataset.ready = '';
+    var inp = el.querySelector('[name="cf-turnstile-response"]');
+    if (inp) inp.value = '';
+  }
+  function takeToken(el) {
+    if (!el || el.dataset.ready !== '1' || el.dataset.phase) return '';
+    var inp = el.querySelector('[name="cf-turnstile-response"]');
+    var v = inp ? String(inp.value || '').trim() : '';
+    if (!v) return '';
+    el.dataset.ready = '';
+    inp.value = '';
+    return v;
+  }
+  function scheduleChallengeReset(el) {
+    if (!el || el.dataset.resetQueued === '1') return;
+    if (Number(el.dataset.resets || 0) >= TS_RESET_MAX) return;
+    el.dataset.resetQueued = '1';
+    setTimeout(function () {
+      if (!el.isConnected) return;
+      el.dataset.resetQueued = '';
+      var n = Number(el.dataset.resets || 0);
+      if (n >= TS_RESET_MAX) return;
+      el.dataset.resets = String(n + 1);
+      wipeToken(el);
+      if (el.dataset.wid && window.turnstile) { try { window.turnstile.reset(el.dataset.wid); } catch (e) {} }
+    }, 800);
+  }
+  function widgetById(wid) {
+    var all = box.querySelectorAll('.asg-ts'), i;
+    for (i = 0; i < all.length; i++) if (all[i].dataset.wid === String(wid)) return all[i];
+    return null;
+  }
+  function releaseWidget(wid) {
+    var el = wid ? widgetById(wid) : null;
+    if (el) wipeToken(el);
+    if (wid && window.turnstile) { try { window.turnstile.reset(wid); } catch (e) {} }
+  }
+  function dropTs() {
+    var old = body().querySelector('.asg-ts');
+    if (!old) return;
+    var wid = old.dataset.wid;
+    wipeToken(old);
+    if (wid && window.turnstile) { try { window.turnstile.remove(wid); } catch (e) {} }
   }
   function mountTs(el) {
     loadSitekey().then(function (key) {
-      if (!key || !el || el.dataset.ts) return;
-      function render() { if (!window.turnstile || el.dataset.ts) return; el.dataset.ts = '1'; window.turnstile.render(el, { sitekey: key }); }
+      if (!key || !el || !el.isConnected || el.dataset.ts) return;
+      function render() {
+        if (!window.turnstile || !el.isConnected || el.dataset.ts) return;
+        el.dataset.ts = '1';
+        el.dataset.ready = '';
+        el.dataset.phase = '';
+        el.dataset.resets = '0';
+        var wid = window.turnstile.render(el, {
+          sitekey: key,
+          action: 'going',
+          retry: 'never',
+          callback: function () {
+            if (!el.isConnected) return;
+            el.dataset.ready = '1';
+            el.dataset.phase = '';
+            clearTsNote();
+          },
+          'expired-callback': function () {
+            if (!el.isConnected) return;
+            el.dataset.phase = 'expired';
+            wipeToken(el);
+            var err = body().querySelector('#asg-err'); if (err) err.textContent = L.tsExpired;
+            scheduleChallengeReset(el);
+          },
+          'timeout-callback': function () {
+            if (!el.isConnected) return;
+            el.dataset.phase = 'timeout';
+            wipeToken(el);
+            var err = body().querySelector('#asg-err'); if (err) err.textContent = L.tsTimeout;
+            scheduleChallengeReset(el);
+          },
+          'error-callback': function () {
+            if (!el.isConnected) return;
+            el.dataset.phase = 'challenge';
+            wipeToken(el);
+            var err = body().querySelector('#asg-err'); if (err) err.textContent = L.tsChallenge;
+            scheduleChallengeReset(el);
+          }
+        });
+        el.dataset.wid = wid == null ? '' : String(wid);
+      }
       if (window.turnstile) render();
       else { var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = render; document.head.appendChild(s); }
     });
   }
   function submit(e, draft, go) {
     var err = body().querySelector('#asg-err'), ok = body().querySelector('#asg-ok');
+    if (!err || !ok) return;
+    if (go.dataset.busy === '1') return;
     err.textContent = ''; ok.textContent = '';
     if (draft.intent !== 'going' && draft.intent !== 'interested') { err.textContent = L.needIntent; return; }
-    var payload = { id: e.id, intent: draft.intent, explicit: 1, disclose: 1, notify: body().querySelector('#asg-notify').checked ? 1 : 0, transport: (body().querySelector('#asg-dir') && body().querySelector('#asg-dir').checked) ? 1 : 0, date: (body().querySelector('#asg-date') || {}).value || draft.date || '', lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: tsToken(), dev: dev() };
+    go.dataset.busy = '1';
+    var tsEl = body().querySelector('.asg-ts');
+    var ts = takeToken(tsEl);
+    if (!ts) { go.dataset.busy = ''; err.textContent = tsMessage(tsEl); return; }
+    var wid = tsEl.dataset.wid || '';
+    var payload = { id: e.id, intent: draft.intent, explicit: 1, disclose: 1, notify: body().querySelector('#asg-notify').checked ? 1 : 0, transport: (body().querySelector('#asg-dir') && body().querySelector('#asg-dir').checked) ? 1 : 0, date: (body().querySelector('#asg-date') || {}).value || draft.date || '', lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: ts, dev: dev() };
     ['name', 'email', 'city'].forEach(function (k) { var el = body().querySelector('#asg-' + k); if (el) payload[k] = el.value.trim(); });
     var role = body().querySelector('#asg-role'); if (role) payload.role = role.value;
     ctxSet({ id: e.id, intent: draft.intent, date: payload.date, notify: payload.notify !== 0, transport: !!payload.transport });
     go.disabled = true;
+    var settled = false;
+    function finish() {
+      if (settled) return;
+      settled = true;
+      if (go.isConnected) { go.disabled = false; go.dataset.busy = ''; }
+      releaseWidget(wid);
+    }
     api('/social/going', payload).then(function (d) {
-      go.disabled = false;
-      if (d.confirm) { ok.textContent = L.pending; return; }
-      if (d.need_profile || d.error === 'need_city' || d.error === 'need_role' || d.error === 'need_name') { err.textContent = L.fill; return; }
-      if (d.error === 'no_organizer') { err.textContent = L.grey; return; }
-      if (!d.ok) { err.textContent = d.error || L.fail; return; }
-      ok.textContent = statusText(d.mail);
-      refreshMine();
-    }).catch(function () { go.disabled = false; err.textContent = L.fail; });
+      if (err.isConnected) {
+        if (d.confirm) ok.textContent = L.pending;
+        else if (d.need_profile || d.error === 'need_city' || d.error === 'need_role' || d.error === 'need_name') err.textContent = L.fill;
+        else if (d.error === 'no_organizer') err.textContent = L.grey;
+        else if (d.error === 'turnstile') err.textContent = L.tsVerify;
+        else if (!d.ok) err.textContent = L.again;
+        else { ok.textContent = statusText(d.mail); refreshMine(); }
+      }
+      finish();
+    }).catch(function () { if (err.isConnected) err.textContent = L.net; finish(); });
   }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   var painting = false;
