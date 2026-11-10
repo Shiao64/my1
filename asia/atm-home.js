@@ -68,7 +68,10 @@
     return (pv ? '<span class="ah-pw">' : '') + '<picture><source type="image/webp" data-atm-srcset="' + esc(u.webp) + '"' + srcset + '><img class="' + cls + '" data-atm-src="' + esc(u.jpg) + '"' + src + ' data-full="' + esc(u.full) + '"' + pri + ' onerror="if(this.dataset.fell)return;this.dataset.fell=\'1\';var s=this.parentNode&&this.parentNode.querySelector(\'source\');if(s)s.removeAttribute(\'srcset\');if(this.dataset.full)this.src=this.dataset.full" alt="" decoding="async"></picture>' + (pv ? '<i class="ah-prev">' + (zh ? '上期海报' : 'Previous poster') + '</i></span>' : '');
   }
   /* v11.9: DJ line under time, above venue (events.dj, else poster_djs for the current poster) */
-  function djOf(e) { var d = (!zh && e.dj_en) ? e.dj_en : e.dj; if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || pd >= TODAY) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
+  function i18nLang() { return (window.atmI18n && window.atmI18n.langOf({ zhHint: zh })) || (zh ? 'zh' : 'en'); }
+  function evName(e) { return (window.atmI18n && window.atmI18n.fieldText(e, 'name', i18nLang())) || ((zh && e.name_zh) || e.name || ''); }
+  function evVenue(e) { return (window.atmI18n && window.atmI18n.fieldText(e, 'venue', i18nLang())) || (e.venue || ''); }
+  function djOf(e) { var d = (window.atmI18n && window.atmI18n.pick(e, 'dj', i18nLang())) || ((!zh && e.dj_en) ? e.dj_en : e.dj); if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || pd >= TODAY) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
   /* A detail URL with a hash (edition landing) opens that anchor. Other cards stay on ?card=. */
   function openHref(e) {
     var raw = typeof e.detail === 'string' ? e.detail : '';
@@ -106,9 +109,9 @@
     return '<em class="china-cancelled-bar">' + esc(t) + '</em>';
   }
   function card(e, sub, tag, eager) {
-    var v = (e.kind === 'weekly' || e.theme_of) ? (e.venue || '') : '';
+    var v = (e.kind === 'weekly' || e.theme_of) ? (evVenue(e) || '') : '';
     var kt = oneTag(e), bar = cxBar(e);
-    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc((zh && e.name_zh) || e.name) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
+    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }

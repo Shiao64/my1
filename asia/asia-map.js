@@ -33,6 +33,9 @@
   (function(){ var s = document.createElement('style'); s.textContent = '.ev-cover picture,.tw-fc-img picture,#atm-single .atm-nf-mini picture,#atm-pop .ev-cover picture{display:contents}img[data-atm-src]:not([src]){background:#f3e6cc}'; document.head.appendChild(s); })();
   var UI = window.CHINA_UI || {};
   var isZh = UI.lang === 'zh';
+  function i18nLang() { return (window.atmI18n && window.atmI18n.langOf({ zhHint: isZh })) || (isZh ? 'zh' : 'en'); }
+  function evName(r) { return (window.atmI18n && window.atmI18n.fieldText(r, 'name', i18nLang())) || ((isZh && r.name_zh) || r.name || ''); }
+  function evVenue(r) { return (window.atmI18n && window.atmI18n.fieldText(r, 'venue', i18nLang())) || ((!isZh && r.venue_en) || r.venue || ''); }
   var citySel = document.getElementById('china-city');
   var PH_TXT = /^zh/.test(document.documentElement.lang || '') ? '请选城市' : 'Select a city';
   if (citySel && !citySel.querySelector('option[value=""]')) { var phO = document.createElement('option'); phO.value = ''; phO.textContent = isZh || /^zh/.test(document.documentElement.lang || '') ? '城市' : 'City'; citySel.insertBefore(phO, citySel.firstChild); }
@@ -273,16 +276,13 @@
       if (unconf) { when = when.replace(/ · .*$/, '') + ' · No'; body.push(line(UI.time || 'Time', '<span class="atm-unconfirmed" style="color:#9b1c1c;font-weight:700">' + (isZh ? 'No · 未确定，请联络组织者' : 'No · Not confirmed, please contact the organizer') + '</span>')); }
       else if (r.time) body.push(line(UI.time || 'Time', esc(formatTime12(r.time))));
     }
-    if (r.venue) {
-      var vName = r.venue; /* v10.9 address rule: en always English addr; zh mainland Chinese; zh overseas Chinese + English */
-      var aEn = (r.venue_address_en && !/^\s*Address not found\s*$/i.test(r.venue_address_en)) ? r.venue_address_en : '';
-      var mainland = r.country === 'China' && (r.region || 'China') === 'China';
-      if (!isZh && /[\u4e00-\u9fff]/.test(r.venue) && r.venue_en) vName = r.venue_en;
+    if (r.venue || evVenue(r)) {
+      var vName = evVenue(r) || r.venue;
+      var al = (window.atmI18n && window.atmI18n.addressLines(r, i18nLang())) || { lines: [], display: '', original: '', mapQuery: r.venue_address || r.venue_address_en || '' };
       var addr = '', addrEn = '';
-      if (!isZh) { var aShow = aEn || r.venue_address; if (aShow) addr = ' <span class="china-addr">· ' + esc(aShow) + '</span>'; }
-      else {
-        if (r.venue_address) addr = ' <span class="china-addr">· ' + esc(r.venue_address) + '</span>';
-        if (aEn && aEn !== r.venue_address && (!mainland || r.addr_en_zh || !r.venue_address)) addrEn = '<div class="china-addr-en">' + esc(aEn) + '</div>';
+      if (al.lines.length) {
+        addr = ' <span class="china-addr">· ' + esc(al.lines[0]) + '</span>';
+        if (al.lines[1]) addrEn = '<div class="' + (isZh ? 'china-addr-en' : 'china-addr-orig') + '">' + esc(al.lines[1]) + '</div>';
       }
       body.push(line(UI.venue || 'Venue', esc(vName) + addr + addrEn));
     }
@@ -300,7 +300,7 @@
     var cxBar = cx ? '<div class="china-cancelled-bar">' + (r.status !== 'cancelled' ? (UI.cancelledWeek || 'Cancelled · this week') : (UI.cancelled || 'Cancelled')) + '</div>' : '';
     return '<li class="ev-card' + ((r.poster || r.poster_zh || r.poster_en) ? ' ev-has-poster' : '') + (cx ? ' china-cancelled' : '') + (hl ? ' china-stw-highlight' : '') + (r.status === 'paused' ? ' china-paused' : '') + '" data-id="' + esc(r.id) + '"' + ownAttr(r) + ' data-type="' + esc(r.type) + '" data-kind="' + esc(r.kind) + '" data-region="' + rid + '"' + ((r.region === 'Taiwan' || r.region === 'Hong Kong' || r.country === 'Taiwan' || r.country === 'Hong Kong') ? ' data-hant="1"' : '') + (r.also_regular ? ' data-also-regular="1"' : '') + (r.regular_oneoff ? ' data-oneoff="1"' : '') + (r.kind === 'weekly' && r.weekday != null ? ' data-occ="' + occISO(r.weekday) + '"' : '') + attrs + '>' + cxBar + (r.theme_of ? '<div class="atm-theme-bar">' + (isZh ? '每周舞会 · 本周专题' : 'Weekly milonga · This week\'s theme') + '</div>' : '') + (function(){ var pp = (isZh ? r.poster_zh : r.poster_en) || r.poster; if (pp) return '<a class="ev-cover" href="' + esc(pp) + '" target="_blank" rel="noopener" tabindex="-1" aria-hidden="true">' + thPicture(pp, 'alt="" loading="lazy" decoding="async" style="object-position:' + esc(r.poster_pos || 'center top') + '"', wide) + '</a>'; var c = r.kind === 'event' && ownCover(r); return c ? '<a class="ev-cover" href="' + esc(r.links.other + (isZh ? 'zh/' : '')) + '" tabindex="-1" aria-hidden="true">' + thPicture(c[0], 'decoding="async" alt="" loading="lazy" style="object-position:' + c[1] + '"', wide) + '</a>' : ''; })() +
       '<div class="ev-top"><span class="ev-type">' + esc(typeDisplay(r.type)) + '</span><span class="ev-when">' + esc(when) + '</span>' + badges + '</div>' +
-      '<h3 class="ev-name">' + esc((isZh && r.name_zh) || r.name) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
+      '<h3 class="ev-name">' + esc(evName(r)) + '</h3>' + body.join('') + linkBtns(r) + '</li>';
   }
   function group(title, items, cls){
     if (!items.length) return '';
@@ -881,7 +881,7 @@
           '<a class="atm-det atm-featbtn" href="' + esc(base2 + '?mode=featured' + kr2 + '&via=card') + '">' + (isZh ? '★ 特色活动' : '★ Featured events') + '</a>';
         armCardPosters(box);
         Array.prototype.forEach.call(box.querySelectorAll('.atm-recap-a'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); var v = document.createElement('div'); v.className = 'atm-rv'; var i = ph.indexOf(a.getAttribute('href')); v.innerHTML = '<button type="button" aria-label="close">×</button><div class="atm-rv-s">' + ph.map(function(u){ return '<img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">'; }).join('') + '</div>'; document.body.appendChild(v); var sc = v.querySelector('.atm-rv-s'); sc.scrollLeft = i * sc.clientWidth; v.addEventListener('click', function(ev){ if (ev.target.tagName !== 'IMG') v.remove(); }); }); });
-        try { document.title = ((isZh && r.name_zh) || r.name) + ' · ' + (isZh ? '已结束 · ' : 'Ended · ') + document.title; } catch(e){}
+        try { document.title = evName(r) + ' · ' + (isZh ? '已结束 · ' : 'Ended · ') + document.title; } catch(e){}
         keepLang(); setTimeout(keepLang, 1500); return; }
       if (!r) { /* not in core, more, full, or the one fresh R2 retry — not the same as ended */
         var missH = location.pathname + '?card=' + encodeURIComponent(cid);
@@ -896,7 +896,7 @@
           .sort(function(a, b){ var fa = a.kind === 'weekly' ? 1 : 0, fb = b.kind === 'weekly' ? 1 : 0; return fa - fb || String(a.start || '').localeCompare(String(b.start || '')); }).slice(0, 3);
         var WD = isZh ? ['周日','周一','周二','周三','周四','周五','周六'] : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         function when(x){ if (x.kind === 'weekly') { var ds = x.weekdays || (x.weekday != null ? [x.weekday] : []); return (isZh ? '每' : 'Every ') + ds.map(function(i){ return WD[i % 7]; }).join('/') + (x.time ? ' ' + x.time : ''); } return String(x.start || '').replace(/-/g, '/') + (x.end && x.end !== x.start ? '–' + String(x.end).slice(5).replace(/-/g, '/') : ''); }
-        var mini = nx.length ? '<h3 class="atm-nf-h">' + (isZh ? cn + '近期活动' : 'Coming up in ' + cn) + '</h3><div class="atm-nf-list">' + nx.map(function(x){ return '<a class="atm-nf-mini" href="' + esc(base + '?card=' + encodeURIComponent(x.id)) + '">' + (x.poster ? thPicture(x.poster, 'alt="" loading="lazy" decoding="async"') : '<span class="atm-nf-noimg">♪</span>') + '<span><strong>' + esc((isZh && x.name_zh) || x.name) + '</strong><em>' + esc(when(x)) + '</em></span></a>'; }).join('') + '</div>' : '';
+        var mini = nx.length ? '<h3 class="atm-nf-h">' + (isZh ? cn + '近期活动' : 'Coming up in ' + cn) + '</h3><div class="atm-nf-list">' + nx.map(function(x){ return '<a class="atm-nf-mini" href="' + esc(base + '?card=' + encodeURIComponent(x.id)) + '">' + (x.poster ? thPicture(x.poster, 'alt="" loading="lazy" decoding="async"') : '<span class="atm-nf-noimg">♪</span>') + '<span><strong>' + esc(evName(x)) + '</strong><em>' + esc(when(x)) + '</em></span></a>'; }).join('') + '</div>' : '';
         var ico = '<svg class="atm-nf-ico" viewBox="0 0 96 96" aria-hidden="true"><rect x="10" y="10" width="68" height="68" rx="16" fill="#0e6e78"/><path d="M44 19c-11.2 0-20.2 8.8-20.2 19.8C23.8 53.6 44 71 44 71s20.2-17.4 20.2-32.2C64.2 27.8 55.2 19 44 19z" fill="#fbf5e9"/><path d="M44 50.5s-9.6-6-9.6-12c0-3.2 2.4-5.5 5.3-5.5 1.9 0 3.4 1 4.3 2.4.9-1.4 2.4-2.4 4.3-2.4 2.9 0 5.3 2.3 5.3 5.5 0 6-9.6 12-9.6 12z" fill="#c8102e" opacity=".55"/><circle cx="72" cy="72" r="17" fill="#fffcf5" stroke="#9a6e00" stroke-width="4"/><path d="M72 63v10l6 4" stroke="#9a6e00" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
         var allH = base + (r && r.city ? '?mode=regular' + cy + kr + '&via=card' : '?via=card');
         var allT = cn ? (isZh ? '查看' + cn + '近期活动' : 'See upcoming events in ' + cn) : allTxt;
@@ -908,7 +908,7 @@
       var q = (feat ? '?mode=featured' + kr : '?mode=regular' + cy + kr) + '&via=card#v-' + encodeURIComponent(r.id); /* via=card: no ad popup on arrival */
       var detHref = eventPageHref(r), det = detHref ? '<a class="atm-det" href="' + esc(detHref) + '">' + (isZh ? '活动详情' : 'Event details') + '</a>' : '';
       box.innerHTML = '<ul class="china-list ev-list">' + card(r, true).replace('loading="lazy"', 'loading="eager"') + '</ul>' + det; /* v11.7 P10: 查看全部活动 removed (S0 ‹ covers navigation) */ armCardPosters(box); void allBtn; void q;
-      try { document.title = ((isZh && r.name_zh) || r.name) + ' · ' + document.title; } catch(e){}
+      try { document.title = evName(r) + ' · ' + document.title; } catch(e){}
       keepLang(); setTimeout(keepLang, 1500);
     });
   })();
