@@ -62,7 +62,7 @@ async function confirm(link) {
   return res.text();
 }
 const star = fs.readFileSync(path.join(root, 'asia/atm-star.js'), 'utf8');
-check('chinese and english each have one continue button', star.includes("verifyBtn: '确认邮箱并继续'") && star.includes("verifyBtn: 'Confirm email and continue'") && !star.includes('asg-restore') && !star.includes('用邮箱恢复登录'));
+check('chinese and english each use Confirm', star.includes("verifyBtn: '确认'") && star.includes("verifyBtn: 'Confirm'") && !star.includes('确认邮箱并继续') && !star.includes('Confirm email and continue') && !star.includes('asg-restore') && !star.includes('用邮箱恢复登录'));
 
 const fresh = await post('/going', { id: 'F1', intent: 'interested', email: 'new@example.com', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', notify: 0, date: '' });
 check('new user email does not queue', fresh.confirm && fresh.preview_link && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('new@example.com'));

@@ -22,6 +22,6 @@ check('header css cache moves with the longer badge', zh.includes('atm-critical.
 check('release comment does not claim this number is already live', zh.includes('does not mean other unreleased work is live') && en.includes('does not mean other unreleased work is live'));
 const going = read('social-worker/src/going.js');
 const star = read('asia/atm-star.js');
-check('intent and mail code stay untouched by the label', going.includes('INSERT INTO going_pending') && star.includes("verifyBtn: '确认邮箱并继续'") && !going.includes('data-site-release'));
+check('intent and mail code stay untouched by the label', going.includes('INSERT INTO going_pending') && star.includes("submit: '确认'") && !star.includes('确认邮箱并继续') && !going.includes('data-site-release'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('site release ok');

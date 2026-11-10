@@ -36,7 +36,7 @@
     name: '姓名', email: '邮箱', city: '城市', role: '角色',
     rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', rolePh: '请选择',
     once: '同一设备验证通过后，再选 Going／Interested 无需重复验证。',
-    verifyBtn: '确认邮箱并继续', pending: '确认邮件已发出，请查收。点开邮件里的确认后，再回到这里点「确认」。',
+    verifyBtn: '确认', pending: '确认邮件已发出，请查收。点开邮件里的确认后，再回到这里点「确认」。',
     resend: '重新发送验证邮件',
     ready: '邮箱已确认。再点「确认」才会记录意向。',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
@@ -83,7 +83,7 @@
     name: 'Name', email: 'Email', city: 'City', role: 'Role',
     rl: 'Leader', rf: 'follower', rb: 'both', rolePh: 'Choose',
     once: 'After one verification on this device, you won’t need to verify again to choose Going or Interested.',
-    verifyBtn: 'Confirm email and continue', pending: 'Confirmation email sent. Open it, then come back and tap Confirm.',
+    verifyBtn: 'Confirm', pending: 'Confirmation email sent. Open it, then come back and tap Confirm.',
     resend: 'Resend verification email',
     ready: 'Email confirmed. Tap Confirm to save your intent.',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
@@ -117,7 +117,7 @@
     '#atm-star label.asg-l{display:block;font-weight:700;color:#0a4f57;margin:10px 0 4px;font-size:.84rem}' +
     '#atm-star input,#atm-star select{width:100%;box-sizing:border-box;min-height:44px;font-size:16px;padding:8px 10px;border:1px solid #ead9b8;border-radius:8px}' +
     '#atm-star .asg-opt{display:flex;gap:6px;margin:8px 0;padding:4px;background:#f3ece0;border-radius:14px}#atm-star .asg-opt button{flex:1;min-height:48px;border:0;background:transparent;color:#0a4f57;border-radius:12px;font-weight:700;font-size:.92rem;padding:4px}' +
-    '#atm-star select:disabled{opacity:.55;background:#f3ece0}' +
+    '#atm-star select:disabled,#atm-star input:disabled{opacity:.55;background:#f3ece0}' +
     '.atm-unfav{min-height:44px;margin:6px 0 0;padding:0 12px;border:1px solid #ead9b8;border-radius:999px;background:#fff;color:#2a1a14;font-weight:700}' +
     '#atm-star .asg-opt button[aria-pressed="true"]{background:#0e6e78;color:#f6e3b4}' +
     '#atm-star .asg-go{min-height:48px;font-weight:700;border:0;width:100%;margin-top:10px;background:#0e6e78;color:#f6e3b4;border-radius:12px}#atm-star .asg-go[aria-busy="true"]{opacity:.72}' +
@@ -126,7 +126,7 @@
     '#atm-star .asg-ts{min-height:65px;margin:0 0 4px}' +
     '#atm-star .asg-x{position:absolute;top:6px;right:6px;z-index:2;width:44px;height:44px;border:0;border-radius:8px;background:transparent;font-size:28px;line-height:44px;padding:0;color:#7a6255;cursor:pointer}' +
     '#atm-star .asg-x:focus-visible{outline:2px solid #0e6e78;outline-offset:2px}' +
-    '#atm-star .asg-err{color:#b5654a;min-height:1.2em}#atm-star .asg-ok{color:#0a4f57;font-weight:700}#atm-star .asg-check{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:.88rem}#atm-star .asg-check input{width:auto;min-height:0;margin-top:3px}' +
+    '#atm-star .asg-err{color:#b5654a;min-height:1.2em}#atm-star .asg-ok{color:#0a4f57;font-weight:700}#atm-star .asg-check{display:flex;gap:8px;align-items:flex-start;margin:8px 0;font-size:.88rem}#atm-star .asg-check input{width:auto;min-height:0;margin-top:3px}#atm-star [hidden]{display:none!important}' +
     '.atm-toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:4000;background:rgba(42,26,20,.92);color:#fff;padding:10px 18px;border-radius:999px;font-size:.9rem;max-width:calc(100vw - 32px);text-align:center;box-sizing:border-box}' +
     '.atm-favbar b{color:#0a4f57}';
   document.head.appendChild(css);
@@ -322,17 +322,16 @@
     delete o[id];
     try { localStorage.setItem('atm_occ_v1', JSON.stringify(o)); } catch (e) {}
   }
-  function saveAbsent(ev, id) {
-    var anchor = regular(ev) ? (datesOf(ev)[0] || '') : '';
+  function saveAbsent(ev, id, anchor) {
     rememberAbsent(id, anchor);
     addLocalFav(id);
     paint();
     toast(L.withheld);
     shut();
     if (!token()) return;
-    api('/social/going', { id: id, intent: 'absent', anchor: anchor, date: '', explicit: 1, disclose: 1, notify: 0, transport: 0, alert: 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: '', dev: dev() }).then(function (d) {
-      if (d && d.ok && !d.confirm) refreshMine();
-      else toast(L.later);
+    api('/social/going', { id: id, intent: 'absent', anchor: anchor || '', date: '', explicit: 1, disclose: 1, notify: 0, transport: 0, alert: 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: '', dev: dev() }).then(function (d) {
+      if (!(d && d.ok && !d.confirm)) toast(L.later);
+      else refreshMine();
     }).catch(function () { toast(L.later); });
   }
   function open(b) {
@@ -345,33 +344,33 @@
     var anchor0 = reg ? (dates[0] || '') : '';
     var saved = (occ[id] && occ[id][anchor0]) || null;
     var draft = saved
-      ? { id: id, anchor: anchor0, intent: saved.intent, date: saved.intent === 'going' ? (saved.date || anchor0) : '', notify: saved.notify !== false, transport: !!saved.transport }
-      : { id: id, anchor: anchor0, intent: '', date: '', notify: true, transport: false };
+      ? { id: id, anchor: anchor0, intent: saved.intent, date: saved.intent === 'going' ? (saved.date || anchor0) : '', notify: saved.intent === 'absent' ? false : saved.notify !== false, transport: saved.intent === 'going' && !!saved.transport }
+      : { id: id, anchor: anchor0, intent: reg ? 'going' : '', date: reg ? anchor0 : '', notify: true, transport: false };
     ctxSet(draft);
     h2().textContent = titleOf(e) || L.title;
     var verified = !!token();
     var needProfile = verified && (!me || !me.city || !me.role || !me.name);
-    var action = verified ? L.submit : L.verifyBtn;
+    var action = L.submit;
     var html = '';
     if (!verified || needProfile) html += '<p class="asg-note">' + L.explain + '</p>';
     html += '<div class="asg-opt">';
     ['going', 'interested', 'absent'].forEach(function (k) { html += '<button type="button" data-intent="' + k + '" aria-pressed="' + (draft.intent === k) + '">' + L[k] + '</button>'; });
-    html += '</div><div id="asg-rest"' + (draft.intent === 'going' || draft.intent === 'interested' ? '' : ' hidden') + '>';
+    html += '</div><div id="asg-rest"' + (draft.intent ? '' : ' hidden') + '>';
     if (reg && dates.length) {
       html += '<label class="asg-l" for="asg-date">' + L.date + '</label><select id="asg-date"' + (draft.intent === 'going' ? '' : ' disabled') + '>';
       dates.forEach(function (d) { html += '<option value="' + d + '"' + ((draft.date || anchor0) === d ? ' selected' : '') + '>' + d + '</option>'; });
       html += '</select>';
     }
-    html += '<label class="asg-check"><input type="checkbox" id="asg-notify"' + (draft.notify !== false ? ' checked' : '') + '>' + L.notify + '</label>';
+    html += '<label class="asg-check"><input type="checkbox" id="asg-notify"' + (draft.intent !== 'absent' && draft.notify !== false ? ' checked' : '') + (draft.intent === 'absent' ? ' disabled' : '') + '>' + L.notify + '</label>';
     if (reg) html += '<label class="asg-check"><input type="checkbox" id="asg-dir"' + (draft.intent === 'going' && draft.transport ? ' checked' : '') + (draft.intent === 'going' ? '' : ' disabled') + '>' + L.transport + '</label>';
     if (!verified) {
-      html += '<p class="asg-note">' + L.profileDesc + '</p>';
-      html += '<label class="asg-check"><input type="checkbox" id="asg-promo">' + L.promo + '</label>';
+      html += '<p class="asg-note" id="asg-mailnote">' + L.profileDesc + '</p>';
+      html += '<label class="asg-check" id="asg-promolab"><input type="checkbox" id="asg-promo">' + L.promo + '</label>';
       html += field(L.email, 'asg-email', 'email');
     } else if (needProfile) {
-      html += '<p class="asg-note">' + L.fill + '</p>';
+      html += '<div id="asg-profile"><p class="asg-note">' + L.fill + '</p>';
       if (me && me.email) html += '<p class="asg-note">' + L.emailKept + (zh ? '：' : ': ') + esc(me.email) + '</p>';
-      html += '<p class="asg-req">' + L.req + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect() + '</div>';
+      html += '<p class="asg-req">' + L.req + '</p><div class="asg-grid">' + field(L.name, 'asg-name') + field(L.city, 'asg-city') + roleSelect() + '</div></div>';
     }
     html += '<p class="asg-err" id="asg-err"></p><p class="asg-ok" id="asg-ok"></p>';
     html += '<p class="asg-tslab" id="asg-tslab">' + L.tsWait + '</p><div class="asg-ts"></div>';
@@ -384,14 +383,35 @@
     if (me) { var n = body().querySelector('#asg-name'); if (n && me.name) n.value = me.name; var c = body().querySelector('#asg-city'); if (c && me.city) c.value = me.city; var rr = body().querySelector('#asg-role'); if (rr && me.role) rr.value = me.role; }
     var dateEl = body().querySelector('#asg-date');
     var dirEl0 = body().querySelector('#asg-dir');
-    function lockDate() {
+    function lockFields() {
       var going = draft.intent === 'going';
+      var away = draft.intent === 'absent';
       if (dateEl) dateEl.disabled = !going;
-      if (dirEl0) dirEl0.disabled = !going;
+      if (dirEl0) { dirEl0.disabled = !going; if (!going) dirEl0.checked = false; }
+      var note = body().querySelector('#asg-notify');
+      if (note) {
+        note.disabled = away;
+        if (away) note.checked = false;
+        else if (!note.disabled) note.checked = draft.notify !== false;
+      }
+      var email = body().querySelector('#asg-email');
+      if (email) email.disabled = away;
+      var promo = body().querySelector('#asg-promo');
+      if (promo) { promo.disabled = away; if (away) promo.checked = false; }
+      var mailNote = body().querySelector('#asg-mailnote');
+      var promoLab = body().querySelector('#asg-promolab');
+      var profile = body().querySelector('#asg-profile');
+      if (mailNote) mailNote.hidden = away;
+      if (promoLab) promoLab.hidden = away;
+      if (profile) profile.hidden = away;
+      var ts = body().querySelector('.asg-ts');
+      var lab = body().querySelector('#asg-tslab');
+      if (ts) ts.hidden = away;
+      if (lab) lab.hidden = away;
     }
     body().querySelectorAll('[data-intent]').forEach(function (btn) { btn.onclick = function () {
       var next = btn.getAttribute('data-intent');
-      if (next === 'absent') { saveAbsent(e, id); return; }
+      var wasAway = draft.intent === 'absent';
       if (draft.intent === 'going' && dateEl) { draft.anchor = dateEl.value; draft.date = dateEl.value; }
       draft.intent = next;
       if (!draft.anchor) draft.anchor = anchor0;
@@ -399,8 +419,10 @@
         if (dateEl && !dateEl.value) dateEl.value = anchor0;
         if (dateEl) { draft.date = dateEl.value; draft.anchor = dateEl.value; }
       } else draft.date = '';
+      if (draft.intent === 'absent') draft.notify = false;
+      else if (wasAway) draft.notify = true;
       var rest = body().querySelector('#asg-rest'); if (rest) rest.hidden = false;
-      lockDate();
+      lockFields();
       ctxSet(draft);
       body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
     }; });
@@ -409,6 +431,7 @@
     var dirEl = body().querySelector('#asg-dir'); if (dirEl) dirEl.onchange = function () { draft.transport = dirEl.checked; ctxSet(draft); };
     var go = body().querySelector('#asg-go');
     go.onclick = function () { submit(e, draft, go); };
+    lockFields();
     mountTs(body().querySelector('.asg-ts'));
     box.hidden = false;
   }
@@ -543,6 +566,7 @@
     if (go.dataset.busy === '1') return;
     err.textContent = ''; ok.textContent = '';
     if (draft.intent !== 'going' && draft.intent !== 'interested' && draft.intent !== 'absent') { err.textContent = L.needIntent; return; }
+    if (draft.intent === 'absent') { saveAbsent(e, e.id, draft.anchor || ''); return; }
     go.dataset.busy = '1';
     var tsEl = body().querySelector('.asg-ts');
     var ts = takeToken(tsEl);
