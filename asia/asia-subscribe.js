@@ -72,7 +72,20 @@
   document.body.appendChild(m);
   var $ = function (id) { return document.getElementById(id); };
   var tmr = null;
-  function open() { if (tmr) { clearTimeout(tmr); tmr = null; } $('tsub-ok').hidden = true; $('tsub-err').textContent = ''; m.hidden = false; }
+  function mountSubTs() {
+    var el = document.querySelector('#tsub-f .tsub-ts');
+    if (!el || el.dataset.ts) return;
+    var key = window.ATM_TS_KEY || '';
+    function render() {
+      if (!window.turnstile || !el.isConnected || el.dataset.ts) return;
+      el.dataset.ts = '1';
+      window.turnstile.render(el, { sitekey: key, action: 'profile' });
+    }
+    function start(k) { key = k || key; if (!key) return; if (window.turnstile) render(); else { var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = render; document.head.appendChild(s); } }
+    if (key) start(key);
+    else fetch((window.TANGO_SUB_API || 'https://api.tangoweekend.org') + '/social/going/config').then(function (r) { return r.json(); }).then(function (d) { if (d && d.sitekey) { window.ATM_TS_KEY = d.sitekey; start(d.sitekey); } }).catch(function () {});
+  }
+  function open() { if (tmr) { clearTimeout(tmr); tmr = null; } $('tsub-ok').hidden = true; $('tsub-err').textContent = ''; m.hidden = false; mountSubTs(); }
   function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; }
   $('tsub-open').addEventListener('click', open);
   m.addEventListener('click', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-x')) close(); });
@@ -91,7 +104,11 @@
     if ($('tsub-hp').value) { ok.textContent = L.ok; ok.hidden = false; return; }
     go.disabled = true; go.textContent = L.sending;
     var headers = { 'Content-Type': 'application/json' }; try { var tok = localStorage.getItem('atm_session'); if (tok) headers.Authorization = 'Bearer ' + tok; } catch (e2) {}
-    fetch(API + '/social/profile', { method: 'POST', headers: headers, body: JSON.stringify({ name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: 0, ret: location.href.split('#')[0], website: $('tsub-hp').value, ts: '' }) })
+    var tsEl = document.querySelector('#tsub-f .tsub-ts');
+    var ts = '';
+    if (tsEl) { var inp = tsEl.querySelector('[name="cf-turnstile-response"]'); ts = inp ? String(inp.value || '').trim() : ''; }
+    if (!ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.textContent = L.submit; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
+    fetch(API + '/social/profile', { method: 'POST', headers: headers, body: JSON.stringify({ name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: 0, ret: location.href.split('#')[0], website: $('tsub-hp').value, ts: ts }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.ok) {

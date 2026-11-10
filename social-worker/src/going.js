@@ -9,7 +9,8 @@ const PROFILE_MS = 7 * 24 * 3600e3;
 const DAY = 24 * 3600e3;
 const CC_DEFAULT = 'selecttango@gmail.com';
 const ROLES = ['leader', 'follower', 'both'];
-const INTENTS = ['going', 'interested'];
+const INTENTS = ['going', 'interested', 'absent'];
+const DELETE_NOTE = '\n要删除资料，请回信到 selecttango@gmail.com\nTo delete your information, reply to selecttango@gmail.com\n';
 const EXPIRED = '链接已过期。请重新请求验证邮件。 / This link has expired. Request a new verification email.';
 const INVALID = '链接无效。请重新请求验证邮件。 / This link is invalid. Request a new verification email.';
 let cardCache = null;
@@ -214,7 +215,10 @@ async function sendVerify(env, kit, row, link, pending) {
   const extra = pending
     ? (zh ? `\n\n你在「${pending.title}」选了${pending.intent === 'going' ? '要参加' : '感兴趣'}。这封邮件只确认邮箱，不会记录意向，也不会通知组织者。回到活动页面后再点「确认」。\n` : `\n\nYou chose ${pending.intent === 'going' ? 'Going' : 'Interested'} for "${pending.title}". This email only confirms your address. It does not save the intent or notify the organizer. Go back to the event and tap Confirm.\n`)
     : (zh ? '\n\n这只保存你的资料。确认邮箱不会通知组织者，也不会标记任何活动。\n' : '\n\nThis only saves your profile. Confirming does not email an organizer or mark an event.\n');
-  const text = (zh ? `${row.name}，你好！\n\n请在 7 天内打开下面的链接，再点「确认」。\n\n${link}\n` : `Hi ${row.name},\n\nOpen the link below within 7 days, then tap Confirm.\n\n${link}\n`) + extra + (zh ? '\n如果不是你本人操作，忽略即可。\n\n探戈助理\nhttps://tangoweekend.org' : '\nIf this wasn\'t you, you can ignore this email.\n\n探戈助理\nhttps://tangoweekend.org');
+  const choice = row.promo
+    ? (zh ? '\n你勾选了同时订阅 ATM 活动资讯。点确认后才会加入。\nYou chose to also subscribe to ATM event updates. That starts only after you tap Confirm.\n' : '\nYou chose to also subscribe to ATM event updates. That starts only after you tap Confirm.\n你勾选了同时订阅 ATM 活动资讯。点确认后才会加入。\n')
+    : (zh ? '\n你没有勾选订阅 ATM 活动资讯。点确认只验证邮箱，方便以后登记活动意向。\nYou did not choose the ATM event updates. Tapping Confirm only verifies your email so you can register an intent later.\n' : '\nYou did not choose the ATM event updates. Tapping Confirm only verifies your email so you can register an intent later.\n你没有勾选订阅 ATM 活动资讯。点确认只验证邮箱，方便以后登记活动意向。\n');
+  const text = (zh ? `${row.name}，你好！\n\n请在 7 天内打开下面的链接，再点「确认」。\n\n${link}\n` : `Hi ${row.name},\n\nOpen the link below within 7 days, then tap Confirm.\n\n${link}\n`) + extra + choice + DELETE_NOTE + (zh ? '\n如果不是你本人操作，忽略即可。\n\n探戈助理\nhttps://tangoweekend.org' : '\nIf this wasn\'t you, you can ignore this email.\n\n探戈助理\nhttps://tangoweekend.org');
   const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p>${kit.he(zh ? row.name + '，你好！' : 'Hi ' + row.name + ',')}</p><p>${zh ? '请在 7 天内点下面的按钮确认邮箱。' : 'Tap the button below within 7 days to confirm your email.'}</p><p style="margin:22px 0"><a href="${kit.he(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${zh ? '确认' : 'Confirm'}</a></p><p>${kit.he(extra.trim())}</p><p>探戈助理<br><a href="https://tangoweekend.org">https://tangoweekend.org</a></p></div></body></html>`;
   return kit.deliver(env, row.email, subject, text, html, undefined, { fromName: '探戈助理' });
 }
@@ -230,20 +234,35 @@ async function sendDigest(env, kit, card, rows, period) {
   const titleEn = cardTitle(card, 'en');
   const featured = card.kind === 'event' || card.kind === 'featured';
   const lines = rows.map(r => {
-    const date = !featured && r.occurrence_date ? `Date / 场次: ${r.occurrence_date} (Beijing time UTC+8, Asia/Shanghai)\n` : '';
+    const show = r.anchor || r.occurrence_date || '';
+    const date = !featured && show ? `Date / 场次: ${show} (Beijing time UTC+8, Asia/Shanghai)\n` : '';
+    const city = r.city ? `City / 城市: ${r.city}\n` : '';
+    const role = r.role ? `Role / 角色: ${r.role}\n` : '';
     const transport = r.transport ? 'Directions / 交通指引: please send directions to the venue. The organizer replies directly. Delivery and timing are not guaranteed.\n请寄送前往场地的交通指引。组织者自行回复，不保证送达或回复时间。\n' : '';
-    return `${r.name} <${r.email}>\nIntent / 意向: ${intentLabel(r.intent)}\n${date}${transport}`.trim();
+    return `${r.name} <${r.email}>\nIntent / 意向: ${intentLabel(r.intent)}\n${city}${role}${date}${transport}`.trim();
   }).join('\n\n');
   const when = featured
     ? `Week / 本周汇总: ${period} (Asia/Shanghai). One summary for new intents on this event.\n`
     : `Occurrence / 场次: ${period} (Asia/Shanghai). One summary, three hours before the listed start.\n`;
-  let text = `探戈助理\n\nNew event intent on Asia Tango Map.\n亚洲探戈地图有新的活动意向。\n\nEvent / 活动: ${title}\n${titleEn && titleEn !== title ? titleEn + '\n' : ''}Card: ${card.id}\n${when}\n${lines}\n\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\nCity and role are not included.\n城市与角色未附在本信。\nThe “receive updates” choice does not decide whether this summary is sent.\n「接收主办方讯息」不影响这封汇总是否发出。\n`;
+  let text = `探戈助理\n\nNew event intent on Asia Tango Map.\n亚洲探戈地图有新的活动意向。\n\nEvent / 活动: ${title}\n${titleEn && titleEn !== title ? titleEn + '\n' : ''}Card: ${card.id}\n${when}\n${lines}\n\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\nThe “receive updates” choice does not decide whether this summary is sent.\n「接收主办方讯息」不影响这封汇总是否发出。\n${DELETE_NOTE}`;
   if (dest.intended) text = `[test] Intended organizer: ${dest.intended}\n【测试】原收件主办方：${dest.intended}\n\n` + text;
   const subject = (featured ? `Intent summary: ${titleEn || title}` : `Intent summary ${period}: ${titleEn || title}`).slice(0, 180);
   const replyTo = rows.length === 1 ? rows[0].email : '';
-  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p><b>探戈助理</b></p><p>${kit.he(title)}<br>${kit.he(period)}</p><ul>${rows.map(r => `<li>${kit.he(r.name)} &lt;${kit.he(r.email)}&gt; — ${kit.he(intentLabel(r.intent))}${r.occurrence_date && !featured ? ' · ' + kit.he(r.occurrence_date) : ''}${r.transport ? ' · directions' : ''}</li>`).join('')}</ul><p>This is not a ticket or a formal registration. City and role are not included.<br>这不是购票或正式报名。城市与角色未附在本信。</p>${dest.intended ? `<p>[test] Intended organizer: ${kit.he(dest.intended)}</p>` : ''}</div></body></html>`;
+  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p><b>探戈助理</b></p><p>${kit.he(title)}<br>${kit.he(period)}</p><ul>${rows.map(r => `<li>${kit.he(r.name)} &lt;${kit.he(r.email)}&gt; — ${kit.he(intentLabel(r.intent))}${r.city ? ' · ' + kit.he(r.city) : ''}${r.role ? ' · ' + kit.he(r.role) : ''}${!featured && (r.anchor || r.occurrence_date) ? ' · ' + kit.he(r.anchor || r.occurrence_date) : ''}${r.transport ? ' · directions' : ''}</li>`).join('')}</ul><p>This is not a ticket or a formal registration.<br>这不是购票或正式报名。</p><p>要删除资料，请回信到 selecttango@gmail.com<br>To delete your information, reply to selecttango@gmail.com</p>${dest.intended ? `<p>[test] Intended organizer: ${kit.he(dest.intended)}</p>` : ''}</div></body></html>`;
   await kit.deliver(env, dest.to, subject, text, html, undefined, { cc, replyTo, fromName: '探戈助理' });
   return { ok: true };
+}
+async function confirmBlocked(env, email, dev, iph) {
+  const hour = new Date(Date.now() - 3600e3).toISOString();
+  const day = new Date(Date.now() - DAY).toISOString();
+  const eh = await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE email=? AND created_at>?').bind(email, hour).first('n');
+  const ed = await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE email=? AND created_at>?').bind(email, day).first('n');
+  const ih = await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE ip_hash=? AND created_at>?').bind(iph || '', hour).first('n');
+  const dh = dev ? await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE dev=? AND created_at>?').bind(dev, hour).first('n') : 0;
+  return (eh || 0) >= 3 || (ed || 0) >= 10 || (ih || 0) >= 10 || (dh || 0) >= 10;
+}
+async function noteConfirm(env, kit, email, dev, iph) {
+  await env.SDB.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').bind(email, dev || '', iph || '', kit.now()).run();
 }
 async function rateOk(env, email, cardId, iph) {
   const since = new Date(Date.now() - DAY).toISOString();
@@ -251,46 +270,59 @@ async function rateOk(env, email, cardId, iph) {
   const byIp = await env.SDB.prepare('SELECT COUNT(*) n FROM going_sends WHERE ip_hash=? AND created_at>?').bind(iph, since).first('n');
   return (byEmail || 0) < 3 && (byIp || 0) < 12;
 }
+async function rememberFav(env, email, cardId, ts) {
+  await env.SDB.prepare('INSERT INTO going_favs(email,card_id,created_at) VALUES(?,?,?) ON CONFLICT(email,card_id) DO NOTHING').bind(email, cardId, ts).run();
+}
 async function materialize(env, kit, row, iph) {
   const card = await goingCard(env, row.card_id, kit);
+  const featured = !!(card && (card.kind === 'event' || card.kind === 'featured'));
+  const anchor = featured ? '' : String(row.anchor || row.occurrence_date || '');
+  let attend = '';
+  if (!featured && row.intent === 'going') attend = String(row.attend || row.occurrence_date || anchor || '');
+  const show = featured ? '' : anchor || attend;
+  if (card && card.email && !featured) {
+    const dates = occurrenceDates(card, shYmd(clock(env)), 16);
+    if (!show || !dates.length || dates.indexOf(show) < 0) return { error: 'bad_date' };
+    if (attend && dates.indexOf(attend) < 0) return { error: 'bad_date' };
+  }
+  const transport = featured || row.intent !== 'going' ? 0 : (row.transport ? 1 : 0);
+  const fp = fpOf(row.intent, show, transport);
+  const ts = kit.now();
   if (!card || !card.email) {
-    await env.SDB.prepare(`INSERT INTO going_intents(email,card_id,intent,occurrence_date,transport,notify,status,mail_status,created_at,updated_at) VALUES(?,?,?,?,?,?,'active','failed',?,?)
-      ON CONFLICT(email,card_id) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,transport=excluded.transport,notify=excluded.notify,status='active',mail_status='failed',updated_at=excluded.updated_at`)
-      .bind(row.email, row.card_id, row.intent, row.occurrence_date || null, row.transport ? 1 : 0, row.notify ? 1 : 0, kit.now(), kit.now()).run();
+    await saveIntent(env, row, show, attend, transport, 'failed', null, ts);
+    await rememberFav(env, row.email, row.card_id, ts);
     return { ok: true, mailed: false, mail: 'no_organizer' };
   }
-  const today = shYmd(clock(env));
-  let date = row.occurrence_date || '';
-  if (card.kind === 'event' || card.kind === 'featured') date = '';
-  else {
-    const dates = occurrenceDates(card, today, 16);
-    if (!dates.length) return { error: 'bad_date' };
-    if (!date) date = dates[0];
-    if (dates.indexOf(date) < 0) return { error: 'bad_date' };
+  const prev = await env.SDB.prepare('SELECT intent,anchor,occurrence_date,transport,mail_status,mail_fp,status FROM going_intents WHERE email=? AND card_id=? AND anchor=?').bind(row.email, row.card_id, show).first();
+  const prevShow = prev ? (prev.anchor || prev.occurrence_date || '') : '';
+  const prevFp = prev ? fpOf(prev.intent, prevShow, prev.transport) : '';
+  if (row.intent === 'absent') {
+    await saveIntent(env, row, show, '', 0, 'none', null, ts);
+    await rememberFav(env, row.email, row.card_id, ts);
+    return { ok: true, mailed: false, mail: 'withheld', date: '' };
   }
-  const transport = (card.kind === 'event' || card.kind === 'featured') ? 0 : (row.transport ? 1 : 0);
-  const fp = fpOf(row.intent, date, transport);
-  const prev = await env.SDB.prepare('SELECT intent,occurrence_date,transport,mail_status,mail_fp,status FROM going_intents WHERE email=? AND card_id=?').bind(row.email, row.card_id).first();
-  const ts = kit.now();
-  const prevFp = prev ? fpOf(prev.intent, prev.occurrence_date || '', prev.transport) : '';
   const sameFacts = !!(prev && prev.status === 'active' && prevFp === fp && (prev.mail_status === 'sent' || prev.mail_status === 'queued'));
   if (sameFacts) {
-    await env.SDB.prepare('UPDATE going_intents SET notify=?,updated_at=? WHERE email=? AND card_id=?').bind(row.notify ? 1 : 0, ts, row.email, row.card_id).run();
-    return { ok: true, mailed: false, mail: 'unchanged', date };
+    await env.SDB.prepare('UPDATE going_intents SET notify=?,updated_at=? WHERE email=? AND card_id=? AND anchor=?').bind(row.notify ? 1 : 0, ts, row.email, row.card_id, show).run();
+    await rememberFav(env, row.email, row.card_id, ts);
+    return { ok: true, mailed: false, mail: 'unchanged', date: attend };
   }
   const alreadySent = !!(prev && prev.mail_fp === fp && prev.mail_status === 'sent');
   const mailStatus = alreadySent ? 'sent' : 'queued';
   if (!alreadySent && !(await rateOk(env, row.email, row.card_id, iph || ''))) {
-    await saveIntent(env, row, date, transport, 'failed', prev && prev.mail_fp || null, ts);
-    return { ok: true, mailed: false, mail: 'rate_limited', date };
+    await saveIntent(env, row, show, attend, transport, 'failed', prev && prev.mail_fp || null, ts);
+    await rememberFav(env, row.email, row.card_id, ts);
+    return { ok: true, mailed: false, mail: 'rate_limited', date: attend };
   }
-  await saveIntent(env, row, date, transport, mailStatus, prev && prev.mail_fp || null, ts);
-  return { ok: true, mailed: false, mail: alreadySent ? 'unchanged' : 'queued', date };
+  if (!alreadySent) await env.SDB.prepare('INSERT INTO going_sends(email,card_id,ip_hash,created_at) VALUES(?,?,?,?)').bind(row.email, row.card_id, iph || '', ts).run();
+  await saveIntent(env, row, show, attend, transport, mailStatus, alreadySent ? fp : (prev && prev.mail_fp || null), ts);
+  await rememberFav(env, row.email, row.card_id, ts);
+  return { ok: true, mailed: false, mail: alreadySent ? 'unchanged' : 'queued', date: attend };
 }
-async function saveIntent(env, row, date, transport, mailStatus, mailFp, ts) {
-  await env.SDB.prepare(`INSERT INTO going_intents(email,card_id,intent,occurrence_date,transport,notify,status,mail_status,mail_fp,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)
-    ON CONFLICT(email,card_id) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,transport=excluded.transport,notify=excluded.notify,status='active',mail_status=excluded.mail_status,mail_fp=excluded.mail_fp,updated_at=excluded.updated_at`)
-    .bind(row.email, row.card_id, row.intent, date || null, transport, row.notify ? 1 : 0, 'active', mailStatus, mailFp, ts, ts).run();
+async function saveIntent(env, row, anchor, attend, transport, mailStatus, mailFp, ts) {
+  await env.SDB.prepare(`INSERT INTO going_intents(email,card_id,anchor,intent,occurrence_date,attend_date,transport,notify,status,mail_status,mail_fp,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?, 'active',?,?,?,?)
+    ON CONFLICT(email,card_id,anchor) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,attend_date=excluded.attend_date,transport=excluded.transport,notify=excluded.notify,status='active',mail_status=excluded.mail_status,mail_fp=excluded.mail_fp,updated_at=excluded.updated_at`)
+    .bind(row.email, row.card_id, anchor || '', row.intent, attend || null, attend || null, transport, row.notify ? 1 : 0, mailStatus, mailFp, ts, ts).run();
 }
 function page(kit, ok, lang, msg, dest) {
   const zh = lang === 'zh';
@@ -368,6 +400,9 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   const alert = flag(b.alert, 0);
   if (!(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
   const session = await sessionUser(req, env);
+  if (!session || session.email !== email) {
+    if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
+  }
   if (session && session.email === email) {
     await env.SDB.prepare('UPDATE users SET name=?,city=?,role=?,lang=? WHERE id=?').bind(name, city, role, lang, session.id).run();
     if (alert) { try { await kit.applyList(env, { email, name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
@@ -380,8 +415,9 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   await upsertUser(env, kit, email, { name, city, role, lang, iph });
   const link = await saveVerify(env, kit, { email, name, city, role, lang, alert, ret });
   let via;
-  try { via = await sendVerify(env, kit, { email, name, lang }, link, null); }
+  try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1 }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
+  await noteConfirm(env, kit, email, String(b.dev || ''), iph);
   return json({ ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
@@ -391,13 +427,16 @@ export async function goingRestore(req, env, b, ip, json, kit) {
   const ret = kit.safeNext(b.ret);
   if (!ret) return json({ error: 'bad_return' }, 400);
   if (!(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
+  const iph = (await kit.sha((ip || '') + 'atm')).slice(0, 16);
+  if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
   const u = await env.SDB.prepare('SELECT name,city,role,lang,verified_at FROM users WHERE email=?').bind(email).first();
   if (!u || !u.verified_at) return json({ ok: true, confirm: true, mailed: false });
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const link = await saveVerify(env, kit, { email, name: u.name || email, city: u.city || '', role: roleOf(u.role), lang, alert: 0, ret });
   let via;
-  try { via = await sendVerify(env, kit, { email, name: u.name || email, lang }, link, null); }
+  try { via = await sendVerify(env, kit, { email, name: u.name || email, lang, promo: false }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
+  await noteConfirm(env, kit, email, String(b.dev || ''), iph);
   return json({ ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
@@ -411,11 +450,24 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   if (!ret) return json({ error: 'bad_return' }, 400);
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const notify = flag(b.notify, 1), transport = flag(b.transport, 0);
-  if (!(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
+  const promo = flag(b.alert, 0);
+  const sessionEarly = await sessionUser(req, env);
+  if (!sessionEarly && intent === 'absent') return json({ ok: true, mail: 'withheld', stored: false });
+  if (!(sessionEarly && intent === 'absent')) {
+    if (!(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
+  }
   let card;
   try { card = await goingCard(env, id, kit); }
   catch (e) { console.log('going events', String(e && e.message || e).slice(0, 160)); return json({ error: 'lookup_failed' }, 503); }
   if (!card || !card.email) return json({ error: 'no_organizer' }, 404);
+  const featured = card.kind === 'event' || card.kind === 'featured';
+  let anchor = featured ? '' : String(b.anchor || b.date || '');
+  if (!featured) {
+    const dates = occurrenceDates(card, shYmd(clock(env)), 16);
+    if (!anchor) anchor = dates[0] || '';
+    if (!anchor || dates.indexOf(anchor) < 0) return json({ error: 'bad_date' }, 400);
+  }
+  const attend = !featured && intent === 'going' ? String(b.date || anchor) : '';
   const session = await sessionUser(req, env);
   let name, email, city, role;
   if (session) {
@@ -425,35 +477,30 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     role = roleOf(b.role) || roleOf(session.role);
     if (!name || !city || !role) return json({ error: !city ? 'need_city' : (!role ? 'need_role' : 'need_name'), need_profile: true }, 400);
     await env.SDB.prepare('UPDATE users SET name=?,city=?,role=? WHERE id=?').bind(name, city, role, session.id).run();
-    const result = await materialize(env, kit, { email, card_id: id, intent, occurrence_date: b.date || '', transport, notify, name, lang }, iph);
+    const result = await materialize(env, kit, { email, card_id: id, intent, anchor, occurrence_date: attend, attend, transport, notify, name, lang }, iph);
     if (result.error) return json({ error: result.error }, 400);
-    await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE email=? AND card_id=? AND consumed_at IS NULL').bind(kit.now(), email, id).run();
-    return json({ ok: true, verified: true, mailed: !!result.mailed, mail: result.mail, date: result.date || '' });
+    await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(kit.now(), email, id, anchor).run();
+    return json({ ok: true, verified: true, mailed: !!result.mailed, mail: result.mail, date: result.date || '', anchor });
   }
   const prof = readProfile(b, kit);
   name = prof.name; email = prof.email; city = prof.city; role = prof.role;
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email' }, 400);
-  let date = String(b.date || '');
-  if (card.kind === 'event' || card.kind === 'featured') { date = ''; }
-  else {
-    const dates = occurrenceDates(card, shYmd(clock(env)), 16);
-    if (!date) date = dates[0] || '';
-    if (!date || dates.indexOf(date) < 0) return json({ error: 'bad_date' }, 400);
-  }
-  const useTransport = (card.kind === 'event' || card.kind === 'featured') ? 0 : transport;
+  if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
+  const useTransport = featured || intent !== 'going' ? 0 : transport;
   const existing = await env.SDB.prepare('SELECT id,name,city,role,verified_at FROM users WHERE email=?').bind(email).first();
   if (!existing) await upsertUser(env, kit, email, { name, city, role, lang, iph });
   else if (!existing.verified_at) await fillBlanks(env, kit, email, { name, city, role, lang, iph });
-  await env.SDB.prepare(`INSERT INTO going_pending(email,card_id,intent,occurrence_date,transport,notify,name,created_at) VALUES(?,?,?,?,?,?,?,?)
-    ON CONFLICT(email,card_id) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,transport=excluded.transport,notify=excluded.notify,name=excluded.name,created_at=excluded.created_at,consumed_at=NULL`)
-    .bind(email, id, intent, date || null, useTransport, notify, name, kit.now()).run();
-  const link = await saveVerify(env, kit, { email, name, city, role, lang, alert: 0, ret });
+  await env.SDB.prepare(`INSERT INTO going_pending(email,card_id,anchor,intent,occurrence_date,attend_date,transport,notify,name,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)
+    ON CONFLICT(email,card_id,anchor) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,attend_date=excluded.attend_date,transport=excluded.transport,notify=excluded.notify,name=excluded.name,created_at=excluded.created_at,consumed_at=NULL`)
+    .bind(email, id, anchor, intent, attend || null, attend || null, useTransport, notify, name, kit.now()).run();
+  const link = await saveVerify(env, kit, { email, name, city, role, lang, alert: promo, ret });
   let via;
-  try { via = await sendVerify(env, kit, { email, name, lang }, link, { title: cardTitle(card, lang), intent }); }
+  try { via = await sendVerify(env, kit, { email, name, lang, promo: promo === 1 }, link, { title: cardTitle(card, lang), intent }); }
   catch (e) {
-    await env.SDB.prepare('DELETE FROM going_pending WHERE email=? AND card_id=? AND consumed_at IS NULL').bind(email, id).run();
+    await env.SDB.prepare('DELETE FROM going_pending WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(email, id, anchor).run();
     return json({ error: 'send_failed' }, 502);
   }
+  await noteConfirm(env, kit, email, String(b.dev || ''), iph);
   return json({ ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
@@ -463,10 +510,20 @@ export async function goingCancel(req, env, b, json, kit) {
   const id = String(b.id || '');
   if (!kit.ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
   if (!(b.explicit === 1 || b.explicit === true || b.explicit === '1')) return json({ error: 'need_explicit' }, 400);
-  const cur = await env.SDB.prepare('SELECT id,status FROM going_intents WHERE email=? AND card_id=?').bind(session.email, id).first();
-  if (!cur || cur.status !== 'active') return json({ ok: true, cancelled: false, mailed: false });
-  await env.SDB.prepare("UPDATE going_intents SET status='cancelled',updated_at=? WHERE id=?").bind(kit.now(), cur.id).run();
+  const cur = await env.SDB.prepare("SELECT id FROM going_intents WHERE email=? AND card_id=? AND status='active'").bind(session.email, id).first();
+  if (!cur) return json({ ok: true, cancelled: false, mailed: false });
+  await env.SDB.prepare("UPDATE going_intents SET status='cancelled',mail_status='none',updated_at=? WHERE email=? AND card_id=? AND status='active'").bind(kit.now(), session.email, id).run();
   return json({ ok: true, cancelled: true, mailed: false });
+}
+export async function goingUnfav(req, env, b, json, kit) {
+  const session = await sessionUser(req, env);
+  if (!session) return json({ error: 'auth' }, 401);
+  const id = String(b.id || '');
+  if (!kit.ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
+  if (!(b.explicit === 1 || b.explicit === true || b.explicit === '1')) return json({ error: 'need_explicit' }, 400);
+  await env.SDB.prepare('DELETE FROM going_favs WHERE email=? AND card_id=?').bind(session.email, id).run();
+  await env.SDB.prepare("UPDATE going_intents SET status='cancelled',mail_status='none',updated_at=? WHERE email=? AND card_id=? AND status='active'").bind(kit.now(), session.email, id).run();
+  return json({ ok: true, removed: true, mailed: false });
 }
 
 export async function goingCounts(url, env, json) {
@@ -475,7 +532,7 @@ export async function goingCounts(url, env, json) {
   ids.forEach(id => { counts[id] = 0; });
   if (!ids.length) return json({ counts });
   const q = ids.map(() => '?').join(',');
-  (await env.SDB.prepare(`SELECT card_id,COUNT(DISTINCT email) n FROM going_intents WHERE status='active' AND card_id IN (${q}) GROUP BY card_id`).bind(...ids).all()).results
+  (await env.SDB.prepare(`SELECT card_id,COUNT(DISTINCT email) n FROM going_intents WHERE status='active' AND intent IN ('going','interested') AND card_id IN (${q}) GROUP BY card_id`).bind(...ids).all()).results
     .forEach(r => { counts[r.card_id] = r.n; });
   return json({ counts });
 }
@@ -483,12 +540,14 @@ export async function goingCounts(url, env, json) {
 export async function goingMine(req, env, json) {
   const session = await sessionUser(req, env);
   if (!session) return json({ error: 'auth' }, 401);
-  const rows = (await env.SDB.prepare("SELECT card_id,intent,occurrence_date,transport,notify,mail_status,status,updated_at FROM going_intents WHERE email=? AND status='active' ORDER BY updated_at DESC").bind(session.email).all()).results || [];
-  const drafts = (await env.SDB.prepare("SELECT card_id,intent,occurrence_date,transport,notify FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC").bind(session.email).all()).results || [];
+  const rows = (await env.SDB.prepare("SELECT card_id,anchor,intent,occurrence_date,attend_date,transport,notify,mail_status,status,updated_at FROM going_intents WHERE email=? AND status='active' ORDER BY updated_at DESC").bind(session.email).all()).results || [];
+  const drafts = (await env.SDB.prepare("SELECT card_id,anchor,intent,occurrence_date,attend_date,transport,notify FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC").bind(session.email).all()).results || [];
+  const favs = (await env.SDB.prepare('SELECT card_id FROM going_favs WHERE email=? ORDER BY created_at DESC').bind(session.email).all()).results || [];
   return json({
     email: session.email, name: session.name, city: session.city || '', role: session.role || '',
-    items: rows.map(r => ({ id: r.card_id, intent: r.intent, date: r.occurrence_date || '', transport: !!r.transport, notify: !!r.notify, mail: r.mail_status })),
-    drafts: drafts.map(r => ({ id: r.card_id, intent: r.intent, date: r.occurrence_date || '', transport: !!r.transport, notify: !!r.notify }))
+    favs: favs.map(r => r.card_id),
+    items: rows.map(r => ({ id: r.card_id, anchor: r.anchor || '', intent: r.intent, date: r.attend_date || '', transport: !!r.transport, notify: !!r.notify, mail: r.mail_status })),
+    drafts: drafts.map(r => ({ id: r.card_id, anchor: r.anchor || '', intent: r.intent, date: r.attend_date || '', transport: !!r.transport, notify: !!r.notify }))
   });
 }
 
@@ -582,14 +641,14 @@ const DIGEST_CAP = 500;
 export function digestSchedule(env) {
   const rawW = env.GOING_DIGEST_WEEKDAY, rawH = env.GOING_DIGEST_HOUR, rawM = env.GOING_DIGEST_MINUTE;
   const w = Number(rawW == null || rawW === '' ? 1 : rawW);
-  const h = Number(rawH == null || rawH === '' ? 9 : rawH);
+  const h = Number(rawH == null || rawH === '' ? 14 : rawH);
   const m = Number(rawM == null || rawM === '' ? 0 : rawM);
   return {
     weekday: Number.isInteger(w) && w >= 0 && w <= 6 ? w : 1,
     hour: Number.isInteger(h) && h >= 0 && h <= 23 ? h : 9,
     minute: Number.isInteger(m) && m >= 0 && m <= 59 ? m : 0,
     tz: 'Asia/Shanghai',
-    // Monday 09:00 is only the pending-review default. It is not a user decision.
+    // Monday 14:00 Asia/Shanghai is only the prepared default. It is not turned on.
     pendingReview: rawW == null && rawH == null && rawM == null,
     approved: false
   };
@@ -651,22 +710,23 @@ async function claimDigest(env, key, cardId, kind, period, nowIso, staleIso) {
   return changesOf(r) === 1;
 }
 async function queuedRows(env, cardId) {
-  return (await env.SDB.prepare(`SELECT i.email email,i.card_id card_id,i.intent intent,i.occurrence_date occurrence_date,i.transport transport,i.mail_status mail_status,i.updated_at updated_at,u.name name,u.verified_at verified_at
+  return (await env.SDB.prepare(`SELECT i.email email,i.card_id card_id,i.intent intent,i.occurrence_date occurrence_date,i.anchor anchor,i.transport transport,i.mail_status mail_status,i.updated_at updated_at,u.name name,u.city city,u.role role,u.verified_at verified_at
     FROM going_intents i JOIN users u ON u.email=i.email
-    WHERE i.card_id=? AND i.status='active' AND i.mail_status='queued' AND u.verified_at IS NOT NULL
+    WHERE i.card_id=? AND i.status='active' AND i.mail_status='queued' AND i.intent IN ('going','interested') AND u.verified_at IS NOT NULL
     ORDER BY i.email`).bind(cardId).all()).results || [];
 }
+function showOf(r) { return (r && (r.anchor || r.occurrence_date)) || ''; }
 async function finishSent(env, rows, nowIso) {
   for (const row of rows) {
     const cur = await env.SDB.prepare('SELECT intent,occurrence_date,transport,status,mail_status FROM going_intents WHERE email=? AND card_id=?').bind(row.email, row.card_id).first();
     if (!cur || cur.status !== 'active' || cur.mail_status !== 'queued') continue;
-    const fp = fpOf(cur.intent, cur.occurrence_date || '', cur.transport);
+    const fp = fpOf(cur.intent, cur.anchor || cur.occurrence_date || '', cur.transport);
     if (fp !== row.fp) continue;
     await env.SDB.prepare("UPDATE going_intents SET mail_status='sent',mail_fp=?,sent_at=?,updated_at=? WHERE email=? AND card_id=? AND mail_status='queued'").bind(fp, nowIso, nowIso, row.email, row.card_id).run();
   }
 }
 function packRow(r, date) {
-  return { email: r.email, name: oneLine((s, n) => String(s || '').trim().slice(0, n), r.name, 80) || r.email, intent: r.intent, occurrence_date: date || '', transport: r.transport ? 1 : 0, card_id: r.card_id, fp: fpOf(r.intent, date || '', r.transport ? 1 : 0), updated_at: r.updated_at };
+  return { email: r.email, name: oneLine((s, n) => String(s || '').trim().slice(0, n), r.name, 80) || r.email, intent: r.intent, occurrence_date: date || '', anchor: r.anchor || date || '', city: r.city || '', role: r.role || '', transport: r.transport ? 1 : 0, card_id: r.card_id, fp: fpOf(r.intent, r.anchor || date || '', r.transport ? 1 : 0), updated_at: r.updated_at };
 }
 export async function runGoingDigests(env, kit) {
   const schedule = digestSchedule(env);
@@ -706,10 +766,11 @@ export async function runGoingDigests(env, kit) {
     }
     const byDate = new Map();
     for (const r of rows) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(r.occurrence_date || '')) { base.held++; continue; }
-      const list = byDate.get(r.occurrence_date) || [];
+      const show = showOf(r);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(show)) { base.held++; continue; }
+      const list = byDate.get(show) || [];
       list.push(r);
-      byDate.set(r.occurrence_date, list);
+      byDate.set(show, list);
     }
     for (const [date, list] of byDate) {
       const key = 'regular:' + card.id + ':' + date;
@@ -720,7 +781,7 @@ export async function runGoingDigests(env, kit) {
       if (!window) { await markDigest(env, key, card.id, 'regular', date, 'held', 'missing_time', nowIso); base.held++; continue; }
       if (nowMs >= window.startMs) { await markDigest(env, key, card.id, 'regular', date, 'skipped', 'past_start', nowIso); base.skipped++; continue; }
       if (nowMs < window.sendMs) continue;
-      const due = list.map(r => packRow(r, date));
+      const due = list.map(r => packRow(r, showOf(r) || date));
       if (due.length > DIGEST_CAP) { await markDigest(env, key, card.id, 'regular', date, 'held', 'too_many', nowIso); base.held++; continue; }
       if (!(await claimDigest(env, key, card.id, 'regular', date, nowIso, staleIso))) { base.skipped++; continue; }
       if (typeof env.GOING_DIGEST_AFTER_CLAIM === 'function') await env.GOING_DIGEST_AFTER_CLAIM(key);
