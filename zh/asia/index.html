@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN" data-asia-lang="zh" data-asia-en="../../asia/" data-asia-zh="./" data-site-release="11.9.3" data-site-release-date="">
+<html lang="zh-CN" data-asia-lang="zh" data-asia-en="../../asia/" data-asia-zh="./" data-site-release="11.9.6" data-site-release-date="">
 <head>
 <meta charset="utf-8">
-<!-- Public release label. 11.9.3 is the sources note. 11.9.2 stays reserved and is not part of this publish. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
+<!-- Public release label. Candidate 11.9.6 removes the human check from event intent and keeps the confirmation-mail limits. It keeps the 11.9.5 behavior and the live 11.9.3 sources note. It is not published. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
 <!-- first-load: dropped http-equiv Cache-Control no-cache; CDN/browser cache HTML --><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>亚洲探戈地图 · 精选探戈周末</title>
 <meta name="description" content="中国、香港与台湾的探戈节、舞会与练习场 — 亚洲探戈地图">
@@ -15,7 +15,35 @@ html{background:#FBF5E9}body.china-page{margin:0;background:#FBF5E9;color:#5b7f8
 .china-map-hero{margin:0}.china-hero-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;min-height:44px;box-sizing:border-box}
 .china-map-hero h1{margin:0;font:700 18px/1.25 "Noto Serif SC",Georgia,serif;color:#F6D58E}
 .china-map-hero h1 a,.top-lang a{color:#F6D58E;text-decoration:none}
+html.atm-notice-ack #atm-notice{display:none!important}
 </style>
+<script id="atm-notice-gate">
+/* atm-notice-gate: true means show. sessionStorage is this tab only. */
+window.atmNoticeGate=function(storage,perf){
+  var K='atmNoticeAck',reload=false,saw=false;
+  try{
+    var entries=perf&&perf.getEntriesByType&&perf.getEntriesByType('navigation');
+    var entry=entries&&entries[0];
+    if(entry&&typeof entry.type==='string'){saw=true;reload=entry.type==='reload';}
+  }catch(e){}
+  try{
+    if(!saw&&perf&&perf.navigation&&perf.navigation.type===1)reload=true;
+  }catch(e){}
+  try{
+    if(!storage)return true;
+    if(reload){try{storage.removeItem(K);}catch(e){}return true;}
+    return !storage.getItem(K);
+  }catch(e){return true;}
+};
+/* /atm-notice-gate */
+(function(){
+  try{
+    var store=null;
+    try{store=window.sessionStorage;}catch(e){}
+    if(!window.atmNoticeGate(store,window.performance))document.documentElement.classList.add('atm-notice-ack');
+  }catch(e){}
+})();
+</script>
 <link rel="stylesheet" href="../../asia/atm-critical.css?v=ac4" media="print" onload="this.media='all';try{window.atmArmImages&&window.atmArmImages(document)}catch(e){}">
 <noscript><link rel="stylesheet" href="../../asia/atm-critical.css?v=ac4"></noscript>
 <link rel="preconnect" href="https://data.tangoweekend.org" crossorigin>
@@ -186,7 +214,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <section class="hero china-map-hero">
   <div class="wrap china-hero-bar">
     <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
-      <h1 style="color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)"><a class="atm-back" href="./" aria-label="返回"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg><span>亚洲探戈地图<span class="atm-beta">测试版 11.9.3</span></span></a></h1>
+      <h1 style="color:#F6D58E!important;text-shadow:0 1px 2px rgba(0,0,0,.35)"><a class="atm-back" href="./" aria-label="返回"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg><span>亚洲探戈地图<span class="atm-beta">测试版 11.9.6</span></span></a></h1>
     </div>
     <button type="button" class="china-suggest-open" id="china-suggest-open" hidden style="margin-left:auto!important;margin-right:6px!important">添加活动</button>
     <nav class="top-lang china-map-lang" aria-label="语言" style="margin-left:0!important">
@@ -396,7 +424,7 @@ window.CHINA_UI = {
 <script defer src="../../asia/atm-later.js?v=lt5"></script>
 <script defer src="/asia/atm-home.js?v=h135"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="../../asia/asia-howto.js?v=china278"></script> -->
-<script defer src="../../asia/asia-subscribe.js?v=sub61"></script>
+<script defer src="../../asia/asia-subscribe.js?v=sub62"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏/.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'特色活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
@@ -460,7 +488,7 @@ new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentEle
 })();</script>
 
 <script defer src="/asia/cardB.js?v=cb145"></script>
-<!-- atm-notice: replaces the E093 entry ad. Shown on each full load. Not stored. -->
+<!-- atm-notice: replaces the E093 entry ad. This tab remembers a confirm in sessionStorage. A reload or a new tab asks again. bfcache return does not re-arm. -->
 <div id="atm-notice" role="dialog" aria-modal="true" aria-labelledby="atm-notice-title">
   <div class="atm-notice-card">
     <h2 id="atm-notice-title">测试版提醒与免责声明</h2>
@@ -486,6 +514,8 @@ function done(){
   document.body.classList.remove('atm-notice-on');
   [].forEach.call(document.body.children,function(el){el.removeAttribute('inert');});
   window.__atmNoticeAck=true;
+  try{window.sessionStorage.setItem('atmNoticeAck','1');}catch(e){}
+  document.documentElement.classList.add('atm-notice-ack');
 }
 go.addEventListener('click',done);
 document.addEventListener('keydown',function(e){
@@ -502,8 +532,14 @@ new MutationObserver(function(recs){
   if(n.hidden||window.__atmNoticeAck)return;
   recs.forEach(function(r){[].forEach.call(r.addedNodes,shield);});
 }).observe(document.body,{childList:true});
-arm();
-window.addEventListener('pageshow',function(e){if(!e.persisted||!window.__atmNoticeAck)return;window.__atmNoticeAck=false;arm();});
+var show=true;
+try{
+  var store=null;
+  try{store=window.sessionStorage;}catch(e){}
+  if(typeof window.atmNoticeGate==='function')show=window.atmNoticeGate(store,window.performance);
+}catch(e){show=true;}
+if(show)arm();
+else{n.hidden=true;window.__atmNoticeAck=true;}
 })();</script>
 
 <script id="draft-favtall-js">(function(){var D=document;function fit(){var R=D.documentElement;if(!matchMedia('(max-width:600px)').matches||!D.body.classList.contains('china-presearch')){R.style.removeProperty('--atm-favh');return}
@@ -540,6 +576,6 @@ var o=h.previousElementSibling;if(!o||!o.classList.contains('atm-onehead')){o=D.
 if(o._h!==html){o._h=html;o.innerHTML=html}o.classList.toggle('atm-oh-reg',reg);if(o.getAttribute('data-n')!==String(n))o.setAttribute('data-n',n);if((o.getAttribute('data-city')||'')!==city)o.setAttribute('data-city',city);if(!h.classList.contains('atm-oh-hide'))h.classList.add('atm-oh-hide');var fl=h.nextElementSibling;if(fl&&fl.classList.contains('china-from-line')&&!fl.classList.contains('atm-oh-hide'))fl.classList.add('atm-oh-hide')})}
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).observe(D.body,{childList:true,subtree:true,characterData:true});addEventListener('load',run);D.addEventListener('change',function(){setTimeout(run,120)})})();</script>
 <script defer src="/asia/atm-social.js?v=s30"></script>
-<script defer src="/asia/atm-star.js?v=st10"></script>
+<script defer src="/asia/atm-star.js?v=st15"></script>
 </body>
 </html>

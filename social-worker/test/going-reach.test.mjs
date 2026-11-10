@@ -33,7 +33,7 @@ const GOING_ORG_DIR = {
   links: { LIST: ['O9'], ORGCC: ['O1'], PUB: ['O9'] }
 };
 const env = {
-  GOING_CARDS: CARDS, GOING_ORG_DIR, GOING_NOW: '2026-11-09T01:00:00.000Z', GOING_DIGEST_SEND: 'on',
+  GOING_CARDS: CARDS, GOING_ORG_DIR, GOING_NOW: '2026-11-09T06:00:00.000Z', GOING_DIGEST_SEND: 'on',
   API_BASE: 'https://api.tangoweekend.org', SOCIAL_MAIL: 'log', ALLOW_NO_TURNSTILE: '1'
 };
 check('public card email wins over the directory', organizerAddress({ id: 'PUB', email: 'public@example.com' }, env, kit) === 'public@example.com');
@@ -55,6 +55,7 @@ check('digest stays off without the digest table', off.enabled === false && off.
 
 const db = new DatabaseSync(':memory:');
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0011_going_digests.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en', verified_at TEXT, city TEXT, role TEXT, created_at TEXT NOT NULL);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);`);
@@ -89,7 +90,7 @@ const sent = await runGoingDigests(env, { ...kit, he: s => String(s), clean: (s,
   console.log(`[mail:log] to=${to}${opt.cc ? ' cc=' + opt.cc : ''} subject=${subject}\n${text}`);
 } });
 const listMail = mails.filter(m => m.includes('to=org-list@example.com'));
-check('the list address is the recipient and the site CC is only CC', sent.sent === 1 && listMail.length === 1 && listMail[0].includes('cc=selecttango@gmail.com') && !mails.some(m => m.includes('to=selecttango@gmail.com')) && !listMail[0].includes('Seoul'));
+check('the list address is the recipient and the site CC is only CC', sent.sent === 1 && listMail.length === 1 && listMail[0].includes('cc=selecttango@gmail.com') && !mails.some(m => m.includes('to=selecttango@gmail.com')) && listMail[0].includes('Seoul') && listMail[0].includes('leader'));
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going reach ok');

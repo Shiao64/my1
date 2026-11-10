@@ -23,9 +23,9 @@ check('verified en dialog', star.includes("going: 'Going'") && star.includes("in
 check('old disclosure is not in the dialog', !star.includes('Selecttango@gmail.com') && !star.includes('确认意向') && !star.includes('Confirm intent') && !star.includes('资料说明') && !star.includes('详细说明') && !star.includes('姓名、邮箱及意向将发给主办') && !star.includes('设计预览') && !star.includes('Going · 要参加'));
 check('confirm is still explicit', star.includes('explicit: 1') && star.includes('disclose: 1') && star.includes('data-intent'));
 check('not a like', !star.includes('不是点赞') && !star.includes('not a like'));
-check('star cache', read('zh/asia/index.html').includes('atm-star.js?v=st10'));
+check('star cache', read('zh/asia/index.html').includes('atm-star.js?v=st15'));
 check('reach is a boolean and a missing session is not the grey switch', star.includes('/social/going/reach') && star.includes('canIntent') && !star.includes('if (!token()) grey'));
-check('one email continue button', star.includes("verifyBtn: '确认邮箱并继续'") && star.includes("verifyBtn: 'Confirm email and continue'") && !star.includes('用邮箱恢复登录') && !star.includes('Restore access with email') && !star.includes('asg-restore'));
+check('one confirm button', star.includes("submit: '确认'") && star.includes("submit: 'Confirm'") && star.includes("verifyBtn: '确认'") && star.includes("verifyBtn: 'Confirm'") && !star.includes('确认邮箱并继续') && !star.includes('Confirm email and continue') && !star.includes('asg-restore'));
 check('bar', star.includes('我的活动意向') && star.includes('My event intents'));
 check('chinese saved count', star.includes('☆ 已收藏 ') && star.includes(' 个活动') && star.includes('data-atm-saved'));
 check('english hint stays', star.includes('Tap the star to choose Going or Interested. After you verify your email, intents show here and restore on your other devices.'));
@@ -35,11 +35,13 @@ check('cancel no mail copy', star.includes('不会再发邮件给组织者'));
 check('no anonymous like button', !social.includes('>Like<') && !/>\s*赞\s*</.test(social));
 check('star path on fav', fav.includes('M12 2.6l2.6 5.3') && fav.includes('我的活动意向') && fav.includes('ATM_STAR.take'));
 check('public card count is not drawn', !star.includes("className = 'atm-star-n'") && !star.includes('/social/going/counts') && star.includes("querySelectorAll('.atm-star-n')"));
-check('site key comes from the worker', star.includes('/social/going/config') && !star.includes('TURNSTILE_SECRET'));
-check('challenge and siteverify messages stay distinct and hide the code', star.includes('验证暂时没有完成，请稍等后重试。') && star.includes('The check did not finish. Wait a moment and try again.') && star.includes('验证没有被接受，请等它重新完成后再试。') && star.includes('The check was not accepted. Wait until it finishes, then try again.') && star.includes("d.error === 'turnstile'") && !star.includes('textContent = d.error') && !star.includes('300010'));
+check('intent dialog does not load a site key', !star.includes('/social/going/config') && !star.includes('TURNSTILE_SECRET') && read('asia/asia-subscribe.js').includes('/social/going/config'));
+check('intent dialog no longer renders or resets the human check', !star.includes('turnstile.render') && !star.includes('turnstile.reset') && !star.includes('scheduleChallengeReset') && !star.includes('challenges.cloudflare.com') && star.includes("limited: '确认邮件已达上限，请稍后再试。'") && star.includes("limited: 'Too many confirmation emails. Please try again later.'") && star.includes("d.error === 'rate_limited'"));
 check('home chinese count', home.includes('data-atm-saved="1">☆ 已收藏 ') && home.includes(' 个活动</p>') && !home.includes('点五角星选择 Going 或 Interested。验证邮箱后显示在「我的活动意向」。'));
 check('home english hint stays', home.includes('Tap the star to choose Going or Interested. After you verify your email, intents show under My event intents.'));
 check('fav fallback chinese count', fav.includes('☆ 已收藏 ') && fav.includes('Tap the star to choose Going or Interested. It shows here after you verify your email.'));
-check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h135') && read('zh/asia/index.html').includes('atm-star.js?v=st10') && read('asia/index.html').includes('atm-star.js?v=st10') && read('asia/index.html').includes('atm-data.js?v=r9') && read('asia/index.html').includes('asia-map.js?v=r10') && read('asia/index.html').includes('cardB.js?v=cb145'));
+check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h135') && read('zh/asia/index.html').includes('atm-star.js?v=st15') && read('asia/index.html').includes('atm-star.js?v=st15') && read('asia/index.html').includes('atm-data.js?v=r9') && read('asia/index.html').includes('asia-map.js?v=r10') && read('asia/index.html').includes('cardB.js?v=cb145'));
+check('close replaces the cancel-intent button', star.includes('class="asg-x"') && star.includes("close: '关闭'") && star.includes("close: 'Close'") && !star.includes('id="asg-cancel"') && !star.includes('/social/going/cancel'));
+check('favorite unfavorite label stays', home.includes('取消收藏') && home.includes('Remove from favorites'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going copy ok');
