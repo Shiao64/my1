@@ -12,9 +12,9 @@ const check = (n, ok) => { if (!ok) fail.push(n); };
 const cjk = /[\u3400-\u9fff]/;
 const he = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const link = 'https://api.tangoweekend.org/social/going/confirm?e=preview%40example.com&t=preview&next=https%3A%2F%2Ftangoweekend.org%2Fasia%2F';
-const ask = {
-  zh: '请在 30 分钟内点击下方按钮确认邮箱。',
-  en: 'Please confirm your email within 30 minutes by tapping the button below.'
+const body = {
+  zh: '谢谢你订阅亚洲探戈地图（Asia Tango Map）。请在 30 分钟内点击下方按钮，确认你的邮箱。',
+  en: 'Thanks for subscribing to Asia Tango Map. Please confirm your email within 30 minutes by tapping the button below.'
 };
 const expiredCopy = '链接已过期。请回到页面，再次点五角星，即可收到一封新邮件。 / This link has expired. Go back and tap the star again to get a new email.';
 
@@ -37,19 +37,20 @@ const zhEmpty = letter('zh', '', { title: '周五探戈', intent: 'interested' }
 const enGoing = enNamed;
 const zhGoing = zhNamed;
 
-check('english greeting uses the name', enNamed.text.startsWith('Hi Ann,\n') && enNamed.html.includes('>Hi Ann,</p>') && enNamed.fromName === 'Tango Assistant · Asia Tango Map');
+check('english greeting uses the name', enNamed.text.startsWith('Hi Ann,\n') && enNamed.html.includes('>Hi Ann,</p>') && enNamed.fromName === 'Tango Assistant · Asia Tango Map' && enNamed.subject === 'Please confirm your Asia Tango Map subscription');
 check('english greeting drops an empty name', enEmpty.text.startsWith('Hi,\n') && enEmpty.html.includes('>Hi,</p>') && !enEmpty.text.includes('Hi ,') && !enEmpty.html.includes('Hi ,'));
-check('chinese greeting uses the name', zhNamed.text.startsWith('安，你好！\n') && zhNamed.html.includes('>安，你好！</p>') && zhNamed.fromName === '探戈助理');
+check('chinese greeting uses the name', zhNamed.text.startsWith('安，你好！\n') && zhNamed.html.includes('>安，你好！</p>') && zhNamed.fromName === '探戈助理 · 亚洲探戈地图' && zhNamed.subject === '请确认订阅亚洲探戈地图');
 check('chinese greeting drops an empty name', zhEmpty.text.startsWith('你好！\n') && zhEmpty.html.includes('>你好！</p>') && !zhEmpty.text.includes('，你好') && !zhEmpty.html.includes('，你好'));
-check('both letters use the 30 minute sentence', enNamed.text.includes(ask.en) && enNamed.html.includes(ask.en) && zhNamed.text.includes(ask.zh) && zhNamed.html.includes(ask.zh));
+check('both letters use the short subscription sentence', enNamed.text.includes(body.en) && enNamed.html.includes(body.en) && zhNamed.text.includes(body.zh) && zhNamed.html.includes(body.zh));
 check('the old 7 day sentence is gone', !enNamed.text.includes('7 days') && !enNamed.html.includes('7 days') && !zhNamed.text.includes('7 天') && !zhNamed.html.includes('7 天'));
 check('english letter and sender name have no chinese', !cjk.test(enNamed.subject + enNamed.text + enNamed.html + enNamed.fromName) && !cjk.test(enGoing.subject + enGoing.text + enGoing.html + enGoing.fromName) && !cjk.test(enEmpty.text + enEmpty.html));
-check('chinese letter keeps the chinese signature', zhNamed.text.endsWith('探戈助理\nhttps://tangoweekend.org') && zhNamed.html.includes('探戈助理<br>') && !zhNamed.text.includes('Tango Assistant') && !zhEmpty.html.includes('Tango Assistant'));
-check('english letter signs in english', enNamed.text.endsWith('Tango Assistant · Asia Tango Map\nhttps://tangoweekend.org') && enNamed.html.includes('Tango Assistant · Asia Tango Map<br>'));
+check('chinese letter signs in chinese', zhNamed.text.endsWith('探戈助理 · 亚洲探戈地图') && zhNamed.html.includes('探戈助理 · 亚洲探戈地图</p>') && zhNamed.text.includes('如果不是你本人操作，忽略这封信即可。') && !zhNamed.text.includes('Tango Assistant'));
+check('english letter signs in english', enNamed.text.endsWith('Tango Assistant · Asia Tango Map') && enNamed.html.includes('Tango Assistant · Asia Tango Map</p>') && enNamed.text.includes('If this wasn\'t you, you can simply ignore this email.'));
 check('a name is escaped', letter('en', 'Ann <b>').html.includes('Hi Ann &lt;b&gt;,') && !letter('en', 'Ann <b>').html.includes('<b>'));
-check('the confirm link and button stay', enNamed.html.includes('>Confirm</a>') && zhNamed.html.includes('>确认</a>') && enNamed.text.includes(link) && zhNamed.text.includes(link));
-check('chinese still states the subscribe choice and the delete line', zhGoing.text.includes('你没有勾选订阅 ATM 活动资讯') && zhGoing.text.includes('要删除资料，请回信到 selecttango@gmail.com'));
-check('english states the same facts without chinese', enGoing.text.includes('You did not choose the ATM event updates') && enGoing.text.includes('To delete your information, reply to selecttango@gmail.com') && enGoing.text.includes('You chose Going for "Friday milonga".'));
+check('the confirm link and button stay', enNamed.html.includes('>Confirm subscription</a>') && zhNamed.html.includes('>确认订阅</a>') && enNamed.text.includes(link) && zhNamed.text.includes(link));
+check('intent notes and the delete line stay out of the letter', !zhGoing.text.includes('周五探戈') && !zhGoing.text.includes('要删除资料') && !zhGoing.text.includes('组织者') && !enGoing.text.includes('Friday milonga') && !enGoing.text.includes('selecttango') && !enGoing.html.includes('Going'));
+const promo = buildConfirmLetter({ lang: 'zh', name: '安', promo: true }, link, { title: '周五探戈', intent: 'going' }, he);
+check('a checked subscribe box does not add a second paragraph', promo.text === zhNamed.text && promo.html === zhNamed.html);
 
 const goingSrc = read('social-worker/src/going.js');
 check('token expiry is 30 minutes', goingSrc.includes('const PROFILE_MS = 30 * 60e3'));
@@ -99,9 +100,9 @@ async function openConfirm(preview, method) {
 }
 
 const menu = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Osaka', role: 'follower', lang: 'en', alert: 0, ret, ts: 'x' });
-check('menu profile sends the english letter', menu.confirm && mails.some(m => m.includes('from=Tango Assistant · Asia Tango Map') && m.includes('to=mei@example.com') && m.includes('Hi Mei,') && m.includes(ask.en) && !cjk.test(m)));
+check('menu profile sends the english letter', menu.confirm && mails.some(m => m.includes('from=Tango Assistant · Asia Tango Map') && m.includes('to=mei@example.com') && m.includes('Hi Mei,') && m.includes(body.en) && m.includes('Confirm subscription') && !cjk.test(m)));
 const star = await post('/going', { id: 'F1', intent: 'interested', email: 'noname@example.com', name: '', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' });
-check('star mail with no name stays chinese', star.confirm && mails.some(m => m.includes('from=探戈助理') && m.includes('to=noname@example.com') && m.includes('你好！') && !m.includes('，你好') && m.includes(ask.zh)));
+check('star mail with no name stays chinese', star.confirm && mails.some(m => m.includes('from=探戈助理 · 亚洲探戈地图') && m.includes('to=noname@example.com') && m.includes('你好！') && !m.includes('，你好') && m.includes(body.zh) && !m.includes('节日')));
 
 const fresh = await openConfirm(menu.preview_link, 'GET');
 check('a new link still shows the confirm button', fresh.status === 200 && fresh.html.includes('Confirm') && !fresh.html.includes('expired'));

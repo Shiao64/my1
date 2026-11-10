@@ -54,7 +54,7 @@ async function get(path, headers) {
 }
 const base = { ts: 'x', dev: 'device-show-0001', lang: 'zh', ret, disclose: 1, explicit: 1, name: '安', email: 'ann@example.com', city: '上海', role: 'leader' };
 const first = await post('/going', { ...base, id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], alert: 1 });
-check('guest confirm mail states the subscribe choice and the delete line', first.confirm && mails.some(m => m.includes('ann@example.com') && m.includes('同时订阅') && m.includes('要删除资料，请回信到 selecttango@gmail.com')));
+check('guest confirm mail is only the short subscription letter', first.confirm && mails.some(m => m.includes('ann@example.com') && m.includes('谢谢你订阅亚洲探戈地图') && m.includes('确认订阅') && m.includes('如果不是你本人操作，忽略这封信即可。') && !m.includes('同时订阅') && !m.includes('要删除资料')));
 check('guest row is pending, not an intent', !db.prepare('SELECT id FROM going_intents WHERE email=?').get('ann@example.com') && db.prepare('SELECT anchor a, intent i FROM going_pending WHERE email=?').get('ann@example.com').a === dates[0]);
 const link = first.preview_link;
 const done = await social(new Request('https://api.example.test/social/going/confirm', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ e: 'ann@example.com', t: new URL(link).searchParams.get('t'), next: ret, confirm: '1' }).toString() }), env, new URL('https://api.example.test/social/going/confirm'), json);
