@@ -764,7 +764,7 @@
     var url=(sugUrl&&sugUrl.value.trim())||'';
     var body=lines.join('\n')+'\n\n'+(UI.suggestReplyTo||'Your email: ')+email+'\n'+(UI.suggestWechat||'Your WeChat ID: ')+wx+'\n'+(UI.suggestBodyUrl||'Event website: ')+url;
     var subj=UI.suggestSubject||'Asia Tango Map listing';
-    var href='mailto:info@tangoweekend.org?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    var href='mailto:'+['in','fo'].join('')+String.fromCharCode(64)+['tango','weekend','.org'].join('')+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
     data._subject=subj; data._template='box'; data._captcha='false';
     data[UI.fsEmail||'Your email']=email;
     if (email) { data.email=email; data._replyto=email; data._autoresponse=UI.suggestAutoReply||'Thanks! We received your Asia Tango Map listing and will reply when it is published. — tangoweekend.org'; }

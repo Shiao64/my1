@@ -318,7 +318,7 @@ async function sendDigest(env, kit, card, rows, period) {
   const when = featured
     ? `Week / 本周汇总: ${period} (Asia/Shanghai). One summary for new intents on this event.\n`
     : `Occurrence / 场次: ${period} (Asia/Shanghai). One summary, three hours before the listed start.\n`;
-  let text = `探戈助理\n\nNew event intent on Asia Tango Map.\n亚洲探戈地图有新的活动意向。\n\nEvent / 活动: ${title}\n${titleEn && titleEn !== title ? titleEn + '\n' : ''}Card: ${card.id}\n${when}\n${lines}\n\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\nThe “receive updates” choice does not decide whether this summary is sent.\n「接收主办方讯息」不影响这封汇总是否发出。\n${DELETE_NOTE}`;
+  let text = `探戈助理\n\nNew event intent on Asia Tango Map.\n亚洲探戈地图有新的活动意向。\n\nEvent / 活动: ${title}\n${titleEn && titleEn !== title ? titleEn + '\n' : ''}Card: ${card.id}\n${when}\n${lines}\n\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\nThe “receive updates” choice does not decide whether this summary is sent.\n「接收主办方信息」不影响这封汇总是否发出。\n${DELETE_NOTE}`;
   if (dest.intended) text = `[test] Intended organizer: ${dest.intended}\n【测试】原收件主办方：${dest.intended}\n\n` + text;
   const subject = (featured ? `Intent summary: ${titleEn || title}` : `Intent summary ${period}: ${titleEn || title}`).slice(0, 180);
   const replyTo = rows.length === 1 ? rows[0].email : '';

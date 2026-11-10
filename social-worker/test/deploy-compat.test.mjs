@@ -29,7 +29,7 @@ check('gmail user is not hardcoded over production', !/^GMAIL_USER\s*=/m.test(to
 check('no secret material in wrangler', !/API_KEY|APP_PASSWORD|BEGIN PRIVATE/i.test(toml));
 
 for (const html of [en, zh]) {
-  check('r9 data stays and map is newer than the cached r9', html.includes('atm-data.js?v=r9') && html.includes('asia-map.js?v=r10'));
+  check('r9 data stays and map is newer than the cached r9', html.includes('atm-data.js?v=r9') && html.includes('asia-map.js?v=r11'));
   check('merged card script is newer than either cb144', html.includes('/asia/cardB.js?v=cb145'));
   check('star script', html.includes('/asia/atm-star.js?v=st20'));
   check('E163 leaves the map', html.includes("cid==='E163'") && html.includes('/event/chengdu-2027-ich-tango-festival/'));

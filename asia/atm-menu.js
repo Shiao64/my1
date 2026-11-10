@@ -1,8 +1,8 @@
 /* draft 2026-10-30: header hamburger menu (footer removed). Holds 分享/复制链接/刷新 (moved from ··· 10/31), 资料来源 (moved .china-disclaimer), 联系我们, 订阅, 提交活动, 语言. Only existing content. */
 (function () {
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', sub: '订阅', mine: '我的资料', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
-             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', sub: 'Subscribe', mine: 'My profile', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
+  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', emailUs: '发邮件给我们', sub: '订阅', mine: '我的资料', add: '提交活动', langL: '中文 / English', share: '分享', copy: '复制链接', reload: '刷新', lang: 'English', site: '亚洲探戈地图' }
+             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', emailUs: 'Email us', sub: 'Subscribe', mine: 'My profile', add: 'Submit event', langL: 'Language', share: 'Share', copy: 'Copy link', reload: 'Refresh', lang: '中文', site: 'Asia Tango Map' };
   var css = document.createElement('style');
   css.textContent = 'html body footer#contact,html body #contact{display:none!important}' +
     '.atm-burger{width:44px;height:44px;margin:0 0 0 4px;padding:0;border:0;background:transparent;color:#F6D58E;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;position:relative;z-index:5}' +
@@ -43,7 +43,7 @@
     '<button type="button" class="atm-mi" data-a="wx-s">' + ic(I.share) + L.share + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-c">' + ic(I.copy) + L.copy + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-r">' + ic(I.reload) + L.reload + '</button>' +
-    '<a class="atm-mi" href="mailto:info@tangoweekend.org">' + ic(I.mail) + L.contact + '<small>info@tangoweekend.org</small></a>' +
+    '<button type="button" class="atm-mi" data-a="mail">' + ic(I.mail) + L.emailUs + '</button>' +
     '<details class="atm-msrcd"><summary class="atm-mi">' + ic(I.src) + L.src + '<small class="atm-car">\u25BE</small></summary><div class="atm-msrc"></div></details></div>';
   document.body.appendChild(m);
   var d = document.querySelector('.china-disclaimer');
@@ -59,12 +59,19 @@
   function open() { paintSub(); last = document.activeElement; m.hidden = false; b.setAttribute('aria-expanded', 'true'); document.documentElement.style.overflow = 'hidden'; m.querySelector('.atm-mx').focus(); }
   function close() { if (m.hidden) return; m.hidden = true; b.setAttribute('aria-expanded', 'false'); document.documentElement.style.overflow = ''; if (last && last.focus) last.focus(); }
   b.addEventListener('click', open);
+  function mailHref(query) {
+    var local = ['in', 'fo'].join('');
+    var host = ['tango', 'weekend', '.', 'org'].join('');
+    return 'mailto:' + local + String.fromCharCode(64) + host + (query || '');
+  }
+  function openMail(query) { location.href = mailHref(query); }
   m.addEventListener('click', function (e) {
     if (e.target.closest('[data-x]')) return close();
     var a = e.target.closest('[data-a]'); if (!a) return;
     close();
     if (a.dataset.a.indexOf('wx-') === 0) { if (window.atmWxAct) window.atmWxAct(a.dataset.a.slice(3)); }
     else if (a.dataset.a === 'sub') { var t = document.getElementById('tsub-open'); if (t) t.click(); }
+    else if (a.dataset.a === 'mail') { openMail(); }
     else { document.documentElement.classList.add('atm-sug-on'); var s = document.getElementById('china-suggest-open'); if (s) s.click(); }
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });

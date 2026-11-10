@@ -14,6 +14,12 @@ const social = read('asia/atm-social.js');
 check('menu zh is short', menu.includes("sub: '订阅'") && !menu.includes('先登记资料并验证邮箱；之后可在活动五角星选择'));
 check('menu en', menu.includes("sub: 'Subscribe'") && menu.includes("mine: 'My profile'"));
 check('menu profile label', menu.includes("mine: '我的资料'") && menu.includes('sessionOn') && !menu.includes('Subscribe & event intent'));
+check('menu email is a button, not a visible address', menu.includes("emailUs: '发邮件给我们'") && menu.includes("emailUs: 'Email us'") && menu.includes('data-a="mail"') && menu.includes("['in', 'fo'].join('')") && !menu.includes('info@tangoweekend.org') && !menu.includes('mailto:info@'));
+check('later bundle has no inbox address', !read('asia/atm-later.js').includes('info@tangoweekend.org') && (read('asia/atm-later.js').includes('Email us')));
+check('asia pages hide the inbox address', !read('zh/asia/index.html').includes('info@tangoweekend.org') && !read('asia/index.html').includes('info@tangoweekend.org') && !read('asia/asia-map.js').includes('info@tangoweekend.org'));
+const over = read('social-worker/src/overrides.js');
+check('worker override foot matches subscribe', over.includes('订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。') && over.includes('Subscribe for tango event news across Asia') && !over.includes('这里不报名，也不通知组织者'));
+
 check('form zh', sub.includes("title: '订阅'") && sub.includes("mine: '我的资料'") && sub.includes("desc: '按需发送活动资讯'") && sub.includes('订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。') && !sub.includes('这里不报名，也不通知组织者') && sub.includes('引带（Leader）') && sub.includes('跟随（follower）') && sub.includes('两者皆可（both）') && sub.includes('加入 ATM 全站订阅') && sub.includes('id="tsub-site" checked') && !sub.includes('微信验证') && !sub.includes('不定时发送活动更新') && !sub.includes('alert: 0'));
 check('form en', sub.includes('Subscribe for tango event news across Asia') && sub.includes('so you hear first about early-bird prices, deadlines and directions.') && !sub.includes('does not email organizers') && sub.includes("title: 'Subscribe'") && sub.includes('Join ATM site-wide subscription') && sub.includes("rl: 'Leader'") && sub.includes("rf: 'follower'") && sub.includes("rb: 'both'"));
 check('form posts profile', sub.includes('/social/profile') && sub.includes('alert: site'));
@@ -42,7 +48,7 @@ check('intent dialog no longer renders or resets the human check', !star.include
 check('home chinese count', home.includes('data-atm-saved="1">☆ 已收藏 ') && home.includes(' 个活动</p>') && !home.includes('点五角星选择 Going 或 Interested。验证邮箱后显示在「我的活动意向」。'));
 check('home english hint stays', home.includes('Tap the star to choose Going or Interested. After you verify your email, intents show under My event intents.'));
 check('fav fallback chinese count', fav.includes('☆ 已收藏 ') && fav.includes('Tap the star to choose Going or Interested. It shows here after you verify your email.'));
-check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h135') && read('zh/asia/index.html').includes('atm-star.js?v=st20') && read('asia/index.html').includes('atm-star.js?v=st20') && read('asia/index.html').includes('atm-data.js?v=r9') && read('asia/index.html').includes('asia-map.js?v=r10') && read('asia/index.html').includes('cardB.js?v=cb145'));
+check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h135') && read('zh/asia/index.html').includes('atm-star.js?v=st20') && read('asia/index.html').includes('atm-star.js?v=st20') && read('asia/index.html').includes('atm-data.js?v=r9') && read('asia/index.html').includes('asia-map.js?v=r11') && read('asia/index.html').includes('cardB.js?v=cb145'));
 check('close replaces the cancel-intent button', star.includes('class="asg-x"') && star.includes("close: '关闭'") && star.includes("close: 'Close'") && !star.includes('id="asg-cancel"') && !star.includes('/social/going/cancel'));
 check('favorite unfavorite label stays', home.includes('取消收藏') && home.includes('Remove from favorites'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
