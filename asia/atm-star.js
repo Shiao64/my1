@@ -230,19 +230,32 @@
   function shToday() {
     try { var p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()); return p; } catch (e) { return new Date().toISOString().slice(0, 10); }
   }
+  function shanghaiMidnight(ymd) { return Date.parse(ymd + 'T00:00:00Z') - 8 * 3600000; }
+  function occurrenceEnd(ymd, time) {
+    var m = String(time || '').match(/(\d{1,2}):(\d{2})\s*[–\-\u2013\u2014]\s*(\d{1,2}):(\d{2})/);
+    var base = shanghaiMidnight(ymd);
+    if (!m) return base + 24 * 3600000 - 1000;
+    var sh = +m[1], sm = +m[2], eh = +m[3], em = +m[4], extra = 0;
+    if (eh >= 24) { extra = Math.floor(eh / 24); eh %= 24; }
+    if (sh > 23 || sm > 59 || eh > 23 || em > 59) return base + 24 * 3600000 - 1000;
+    var start = sh * 60 + sm, end = eh * 60 + em + extra * 24 * 60;
+    if (end <= start) end += 24 * 60;
+    return base + end * 60000;
+  }
   function datesOf(e) {
-    if (!e || e.kind === 'event') return [];
+    if (!e || e.kind === 'event' || e.kind === 'featured') return [];
     var wds = e.weekdays || (e.weekday != null ? [e.weekday] : []);
     if (!wds.length) return [];
-    var today = shToday(), out = [], t = new Date(today + 'T00:00:00Z');
-    for (var i = 0; i < 200 && out.length < 8; i++) {
-      var d = new Date(t.getTime() + i * 86400000), ymd = d.toISOString().slice(0, 10);
+    var today = shToday(), start = new Date(Date.parse(today + 'T00:00:00Z') - 86400000), now = Date.now(), out = [];
+    for (var i = 0; i < 210 && out.length < 8; i++) {
+      var d = new Date(start.getTime() + i * 86400000), ymd = d.toISOString().slice(0, 10);
       if (wds.indexOf(d.getUTCDay()) < 0) continue;
+      if (occurrenceEnd(ymd, e.time) <= now) continue;
       out.push(ymd);
     }
     return out;
   }
-  function regular(e) { return e && e.kind !== 'event'; }
+  function regular(e) { return e && e.kind !== 'event' && e.kind !== 'featured'; }
   function titleOf(e) { return (zh && e && (e.name_zh || e.title_zh)) || (e && (e.name || e.title)) || ''; }
 
   var box = document.createElement('div'); box.id = 'atm-star'; box.hidden = true;
@@ -295,6 +308,33 @@
     if (m) refreshMine();
   }
   function toast(text) { var t = document.createElement('div'); t.className = 'atm-toast'; t.setAttribute('role', 'status'); t.textContent = text; document.body.appendChild(t); setTimeout(function () { t.remove(); }, 4200); }
+  function localOcc() { try { var o = JSON.parse(localStorage.getItem('atm_occ_v1') || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
+  function rememberAbsent(id, anchor) {
+    var o = localOcc();
+    if (!o[id]) o[id] = {};
+    o[id][anchor || ''] = { intent: 'absent' };
+    try { localStorage.setItem('atm_occ_v1', JSON.stringify(o)); } catch (e) {}
+    if (!occ[id]) occ[id] = {};
+    occ[id][anchor || ''] = { id: id, anchor: anchor || '', intent: 'absent', date: '' };
+  }
+  function forgetLocalCard(id) {
+    var o = localOcc();
+    delete o[id];
+    try { localStorage.setItem('atm_occ_v1', JSON.stringify(o)); } catch (e) {}
+  }
+  function saveAbsent(ev, id) {
+    var anchor = regular(ev) ? (datesOf(ev)[0] || '') : '';
+    rememberAbsent(id, anchor);
+    addLocalFav(id);
+    paint();
+    toast(L.withheld);
+    shut();
+    if (!token()) return;
+    api('/social/going', { id: id, intent: 'absent', anchor: anchor, date: '', explicit: 1, disclose: 1, notify: 0, transport: 0, alert: 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], ts: '', dev: dev() }).then(function (d) {
+      if (d && d.ok && !d.confirm) refreshMine();
+      else toast(L.later);
+    }).catch(function () { toast(L.later); });
+  }
   function open(b) {
     var id = idOf(b); if (!id) return;
     var e = eventOf(id);
@@ -304,10 +344,9 @@
     var dates = datesOf(e), reg = regular(e);
     var anchor0 = reg ? (dates[0] || '') : '';
     var saved = (occ[id] && occ[id][anchor0]) || null;
-    var local = ctxGet();
-    var draft = (local && local.id === id && local.anchor === anchor0 && local.intent) ? local
-      : (saved ? { id: id, anchor: anchor0, intent: saved.intent, date: saved.intent === 'going' ? (saved.date || anchor0) : '', notify: saved.notify !== false, transport: !!saved.transport }
-      : { id: id, anchor: anchor0, intent: reg ? 'going' : '', date: reg ? anchor0 : '', notify: true, transport: false });
+    var draft = saved
+      ? { id: id, anchor: anchor0, intent: saved.intent, date: saved.intent === 'going' ? (saved.date || anchor0) : '', notify: saved.notify !== false, transport: !!saved.transport }
+      : { id: id, anchor: anchor0, intent: '', date: '', notify: true, transport: false };
     ctxSet(draft);
     h2().textContent = titleOf(e) || L.title;
     var verified = !!token();
@@ -317,7 +356,7 @@
     if (!verified || needProfile) html += '<p class="asg-note">' + L.explain + '</p>';
     html += '<div class="asg-opt">';
     ['going', 'interested', 'absent'].forEach(function (k) { html += '<button type="button" data-intent="' + k + '" aria-pressed="' + (draft.intent === k) + '">' + L[k] + '</button>'; });
-    html += '</div>';
+    html += '</div><div id="asg-rest"' + (draft.intent === 'going' || draft.intent === 'interested' ? '' : ' hidden') + '>';
     if (reg && dates.length) {
       html += '<label class="asg-l" for="asg-date">' + L.date + '</label><select id="asg-date"' + (draft.intent === 'going' ? '' : ' disabled') + '>';
       dates.forEach(function (d) { html += '<option value="' + d + '"' + ((draft.date || anchor0) === d ? ' selected' : '') + '>' + d + '</option>'; });
@@ -338,6 +377,7 @@
     html += '<p class="asg-tslab" id="asg-tslab">' + L.tsWait + '</p><div class="asg-ts"></div>';
     html += '<button type="button" class="asg-go" id="asg-go" aria-busy="false">' + action + '</button>';
     if (verified) html += '<p class="asg-hint">' + L.optin + '</p>';
+    html += '</div>';
     view++;
     dropTs();
     body().innerHTML = html;
@@ -350,10 +390,16 @@
       if (dirEl0) dirEl0.disabled = !going;
     }
     body().querySelectorAll('[data-intent]').forEach(function (btn) { btn.onclick = function () {
+      var next = btn.getAttribute('data-intent');
+      if (next === 'absent') { saveAbsent(e, id); return; }
       if (draft.intent === 'going' && dateEl) { draft.anchor = dateEl.value; draft.date = dateEl.value; }
-      draft.intent = btn.getAttribute('data-intent');
-      if (draft.intent === 'going' && dateEl) { draft.date = dateEl.value; draft.anchor = dateEl.value; }
-      else draft.date = '';
+      draft.intent = next;
+      if (!draft.anchor) draft.anchor = anchor0;
+      if (draft.intent === 'going') {
+        if (dateEl && !dateEl.value) dateEl.value = anchor0;
+        if (dateEl) { draft.date = dateEl.value; draft.anchor = dateEl.value; }
+      } else draft.date = '';
+      var rest = body().querySelector('#asg-rest'); if (rest) rest.hidden = false;
       lockDate();
       ctxSet(draft);
       body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
@@ -584,6 +630,16 @@
   function nextAnchor(e) { if (!e || !regular(e)) return ''; var ds = datesOf(e); return ds[0] || ''; }
   function occNow(id, e) { var bag = occ[id]; if (!bag) return null; return bag[nextAnchor(e)] || null; }
   function showSolid(id, e) { var st = occNow(id, e); return !!(st && (st.intent === 'going' || st.intent === 'interested')); }
+  function mergeLocalOcc() {
+    var o = localOcc();
+    Object.keys(o).forEach(function (id) {
+      var bag = o[id] || {};
+      if (!occ[id]) occ[id] = {};
+      Object.keys(bag).forEach(function (anchor) {
+        if (!occ[id][anchor]) occ[id][anchor] = { id: id, anchor: anchor, intent: bag[anchor].intent, date: '' };
+      });
+    });
+  }
   function loadLocalFavs() {
     favs = {};
     try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); if (Array.isArray(a)) a.forEach(function (id) { if (typeof id === 'string') favs[id] = 1; }); } catch (e) {}
@@ -595,6 +651,7 @@
   }
   function dropLocalFav(id) {
     delete favs[id]; delete occ[id]; delete mine[id];
+    forgetLocalCard(id);
     try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); localStorage.setItem('atm_fav_v1', JSON.stringify((a || []).filter(function (x) { return x !== id; }))); } catch (e) {}
     paint(); paintBar();
     if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
@@ -635,7 +692,7 @@
     return true;
   }
   function refreshMine() {
-    if (!token()) { me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); paint(); paintBar(); return Promise.resolve(); }
+    if (!token()) { me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); mergeLocalOcc(); paint(); paintBar(); return Promise.resolve(); }
     return api('/social/going/mine').then(function (d) {
       if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; occ = {}; favs = {}; drafts = {}; }
       else {
@@ -644,6 +701,7 @@
         (d.items || []).forEach(function (it) { mine[it.id] = it; if (!occ[it.id]) occ[it.id] = {}; occ[it.id][it.anchor || ''] = it; });
         (d.drafts || []).forEach(function (it) { drafts[it.id] = it; });
         (d.favs || []).forEach(function (fid) { favs[fid] = 1; addLocalFav(fid); });
+        mergeLocalOcc();
       }
       paint(); paintBar();
       if (reopen) { var id = reopen; reopen = ''; openId(id); }
@@ -671,9 +729,8 @@
     if (!u) return;
     e.preventDefault(); e.stopPropagation();
     var id = u.getAttribute('data-unfav');
-    var done = function () { dropLocalFav(id); };
-    if (!token()) { done(); return; }
-    api('/social/going/unfav', { id: id, explicit: 1 }).then(done).catch(done);
+    if (!token()) { dropLocalFav(id); return; }
+    api('/social/going/unfav', { id: id, explicit: 1 }).then(function (d) { if (d && d.ok) dropLocalFav(id); else toast(L.later); }).catch(function () { toast(L.later); });
   }, true);
   document.addEventListener('atm-more', function () { paint(); });
   readHash();

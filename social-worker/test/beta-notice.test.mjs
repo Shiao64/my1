@@ -15,7 +15,7 @@ for (const html of [zh, en]) {
   check('entry ad is gone', !html.includes('id="atm-pop"') && !html.includes('atm_stw_popup_dismissed_until_v2') && !html.includes('class="ap-x"'));
   check('notice is not skipped for a card link and is not stored', html.includes('id="atm-notice"') && !html.includes("localStorage.setItem(K") && html.includes('__atmNoticeAck'));
   check('escape does not dismiss', html.includes("e.key==='Escape'") && html.includes('preventDefault()'));
-  check('star script is the candidate st12', html.includes('/asia/atm-star.js?v=st12'));
+  check('star script is the candidate st13', html.includes('/asia/atm-star.js?v=st13'));
 }
 check('candidate label is 11.9.4', zh.includes('data-site-release="11.9.4"') && en.includes('data-site-release="11.9.4"') && zh.includes('测试版 11.9.4') && en.includes('beta 11.9.4'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }

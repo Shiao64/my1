@@ -204,7 +204,8 @@ await mix.evaluate(() => {
   const stray = document.createElement('input');
   stray.name = 'cf-turnstile-response';
   stray.value = 'token-A';
-  document.querySelector('.asg-body').insertBefore(stray, document.querySelector('.asg-ts'));
+  const ts = document.querySelector('.asg-ts');
+  ts.parentNode.insertBefore(stray, ts);
   window.__issue('token-B');
 });
 await mix.click('#asg-go');

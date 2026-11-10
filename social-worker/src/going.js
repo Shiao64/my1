@@ -451,7 +451,11 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const notify = flag(b.notify, 1), transport = flag(b.transport, 0);
   const promo = flag(b.alert, 0);
-  if (!(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
+  const sessionEarly = await sessionUser(req, env);
+  if (!sessionEarly && intent === 'absent') return json({ ok: true, mail: 'withheld', stored: false });
+  if (!(sessionEarly && intent === 'absent')) {
+    if (!(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
+  }
   let card;
   try { card = await goingCard(env, id, kit); }
   catch (e) { console.log('going events', String(e && e.message || e).slice(0, 160)); return json({ error: 'lookup_failed' }, 503); }
