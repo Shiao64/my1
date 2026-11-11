@@ -7,13 +7,15 @@
 # Do not set these vars and do not add a cron until a later approval:
 #   GOING_STATS = "on"           # writes review drafts only, never emails
 #   GOING_NOTICE_SEND = "on"     # user update mail, no organizer CC
-#   GOING_DIGEST_SEND = "on"     # organizer summaries. Not registered here.
+#   GOING_DIGEST_SEND = "on"     # featured Monday summary. Not registered here.
+#   GOING_WELCOME_SEND = "on"    # organizer welcome batch. Not a cron. Review first.
 #   extra cron "30 16 * * *"     # 00:30 Asia/Shanghai, stats/notices only
+#   extra cron "0 6 * * 1"       # Monday 14:00 Asia/Shanghai, featured summary only
 #
-# Featured digest clock when the three vars below are unset: Monday 09:00 Asia/Shanghai.
-# That clock is a pending-review default. It is not a user-approved send time.
+# Featured summary clock when the three vars below are unset: Monday 14:00 Asia/Shanghai.
+# The clock does not turn sending on. GOING_DIGEST_SEND must also be exactly "on".
 #   GOING_DIGEST_WEEKDAY = "1"
-#   GOING_DIGEST_HOUR = "9"
+#   GOING_DIGEST_HOUR = "14"
 #   GOING_DIGEST_MINUTE = "0"
 #
 # The live config is subscribe-worker/wrangler.toml.

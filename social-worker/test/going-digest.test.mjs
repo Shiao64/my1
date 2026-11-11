@@ -103,10 +103,11 @@ intent('nix@example.com', 'F1', 'going', null, 0, 1, 'cancelled', 'queued', '202
 env.GOING_NOW = '2026-11-09T06:00:00.000Z';
 const featured = await runGoingDigests(env, kit);
 const fest = mails.filter(m => m.includes('to=fest@example.com'));
-check('featured week sends one summary', featured.sent === 1 && fest.length === 1 && fest[0].includes('cc=selecttango@gmail.com') && fest[0].includes('from=探戈助理') && fest[0].includes('subject=Intent summary:'));
-check('summary lists new people with city and role, not the unverified row', fest[0].includes('Ana <ana@example.com>') && fest[0].includes('Bea <bea@example.com>') && fest[0].includes('Going / 要参加') && fest[0].includes('Interested / 感兴趣') && fest[0].includes('Seoul') && fest[0].includes('leader') && fest[0].includes('Osaka') && !fest[0].includes('Cy') && !fest[0].includes('Old') && !fest[0].includes('Nix') && fest[0].includes('要删除资料'));
-check('notify off is still forwarded', fest[0].includes('ana@example.com') && db.prepare("SELECT notify n FROM going_intents WHERE email=? AND card_id='F1' AND status='active'").get('ana@example.com').n === 0);
-check('sent rows are marked once', db.prepare("SELECT mail_status s, mail_fp f FROM going_intents WHERE email=? AND card_id='F1' AND status='active'").get('ana@example.com').s === 'sent');
+check('featured week sends one summary', featured.sent === 1 && fest.length === 1 && fest[0].includes('cc=selecttango@gmail.com, guazong@mail.grokbot.com') && fest[0].includes('from=探戈助理') && fest[0].includes('subject=探戈助理：意向名单「节日」（2 人）') && !fest[0].includes('reply-to='));
+const festBody = fest[0].slice(fest[0].indexOf('\n') + 1);
+check('summary lists new names and cities, not roles or dancer addresses', festBody.includes('Ana，Seoul') && festBody.includes('Bea，Osaka') && festBody.includes('要参加（1）') && festBody.includes('感兴趣（1）') && festBody.includes('活动：节日（2026-09-01 至 09-03）') && festBody.includes('探戈助理 · Asia Tango Map') && festBody.includes('这不是正式报名') && !festBody.includes('@') && !festBody.includes('leader') && !festBody.includes('follower') && !festBody.includes('Cy') && !festBody.includes('Old') && !festBody.includes('Nix'));
+check('notify off is still listed', festBody.includes('Ana，Seoul') && db.prepare("SELECT notify n FROM going_intents WHERE email=? AND card_id='F1' AND status='active'").get('ana@example.com').n === 0);
+check('summary does not consume the single-letter queue', db.prepare("SELECT mail_status s FROM going_intents WHERE email=? AND card_id='F1' AND status='active'").get('ana@example.com').s === 'queued' && db.prepare("SELECT status s FROM going_digests WHERE digest_key=?").get('featured:F1:2026-11-09').s === 'sent' && !String(db.prepare("SELECT snapshot s FROM going_digests WHERE digest_key=?").get('featured:F1:2026-11-09').s || '').includes('@'));
 const againF = await runGoingDigests(env, kit);
 check('same week does not send twice', againF.sent === 0 && mails.filter(m => m.includes('to=fest@example.com')).length === 1);
 db.prepare("UPDATE going_intents SET intent='going', mail_status='queued', updated_at='2026-11-09T07:00:00.000Z' WHERE email=? AND card_id='F1'").run('bea@example.com');
@@ -114,7 +115,7 @@ const laterSameWeek = await runGoingDigests({ ...env, GOING_NOW: '2026-11-11T02:
 check('a change after the weekly slot waits', laterSameWeek.sent === 0 && mails.filter(m => m.includes('to=fest@example.com')).length === 1 && db.prepare("SELECT mail_status s FROM going_intents WHERE email=? AND card_id='F1'").get('bea@example.com').s === 'queued');
 const nextWeek = await runGoingDigests({ ...env, GOING_NOW: '2026-11-16T06:00:00.000Z' }, kit);
 const fest2 = mails.filter(m => m.includes('to=fest@example.com'));
-check('next week sends only the new change', nextWeek.sent === 1 && fest2.length === 2 && fest2[1].includes('Bea <bea@example.com>') && !fest2[1].includes('Ana <ana@example.com>'));
+check('next week sends only the new change', nextWeek.sent === 1 && fest2.length === 2 && fest2[1].includes('Bea，Osaka') && fest2[1].includes('要参加（1）') && !fest2[1].includes('Ana'));
 
 intent('ana@example.com', 'W0', 'going', '2026-11-20', 0, 1, 'active', 'queued', '2026-11-08T02:00:00.000Z');
 intent('ana@example.com', 'CX', 'going', '2026-11-13', 0, 1, 'active', 'queued', '2026-11-08T02:00:00.000Z');

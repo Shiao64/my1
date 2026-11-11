@@ -1,9 +1,10 @@
 // Star intent. Profile verify is separate from organizer mail.
 // A menu profile confirm never emails an organizer.
-// Everyone else only saves. A single Going/Interested letter is sent only when
-// GOING_TEST_SEND=on and GOING_TEST_DANCER is this visitor. Both unset means no letter.
-// That letter is not the digest and does not turn on GOING_DIGEST_SEND or GOING_NOTICE_SEND.
-// GOING_DIGEST_SEND stays off and no live cron calls the digest, so the summary does not send.
+// A single Going/Interested letter is sent only when GOING_NOTICE_SEND=on (every dancer)
+// or when GOING_TEST_SEND=on and GOING_TEST_DANCER is this visitor. All three flags
+// default off. The test pair does not turn on GOING_NOTICE_SEND, GOING_DIGEST_SEND,
+// or GOING_WELCOME_SEND. The featured summary and the organizer welcome are separate
+// jobs and stay off until their own flags are exactly "on".
 // Stats drafts are written for review. This module never sends them.
 const PROFILE_MS = 30 * 60e3;
 const DAY = 24 * 3600e3;
@@ -66,6 +67,27 @@ function orgDirectory(env) {
   }
   return { cards, orgs, links, names };
 }
+function contactEmail(raw, kit) {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) return usableEmail(raw.email || raw.mail || '', kit);
+  return usableEmail(raw, kit);
+}
+function contactName(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { name: '', nameEn: '', lang: '' };
+  const clip = (s, n) => String(s || '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, n);
+  const name = clip(raw.name || raw.name_zh || '', 80);
+  const nameEn = clip(raw.name_en || raw.nameEn || '', 80);
+  const lang = raw.lang === 'en' ? 'en' : (raw.lang === 'zh' ? 'zh' : '');
+  return { name: name.includes('@') ? '' : name, nameEn: nameEn.includes('@') ? '' : nameEn, lang };
+}
+function profileOf(dir, code, raw) {
+  const fromOrg = contactName(raw);
+  const extra = contactName(dir.names && dir.names[code]);
+  return {
+    name: fromOrg.name || extra.name,
+    nameEn: fromOrg.nameEn || extra.nameEn,
+    lang: fromOrg.lang || extra.lang
+  };
+}
 function usableEmail(raw, kit) {
   const email = pickEmail(raw, kit.EMAIL_RE);
   if (!email || email === CC_DEFAULT) return '';
@@ -76,15 +98,49 @@ export function organizerAddress(card, env, kit) {
   if (pub) return pub;
   const dir = orgDirectory(env);
   const id = card && card.id;
-  const direct = usableEmail(dir.cards[id], kit);
+  const direct = contactEmail(dir.cards[id], kit);
   if (direct) return direct;
   const codes = Array.isArray(dir.links[id]) ? dir.links[id] : [];
   for (const code of codes) {
     if (!/^O\d+$/.test(String(code || ''))) continue;
-    const email = usableEmail(dir.orgs[code], kit);
+    const email = contactEmail(dir.orgs[code], kit);
     if (email) return email;
   }
   return '';
+}
+function safeName(raw) {
+  const name = String(raw || '').replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+  if (!name || name.includes('@')) return '';
+  return name;
+}
+export function organizerRecipients(card, env, kit) {
+  const dir = orgDirectory(env);
+  const codes = Array.isArray(dir.links[card && card.id]) ? dir.links[card.id] : [];
+  const out = [];
+  const seen = new Set();
+  for (const code of codes) {
+    if (!/^O\d+$/.test(String(code || ''))) continue;
+    const email = contactEmail(dir.orgs[code], kit);
+    if (!email || seen.has(email)) continue;
+    seen.add(email);
+    out.push({ id: code, email, ...profileOf(dir, code, dir.orgs[code]) });
+  }
+  if (out.length) return out;
+  const email = organizerAddress(card, env, kit);
+  if (!email) return [];
+  return [{ id: '', email, name: '', nameEn: '', lang: '' }];
+}
+export function welcomeRoster(env, kit) {
+  const dir = orgDirectory(env);
+  const out = [];
+  for (const [code, raw] of Object.entries(dir.orgs)) {
+    if (!/^O\d+$/.test(code)) continue;
+    const email = contactEmail(raw, kit);
+    if (!email) continue;
+    out.push({ id: code, email, ...profileOf(dir, code, raw) });
+  }
+  out.sort((a, b) => a.id.localeCompare(b.id));
+  return out;
 }
 function oneLine(clean, s, n) { return clean(s, n).replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); }
 function roleOf(v) { return ROLES.includes(v) ? v : ''; }
@@ -112,6 +168,12 @@ export function testLetterOn(env, email, kit) {
   const who = pickEmail(email, kit.EMAIL_RE);
   if (!allow || !who) return false;
   return sameText(allow, who);
+}
+// Global organizer mail. Exact "on" only. Test vars, the digest flag, and the
+// welcome flag do not open this. Unset stays off.
+export function organizerMailOn(env, email, kit) {
+  if (env && env.GOING_NOTICE_SEND === 'on') return true;
+  return testLetterOn(env, email, kit);
 }
 function letterCc(to, dancer) {
   const out = [];
@@ -729,6 +791,7 @@ async function sendDigest(env, kit, card, rows, period) {
   const title = cardTitle(card, 'zh');
   const titleEn = cardTitle(card, 'en');
   const featured = card.kind === 'event' || card.kind === 'featured';
+  if (featured) throw new Error('featured_summary');
   const lines = rows.map(r => {
     const show = r.anchor || r.occurrence_date || '';
     const date = !featured && show ? `Date / 场次: ${show} (Beijing time UTC+8, Asia/Shanghai)\n` : '';
@@ -810,7 +873,7 @@ async function materialize(env, kit, row, iph) {
   const transport = featured || row.intent !== 'going' ? 0 : (row.transport ? 1 : 0);
   const fp = fpOf(row.intent, show, transport);
   const ts = kit.now();
-  const on = testLetterOn(env, row.email, kit);
+  const on = organizerMailOn(env, row.email, kit);
   if (!card || !card.email) {
     await saveIntent(env, row, show, attend, transport, 'none', null, ts);
     await rememberFav(env, row.email, row.card_id, ts);
@@ -1411,13 +1474,20 @@ export function digestSchedule(env) {
   const m = Number(rawM == null || rawM === '' ? 0 : rawM);
   return {
     weekday: Number.isInteger(w) && w >= 0 && w <= 6 ? w : 1,
-    hour: Number.isInteger(h) && h >= 0 && h <= 23 ? h : 9,
+    hour: Number.isInteger(h) && h >= 0 && h <= 23 ? h : 14,
     minute: Number.isInteger(m) && m >= 0 && m <= 59 ? m : 0,
     tz: 'Asia/Shanghai',
-    // Monday 14:00 Asia/Shanghai is only the prepared default. It is not turned on.
+    // Agreed clock is Monday 14:00 Asia/Shanghai. pendingReview means the override
+    // vars are unset. approved stays false: GOING_DIGEST_SEND still has to be on.
     pendingReview: rawW == null && rawH == null && rawM == null,
     approved: false
   };
+}
+export const DIGEST_CRON = '0 6 * * 1';
+export function digestCronOf(env) {
+  const raw = env && env.GOING_DIGEST_CRON;
+  const cron = String(raw == null || raw === '' ? DIGEST_CRON : raw).trim();
+  return cron || DIGEST_CRON;
 }
 export function shParts(ms) {
   const d = new Date(ms + SH_MS);
@@ -1494,6 +1564,153 @@ async function finishSent(env, rows, nowIso) {
 function packRow(r, date) {
   return { email: r.email, name: oneLine((s, n) => String(s || '').trim().slice(0, n), r.name, 80) || r.email, intent: r.intent, occurrence_date: date || '', anchor: r.anchor || date || '', city: r.city || '', role: r.role || '', transport: r.transport ? 1 : 0, card_id: r.card_id, fp: fpOf(r.intent, r.anchor || date || '', r.transport ? 1 : 0), updated_at: r.updated_at };
 }
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+export function eventRange(card) {
+  const start = String(card && card.start || '').slice(0, 10);
+  const end = String(card && card.end || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(start)) return { zh: '', en: '' };
+  const zh = (!end || end === start) ? start : (start.slice(0, 4) === end.slice(0, 4) ? start + ' 至 ' + end.slice(5) : start + ' 至 ' + end);
+  const [ys, ms, ds] = start.split('-').map(Number);
+  const enStart = ds + ' ' + MONTHS[ms - 1] + ' ' + ys;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(end) || end === start) return { zh, en: enStart };
+  const [ye, me, de] = end.split('-').map(Number);
+  let en = ds + ' ' + MONTHS[ms - 1] + ' ' + ys + '–' + de + ' ' + MONTHS[me - 1] + ' ' + ye;
+  if (ys === ye && ms === me) en = ds + '–' + de + ' ' + MONTHS[ms - 1] + ' ' + ys;
+  else if (ys === ye) en = ds + ' ' + MONTHS[ms - 1] + '–' + de + ' ' + MONTHS[me - 1] + ' ' + ys;
+  return { zh, en };
+}
+function summaryPeople(rows) {
+  const out = [];
+  for (const r of rows || []) {
+    const name = safeName(r.name);
+    if (!name) continue;
+    out.push({ name, city: safeName(r.city), intent: r.intent === 'going' ? 'going' : 'interested' });
+  }
+  out.sort((a, b) => (a.intent === b.intent ? a.name.localeCompare(b.name) : (a.intent === 'going' ? -1 : 1)));
+  return out;
+}
+function plainHtml(kit, text) {
+  const esc = kit && kit.he ? kit.he : (s => String(s == null ? '' : s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c])));
+  return '<!doctype html><html><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p style="white-space:pre-wrap;margin:0">' + esc(text) + '</p></div></body></html>';
+}
+function assertNoAddress(text) {
+  if (/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(String(text || ''))) throw new Error('letter_has_address');
+}
+export function featuredSummaryLetter(card, people, rec, lang) {
+  const zh = lang !== 'en';
+  const who = safeName(zh ? ((rec && (rec.name || rec.nameEn)) || '') : ((rec && (rec.nameEn || rec.name)) || ''));
+  const rows = summaryPeople(people);
+  const going = rows.filter(p => p.intent === 'going');
+  const interested = rows.filter(p => p.intent !== 'going');
+  const n = going.length + interested.length;
+  const title = cardTitle(card, zh ? 'zh' : 'en');
+  const range = eventRange(card);
+  const rangeText = zh ? range.zh : range.en;
+  const eventLine = rangeText ? (zh ? '活动：' + title + '（' + rangeText + '）' : 'Event: ' + title + ' (' + rangeText + ')') : (zh ? '活动：' + title : 'Event: ' + title);
+  const item = p => p.city ? (zh ? '- ' + p.name + '，' + p.city : '- ' + p.name + ', ' + p.city) : '- ' + p.name;
+  const block = (label, list) => list.length ? label + '\n' + list.map(item).join('\n') : '';
+  const parts = [block(zh ? '要参加（' + going.length + '）' : 'Going (' + going.length + ')', going), block(zh ? '感兴趣（' + interested.length + '）' : 'Interested (' + interested.length + ')', interested)].filter(Boolean);
+  const hello = zh
+    ? (who ? who + '你好，以下是对你的特色活动新登记的意向名单。' : '你好，以下是对你的特色活动新登记的意向名单。')
+    : (who ? 'Hello ' + who + ', below is the list of new Going and Interested registrations on Asia Tango Map for your featured event.' : 'Hello, below is the list of new Going and Interested registrations on Asia Tango Map for your featured event.');
+  const rest = zh
+    ? '这不是正式报名，也不含「去不了」。每位探友已另寄一封通知（并抄送本人）。本信不抄送探友，也不列出邮箱。'
+    : 'This is not a formal registration, and “Can\'t go” is not included. Each dancer has already been sent a separate notice and is copied on it. This summary does not copy the dancers and does not list email addresses.';
+  const totals = zh ? '累计：要参加 ' + going.length + ' 人，感兴趣 ' + interested.length + ' 人。' : 'Totals: ' + going.length + ' going, ' + interested.length + ' interested.';
+  const sign = zh ? '探戈助理 · Asia Tango Map' : 'Tango Assistant · Asia Tango Map';
+  const subject = (zh ? '探戈助理：意向名单「' + title + '」（' + n + ' 人）' : 'Tango Assistant: interest list for ' + title + ' (' + n + ' people)').slice(0, 180);
+  const text = hello + (zh ? '' : ' ') + rest + '\n\n' + eventLine + '\n\n' + parts.join('\n\n') + '\n\n' + totals + '\n\n' + sign;
+  assertNoAddress(text);
+  return { subject, text, fromName: zh ? '探戈助理' : 'Tango Assistant', n };
+}
+async function weekRows(env, cardId, prevMs, slotMs) {
+  const prev = new Date(prevMs).toISOString();
+  const slot = new Date(slotMs).toISOString();
+  return (await env.SDB.prepare(`SELECT i.intent intent, u.name name, u.city city
+    FROM going_intents i JOIN users u ON u.email=i.email
+    WHERE i.card_id=? AND i.status='active' AND i.intent IN ('going','interested') AND u.verified_at IS NOT NULL
+      AND i.updated_at>? AND i.updated_at<=?
+    ORDER BY u.name`).bind(cardId, prev, slot).all()).results || [];
+}
+async function sendFeaturedSummary(env, kit, card, people, rec) {
+  const org = pickEmail(rec.email, kit.EMAIL_RE);
+  if (!org) return { error: 'no_organizer' };
+  const dest = rewriteTo(env, org);
+  const cc = dest.intended ? '' : letterCc(dest.to, '');
+  const lang = rec.lang === 'en' ? 'en' : 'zh';
+  const letter = featuredSummaryLetter(card, people, rec, lang);
+  const html = plainHtml(kit, letter.text);
+  assertNoAddress(html);
+  await kit.deliver(env, dest.to, letter.subject, letter.text, html, undefined, { cc, fromName: letter.fromName });
+  return { ok: true };
+}
+const WELCOME_ZH_SUBJECT = '亚洲探戈地图将为你转来想参加活动的探友';
+const WELCOME_EN_SUBJECT = 'Asia Tango Map will forward dancers who want to join your events';
+export function buildWelcomeLetter(rec) {
+  const lang = rec && rec.lang === 'en' ? 'en' : 'zh';
+  const name = safeName(lang === 'en' ? ((rec && (rec.nameEn || rec.name)) || '') : ((rec && (rec.name || rec.nameEn)) || ''));
+  const text = lang === 'en'
+    ? (name ? 'Hello ' + name + ', this is Tango Assistant.' : 'Hello, this is Tango Assistant.') + '\nYour events are already listed on Asia Tango Map (tangoweekend.org). After this, when a dancer selects “Going” or “Interested” on the site, we will let you know.\nPlease have a short directions note ready, so you can reply when a dancer writes:\n1. The Chinese address for a taxi\n2. How to walk from the nearest metro station and exit, with a photo if you have one\n3. A photo of the entrance, and how to get in (floor, access control, contact)\n4. The door fee and how to pay\nPlease note: the dancer will be copied on the message. Use “Reply all” to contact them directly.\nIf you and the dancer do not share a language and you would like Asia Tango Map to translate and relay the message, write “Need translation” in your reply.\n\nTango Assistant · Asia Tango Map'
+    : (name ? name + '你好，我是探戈助理。' : '你好，我是探戈助理。') + '\n你的活动已经刊登在亚洲探戈地图（tangoweekend.org）上。之后有探友在网站上勾选「要参加」或「感兴趣」，我们就会通知你。\n建议你先准备好一段交通指引，探友来信时可以直接回复：\n1. 打车用的中文地址\n2. 从最近的地铁站和出口走到会场的指引，有图最好\n3. 门口照片，以及怎么进门（楼层、门禁、联系人）\n4. 入场费和付款方式\n请注意：邮件会抄送探友本人，你直接「回复全部」就能联系他。\n如果探友和你语言不通，需要亚洲探戈地图帮忙翻译转信，回信时注明「需要翻译」即可。\n\n探戈助理 · Asia Tango Map';
+  assertNoAddress(text);
+  return { lang, subject: lang === 'en' ? WELCOME_EN_SUBJECT : WELCOME_ZH_SUBJECT, text, fromName: lang === 'en' ? 'Tango Assistant' : '探戈助理' };
+}
+export function welcomeTemplates() {
+  return {
+    zh: buildWelcomeLetter({ lang: 'zh', name: '{姓名}' }),
+    en: buildWelcomeLetter({ lang: 'en', nameEn: '{name}' })
+  };
+}
+function publicRecipients(list) {
+  return (list || []).map(r => ({ id: r.id, name: safeName(r.name || r.nameEn || '') }));
+}
+export function reviewOrganizerWelcome(env, kit) {
+  const template = welcomeTemplates();
+  const recipients = publicRecipients(welcomeRoster(env, kit));
+  const body = { send_enabled: !!(env && env.GOING_WELCOME_SEND === 'on'), mailed: false, sent: 0, skipped: 0, failed: 0, template, recipients };
+  assertNoAddress(JSON.stringify(body));
+  return body;
+}
+export async function sendOrganizerWelcome(env, kit) {
+  const review = reviewOrganizerWelcome(env, kit);
+  if (!env || env.GOING_WELCOME_SEND !== 'on') return review;
+  if (!env.SDB) return { ...review, mailed: false, error: 'no_db' };
+  const roster = welcomeRoster(env, kit);
+  let sent = 0, skipped = 0, failed = 0;
+  const recipients = [];
+  for (const rec of roster) {
+    const name = safeName(rec.name || rec.nameEn || '');
+    const row = await env.SDB.prepare('SELECT welcome_sent_at, opted_out_at FROM org_notice WHERE org_id=?').bind(rec.id).first();
+    if (row && row.opted_out_at) { skipped++; recipients.push({ id: rec.id, name, status: 'opted_out' }); continue; }
+    if (row && row.welcome_sent_at) { skipped++; recipients.push({ id: rec.id, name, status: 'already' }); continue; }
+    try {
+      const dest = rewriteTo(env, rec.email);
+      const cc = dest.intended ? '' : goingCc(env, dest.to);
+      const letter = buildWelcomeLetter(rec);
+      const html = plainHtml(kit, letter.text);
+      assertNoAddress(letter.text + '\n' + html);
+      await kit.deliver(env, dest.to, letter.subject, letter.text, html, undefined, { cc, fromName: letter.fromName });
+      const now = new Date().toISOString();
+      if (row) await env.SDB.prepare('UPDATE org_notice SET email=?, welcome_sent_at=? WHERE org_id=? AND welcome_sent_at IS NULL AND opted_out_at IS NULL').bind(rec.email, now, rec.id).run();
+      else await env.SDB.prepare('INSERT INTO org_notice(org_id, email, welcome_sent_at, opted_out_at) VALUES(?,?,?,NULL)').bind(rec.id, rec.email, now).run();
+      sent++;
+      recipients.push({ id: rec.id, name, status: 'sent' });
+    } catch (e) {
+      failed++;
+      recipients.push({ id: rec.id, name, status: 'failed' });
+    }
+  }
+  const body = { send_enabled: true, mailed: sent > 0, sent, skipped, failed, template: welcomeTemplates(), recipients };
+  assertNoAddress(JSON.stringify(body));
+  return body;
+}
+export async function goingWelcomeAdmin(req, env, url, b, json, kit) {
+  const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  if (!env.ADMIN_TOKEN || a.length < 24 || a !== env.ADMIN_TOKEN) return json({ error: 'auth' }, 401);
+  const wantSend = req.method === 'POST' && b && b.mode === 'send';
+  if (!wantSend) return json(reviewOrganizerWelcome(env, kit));
+  return json(await sendOrganizerWelcome(env, kit));
+}
 export async function runGoingDigests(env, kit) {
   const schedule = digestSchedule(env);
   const base = { pendingReview: schedule.pendingReview, approved: false, schedule: { weekday: schedule.weekday, hour: schedule.hour, minute: schedule.minute, tz: schedule.tz }, sent: 0, skipped: 0, held: 0, failed: 0 };
@@ -1503,33 +1720,51 @@ export async function runGoingDigests(env, kit) {
   const staleIso = new Date(nowMs - 15 * 60e3).toISOString();
   const slot = weekSlot(nowMs, schedule);
   const ids = (await env.SDB.prepare("SELECT DISTINCT card_id id FROM going_intents WHERE status='active' AND mail_status='queued'").all()).results || [];
-  for (const item of ids) {
+  const weekIds = slot ? ((await env.SDB.prepare(`SELECT DISTINCT i.card_id id FROM going_intents i JOIN users u ON u.email=i.email
+    WHERE i.status='active' AND i.intent IN ('going','interested') AND u.verified_at IS NOT NULL AND i.updated_at>? AND i.updated_at<=?`)
+    .bind(new Date(slot.prevMs).toISOString(), new Date(slot.slotMs).toISOString()).all()).results || []) : [];
+  const seen = new Set();
+  const items = [];
+  for (const item of ids.concat(weekIds)) {
+    if (!item || !item.id || seen.has(item.id)) continue;
+    seen.add(item.id);
+    items.push(item);
+  }
+  for (const item of items) {
     let card;
     try { card = await goingCard(env, item.id, kit); }
     catch (e) { base.failed++; continue; }
-    if (!card || !card.email) { base.held++; continue; }
-    const rows = await queuedRows(env, card.id);
-    if (!rows.length) continue;
+    if (!card) { base.held++; continue; }
     if (featuredCard(card)) {
       if (!slot) { base.held++; continue; }
-      const due = rows.filter(r => { const t = Date.parse(r.updated_at || ''); return Number.isFinite(t) && t > slot.prevMs && t <= slot.slotMs; }).map(r => packRow(r, ''));
+      const due = summaryPeople(await weekRows(env, card.id, slot.prevMs, slot.slotMs));
       if (!due.length) { base.skipped++; continue; }
-      if (due.length > DIGEST_CAP) { await markDigest(env, 'featured:' + card.id + ':' + slot.key, card.id, 'featured', slot.key, 'held', 'too_many', nowIso); base.held++; continue; }
       const key = 'featured:' + card.id + ':' + slot.key;
+      if (due.length > DIGEST_CAP) { await markDigest(env, key, card.id, 'featured', slot.key, 'held', 'too_many', nowIso); base.held++; continue; }
+      const recipients = organizerRecipients(card, env, kit);
+      if (!recipients.length) { await markDigest(env, key, card.id, 'featured', slot.key, 'held', 'no_organizer', nowIso); base.held++; continue; }
       if (!(await claimDigest(env, key, card.id, 'featured', slot.key, nowIso, staleIso))) { base.skipped++; continue; }
       if (typeof env.GOING_DIGEST_AFTER_CLAIM === 'function') await env.GOING_DIGEST_AFTER_CLAIM(key);
+      const snap = JSON.stringify(due.map(p => ({ intent: p.intent, name: p.name, city: p.city })));
       try {
-        await sendDigest(env, kit, card, due, slot.key);
+        assertNoAddress(snap);
+        for (const rec of recipients) {
+          const sent = await sendFeaturedSummary(env, kit, card, due, rec);
+          if (sent && sent.error) throw new Error(sent.error);
+        }
       } catch (e) {
-        await env.SDB.prepare("UPDATE going_digests SET status='failed',reason='send_failed',snapshot=?,error=?,created_at=? WHERE digest_key=? AND status='sending'").bind(JSON.stringify(due), String(e && e.message || e).slice(0, 180), nowIso, key).run();
+        const err = String(e && e.message || e).replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, '[redacted]').slice(0, 180);
+        await env.SDB.prepare("UPDATE going_digests SET status='failed',reason='send_failed',snapshot=?,error=?,created_at=? WHERE digest_key=? AND status='sending'").bind(snap, err, nowIso, key).run();
         base.failed++;
         continue;
       }
-      await env.SDB.prepare("UPDATE going_digests SET status='sent',reason=NULL,snapshot=?,error=NULL,sent_at=? WHERE digest_key=? AND status='sending'").bind(JSON.stringify(due), nowIso, key).run();
-      await finishSent(env, due, nowIso);
+      await env.SDB.prepare("UPDATE going_digests SET status='sent',reason=NULL,snapshot=?,error=NULL,sent_at=? WHERE digest_key=? AND status='sending'").bind(snap, nowIso, key).run();
       base.sent++;
       continue;
     }
+    if (!card.email) { base.held++; continue; }
+    const rows = await queuedRows(env, card.id);
+    if (!rows.length) continue;
     const byDate = new Map();
     for (const r of rows) {
       const show = showOf(r);

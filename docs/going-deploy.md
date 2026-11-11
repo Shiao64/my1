@@ -14,7 +14,7 @@ Read-only check of the live worker on 2026-11-09:
 | `SUB_MAIL` | `send_email`, allowed sender `subscribe@tangoweekend.org`. |
 | `SOCIAL_MAIL` | Not a binding. Plain var, value `resend`. Social and Going mail use the Resend HTTP API while this stays `resend`. |
 | `MAIL_PROVIDER` | Plain var `gmail`. This is subscriber mail in `subscribe-worker`, not Going mail. |
-| `GOING_STATS`, `GOING_NOTICE_SEND`, `GOING_DIGEST_SEND` | Unset. Leave them unset. |
+| `GOING_STATS`, `GOING_NOTICE_SEND`, `GOING_DIGEST_SEND`, `GOING_WELCOME_SEND` | Unset. Leave them unset. |
 | Going tables | Not present. `users` already has `city` and `role`. |
 | Crons | `*/10 * * * *` and `17 3 * * *`. Keep both. |
 | Secrets present, do not rotate or paste | `ADMIN_TOKEN`, `GMAIL_APP_PASSWORD`, `RESEND_API_KEY`, `TURNSTILE_SECRET`, `VAPID_PUBLIC`, `VAPID_PRIVATE`, `PUSH_ADMIN_TOKEN` |

@@ -1,6 +1,6 @@
 // LIVE: tango-subscribe Worker (api.tangoweekend.org). Subscribe/confirm/push from subscribe-worker, plus /social/* (likes, email confirm, WeChat flow v3). The WeChat tab stays disabled.
 import SUB from '../../subscribe-worker/src/index.js';
-import { social, wxExpireSweep, generateGoingStats, runGoingNotices } from './social.js';
+import { social, wxExpireSweep, generateGoingStats, runGoingNotices, runGoingDigests, digestCronOf, goingKit } from './social.js';
 import { unsubscribe as unsub2 } from './unsub.js';
 const hostOK = o => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\/\/api\.tangoweekend\.org$/.test(o) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(o);
 export default {
@@ -32,12 +32,15 @@ export default {
   async scheduled(event, env, ctx) {
     if (event.cron === '17 3 * * *') return SUB.scheduled(event, env, ctx);
     // Stats drafts and per-event user notices stay off until the matching flag is on AND that cron is added at deploy time.
-    // Organizer digests are not hooked to either live cron. GOING_DIGEST_SEND stays unset.
+    // The featured summary cron is Monday 14:00 Asia/Shanghai. It is not registered in wrangler.toml.
+    // */10 and 17 3 * * * do not match it. GOING_DIGEST_SEND must be exactly "on" or this sends nothing.
     const statsCron = env.GOING_STATS_CRON || '30 16 * * *';
     const noticeCron = env.GOING_NOTICE_CRON || '30 16 * * *';
+    const digestCron = digestCronOf(env);
     const jobs = [];
     if (env.GOING_STATS === 'on' && event.cron === statsCron) jobs.push(generateGoingStats(env, null).catch(e => console.log('going stats', String(e && e.message || e).slice(0, 160))));
     if (env.GOING_NOTICE_SEND === 'on' && event.cron === noticeCron) jobs.push(runGoingNotices(env, null).catch(e => console.log('going notices', String(e && e.message || e).slice(0, 160))));
+    if (env.GOING_DIGEST_SEND === 'on' && event.cron === digestCron) jobs.push(runGoingDigests(env, goingKit()).catch(e => console.log('going digest', String(e && e.message || e).replace(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi, '[redacted]').slice(0, 160))));
     if (jobs.length) { ctx.waitUntil(Promise.all(jobs)); return; }
     ctx.waitUntil(wxExpireSweep(env).then(r => console.log('wx sweep', JSON.stringify(r))));
   }

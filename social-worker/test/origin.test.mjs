@@ -11,7 +11,7 @@ const dir = '/tmp/atm-origin';
 fs.mkdirSync(dir, { recursive: true });
 const src = fs.readFileSync(path.join(root, 'social-worker/src/live.js'), 'utf8')
   .replace("import SUB from '../../subscribe-worker/src/index.js';\n", 'const SUB = { fetch: async () => new Response("sub") };\n')
-  .replace("import { social, wxExpireSweep, generateGoingStats, runGoingNotices } from './social.js';\n", 'const social = async (req, env, url, json) => json({ reached: url.pathname });\nconst wxExpireSweep = async () => ({});\nconst generateGoingStats = async () => ({});\nconst runGoingNotices = async () => ({});\n')
+  .replace("import { social, wxExpireSweep, generateGoingStats, runGoingNotices, runGoingDigests, digestCronOf, goingKit } from './social.js';\n", 'const social = async (req, env, url, json) => json({ reached: url.pathname });\nconst wxExpireSweep = async () => ({});\nconst generateGoingStats = async () => ({});\nconst runGoingNotices = async () => ({});\nconst runGoingDigests = async () => ({ enabled: false });\nconst digestCronOf = () => "0 6 * * 1";\nconst goingKit = () => ({});\n')
   .replace("import { unsubscribe as unsub2 } from './unsub.js';\n", 'const unsub2 = async () => new Response("unsub");\n');
 if (/from ['"]/.test(src)) throw new Error('live.js import stub failed');
 fs.writeFileSync(path.join(dir, 'live.js'), src);

@@ -11,7 +11,8 @@ routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
 # NOTIFY_TO, WX_NOTIFY_TO, or TURNSTILE_SITEKEY into this file: production
 # already has them, and a wrong value here would replace them if keep_vars
 # were ignored. SOCIAL_MAIL is a plain var (currently resend), not a binding.
-# GOING_STATS and GOING_NOTICE_SEND stay unset.
+# GOING_STATS, GOING_NOTICE_SEND, GOING_DIGEST_SEND, and GOING_WELCOME_SEND stay unset.
+# Do not add the Monday 14:00 Asia/Shanghai summary cron (0 6 * * 1) here.
 
 # Both crons are already live. The 10-minute one runs the WeChat sweep.
 # The 03:17 UTC one cleans unconfirmed subscribe rows. Do not drop either.

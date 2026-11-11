@@ -92,7 +92,7 @@ const sent = await runGoingDigests(env, { ...kit, he: s => String(s), clean: (s,
   console.log(`[mail:log] to=${to}${opt.cc ? ' cc=' + opt.cc : ''} subject=${subject}\n${text}`);
 } });
 const listMail = mails.filter(m => m.includes('to=org-list@example.com'));
-check('the list address is the recipient and the site CC is only CC', sent.sent === 1 && listMail.length === 1 && listMail[0].includes('cc=selecttango@gmail.com') && !mails.some(m => m.includes('to=selecttango@gmail.com')) && listMail[0].includes('Seoul') && listMail[0].includes('leader'));
+check('the list address is the recipient and dancers are not copied', sent.sent === 1 && listMail.length === 1 && listMail[0].includes('cc=selecttango@gmail.com, guazong@mail.grokbot.com') && !listMail[0].includes('reply-to=') && !mails.some(m => m.includes('to=selecttango@gmail.com')) && listMail[0].includes('Ada，Seoul') && !listMail[0].includes('leader') && !listMail[0].includes('ada@example.com'));
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going reach ok');
