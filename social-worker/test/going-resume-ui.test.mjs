@@ -187,17 +187,16 @@ await fresh.evaluate(() => document.querySelector('.atm-burger').click());
 await fresh.waitForSelector('[data-a="sub"]');
 check('a new visitor sees 订阅', await fresh.$eval('[data-a="sub"]', el => el.textContent.trim()) === '订阅');
 await fresh.click('[data-a="sub"]');
-await fresh.waitForSelector('#tsub-site');
+await fresh.waitForSelector('#tsub-last4');
 const form = await fresh.evaluate(() => ({
   title: document.getElementById('tsub-t').textContent,
   email: !!document.getElementById('tsub-e'),
-  name: !!document.getElementById('tsub-n'),
-  role: !!document.getElementById('tsub-r'),
-  city: !!document.getElementById('tsub-c'),
-  site: document.getElementById('tsub-site').checked,
-  label: document.querySelector('label.tsub-check').textContent
+  last4: !!document.getElementById('tsub-last4'),
+  regHidden: document.getElementById('tsub-reg').hidden,
+  gate: document.getElementById('tsub-phone-go').textContent,
+  site: document.getElementById('tsub-site').checked
 }));
-check('the menu form is the shared profile form and the box starts checked', form.title === '订阅' && form.email && form.name && form.role && form.city && form.site && form.label.includes('加入 ATM 全站订阅'));
+check('the menu form starts with email and the last 4 digits', form.title === '订阅' && form.email && form.last4 && form.regHidden && form.gate === '注册／登录' && form.site);
 await shot(fresh, '11-9-9-subscribe-form-zh');
 
 const starPage = await freshCtx.newPage();
@@ -207,19 +206,18 @@ await starPage.waitForSelector('#atm-notice-go');
 await starPage.click('#atm-notice-go');
 await starPage.waitForSelector('#atm-single .atm-heart', { timeout: 15000 });
 await starPage.evaluate(() => document.querySelector('#atm-single .atm-heart').click());
-await starPage.waitForSelector('#asg-promo');
+await starPage.waitForSelector('#asg-last4');
 const starForm = await starPage.evaluate(() => ({
   pressed: document.querySelector('[data-intent][aria-pressed="true"]').textContent,
   absent: document.querySelector('[data-intent="absent"]').textContent,
   email: !!document.querySelector('#asg-email'),
+  last4: document.querySelector('#asg-last4').maxLength,
   name: !!document.querySelector('#asg-name'),
-  role: !!document.querySelector('#asg-role'),
-  city: !!document.querySelector('#asg-city'),
-  site: document.querySelector('#asg-promo').checked,
-  label: document.querySelector('#asg-promolab').textContent,
+  gate: document.querySelector('#asg-go').textContent,
+  help: (document.querySelector('.asg-need') || {}).innerHTML || '',
   widget: document.querySelectorAll('.asg-ts').length
 }));
-check('the star form matches the menu form and defaults to 要参加', starForm.pressed === '要参加' && starForm.absent === '去不了' && starForm.email && starForm.name && starForm.role && starForm.city && starForm.site && starForm.label.includes('加入 ATM 全站订阅') && starForm.widget === 0);
+check('the star form starts with email and the last 4 digits', starForm.pressed === '要参加' && starForm.absent === '去不了' && starForm.email && starForm.last4 === 4 && !starForm.name && starForm.gate === '注册／登录' && starForm.help.indexOf('<em>必填</em>') >= 0 && starForm.widget === 0);
 await shot(starPage, '11-9-9-star-form-zh');
 
 async function htmlShot(file, name) {

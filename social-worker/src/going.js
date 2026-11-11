@@ -285,11 +285,21 @@ export function normalizePhone(raw) {
   if (digits.length < 8 || digits.length > 15) return '';
   return (s.startsWith('+') ? '+' : '') + digits;
 }
-function readPhone(b) {
-  if (b == null || b.phone == null || String(b.phone).trim() === '') return { phone: '' };
-  const phone = normalizePhone(b.phone);
-  if (!phone) return { error: 'bad_phone', status: 400 };
-  return { phone };
+// New registrations and profile edits store only these 4 digits. A longer number is refused.
+function readTail(b, required) {
+  const last = b && b.last4 != null ? String(b.last4).trim() : '';
+  const phone = b && b.phone != null ? String(b.phone).trim() : '';
+  const raw = last || phone;
+  if (!raw) {
+    if (required) return { error: 'need_phone', status: 400 };
+    return { phone: '' };
+  }
+  if (!/^\d{4}$/.test(raw)) return { error: 'bad_phone', status: 400 };
+  return { phone: raw };
+}
+async function phoneTablesReady(env) {
+  await env.SDB.prepare('SELECT 1 AS ok FROM user_phone LIMIT 1').first();
+  await env.SDB.prepare('SELECT 1 AS ok FROM phone_login_lock LIMIT 1').first();
 }
 async function sameTail(kit, stored, given) {
   const a = phoneLast4(stored);
@@ -439,6 +449,10 @@ const CONFIRM_NEXT = {
   zh: '确认后，若要在微信或其他浏览器使用，请输入你的邮箱和电话末 4 码，不必再等确认信。',
   en: 'After you confirm, to use WeChat or another browser, enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.'
 };
+const CONFIRM_RETURN = {
+  zh: '已经订阅过？请输入邮箱和电话末 4 码，不必再等确认信。',
+  en: 'Already subscribed? Enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.'
+};
 const CONFIRM_IGNORE = {
   zh: '如果不是你本人操作，忽略这封信即可。',
   en: 'If this wasn\'t you, you can simply ignore this email.'
@@ -459,12 +473,13 @@ export function buildConfirmLetter(row, link, _pending, he) {
   const hello = confirmHello(row.name, zh);
   const body = zh ? CONFIRM_BODY.zh : CONFIRM_BODY.en;
   const next = zh ? CONFIRM_NEXT.zh : CONFIRM_NEXT.en;
+  const back = zh ? CONFIRM_RETURN.zh : CONFIRM_RETURN.en;
   const ignore = zh ? CONFIRM_IGNORE.zh : CONFIRM_IGNORE.en;
   const sign = zh ? ZH_SIGN : EN_SIGN;
   const button = zh ? '确认订阅' : 'Confirm subscription';
   const subject = zh ? '请确认订阅亚洲探戈地图' : 'Please confirm your Asia Tango Map subscription';
-  const text = `${hello}\n\n${body}\n\n${next}\n\n${link}\n\n${ignore}\n\n${sign}`;
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:28px 24px"><p style="margin:0 0 14px">${esc(hello)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(body)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(next)}</p><p style="margin:22px 0"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${button}</a></p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(ignore)}</p><p style="margin:26px 0 0">${esc(sign)}</p></div></body></html>`;
+  const text = `${hello}\n\n${body}\n\n${next}\n\n${back}\n\n${link}\n\n${ignore}\n\n${sign}`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:28px 24px"><p style="margin:0 0 14px">${esc(hello)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(body)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(next)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(back)}</p><p style="margin:22px 0"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${button}</a></p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(ignore)}</p><p style="margin:26px 0 0">${esc(sign)}</p></div></body></html>`;
   return { subject, text, html, fromName: sign };
 }
 async function sendVerify(env, kit, row, link, pending) {
@@ -993,26 +1008,54 @@ export async function goingPass(req, env, b, json, kit) {
   const token = await issuePass(env, kit, session.id);
   return json({ ok: true, url: passLink(env, token) });
 }
+async function applySessionIntent(env, kit, session, b, iph) {
+  const id = String(b.id || ''), intent = intentOf(b.intent);
+  if (!kit.ID_RE.test(id) || !intent) return { error: 'bad_input', status: 400 };
+  const lang = b.lang === 'zh' ? 'zh' : 'en';
+  const notify = flag(b.notify, 1), transport = flag(b.transport, 0);
+  let card;
+  try { card = await goingCard(env, id, kit); }
+  catch (e) { console.log('going events', String(e && e.message || e).slice(0, 160)); return { error: 'lookup_failed', status: 503 }; }
+  if (!card) return { error: 'not_found', status: 404 };
+  const featured = card.kind === 'event' || card.kind === 'featured';
+  let anchor = featured ? '' : String(b.anchor || b.date || '');
+  if (!featured) {
+    const dates = occurrenceDates(card, shYmd(clock(env)), 16);
+    if (!anchor) anchor = dates[0] || '';
+    if (!anchor || dates.indexOf(anchor) < 0) return { error: 'bad_date', status: 400 };
+  }
+  const attend = !featured && intent === 'going' ? String(b.date || anchor) : '';
+  const name = oneLine(kit.clean, b.name, 80) || session.name;
+  const city = oneLine(kit.clean, b.city, 40) || session.city || '';
+  const role = roleOf(b.role) || roleOf(session.role);
+  if (!name) return { error: 'need_name', status: 400, need_profile: true };
+  await env.SDB.prepare('UPDATE users SET name=?,city=?,role=? WHERE id=?').bind(name, city || null, role || null, session.id).run();
+  const useTransport = featured || intent !== 'going' ? 0 : transport;
+  const result = await materialize(env, kit, { email: session.email, card_id: id, intent, anchor, occurrence_date: attend, attend, transport: useTransport, notify, name, city, role, lang }, iph);
+  if (result.error) return { error: result.error, status: 400 };
+  await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(kit.now(), session.email, id, anchor).run();
+  return { body: { verified: true, mailed: !!result.mailed, mail: result.mail, notice: result.notice || 'off', ...(result.wait ? { wait: result.wait } : {}), date: result.date || '', anchor } };
+}
+async function confirmedTail(env, kit, user, given) {
+  const row = await env.SDB.prepare('SELECT phone FROM user_phone WHERE user_id=?').bind(user.id).first();
+  return sameTail(kit, row && row.phone || '', given);
+}
 export async function goingPhone(req, env, b, iph, json, kit) {
   if (b && b.website) return json({ ok: true, mailed: false });
   const email = kit.clean(b && b.email, 254).toLowerCase();
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email', mailed: false }, 400);
-  let ready = false;
-  try {
-    await env.SDB.prepare('SELECT 1 AS ok FROM user_phone LIMIT 1').first();
-    await env.SDB.prepare('SELECT 1 AS ok FROM phone_login_lock LIMIT 1').first();
-    ready = true;
-  } catch (e) {
+  const given = phoneDigits(b && b.last4);
+  if (!/^\d{4}$/.test(given)) return json({ error: 'need_phone', mailed: false }, 400);
+  try { await phoneTablesReady(env); }
+  catch (e) {
     if (missingTable(e)) return json({ error: 'phone_unavailable', mailed: false }, 503);
     throw e;
   }
-  if (!ready) return json({ error: 'phone_unavailable', mailed: false }, 503);
-  if (!(await phoneLoginOpen(env, email, iph || ''))) return json({ error: 'rate_limited', mailed: false }, 429);
-  const given = phoneDigits(b && b.last4);
-  const user = await env.SDB.prepare(`SELECT u.id,u.email,u.lang,u.verified_at,p.phone AS phone
+  const user = await env.SDB.prepare(`SELECT u.id,u.email,u.name,u.city,u.role,u.lang,u.verified_at,p.phone AS phone
     FROM users u LEFT JOIN user_phone p ON p.user_id=u.id WHERE u.email=?`).bind(email).first();
-  const stored = user && user.verified_at ? (user.phone || '') : '';
-  const match = given.length === 4 && await sameTail(kit, stored, given);
+  if (!user || !user.verified_at) return json({ ok: true, register: true, mailed: false });
+  if (!(await phoneLoginOpen(env, email, iph || ''))) return json({ error: 'rate_limited', mailed: false }, 429);
+  const match = await sameTail(kit, user.phone || '', given);
   if (!match) {
     await notePhoneFail(env, kit, 'e:' + email, PHONE_EMAIL_MAX);
     await notePhoneFail(env, kit, 'i:' + (iph || ''), PHONE_IP_MAX);
@@ -1020,15 +1063,19 @@ export async function goingPhone(req, env, b, iph, json, kit) {
   }
   await env.SDB.prepare('DELETE FROM phone_login_lock WHERE subject=?').bind('e:' + email).run();
   const token = await kit.issueSession(env, user, { keepCode: true });
-  return sessionJson(req, { ok: true, session: token, verified: true, mailed: false }, token);
+  if (!(b && b.id)) return sessionJson(req, { ok: true, session: token, verified: true, mailed: false, register: false }, token);
+  const applied = await applySessionIntent(env, kit, user, b, iph);
+  if (applied.error) return sessionJson(req, { error: applied.error, session: token, mailed: false, need_profile: !!applied.need_profile }, token, applied.status);
+  return sessionJson(req, { ok: true, session: token, register: false, confirm: false, ...applied.body }, token);
 }
-async function fillBlanks(env, kit, email, fields) {
+async function fillBlanks(env, kit, email, fields, opt) {
   const cur = await env.SDB.prepare('SELECT id,name,city,role FROM users WHERE email=?').bind(email).first();
   if (!cur) return upsertUser(env, kit, email, fields);
   const name = String(cur.name || '').trim() ? cur.name : (fields.name || '');
   const city = String(cur.city || '').trim() ? cur.city : (fields.city || null);
   const role = roleOf(cur.role) ? cur.role : (roleOf(fields.role) || null);
-  await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?),name=?,city=?,role=?,lang=? WHERE id=?').bind(kit.now(), name, city, role, fields.lang, cur.id).run();
+  const stamp = opt && opt.verify === false ? null : kit.now();
+  await env.SDB.prepare('UPDATE users SET verified_at=COALESCE(verified_at,?),name=?,city=?,role=?,lang=? WHERE id=?').bind(stamp, name, city, role, fields.lang, cur.id).run();
   return env.SDB.prepare('SELECT id,email,name,city,role,lang,verified_at FROM users WHERE email=?').bind(email).first();
 }
 
@@ -1065,14 +1112,14 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email' }, 400);
   if (!city) return json({ error: 'need_city' }, 400);
   if (!role) return json({ error: 'need_role' }, 400);
-  const phoneCheck = readPhone(b);
+  const session = await sessionUser(req, env);
+  const same = !!(session && session.email === email);
+  const phoneCheck = readTail(b, !same);
   if (phoneCheck.error) return json({ error: phoneCheck.error, mailed: false }, phoneCheck.status);
   const ret = kit.safeNext(b.ret);
   if (!ret) return json({ error: 'bad_return' }, 400);
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const alert = flag(b.alert, 0);
-  const session = await sessionUser(req, env);
-  const same = !!(session && session.email === email);
   if (!same && !(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
   if (!same) {
     if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
@@ -1140,7 +1187,8 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   const notify = flag(b.notify, 1), transport = flag(b.transport, 0);
   const promo = flag(b.alert, 0);
   const sessionEarly = await sessionUser(req, env);
-  if (!sessionEarly && intent === 'absent') return json({ ok: true, mail: 'withheld', stored: false });
+  const hintedEmail = kit.clean(b.email, 254).toLowerCase();
+  if (!sessionEarly && intent === 'absent' && !kit.EMAIL_RE.test(hintedEmail)) return json({ ok: true, mail: 'withheld', stored: false });
   let card;
   try { card = await goingCard(env, id, kit); }
   catch (e) { console.log('going events', String(e && e.message || e).slice(0, 160)); return json({ error: 'lookup_failed' }, 503); }
@@ -1155,39 +1203,47 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   }
   const attend = !featured && intent === 'going' ? String(b.date || anchor) : '';
   const session = await sessionUser(req, env);
-  let name, email, city, role;
   if (session) {
-    name = oneLine(kit.clean, b.name, 80) || session.name;
-    email = session.email;
-    city = oneLine(kit.clean, b.city, 40) || session.city || '';
-    role = roleOf(b.role) || roleOf(session.role);
-    if (!name) return json({ error: 'need_name', need_profile: true }, 400);
-    await env.SDB.prepare('UPDATE users SET name=?,city=?,role=? WHERE id=?').bind(name, city || null, role || null, session.id).run();
-    const result = await materialize(env, kit, { email, card_id: id, intent, anchor, occurrence_date: attend, attend, transport, notify, name, city, role, lang }, iph);
-    if (result.error) return json({ error: result.error }, 400);
-    await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(kit.now(), email, id, anchor).run();
-    return json({ ok: true, verified: true, mailed: !!result.mailed, mail: result.mail, notice: result.notice || 'off', ...(result.wait ? { wait: result.wait } : {}), date: result.date || '', anchor });
+    const applied = await applySessionIntent(env, kit, session, b, iph);
+    if (applied.error) return json({ error: applied.error, need_profile: !!applied.need_profile }, applied.status);
+    return json({ ok: true, ...applied.body });
   }
   const prof = readProfile(b, kit);
-  name = prof.name; email = prof.email; city = prof.city; role = prof.role;
+  let name = prof.name, email = prof.email, city = prof.city, role = prof.role;
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email' }, 400);
+  const existing = await env.SDB.prepare('SELECT id,email,name,city,role,lang,verified_at FROM users WHERE email=?').bind(email).first();
+  if (existing && existing.verified_at) {
+    const tail = readTail(b, true);
+    if (tail.error) return json({ error: tail.error, mailed: false }, tail.status);
+    try { await phoneTablesReady(env); }
+    catch (e) {
+      if (missingTable(e)) return json({ error: 'phone_unavailable', mailed: false }, 503);
+      throw e;
+    }
+    if (!(await phoneLoginOpen(env, email, iph || ''))) return json({ error: 'rate_limited', mailed: false }, 429);
+    const match = await confirmedTail(env, kit, existing, tail.phone);
+    if (!match) {
+      await notePhoneFail(env, kit, 'e:' + email, PHONE_EMAIL_MAX);
+      await notePhoneFail(env, kit, 'i:' + (iph || ''), PHONE_IP_MAX);
+      return json({ error: 'phone_login', mailed: false }, 401);
+    }
+    await env.SDB.prepare('DELETE FROM phone_login_lock WHERE subject=?').bind('e:' + email).run();
+    const token = await kit.issueSession(env, existing, { keepCode: true });
+    const applied = await applySessionIntent(env, kit, existing, b, iph);
+    if (applied.error) return sessionJson(req, { error: applied.error, session: token, mailed: false, need_profile: !!applied.need_profile }, token, applied.status);
+    return sessionJson(req, { ok: true, session: token, confirm: false, ...applied.body }, token);
+  }
   const again = await resendGate(env, email, id, anchor);
   if (again) return json(again, 429);
   if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
   const useTransport = featured || intent !== 'going' ? 0 : transport;
-  const existing = await env.SDB.prepare('SELECT id,name,city,role,verified_at FROM users WHERE email=?').bind(email).first();
-  if (existing && existing.verified_at) {
-    if (!name) name = existing.name || '';
-    if (!city) city = existing.city || '';
-    if (!role) role = roleOf(existing.role);
-  }
   if (!name) return json({ error: 'need_name' }, 400);
   if (!city) return json({ error: 'need_city' }, 400);
   if (!role) return json({ error: 'need_role' }, 400);
-  const phoneCheck = readPhone(b);
+  const phoneCheck = readTail(b, true);
   if (phoneCheck.error) return json({ error: phoneCheck.error, mailed: false }, phoneCheck.status);
   if (!existing) await upsertUser(env, kit, email, { name, city, role, lang, iph });
-  else if (!existing.verified_at) await fillBlanks(env, kit, email, { name, city, role, lang, iph });
+  else if (!existing.verified_at) await fillBlanks(env, kit, email, { name, city, role, lang, iph }, { verify: false });
   await env.SDB.prepare(`INSERT INTO going_pending(email,card_id,anchor,intent,occurrence_date,attend_date,transport,notify,name,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(email,card_id,anchor) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,attend_date=excluded.attend_date,transport=excluded.transport,notify=excluded.notify,name=excluded.name,created_at=excluded.created_at,consumed_at=NULL`)
     .bind(email, id, anchor, intent, attend || null, attend || null, useTransport, notify, name, kit.now()).run();

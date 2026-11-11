@@ -19,6 +19,7 @@ db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0009_going.sql
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_confirm_show.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0016_phone_bind.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);`);
@@ -53,14 +54,14 @@ const cfg = await get('/going/config');
 check('config is the public site key only', cfg.sitekey === 'public-site-key' && !JSON.stringify(cfg).includes('do-not-leak') && !cfg.secret);
 delete env.TURNSTILE_SECRET;
 const ret = 'https://tangoweekend.org/asia/?card=W1';
-const sent = await post('/profile', { name: 'Li', email: 'submail@example.com', city: 'Osaka', role: 'leader', lang: 'en', alert: 0, ret, ts: 'x' });
+const sent = await post('/profile', { name: 'Li', email: 'submail@example.com', city: 'Osaka', role: 'leader', lang: 'en', alert: 0, ret, ts: 'x', last4: '8000' });
 check('unset SOCIAL_MAIL uses SUB_MAIL', sent.confirm && calls.length === 1 && calls[0].to === 'submail@example.com' && calls[0].from.email === 'subscribe@tangoweekend.org' && calls[0].from.name);
 check('EMAIL is not the profile sender', emailCalls.length === 0);
 env.SOCIAL_MAIL = 'log';
 const logged = [];
 const orig = console.log;
 console.log = (...a) => { const s = a.map(String).join(' '); if (s.startsWith('[mail:log]')) logged.push(s); else orig(...a); };
-const again = await post('/profile', { name: 'Li', email: 'log@example.com', city: 'Osaka', role: 'follower', lang: 'en', alert: 0, ret, ts: 'x' });
+const again = await post('/profile', { name: 'Li', email: 'log@example.com', city: 'Osaka', role: 'follower', lang: 'en', alert: 0, ret, ts: 'x', last4: '8000' });
 check('explicit log does not call SUB_MAIL', again.confirm && calls.length === 1 && logged.length === 1);
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going mail tests ok');

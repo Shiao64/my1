@@ -22,6 +22,7 @@ db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_confirm_show.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0015_going_pass.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0016_phone_bind.sql'), 'utf8'));
 db.exec(`
 CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT, wx_used INTEGER);
@@ -72,7 +73,7 @@ async function get(path, headers) {
 }
 function orgMails() { return mails.filter(m => m.includes('cc=selecttango@gmail.com') && m.includes('to=org@example.com')); }
 function userMails(to) { return mails.filter(m => m.includes('to=' + to) && !m.includes('cc=selecttango@gmail.com')); }
-const base = { ts: 'x', dev, lang: 'en', ret, disclose: 1, explicit: 1, name: 'Ana', email: 'ana@example.com', city: 'Seoul', role: 'leader' };
+const base = { ts: 'x', dev, lang: 'en', ret, disclose: 1, explicit: 1, name: 'Ana', email: 'ana@example.com', city: 'Seoul', role: 'leader', last4: '8000' };
 
 const today = shYmd(Date.parse(env.GOING_NOW));
 const dates = occurrenceDates(CARDS.W1, today, 4);
@@ -135,8 +136,8 @@ check('no organizer email still saves and does not mail', none.ok && none._s ===
 const openOnly = await post('/going', { ...base, id: 'W1', intent: 'going', explicit: 0 }, auth);
 check('opening without confirm does not mail', openOnly._s === 400 && openOnly.error === 'need_explicit' && orgMails().length === 0);
 
-const imp = await post('/going', { ...base, email: 'ana@example.com', id: 'F1', intent: 'going' });
-check('typed verified email is not a session', !imp.token && imp.confirm && imp.mailed === false);
+const imp = await post('/going', { ...base, email: 'ana@example.com', id: 'F1', intent: 'going', last4: '0000' });
+check('a wrong last 4 does not sign in or send another confirm', imp._s === 401 && imp.error === 'phone_login' && imp.mailed === false && !imp.session);
 const mine = await get('/going/mine', auth);
 check('mine is the session user', mine.email === 'ana@example.com' && mine.role === 'leader' && mine.city === 'Seoul');
 const stranger = await get('/going/mine');

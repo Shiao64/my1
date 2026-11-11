@@ -21,6 +21,7 @@ db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_confirm_show.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0015_going_pass.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0016_phone_bind.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);`);
@@ -67,7 +68,7 @@ async function confirm(link) {
 const star = fs.readFileSync(path.join(root, 'asia/atm-star.js'), 'utf8');
 check('chinese and english each use Confirm', star.includes("verifyBtn: '确认'") && star.includes("verifyBtn: 'Confirm'") && !star.includes('确认邮箱并继续') && !star.includes('Confirm email and continue') && !star.includes('asg-restore') && !star.includes('用邮箱恢复登录'));
 
-const fresh = await post('/going', { id: 'F1', intent: 'interested', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', notify: 0, date: '' });
+const fresh = await post('/going', { id: 'F1', intent: 'interested', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', notify: 0, date: '', last4: '8000' });
 check('new user email does not queue', fresh.confirm && fresh.preview_link && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('new@example.com'));
 check('choice is kept', db.prepare('SELECT intent i, notify n FROM going_pending WHERE email=? AND consumed_at IS NULL').get('new@example.com').i === 'interested' && db.prepare('SELECT notify n FROM going_pending WHERE email=?').get('new@example.com').n === 0);
 const first = await confirm(fresh.preview_link);
@@ -81,25 +82,25 @@ const done = await post('/going', { id: 'F1', intent: 'interested', explicit: 1,
 check('saved profile is not asked again and queues once', done.mail === 'queued' && !done.need_profile && db.prepare("SELECT mail_status s FROM going_intents WHERE email=?").get('new@example.com').s === 'queued' && !db.prepare('SELECT id FROM going_pending WHERE email=? AND consumed_at IS NULL').get('new@example.com'));
 
 db.prepare("INSERT INTO users(email,name,city,role,verified_at,created_at) VALUES('old@example.com','Ada','Seoul','leader','2026-11-01T00:00:00.000Z','2026-11-01T00:00:00.000Z')").run();
-const old = await post('/going', { id: 'W1', intent: 'going', email: 'old@example.com', name: '', city: '', role: '', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en', date: '2026-11-13', notify: 1 });
-const oldText = await confirm(old.preview_link);
+db.prepare('INSERT INTO user_phone(user_id,phone,updated_at) VALUES(?,?,?)').run(db.prepare("SELECT id FROM users WHERE email='old@example.com'").get().id, '8000', '2026-11-01T00:00:00.000Z');
+const old = await post('/going', { id: 'W1', intent: 'going', email: 'old@example.com', name: '', city: '', role: '', last4: '8000', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en', date: '2026-11-13', notify: 1 });
 const oldUser = db.prepare('SELECT name n, city c, role r FROM users WHERE email=?').get('old@example.com');
-check('empty form does not wipe an old profile', oldUser.n === 'Ada' && oldUser.c === 'Seoul' && oldUser.r === 'leader');
-const oldToken = (oldText.match(/s=([0-9a-f]{64})/) || [])[1];
+check('empty form does not wipe an old profile', old.confirm !== true && old.mailed === false && oldUser.n === 'Ada' && oldUser.c === 'Seoul' && oldUser.r === 'leader');
+const oldToken = old.session;
 const oldMine = await get('/going/mine', { Authorization: 'Bearer ' + oldToken });
-check('old device gets the saved date', oldMine.drafts.some(d => d.id === 'W1' && d.intent === 'going' && d.date === '2026-11-13') && oldMine.role === 'leader');
+check('old device gets the saved date', oldMine.items.some(d => d.id === 'W1' && d.intent === 'going' && d.date === '2026-11-13') && oldMine.role === 'leader');
 const oldFinal = await post('/going', { id: 'W1', intent: 'going', date: '2026-11-13', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' }, { Authorization: 'Bearer ' + oldToken });
-check('complete old user queues without a new profile', oldFinal.mail === 'queued' && oldFinal.verified);
+check('complete old user queues without a new profile', (oldFinal.mail === 'queued' || oldFinal.mail === 'unchanged') && oldFinal.verified);
 
 db.prepare("UPDATE users SET city=NULL WHERE email=?").run('gap@example.com');
 db.prepare("INSERT INTO users(email,name,city,role,verified_at,created_at) VALUES('gap@example.com','Gao',NULL,'follower','2026-11-01T00:00:00.000Z','2026-11-01T00:00:00.000Z')").run();
-const gap = await post('/going', { id: 'F1', intent: 'interested', email: 'gap@example.com', name: '', city: 'Busan', role: '', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' });
-await confirm(gap.preview_link);
+db.prepare('INSERT INTO user_phone(user_id,phone,updated_at) VALUES(?,?,?)').run(db.prepare("SELECT id FROM users WHERE email='gap@example.com'").get().id, '8000', '2026-11-01T00:00:00.000Z');
+const gap = await post('/going', { id: 'F1', intent: 'interested', email: 'gap@example.com', name: '', city: 'Busan', role: '', last4: '8000', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' });
 const gapUser = db.prepare('SELECT name n, city c, role r FROM users WHERE email=?').get('gap@example.com');
-check('only the blank city is filled', gapUser.n === 'Gao' && gapUser.c === 'Busan' && gapUser.r === 'follower');
+check('only the blank city is filled', gap.confirm !== true && gap.session && gapUser.n === 'Gao' && gapUser.c === 'Busan' && gapUser.r === 'follower');
 
 db.prepare("UPDATE profile_verify SET sent_at='2020-01-01T00:00:00.000Z' WHERE email=?").run('late@example.com');
-const late = await post('/going', { id: 'F1', intent: 'going', email: 'late@example.com', name: 'Late', city: 'Osaka', role: 'both', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' });
+const late = await post('/going', { id: 'F1', intent: 'going', email: 'late@example.com', name: 'Late', city: 'Osaka', role: 'both', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en', last4: '8000' });
 db.prepare("UPDATE profile_verify SET sent_at='2020-01-01T00:00:00.000Z' WHERE email=?").run('late@example.com');
 const lateText = await confirm(late.preview_link);
 check('expired token does not verify', (lateText.includes('expired') || lateText.includes('过期')) && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('late@example.com').v);

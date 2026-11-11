@@ -1,7 +1,8 @@
 /* Profile form. POST /social/profile with alert:0.
-   No session: send a verification email and save nothing public. A phone entered here is bound after that confirm.
-   Already subscribed: POST /social/going/phone with the email and the last 4 digits. That signs this browser in and does not send mail.
-   Same verified session: update name, city, role, and phone, and do not send another email.
+   No session: email and the last 4 digits first. POST /social/going/phone.
+   A new or unconfirmed address then completes name, role, and city and sends one confirmation email.
+   The last 4 digits sign in only after that link is opened. A confirmed address with a matching last 4 signs in and does not send mail.
+   Same verified session: update name, city, role, and the last 4 digits, and do not send another email.
    This does not create Going or Interested and does not email an organizer. */
 (function () {
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
@@ -11,7 +12,9 @@
     email: '邮箱', emailPh: 'name@example.com', site: '加入 ATM 全站订阅',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '验证邮件发送失败，请检查邮箱或稍后再试。',
     returnHint: '已经订阅过？请输入邮箱和电话末 4 码，不必再等确认信。',
-    phone: '电话', phonePh: '手机号', last4: '电话末 4 码', signIn: '登录', signing: '登录中…',
+    gateHelp: '邮箱和电话末 4 码<em>必填</em>。系统会识别是注册还是登录。第一次注册仍要发送确认邮件；在信里点确认以后，电话末 4 码才会生效。已确认过的，填邮箱和电话末 4 码即可登录，不必再等确认信。',
+    regHelp: '请完成注册。邮箱和电话末 4 码<em>必填</em>。请补全资料并发送确认邮件。在信里点确认以后，电话末 4 码才会生效。',
+    phone: '电话', phonePh: '手机号', last4: '电话末 4 码', signIn: '登录', signing: '登录中…', gate: '注册／登录', send: '发送确认邮件',
     needPhone: '请填写电话。', badPhone: '电话号码不正确。', needLast4: '请输入电话末 4 码。', badLogin: '邮箱或电话末 4 码不正确。',
     phoneSaved: '已保存末 4 码 ',
     submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。', saved: '资料已保存。这个设备已经验证过，没有再发信。',
@@ -22,7 +25,9 @@
     email: 'Email', emailPh: 'name@example.com', site: 'Join ATM site-wide subscription',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the verification email. Check the address or try again.', bad: 'Please check your email address.',
     returnHint: 'Already subscribed? Enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.',
-    phone: 'Phone', phonePh: 'Mobile number', last4: 'Last 4 digits', signIn: 'Sign in', signing: 'Signing in…',
+    gateHelp: 'Email and the last 4 digits are <em>required</em>. The form tells registration from sign-in. The first registration still sends a confirmation email. The last 4 digits work only after you tap the link in that email. If you already confirmed, enter your email and the last 4 digits to sign in. You don\u2019t need another confirmation email.',
+    regHelp: 'Finish registration. Email and the last 4 digits are <em>required</em>. Complete your details and send the confirmation email. The last 4 digits work only after you tap the link in that email.',
+    phone: 'Phone', phonePh: 'Mobile number', last4: 'Last 4 digits', signIn: 'Sign in', signing: 'Signing in…', gate: 'Register / sign in', send: 'Send confirmation email',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your phone.', badLogin: 'The email or the last 4 digits did not match.',
     phoneSaved: 'Saved, last 4 digits ',
     submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish.', saved: 'Profile saved. This device is already verified, so no new email was sent.',
@@ -55,6 +60,9 @@
     '#tsub-modal .tsub-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}' +
     '#tsub-modal .tsub-foot{font-size:.78rem;color:#7a6255;margin:12px 0 0;padding-top:8px;border-top:1px dashed #ead9b8}' +
     '#tsub-modal .tsub-return{font-size:.88rem;font-weight:700;color:#0a4f57;margin:0 0 8px;line-height:1.45}' +
+    '#tsub-modal .tsub-need{margin:8px 0 2px;font-size:.88rem;font-weight:700;color:#0a4f57;line-height:1.45}#tsub-modal .tsub-need em{color:#b5654a;font-style:normal}' +
+    '#tsub-modal .tsub-star{color:#b5654a;font-weight:700;margin-left:2px}#tsub-modal input.tsub-must{border-color:#c48a6a}' +
+    '#tsub-modal .tsub-need[hidden],#tsub-modal #tsub-reg[hidden],#tsub-modal #tsub-phone-go[hidden]{display:none!important}' +
     '#tsub-modal .tsub-return[hidden],#tsub-modal .tsub-login[hidden]{display:none!important}' +
     '#tsub-modal .tsub-alt{width:100%;min-height:44px;margin-top:8px;border-radius:999px;border:1px solid #0e6e78;background:#fff;color:#0e6e78;font:600 .95rem/1.2 system-ui,sans-serif;cursor:pointer}' +
     '#tsub-modal .tsub-alt:disabled{opacity:.5}' +
@@ -78,26 +86,27 @@
   else if (lang) lang.parentNode.insertBefore(pair, lang);
   else { var f = document.querySelector('#filters .wrap') || document.getElementById('filters'); if (f) f.appendChild(pair); }
 
-  function EM() { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '</label><input type="email" class="tsub-in" id="tsub-e" autocomplete="email" required aria-required="true" placeholder="' + L.emailPh + '">'; }
+  function EM() { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '<span class="tsub-star" id="tsub-email-star">*</span></label><input type="email" class="tsub-in tsub-must" id="tsub-e" autocomplete="email" required aria-required="true" maxlength="80" placeholder="' + L.emailPh + '">'; }
   var m = document.createElement('div'); m.id = 'tsub-modal'; m.hidden = true;
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
-    '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-return" id="tsub-return">' + L.returnHint + '</p><p class="tsub-desc">' + L.desc + '</p>' +
+    '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-need" id="tsub-need">' + L.gateHelp + '</p><p class="tsub-desc" id="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate data-m="em">' +
     EM() +
-    '<div id="tsub-login"><label class="tsub-lbl" for="tsub-last4">' + L.last4 + '</label><input type="text" class="tsub-in" id="tsub-last4" inputmode="numeric" autocomplete="off" maxlength="4">' +
-    '<button type="button" class="tsub-alt" id="tsub-phone-go">' + L.signIn + '</button></div>' +
+    '<label class="tsub-lbl" for="tsub-last4">' + L.last4 + '<span class="tsub-star" id="tsub-tail-star">*</span></label><input type="text" class="tsub-in tsub-must" id="tsub-last4" inputmode="numeric" autocomplete="off" maxlength="4">' +
+    '<button type="button" class="tsub-go" id="tsub-phone-go">' + L.gate + '</button>' +
+    '<div id="tsub-reg" hidden>' +
     '<label class="tsub-lbl" for="tsub-n">' + L.name + '</label><input type="text" class="tsub-in" id="tsub-n" autocomplete="name" maxlength="40" required aria-required="true" placeholder="' + L.namePh + '">' +
     '<div class="tsub-row"><div class="tsub-col"><label class="tsub-lbl" for="tsub-r">' + L.role + '</label><select class="tsub-in" id="tsub-r" required aria-required="true"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>' +
     '<div class="tsub-col"><label class="tsub-lbl" for="tsub-c">' + L.city + '</label><input type="text" class="tsub-in" id="tsub-c" autocomplete="address-level2" maxlength="40" required aria-required="true" placeholder="' + L.cityPh + '"></div></div>' +
-    '<label class="tsub-lbl" for="tsub-phone">' + L.phone + '</label><input type="text" class="tsub-in" id="tsub-phone" inputmode="tel" autocomplete="tel" maxlength="32" placeholder="' + L.phonePh + '">' +
     '<label class="tsub-check" for="tsub-site"><input type="checkbox" id="tsub-site" checked>' + L.site + '</label>' +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
-    '<div class="tsub-ts"></div><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
-    '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button>' +
+    '<div class="tsub-ts"></div>' +
+    '<button type="submit" class="tsub-go" id="tsub-go">' + L.send + '</button>' +
     '<button type="submit" class="tsub-unsub" id="tsub-unsub" hidden>' + L.unsub + '</button>' +
     '<div class="tsub-pass" id="tsub-pass" hidden><p class="tsub-lbl">' + L.passTitle + '</p><p class="tsub-pass-note" id="tsub-pass-hint">' + L.passHint + '</p>' +
     '<div class="tsub-pass-row"><input class="tsub-in" id="tsub-pass-url" readonly autocomplete="off" spellcheck="false" aria-label="' + L.passTitle + '"><button type="button" class="tsub-pass-copy" id="tsub-pass-copy">' + L.passCopy + '</button></div>' +
-    '<p class="tsub-pass-note" id="tsub-pass-note"></p><button type="button" class="tsub-pass-new" id="tsub-pass-new">' + L.passNew + '</button></div>' +
+    '<p class="tsub-pass-note" id="tsub-pass-note"></p><button type="button" class="tsub-pass-new" id="tsub-pass-new">' + L.passNew + '</button></div></div>' +
+    '<p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
     '<p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
     '<p class="tsub-foot">' + L.foot + '</p></div></div>';
   document.body.appendChild(m);
@@ -118,16 +127,10 @@
   }
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
-  function phoneOk(raw) {
-    var s = String(raw || '').trim();
-    if (!/^\+?[\d(][\d\s().-]{6,38}$/.test(s)) return false;
-    var n = s.replace(/\D/g, '').length;
-    return n >= 8 && n <= 15;
-  }
   function paintPhone(tail) {
-    var el = $('tsub-phone'); if (!el) return;
+    var el = $('tsub-last4'); if (!el) return;
     el.value = '';
-    el.placeholder = tail ? (L.phoneSaved + tail) : L.phonePh;
+    el.placeholder = tail ? (L.phoneSaved + tail) : '';
   }
   var PASS_KEY = 'atm_pass_url';
   function passSaved() { try { return localStorage.getItem(PASS_KEY) || ''; } catch (e) { return ''; } }
@@ -187,13 +190,27 @@
   function paintMode(on) {
     $('tsub-t').textContent = on ? L.mine : L.title;
     var go = $('tsub-go');
-    if (go && go.dataset.busy !== '1') go.textContent = on ? L.save : L.submit;
+    if (go && go.dataset.busy !== '1') go.textContent = on ? L.save : L.send;
     var un = $('tsub-unsub'); if (un) un.hidden = !on;
-    var em = $('tsub-e'); if (em) em.disabled = !!on;
-    var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = !!on;
-    var ret = $('tsub-return'); if (ret) ret.hidden = !!on;
-    var login = $('tsub-login'); if (login) login.hidden = !!on;
+    var em = $('tsub-e'); if (em) { em.disabled = !!on; em.classList.toggle('tsub-must', !on); }
+    var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = true;
+    var need = $('tsub-need');
+    if (need) { need.hidden = !!on; if (!on) need.innerHTML = L.gateHelp; }
+    var gateBtn = $('tsub-phone-go'); if (gateBtn) gateBtn.hidden = !!on;
+    var reg = $('tsub-reg'); if (reg) reg.hidden = !on;
+    var star = $('tsub-tail-star'); if (star) star.hidden = !!on;
+    var emailStar = $('tsub-email-star'); if (emailStar) emailStar.hidden = !!on;
+    var tail = $('tsub-last4'); if (tail) tail.classList.toggle('tsub-must', !on);
     if (!on && $('tsub-pass')) $('tsub-pass').hidden = true;
+  }
+  function showRegister() {
+    var need = $('tsub-need');
+    if (need) { need.hidden = false; need.innerHTML = L.regHelp; }
+    var gateBtn = $('tsub-phone-go'); if (gateBtn) gateBtn.hidden = true;
+    var reg = $('tsub-reg'); if (reg) reg.hidden = false;
+    var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = false;
+    var go = $('tsub-go'); if (go && go.dataset.busy !== '1') go.textContent = L.send;
+    mountSubTs();
   }
   function open() {
     if (tmr) { clearTimeout(tmr); tmr = null; }
@@ -201,10 +218,10 @@
     var tok = token();
     paintMode(!!tok);
     m.hidden = false;
-    if (!tok) { paintPhone(''); mountSubTs(); return; }
+    if (!tok) { paintPhone(''); paintMode(false); return; }
     var headers = { Authorization: 'Bearer ' + tok };
     fetch(API + '/social/going/mine', { headers: headers }).then(function (r) { return r.json(); }).then(function (d) {
-      if (!d || !d.email) { paintPhone(''); paintMode(false); mountSubTs(); return; }
+      if (!d || !d.email) { paintPhone(''); paintMode(false); return; }
       $('tsub-n').value = d.name || '';
       if ($('tsub-c')) $('tsub-c').value = d.city || '';
       if ($('tsub-r')) $('tsub-r').value = d.role || '';
@@ -213,7 +230,7 @@
       paintPhone(d.phone_tail || '');
       paintMode(true);
       loadPass();
-    }).catch(function () { paintMode(false); mountSubTs(); });
+    }).catch(function () { paintMode(false); });
   }
   function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; }
   $('tsub-open').addEventListener('click', open);
@@ -233,18 +250,18 @@
     if (role !== 'leader' && role !== 'follower' && role !== 'both') { err.textContent = L.needRole; $('tsub-r').focus(); return; }
     if (!em) { err.textContent = L.need; if ($('tsub-e')) $('tsub-e').focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
-    var phone = $('tsub-phone') ? $('tsub-phone').value.trim() : '';
-    if (!profile && !phoneOk(phone)) { err.textContent = phone ? L.badPhone : L.needPhone; if ($('tsub-phone')) $('tsub-phone').focus(); return; }
-    if (profile && phone && !phoneOk(phone)) { err.textContent = L.badPhone; if ($('tsub-phone')) $('tsub-phone').focus(); return; }
+    var tail = $('tsub-last4') ? $('tsub-last4').value.replace(/\D/g, '') : '';
+    if (!profile && !/^\d{4}$/.test(tail)) { err.textContent = L.needLast4; if ($('tsub-last4')) $('tsub-last4').focus(); return; }
+    if (profile && $('tsub-last4') && $('tsub-last4').value.trim() && !/^\d{4}$/.test(tail)) { err.textContent = L.needLast4; if ($('tsub-last4')) $('tsub-last4').focus(); return; }
     if ($('tsub-hp').value) { ok.textContent = L.ok; ok.hidden = false; return; }
     go.disabled = true; go.dataset.busy = '1'; go.textContent = profile ? L.saving : L.sending;
     var headers = { 'Content-Type': 'application/json' }; try { var tok = localStorage.getItem('atm_session'); if (tok) headers.Authorization = 'Bearer ' + tok; } catch (e2) {}
     var tsEl = document.querySelector('#tsub-f .tsub-ts');
     var ts = '';
     if (tsEl && !tsEl.hidden) { var inp = tsEl.querySelector('[name="cf-turnstile-response"]'); ts = inp ? String(inp.value || '').trim() : ''; }
-    if (!profile && !ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.dataset.busy = ''; go.textContent = L.submit; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
+    if (!profile && !ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.dataset.busy = ''; go.textContent = L.send; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
     var body = { name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: site, ret: pageRet(), website: $('tsub-hp').value, ts: ts };
-    if (phone) body.phone = phone;
+    if (tail) body.last4 = tail;
     fetch(API + '/social/profile', { method: 'POST', credentials: 'include', headers: headers, body: JSON.stringify(body) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
@@ -257,11 +274,16 @@
           tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 6000);
         }
         else {
-          err.textContent = d.error === 'need_name' ? L.needName : d.error === 'need_city' ? L.needCity : d.error === 'need_role' ? L.needRole : d.error === 'bad_phone' ? L.badPhone : d.error === 'bad_email' ? L.bad : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : L.fail;
+          err.textContent = d.error === 'need_name' ? L.needName : d.error === 'need_city' ? L.needCity : d.error === 'need_role' ? L.needRole : d.error === 'need_phone' ? L.needLast4 : d.error === 'bad_phone' ? L.needLast4 : d.error === 'bad_email' ? L.bad : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : L.fail;
         }
       })
       .catch(function () { err.textContent = L.fail; })
-      .then(function () { go.disabled = false; go.dataset.busy = ''; paintMode(!!($('tsub-e') && $('tsub-e').disabled && token())); });
+      .then(function () {
+        go.disabled = false; go.dataset.busy = '';
+        if ($('tsub-e') && $('tsub-e').disabled && token()) paintMode(true);
+        else if ($('tsub-reg') && !$('tsub-reg').hidden) go.textContent = L.send;
+        else paintMode(false);
+      });
   });
   var phoneGo = $('tsub-phone-go');
   if (phoneGo) phoneGo.addEventListener('click', function () {
@@ -276,6 +298,7 @@
     fetch(API + '/social/going/phone', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: em, last4: tail, lang: zh ? 'zh' : 'en' }) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
+        if (d && d.register) { showRegister(); return; }
         if (d && d.session) {
           setToken(d.session);
           if (window.ATM_STAR && window.ATM_STAR.refresh) window.ATM_STAR.refresh();
@@ -286,7 +309,7 @@
         err.textContent = d && d.error === 'rate_limited' ? L.rate : L.badLogin;
       })
       .catch(function () { err.textContent = L.fail; })
-      .then(function () { phoneGo.disabled = false; phoneGo.textContent = L.signIn; });
+      .then(function () { phoneGo.disabled = false; phoneGo.textContent = L.gate; });
   });
   var passCopy = $('tsub-pass-copy');
   if (passCopy) passCopy.addEventListener('click', function () {
