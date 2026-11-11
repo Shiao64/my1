@@ -10,13 +10,15 @@
     email: '邮箱', emailPh: 'name@example.com', site: '加入 ATM 全站订阅',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '验证邮件发送失败，请检查邮箱或稍后再试。',
     submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。', saved: '资料已保存。这个设备已经验证过，没有再发信。',
-    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。', close: '关闭'
+    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。', close: '关闭',
+    passTitle: '我的订阅', passHint: '在微信、Safari、Chrome 或其他浏览器打开这个链接即可登录，不必再收确认邮件。', passCopy: '复制', passCopied: '已复制', passNew: '生成新链接', passNewWarn: '生成新链接后，旧链接会失效。继续？', passMissing: '这个浏览器没有保存订阅链接。生成新链接会使旧链接失效。', passStale: '这个浏览器保存的链接已失效。可生成新链接。', passFail: '暂时无法读取订阅链接，请稍后再试。'
   } : {
     btn: 'Subscribe', title: 'Subscribe', mine: 'My profile', desc: 'Event updates, sent as needed.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
     email: 'Email', emailPh: 'name@example.com', site: 'Join ATM site-wide subscription',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the verification email. Check the address or try again.', bad: 'Please check your email address.',
     submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish.', saved: 'Profile saved. This device is already verified, so no new email was sent.',
-    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.', close: 'Close'
+    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.', close: 'Close',
+    passTitle: 'My subscription', passHint: 'Open this link in WeChat, Safari, Chrome, or another browser to sign in. No new confirmation email.', passCopy: 'Copy', passCopied: 'Copied', passNew: 'New link', passNewWarn: 'A new link stops the old one. Continue?', passMissing: 'This browser does not have the link saved. A new link stops the old one.', passStale: 'The link saved in this browser no longer works. You can make a new one.', passFail: 'The subscription link could not be loaded. Try again later.'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
     '.tsub-open{background:#0e6e78;color:#f6e3b4;border:1px solid #e8c06a;border-radius:999px;padding:5px 14px;font-size:.78rem;font-weight:700;line-height:1.2;white-space:nowrap;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:background .15s,transform .15s}' +
@@ -42,7 +44,12 @@
     '#tsub-modal .tsub-check{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;font-size:.88rem;color:#2a1a14}#tsub-modal .tsub-check input{width:auto;min-height:0;margin-top:3px}' +
     '#tsub-modal .tsub-unsub{width:100%;min-height:44px;margin-top:8px;border-radius:999px;background:#fff;color:#7a6255;border:1px solid #ead9b8;cursor:pointer}' +
     '#tsub-modal .tsub-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}' +
-    '#tsub-modal .tsub-foot{font-size:.78rem;color:#7a6255;margin:12px 0 0;padding-top:8px;border-top:1px dashed #ead9b8}';
+    '#tsub-modal .tsub-foot{font-size:.78rem;color:#7a6255;margin:12px 0 0;padding-top:8px;border-top:1px dashed #ead9b8}' +
+    '#tsub-modal .tsub-pass{margin:12px 0 0;padding-top:10px;border-top:1px dashed #ead9b8}#tsub-modal .tsub-pass[hidden]{display:none!important}' +
+    '#tsub-modal .tsub-pass-note{font-size:.8rem;color:#7a6255;margin:4px 0 0;line-height:1.45}' +
+    '#tsub-modal .tsub-pass-row{display:flex;gap:8px;align-items:center;margin:6px 0}#tsub-modal .tsub-pass-row input{flex:1;min-width:0}' +
+    '#tsub-modal .tsub-pass-copy,#tsub-modal .tsub-pass-new{min-height:44px;border-radius:999px;border:1px solid #0e6e78;background:#fff;color:#0e6e78;font:600 .9rem/1.2 system-ui,sans-serif;padding:8px 14px;cursor:pointer}' +
+    '#tsub-modal .tsub-pass-new{display:block;width:100%;margin-top:8px;background:#0e6e78;color:#f6e3b4}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   // Sit beside the header "Add event" button (before the language switch) as a matching pill.
@@ -71,7 +78,11 @@
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
     '<div class="tsub-ts"></div><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
     '<button type="submit" class="tsub-go" id="tsub-go">' + L.submit + '</button>' +
-    '<button type="submit" class="tsub-unsub" id="tsub-unsub" hidden>' + L.unsub + '</button><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
+    '<button type="submit" class="tsub-unsub" id="tsub-unsub" hidden>' + L.unsub + '</button>' +
+    '<div class="tsub-pass" id="tsub-pass" hidden><p class="tsub-lbl">' + L.passTitle + '</p><p class="tsub-pass-note" id="tsub-pass-hint">' + L.passHint + '</p>' +
+    '<div class="tsub-pass-row"><input class="tsub-in" id="tsub-pass-url" readonly autocomplete="off" spellcheck="false" aria-label="' + L.passTitle + '"><button type="button" class="tsub-pass-copy" id="tsub-pass-copy">' + L.passCopy + '</button></div>' +
+    '<p class="tsub-pass-note" id="tsub-pass-note"></p><button type="button" class="tsub-pass-new" id="tsub-pass-new">' + L.passNew + '</button></div>' +
+    '<p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
     '<p class="tsub-foot">' + L.foot + '</p></div></div>';
   document.body.appendChild(m);
   var $ = function (id) { return document.getElementById(id); };
@@ -90,6 +101,51 @@
     else fetch((window.TANGO_SUB_API || 'https://api.tangoweekend.org') + '/social/going/config').then(function (r) { return r.json(); }).then(function (d) { if (d && d.sitekey) { window.ATM_TS_KEY = d.sitekey; start(d.sitekey); } }).catch(function () {});
   }
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
+  var PASS_KEY = 'atm_pass_url';
+  function passSaved() { try { return localStorage.getItem(PASS_KEY) || ''; } catch (e) { return ''; } }
+  function passSave(url) { try { if (url) localStorage.setItem(PASS_KEY, url); else localStorage.removeItem(PASS_KEY); } catch (e) {} }
+  function passKeyOf(url) { var m = String(url || '').match(/\/enter\/([0-9a-f]{64})$/); return m ? m[1] : ''; }
+  function showPass(mode, url) {
+    var box = $('tsub-pass'); if (!box) return;
+    box.hidden = false;
+    var input = $('tsub-pass-url'), note = $('tsub-pass-note'), copy = $('tsub-pass-copy'), row = input && input.parentNode;
+    var ready = mode === 'url' && url;
+    if (row) row.hidden = !ready;
+    if (input) { input.value = ready ? url : ''; }
+    if (copy) copy.hidden = !ready;
+    if (note) note.textContent = ready ? '' : (mode === 'stale' ? L.passStale : mode === 'fail' ? L.passFail : L.passMissing);
+  }
+  function issuePass(rotate) {
+    return fetch(API + '/social/going/pass', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token() }, body: JSON.stringify(rotate ? { rotate: 1 } : { issue: 1 }) })
+      .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, d: d }; }); })
+      .then(function (res) {
+        if (res.d && res.d.url) { passSave(res.d.url); showPass('url', res.d.url); return; }
+        if (res.d && res.d.active) { showPass(passSaved() ? 'stale' : 'missing'); return; }
+        showPass('fail');
+      }).catch(function () { showPass('fail'); });
+  }
+  function loadPass() {
+    var box = $('tsub-pass');
+    if (!box || !token()) { if (box) box.hidden = true; return; }
+    fetch(API + '/social/going/pass', { headers: { Authorization: 'Bearer ' + token() } })
+      .then(function (r) { if (!r.ok) throw new Error('pass'); return r.json(); })
+      .then(function (d) {
+        if (!d || d.active == null) throw new Error('pass');
+        if (!d.active) return issuePass(false);
+        var saved = passSaved(), key = passKeyOf(saved);
+        if (!key) { showPass('missing'); return; }
+        return fetch(API + '/social/going/pass', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token() }, body: JSON.stringify({ prove: key }) })
+          .then(function (r) { return r.json(); })
+          .then(function (p) { if (p && p.match) showPass('url', saved); else { passSave(''); showPass('stale'); } });
+      }).catch(function () { if ($('tsub-pass')) $('tsub-pass').hidden = true; });
+  }
+  try {
+    var passHash = /^#p=([0-9a-f]{64})$/.exec(location.hash || '');
+    if (passHash) {
+      passSave(API.replace(/\/$/, '') + '/social/going/enter/' + passHash[1]);
+      history.replaceState(history.state, '', location.pathname + location.search);
+    }
+  } catch (ePass) {}
   function pageRet() {
     try {
       var u = new URL(location.href);
@@ -107,6 +163,7 @@
     var un = $('tsub-unsub'); if (un) un.hidden = !on;
     var em = $('tsub-e'); if (em) em.disabled = !!on;
     var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = !!on;
+    if (!on && $('tsub-pass')) $('tsub-pass').hidden = true;
   }
   function open() {
     if (tmr) { clearTimeout(tmr); tmr = null; }
@@ -124,6 +181,7 @@
       if ($('tsub-e')) $('tsub-e').value = d.email || '';
       if ($('tsub-site')) $('tsub-site').checked = !!d.sitewide;
       paintMode(true);
+      loadPass();
     }).catch(function () { paintMode(false); mountSubTs(); });
   }
   function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; }
@@ -167,6 +225,20 @@
       })
       .catch(function () { err.textContent = L.fail; })
       .then(function () { go.disabled = false; go.dataset.busy = ''; paintMode(!!($('tsub-e') && $('tsub-e').disabled && token())); });
+  });
+  var passCopy = $('tsub-pass-copy');
+  if (passCopy) passCopy.addEventListener('click', function () {
+    var input = $('tsub-pass-url'), note = $('tsub-pass-note'), text = input ? input.value : '';
+    if (!text) return;
+    function ok() { if (note) note.textContent = L.passCopied; }
+    function fb() { try { input.focus(); input.select(); document.execCommand('copy'); ok(); } catch (e) {} }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fb);
+    else fb();
+  });
+  var passNew = $('tsub-pass-new');
+  if (passNew) passNew.addEventListener('click', function () {
+    if (!window.confirm(L.passNewWarn)) return;
+    issuePass(true);
   });
 })();
 

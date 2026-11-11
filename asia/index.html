@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" data-asia-lang="en" data-asia-en="./" data-asia-zh="../zh/asia/" data-site-release="11.9.15" data-site-release-date="">
+<html lang="en" data-asia-lang="en" data-asia-en="./" data-asia-zh="../zh/asia/" data-site-release="11.9.20" data-site-release-date="">
 <head>
 <meta charset="utf-8">
-<!-- Public release label. Candidate 11.9.15 saves Going, Interested, Not Going, and unfavorite before any organizer mail. While that mail is off, the toast is only Saved. A single Going or Interested letter can go to the organizer only for the visitor in GOING_TEST_DANCER when GOING_TEST_SEND=on. The three-sends-per-day cap for one email and card is gone, and a mail problem does not lock Confirm. It is not published. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
+<!-- Public release label. Candidate 11.9.20 adds a long-lived personal subscription link after the first email confirm. Opening that link signs this browser in, including WeChat’s in-app browser, and does not send another confirm email. Going, Interested, Not Going, and unfavorite still save before any organizer mail. While that mail is off, the toast is only Saved. A single Going or Interested letter can go to the organizer only for the visitor in GOING_TEST_DANCER when GOING_TEST_SEND=on. The three-sends-per-day cap for one email and card is gone, and a mail problem does not lock Confirm. It is not published. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
 <!-- first-load: dropped http-equiv Cache-Control no-cache; CDN/browser cache HTML --><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
@@ -217,7 +217,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <section class="hero china-map-hero">
   <div class="wrap china-hero-bar">
     <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
-      <h1 style="color:var(--gold-300)"><a class="atm-back" href="./" aria-label="Back"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg>Asia Tango Map <span class="atm-beta">beta 11.9.15</span></a></h1>
+      <h1 style="color:var(--gold-300)"><a class="atm-back" href="./" aria-label="Back"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg>Asia Tango Map <span class="atm-beta">beta 11.9.20</span></a></h1>
       </div>
     <button type="button" class="china-suggest-open" id="china-suggest-open" hidden style="margin-left:auto!important;margin-right:6px!important">Add event</button>
     <nav class="top-lang china-map-lang" aria-label="Language" style="margin-left:0!important">
@@ -237,7 +237,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <section id="events" class="alt">
   <div class="wrap m-events-wrap">
 <div id="china-listings" aria-live="polite"><p class="note">Loading listings…</p></div>
-<script src="atm-early.js?v=ea3"></script><!-- first-load: lang pref + skeleton, one file -->
+<script src="atm-early.js?v=ea4"></script><!-- first-load: lang pref + skeleton, one file -->
 <noscript><p class="note">Listings need JavaScript. Raw data: <a href="events.json">events.json</a></p></noscript>
 <p class="china-empty note china-global-empty" hidden>No listings match these filters.</p>
 <p class="note china-disclaimer">Event info compiled from WeChat and Facebook, with reference to hongkongtango.com, milonga.tw, tangophilippines.com and tangomalaysia.wordpress.com. Please check the organizer's latest announcement for times and details.<br>Special thanks to Kai Wang (TeAmo, Shanghai), Liu Zheng (V Tango, Beijing) and Vivian Yeh (Tango Bang) for their help.</p>
@@ -409,7 +409,7 @@ window.CHINA_UI = {
 <script defer src="atm-later.js?v=lt10"></script>
 <script defer src="/asia/atm-home.js?v=h144"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="asia-howto.js?v=china278"></script> -->
-<script defer src="asia-subscribe.js?v=sub65"></script>
+<script defer src="asia-subscribe.js?v=sub66"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏|FAVORITES/i.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'Milonga',practica:'Práctica',festival:'Festival',event:'Event',marathon:'Marathon',championship:'Championship',encuentro:'Encuentro',weekend:'Weekend'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};

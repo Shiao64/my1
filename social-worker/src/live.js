@@ -11,7 +11,7 @@ export default {
     if (url.pathname.startsWith('/social/')) {
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: h });
       // The confirm form is served on this host and checked by the magic token. Mail and WeChat clients may send Origin: null.
-      const postedForm = url.pathname === '/social/confirm' || url.pathname === '/social/going/confirm' || url.pathname === '/social/going/unsub';
+      const postedForm = url.pathname === '/social/confirm' || url.pathname === '/social/going/confirm' || url.pathname === '/social/going/unsub' || url.pathname === '/social/going/enter';
       if (req.method === 'POST' && og && !hostOK(og) && !url.pathname.startsWith('/social/admin/') && !postedForm) return json({ error: 'forbidden_origin' }, 403);
       return social(req, env, url, json);
     }

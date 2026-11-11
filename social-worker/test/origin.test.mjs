@@ -67,7 +67,10 @@ for (const origin of [api, 'null', evil, undefined]) {
   check('going confirm passes ' + (origin === undefined ? 'missing' : origin), r.status === 200 && r.body.reached === '/social/going/confirm' && r.body.error !== 'forbidden_origin');
   const u = await post('/social/going/unsub', origin);
   check('going unsub passes ' + (origin === undefined ? 'missing' : origin), u.status === 200 && u.body.reached === '/social/going/unsub' && u.body.error !== 'forbidden_origin');
+  const enter = await post('/social/going/enter', origin);
+  check('going enter passes ' + (origin === undefined ? 'missing' : origin), enter.status === 200 && enter.body.reached === '/social/going/enter' && enter.body.error !== 'forbidden_origin');
 }
+check('pass rotate from an untrusted origin stays forbidden', (await post('/social/going/pass', evil)).status === 403 && (await post('/social/going/pass', evil)).body.error === 'forbidden_origin');
 
 if (fail.length) { console.error('FAIL', fail.join(', ')); process.exit(1); }
 console.log('origin gate tests ok');
