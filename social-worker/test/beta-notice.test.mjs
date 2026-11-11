@@ -83,6 +83,6 @@ for (const html of [zh, en]) {
   check('star script is the candidate st24', html.includes('/asia/atm-star.js?v=st24') && !html.includes('/asia/atm-star.js?v=st23'));
 }
 check('home cards stay full page links', home.includes("location.pathname + '?card=' + encodeURIComponent(e.id)"));
-check('release label is 11.9.13', zh.includes('data-site-release="11.9.13"') && en.includes('data-site-release="11.9.13"') && zh.includes('测试版 11.9.13') && en.includes('beta 11.9.13'));
+check('release label is 11.9.14', zh.includes('data-site-release="11.9.14"') && en.includes('data-site-release="11.9.14"') && zh.includes('测试版 11.9.14') && en.includes('beta 11.9.14'));
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('beta notice ok');

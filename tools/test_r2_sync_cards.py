@@ -46,12 +46,14 @@ def main():
     en, zh = read('asia/index.html'), read('zh/asia/index.html')
     js, cards, home = read('asia/asia-map.js'), read('asia/cardB.js'), read('asia/atm-home.js')
     data = read('asia/atm-data.js')
-    check('en loads helper', 'atm-data.js?v=r9' in en)
-    check('zh loads helper', 'atm-data.js?v=r9' in zh)
-    check('en map script', 'asia-map.js?v=r12' in en)
-    check('zh map script', 'asia-map.js?v=r12' in zh)
-    check('json version stays', 'events-core.json?v=china465' in en and 'events-core.json?v=china465' in zh)
-    r2_core = 'https://data.tangoweekend.org/asia/events-core.json?v=china465'
+    check('en loads helper', 'atm-data.js?v=r10' in en)
+    check('zh loads helper', 'atm-data.js?v=r10' in zh)
+    check('en map script', 'asia-map.js?v=r13' in en)
+    check('zh map script', 'asia-map.js?v=r13' in zh)
+    check('home script', 'atm-home.js?v=h144' in en and 'atm-home.js?v=h144' in zh)
+    check('json version china466', 'events-core.json?v=china466' in en and 'events-core.json?v=china466' in zh)
+    check('old china465 key is gone', 'china465' not in en and 'china465' not in zh and 'china465' not in js and 'china465' not in home)
+    r2_core = 'https://data.tangoweekend.org/asia/events-core.json?v=china466'
     check('en r2 core keeps version', r2_core in en)
     check('zh r2 core keeps version', r2_core in zh)
     check('en no bare r2 core', 'events-core.json"' not in en and "events-core.json';" not in en)
@@ -65,6 +67,13 @@ def main():
     check('map uses loader', 'loadJson(' in js and 'atmPosterUrls' in js)
     check('cards use loader', 'atmDataJson' in cards)
     check('home uses loader', 'atmDataJson' in home)
+    check('home retries after fallback', 'atmRetryAfterFallback' in home)
+    check('map retries after fallback', 'atmRetryAfterFallback' in js)
+    check('loader records fallback', 'ATM_DATA_SOURCE' in data and 'atmRetryAfterFallback' in data)
+    src = read('tools/r2_sync_cards.py')
+    check('pull fallback does not upload', 'def pull_fallback' in src and '--pull-fallback' in src)
+    check('upload refuses when public is ahead', 'def guard_not_behind' in src and 'Refusing to upload' in src)
+    check('upload bumps cache key', 'bump_china_cache(root)' in src)
     check('default base', "https://data.tangoweekend.org" in data)
     check('worker untouched', 'r2' not in read('subscribe-worker/wrangler.toml').lower())
     node = r'''
@@ -143,6 +152,40 @@ if (aliasZh !== '/event/chengdu-2027-ich-tango-festival/zh/') process.exit(35);
 if (aliasEn.indexOf('tangotoworldcup') >= 0 || aliasEn.indexOf('card=') >= 0) process.exit(36);
 if (w.atmCardAliasHref('E162', false, '?card=E162', '') !== '') process.exit(37);
 if (w.atmCardAliasHref('E164', true, '?card=E164', '') !== '') process.exit(38);
+const fbUrls = [];
+global.fetch = (url) => {
+  const s = String(url);
+  fbUrls.push(s);
+  if (s.indexOf('events-ok.json') >= 0) return Promise.resolve({ ok: true, json: async () => [{ id: 'ok' }] });
+  if (s.indexOf('events-fb.json') >= 0 && s.indexOf('data.tangoweekend.org') >= 0 && s.indexOf('atmbust') < 0) return Promise.reject(new Error('timeout'));
+  if (s.indexOf('atmbust') >= 0) return Promise.resolve({ ok: true, json: async () => [{ id: 'E168' }, { id: 'YgirJagn' }] });
+  return Promise.resolve({ ok: true, json: async () => [{ id: 'YgirJagn' }] });
+};
+w.ATM_DATA_BASE = 'https://data.tangoweekend.org';
+w.atmDataJson('/asia/events-fb.json?v=china466').then(function (rows) {
+  if (!rows || rows.length !== 1 || rows[0].id !== 'YgirJagn') process.exit(40);
+  if (w.ATM_DATA_SOURCE['events-fb.json'] !== 'git') process.exit(41);
+  return w.atmRetryAfterFallback('/asia/events-fb.json?v=china466');
+}).then(function (fresh) {
+  if (!fresh || fresh.length !== 2 || fresh[0].id !== 'E168') process.exit(42);
+  const busts = fbUrls.filter(function (u) { return u.indexOf('atmbust=1') >= 0; });
+  if (busts.length !== 1) process.exit(43);
+  if (busts[0] !== 'https://data.tangoweekend.org/asia/events-fb.json?v=china466&atmbust=1') process.exit(44);
+  return w.atmRetryAfterFallback('/asia/events-fb.json?v=china466');
+}).then(function (again) {
+  if (!again || again.length !== 2) process.exit(45);
+  if (fbUrls.filter(function (u) { return u.indexOf('atmbust=1') >= 0; }).length !== 1) process.exit(46);
+  if (w.ATM_DATA_SOURCE['events-fb.json'] !== 'r2') process.exit(47);
+  return w.atmDataJson('/asia/events-ok.json?v=china466');
+}).then(function (ok) {
+  if (!ok || ok[0].id !== 'ok') process.exit(48);
+  if (w.ATM_DATA_SOURCE['events-ok.json'] !== 'r2') process.exit(49);
+  const before = fbUrls.length;
+  return w.atmRetryAfterFallback('/asia/events-ok.json?v=china466').then(function (none) {
+    if (none !== null) process.exit(50);
+    if (fbUrls.length !== before) process.exit(51);
+  });
+}).catch(function (err) { console.error(err); process.exit(39); });
 '''
     run = subprocess.run(['node', '-e', node], cwd=ROOT, capture_output=True, text=True)
     check('poster url helper ' + (run.stderr.strip() or run.stdout.strip()), run.returncode == 0)
@@ -158,7 +201,11 @@ if (w.atmCardAliasHref('E164', true, '?card=E164', '') !== '') process.exit(38);
         check(rel + ' E163 detail merged', by['E163']['detail'] == '/event/chengdu-2027-ich-tango-festival/')
         check(rel + ' no see-E163 note', '见卡 E163' not in by['E162'].get('note_zh', '') and 'see card E163' not in by['E162'].get('note', '').lower())
         check(rel + ' E160 untouched name', by['E160']['name'].startswith('2nd Wuhan'))
-        check(rel + ' E164 absent', 'E164' not in by)
+        check(rel + ' live cards kept', all(i in by for i in ('E164', 'E168', 'E169', 'E170')))
+        check(rel + ' E168 chongqing hola', by['E168']['city'] == 'Chongqing' and by['E168']['regular_oneoff'] is True and by['E168']['start'] == '2026-11-13' and by['E168']['hidden'] is False and by['E168']['name'] == 'Milonga Hola')
+        check(rel + ' E169 shenzhen', by['E169']['city'] == 'Shenzhen' and by['E169']['start'] == '2026-11-14' and by['E169']['hidden'] is False and by['E169']['name'] == 'Milonga PERFECT DAY')
+        check(rel + ' E170 hong kong', by['E170']['city'] == 'Hong Kong' and by['E170']['start'] == '2026-11-11' and by['E170']['regular_oneoff'] is True and by['E170']['hidden'] is False)
+        check(rel + ' E164 shanghai festival', by['E164']['hidden'] is False and by['E164']['city'] == 'Shanghai' and by['E164']['featured'] is True)
     fest = read('event/chengdu-2027-ich-tango-festival/index.html')
     fest_zh = read('event/chengdu-2027-ich-tango-festival/zh/index.html')
     old = read('event/chengdu-2027-tangotoworldcup-ich-competition/index.html')
@@ -183,7 +230,7 @@ if (w.atmCardAliasHref('E164', true, '?card=E164', '') !== '') process.exit(38);
         check(rel + ' E167 title', e['name'] == 'Legends Tango Festival 2027' and e['name_zh'] == 'Legends Tango Festival 2027')
         check(rel + ' E167 dates', e['start'] == '2027-02-25' and e['end'] == '2027-02-28' and e['city'] == 'Guangzhou')
         check(rel + ' E167 email only', e['contacts'] == {'email': 'legendstango@gmail.com'} and '18676479599' not in _json.dumps(e))
-        check(rel + ' E167 LTA address', e['venue_address'] == '广州市越秀区明月一路明月阁1706' and e['venue'] == 'Legends Tango Academy')
+        check(rel + ' E167 LTA address', e['venue_address'] == '广州市越秀区明月一路明月阁1706室' and e['venue'] == 'Legends Tango Academy')
         check(rel + ' E167 detail', e['detail'] == '/event/guangzhou-2027-legends-tango-festival/' and e['detail'] != by['ONKkPuWH']['detail'])
         check(rel + ' E167 posters', e['poster'] == '/images/asia/posters/E167.jpg' and e['posters_extra'][0]['src'] == '/images/asia/posters/E167_2.jpg')
         check(rel + ' E167 schedule', len(e['schedule']) == 14 and e['schedule'][0]['time'].startswith('7:15pm') and 'tbc' in e['schedule'][8]['dj'] and e['schedule'][10]['dj'] == 'tbc')
@@ -195,6 +242,38 @@ if (w.atmCardAliasHref('E164', true, '?card=E164', '') !== '') process.exit(38);
     check('E167 pages skip the other Guangzhou festival', 'ONKkPuWH' not in en_page and 'ONKkPuWH' not in zh_page and 'guangzhou-2027-tango-festival' not in en_page)
     check('E167 schedule is stacked', 'lg-sess' in en_page and 'lg-sess' in zh_page and 'overflow-x:auto' not in en_page and 'overflow-x:auto' not in zh_page and '---' not in en_page and '---' not in zh_page)
     check('E167 pages drop transcription notes', '按日程原文' not in zh_page and '海报就是这样印的' not in zh_page and 'not merged with Cor Leung' not in en_page and '12-hour' not in en_page)
+    counts = {rel: len(_json.load(open(os.path.join(ROOT, rel), encoding='utf-8'))) for rel in R.JSON_FILES}
+    check('card counts', counts['asia/events-core.json'] == 141 and counts['asia/events.json'] == 287 and counts['asia/events-more.json'] == 146)
+    core_rows = _json.load(open(os.path.join(ROOT, 'asia/events-core.json'), encoding='utf-8'))
+    today, horizon = '2026-11-11', '2026-12-15'
+    cq = [e['id'] for e in core_rows if not e.get('hidden') and e.get('city') == 'Chongqing' and (e.get('kind') == 'weekly' or (e.get('regular_oneoff') and e.get('start') and today <= e['start'] <= horizon))]
+    check('chongqing list has weekly and E168', set(cq) == {'YgirJagn', 'E168'} and len(cq) == 2)
+    import tempfile
+    tmp = tempfile.mkdtemp(prefix='atm-cache-')
+    sample = "preload events-core.json?v=china465\neventsUrl: 'events-core.json?v=china465',\n"
+    for rel in R.CACHE_SOURCES:
+        path = os.path.join(tmp, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write(sample)
+    check('bump to 466', R.bump_china_cache(tmp) == 466)
+    bumped = open(os.path.join(tmp, 'asia/atm-home.js'), encoding='utf-8').read()
+    check('fixture key moved', bumped.count('events-core.json?v=china466') == 2 and 'china465' not in bumped)
+    check('no hidden ids', R.ids_missing_locally([{'id': 'E168'}, {'id': 'a'}], [{'id': 'a'}]) == [])
+    check('E168 would be hidden', R.ids_missing_locally([{'id': 'a'}], [{'id': 'a'}, {'id': 'E168'}]) == ['E168'])
+    disagree = tempfile.mkdtemp(prefix='atm-cache-bad-')
+    for rel in R.CACHE_SOURCES:
+        path = os.path.join(disagree, rel)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w', encoding='utf-8') as fh:
+            fh.write('events-core.json?v=china466\n')
+    with open(os.path.join(disagree, 'asia/atm-home.js'), 'w', encoding='utf-8') as fh:
+        fh.write('events-core.json?v=china460\n')
+    try:
+        R.current_china_cache(disagree)
+        check('disagreeing keys refused', False)
+    except SystemExit:
+        check('disagreeing keys refused', True)
 
 
 if __name__ == '__main__':

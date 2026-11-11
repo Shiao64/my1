@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" data-asia-lang="en" data-asia-en="./" data-asia-zh="../zh/asia/" data-site-release="11.9.13" data-site-release-date="">
+<html lang="en" data-asia-lang="en" data-asia-en="./" data-asia-zh="../zh/asia/" data-site-release="11.9.14" data-site-release-date="">
 <head>
 <meta charset="utf-8">
-<!-- Public release label. Candidate 11.9.13 fixes the saved-events list title (我的收藏 / My saved events) and adds a cancel-favorite control in that list. A local tombstone (atm_fav_removed_v1) stops a /mine union from resurrecting a removed id. Unverified visitors unfavorite locally only. It is not published. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
+<!-- Public release label. Candidate 11.9.14 refreshes the in-repo event fallback to the live R2 lists (events-core includes E168, E169, and E170) and moves the events-core cache key to ?v=china466, so a phone that cached the old fallback can load the missing Chongqing regular card. A home or city list that had to use the fallback then retries one fresh R2 read and redraws. It is not published. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
 <!-- first-load: dropped http-equiv Cache-Control no-cache; CDN/browser cache HTML --><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
@@ -58,8 +58,8 @@ window.atmNoticeGate=function(storage,perf){
   var pages=/\.pages\.dev$/i.test(host);
   var link=document.createElement('link');
   link.rel='preload'; link.as='fetch';
-  if(pages){ link.href='/asia/events-core.json?v=china465'; }
-  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china465'; link.crossOrigin='anonymous'; }
+  if(pages){ link.href='/asia/events-core.json?v=china466'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china466'; link.crossOrigin='anonymous'; }
   document.head.appendChild(link);
 })();
 </script>
@@ -79,7 +79,7 @@ window.atmNoticeGate=function(storage,perf){
   var host=''; try{ host=location.hostname||''; }catch(e){}
   var pages=/\.pages\.dev$/i.test(host);
   var R2='https://data.tangoweekend.org';
-  var core=pages?'/asia/events-core.json?v=china465':R2+'/asia/events-core.json?v=china465';
+  var core=pages?'/asia/events-core.json?v=china466':R2+'/asia/events-core.json?v=china466';
   var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json?v=china459';
   function preload(href, pri){
     if(!href) return;
@@ -217,7 +217,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <section class="hero china-map-hero">
   <div class="wrap china-hero-bar">
     <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
-      <h1 style="color:var(--gold-300)"><a class="atm-back" href="./" aria-label="Back"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg>Asia Tango Map <span class="atm-beta">beta 11.9.13</span></a></h1>
+      <h1 style="color:var(--gold-300)"><a class="atm-back" href="./" aria-label="Back"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg>Asia Tango Map <span class="atm-beta">beta 11.9.14</span></a></h1>
       </div>
     <button type="button" class="china-suggest-open" id="china-suggest-open" hidden style="margin-left:auto!important;margin-right:6px!important">Add event</button>
     <nav class="top-lang china-map-lang" aria-label="Language" style="margin-left:0!important">
@@ -326,7 +326,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <script>
 window.CHINA_UI = {
   lang: 'en',
-  eventsUrl: 'events-core.json?v=china465',
+  eventsUrl: 'events-core.json?v=china466',
   hideAddrEn: false,
   keepOrganizerZh: false,
   daysShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
@@ -404,10 +404,10 @@ window.CHINA_UI = {
   }
 })(window);
 </script>
-<script defer src="atm-data.js?v=r9"></script>
-<script defer src="asia-map.js?v=r12"></script>
+<script defer src="atm-data.js?v=r10"></script>
+<script defer src="asia-map.js?v=r13"></script>
 <script defer src="atm-later.js?v=lt10"></script>
-<script defer src="/asia/atm-home.js?v=h143"></script>
+<script defer src="/asia/atm-home.js?v=h144"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="asia-howto.js?v=china278"></script> -->
 <script defer src="asia-subscribe.js?v=sub65"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>

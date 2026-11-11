@@ -34,6 +34,8 @@
      pass cache:'no-cache' — that is a different cache key from <link rel=preload>
      and forces a second download. */
   var inflight = {};
+  var freshInflight = {};
+  w.ATM_DATA_SOURCE = w.ATM_DATA_SOURCE || {};
   function localFetch(localUrl) {
     return fetch(localUrl).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -56,8 +58,12 @@
         return r.json();
       }).then(function (data) {
         w.ATM_DATA_OK = true;
+        w.ATM_DATA_SOURCE[file] = 'r2';
         return data;
-      }).catch(function () { return localFetch(localUrl); });
+      }).catch(function () {
+        w.ATM_DATA_SOURCE[file] = 'git';
+        return localFetch(localUrl);
+      });
     }
     inflight[name] = p;
     p.catch(function () { if (inflight[name] === p) delete inflight[name]; });
@@ -80,6 +86,21 @@
       w.ATM_DATA_OK = true;
       return data;
     });
+  };
+  /* Home and city lists paint the git fallback immediately, then one fresh
+     R2 read (a different cache key) redraws if that list was stale. Card
+     pages already call atmDataJsonFresh themselves. One try per file. */
+  w.atmRetryAfterFallback = function (localUrl) {
+    var file = jsonName(localUrl);
+    if (!base() || !file) return Promise.resolve(null);
+    if (freshInflight[file]) return freshInflight[file];
+    if (w.ATM_DATA_SOURCE[file] !== 'git') return Promise.resolve(null);
+    freshInflight[file] = w.atmDataJsonFresh(localUrl).then(function (data) {
+      w.ATM_DATA_SOURCE[file] = 'r2';
+      inflight[file] = Promise.resolve(data);
+      return data;
+    }).catch(function () { return null; });
+    return freshInflight[file];
   };
   /* A poisoned CDN image (null bytes, or a 404 cached for 30 days) is skipped
      once. A second call returns '' so a probe cannot loop. */
