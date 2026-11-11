@@ -1,6 +1,7 @@
 /* Profile form. POST /social/profile with alert:0.
-   No session: send a verification email and save nothing public.
-   Same verified session: update name, city, and role, and do not send another email.
+   No session: send a verification email and save nothing public. A phone entered here is bound after that confirm.
+   Already subscribed: POST /social/going/phone with the email and the last 4 digits. That signs this browser in and does not send mail.
+   Same verified session: update name, city, role, and phone, and do not send another email.
    This does not create Going or Interested and does not email an organizer. */
 (function () {
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
@@ -9,6 +10,10 @@
     btn: '订阅', title: '订阅', mine: '我的资料', desc: '按需发送活动信息', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     email: '邮箱', emailPh: 'name@example.com', site: '加入 ATM 全站订阅',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '验证邮件发送失败，请检查邮箱或稍后再试。',
+    returnHint: '已经订阅过？请输入邮箱和电话末 4 码，不必再等确认信。',
+    phone: '电话', phonePh: '手机号', last4: '电话末 4 码', signIn: '登录', signing: '登录中…',
+    needPhone: '请填写电话。', badPhone: '电话号码不正确。', needLast4: '请输入电话末 4 码。', badLogin: '邮箱或电话末 4 码不正确。',
+    phoneSaved: '已保存末 4 码 ',
     submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。', saved: '资料已保存。这个设备已经验证过，没有再发信。',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。', close: '关闭',
     passTitle: '我的订阅', passHint: '在微信、Safari、Chrome 或其他浏览器打开这个链接即可登录，不必再收确认邮件。', passCopy: '复制', passCopied: '已复制', passNew: '生成新链接', passNewWarn: '生成新链接后，旧链接会失效。继续？', passMissing: '这个浏览器没有保存订阅链接。生成新链接会使旧链接失效。', passStale: '这个浏览器保存的链接已失效。可生成新链接。', passFail: '暂时无法读取订阅链接，请稍后再试。'
@@ -16,6 +21,10 @@
     btn: 'Subscribe', title: 'Subscribe', mine: 'My profile', desc: 'Event updates, sent as needed.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
     email: 'Email', emailPh: 'name@example.com', site: 'Join ATM site-wide subscription',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the verification email. Check the address or try again.', bad: 'Please check your email address.',
+    returnHint: 'Already subscribed? Enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.',
+    phone: 'Phone', phonePh: 'Mobile number', last4: 'Last 4 digits', signIn: 'Sign in', signing: 'Signing in…',
+    needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your phone.', badLogin: 'The email or the last 4 digits did not match.',
+    phoneSaved: 'Saved, last 4 digits ',
     submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish.', saved: 'Profile saved. This device is already verified, so no new email was sent.',
     fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.', close: 'Close',
     passTitle: 'My subscription', passHint: 'Open this link in WeChat, Safari, Chrome, or another browser to sign in. No new confirmation email.', passCopy: 'Copy', passCopied: 'Copied', passNew: 'New link', passNewWarn: 'A new link stops the old one. Continue?', passMissing: 'This browser does not have the link saved. A new link stops the old one.', passStale: 'The link saved in this browser no longer works. You can make a new one.', passFail: 'The subscription link could not be loaded. Try again later.'
@@ -45,6 +54,10 @@
     '#tsub-modal .tsub-unsub{width:100%;min-height:44px;margin-top:8px;border-radius:999px;background:#fff;color:#7a6255;border:1px solid #ead9b8;cursor:pointer}' +
     '#tsub-modal .tsub-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}' +
     '#tsub-modal .tsub-foot{font-size:.78rem;color:#7a6255;margin:12px 0 0;padding-top:8px;border-top:1px dashed #ead9b8}' +
+    '#tsub-modal .tsub-return{font-size:.88rem;font-weight:700;color:#0a4f57;margin:0 0 8px;line-height:1.45}' +
+    '#tsub-modal .tsub-return[hidden],#tsub-modal .tsub-login[hidden]{display:none!important}' +
+    '#tsub-modal .tsub-alt{width:100%;min-height:44px;margin-top:8px;border-radius:999px;border:1px solid #0e6e78;background:#fff;color:#0e6e78;font:600 .95rem/1.2 system-ui,sans-serif;cursor:pointer}' +
+    '#tsub-modal .tsub-alt:disabled{opacity:.5}' +
     '#tsub-modal .tsub-pass{margin:12px 0 0;padding-top:10px;border-top:1px dashed #ead9b8}#tsub-modal .tsub-pass[hidden]{display:none!important}' +
     '#tsub-modal .tsub-pass-note{font-size:.8rem;color:#7a6255;margin:4px 0 0;line-height:1.45}' +
     '#tsub-modal .tsub-pass-row{display:flex;gap:8px;align-items:center;margin:6px 0}#tsub-modal .tsub-pass-row input{flex:1;min-width:0}' +
@@ -68,12 +81,15 @@
   function EM() { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '</label><input type="email" class="tsub-in" id="tsub-e" autocomplete="email" required aria-required="true" placeholder="' + L.emailPh + '">'; }
   var m = document.createElement('div'); m.id = 'tsub-modal'; m.hidden = true;
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
-    '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-desc">' + L.desc + '</p>' +
+    '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-return" id="tsub-return">' + L.returnHint + '</p><p class="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate data-m="em">' +
     EM() +
+    '<div id="tsub-login"><label class="tsub-lbl" for="tsub-last4">' + L.last4 + '</label><input type="text" class="tsub-in" id="tsub-last4" inputmode="numeric" autocomplete="off" maxlength="4">' +
+    '<button type="button" class="tsub-alt" id="tsub-phone-go">' + L.signIn + '</button></div>' +
     '<label class="tsub-lbl" for="tsub-n">' + L.name + '</label><input type="text" class="tsub-in" id="tsub-n" autocomplete="name" maxlength="40" required aria-required="true" placeholder="' + L.namePh + '">' +
     '<div class="tsub-row"><div class="tsub-col"><label class="tsub-lbl" for="tsub-r">' + L.role + '</label><select class="tsub-in" id="tsub-r" required aria-required="true"><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>' +
     '<div class="tsub-col"><label class="tsub-lbl" for="tsub-c">' + L.city + '</label><input type="text" class="tsub-in" id="tsub-c" autocomplete="address-level2" maxlength="40" required aria-required="true" placeholder="' + L.cityPh + '"></div></div>' +
+    '<label class="tsub-lbl" for="tsub-phone">' + L.phone + '</label><input type="text" class="tsub-in" id="tsub-phone" inputmode="tel" autocomplete="tel" maxlength="32" placeholder="' + L.phonePh + '">' +
     '<label class="tsub-check" for="tsub-site"><input type="checkbox" id="tsub-site" checked>' + L.site + '</label>' +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
     '<div class="tsub-ts"></div><p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
@@ -101,6 +117,18 @@
     else fetch((window.TANGO_SUB_API || 'https://api.tangoweekend.org') + '/social/going/config').then(function (r) { return r.json(); }).then(function (d) { if (d && d.sitekey) { window.ATM_TS_KEY = d.sitekey; start(d.sitekey); } }).catch(function () {});
   }
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
+  function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
+  function phoneOk(raw) {
+    var s = String(raw || '').trim();
+    if (!/^\+?[\d(][\d\s().-]{6,38}$/.test(s)) return false;
+    var n = s.replace(/\D/g, '').length;
+    return n >= 8 && n <= 15;
+  }
+  function paintPhone(tail) {
+    var el = $('tsub-phone'); if (!el) return;
+    el.value = '';
+    el.placeholder = tail ? (L.phoneSaved + tail) : L.phonePh;
+  }
   var PASS_KEY = 'atm_pass_url';
   function passSaved() { try { return localStorage.getItem(PASS_KEY) || ''; } catch (e) { return ''; } }
   function passSave(url) { try { if (url) localStorage.setItem(PASS_KEY, url); else localStorage.removeItem(PASS_KEY); } catch (e) {} }
@@ -163,6 +191,8 @@
     var un = $('tsub-unsub'); if (un) un.hidden = !on;
     var em = $('tsub-e'); if (em) em.disabled = !!on;
     var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = !!on;
+    var ret = $('tsub-return'); if (ret) ret.hidden = !!on;
+    var login = $('tsub-login'); if (login) login.hidden = !!on;
     if (!on && $('tsub-pass')) $('tsub-pass').hidden = true;
   }
   function open() {
@@ -171,15 +201,16 @@
     var tok = token();
     paintMode(!!tok);
     m.hidden = false;
-    if (!tok) { mountSubTs(); return; }
+    if (!tok) { paintPhone(''); mountSubTs(); return; }
     var headers = { Authorization: 'Bearer ' + tok };
     fetch(API + '/social/going/mine', { headers: headers }).then(function (r) { return r.json(); }).then(function (d) {
-      if (!d || !d.email) { paintMode(false); mountSubTs(); return; }
+      if (!d || !d.email) { paintPhone(''); paintMode(false); mountSubTs(); return; }
       $('tsub-n').value = d.name || '';
       if ($('tsub-c')) $('tsub-c').value = d.city || '';
       if ($('tsub-r')) $('tsub-r').value = d.role || '';
       if ($('tsub-e')) $('tsub-e').value = d.email || '';
       if ($('tsub-site')) $('tsub-site').checked = !!d.sitewide;
+      paintPhone(d.phone_tail || '');
       paintMode(true);
       loadPass();
     }).catch(function () { paintMode(false); mountSubTs(); });
@@ -202,6 +233,9 @@
     if (role !== 'leader' && role !== 'follower' && role !== 'both') { err.textContent = L.needRole; $('tsub-r').focus(); return; }
     if (!em) { err.textContent = L.need; if ($('tsub-e')) $('tsub-e').focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
+    var phone = $('tsub-phone') ? $('tsub-phone').value.trim() : '';
+    if (!profile && !phoneOk(phone)) { err.textContent = phone ? L.badPhone : L.needPhone; if ($('tsub-phone')) $('tsub-phone').focus(); return; }
+    if (profile && phone && !phoneOk(phone)) { err.textContent = L.badPhone; if ($('tsub-phone')) $('tsub-phone').focus(); return; }
     if ($('tsub-hp').value) { ok.textContent = L.ok; ok.hidden = false; return; }
     go.disabled = true; go.dataset.busy = '1'; go.textContent = profile ? L.saving : L.sending;
     var headers = { 'Content-Type': 'application/json' }; try { var tok = localStorage.getItem('atm_session'); if (tok) headers.Authorization = 'Bearer ' + tok; } catch (e2) {}
@@ -209,22 +243,50 @@
     var ts = '';
     if (tsEl && !tsEl.hidden) { var inp = tsEl.querySelector('[name="cf-turnstile-response"]'); ts = inp ? String(inp.value || '').trim() : ''; }
     if (!profile && !ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.dataset.busy = ''; go.textContent = L.submit; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
-    fetch(API + '/social/profile', { method: 'POST', credentials: 'include', headers: headers, body: JSON.stringify({ name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: site, ret: pageRet(), website: $('tsub-hp').value, ts: ts }) })
+    var body = { name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: site, ret: pageRet(), website: $('tsub-hp').value, ts: ts };
+    if (phone) body.phone = phone;
+    fetch(API + '/social/profile', { method: 'POST', credentials: 'include', headers: headers, body: JSON.stringify(body) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.ok) {
           ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false; if (!d.session) $('tsub-f').reset();
           if (d.session && $('tsub-site')) $('tsub-site').checked = !!d.sitewide;
+          if (d.session && d.phone_tail) paintPhone(d.phone_tail);
           if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
           if (tmr) clearTimeout(tmr);
           tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 6000);
         }
         else {
-          err.textContent = d.error === 'need_name' ? L.needName : d.error === 'need_city' ? L.needCity : d.error === 'need_role' ? L.needRole : d.error === 'bad_email' ? L.bad : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : L.fail;
+          err.textContent = d.error === 'need_name' ? L.needName : d.error === 'need_city' ? L.needCity : d.error === 'need_role' ? L.needRole : d.error === 'bad_phone' ? L.badPhone : d.error === 'bad_email' ? L.bad : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : L.fail;
         }
       })
       .catch(function () { err.textContent = L.fail; })
       .then(function () { go.disabled = false; go.dataset.busy = ''; paintMode(!!($('tsub-e') && $('tsub-e').disabled && token())); });
+  });
+  var phoneGo = $('tsub-phone-go');
+  if (phoneGo) phoneGo.addEventListener('click', function () {
+    var err = $('tsub-err'), ok = $('tsub-ok');
+    var em = $('tsub-e') ? $('tsub-e').value.trim() : '';
+    var tail = $('tsub-last4') ? $('tsub-last4').value.replace(/\D/g, '') : '';
+    err.textContent = ''; ok.hidden = true;
+    if ($('tsub-hp').value) { ok.hidden = false; ok.textContent = L.saved; return; }
+    if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = em ? L.bad : L.need; if ($('tsub-e')) $('tsub-e').focus(); return; }
+    if (!/^\d{4}$/.test(tail)) { err.textContent = L.needLast4; if ($('tsub-last4')) $('tsub-last4').focus(); return; }
+    phoneGo.disabled = true; phoneGo.textContent = L.signing;
+    fetch(API + '/social/going/phone', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: em, last4: tail, lang: zh ? 'zh' : 'en' }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.session) {
+          setToken(d.session);
+          if (window.ATM_STAR && window.ATM_STAR.refresh) window.ATM_STAR.refresh();
+          if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
+          open();
+          return;
+        }
+        err.textContent = d && d.error === 'rate_limited' ? L.rate : L.badLogin;
+      })
+      .catch(function () { err.textContent = L.fail; })
+      .then(function () { phoneGo.disabled = false; phoneGo.textContent = L.signIn; });
   });
   var passCopy = $('tsub-pass-copy');
   if (passCopy) passCopy.addEventListener('click', function () {
