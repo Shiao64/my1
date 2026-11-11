@@ -2,12 +2,15 @@
 
 ## 改卡 — card JSON and posters on R2
 
-Card text and poster files publish to the R2 bucket `atm-events-data` (`https://data.tangoweekend.org`) with `tools/r2_sync_cards.py`. That does not bump `china` / `e` / `h` / `cb` and does not need a Pages deploy. The map falls back to the JSON and posters in this repo when that host does not answer. Full steps: `docs/card-r2.md`.
+Card text and poster files publish to the R2 bucket `atm-events-data` (`https://data.tangoweekend.org`) with `tools/r2_sync_cards.py`. The map falls back to the JSON in this repo when that host does not answer within 2.5s, and browsers cache the fallback under `events-core.json?v=chinaNNN`. Full steps: `docs/card-r2.md`.
 
 ```bash
 python3 tools/r2_sync_cards.py --dry-run
-python3 tools/r2_sync_cards.py --event-id E158
+python3 tools/r2_sync_cards.py --pull-fallback   # public JSON → repo, bumps ?v=china, no upload
+python3 tools/r2_sync_cards.py --event-id E158   # production upload; refuses if R2 is ahead, then bumps ?v=china
 ```
+
+Do not run the upload without a separate go-ahead. `--pull-fallback` does not upload. Shipping the new fallback still needs a Pages deploy. `?v=e` / `?v=h` / `?v=cb` are not bumped here.
 
 ## Radar 异动 — regular poster replace (fixed step)
 

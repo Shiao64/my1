@@ -2,7 +2,7 @@
 
 Phase 1 is a preview. Do not merge it to `main` until `https://data.tangoweekend.org/asia/events-core.json` returns the card list. Until that URL answers, the map keeps using the copies in this repo, so a preview (and an accidental merge) still paints.
 
-The program (HTML, `asia-map.js`, `cardB.js`, `atm-home.js`) stays on Pages / the live site. Card text, dates, and poster files do not. Publishing a card does not bump `china` / `e` / `h` / `cb` and does not need a Pages deploy.
+The program (HTML, `asia-map.js`, `cardB.js`, `atm-home.js`) stays on Pages / the live site. Card text and dates are read from R2 first. The git copies are the fallback when that read times out (2.5s) or fails. Browsers cache the fallback under `events-core.json?v=chinaNNN` (`Cache-Control: max-age=600` on Pages). A card that is only on R2 stays missing on a phone that fell back, and a normal refresh keeps the old cache key.
 
 ## Where it lives
 
@@ -38,7 +38,7 @@ The script creates `atm-events-data` if needed, sets CORS (`tools/r2-cors.json`,
 
 ## 改一张卡
 
-1. Edit the row in whichever of `asia/events.json`, `asia/events-core.json`, and `asia/events-more.json` already contain that id. Change `name`, dates, `note`, `poster`, and so on. Do not bump `?v=china` / `?v=e` / `?v=h` / `?v=cb`.
+1. Edit the row in whichever of `asia/events.json`, `asia/events-core.json`, and `asia/events-more.json` already contain that id. Change `name`, dates, `note`, `poster`, and so on. Do not hand-edit `?v=e` / `?v=h` / `?v=cb`. The events-core `?v=chinaNNN` key is bumped by the script (below), not by hand.
 2. New or replaced poster: put the file at the `/images/…` path the row uses, and keep the thumbs next to it (`images/thumb` and `images/thumb800`, same way `tools/radar_poster_update.py` writes them). If you replace bytes at an existing path, add a query on the poster field so browsers and the CDN refetch that one image, for example `"/images/asia/posters/E158.jpg?v=20261105"`. The object key ignores the query.
 3. Publish only that card's images and the three JSON files:
 
@@ -46,13 +46,21 @@ The script creates `atm-events-data` if needed, sets CORS (`tools/r2-cors.json`,
 python3 tools/r2_sync_cards.py --event-id E158
 ```
 
-4. Do not commit, do not push `main`, and do not deploy Pages for this. Reload the map. JSON is revalidated at the edge within about five minutes (`s-maxage=300`) and in the browser within about a minute (`max-age=60`). Image URLs without a new query can stay cached for about 30 days.
+4. A real upload (`python3 tools/r2_sync_cards.py`, no `--dry-run`) first GETs the public `events-core.json`. If that file has an id the working tree does not, the script exits and writes nothing — uploading the older git file would hide the live card. It then bumps `events-core.json?v=chinaNNN` in the four cache-source files and uploads. It does not deploy Pages and does not send mail. Commit the JSON and the cache-key bump and ship them with the next site deploy (上线), or phones that time out keep the previous fallback. JSON already on R2 is revalidated at the edge within about five minutes (`s-maxage=300`) and in the browser within about a minute (`max-age=60`). Image URLs without a new query can stay cached for about 30 days.
+
+When the bucket is already ahead of git (cards appended on R2, not via this upload), do not upload. Refresh the fallback instead:
+
+```bash
+python3 tools/r2_sync_cards.py --pull-fallback
+```
+
+That downloads `asia/events.json`, `asia/events-core.json`, and `asia/events-more.json` and, if the bytes changed, bumps the same `?v=chinaNNN` key. It does not upload. Poster files are not part of that download. Commit the result and deploy Pages before calling it live.
 
 `asia/manifest.json` on the bucket records the UTC rev of the last sync. The page does not read it.
 
-The git copies are the fallback snapshot. Leave them as they were at the last program deploy unless you are intentionally refreshing that snapshot (a normal site deploy). Pushing card JSON to `main` still rebuilds the whole site, which is the thing this split avoids.
+Pushing card JSON to `main` still rebuilds the whole site. That is what makes the fallback match R2. Leaving git on the previous snapshot is what kept E168 off phones that missed the R2 window.
 
-Radar 异动 (`tools/radar_yidong.py`) still writes git and still bumps cache keys. That path is unchanged. Use it when the poster change should also land in the repo. Use `r2_sync_cards.py` when the card should go live without a program version.
+Radar 异动 (`tools/radar_yidong.py`) still writes git and still bumps cache keys. That path is unchanged. Use it when the poster change should also land in the repo. Use `r2_sync_cards.py` when the card should go live on R2 before the next Pages deploy. The `?v=chinaNNN` bump from that upload still has to ship with the next site deploy, or phones that time out keep the previous fallback.
 
 ## What still lives in git
 

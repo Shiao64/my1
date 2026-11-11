@@ -775,7 +775,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china465';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china466';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
@@ -937,8 +937,7 @@
     }, true);
     window.addEventListener('hashchange', function(){ if (location.hash === '#h-search') armMore(); });
   }
-  loadJson(eventsUrl)
-    .then(function(data){
+  function applyCore(data, first){
       var up = data.reduce(function(a, r){ return r.updated && r.updated > a ? r.updated : a; }, '');
       if (up) { var p = up.split('-'), lbl = p[0] + '/' + p[1] + '/' + p[2];
         Array.prototype.forEach.call(document.querySelectorAll('.china-updated'), function(el){ el.textContent = lbl; }); }
@@ -947,7 +946,28 @@
       if (!unlockKr) data = data.filter(function(r){ if (!(r.kind === 'weekly' || r.regular_oneoff)) return true; return /^(China|Taiwan|Hong Kong)$/.test(r.country || r.region || ''); });
       if (citySel) { var have = {}; Array.prototype.forEach.call(citySel.options, function(o){ have[o.value] = 1; });
         data.forEach(function(r){ var id = cityId(r.city); if (!have[id]) { have[id] = 1; var o = document.createElement('option'); o.value = id; o.setAttribute('data-en', r.city); o.textContent = cityDisplay(r.city); citySel.appendChild(o); } }); }
-      window._chinaData = data; render(data); renderFeatList(data); applyFilters(); if (/[?&]mode=(featured|regular)/.test(location.search)) urlApply(); atmRestoreScroll(); })
+      window._chinaData = data; render(data); renderFeatList(data); applyFilters();
+      if (first && /[?&]mode=(featured|regular)/.test(location.search)) urlApply();
+      if (first) atmRestoreScroll();
+      return data;
+  }
+  function coreSig(list){
+    return (list || []).map(function(r){ return r ? [r.id, r.city || '', r.start || '', r.end || '', r.kind || '', r.regular_oneoff ? 1 : 0, r.status || '', r.updated || '', r.venue || '', r.poster || ''].join('\t') : ''; }).join('\n');
+  }
+  loadJson(eventsUrl)
+    .then(function(data){
+      var painted = applyCore(data, true);
+      /* A 2.5s R2 miss paints the git fallback and stops. One fresh R2 read redraws the city list when that snapshot is behind. */
+      if (!window.atmRetryAfterFallback) return;
+      var prev = coreSig(painted);
+      window.atmRetryAfterFallback(eventsUrl).then(function(fresh){
+        if (!fresh || !fresh.length) return;
+        var visible = fresh.filter(function(r){ return r && !r.hidden; });
+        if (!unlockKr) visible = visible.filter(function(r){ if (!(r.kind === 'weekly' || r.regular_oneoff)) return true; return /^(China|Taiwan|Hong Kong)$/.test(r.country || r.region || ''); });
+        if (coreSig(visible) === prev) return;
+        applyCore(fresh, false);
+      }).catch(function(){});
+    })
     .catch(function(err){ root.innerHTML = '<p class="china-empty note">' + (UI.loadError || 'Could not load listings') + ' (' + esc(err.message) + '). ' + (UI.refresh || 'Please refresh.') + '</p>'; });
   /* v8f: collapsible note (one line + More/Less) */
   (function(){

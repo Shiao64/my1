@@ -29,7 +29,7 @@ check('gmail user is not hardcoded over production', !/^GMAIL_USER\s*=/m.test(to
 check('no secret material in wrangler', !/API_KEY|APP_PASSWORD|BEGIN PRIVATE/i.test(toml));
 
 for (const html of [en, zh]) {
-  check('r9 data stays and map is newer than the cached r9', html.includes('atm-data.js?v=r9') && html.includes('asia-map.js?v=r12'));
+  check('r10 data and r13 map', html.includes('atm-data.js?v=r10') && html.includes('asia-map.js?v=r13') && !html.includes('atm-data.js?v=r9'));
   check('merged card script is newer than either cb144', html.includes('/asia/cardB.js?v=cb145'));
   check('star script', html.includes('/asia/atm-star.js?v=st24'));
   check('E163 leaves the map', html.includes("cid==='E163'") && html.includes('/event/chengdu-2027-ich-tango-festival/'));
@@ -43,7 +43,7 @@ const e163 = byId(events, 'E163');
 const e160 = byId(events, 'E160');
 check('E162 is the public Chengdu card', e162 && e162.hidden !== true);
 check('E163 is hidden in git', e163 && e163.hidden === true);
-check('git JSON has no E164', !byId(events, 'E164') && !byId(core, 'E164'));
+check('git JSON includes the live R2 cards', ['E164', 'E168', 'E169', 'E170'].every((id) => byId(events, id) && byId(core, id)));
 check('PR35 Wuhan contact is kept', e160 && e160.organizers && e160.organizers.includes('向前') && e160.contacts && e160.contacts.email === '756416106@qq.com');
 check('poster query is preserved', data.includes("raw.indexOf('?')") && data.includes('full: pub(q) + (extra || \'\')'));
 check('video account text is in the map and the card', map.includes('wechat_channels') && read('asia/cardB.js').includes('微信视频号'));

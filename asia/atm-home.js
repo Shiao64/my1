@@ -403,7 +403,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china465';
+    var coreUrl = '/asia/events-core.json?v=china466';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {
@@ -411,19 +411,39 @@
         else if (++n > 40) { clearInterval(t); resolve(null); }
       }, 50);
     });
-    coreWait.then(function (ready) {
-      if (ready) return ready;
-      return loadEv(coreUrl).then(asList);
-    }).then(function (list) {
+    function listSig(list) {
+      return asList(list).filter(function (e) { return e && !e.hidden; }).map(function (e) {
+        return [e.id, e.city || '', e.start || '', e.end || '', e.kind || '', e.regular_oneoff ? 1 : 0, e.status || '', e.updated || '', e.venue || '', e.poster || ''].join('\t');
+      }).join('\n');
+    }
+    function paintCore(list) {
       list = asList(list);
       prep(list); badge(); render();
+      return list;
+    }
+    function fillFav(list) {
       var miss = favMissing(list);
-      if (!miss.length) return;
+      if (!miss.length) return Promise.resolve();
       var more = window.atmLoadMore ? window.atmLoadMore() : loadEv(coreUrl.replace('events-core.json', 'events-more.json')).then(asList);
       return Promise.resolve(more).then(function (extra) {
         var merged = list.concat(extra || []);
         if (!favMissing(merged).length) { prep(merged); badge(); render(); return; }
         return loadEv(FULL).then(function (d) { prep(asList(d)); badge(); render(); });
+      });
+    }
+    coreWait.then(function (ready) {
+      if (ready) return ready;
+      return loadEv(coreUrl).then(asList);
+    }).then(function (list) {
+      list = paintCore(list);
+      var seen = listSig(list);
+      return fillFav(list).then(function () {
+        /* Same quiet retry as the map list: a timeout paints git, then one fresh R2 read redraws Chongqing and the other city lists. */
+        if (!window.atmRetryAfterFallback) return;
+        return window.atmRetryAfterFallback(coreUrl).then(function (fresh) {
+          if (!fresh || listSig(fresh) === seen) return;
+          return fillFav(paintCore(fresh));
+        }).catch(function () {});
       });
     }).catch(function () { R.classList.remove('atm-h-on', 'atm-h-home'); });
   }
