@@ -16,7 +16,7 @@ fs.writeFileSync(path.join(dir, 'social.js'), src);
 const { social } = await import(pathToFileURL(path.join(dir, 'social.js')).href);
 
 const db = new DatabaseSync(':memory:');
-for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql']) {
+for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql']) {
   db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', file), 'utf8'));
 }
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
@@ -47,7 +47,7 @@ async function sha(s) {
   return [...new Uint8Array(d)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 const ret = 'https://tangoweekend.org/zh/asia/?atm_y=80';
-const who = { name: 'Mei', email: 'mei@example.com', city: 'Shanghai', role: 'follower', lang: 'zh', alert: 0, ret, ts: 'x' };
+const who = { name: 'Mei', email: 'mei@example.com', city: 'Shanghai', role: 'follower', lang: 'zh', alert: 0, ret, ts: 'x', last4: '8000' };
 async function post(pathname, body, headers) {
   const res = await social(new Request('https://api.tangoweekend.org/social' + pathname, { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: 'https://tangoweekend.org', ...(headers || {}) }, body: JSON.stringify(body) }), env, new URL('https://api.tangoweekend.org/social' + pathname), json);
   const d = await res.json(); d._s = res.status; return d;

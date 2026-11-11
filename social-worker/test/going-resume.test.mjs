@@ -16,7 +16,7 @@ fs.writeFileSync(path.join(dir, 'social.js'), src);
 const { social } = await import(pathToFileURL(path.join(dir, 'social.js')).href);
 
 const db = new DatabaseSync(':memory:');
-for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql']) {
+for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql']) {
   db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', file), 'utf8'));
 }
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
@@ -58,16 +58,16 @@ async function confirm(link, headers) {
 }
 function tokenOf(html) { return (html.match(/s=([0-9a-f]{64})/) || [])[1] || ''; }
 
-const star = await post('/going', { id: 'F1', intent: 'interested', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, alert: 1, ts: 'x', ret: zhRet, lang: 'zh', notify: 1 });
+const star = await post('/going', { id: 'F1', intent: 'interested', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, alert: 1, ts: 'x', ret: zhRet, lang: 'zh', notify: 1, last4: '8000' });
 const row = db.prepare('SELECT pending_intent i, card_id c, wants_sitewide w, ret r FROM profile_verify WHERE email=?').get('new@example.com');
 check('token row keeps the profile choice', star.confirm && star._cookie.includes('atm_verify=1') && row.i === 'interested' && row.c === 'F1' && row.w === 1 && row.r === zhRet);
 const same = await confirm(star.preview_link, { Cookie: 'atm_verify=1' });
 const sameToken = tokenOf(same.html);
 check('same browser redirects to the card query', same.status === 200 && same.html.includes('http-equiv="refresh"') && same.html.includes('/zh/asia/?card=F1&amp;intent=resume&amp;s=' + sameToken) && same.html.includes('返回活动') && !same.html.includes('#atm=') && !same.html.includes('going=') && same.cookie.includes('atm_session=' + sameToken));
-const other = await post('/going', { id: 'F1', intent: 'going', email: 'other@example.com', name: 'Ora', city: 'Osaka', role: 'follower', explicit: 1, disclose: 1, alert: 0, ts: 'x', ret, lang: 'en' });
+const other = await post('/going', { id: 'F1', intent: 'going', email: 'other@example.com', name: 'Ora', city: 'Osaka', role: 'follower', explicit: 1, disclose: 1, alert: 0, ts: 'x', ret, lang: 'en', last4: '8000' });
 const otherPage = await confirm(other.preview_link);
 check('a different browser shows the button and does not refresh', otherPage.status === 200 && !otherPage.html.includes('http-equiv="refresh"') && otherPage.html.includes('Back to event') && otherPage.html.includes('/asia/?card=F1') && otherPage.html.includes('intent=resume') && !otherPage.html.includes('WeChat') && !otherPage.html.includes('微信'));
-const wx = await post('/going', { id: 'F1', intent: 'going', email: 'wx@example.com', name: 'Wei', city: 'Shanghai', role: 'both', explicit: 1, disclose: 1, alert: 1, ts: 'x', ret: zhRet, lang: 'zh' });
+const wx = await post('/going', { id: 'F1', intent: 'going', email: 'wx@example.com', name: 'Wei', city: 'Shanghai', role: 'both', explicit: 1, disclose: 1, alert: 1, ts: 'x', ret: zhRet, lang: 'zh', last4: '8000' });
 const wxPage = await confirm(wx.preview_link, { Cookie: 'atm_verify=1', 'User-Agent': 'Mozilla/5.0 MicroMessenger/8.0' });
 check('wechat shows the system-browser hint and no refresh', wxPage.status === 200 && !wxPage.html.includes('http-equiv="refresh"') && wxPage.html.includes('返回活动') && wxPage.html.includes('微信内置浏览器') && wxPage.html.includes('在浏览器中打开') && wxPage.html.includes('intent=resume'));
 check('confirm did not record the intent', !db.prepare('SELECT id FROM going_intents WHERE email=?').get('wx@example.com'));
@@ -82,7 +82,7 @@ db.prepare("UPDATE profile_verify SET sent_at='2020-01-01T00:00:00.000Z' WHERE e
 const late = await confirm(other.preview_link);
 check('an expired link is the bilingual star page', late.status === 400 && late.html.includes('链接已过期。请回到页面，再次点五角星，即可收到一封新邮件。') && late.html.includes('This link has expired. Go back and tap the star again to get a new email.') && !late.html.includes('intent=resume'));
 
-const menu = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Osaka', role: 'follower', lang: 'zh', alert: 1, ret: zhRet, ts: 'x' });
+const menu = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Osaka', role: 'follower', lang: 'zh', alert: 1, ret: zhRet, ts: 'x', last4: '8000' });
 const menuPage = await confirm(menu.preview_link, { Cookie: 'atm_verify=1' });
 const menuToken = tokenOf(menuPage.html);
 check('menu confirm returns to the saved page without the intent dialog', menuPage.html.includes('http-equiv="refresh"') && menuPage.html.includes('atm_y=220') && menuPage.html.includes('资料已保存') && !menuPage.html.includes('intent=resume') && menuPage.html.includes('返回</a>') && !menuPage.html.includes('返回活动'));

@@ -112,23 +112,25 @@ check('migration 0016 is not applied from this change', migration.includes('CREA
 
 const zhLetter = buildConfirmLetter({ lang: 'zh', name: '安', email: 'person@example.com' }, 'https://api.tangoweekend.org/social/going/confirm?e=a&t=b', null, s => s);
 const enLetter = buildConfirmLetter({ lang: 'en', name: 'Ann', email: 'person@example.com' }, 'https://api.tangoweekend.org/social/going/confirm?e=a&t=b', null, s => s);
-check('the confirm letter tells the dancer about the last 4', zhLetter.text.includes(nextZh) && zhLetter.html.includes(nextZh) && enLetter.text.includes(nextEn) && enLetter.html.includes(nextEn));
+check('the confirm letter tells the dancer about the last 4', zhLetter.text.includes(nextZh) && zhLetter.html.includes(nextZh) && enLetter.text.includes(nextEn) && enLetter.html.includes(nextEn) && zhLetter.text.includes(hintZh) && zhLetter.html.includes(hintZh) && enLetter.text.includes(hintEn) && enLetter.html.includes(hintEn));
 check('formatted numbers keep a full value and the same last 4', storedOk(normalizePhone(spaced), spaced) && storedOk(normalizePhone(dashed), dashed) && storedOk(normalizePhone(plus), plus) && storedOk(normalizePhone(paren), paren) && phoneLast4(normalizePhone(spaced)) === tail(spaced) && normalizePhone('12-34') === '');
 
-const tooShort = await post('/profile', { ...baseWho, email: 'short@example.com', phone: '12-34' });
+const tooShort = await post('/profile', { ...baseWho, email: 'short@example.com', last4: '12' });
 check('a too-short phone is refused and does not send mail', tooShort._s === 400 && tooShort.error === 'bad_phone' && tooShort.mailed === false && logs.length === 0 && !userPhone('short@example.com'));
+const fullRefused = await post('/profile', { ...baseWho, email: 'full@example.com', phone: spaced });
+check('a full phone number is not stored on a new registration', fullRefused._s === 400 && fullRefused.error === 'bad_phone' && fullRefused.mailed === false && logs.length === 0 && !userPhone('full@example.com') && !stagedPhone('full@example.com'));
 
-const first = await post('/profile', { ...baseWho, email: 'mei@example.com', phone: spaced });
+const first = await post('/profile', { ...baseWho, email: 'mei@example.com', last4: tail(spaced) });
 const before = db.prepare('SELECT verified_at v FROM users WHERE email=?').get('mei@example.com');
-check('first subscribe still asks for email confirm and does not bind yet', first.confirm === true && first.session !== true && !first._cookie.includes('atm_session=') && logs.length === 1 && !before.v && !userPhone('mei@example.com') && storedOk(stagedPhone('mei@example.com'), spaced));
-check('the confirm mail does not include the phone', logs.length === 1 && !leaked(logs[0], spaced) && logs[0].includes(nextZh));
+check('first subscribe still asks for email confirm and does not bind yet', first.confirm === true && first.session !== true && !first._cookie.includes('atm_session=') && logs.length === 1 && !before.v && !userPhone('mei@example.com') && stagedPhone('mei@example.com') === tail(spaced));
+check('the confirm mail does not include the phone', logs.length === 1 && !leaked(logs[0], spaced) && logs[0].includes(nextZh) && logs[0].includes(hintZh));
 const early = await login('mei@example.com', tail(spaced));
-check('last 4 before confirm does not log in and does not send mail', early._s === 401 && early.error === 'phone_login' && early.mailed === false && !early.session && !early._cookie.includes('atm_session=') && logs.length === 1);
+check('last 4 before confirm does not log in and does not send mail', early.register === true && early.mailed === false && !early.session && !early._cookie.includes('atm_session=') && logs.length === 1);
 
 const done = await confirm(first.preview_link);
 const session = sessionOf(done.cookie);
 const pass = passTok(done.html);
-check('confirm binds the phone and signs this browser in', done.status === 200 && /^[0-9a-f]{64}$/.test(session) && done.cookie.includes('atm_session=' + session) && !!db.prepare('SELECT verified_at v FROM users WHERE email=?').get('mei@example.com').v && storedOk(userPhone('mei@example.com'), spaced) && !stagedPhone('mei@example.com') && logs.length === 1 && !leaked(done.html, spaced));
+check('confirm binds the last 4 and signs this browser in', done.status === 200 && /^[0-9a-f]{64}$/.test(session) && done.cookie.includes('atm_session=' + session) && !!db.prepare('SELECT verified_at v FROM users WHERE email=?').get('mei@example.com').v && userPhone('mei@example.com') === tail(spaced) && !stagedPhone('mei@example.com') && logs.length === 1 && !leaked(done.html, spaced));
 check('confirm still shows the personal link', /^[0-9a-f]{64}$/.test(pass) && done.html.includes('/social/going/enter/' + pass));
 
 const good = await login('mei@example.com', tail(spaced));
@@ -140,35 +142,42 @@ check('the new browser is signed in and the full number stays off the profile re
 const wrong = await login('mei@example.com', '0000');
 check('a wrong last 4 does not log in and does not send mail', wrong._s === 401 && wrong.error === 'phone_login' && wrong.mailed === false && !wrong.session && !wrong._cookie.includes('atm_session=') && logs.length === 1);
 const unknown = await login('nobody@example.com', tail(spaced));
-check('an unknown email does not log in and does not send mail', unknown._s === 401 && unknown.error === 'phone_login' && unknown.mailed === false && !unknown.session && logs.length === 1 && unknown.error === wrong.error);
+check('an unknown email is registration, not a login, and does not send mail', unknown.register === true && unknown.mailed === false && !unknown.session && logs.length === 1 && unknown.error !== 'phone_login');
 
-const star = await post('/going', { id: 'F1', intent: 'interested', email: 'star@example.com', name: 'An', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, lang: 'en', ret, phone: dashed });
-check('a first star subscribe still sends the confirm mail and waits to bind', star.confirm === true && star._s === 200 && logs.length === 2 && !userPhone('star@example.com') && storedOk(stagedPhone('star@example.com'), dashed) && !leaked(logs[1], dashed));
+const star = await post('/going', { id: 'F1', intent: 'interested', email: 'star@example.com', name: 'An', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, lang: 'en', ret, last4: tail(dashed) });
+check('a first star subscribe still sends the confirm mail and waits to bind', star.confirm === true && star._s === 200 && logs.length === 2 && !userPhone('star@example.com') && stagedPhone('star@example.com') === tail(dashed) && !leaked(logs[1], dashed));
 const starEarly = await login('star@example.com', tail(dashed));
-check('the star phone cannot sign in before confirm', starEarly._s === 401 && logs.length === 2);
+check('the star phone cannot sign in before confirm', starEarly.register === true && !starEarly.session && logs.length === 2);
 const starDone = await confirm(star.preview_link);
-check('confirm after the star binds that formatted number', starDone.status === 200 && storedOk(userPhone('star@example.com'), dashed) && logs.length === 2 && !leaked(starDone.html, dashed));
+check('confirm after the star binds only the last 4', starDone.status === 200 && userPhone('star@example.com') === tail(dashed) && logs.length === 2 && !leaked(starDone.html, dashed));
 const starIn = await login('star@example.com', tail(dashed));
-check('the dashed number signs in with its last 4 and does not send mail', starIn._s === 200 && !!starIn.session && starIn.mailed === false && logs.length === 2);
+check('the last 4 signs in and does not send mail', starIn._s === 200 && !!starIn.session && starIn.mailed === false && logs.length === 2);
+const starIntent = await post('/going/phone', { email: 'star@example.com', last4: tail(dashed), id: 'F1', intent: 'interested', explicit: 1, disclose: 1, lang: 'en', ret });
+check('a confirmed star signs in and records the intent with no second confirm', starIntent._s === 200 && starIntent.session && starIntent.confirm !== true && starIntent.mailed === false && starIntent.mail === 'queued' && logs.length === 2 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='F1'").get('star@example.com').i === 'interested');
 
-const bare = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old' });
+const bare = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old', last4: '1111' });
 const bareDone = await confirm(bare.preview_link);
 const bareSession = sessionOf(bareDone.cookie);
-check('an earlier subscriber confirms without a phone', bare.confirm === true && logs.length === 3 && !userPhone('old@example.com') && /^[0-9a-f]{64}$/.test(bareSession));
+db.prepare('DELETE FROM user_phone WHERE user_id=?').run(db.prepare('SELECT id FROM users WHERE email=?').get('old@example.com').id);
+check('an earlier subscriber can be confirmed with no phone left on file', bare.confirm === true && logs.length === 3 && !userPhone('old@example.com') && /^[0-9a-f]{64}$/.test(bareSession));
 const bareTry = await login('old@example.com', tail(plus));
-check('no bound phone means no last-4 login and no mail', bareTry._s === 401 && logs.length === 3);
-const added = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old', phone: plus }, { Authorization: 'Bearer ' + bareSession });
-check('a signed-in profile binds a phone without mail', added._s === 200 && added.ok === true && added.session === true && added.mailed === false && added.phone_tail === tail(plus) && storedOk(userPhone('old@example.com'), plus) && logs.length === 3 && !leaked(JSON.stringify(added), plus));
+check('no bound phone means no last-4 login and no mail', bareTry._s === 401 && bareTry.register !== true && logs.length === 3);
+const added = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old', last4: tail(plus) }, { Authorization: 'Bearer ' + bareSession });
+check('a signed-in profile binds the last 4 without mail', added._s === 200 && added.ok === true && added.session === true && added.mailed === false && added.phone_tail === tail(plus) && userPhone('old@example.com') === tail(plus) && logs.length === 3 && !leaked(JSON.stringify(added), plus));
 const plusIn = await login('old@example.com', tail(plus));
-check('a country-code number signs in with its last 4', plusIn._s === 200 && !!plusIn.session && plusIn.mailed === false && logs.length === 3);
-const changed = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old', phone: paren }, { Authorization: 'Bearer ' + bareSession });
+check('the saved last 4 signs in', plusIn._s === 200 && !!plusIn.session && plusIn.mailed === false && logs.length === 3);
+const changed = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old', last4: tail(paren) }, { Authorization: 'Bearer ' + bareSession });
 const oldTail = await login('old@example.com', tail(plus));
 const newTail = await login('old@example.com', tail(paren));
-check('updating the phone from the profile replaces it and does not send mail', changed.mailed === false && changed.phone_tail === tail(paren) && storedOk(userPhone('old@example.com'), paren) && oldTail._s === 401 && newTail._s === 200 && !!newTail.session && logs.length === 3);
+check('updating the last 4 from the profile replaces it and does not send mail', changed.mailed === false && changed.phone_tail === tail(paren) && userPhone('old@example.com') === tail(paren) && oldTail._s === 401 && newTail._s === 200 && !!newTail.session && logs.length === 3);
 const kept = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old' }, { Authorization: 'Bearer ' + bareSession });
-check('saving the profile without a phone leaves the bound number', kept._s === 200 && kept.mailed === false && kept.phone_tail === tail(paren) && storedOk(userPhone('old@example.com'), paren) && logs.length === 3);
+check('saving the profile without a last 4 leaves the bound digits', kept._s === 200 && kept.mailed === false && kept.phone_tail === tail(paren) && userPhone('old@example.com') === tail(paren) && logs.length === 3);
+db.prepare("INSERT INTO users(email,name,lang,verified_at,created_at,city,role) VALUES('legacy@example.com','Legacy','zh',?,'2026-01-01T00:00:00.000Z','Shanghai','follower')").run(new Date().toISOString());
+db.prepare('INSERT INTO user_phone(user_id,phone,updated_at) VALUES(?,?,?)').run(db.prepare("SELECT id FROM users WHERE email='legacy@example.com'").get().id, normalizePhone(plus), '2026-01-01T00:00:00.000Z');
+const legacyIn = await login('legacy@example.com', tail(plus));
+check('a full phone already on file signs in with its last 4 and is not rewritten', legacyIn._s === 200 && !!legacyIn.session && legacyIn.mailed === false && userPhone('legacy@example.com') === normalizePhone(plus) && logs.length === 3);
 
-const lockedUser = await post('/profile', { ...baseWho, email: 'lock@example.com', name: 'Lock', phone: dashed });
+const lockedUser = await post('/profile', { ...baseWho, email: 'lock@example.com', name: 'Lock', last4: tail(dashed) });
 await confirm(lockedUser.preview_link);
 const mailsAtLock = logs.length;
 let lastFail = null;
@@ -187,9 +196,9 @@ const entered = await social(new Request('https://api.tangoweekend.org/social/go
 const enteredHtml = await entered.text();
 check('the personal link still signs in and does not send mail', entered.status === 200 && (entered.headers.get('Set-Cookie') || '').includes('atm_session=') && !leaked(enteredHtml, spaced) && logs.length === mailsAtLock);
 const beforeSneak = logs.length;
-const sneak = await post('/profile', { ...baseWho, email: 'mei@example.com', phone: dashed });
+const sneak = await post('/profile', { ...baseWho, email: 'mei@example.com', last4: '9999' });
 const sneakDone = await confirm(sneak.preview_link);
-check('a later confirm does not replace a phone already bound', sneak.confirm === true && sneak.session !== true && sneakDone.status === 200 && logs.length === beforeSneak + 1 && storedOk(userPhone('mei@example.com'), spaced) && !leaked(logs[logs.length - 1], dashed) && !leaked(sneakDone.html, dashed));
+check('a later confirm does not replace a phone already bound', sneak.confirm === true && sneak.session !== true && sneakDone.status === 200 && logs.length === beforeSneak + 1 && userPhone('mei@example.com') === tail(spaced) && !leaked(logs[logs.length - 1], dashed) && !leaked(sneakDone.html, dashed));
 check('nothing logged a full phone', [spaced, dashed, plus, paren].every(sample => logs.every(line => !leaked(line, sample))));
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }

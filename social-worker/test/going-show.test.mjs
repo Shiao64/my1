@@ -20,6 +20,7 @@ db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0012_going_occ
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_confirm_show.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0015_going_pass.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0016_phone_bind.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);
@@ -54,7 +55,7 @@ async function get(path, headers) {
   const res = await social(new Request('https://api.example.test/social' + path, { headers: headers || {} }), env, new URL('https://api.example.test/social' + path), json);
   const d = await res.json(); d._s = res.status; return d;
 }
-const base = { ts: 'x', dev: 'device-show-0001', lang: 'zh', ret, disclose: 1, explicit: 1, name: '安', email: 'ann@example.com', city: '上海', role: 'leader' };
+const base = { ts: 'x', dev: 'device-show-0001', lang: 'zh', ret, disclose: 1, explicit: 1, name: '安', email: 'ann@example.com', city: '上海', role: 'leader', last4: '8000' };
 const first = await post('/going', { ...base, id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], alert: 1 });
 check('guest confirm mail is only the short subscription letter', first.confirm && mails.some(m => m.includes('ann@example.com') && m.includes('谢谢你订阅亚洲探戈地图') && m.includes('确认订阅') && m.includes('如果不是你本人操作，忽略这封信即可。') && !m.includes('同时订阅') && !m.includes('要删除资料')));
 check('guest row is pending, not an intent', !db.prepare('SELECT id FROM going_intents WHERE email=?').get('ann@example.com') && db.prepare('SELECT anchor a, intent i FROM going_pending WHERE email=?').get('ann@example.com').a === dates[0]);
@@ -93,7 +94,7 @@ for (let n = 0; n < 10; n++) db.prepare('INSERT INTO going_confirm_log(email,dev
 const overDev = await post('/going', { ...base, email: 'fresh@example.com', name: 'Fresh', id: 'F1', intent: 'interested', dev: 'device-full-0001' });
 check('a full device gets the same retry, with no existence hint', overDev._s === 429 && overDev.error === 'rate_limited' && !JSON.stringify(overDev).includes('fresh@'));
 const guestAway = await post('/going', { ...base, email: 'guest-away@example.com', name: 'Guest', id: 'W1', intent: 'absent', anchor: dates[0], date: dates[0] });
-check('an unverified not-going is not stored and sends nothing', guestAway.ok && guestAway.stored === false && guestAway.mail === 'withheld' && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('guest-away@example.com') && !db.prepare('SELECT id FROM going_pending WHERE email=?').get('guest-away@example.com'));
+check('an unverified not-going still waits for the confirm mail and does not write an intent yet', guestAway.confirm === true && guestAway.mailed === false && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('guest-away@example.com') && db.prepare('SELECT intent i FROM going_pending WHERE email=?').get('guest-away@example.com').i === 'absent');
 const realFetch = globalThis.fetch;
 env.TURNSTILE_SECRET = 'present';
 globalThis.fetch = async (url, opt) => String(url).includes('siteverify') ? { ok: true, json: async () => ({ success: false }) } : realFetch(url, opt);
@@ -102,7 +103,7 @@ const awayLaterRow = db.prepare('SELECT intent i, mail_status s, attend_date a F
 check('a verified not-going is stored without a human-check token', awayLater.mail === 'withheld' && awayLaterRow && awayLaterRow.i === 'absent' && awayLaterRow.s === 'none' && !awayLaterRow.a);
 const noTs = await post('/going', { ...base, email: 'nots@example.com', name: 'NoTs', id: 'F1', intent: 'interested', ts: '', dev: 'device-nots-0001' });
 check('intent confirm ignores a failing human check', noTs.confirm === true && noTs._s === 200 && !noTs.error);
-const profileBlocked = await post('/profile', { name: 'NoTs', email: 'profile-ts@example.com', city: '上海', role: 'leader', lang: 'zh', alert: 0, ret, ts: '' });
+const profileBlocked = await post('/profile', { name: 'NoTs', email: 'profile-ts@example.com', city: '上海', role: 'leader', lang: 'zh', alert: 0, ret, ts: '', last4: '8000' });
 check('profile still requires the human check', profileBlocked._s === 403 && profileBlocked.error === 'turnstile');
 const restoreBlocked = await post('/going/restore', { email: 'ann@example.com', ret, ts: '', lang: 'zh' });
 check('restore still requires the human check', restoreBlocked._s === 403 && restoreBlocked.error === 'turnstile');

@@ -32,10 +32,14 @@ window.fetch=function(url,opt){
   if(u.indexOf('/config')>=0)return json({sitekey:'0xTEST'});
   if(opt&&String(opt.method).toUpperCase()==='POST'){
     var body=JSON.parse(opt.body);
+    if(u.indexOf('/going/phone')>=0){
+      window.__gates=window.__gates||[];
+      window.__gates.push(body);
+      return json({ok:true,register:true,mailed:false});
+    }
     window.__posts.push(body);
     if(window.__mode==='limited')return json({error:'rate_limited'},429);
-    if(body.intent==='absent')return json({ok:true,mail:'withheld'});
-    return json({ok:true,confirm:true});
+    return json({ok:true,confirm:true,mailed:false});
   }
   return Promise.reject(new Error(u));
 };
@@ -81,31 +85,36 @@ const opened = await zh.evaluate(fields);
 check('chinese going opens without a human check', opened.pressed === '要参加' && opened.widget === 0 && opened.renders === 0 && opened.note === true && opened.dateOff === false && opened.hidden === false);
 await zh.evaluate(() => { document.querySelector('[data-intent="absent"]').click(); });
 const away = await zh.evaluate(fields);
-check('not going stays open with mail fields locked', away.pressed === '去不了' && away.note === false && away.noteOff === true && away.emailOff === true && away.dateOff === true && away.hidden === false && away.widget === 0);
+check('not going keeps the email fields and does not post by itself', away.pressed === '去不了' && away.note === false && away.noteOff === true && away.emailOff === false && away.dateOff === true && away.hidden === false && away.widget === 0);
 await zh.click('#asg-go');
-await zh.waitForFunction(() => document.querySelector('#atm-star').hidden);
-check('unverified not going closes locally and does not post', await zh.evaluate(() => window.__posts.length === 0 && document.querySelector('#atm-star').hidden === true));
-await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
-await zh.waitForSelector('#asg-go');
+check('unverified not going asks for the email and does not post', await zh.evaluate(() => window.__posts.length === 0 && document.querySelector('#atm-star').hidden === false && document.querySelector('#asg-err').textContent === '请填写邮箱。'));
+await zh.evaluate(() => document.querySelector('[data-intent="going"]').click());
 await zh.evaluate(() => {
-  document.querySelector('[data-intent="going"]').click();
   document.querySelector('#asg-email').value = 'guest@example.com';
+  document.querySelector('#asg-last4').value = '1111';
+  document.querySelector('#asg-go').click();
+});
+await zh.waitForSelector('#asg-name');
+await zh.evaluate(() => {
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
-  document.querySelector('#asg-phone').value = ['138', '0000', '1111'].join('');
   document.querySelector('#asg-role').value = 'leader';
   document.querySelector('#asg-go').click();
 });
 await zh.waitForFunction(() => window.__posts.length === 1);
 const posted = await zh.evaluate(() => ({ body: window.__posts[0], go: document.querySelector('#asg-go').textContent, off: document.querySelector('#asg-go').disabled, hidden: document.querySelector('#atm-star').hidden, promo: document.querySelector('#asg-promo').checked }));
-check('confirm posts once and keeps the button disabled', posted.body.intent === 'going' && posted.body.email === 'guest@example.com' && posted.body.name === 'Guest' && posted.body.city === 'Osaka' && posted.body.role === 'leader' && posted.body.alert === 1 && posted.promo === true && posted.go === '已发送邮件，请到邮箱确认' && posted.off === true && posted.hidden === false);
+check('confirm posts once and keeps the button disabled', posted.body.intent === 'going' && posted.body.email === 'guest@example.com' && posted.body.name === 'Guest' && posted.body.city === 'Osaka' && posted.body.role === 'leader' && posted.body.last4 === '1111' && !posted.body.phone && posted.body.alert === 1 && posted.promo === true && posted.go === '已发送邮件，请到邮箱确认' && posted.off === true && posted.hidden === false);
 await zh.evaluate(() => document.querySelector('#asg-go').click());
 check('a second tap in the same dialog does not send', await zh.evaluate(() => window.__posts.length === 1));
 await zh.click('[data-x]');
 await zh.waitForFunction(() => document.querySelector('#atm-star').hidden);
 await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
 await zh.waitForSelector('#asg-go');
-await zh.evaluate(() => document.querySelector('[data-intent="going"]').click());
+await zh.evaluate(() => {
+  document.querySelector('[data-intent="going"]').click();
+  document.querySelector('#asg-last4').value = '1111';
+  document.querySelector('#asg-go').click();
+});
 await zh.waitForSelector('#asg-resend');
 check('reopen within a minute stays grey and shows the spam reminder', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').textContent.indexOf('秒后可重发') >= 0 && document.querySelector('#asg-resend').textContent === '请先检查垃圾邮件；1 分钟后可重发一次' && window.__posts.length === 1));
 await zh.evaluate(() => document.querySelector('#asg-go').click());
@@ -118,13 +127,16 @@ await zh.evaluate(() => {
 await zh.click('[data-x]');
 await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
 await zh.waitForSelector('#asg-go');
-await zh.evaluate(() => document.querySelector('[data-intent="going"]').click());
-await zh.waitForFunction(() => document.querySelector('#asg-go').disabled === false && document.querySelector('#asg-go').textContent === '确认');
-check('after one minute the same show can be resent once', await zh.evaluate(() => document.querySelector('#asg-resend').textContent === '请先检查垃圾邮件；1 分钟后可重发一次' && document.querySelector('#asg-go').textContent === '确认'));
+await zh.evaluate(() => {
+  document.querySelector('[data-intent="going"]').click();
+  document.querySelector('#asg-last4').value = '1111';
+  document.querySelector('#asg-go').click();
+});
+await zh.waitForFunction(() => document.querySelector('#asg-go').disabled === false && document.querySelector('#asg-go').textContent === '发送确认邮件');
+check('after one minute the same show can be resent once', await zh.evaluate(() => document.querySelector('#asg-resend').textContent === '请先检查垃圾邮件；1 分钟后可重发一次' && document.querySelector('#asg-go').textContent === '发送确认邮件'));
 await zh.evaluate(() => {
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
-  document.querySelector('#asg-phone').value = ['138', '0000', '1111'].join('');
   document.querySelector('#asg-role').value = 'leader';
 });
 await zh.click('#asg-go');
@@ -133,30 +145,42 @@ check('the resend locks the button again', await zh.evaluate(() => document.quer
 await zh.click('[data-x]');
 await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
 await zh.waitForSelector('#asg-go');
-await zh.evaluate(() => document.querySelector('[data-intent="going"]').click());
+await zh.evaluate(() => {
+  document.querySelector('[data-intent="going"]').click();
+  document.querySelector('#asg-last4').value = '1111';
+  document.querySelector('#asg-go').click();
+});
 await zh.waitForFunction(() => document.querySelector('#asg-go').textContent.indexOf('已重发过') === 0);
 check('a third open says the resend was used', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && window.__posts.length === 2));
 await zh.close();
 
 const en = await open('en');
 await en.evaluate(() => {
-  window.__mode = 'limited';
   document.querySelector('#asg-email').value = 'guest@example.com';
+  document.querySelector('#asg-last4').value = '1111';
+  document.querySelector('#asg-go').click();
+});
+await en.waitForSelector('#asg-name');
+await en.evaluate(() => {
+  window.__mode = 'limited';
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
-  document.querySelector('#asg-phone').value = ['138', '0000', '1111'].join('');
   document.querySelector('#asg-role').value = 'leader';
   document.querySelector('#asg-go').click();
 });
 await en.waitForFunction(() => (document.querySelector('#asg-err') || {}).textContent);
-check('english limit copy is explicit and the widget stays absent', await en.evaluate(() => document.querySelector('#asg-err').textContent === 'Too many confirmation emails. Please try again later.' && document.querySelector('#asg-go').disabled === false && document.querySelector('#asg-go').textContent === 'Confirm' && document.querySelectorAll('.asg-ts').length === 0 && window.__renders === 0 && document.querySelector('#atm-star').hidden === false && !('ts' in window.__posts[0])));
+check('english limit copy is explicit and the widget stays absent', await en.evaluate(() => document.querySelector('#asg-err').textContent === 'Too many confirmation emails. Please try again later.' && document.querySelector('#asg-go').disabled === false && document.querySelector('#asg-go').textContent === 'Send confirmation email' && document.querySelectorAll('.asg-ts').length === 0 && window.__renders === 0 && document.querySelector('#atm-star').hidden === false && !('ts' in window.__posts[0])));
 await en.close();
 const enSent = await open('en');
 await enSent.evaluate(() => {
   document.querySelector('#asg-email').value = 'guest@example.com';
+  document.querySelector('#asg-last4').value = '1111';
+  document.querySelector('#asg-go').click();
+});
+await enSent.waitForSelector('#asg-name');
+await enSent.evaluate(() => {
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
-  document.querySelector('#asg-phone').value = ['138', '0000', '1111'].join('');
   document.querySelector('#asg-role').value = 'leader';
   document.querySelector('#asg-go').click();
 });
