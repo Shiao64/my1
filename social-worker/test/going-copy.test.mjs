@@ -61,7 +61,7 @@ check('favorite unfavorite label stays', home.includes('取消收藏') && home.i
 check('home list title is saved events not intents', home.includes("fav: '我的收藏'") && home.includes("fav: 'My saved events'") && !home.includes('我的活动意向') && !home.includes('My event intents') && home.includes('还没有收藏。点活动上的星星即可收藏。') && home.includes('No saved events yet. Tap the star on an event to save it.'));
 check('home fav list has unfav control', home.includes('function favRow') && home.includes('class="atm-unfav"') && home.includes('data-unfav') && home.includes('function refreshFavPanel'));
 check('fav list title uses the homepage star, not a heart', home.includes('starIc() + T.fav') && home.includes('function starIc') && home.includes('class="ah-star"') && !home.includes("'♥ ' + T.fav") && !/innerHTML = '<span class="ah-hrt"[^']*♥/.test(home));
-check('release label 11.9.15', read('asia/index.html').includes('data-site-release="11.9.15"') && read('zh/asia/index.html').includes('data-site-release="11.9.15"') && read('asia/index.html').includes('beta 11.9.15') && read('zh/asia/index.html').includes('测试版 11.9.15'));
+check('release label 11.9.20', read('asia/index.html').includes('data-site-release="11.9.20"') && read('zh/asia/index.html').includes('data-site-release="11.9.20"') && read('asia/index.html').includes('beta 11.9.20') && read('zh/asia/index.html').includes('测试版 11.9.20'));
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going copy ok');

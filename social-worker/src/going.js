@@ -268,6 +268,45 @@ function confirmJson(req, body, status = 200) {
 function sessionCookie(token) {
   return `atm_session=${token}; Path=/; Max-Age=34560000; Domain=.tangoweekend.org; Secure; SameSite=Lax`;
 }
+const PASS_RE = /^[0-9a-f]{64}$/;
+const ENTER_BAD = '链接无效。请在「我的资料」里生成新的订阅链接。 / This link does not work. Make a new subscription link from My profile.';
+function passLink(env, token) {
+  const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+  return base + '/social/going/enter/' + token;
+}
+async function passHash(kit, token) { return kit.sha('atm-pass:' + token); }
+async function issuePass(env, kit, userId) {
+  const token = kit.rnd(32);
+  await env.SDB.prepare(`INSERT INTO going_pass(user_id,token_hash,created_at) VALUES(?,?,?)
+    ON CONFLICT(user_id) DO UPDATE SET token_hash=excluded.token_hash, created_at=excluded.created_at`)
+    .bind(userId, await passHash(kit, token), kit.now()).run();
+  return token;
+}
+async function ensurePass(env, kit, userId) {
+  const row = await env.SDB.prepare('SELECT 1 ok FROM going_pass WHERE user_id=?').bind(userId).first();
+  if (row) return '';
+  return issuePass(env, kit, userId);
+}
+function withPass(dest, token) {
+  if (!dest || !PASS_RE.test(token || '')) return dest || '';
+  try { const u = new URL(dest); u.hash = 'p=' + token; return u.toString(); }
+  catch { return dest; }
+}
+function secureRequest(url) {
+  if (url.protocol === 'https:') return true;
+  return url.protocol === 'http:' && (url.hostname === 'localhost' || url.hostname === '127.0.0.1');
+}
+function passBox(kit, lang, url, wechat) {
+  if (!url) return '';
+  const zh = lang === 'zh';
+  const title = zh ? '我的订阅链接' : 'Your subscription link';
+  const hint = wechat
+    ? (zh ? '在微信里打开即可登录，不必再收确认邮件。' : 'Open it in WeChat to sign in. No new confirmation email.')
+    : (zh ? '用其他手机浏览器打开即可登录，不必再收确认邮件。' : 'Open it in another phone browser to sign in. No new confirmation email.');
+  const copy = zh ? '复制' : 'Copy';
+  const copied = zh ? '已复制' : 'Copied';
+  return `<div style="margin-top:16px;padding-top:12px;border-top:1px dashed #ead9b8"><p style="margin:0 0 6px;font-size:.95rem;font-weight:700;color:#0a4f57">${kit.he(title)}</p><p style="margin:0 0 8px;font-size:.85rem;line-height:1.45;color:#7a6255">${kit.he(hint)}</p><input id="atm-pass" readonly value="${kit.he(url)}" autocomplete="off" spellcheck="false" style="width:100%;box-sizing:border-box;font-size:16px;padding:10px;border:1px solid #ead9b8;border-radius:8px;color:#2a1a14" onclick="this.select()"><button type="button" id="atm-pass-copy" style="margin-top:8px;min-height:44px;background:#0e6e78;color:#f6e3b4;border:0;border-radius:999px;padding:10px 18px;font-weight:700">${copy}</button><p id="atm-pass-note" style="min-height:1.2em;font-size:.85rem;color:#0a4f57"></p><script>(function(){var b=document.getElementById("atm-pass-copy"),i=document.getElementById("atm-pass"),n=document.getElementById("atm-pass-note");if(!b||!i)return;function ok(){if(n)n.textContent=${JSON.stringify(copied)};}function fb(){i.focus();i.select();try{document.execCommand("copy");ok();}catch(e){}}b.addEventListener("click",function(){var t=i.value;if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb();});})();</script></div>`;
+}
 function sameBrowser(req) {
   return /(?:^|;\s*)atm_verify=1(?:;|$)/.test(req.headers.get('Cookie') || '');
 }
@@ -743,7 +782,7 @@ function resultPage(kit, lang, msg, dest, opt) {
   if (opt.cookie) headers['Set-Cookie'] = opt.cookie;
   return new Response(`<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">${refresh}<title>${kit.he(msg)}</title>
 <body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
-<p style="font-size:1.05rem;line-height:1.5;color:#0a4f57;font-weight:700">${kit.he(msg)}</p>${back}${hint}</div></body></html>`,
+<p style="font-size:1.05rem;line-height:1.5;color:#0a4f57;font-weight:700">${kit.he(msg)}</p>${back}${hint}${passBox(kit, lang, opt.passUrl, opt.wechat)}</div></body></html>`,
     { status: 200, headers });
 }
 function confirmForm(kit, lang, email, tok, next) {
@@ -778,14 +817,78 @@ export async function goingConfirm(req, env, url, kit) {
     const latest = await env.SDB.prepare('SELECT card_id FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC LIMIT 1').bind(email).first();
     card = latest && kit.ID_RE.test(String(latest.card_id || '')) ? String(latest.card_id) : '';
   } else if (kit.ID_RE.test(String(row.card_id))) card = String(row.card_id);
+  let pass = '';
+  try { pass = await ensurePass(env, kit, user.id); }
+  catch (e) { console.log('going pass', String(e && e.message || e).slice(0, 120)); }
   await env.SDB.prepare('DELETE FROM profile_verify WHERE email=?').bind(email).run();
   const star = !!card;
-  const dest = star ? resumeDest({ ...row, lang }, card, token) : menuDest(kit, row.ret, token);
+  const dest = withPass(star ? resumeDest({ ...row, lang }, card, token) : menuDest(kit, row.ret, token), pass);
   const msg = star
     ? (lang === 'zh' ? '邮箱已确认。回到活动后，再点「确认」才会记录意向。' : 'Email confirmed. Go back to the event and tap Confirm to save your intent.')
     : (lang === 'zh' ? '邮箱已验证，资料已保存。可到活动五角星选择要参加或感兴趣。' : 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.');
   const wx = wechatUa(req);
-  return resultPage(kit, lang, msg, dest, { event: star, redirect: sameBrowser(req) && !wx, wechat: wx, cookie: sessionCookie(token) });
+  return resultPage(kit, lang, msg, dest, { event: star, redirect: sameBrowser(req) && !wx, wechat: wx, cookie: sessionCookie(token), passUrl: pass ? passLink(env, pass) : '' });
+}
+function enterHeaders() {
+  return {
+    'Content-Type': 'text/html; charset=utf-8',
+    'Cache-Control': 'no-store',
+    'Referrer-Policy': 'no-referrer',
+    'X-Content-Type-Options': 'nosniff',
+    'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
+  };
+}
+function enterForm(kit, lang, token) {
+  const zh = lang === 'zh';
+  const msg = zh ? '正在进入你的订阅。' : 'Opening your subscription.';
+  const btn = zh ? '进入我的订阅' : 'Open my subscription';
+  return new Response(`<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="referrer" content="no-referrer"><title>${kit.he(msg)}</title></head>
+<body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
+<p style="font-size:1.05rem;line-height:1.5;color:#0a4f57;font-weight:700">${kit.he(msg)}</p>
+<form method="post" action="/social/going/enter" referrerpolicy="no-referrer"><input type="hidden" name="k" value="${kit.he(token)}"><button type="submit" style="margin-top:8px;min-height:44px;background:#0e6e78;color:#f6e3b4;border:0;border-radius:999px;padding:12px 22px;font-weight:700">${btn}</button></form>
+<script>document.forms[0].submit()</script></div></body></html>`, { status: 200, headers: enterHeaders() });
+}
+export async function goingEnter(req, env, url, kit) {
+  if (!secureRequest(url)) return page(kit, false, 'en', ENTER_BAD, '');
+  let raw = '';
+  if (req.method === 'POST') { try { raw = await req.text(); } catch { raw = ''; } }
+  const pathTok = (url.pathname.match(/\/going\/enter\/([0-9a-f]{64})$/) || [])[1] || '';
+  const bodyTok = req.method === 'POST' ? String(new URLSearchParams(raw).get('k') || '') : '';
+  const tok = PASS_RE.test(bodyTok) ? bodyTok : pathTok;
+  if (!PASS_RE.test(tok)) return page(kit, false, 'en', ENTER_BAD, '');
+  const user = await env.SDB.prepare('SELECT u.id,u.lang,u.verified_at FROM going_pass p JOIN users u ON u.id=p.user_id WHERE p.token_hash=? AND u.verified_at IS NOT NULL').bind(await passHash(kit, tok)).first();
+  if (!user) return page(kit, false, 'en', ENTER_BAD, '');
+  const lang = user.lang === 'zh' ? 'zh' : 'en';
+  if (req.method !== 'POST') return enterForm(kit, lang, tok);
+  const session = await kit.issueSession(env, user, { keepCode: true });
+  const dest = new URL(lang === 'zh' ? '/zh/asia/' : '/asia/', 'https://tangoweekend.org');
+  dest.searchParams.set('s', session);
+  dest.hash = 'p=' + tok;
+  const msg = lang === 'zh' ? '已登录。这个浏览器已订阅，不必再收确认邮件。' : 'You\'re signed in. This browser is subscribed, and no new confirmation email was sent.';
+  const res = resultPage(kit, lang, msg, dest.toString(), { event: false, redirect: true, wechat: false, cookie: sessionCookie(session) });
+  for (const [key, value] of Object.entries(enterHeaders())) res.headers.set(key, value);
+  return res;
+}
+export async function goingPass(req, env, b, json, kit) {
+  const session = await sessionUser(req, env);
+  if (!session) return json({ error: 'auth' }, 401);
+  if (req.method === 'GET') {
+    const row = await env.SDB.prepare('SELECT 1 ok FROM going_pass WHERE user_id=?').bind(session.id).first();
+    return json({ active: !!row });
+  }
+  const prove = String(b && b.prove || '');
+  if (prove) {
+    if (!PASS_RE.test(prove)) return json({ match: false });
+    const row = await env.SDB.prepare('SELECT 1 ok FROM going_pass WHERE user_id=? AND token_hash=?').bind(session.id, await passHash(kit, prove)).first();
+    return json({ match: !!row });
+  }
+  const rotate = !!(b && (b.rotate === 1 || b.rotate === true || b.rotate === '1'));
+  const issue = !!(b && (b.issue === 1 || b.issue === true || b.issue === '1'));
+  if (!rotate && !issue) return json({ error: 'bad_input' }, 400);
+  const existing = await env.SDB.prepare('SELECT 1 ok FROM going_pass WHERE user_id=?').bind(session.id).first();
+  if (issue && !rotate && existing) return json({ active: true, error: 'exists' }, 409);
+  const token = await issuePass(env, kit, session.id);
+  return json({ ok: true, url: passLink(env, token) });
 }
 async function fillBlanks(env, kit, email, fields) {
   const cur = await env.SDB.prepare('SELECT id,name,city,role FROM users WHERE email=?').bind(email).first();

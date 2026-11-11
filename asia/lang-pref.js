@@ -4,14 +4,22 @@
    Explicit switch click saves localStorage asiaMapLang = 'en' | 'zh' (used by / next time). */
 (function () {
   try {
+    var hash = location.hash || '';
+    var pm = /^#p=([0-9a-f]{64})$/.exec(hash);
+    if (pm) {
+      var api = String(window.TANGO_SUB_API || 'https://api.tangoweekend.org').replace(/\/$/, '');
+      try { localStorage.setItem('atm_pass_url', api + '/social/going/enter/' + pm[1]); } catch (e0) {}
+      hash = '';
+    }
     var q = new URLSearchParams(location.search);
     var s = q.get('s') || '';
     if (/^[0-9a-f]{64}$/.test(s)) {
       try { localStorage.setItem('atm_session', s); } catch (e) {}
       q.delete('s');
-      var next = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
+      var next = location.pathname + (q.toString() ? '?' + q.toString() : '') + hash;
       try { history.replaceState(history.state, '', next); } catch (e2) {}
     } else {
+      if (pm) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e5) {} }
       var have = '';
       try { have = localStorage.getItem('atm_session') || ''; } catch (e3) {}
       if (!/^[0-9a-f]{64}$/.test(have)) {

@@ -1,6 +1,6 @@
 import { gmailSend } from './smtp.js';
 import { updateFooter } from './unsub.js';
-import { goingConfirm, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
+import { goingConfirm, goingEnter, goingPass, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
 export { generateGoingStats, runGoingNotices };
 // Asia Tango Map likes API, plus email confirm for the update list. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
@@ -260,6 +260,8 @@ export async function social(req, env, url, json) {
   if (p === '/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return confirmLink(req, env, url);
   if (p === '/going/config' && req.method === 'GET') return json({ sitekey: env.TURNSTILE_SITEKEY || '' });
   if (p === '/going/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingConfirm(req, env, url, goingKit());
+  if ((p === '/going/enter' || /^\/going\/enter\/[0-9a-f]{64}$/.test(p)) && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingEnter(req, env, url, goingKit());
+  if (p === '/going/pass' && req.method === 'GET') return goingPass(req, env, {}, json, goingKit());
   if (p === '/going/unsub' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingUnsub(req, env, url, goingKit());
   if (p === '/going/counts' && req.method === 'GET') return goingCounts(url, env, json);
   if (p === '/going/dates' && req.method === 'GET') return goingDates(url, env, json, goingKit());
@@ -267,6 +269,7 @@ export async function social(req, env, url, json) {
   if (p === '/going/mine' && req.method === 'GET') return goingMine(req, env, json);
   let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400); } }
   if (p === '/profile' && req.method === 'POST') return goingProfile(req, env, b, ip, iph, json, goingKit());
+  if (p === '/going/pass' && req.method === 'POST') return goingPass(req, env, b, json, goingKit());
   if (p === '/going' && req.method === 'POST') return goingSubmit(req, env, b, ip, iph, json, goingKit());
   if (p === '/going/cancel' && req.method === 'POST') return goingCancel(req, env, b, json, goingKit());
   if (p === '/going/unfav' && req.method === 'POST') return goingUnfav(req, env, b, json, goingKit());
