@@ -101,7 +101,7 @@ check('no intent from menu', db.prepare('SELECT COUNT(*) n FROM going_intents').
 
 const auth = { Authorization: 'Bearer ' + token };
 const star = await post('/going', { ...base, id: 'W1', intent: 'going', date: dates[0], notify: 1, transport: 0 }, auth);
-check('session submit queues and does not mail', star._s === 200 && star.verified && star.mailed === false && star.mail === 'queued' && orgMails().length === 0);
+check('session submit queues and does not mail', star._s === 200 && star.verified && star.mailed === false && star.mail === 'queued' && star.notice === 'off' && orgMails().length === 0);
 check('queued row keeps notify and does not mark sent', db.prepare("SELECT mail_status s, notify n FROM going_intents WHERE email=? AND card_id=?").get('ana@example.com', 'W1').s === 'queued');
 const again = await post('/going', { ...base, id: 'W1', intent: 'going', date: dates[0], notify: 0 }, auth);
 check('same intent is idempotent', again.mail === 'unchanged' && again.mailed === false && orgMails().length === 0);
@@ -130,7 +130,7 @@ const beaFinal = await post('/going', { id: 'F1', intent: 'interested', explicit
 check('final confirm after email queues', beaFinal.mail === 'queued' && (await get('/going/counts?ids=F1')).counts.F1 === 1);
 
 const none = await post('/going', { ...base, id: 'NONE', intent: 'going' }, auth);
-check('no organizer email rejected', none._s === 404 && none.error === 'no_organizer' && orgMails().length === 0);
+check('no organizer email still saves and does not mail', none.ok && none._s === 200 && none.notice === 'off' && none.mail === 'no_organizer' && none.mailed === false && orgMails().length === 0 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='NONE'").get('ana@example.com').i === 'going');
 const openOnly = await post('/going', { ...base, id: 'W1', intent: 'going', explicit: 0 }, auth);
 check('opening without confirm does not mail', openOnly._s === 400 && openOnly.error === 'need_explicit' && orgMails().length === 0);
 

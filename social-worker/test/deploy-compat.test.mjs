@@ -20,7 +20,7 @@ check('keep dashboard vars', /keep_vars\s*=\s*true/.test(toml));
 check('worker entry is the social live script', /main\s*=\s*"\.\.\/social-worker\/src\/live\.js"/.test(toml));
 check('both live crons', toml.includes('"*/10 * * * *"') && toml.includes('"17 3 * * *"'));
 check('sample cron is not registered', !toml.includes('30 16 * * *'));
-check('going flags are not turned on', !/GOING_NOTICE_SEND\s*=\s*"on"/.test(toml) && !/GOING_STATS\s*=\s*"on"/.test(toml) && !/GOING_DIGEST_SEND\s*=\s*"on"/.test(toml));
+check('going flags are not turned on', !/GOING_NOTICE_SEND\s*=\s*"on"/.test(toml) && !/GOING_STATS\s*=\s*"on"/.test(toml) && !/GOING_DIGEST_SEND\s*=\s*"on"/.test(toml) && !/GOING_TEST_SEND\s*=\s*"on"/.test(toml) && !/GOING_TEST_DANCER\s*=/.test(toml));
 check('digest is not on a live cron', !read('social-worker/src/live.js').includes('runGoingDigests'));
 check('card mail source is the public data host', read('social-worker/src/going.js').includes("https://data.tangoweekend.org") && !/GOING_ORG_DIR\s*=/.test(toml));
 check('DB and SDB share the live database', (toml.match(/1b462639-75a1-4dcf-9b15-eab807e4b295/g) || []).length >= 2 && /binding\s*=\s*"SDB"/.test(toml) && /binding\s*=\s*"DB"/.test(toml));
@@ -31,7 +31,7 @@ check('no secret material in wrangler', !/API_KEY|APP_PASSWORD|BEGIN PRIVATE/i.t
 for (const html of [en, zh]) {
   check('r10 data and r13 map', html.includes('atm-data.js?v=r10') && html.includes('asia-map.js?v=r13') && !html.includes('atm-data.js?v=r9'));
   check('merged card script is newer than either cb144', html.includes('/asia/cardB.js?v=cb145'));
-  check('star script', html.includes('/asia/atm-star.js?v=st24'));
+  check('star script', html.includes('/asia/atm-star.js?v=st25'));
   check('E163 leaves the map', html.includes("cid==='E163'") && html.includes('/event/chengdu-2027-ich-tango-festival/'));
   check('no merge markers', !html.includes('<<<<<<<'));
 }

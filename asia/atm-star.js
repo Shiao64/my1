@@ -46,13 +46,15 @@
     resend: '重新发送验证邮件',
     ready: '邮箱已确认。再点「确认」才会记录意向。',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
-    savedNotify: '✓ 已保存，主办方会收到通知',
-    savedShort: '✓ 已保存',
+    savedNotify: '已保存，主办方会收到通知',
+    savedShort: '已保存',
+    noOrg: '已保存，未找到主办方邮箱',
     noRsvp: '暂不支持在线登记，请联系主办方',
-    sent: '✓ 已保存，主办方会收到通知',
-    unchanged: '✓ 已保存，主办方会收到通知',
-    fail: '意向已保存；通知邮件发送失败，请稍后重试。',
-    queued: '✓ 已保存，主办方会收到通知',
+    sent: '已保存，主办方会收到通知',
+    unchanged: '已保存，主办方会收到通知',
+    fail: '已保存，通知邮件未能发出。',
+    failWait: '已保存，通知邮件未能发出。请 {n}后再试。',
+    queued: '已保存，主办方会收到通知',
     fill: '请补全城市与角色等信息后继续。无需再次验证同一邮箱。',
     bar: '我的收藏', manage: '管理意向', cancel: '取消意向',
     cancelAsk: '取消意向？这不会再发邮件给组织者，也不会撤回已经发出的信。',
@@ -102,13 +104,15 @@
     resend: 'Resend verification email',
     ready: 'Email confirmed. Tap Confirm to save your intent.',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
-    savedNotify: '✓ Saved. The organizer will be notified.',
-    savedShort: '✓ Saved.',
+    savedNotify: 'Saved. The organizer will be notified.',
+    savedShort: 'Saved',
+    noOrg: 'Saved. The organizer email was not found.',
     noRsvp: 'RSVP unavailable. Please contact the organizer.',
-    sent: '✓ Saved. The organizer will be notified.',
-    unchanged: '✓ Saved. The organizer will be notified.',
-    fail: 'Intent saved; notification failed to send. Please try again later.',
-    queued: '✓ Saved. The organizer will be notified.',
+    sent: 'Saved. The organizer will be notified.',
+    unchanged: 'Saved. The organizer will be notified.',
+    fail: 'Saved. The notification failed to send.',
+    failWait: 'Saved. The notification failed to send. Please try again in {n}.',
+    queued: 'Saved. The organizer will be notified.',
     fill: 'Please complete city, role, and any missing fields. No need to re-verify the same email.',
     bar: 'My saved events', manage: 'Manage intent', cancel: 'Cancel intent',
     cancelAsk: 'Cancel this intent? We will not email the organizer again, and mail already sent is not recalled.',
@@ -323,12 +327,24 @@
     if (role === 'both') return L.rb;
     return '';
   }
-  function statusText(mail) {
-    if (mail === 'sent') return L.sent;
-    if (mail === 'unchanged') return L.unchanged;
-    if (mail === 'withheld') return L.withheld;
-    if (mail === 'failed' || mail === 'no_organizer') return L.fail;
-    return L.queued;
+  function waitPhrase(sec) {
+    var s = Math.max(1, Math.ceil(Number(sec) || 1));
+    if (s >= 3600) {
+      var h = Math.ceil(s / 3600);
+      return zh ? (h + ' 小时') : (h === 1 ? '1 hour' : h + ' hours');
+    }
+    var m = Math.max(1, Math.ceil(s / 60));
+    return zh ? (m + ' 分钟') : (m === 1 ? '1 minute' : m + ' minutes');
+  }
+  function noticeLine(d) {
+    var n = d && d.notice;
+    if (n === 'sent' || n === 'queued' || n === 'unchanged') return L.savedNotify;
+    if (n === 'missing') return L.noOrg;
+    if (n === 'failed') {
+      var w = Number(d.wait) || 0;
+      return w > 0 ? L.failWait.replace('{n}', waitPhrase(w)) : L.fail;
+    }
+    return L.savedShort;
   }
   function whenAck(fn) {
     if (window.__atmNoticeAck || document.documentElement.classList.contains('atm-notice-ack')) { fn(); return; }
@@ -343,8 +359,7 @@
     var g = (h.match(/going=([a-z]+)/) || [])[1];
     if (m || g) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} }
     var card = (h.match(/card=([A-Za-z0-9_-]+)/) || [])[1];
-    if (g === 'queued' || g === 'sent' || g === 'unchanged') toast(L.savedNotify);
-    else if (g === 'fail') toast(L.fail, 'note');
+    if (g === 'queued' || g === 'sent' || g === 'unchanged' || g === 'fail') toast(L.savedShort);
     else if (g === 'none') toast(L.saved);
     else if (g === 'ready') toast(L.ready);
     if (card) reopen = card;
@@ -724,10 +739,14 @@
       go.dataset.busy = '';
       go.setAttribute('aria-busy', 'false');
     }
-    function mailBad(d) { return d.mail === 'failed' || d.mail === 'rate_limited' || d.mail === 'no_organizer'; }
+    function unlock() {
+      go.disabled = false;
+      go.dataset.busy = '';
+      go.setAttribute('aria-busy', 'false');
+    }
     api('/social/going', payload).then(function (d) {
       var here = sameView();
-      var savedOk = !!(d && d.ok && !d.confirm && !d.need_profile && !d.error && !mailBad(d));
+      var savedOk = !!(d && d.ok && !d.confirm && !d.need_profile && !d.error);
       if (d && d.ok && !d.confirm) refreshMine();
       if (d && d.confirm) {
         var prev = getHold(e.id, payload.anchor, payload.email) || { n: 0 };
@@ -750,12 +769,12 @@
         else if (d.error === 'no_organizer') err.textContent = L.grey;
         else if (d.error === 'rate_limited') err.textContent = L.limited;
         else if (!d.ok) err.textContent = L.again;
-        else if (mailBad(d)) ok.textContent = L.fail;
       }
-      if (savedOk) addLocalFav(e.id);
       if (savedOk) {
-        var line = statusText(d.mail);
-        toast(line, line === L.fail ? 'note' : 'ok', document.querySelector('.atm-heart[data-fid="' + e.id + '"], .atm-heart[data-sid="' + e.id + '"]'));
+        addLocalFav(e.id);
+        var line = noticeLine(d);
+        toast(line, d.notice === 'failed' || d.notice === 'missing' ? 'note' : 'ok', document.querySelector('.atm-heart[data-fid="' + e.id + '"], .atm-heart[data-sid="' + e.id + '"]'));
+        unlock();
         finish(false);
         return;
       }
@@ -884,7 +903,7 @@
       }
       var one = pending.shift();
       api('/social/going/unfav', { id: one, explicit: 1 }).then(function (d) {
-        if (d && d.ok) dropLocalOne(one);
+        if (d && d.ok) { dropLocalOne(one); toast(L.savedShort, 'ok'); }
         else toast(L.later, 'note');
         next();
       }).catch(function () { toast(L.later, 'note'); });
