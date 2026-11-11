@@ -42,7 +42,7 @@ function readDirPart(raw) {
   catch { return null; }
 }
 function orgDirectory(env) {
-  const cards = {}, orgs = {}, links = {};
+  const cards = {}, orgs = {}, links = {}, names = {};
   const keys = ['GOING_ORG_DIR'];
   for (let i = 2; i <= 8; i++) keys.push('GOING_ORG_DIR_' + i);
   for (const key of keys) {
@@ -53,6 +53,10 @@ function orgDirectory(env) {
       const id = normCode(code);
       if (id && orgs[id] == null) orgs[id] = value;
     }
+    for (const [code, value] of Object.entries(d.names || {})) {
+      const id = normCode(code);
+      if (id && names[id] == null) names[id] = value;
+    }
     for (const [id, value] of Object.entries(d.links || {})) if (id) links[id] = (links[id] || []).concat(codesOf(value));
   }
   for (const id of Object.keys(links)) {
@@ -60,7 +64,7 @@ function orgDirectory(env) {
     for (const code of links[id]) if (!out.includes(code)) out.push(code);
     links[id] = out;
   }
-  return { cards, orgs, links };
+  return { cards, orgs, links, names };
 }
 function usableEmail(raw, kit) {
   const email = pickEmail(raw, kit.EMAIL_RE);
@@ -184,6 +188,8 @@ async function goingIndex(env, kit) {
     const email = pickEmail(e.contacts && !Array.isArray(e.contacts) ? e.contacts.email : '', kit.EMAIL_RE);
     map[e.id] = {
       email, kind: e.kind || '', title: oneLine(kit.clean, e.name || e.id, 120), title_zh: oneLine(kit.clean, e.name_zh || e.name || e.id, 120),
+      region: oneLine(kit.clean, e.region || '', 40), country: oneLine(kit.clean, e.country || '', 40),
+      organizers: nameList(e.organizers), organizers_en: nameList(e.organizers_en),
       weekday: e.weekday, weekdays: e.weekdays, every: e.every, nth: e.nth, start: e.start || '', end: e.end || e.start || '', time: e.time || '',
       temp_notices: Array.isArray(e.temp_notices) ? e.temp_notices : [],
       alerts: Array.isArray(e.alerts) ? e.alerts : []
@@ -342,6 +348,224 @@ export function dancerLine(name, role, city) {
     en: who + (enTail.length ? ', ' + enTail.join(', ') : '')
   };
 }
+const LETTER_DIVIDER = '————';
+const ZH_WD = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+const EN_WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const EN_MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const ZH_PLACES = new Set(['china', 'hong kong', 'hongkong', 'macau', 'macao', 'taiwan', '中国', '香港', '澳门', '台湾', '台灣']);
+function clipName(s) {
+  const name = oneLine((x, n) => String(x || '').trim().slice(0, n), s, 80);
+  return name.includes('@') ? '' : name;
+}
+function nameList(value) {
+  const arr = Array.isArray(value) ? value : (value ? [value] : []);
+  const out = [];
+  for (const item of arr) {
+    const name = clipName(item);
+    if (name && !out.includes(name)) out.push(name);
+    if (out.length >= 8) break;
+  }
+  return out;
+}
+function joinZh(list) { return list.filter(Boolean).join('、'); }
+function joinEn(list) {
+  const names = list.filter(Boolean);
+  if (names.length <= 1) return names[0] || '';
+  if (names.length === 2) return names[0] + ' and ' + names[1];
+  return names.slice(0, -1).join(', ') + ', and ' + names[names.length - 1];
+}
+function placeKey(s) { return String(s || '').trim().toLowerCase().replace(/\s+/g, ' '); }
+function chinesePlace(card) {
+  for (const raw of [card && card.region, card && card.country]) {
+    if (ZH_PLACES.has(placeKey(raw))) return true;
+  }
+  return false;
+}
+function dirLang(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return '';
+  if (raw.lang === 'zh') return 'zh';
+  if (raw.lang === 'en') return 'en';
+  return '';
+}
+function dirNames(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { name: '', nameEn: '' };
+  return {
+    name: clipName(raw.name || raw.name_zh || ''),
+    nameEn: clipName(raw.name_en || raw.nameEn || '')
+  };
+}
+function letterProfile(card, env, kit) {
+  const dir = orgDirectory(env);
+  const id = card && card.id;
+  const addressed = organizerAddress(card, env, kit);
+  const profiles = [];
+  const push = (raw, extra) => {
+    const a = dirNames(raw), b = dirNames(extra);
+    const email = usableEmail(raw, kit) || (raw && typeof raw === 'object' ? usableEmail(raw.email || raw.mail, kit) : '');
+    profiles.push({
+      email,
+      name: a.name || b.name,
+      nameEn: a.nameEn || b.nameEn,
+      lang: dirLang(raw) || dirLang(extra)
+    });
+  };
+  if (dir.cards[id] && typeof dir.cards[id] === 'object') push(dir.cards[id], null);
+  for (const code of (Array.isArray(dir.links[id]) ? dir.links[id] : [])) {
+    if (!/^O\d+$/.test(code)) continue;
+    push(dir.orgs[code], dir.names && dir.names[code]);
+  }
+  const hit = addressed ? profiles.find(p => p.email && p.email === addressed) : null;
+  const zhMark = hit ? hit.lang === 'zh' : profiles.some(p => p.lang === 'zh');
+  let zhName = '', enName = '';
+  if (hit && (hit.name || hit.nameEn)) {
+    zhName = hit.name || hit.nameEn;
+    enName = hit.nameEn || hit.name;
+  }
+  if (!zhName && !enName) {
+    const zhList = nameList(card && card.organizers);
+    const enList = nameList(card && card.organizers_en);
+    if (zhList.length || enList.length) {
+      zhName = joinZh(zhList) || joinEn(enList);
+      enName = joinEn(enList) || joinZh(zhList);
+    } else if (!hit) {
+      const named = profiles.filter(p => p.name || p.nameEn);
+      zhName = joinZh(named.map(p => p.name).filter(Boolean)) || joinEn(named.map(p => p.nameEn).filter(Boolean));
+      enName = joinEn(named.map(p => p.nameEn).filter(Boolean)) || joinZh(named.map(p => p.name).filter(Boolean));
+    }
+  }
+  return { zhName, enName, zhMark };
+}
+function ymdParts(ymd) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(ymd || ''))) return null;
+  const [y, m, d] = ymd.split('-').map(Number);
+  if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+  return { y, m, d, wd: weekday(ymd) };
+}
+function zhDate(p, nowYear) {
+  return (p.y !== nowYear ? p.y + '年' : '') + p.m + '月' + p.d + '日（' + ZH_WD[p.wd] + '）';
+}
+function enDate(p, nowYear) {
+  return EN_WD[p.wd] + ', ' + p.d + ' ' + EN_MON[p.m - 1] + (p.y !== nowYear ? ' ' + p.y : '');
+}
+function clockSpans(time) {
+  const s = String(time || '');
+  const out = [];
+  const re = /(\d{1,2}):(\d{2})\s*[–—-]\s*(?:(\d{1,2}):(\d{2})|(late))/gi;
+  let m;
+  while ((m = re.exec(s))) {
+    const a = Number(m[1]), b = Number(m[2]);
+    if (a > 30 || b > 59) continue;
+    if (m[5]) out.push(pad(a) + ':' + pad(b) + '–late');
+    else {
+      const c = Number(m[3]), d = Number(m[4]);
+      if (c > 30 || d > 59) continue;
+      out.push(pad(a) + ':' + pad(b) + '–' + pad(c) + ':' + pad(d));
+    }
+  }
+  if (!out.length) return '';
+  return out.join(s.includes('、') ? '、' : ', ');
+}
+function whenText(card, show, nowYear) {
+  const days = [];
+  const shown = ymdParts(show);
+  if (shown) days.push(shown);
+  else {
+    const start = ymdParts(card && card.start);
+    const end = ymdParts(card && card.end);
+    if (start) days.push(start);
+    if (end && card.end !== card.start) days.push(end);
+  }
+  if (!days.length) return null;
+  const clock = clockSpans(card && card.time);
+  const zh = days.map(p => zhDate(p, nowYear)).join('至') + (clock || '') + '（北京时间）';
+  const enCore = days.map(p => enDate(p, nowYear)).join(' – ');
+  const en = enCore + (clock ? ', ' + clock : '') + ' (Beijing time)';
+  return { zh, en };
+}
+function dancerBits(role, city, zh) {
+  const words = ROLE_WORD[roleOf(role)];
+  const place = oneLine((s, n) => String(s || '').trim().slice(0, n), city, 40);
+  const bits = zh ? [words ? words[0] : '', place].filter(Boolean) : [words ? words[1] : '', place].filter(Boolean);
+  if (!bits.length) return '';
+  return zh ? '（' + bits.join('，') + '）' : ' (' + bits.join(', ') + ')';
+}
+function dancerPhrase(who, role, city, zh) {
+  const name = who || '';
+  const tail = dancerBits(role, city, zh);
+  if (zh) return '探友' + name + tail;
+  return 'Dancer' + (name ? ' ' + name : '') + tail;
+}
+function letterTitle(card, lang) {
+  const en = cardTitle(card, 'en');
+  const zh = cardTitle(card, 'zh');
+  const id = String(card && card.id || '');
+  const real = s => s && s !== id;
+  if (lang === 'zh') return (real(zh) ? zh : '') || (real(en) ? en : '') || '这场活动';
+  return (real(en) ? en : '') || (real(zh) ? zh : '') || 'this event';
+}
+function zhHello(name) { return name ? name + '你好，' : '你好！'; }
+function enHello(name) { return name ? 'Hello ' + name + ',' : 'Hi,'; }
+function zhBlocks(orgName, dancer, title, when, going, transport) {
+  const lead = dancer + (going ? '勾选了要参加你的以下活动：' : '勾选了对你的以下活动感兴趣：');
+  const event = when ? '「' + title + '」，时间是 ' + when + '。' : '「' + title + '」。';
+  const reply = transport
+    ? '探友希望收到交通指引，对方已在抄送里，请「回复全部」。'
+    : '对方已在抄送里，请「回复全部」。';
+  return [
+    zhHello(orgName),
+    lead + '\n' + event,
+    reply,
+    '请注意，这不是购票或正式报名。',
+    '探戈助理\n亚洲探戈地图（简称 ATM）',
+    '附言：若要停止 ATM 往后的活动参加通知，或删除这封信里的资料，请不要「回复全部」，另寄信到 selecttango@gmail.com，正文写「退订」即可。'
+  ];
+}
+function enBlocks(orgName, dancer, title, when, going, transport) {
+  const lead = dancer + (going
+    ? ' has selected that they are going to the following event of yours:'
+    : ' has selected that they are interested in the following event of yours:');
+  const event = when ? '“' + title + '”, ' + when + '.' : '“' + title + '”.';
+  const reply = transport
+    ? 'They have asked for directions and are copied on this message; please “Reply all”.'
+    : 'They are copied on this message; please “Reply all”.';
+  return [
+    enHello(orgName),
+    lead + '\n' + event,
+    reply,
+    'Please note: this is not a ticket or a formal registration.',
+    'Tango Assistant\nAsia Tango Map (ATM)',
+    'P.S. To stop future ATM attendance notices, or to delete the information in this message, do not “Reply all”; send a separate email to selecttango@gmail.com with the word “UNSUBSCRIBE”.'
+  ];
+}
+function blocksHtml(blocks, esc) {
+  return blocks.map(block => '<p style="margin:0 0 16px;line-height:1.55">' + String(block).split('\n').map(line => esc(line)).join('<br>') + '</p>').join('');
+}
+// Two complete letters. Chinese is first for mainland China, Hong Kong, Macau,
+// and Taiwan, and when the organizer directory marks that organizer lang "zh".
+export function buildIntentLetter(env, kit, card, person, dest) {
+  const profile = letterProfile(card, env || {}, kit);
+  const zhFirst = chinesePlace(card) || profile.zhMark;
+  const going = person.intent !== 'interested';
+  const transport = flag(person.transport, 0) === 1;
+  const who = clipName(person.name) || pickEmail(person.email, kit.EMAIL_RE) || oneLine((s, n) => String(s || '').trim().slice(0, n), person.email, 80);
+  const nowYear = shParts(clock(env || {})).y;
+  const when = whenText(card, person.show || '', nowYear);
+  const zh = zhBlocks(profile.zhName, dancerPhrase(who, person.role, person.city, true), letterTitle(card, 'zh'), when && when.zh, going, transport);
+  const en = enBlocks(profile.enName, dancerPhrase(who, person.role, person.city, false), letterTitle(card, 'en'), when && when.en, going, transport);
+  const blocks = zhFirst ? zh.concat([LETTER_DIVIDER], en) : en.concat([LETTER_DIVIDER], zh);
+  const esc = typeof kit.he === 'function' ? kit.he : (s => String(s == null ? '' : s));
+  let text = blocks.join('\n\n');
+  let html = `<!doctype html><html lang="${zhFirst ? 'zh-CN' : 'en'}"><head><meta charset="utf-8"></head><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:560px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px">${blocksHtml(blocks, esc)}</div></body></html>`;
+  const subject = (zhFirst
+    ? (going ? 'ATM 网站 · 活动参加通知' : 'ATM 网站 · 活动兴趣通知')
+    : (going ? 'ATM Website · Event Attendance Notice' : 'ATM Website · Event Interest Notice')).slice(0, 180);
+  if (dest && dest.intended) {
+    const note = `[test] Intended organizer: ${dest.intended}\n【测试】原收件主办方：${dest.intended}`;
+    text = note + '\n\n' + text;
+    html = html.replace(blocksHtml(blocks, esc), blocksHtml([note].concat(blocks), esc));
+  }
+  return { subject, text, html, zhFirst };
+}
 async function sendDigest(env, kit, card, rows, period) {
   const org = pickEmail(card.email, kit.EMAIL_RE);
   if (!org) return { error: 'no_organizer' };
@@ -376,22 +600,8 @@ async function sendIntentLetter(env, kit, card, person) {
   const dest = rewriteTo(env, org);
   const cc = dest.intended ? '' : letterCc(dest.to, dancer);
   const replyTo = dancer && dancer !== dest.to ? dancer : '';
-  const featured = card.kind === 'event' || card.kind === 'featured';
-  const title = cardTitle(card, 'zh');
-  const titleEn = cardTitle(card, 'en');
-  const name = oneLine((s, n) => String(s || '').trim().slice(0, n), person.name, 80) || dancer || person.email;
-  const line = dancerLine(name, person.role, person.city);
-  const intent = intentLabel(person.intent);
-  const date = !featured && person.show ? `Date / 场次: ${person.show} (Beijing time UTC+8, Asia/Shanghai)\n` : '';
-  const transport = person.transport ? 'Directions / 交通指引: please send directions to the venue. The organizer replies directly. Delivery and timing are not guaranteed.\n请寄送前往场地的交通指引。组织者自行回复，不保证送达或回复时间。\n' : '';
-  let text = `探戈助理\n\n${line.zh}\n${line.en}\n<${dancer || person.email}>\nIntent / 意向: ${intent}\n\nEvent / 活动: ${title}\n${titleEn && titleEn !== title ? titleEn + '\n' : ''}Card: ${card.id}\n${date}${transport}\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\n${DELETE_NOTE}`;
-  if (dest.intended) text = `[test] Intended organizer: ${dest.intended}\n【测试】原收件主办方：${dest.intended}\n\n` + text;
-  const subject = `Intent: ${titleEn || title}`.slice(0, 180);
-  const zhRest = line.zh.slice(line.name.length);
-  const enRest = line.en.slice(line.name.length);
-  const who = `<b>${kit.he(line.name)}</b>`;
-  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p><b>探戈助理</b></p><p>${who}${kit.he(zhRest)}<br>${who}${kit.he(enRest)}<br>${kit.he(dancer || person.email)}</p><p>${kit.he(intent)}</p><p>${kit.he(title)}${!featured && person.show ? '<br>' + kit.he(person.show) : ''}${person.transport ? '<br>directions' : ''}</p><p>This is not a ticket or a formal registration.<br>这不是购票或正式报名。</p><p>要删除资料，请回信到 selecttango@gmail.com<br>To delete your information, reply to selecttango@gmail.com</p>${dest.intended ? `<p>[test] Intended organizer: ${kit.he(dest.intended)}</p>` : ''}</div></body></html>`;
-  await kit.deliver(env, dest.to, subject, text, html, undefined, { cc, replyTo, fromName: '探戈助理' });
+  const letter = buildIntentLetter(env, kit, card, { ...person, email: dancer || person.email }, dest);
+  await kit.deliver(env, dest.to, letter.subject, letter.text, letter.html, undefined, { cc, replyTo, fromName: '探戈助理' });
   return { ok: true };
 }
 async function confirmBlocked(env, email, dev, iph) {
