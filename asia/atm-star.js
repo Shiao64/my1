@@ -22,6 +22,9 @@
     going: '要参加', interested: '感兴趣', absent: '去不了',
     promo: '加入 ATM 全站订阅',
     needName: '请填写姓名。', needEmail: '请填写邮箱。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
+    returnHint: '已经订阅过？请输入邮箱和电话末 4 码，不必再等确认信。',
+    phone: '电话', last4: '电话末 4 码', signIn: '登录',
+    needPhone: '请填写电话。', badPhone: '电话号码不正确。', needLast4: '请输入电话末 4 码。', badLogin: '邮箱或电话末 4 码不正确。',
     later: '请稍后再试。',
     limited: '确认邮件已达上限，请稍后再试。',
     withheld: '已记下。这一场不会交给主办。',
@@ -80,6 +83,9 @@
     going: 'Going', interested: 'Interested', absent: 'Not Going',
     promo: 'Join ATM site-wide subscription',
     needName: 'Please enter your name.', needEmail: 'Please enter your email.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
+    returnHint: 'Already subscribed? Enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.',
+    phone: 'Phone', last4: 'Last 4 digits', signIn: 'Sign in',
+    needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your phone.', badLogin: 'The email or the last 4 digits did not match.',
     later: 'Please try again later.',
     limited: 'Too many confirmation emails. Please try again later.',
     withheld: 'Saved. This one is not sent to the organizer.',
@@ -143,6 +149,8 @@
     '.atm-unfav{min-height:44px;margin:6px 0 0;padding:0 12px;border:1px solid #ead9b8;border-radius:999px;background:#fff;color:#2a1a14;font-weight:700}' +
     '#atm-star .asg-opt button[aria-pressed="true"]{background:#0e6e78;color:#f6e3b4}' +
     '#atm-star .asg-go{min-height:48px;font-weight:700;border:0;width:100%;margin-top:10px;background:#0e6e78;color:#f6e3b4;border-radius:12px}#atm-star .asg-go[aria-busy="true"],#atm-star .asg-go:disabled{opacity:.72}' +
+    '#atm-star .asg-alt{min-height:44px;font-weight:700;border:1px solid #0e6e78;width:100%;margin-top:8px;background:#fff;color:#0e6e78;border-radius:12px}#atm-star .asg-alt:disabled{opacity:.72}' +
+    '#atm-star .asg-return{font-weight:700;color:#0a4f57}' +
     '#atm-star .asg-hint{margin:10px 2px 0;color:#6b5d52;font-size:.8rem;line-height:1.45}' +
     '#atm-star .asg-tslab{margin:10px 0 4px;color:#0a4f57;font-size:.84rem;font-weight:700}' +
     '#atm-star .asg-ts{min-height:65px;margin:0 0 4px}' +
@@ -315,8 +323,19 @@
   });
   function h2() { return box.querySelector('h2'); }
   function body() { return box.querySelector('.asg-body'); }
-  function field(label, id, type) {
-    return '<div class="asg-f"><label class="asg-l" for="' + id + '">' + label + '</label><input id="' + id + '" ' + (type === 'email' ? 'type="email" autocomplete="email"' : 'type="text"') + ' maxlength="80"></div>';
+  function field(label, id, type, max) {
+    var kind = type === 'email' ? 'email' : 'text';
+    var extra = type === 'email' ? ' autocomplete="email"' : (type === 'tel' ? ' inputmode="tel" autocomplete="tel"' : '');
+    return '<div class="asg-f"><label class="asg-l" for="' + id + '">' + label + '</label><input id="' + id + '" type="' + kind + '"' + extra + ' maxlength="' + (max || 80) + '"></div>';
+  }
+  function last4Field() {
+    return '<div class="asg-f"><label class="asg-l" for="asg-last4">' + L.last4 + '</label><input id="asg-last4" type="text" inputmode="numeric" autocomplete="off" maxlength="4"></div>';
+  }
+  function phoneOk(raw) {
+    var s = String(raw || '').trim();
+    if (!/^\+?[\d(][\d\s().-]{6,38}$/.test(s)) return false;
+    var n = s.replace(/\D/g, '').length;
+    return n >= 8 && n <= 15;
   }
   function roleSelect(disabled) {
     return '<div class="asg-f"><label class="asg-l" for="asg-role">' + L.role + '</label><select id="asg-role"' + (disabled ? ' disabled' : '') + '><option value="">' + L.rolePh + '</option><option value="leader">' + L.rl + '</option><option value="follower">' + L.rf + '</option><option value="both">' + L.rb + '</option></select></div>';
@@ -546,6 +565,11 @@
     var showFilled = verified && !needProfile && !!opt.resume;
     var action = L.submit;
     var html = '';
+    if (!verified) {
+      html += '<p class="asg-note asg-return" id="asg-return">' + L.returnHint + '</p>';
+      html += '<div id="asg-login">' + field(L.email, 'asg-email', 'email') + last4Field();
+      html += '<button type="button" class="asg-alt" id="asg-phone-go">' + L.signIn + '</button></div>';
+    }
     if (!verified || needProfile) html += '<p class="asg-note">' + L.explain + '</p>';
     html += '<div class="asg-opt">';
     ['going', 'interested', 'absent'].forEach(function (k) { html += '<button type="button" data-intent="' + k + '" aria-pressed="' + (draft.intent === k) + '">' + L[k] + '</button>'; });
@@ -560,8 +584,8 @@
     if (!verified) {
       html += '<p class="asg-note" id="asg-mailnote">' + L.profileDesc + '</p>';
       html += '<p class="asg-req">' + L.req + '</p><div id="asg-profile">';
-      html += field(L.email, 'asg-email', 'email');
-      html += '<div class="asg-grid">' + field(L.name, 'asg-name') + roleSelect(false) + field(L.city, 'asg-city') + '</div></div>';
+      html += '<div class="asg-grid">' + field(L.name, 'asg-name') + roleSelect(false) + field(L.city, 'asg-city') + '</div>';
+      html += field(L.phone, 'asg-phone', 'tel', 32) + '</div>';
       html += '<label class="asg-check" id="asg-promolab"><input type="checkbox" id="asg-promo" checked>' + L.promo + '</label>';
     } else if (needProfile) {
       html += '<div id="asg-profile"><p class="asg-note">' + L.fill + '</p>';
@@ -593,6 +617,10 @@
       }
       var email = body().querySelector('#asg-email');
       if (email) email.disabled = away;
+      ['#asg-last4', '#asg-phone', '#asg-phone-go'].forEach(function (sel) {
+        var el = body().querySelector(sel);
+        if (el) el.disabled = away;
+      });
       ['#asg-name', '#asg-city', '#asg-role'].forEach(function (sel) {
         var el = body().querySelector(sel);
         if (el) el.disabled = away || showFilled;
@@ -694,10 +722,33 @@
       }
     }
     go.onclick = function () { submit(e, draft, go); };
+    var phoneGo = body().querySelector('#asg-phone-go');
+    if (phoneGo) phoneGo.onclick = function () { phoneSignIn(e, phoneGo); };
     refreshResend = paintResend;
     lockFields();
     paintResend();
     box.hidden = false;
+  }
+  function phoneSignIn(ev, btn) {
+    var err = body().querySelector('#asg-err');
+    if (!err || !btn || btn.disabled) return;
+    var em = String((body().querySelector('#asg-email') || {}).value || '').trim();
+    var tail = String((body().querySelector('#asg-last4') || {}).value || '').replace(/\D/g, '');
+    err.textContent = '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.needEmail; return; }
+    if (!/^\d{4}$/.test(tail)) { err.textContent = L.needLast4; return; }
+    btn.disabled = true;
+    api('/social/going/phone', { email: em, last4: tail, lang: zh ? 'zh' : 'en' }).then(function (d) {
+      if (d && d.session) {
+        setToken(d.session);
+        reopen = ev.id;
+        shut();
+        refreshMine();
+        return;
+      }
+      err.textContent = d && d.error === 'rate_limited' ? L.later : L.badLogin;
+      btn.disabled = false;
+    }).catch(function () { err.textContent = L.net; btn.disabled = false; });
   }
   function submit(e, draft, go) {
     var err = body().querySelector('#asg-err'), ok = body().querySelector('#asg-ok');
@@ -716,13 +767,15 @@
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(em).trim())) { err.textContent = L.needEmail; return; }
       if (!String(cy).trim()) { err.textContent = L.needCity; return; }
       if (rl !== 'leader' && rl !== 'follower' && rl !== 'both') { err.textContent = L.needRole; return; }
+      var phoneRaw = String((body().querySelector('#asg-phone') || {}).value || '');
+      if (!phoneOk(phoneRaw)) { err.textContent = phoneRaw.trim() ? L.badPhone : L.needPhone; return; }
     }
     go.dataset.busy = '1';
     var dateEl = body().querySelector('#asg-date');
     var going = draft.intent === 'going';
     var promo = body().querySelector('#asg-promo');
     var payload = { id: e.id, intent: draft.intent, explicit: 1, disclose: 1, notify: body().querySelector('#asg-notify').checked ? 1 : 0, transport: (going && body().querySelector('#asg-dir') && body().querySelector('#asg-dir').checked) ? 1 : 0, anchor: draft.anchor || '', date: going ? ((dateEl && dateEl.value) || draft.date || '') : '', alert: promo && promo.checked ? 1 : 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], dev: dev() };
-    ['name', 'email', 'city'].forEach(function (k) { var el = body().querySelector('#asg-' + k); if (el) payload[k] = el.value.trim(); });
+    ['name', 'email', 'city', 'phone'].forEach(function (k) { var el = body().querySelector('#asg-' + k); if (el && String(el.value || '').trim()) payload[k] = el.value.trim(); });
     var role = body().querySelector('#asg-role'); if (role) payload.role = role.value;
     ctxSet({ id: e.id, intent: draft.intent, date: payload.date, notify: payload.notify !== 0, transport: !!payload.transport });
     go.disabled = true;
@@ -971,6 +1024,7 @@
     open(b, opt);
   }
   window.ATM_STAR = {
+    refresh: function () { return refreshMine(); },
     take: function (b) {
       if (b.closest && b.closest('[data-unfav]')) return false;
       if (b.closest && b.closest('.ah-ly')) { var uid = idOf(b); if (uid) requestUnfav(uid); return true; }

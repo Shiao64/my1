@@ -92,6 +92,7 @@ await zh.evaluate(() => {
   document.querySelector('#asg-email').value = 'guest@example.com';
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
+  document.querySelector('#asg-phone').value = ['138', '0000', '1111'].join('');
   document.querySelector('#asg-role').value = 'leader';
   document.querySelector('#asg-go').click();
 });
@@ -123,6 +124,7 @@ check('after one minute the same show can be resent once', await zh.evaluate(() 
 await zh.evaluate(() => {
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
+  document.querySelector('#asg-phone').value = ['138', '0000', '1111'].join('');
   document.querySelector('#asg-role').value = 'leader';
 });
 await zh.click('#asg-go');
@@ -142,6 +144,7 @@ await en.evaluate(() => {
   document.querySelector('#asg-email').value = 'guest@example.com';
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
+  document.querySelector('#asg-phone').value = ['138', '0000', '1111'].join('');
   document.querySelector('#asg-role').value = 'leader';
   document.querySelector('#asg-go').click();
 });
@@ -153,6 +156,7 @@ await enSent.evaluate(() => {
   document.querySelector('#asg-email').value = 'guest@example.com';
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
+  document.querySelector('#asg-phone').value = ['138', '0000', '1111'].join('');
   document.querySelector('#asg-role').value = 'leader';
   document.querySelector('#asg-go').click();
 });

@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" data-asia-lang="en" data-asia-en="./" data-asia-zh="../zh/asia/" data-site-release="11.9.20" data-site-release-date="">
+<html lang="en" data-asia-lang="en" data-asia-en="./" data-asia-zh="../zh/asia/" data-site-release="11.9.21" data-site-release-date="">
 <head>
 <meta charset="utf-8">
-<!-- Public release label. Candidate 11.9.20 adds a long-lived personal subscription link after the first email confirm. Opening that link signs this browser in, including WeChat’s in-app browser, and does not send another confirm email. Going, Interested, Not Going, and unfavorite still save before any organizer mail. While that mail is off, the toast is only Saved. A single Going or Interested letter can go to the organizer only for the visitor in GOING_TEST_DANCER when GOING_TEST_SEND=on. The three-sends-per-day cap for one email and card is gone, and a mail problem does not lock Confirm. It is not published. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
+<!-- Public release label. Candidate 11.9.21 lets a subscribed dancer sign in on WeChat, Safari, Chrome, or another browser with the email and the last 4 digits of the phone collected at subscribe time. That sign-in does not send another confirmation email. The first subscribe still uses the 30-minute email confirm, then binds the phone. A dancer who already subscribed can add a phone in My profile. The long-lived personal subscription link from 11.9.20 stays. Going, Interested, Not Going, and unfavorite still save before any organizer mail. While that mail is off, the toast is only Saved. A single Going or Interested letter can go to the organizer only for the visitor in GOING_TEST_DANCER when GOING_TEST_SEND=on. The three-sends-per-day cap for one email and card is gone, and a mail problem does not lock Confirm. It is not published. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
 <!-- first-load: dropped http-equiv Cache-Control no-cache; CDN/browser cache HTML --><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Asia Tango Map · Select Tango Weekend</title>
 <meta name="description" content="Tango festivals, milongas and practicas in China, Hong Kong &amp; Taiwan — Asia Tango Map">
@@ -217,7 +217,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <section class="hero china-map-hero">
   <div class="wrap china-hero-bar">
     <div class="china-title-wrap" style="display:flex;flex-direction:column;gap:0;min-width:0;flex:1 1 auto">
-      <h1 style="color:var(--gold-300)"><a class="atm-back" href="./" aria-label="Back"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg>Asia Tango Map <span class="atm-beta">beta 11.9.20</span></a></h1>
+      <h1 style="color:var(--gold-300)"><a class="atm-back" href="./" aria-label="Back"><svg class="atm-back-chev" viewBox="0 0 10 26" aria-hidden="true" focusable="false"><path d="M8.5 1.5L1.5 13l7 11.5" fill="none" stroke="currentColor" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/></svg>Asia Tango Map <span class="atm-beta">beta 11.9.21</span></a></h1>
       </div>
     <button type="button" class="china-suggest-open" id="china-suggest-open" hidden style="margin-left:auto!important;margin-right:6px!important">Add event</button>
     <nav class="top-lang china-map-lang" aria-label="Language" style="margin-left:0!important">
@@ -409,7 +409,7 @@ window.CHINA_UI = {
 <script defer src="atm-later.js?v=lt10"></script>
 <script defer src="/asia/atm-home.js?v=h144"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="asia-howto.js?v=china278"></script> -->
-<script defer src="asia-subscribe.js?v=sub66"></script>
+<script defer src="asia-subscribe.js?v=sub67"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏|FAVORITES/i.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'Milonga',practica:'Práctica',festival:'Festival',event:'Event',marathon:'Marathon',championship:'Championship',encuentro:'Encuentro',weekend:'Weekend'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
@@ -561,6 +561,6 @@ var o=h.previousElementSibling;if(!o||!o.classList.contains('atm-onehead')){o=D.
 if(o._h!==html){o._h=html;o.innerHTML=html}o.classList.toggle('atm-oh-reg',reg);if(o.getAttribute('data-n')!==String(n))o.setAttribute('data-n',n);if((o.getAttribute('data-city')||'')!==city)o.setAttribute('data-city',city);if(!h.classList.contains('atm-oh-hide'))h.classList.add('atm-oh-hide');var fl=h.nextElementSibling;if(fl&&fl.classList.contains('china-from-line')&&!fl.classList.contains('atm-oh-hide'))fl.classList.add('atm-oh-hide')})}
 var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).observe(D.body,{childList:true,subtree:true,characterData:true});addEventListener('load',run);D.addEventListener('change',function(){setTimeout(run,120)})})();</script>
 <script defer src="/asia/atm-social.js?v=s30"></script>
-<script defer src="/asia/atm-star.js?v=st25"></script>
+<script defer src="/asia/atm-star.js?v=st26"></script>
 </body>
 </html>

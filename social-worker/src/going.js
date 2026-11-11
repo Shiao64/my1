@@ -268,6 +268,102 @@ function confirmJson(req, body, status = 200) {
 function sessionCookie(token) {
   return `atm_session=${token}; Path=/; Max-Age=34560000; Domain=.tangoweekend.org; Secure; SameSite=Lax`;
 }
+const PHONE_EMAIL_MAX = 5;
+const PHONE_IP_MAX = 20;
+const PHONE_LOCK_MS = 15 * 60e3;
+function missingTable(e) { return /no such table/i.test(String(e && e.message || e)); }
+export function phoneDigits(raw) { return String(raw == null ? '' : raw).replace(/\D/g, ''); }
+export function phoneLast4(raw) {
+  const digits = phoneDigits(raw);
+  return digits.length >= 4 ? digits.slice(-4) : '';
+}
+export function normalizePhone(raw) {
+  const s = String(raw == null ? '' : raw).trim();
+  if (!s || s.length > 40) return '';
+  if (!/^\+?[\d(][\d\s().-]{6,38}$/.test(s)) return '';
+  const digits = phoneDigits(s);
+  if (digits.length < 8 || digits.length > 15) return '';
+  return (s.startsWith('+') ? '+' : '') + digits;
+}
+function readPhone(b) {
+  if (b == null || b.phone == null || String(b.phone).trim() === '') return { phone: '' };
+  const phone = normalizePhone(b.phone);
+  if (!phone) return { error: 'bad_phone', status: 400 };
+  return { phone };
+}
+async function sameTail(kit, stored, given) {
+  const a = phoneLast4(stored);
+  const b = phoneLast4(given);
+  const ha = await kit.sha('atm-tail:' + a);
+  const hb = await kit.sha('atm-tail:' + b);
+  return sameText(ha, hb) && a.length === 4 && b.length === 4;
+}
+async function phoneTailOf(env, userId) {
+  try {
+    const row = await env.SDB.prepare('SELECT phone FROM user_phone WHERE user_id=?').bind(userId).first();
+    return phoneLast4(row && row.phone);
+  } catch (e) {
+    if (missingTable(e)) return '';
+    throw e;
+  }
+}
+async function saveUserPhone(env, kit, userId, phone) {
+  await env.SDB.prepare(`INSERT INTO user_phone(user_id,phone,updated_at) VALUES(?,?,?)
+    ON CONFLICT(user_id) DO UPDATE SET phone=excluded.phone, updated_at=excluded.updated_at`)
+    .bind(userId, phone, kit.now()).run();
+}
+async function stagePhone(env, kit, email, phone) {
+  await env.SDB.prepare(`INSERT INTO profile_phone(email,phone,updated_at) VALUES(?,?,?)
+    ON CONFLICT(email) DO UPDATE SET phone=excluded.phone, updated_at=excluded.updated_at`)
+    .bind(email, phone, kit.now()).run();
+}
+async function bindStagedPhone(env, kit, email, userId) {
+  let staged;
+  try { staged = await env.SDB.prepare('SELECT phone FROM profile_phone WHERE email=?').bind(email).first(); }
+  catch (e) { if (missingTable(e)) return; throw e; }
+  if (!staged || !staged.phone) return;
+  const cur = await env.SDB.prepare('SELECT phone FROM user_phone WHERE user_id=?').bind(userId).first();
+  if (!cur || !String(cur.phone || '').trim()) await saveUserPhone(env, kit, userId, staged.phone);
+  await env.SDB.prepare('DELETE FROM profile_phone WHERE email=?').bind(email).run();
+}
+function sessionJson(req, body, token, status = 200) {
+  const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
+  const og = allowOrigin(req);
+  if (og) {
+    headers['Access-Control-Allow-Origin'] = og;
+    headers['Access-Control-Allow-Credentials'] = 'true';
+    headers.Vary = 'Origin';
+  }
+  if (token) headers['Set-Cookie'] = sessionCookie(token);
+  return new Response(JSON.stringify(body), { status, headers });
+}
+async function phoneLockRow(env, subject) {
+  return env.SDB.prepare('SELECT fails, locked_until FROM phone_login_lock WHERE subject=?').bind(subject).first();
+}
+function lockOpen(row, now) {
+  const until = Date.parse(row && row.locked_until || '');
+  return !(Number.isFinite(until) && until > now);
+}
+async function notePhoneFail(env, kit, subject, max) {
+  const now = Date.now();
+  const row = await phoneLockRow(env, subject);
+  let fails = Number(row && row.fails) || 0;
+  const until = Date.parse(row && row.locked_until || '');
+  if (Number.isFinite(until) && until <= now) fails = 0;
+  fails += 1;
+  const locked = fails >= max ? new Date(now + PHONE_LOCK_MS).toISOString() : null;
+  await env.SDB.prepare(`INSERT INTO phone_login_lock(subject,fails,locked_until,updated_at) VALUES(?,?,?,?)
+    ON CONFLICT(subject) DO UPDATE SET fails=excluded.fails, locked_until=excluded.locked_until, updated_at=excluded.updated_at`)
+    .bind(subject, fails, locked, kit.now()).run();
+}
+async function phoneLoginOpen(env, email, iph) {
+  const now = Date.now();
+  for (const subject of ['e:' + email, 'i:' + iph]) {
+    const row = await phoneLockRow(env, subject);
+    if (!lockOpen(row, now)) return false;
+  }
+  return true;
+}
 const PASS_RE = /^[0-9a-f]{64}$/;
 const ENTER_BAD = '链接无效。请在「我的资料」里生成新的订阅链接。 / This link does not work. Make a new subscription link from My profile.';
 function passLink(env, token) {
@@ -339,6 +435,10 @@ const CONFIRM_BODY = {
   zh: '谢谢你订阅亚洲探戈地图（Asia Tango Map）。请在 30 分钟内点击下方按钮，确认你的邮箱。',
   en: 'Thanks for subscribing to Asia Tango Map. Please confirm your email within 30 minutes by tapping the button below.'
 };
+const CONFIRM_NEXT = {
+  zh: '确认后，若要在微信或其他浏览器使用，请输入你的邮箱和电话末 4 码，不必再等确认信。',
+  en: 'After you confirm, to use WeChat or another browser, enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.'
+};
 const CONFIRM_IGNORE = {
   zh: '如果不是你本人操作，忽略这封信即可。',
   en: 'If this wasn\'t you, you can simply ignore this email.'
@@ -358,12 +458,13 @@ export function buildConfirmLetter(row, link, _pending, he) {
   const esc = typeof he === 'function' ? he : (s => String(s == null ? '' : s));
   const hello = confirmHello(row.name, zh);
   const body = zh ? CONFIRM_BODY.zh : CONFIRM_BODY.en;
+  const next = zh ? CONFIRM_NEXT.zh : CONFIRM_NEXT.en;
   const ignore = zh ? CONFIRM_IGNORE.zh : CONFIRM_IGNORE.en;
   const sign = zh ? ZH_SIGN : EN_SIGN;
   const button = zh ? '确认订阅' : 'Confirm subscription';
   const subject = zh ? '请确认订阅亚洲探戈地图' : 'Please confirm your Asia Tango Map subscription';
-  const text = `${hello}\n\n${body}\n\n${link}\n\n${ignore}\n\n${sign}`;
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:28px 24px"><p style="margin:0 0 14px">${esc(hello)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(body)}</p><p style="margin:22px 0"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${button}</a></p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(ignore)}</p><p style="margin:26px 0 0">${esc(sign)}</p></div></body></html>`;
+  const text = `${hello}\n\n${body}\n\n${next}\n\n${link}\n\n${ignore}\n\n${sign}`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:28px 24px"><p style="margin:0 0 14px">${esc(hello)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(body)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(next)}</p><p style="margin:22px 0"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${button}</a></p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(ignore)}</p><p style="margin:26px 0 0">${esc(sign)}</p></div></body></html>`;
   return { subject, text, html, fromName: sign };
 }
 async function sendVerify(env, kit, row, link, pending) {
@@ -809,6 +910,8 @@ export async function goingConfirm(req, env, url, kit) {
   const lang = row.lang === 'zh' ? 'zh' : 'en';
   if (req.method !== 'POST' || !go) return confirmForm(kit, lang, email, tok, next || row.ret || '');
   const user = await fillBlanks(env, kit, email, { name: row.name, city: row.city, role: row.role, lang, iph: '' });
+  try { await bindStagedPhone(env, kit, email, user.id); }
+  catch (e) { console.log('going phone', String(e && e.message || e).slice(0, 120)); }
   const token = await kit.issueSession(env, { ...user, lang }, { keepCode: true });
   const want = row.wants_sitewide === 1 || row.wants_sitewide === '1' || row.alert_opt_in === 1 || row.alert_opt_in === '1';
   if (want) { try { await kit.applyList(env, { email, name: user.name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
@@ -890,6 +993,35 @@ export async function goingPass(req, env, b, json, kit) {
   const token = await issuePass(env, kit, session.id);
   return json({ ok: true, url: passLink(env, token) });
 }
+export async function goingPhone(req, env, b, iph, json, kit) {
+  if (b && b.website) return json({ ok: true, mailed: false });
+  const email = kit.clean(b && b.email, 254).toLowerCase();
+  if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email', mailed: false }, 400);
+  let ready = false;
+  try {
+    await env.SDB.prepare('SELECT 1 AS ok FROM user_phone LIMIT 1').first();
+    await env.SDB.prepare('SELECT 1 AS ok FROM phone_login_lock LIMIT 1').first();
+    ready = true;
+  } catch (e) {
+    if (missingTable(e)) return json({ error: 'phone_unavailable', mailed: false }, 503);
+    throw e;
+  }
+  if (!ready) return json({ error: 'phone_unavailable', mailed: false }, 503);
+  if (!(await phoneLoginOpen(env, email, iph || ''))) return json({ error: 'rate_limited', mailed: false }, 429);
+  const given = phoneDigits(b && b.last4);
+  const user = await env.SDB.prepare(`SELECT u.id,u.email,u.lang,u.verified_at,p.phone AS phone
+    FROM users u LEFT JOIN user_phone p ON p.user_id=u.id WHERE u.email=?`).bind(email).first();
+  const stored = user && user.verified_at ? (user.phone || '') : '';
+  const match = given.length === 4 && await sameTail(kit, stored, given);
+  if (!match) {
+    await notePhoneFail(env, kit, 'e:' + email, PHONE_EMAIL_MAX);
+    await notePhoneFail(env, kit, 'i:' + (iph || ''), PHONE_IP_MAX);
+    return json({ error: 'phone_login', mailed: false }, 401);
+  }
+  await env.SDB.prepare('DELETE FROM phone_login_lock WHERE subject=?').bind('e:' + email).run();
+  const token = await kit.issueSession(env, user, { keepCode: true });
+  return sessionJson(req, { ok: true, session: token, verified: true, mailed: false }, token);
+}
 async function fillBlanks(env, kit, email, fields) {
   const cur = await env.SDB.prepare('SELECT id,name,city,role FROM users WHERE email=?').bind(email).first();
   if (!cur) return upsertUser(env, kit, email, fields);
@@ -933,6 +1065,8 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email' }, 400);
   if (!city) return json({ error: 'need_city' }, 400);
   if (!role) return json({ error: 'need_role' }, 400);
+  const phoneCheck = readPhone(b);
+  if (phoneCheck.error) return json({ error: phoneCheck.error, mailed: false }, phoneCheck.status);
   const ret = kit.safeNext(b.ret);
   if (!ret) return json({ error: 'bad_return' }, 400);
   const lang = b.lang === 'zh' ? 'zh' : 'en';
@@ -945,8 +1079,15 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   }
   if (same) {
     await env.SDB.prepare('UPDATE users SET name=?,city=?,role=?,lang=? WHERE id=?').bind(name, city, role, lang, session.id).run();
+    if (phoneCheck.phone) {
+      try { await saveUserPhone(env, kit, session.id, phoneCheck.phone); }
+      catch (e) {
+        if (missingTable(e)) return json({ error: 'phone_unavailable', mailed: false }, 503);
+        throw e;
+      }
+    }
     await setSitewide(env, kit, { email, name, lang }, alert === 1);
-    return json({ ok: true, verified: true, session: true, mailed: false, sitewide: alert === 1 });
+    return json({ ok: true, verified: true, session: true, mailed: false, sitewide: alert === 1, phone_tail: await phoneTailOf(env, session.id) });
   }
   const recent = await env.SDB.prepare('SELECT sent_at FROM profile_verify WHERE email=?').bind(email).first();
   if (recent && Date.now() - Date.parse(recent.sent_at) < 60e3) return json({ error: 'rate_limited' }, 429);
@@ -954,6 +1095,13 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   if ((ipCount || 0) >= 8) return json({ error: 'rate_limited' }, 429);
   await upsertUser(env, kit, email, { name, city, role, lang, iph });
   const link = await saveVerify(env, kit, { email, name, city, role, lang, alert, ret });
+  if (phoneCheck.phone) {
+    try { await stagePhone(env, kit, email, phoneCheck.phone); }
+    catch (e) {
+      if (missingTable(e)) return json({ error: 'phone_unavailable', mailed: false }, 503);
+      throw e;
+    }
+  }
   let via;
   try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1 }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
@@ -1036,12 +1184,24 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   if (!name) return json({ error: 'need_name' }, 400);
   if (!city) return json({ error: 'need_city' }, 400);
   if (!role) return json({ error: 'need_role' }, 400);
+  const phoneCheck = readPhone(b);
+  if (phoneCheck.error) return json({ error: phoneCheck.error, mailed: false }, phoneCheck.status);
   if (!existing) await upsertUser(env, kit, email, { name, city, role, lang, iph });
   else if (!existing.verified_at) await fillBlanks(env, kit, email, { name, city, role, lang, iph });
   await env.SDB.prepare(`INSERT INTO going_pending(email,card_id,anchor,intent,occurrence_date,attend_date,transport,notify,name,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(email,card_id,anchor) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,attend_date=excluded.attend_date,transport=excluded.transport,notify=excluded.notify,name=excluded.name,created_at=excluded.created_at,consumed_at=NULL`)
     .bind(email, id, anchor, intent, attend || null, attend || null, useTransport, notify, name, kit.now()).run();
   const link = await saveVerify(env, kit, { email, name: name || (existing && existing.name) || '', city: city || (existing && existing.city) || '', role: role || (existing && existing.role) || '', lang, alert: promo, ret, intent, card: id });
+  if (phoneCheck.phone) {
+    try { await stagePhone(env, kit, email, phoneCheck.phone); }
+    catch (e) {
+      if (missingTable(e)) {
+        await env.SDB.prepare('DELETE FROM going_pending WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(email, id, anchor).run();
+        return json({ error: 'phone_unavailable', mailed: false }, 503);
+      }
+      throw e;
+    }
+  }
   let via;
   try { via = await sendVerify(env, kit, { email, name: name || (existing && existing.name) || '', lang, promo: promo === 1 }, link, { title: cardTitle(card, lang), intent }); }
   catch (e) {
@@ -1092,8 +1252,9 @@ export async function goingMine(req, env, json) {
   const drafts = (await env.SDB.prepare("SELECT card_id,anchor,intent,occurrence_date,attend_date,transport,notify FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC").bind(session.email).all()).results || [];
   const favs = (await env.SDB.prepare('SELECT card_id FROM going_favs WHERE email=? ORDER BY created_at DESC').bind(session.email).all()).results || [];
   const sitewide = await sitewideOn(env, session.email);
+  const phone_tail = await phoneTailOf(env, session.id);
   return json({
-    email: session.email, name: session.name, city: session.city || '', role: session.role || '', sitewide,
+    email: session.email, name: session.name, city: session.city || '', role: session.role || '', sitewide, phone_tail,
     favs: favs.map(r => r.card_id),
     items: rows.map(r => ({ id: r.card_id, anchor: r.anchor || '', intent: r.intent, date: r.attend_date || '', transport: !!r.transport, notify: !!r.notify, mail: r.mail_status })),
     drafts: drafts.map(r => ({ id: r.card_id, anchor: r.anchor || '', intent: r.intent, date: r.attend_date || '', transport: !!r.transport, notify: !!r.notify }))
