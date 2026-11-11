@@ -50,7 +50,7 @@ def main():
     check('zh loads helper', 'atm-data.js?v=r10' in zh)
     check('en map script', 'asia-map.js?v=r14' in en)
     check('zh map script', 'asia-map.js?v=r14' in zh)
-    check('home script', 'atm-home.js?v=h145' in en and 'atm-home.js?v=h145' in zh)
+    check('home script', 'atm-home.js?v=h146' in en and 'atm-home.js?v=h146' in zh)
     check('i18n script', 'atm-i18n.js?v=i1' in en and 'atm-i18n.js?v=i1' in zh)
     check('json version china466', 'events-core.json?v=china466' in en and 'events-core.json?v=china466' in zh)
     check('old china465 key is gone', 'china465' not in en and 'china465' not in zh and 'china465' not in js and 'china465' not in home)
