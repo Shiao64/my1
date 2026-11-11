@@ -15,7 +15,7 @@ const src = fs.readFileSync(path.join(root, 'social-worker/src/social.js'), 'utf
   .replace("import { gmailSend } from './smtp.js';\n", 'const gmailSend = async () => { throw new Error("no smtp"); };\n');
 fs.writeFileSync(path.join(dir, 'social.js'), src);
 const { social } = await import(pathToFileURL(path.join(dir, 'social.js')).href);
-const { occurrenceDates, shYmd, runGoingDigests, testLetterOn } = await import(pathToFileURL(path.join(dir, 'going.js')).href);
+const { occurrenceDates, shYmd, runGoingDigests, testLetterOn, dancerLine } = await import(pathToFileURL(path.join(dir, 'going.js')).href);
 
 const db = new DatabaseSync(':memory:');
 for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0011_going_digests.sql']) {
@@ -122,6 +122,11 @@ const first = await going(dancerToken, 'DIR', 'interested');
 const firstMail = orgMails().filter(m => m.includes('to=dir-o114@example.com'));
 check('directory address is used when the card shows none', first.ok && first.notice === 'sent' && first.mailed === true && firstMail.length === 1);
 check('letter is to the organizer and CC the dancer plus both inboxes', firstMail[0].includes('to=dir-o114@example.com') && firstMail[0].includes('cc=' + DANCER + ', selecttango@gmail.com, guazong@mail.grokbot.com') && firstMail[0].includes('reply-to=' + DANCER) && firstMail[0].includes('Interested / 感兴趣') && !firstMail[0].includes('Going / 要参加'));
+check('regular letter names city and role', firstMail[0].includes('Shiao，领舞，来自Shanghai') && firstMail[0].includes('Shiao, leader, from Shanghai') && firstMail[0].includes('<b>Shiao</b>，领舞，来自Shanghai'));
+const sample = dancerLine('探戈助理', 'follower', '北京');
+check('wording shape is name, role, from city', sample.zh === '探戈助理，跟舞，来自北京' && sample.en === '探戈助理, follower, from 北京' && dancerLine('Tango Assistant', 'follower', 'Beijing').en === 'Tango Assistant, follower, from Beijing' && dancerLine('Tango Assistant', 'follower', 'Beijing').zh === 'Tango Assistant，跟舞，来自Beijing');
+check('both is 都可 / both', dancerLine('A', 'both', '北京').zh === 'A，都可，来自北京' && dancerLine('A', 'both', '北京').en === 'A, both, from 北京');
+check('a missing city or role is omitted', dancerLine('A', 'leader', '').zh === 'A，领舞' && dancerLine('A', 'leader', '').en === 'A, leader' && dancerLine('A', '', '北京').zh === 'A，来自北京' && dancerLine('A', '', '北京').en === 'A, from 北京' && dancerLine('A', '', '').zh === 'A' && dancerLine('A', '', '').en === 'A');
 check('the unsent earlier Going was not sent', orgMails().filter(m => m.includes('Going / 要参加') && m.includes('to=dir-o114@example.com')).length === 0);
 check('row is sent, not left queued', db.prepare("SELECT mail_status s FROM going_intents WHERE email=? AND card_id='DIR' AND anchor=?").get(DANCER, dates[0]).s === 'sent');
 
@@ -134,10 +139,18 @@ check('another visitor still only saves', other.notice === 'off' && other.mailed
 const secondOrg = await going(dancerToken, 'OTH', 'going');
 check('a different organizer is mailed through the same lookup', secondOrg.notice === 'sent' && orgMails().some(m => m.includes('to=dir-other@example.com') && m.includes('cc=' + DANCER)));
 const pub = await going(dancerToken, 'PUB', 'going');
-check('a public card address is mailed too', pub.notice === 'sent' && orgMails().some(m => m.includes('to=public-org@example.com')));
+check('a public card address is mailed too', pub.notice === 'sent' && orgMails().some(m => m.includes('to=public-org@example.com') && m.includes('Shiao，领舞，来自Shanghai') && m.includes('Shiao, leader, from Shanghai')));
 
 const away = await going(dancerToken, 'DIR', 'absent');
 check('not going saves and does not send a cancellation', away.ok && away.notice === 'off' && away.mail === 'withheld' && away.mailed === false && orgMails().filter(m => m.includes('to=dir-o114@example.com')).length === 1);
+db.prepare('UPDATE users SET city=?, role=? WHERE email=?').run('北京', 'follower', DANCER);
+const shaped = await going(dancerToken, 'DIR', 'going');
+const shapedMail = orgMails().filter(m => m.includes('to=dir-o114@example.com')).pop();
+check('a later regular letter uses 跟舞 and 来自', shaped.notice === 'sent' && shapedMail.includes('Shiao，跟舞，来自北京') && shapedMail.includes('Shiao, follower, from 北京'));
+db.prepare('UPDATE users SET city=NULL, role=NULL WHERE email=?').run(DANCER);
+const partial = await going(dancerToken, 'DIR', 'interested');
+const partialMail = orgMails().filter(m => m.includes('to=dir-o114@example.com')).pop();
+check('missing city and role still send and omit only those parts', partial.ok && partial.notice === 'sent' && partial.mailed === true && partialMail.includes('Shiao\nShiao\n') && !partialMail.includes('来自') && !partialMail.includes('领舞') && !partialMail.includes('跟舞') && !partialMail.includes('都可') && !/, (leader|follower|both)/.test(partialMail) && !partialMail.includes('from '));
 const unfav = await post('/going/unfav', { id: 'OTH', explicit: 1 }, dancerToken);
 check('unfavorite saves and does not mail', unfav.ok && unfav.removed && unfav.notice === 'off' && unfav.mailed === false && orgMails().filter(m => m.includes('to=dir-other@example.com')).length === 1);
 

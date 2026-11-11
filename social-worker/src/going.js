@@ -328,6 +328,20 @@ async function sendVerify(env, kit, row, link, pending) {
 function intentLabel(intent) {
   return intent === 'going' ? 'Going / 要参加' : 'Interested / 感兴趣';
 }
+const ROLE_WORD = { leader: ['领舞', 'leader'], follower: ['跟舞', 'follower'], both: ['都可', 'both'] };
+// 「姓名，跟舞，来自北京」 / "Name, follower, from Beijing". A missing city or role is left out.
+export function dancerLine(name, role, city) {
+  const who = oneLine((s, n) => String(s || '').trim().slice(0, n), name, 80);
+  const words = ROLE_WORD[roleOf(role)] || null;
+  const place = oneLine((s, n) => String(s || '').trim().slice(0, n), city, 40);
+  const zhTail = [words ? words[0] : '', place ? '来自' + place : ''].filter(Boolean);
+  const enTail = [words ? words[1] : '', place ? 'from ' + place : ''].filter(Boolean);
+  return {
+    name: who,
+    zh: who + (zhTail.length ? '，' + zhTail.join('，') : ''),
+    en: who + (enTail.length ? ', ' + enTail.join(', ') : '')
+  };
+}
 async function sendDigest(env, kit, card, rows, period) {
   const org = pickEmail(card.email, kit.EMAIL_RE);
   if (!org) return { error: 'no_organizer' };
@@ -366,13 +380,17 @@ async function sendIntentLetter(env, kit, card, person) {
   const title = cardTitle(card, 'zh');
   const titleEn = cardTitle(card, 'en');
   const name = oneLine((s, n) => String(s || '').trim().slice(0, n), person.name, 80) || dancer || person.email;
+  const line = dancerLine(name, person.role, person.city);
   const intent = intentLabel(person.intent);
   const date = !featured && person.show ? `Date / 场次: ${person.show} (Beijing time UTC+8, Asia/Shanghai)\n` : '';
   const transport = person.transport ? 'Directions / 交通指引: please send directions to the venue. The organizer replies directly. Delivery and timing are not guaranteed.\n请寄送前往场地的交通指引。组织者自行回复，不保证送达或回复时间。\n' : '';
-  let text = `探戈助理\n\n${name} <${dancer || person.email}>\nIntent / 意向: ${intent}\n\nEvent / 活动: ${title}\n${titleEn && titleEn !== title ? titleEn + '\n' : ''}Card: ${card.id}\n${date}${transport}\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\n${DELETE_NOTE}`;
+  let text = `探戈助理\n\n${line.zh}\n${line.en}\n<${dancer || person.email}>\nIntent / 意向: ${intent}\n\nEvent / 活动: ${title}\n${titleEn && titleEn !== title ? titleEn + '\n' : ''}Card: ${card.id}\n${date}${transport}\nThis is not a ticket purchase or a formal registration.\n这不是购票或正式报名。\n${DELETE_NOTE}`;
   if (dest.intended) text = `[test] Intended organizer: ${dest.intended}\n【测试】原收件主办方：${dest.intended}\n\n` + text;
   const subject = `Intent: ${titleEn || title}`.slice(0, 180);
-  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p><b>探戈助理</b></p><p>${kit.he(name)} &lt;${kit.he(dancer || person.email)}&gt;<br>${kit.he(intent)}</p><p>${kit.he(title)}${!featured && person.show ? '<br>' + kit.he(person.show) : ''}${person.transport ? '<br>directions' : ''}</p><p>This is not a ticket or a formal registration.<br>这不是购票或正式报名。</p><p>要删除资料，请回信到 selecttango@gmail.com<br>To delete your information, reply to selecttango@gmail.com</p>${dest.intended ? `<p>[test] Intended organizer: ${kit.he(dest.intended)}</p>` : ''}</div></body></html>`;
+  const zhRest = line.zh.slice(line.name.length);
+  const enRest = line.en.slice(line.name.length);
+  const who = `<b>${kit.he(line.name)}</b>`;
+  const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:520px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px"><p><b>探戈助理</b></p><p>${who}${kit.he(zhRest)}<br>${who}${kit.he(enRest)}<br>${kit.he(dancer || person.email)}</p><p>${kit.he(intent)}</p><p>${kit.he(title)}${!featured && person.show ? '<br>' + kit.he(person.show) : ''}${person.transport ? '<br>directions' : ''}</p><p>This is not a ticket or a formal registration.<br>这不是购票或正式报名。</p><p>要删除资料，请回信到 selecttango@gmail.com<br>To delete your information, reply to selecttango@gmail.com</p>${dest.intended ? `<p>[test] Intended organizer: ${kit.he(dest.intended)}</p>` : ''}</div></body></html>`;
   await kit.deliver(env, dest.to, subject, text, html, undefined, { cc, replyTo, fromName: '探戈助理' });
   return { ok: true };
 }
@@ -473,7 +491,7 @@ async function materialize(env, kit, row, iph) {
   };
   if (await currentFp() !== fp) return { ok: true, mailed: false, mail: 'saved', notice: 'off', date: attend };
   try {
-    const sent = await sendIntentLetter(env, kit, card, { email: row.email, name: row.name, intent: row.intent, show, transport });
+    const sent = await sendIntentLetter(env, kit, card, { email: row.email, name: row.name, city: row.city, role: row.role, intent: row.intent, show, transport });
     if (sent && sent.error === 'no_organizer') {
       await saveIntent(env, row, show, attend, transport, 'none', keptFp, ts);
       return { ok: true, mailed: false, mail: 'no_organizer', notice: 'missing', date: attend };
@@ -682,9 +700,9 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     email = session.email;
     city = oneLine(kit.clean, b.city, 40) || session.city || '';
     role = roleOf(b.role) || roleOf(session.role);
-    if (!name || !city || !role) return json({ error: !city ? 'need_city' : (!role ? 'need_role' : 'need_name'), need_profile: true }, 400);
-    await env.SDB.prepare('UPDATE users SET name=?,city=?,role=? WHERE id=?').bind(name, city, role, session.id).run();
-    const result = await materialize(env, kit, { email, card_id: id, intent, anchor, occurrence_date: attend, attend, transport, notify, name, lang }, iph);
+    if (!name) return json({ error: 'need_name', need_profile: true }, 400);
+    await env.SDB.prepare('UPDATE users SET name=?,city=?,role=? WHERE id=?').bind(name, city || null, role || null, session.id).run();
+    const result = await materialize(env, kit, { email, card_id: id, intent, anchor, occurrence_date: attend, attend, transport, notify, name, city, role, lang }, iph);
     if (result.error) return json({ error: result.error }, 400);
     await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(kit.now(), email, id, anchor).run();
     return json({ ok: true, verified: true, mailed: !!result.mailed, mail: result.mail, notice: result.notice || 'off', ...(result.wait ? { wait: result.wait } : {}), date: result.date || '', anchor });

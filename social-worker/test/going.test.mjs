@@ -142,9 +142,9 @@ const stranger = await get('/going/mine');
 check('mine requires session', stranger._s === 401);
 
 db.prepare("UPDATE users SET city=NULL, role=NULL WHERE email=?").run('ana@example.com');
-const gap = await post('/going', { id: 'W1', intent: 'going', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' }, auth);
-check('session can fill missing fields without a new verify mail', gap._s === 400 && gap.need_profile);
 const anaBefore = userMails('ana@example.com').length;
+const gap = await post('/going', { id: 'W1', intent: 'going', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' }, auth);
+check('missing city and role still save and do not send a verify mail', gap.ok && gap._s === 200 && gap.mailed === false && gap.notice === 'off' && userMails('ana@example.com').length === anaBefore);
 const filled = await post('/going', { id: 'W1', intent: 'going', date: dates[0], explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', city: 'Busan', role: 'both', name: 'Ana' }, auth);
 check('filled profile submits', filled._s === 200 && filled.verified && db.prepare('SELECT role r, city c FROM users WHERE email=?').get('ana@example.com').r === 'both');
 check('fill did not send another verify to ana', userMails('ana@example.com').length === anaBefore);
