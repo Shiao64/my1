@@ -43,9 +43,21 @@ function resendFrom(env, name) {
   const m = String(raw).match(/<([^>]+)>/);
   return (name || 'Asia Tango Map') + ' <' + (m ? m[1] : raw) + '>';
 }
+function ccList(raw, to) {
+  const parts = Array.isArray(raw) ? raw : String(raw || '').split(',');
+  const dest = String(to || '').trim().toLowerCase();
+  const out = [];
+  for (const part of parts) {
+    const email = part.trim().toLowerCase();
+    if (!email || email === dest || /[\r\n]/.test(email) || out.includes(email)) continue;
+    out.push(email);
+  }
+  return out;
+}
 async function deliver(env, to, subject, text, html, headers, opt) {
   opt = opt || {};
-  const cc = opt.cc && opt.cc !== to && !/[\r\n]/.test(opt.cc) ? String(opt.cc) : '';
+  const list = ccList(opt.cc, to);
+  const cc = list.join(', ');
   const replyTo = opt.replyTo && !/[\r\n]/.test(opt.replyTo) ? String(opt.replyTo) : '';
   const fromName = opt.fromName || 'Asia Tango Map';
   // SOCIAL_MAIL is a plain var, not a binding. Production sets it to resend.
@@ -58,13 +70,13 @@ async function deliver(env, to, subject, text, html, headers, opt) {
   if (replyTo) hdrs['Reply-To'] = replyTo;
   const hasH = Object.keys(hdrs).length ? hdrs : undefined;
   if (p === 'resend') { const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: resendFrom(env, fromName), to: [to], subject, text, ...(html ? { html } : {}), ...(cc ? { cc: [cc] } : {}), ...(replyTo ? { reply_to: replyTo } : {}), ...(hasH ? { headers: hasH } : {}) }) });
+      body: JSON.stringify({ from: resendFrom(env, fromName), to: [to], subject, text, ...(html ? { html } : {}), ...(list.length ? { cc: list } : {}), ...(replyTo ? { reply_to: replyTo } : {}), ...(hasH ? { headers: hasH } : {}) }) });
     if (!r.ok) throw new Error('resend ' + r.status + ' ' + (await r.text()).slice(0, 150)); }
   else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName, to, cc, replyTo, subject, text, html, headers: hasH });
   else if (p === 'sub_mail' || p === 'cloudflare') {
     const binding = env.SUB_MAIL;
     if (!binding || typeof binding.send !== 'function') throw new Error('SUB_MAIL binding missing');
-    await binding.send({ from: { email: env.SENDER || 'subscribe@tangoweekend.org', name: fromName }, to, ...(cc ? { cc: [cc] } : {}), ...(replyTo ? { replyTo } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}) });
+    await binding.send({ from: { email: env.SENDER || 'subscribe@tangoweekend.org', name: fromName }, to, ...(list.length ? { cc: list } : {}), ...(replyTo ? { replyTo } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}) });
   }
   else console.log(`[mail:log] from=${fromName} to=${to}${cc ? ' cc=' + cc : ''}${replyTo ? ' reply-to=' + replyTo : ''} subject=${subject}${hasH ? ' ' + JSON.stringify(hasH) : ''}\n${text}${html ? '\n' + html : ''}`);
   return p;

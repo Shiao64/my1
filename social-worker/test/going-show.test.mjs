@@ -68,7 +68,7 @@ check('an unchecked person is verified without joining the list', !db.prepare('S
 const auth = { Authorization: 'Bearer ' + token };
 const save = await post('/going', { id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', notify: 1 }, auth);
 const row = db.prepare('SELECT intent i, attend_date a, anchor n, mail_status s FROM going_intents WHERE email=? AND anchor=?').get('ann@example.com', dates[0]);
-check('going writes the attendance date and queues once', save.mail === 'queued' && row.i === 'going' && row.a === dates[0] && row.n === dates[0] && db.prepare('SELECT COUNT(*) n FROM going_sends').get().n === 1);
+check('going writes the attendance date and queues once', save.mail === 'queued' && save.notice === 'off' && row.i === 'going' && row.a === dates[0] && row.n === dates[0] && db.prepare('SELECT COUNT(*) n FROM going_sends').get().n === 0);
 check('confirm adds the series favorite', db.prepare('SELECT card_id FROM going_favs WHERE email=?').get('ann@example.com').card_id === 'W1');
 const interest = await post('/going', { id: 'W1', intent: 'interested', anchor: dates[1], date: dates[1], explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' }, auth);
 const irow = db.prepare('SELECT attend_date a, anchor n, mail_status s FROM going_intents WHERE email=? AND anchor=?').get('ann@example.com', dates[1]);

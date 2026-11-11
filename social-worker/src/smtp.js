@@ -15,13 +15,14 @@ export async function gmailSend({ user, pass, fromName, to, subject, text, html,
     await cmd(null, [220]); await cmd('EHLO tangoweekend.org', [250]);
     await cmd('AUTH LOGIN', [334]); await cmd(btoa(user), [334]); await cmd(btoa(pass), [235]);
     await cmd(`MAIL FROM:<${user}>`, [250]); await cmd(`RCPT TO:<${to}>`, [250, 251]);
-    if (cc && cc !== to) await cmd(`RCPT TO:<${cc}>`, [250, 251]);
+    const copies = String(cc || '').split(',').map(s => s.trim().toLowerCase()).filter(s => s && s !== to);
+    for (const one of copies) await cmd(`RCPT TO:<${one}>`, [250, 251]);
     await cmd('DATA', [354]);
     const plain = b64(text).replace(/.{76}/g, '$&\r\n');
     const bound = 'atm_' + crypto.randomUUID().replace(/-/g, '');
     const htmlPart = html ? [`--${bound}`, 'Content-Type: text/html; charset=UTF-8', 'Content-Transfer-Encoding: base64', '', b64(html).replace(/.{76}/g, '$&\r\n')].join('\r\n') + '\r\n' : '';
     const extra = headers ? Object.entries(headers).filter(([k, v]) => v && !/^(cc|reply-to)$/i.test(k)).map(([k, v]) => k + ': ' + v) : [];
-    const msg = [`From: ${hdr(fromName)} <${user}>`, `To: <${to}>`, ...(cc && cc !== to ? [`Cc: <${cc}>`] : []), ...(replyTo ? [`Reply-To: <${replyTo}>`] : []), `Subject: ${hdr(subject)}`, `Date: ${new Date().toUTCString()}`,
+    const msg = [`From: ${hdr(fromName)} <${user}>`, `To: <${to}>`, ...(copies.length ? [`Cc: ${copies.map(e => '<' + e + '>').join(', ')}`] : []), ...(replyTo ? [`Reply-To: <${replyTo}>`] : []), `Subject: ${hdr(subject)}`, `Date: ${new Date().toUTCString()}`,
       `Message-ID: <${crypto.randomUUID()}@tangoweekend.org>`, ...extra, 'MIME-Version: 1.0',
       html ? `Content-Type: multipart/alternative; boundary="${bound}"` : 'Content-Type: text/plain; charset=UTF-8',
       html ? '' : 'Content-Transfer-Encoding: base64', '',
