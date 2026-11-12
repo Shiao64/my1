@@ -3,6 +3,33 @@
    (?card, ?mode, ?city, ?via ...) keep the old list untouched. Cards open the single-card layer (?card=ID). */
 (function () {
   var D = document, R = D.documentElement;
+  /* 2026-11-12 张孝: P7 ‹ reads the opener saved at the click (sessionStorage atm_p7_from).
+     The shareable URL stays ?card=id. document.referrer has no hash, and #v- is not a route. */
+  var P7K = 'atm_p7_from';
+  function p7read() { try { return JSON.parse(sessionStorage.getItem(P7K) || 'null'); } catch (e) { return null; } }
+  window.atmP7Back = function (id) {
+    var rec = p7read();
+    if (rec && rec.t && performance.timeOrigin && performance.timeOrigin - rec.t > 60000) rec = null;
+    if (!rec || rec.id !== id) rec = null;
+    var path = location.pathname;
+    var rf = null;
+    try { rf = new URL(document.referrer); } catch (e) {}
+    var sameList = !!(rf && rf.origin === location.origin && rf.pathname === path && !/[?&]card=/.test(rf.search) && !/\/(organizer|dj)\//.test(rf.pathname));
+    if (rec && rec.back && rec.to && sameList && history.length > 1) {
+      try { sessionStorage.setItem(P7K, JSON.stringify({ id: rec.id, to: rec.to, y: rec.y || 0, restore: 1 })); } catch (e) {}
+      history.back();
+      return;
+    }
+    if (rec && rec.to) {
+      if (rec.back) { try { sessionStorage.setItem(P7K, JSON.stringify({ id: rec.id, to: rec.to, y: rec.y || 0, restore: 1 })); } catch (e) {} }
+      else { try { sessionStorage.removeItem(P7K); } catch (e) {} }
+      location.replace(path + rec.to);
+      return;
+    }
+    try { sessionStorage.removeItem(P7K); } catch (e) {}
+    if (!rec && sameList && history.length > 1) { history.back(); return; }
+    location.replace(path);
+  };
   /* v11.7: single card page (?card=) gets the same red heart toggle (asia-fav.js toggles via .ev-card[data-id]) */
   if (/[?&]card=/.test(location.search)) (function () { var z = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
     var k = 0, t = setInterval(function () { var c = D.querySelector('#atm-single .ev-card[data-id]'); if (c && !c.querySelector('.atm-heart')) { if (getComputedStyle(c).position === 'static') c.style.position = 'relative'; var lab = z ? '活动意向' : 'Event intent'; c.insertAdjacentHTML('beforeend', '<span class="atm-heart ah-sheart" role="button" tabindex="0" data-sid="' + c.getAttribute('data-id').replace(/"/g, '') + '" aria-label="' + lab + '" title="' + lab + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z"/></svg></span>'); } if (++k > 40) clearInterval(t); }, 250);
@@ -355,6 +382,7 @@
     if (r === 'city' && (r !== lastR || c !== lastC)) visit(c); lastC = c;
     if (r !== lastR) window.scrollTo(0, 0);
     lastR = r;
+    p7consume();
     if (ly) refreshFavPanel();
   } finally { rendering = false; }
   }
@@ -370,6 +398,46 @@
     if (b.hasAttribute('data-a')) { S.a = +b.getAttribute('data-a'); render(); return; }
     if (b.hasAttribute('data-c')) { S.c = b.getAttribute('data-c'); render(); return; }
   });
+  function p7cityKey(e) { if (!e) return ''; var tl = tailOf(e.region); return tl ? tl.k : (e.city || ''); }
+  function p7favTo(id) {
+    var e = null, i;
+    if (DATA) for (i = 0; i < DATA.length; i++) if (DATA[i] && DATA[i].id === id) { e = DATA[i]; break; }
+    if (e && e.kind === 'event' && !e.regular_oneoff) return '#h-feat';
+    var key = p7cityKey(e);
+    return key ? ('#h-city-' + encodeURIComponent(key)) : '';
+  }
+  function p7consume() {
+    var rec = p7read();
+    if (!rec || !rec.restore) return;
+    var h = location.hash || '';
+    try { sessionStorage.removeItem(P7K); } catch (e) {}
+    if (h !== rec.to) return;
+    var y = +rec.y || 0;
+    window.scrollTo(0, y);
+    requestAnimationFrame(function () { if ((location.hash || '') === h) window.scrollTo(0, y); });
+  }
+  /* Record the opener before the card document loads. A new tab has no record, so a mail or share link returns to this language's map. */
+  D.addEventListener('click', function (e) {
+    if (e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.defaultPrevented) return;
+    var t = e.target;
+    if (!t || !t.closest) return;
+    if (t.closest('.atm-heart, .ah-heart, .atm-unfav, button')) return;
+    var a = t.closest('a.ah-pt, a.ah-card');
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (href.indexOf('card=') < 0) return;
+    var id = a.getAttribute('data-card') || a.getAttribute('data-id') || '';
+    if (!id) { try { id = new URL(href, location.href).searchParams.get('card') || ''; } catch (err) { id = ''; } }
+    if (!id) return;
+    var rec = { id: id, y: window.scrollY || D.documentElement.scrollTop || 0, t: Date.now() };
+    var hash = location.hash || '';
+    if (a.closest('.ah-ly') || a.closest('.ah-fb')) rec.to = p7favTo(id);
+    else if (a.closest('.ah-ban') && a.classList.contains('ah-pt')) rec.to = '#h-feat';
+    else if (hash === '#h-feat' || hash.indexOf('#h-city-') === 0 || hash === '#h-search' || hash === '#h-reg') { rec.back = 1; rec.to = hash; }
+    else return;
+    if (!rec.to) return;
+    try { sessionStorage.setItem(P7K, JSON.stringify(rec)); } catch (err) {}
+  }, true);
   D.addEventListener('click', function (e) { var h = e.target.closest && e.target.closest('.ah-heart'); if (!h) return; e.preventDefault(); var id = h.getAttribute('data-fid'), inCar = !!h.closest('.ah-fav');
     setTimeout(function () { var f = isFav(id), l = f ? (zh ? '取消收藏' : 'Remove from favorites') : (zh ? '收藏' : 'Add to favorites'); D.querySelectorAll('.ah-heart[data-fid="' + id + '"]').forEach(function (x) { x.setAttribute('aria-pressed', String(f)); x.setAttribute('aria-label', l); x.title = l; }); if (inCar || (!!D.querySelector('#atm-home .ah-fav')) !== (favLive().length > 0)) setTimeout(render, 200); }, 30); }, true);
   D.addEventListener('keydown', function (e) { var h = e.target.closest && e.target.closest('.ah-heart'); if (h && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); h.click(); } });
