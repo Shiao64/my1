@@ -484,12 +484,12 @@ const CONFIRM_BODY = {
   en: 'Thanks for subscribing to Asia Tango Map. Please confirm your email within 30 minutes by tapping the button below.'
 };
 const CONFIRM_NEXT = {
-  zh: '确认后，若要在微信或其他浏览器使用，请输入你的邮箱和电话末 4 码，不必再等确认信。',
-  en: 'After you confirm, to use WeChat or another browser, enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.'
+  zh: '确认后，若要在微信或其他浏览器使用，请输入你的邮箱和手机末 4 码，不必再等确认信。',
+  en: 'After you confirm, to use WeChat or another browser, enter your email and the last 4 digits of your mobile. You don\u2019t need another confirmation email.'
 };
 const CONFIRM_RETURN = {
-  zh: '已经订阅过？请输入邮箱和电话末 4 码，不必再等确认信。',
-  en: 'Already subscribed? Enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.'
+  zh: '已经订阅过？请输入邮箱和手机末 4 码，不必再等确认信。',
+  en: 'Already subscribed? Enter your email and the last 4 digits of your mobile. You don\u2019t need another confirmation email.'
 };
 const CONFIRM_IGNORE = {
   zh: '如果不是你本人操作，忽略这封信即可。',
