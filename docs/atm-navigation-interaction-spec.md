@@ -184,15 +184,32 @@ flowchart TB
   P7 -->|点星星（未收藏）| P11["P11 要参加 / 感兴趣"]
   P7 -->|点星星（已收藏）| P12["P12 取消收藏确认"]
   M["信里的链接<br/>确认信 · 我的订阅"] -.->|直接到| P7
+  subgraph B["返回与站名去向"]
+    direction TB
+    B1["点站名（任何一页）<br/>→ P1 首页<br/>不回 T0、不再判断语言、不再弹 P15"]
+    B2["P7 卡片左上角 ‹（旧名 S0）<br/>→ 回到打开它的那一页<br/>P1 / P2 / P4 / P9，保留原来位置<br/>从信里或分享链接直接进来的 → P1"]
+    B3["P2 / P3 / P4 的 ‹ → P1"]
+    B4["P8 的 ‹、×、返回列表 → P7 原卡片"]
+    B5["P9 / P11 / P12 小窗：×、Esc、点外面<br/>→ 关掉，回到底下那一页"]
+    B1 ~~~ B2 ~~~ B3 ~~~ B4 ~~~ B5
+  end
+  P8 ~~~ B
   classDef entry fill:#fde68a,stroke:#b45309;
   classDef home fill:#bfdbfe,stroke:#1d4ed8;
   classDef sheet fill:#e5e7eb,stroke:#6b7280;
-  class T0,L,N entry; class P1 home; class P11,P12 sheet;
+  classDef back fill:#dcfce7,stroke:#15803d,text-align:left;
+  class T0,L,N entry; class P1 home; class P11,P12 sheet; class B1,B2,B3,B4,B5 back;
 ```
 
 ### 返回规则
 
-Back and close, on the same screens. Each page returns one level, and the last step is P1.
+Each page returns one level, and the last step is P1. These are the target rules for the site title and the backs drawn in the diagram.
+
+- Tapping the site title on any page goes to P1. It does not return to T0, it does not choose a language again, and it does not show P15 again.
+- The P7 ‹, formerly called S0, returns to the screen that opened the card (P1, P2, P4, or P9) and keeps that screen’s scroll. A card opened directly from a letter or a shared link goes to P1 on the language map.
+- The ‹ on P2, P3, and P4 goes to P1.
+- On P8, the ‹, the ×, and 返回列表 / Back to list all return to that same P7 card.
+- The P9, P11, and P12 sheets close with ×, Esc, or the backdrop, and the screen underneath stays where it was.
 
 ```mermaid
 flowchart LR
@@ -212,7 +229,7 @@ P5’s forward path is the search hash. It is not one of the three blocks on P1.
 These are the target rules. Where today’s code differs, the next section says so.
 
 1. T0 chooses the language, then P15 once per tab, then P1. P1 is the empty hash on the language map. P2–P5 are hashes on that same document. P6 and P7 are query URLs, because those links are already shared. P8 is its own document. A deep link (`?card=`, a confirmation letter, 我的订阅) skips the home and opens its own screen, with P15 shown once on that tab if it has not been dismissed.
-2. ‹ and the browser Back move one step. P2, P3, P4, and P5 return to P1. P7 returns to the screen that opened it (P1, P2, P4, P6, or P9), with that screen’s scroll. P8 returns to the P7 card it came from.
+2. ‹ and the browser Back move one step. The site title on any page goes to P1 and does not repeat T0, the language choice, or P15. P2, P3, P4, and P5 return to P1. The P7 ‹ returns to the screen that opened it (P1, P2, P4, or P9) and keeps that scroll. A card opened from a letter or a shared link goes to P1 on the language map. P8’s ‹, ×, and 返回列表 / Back to list return to that P7 card. P9, P11, and P12 close with ×, Esc, or the backdrop onto the screen underneath.
 3. A sheet that covers the page owns one history entry: P9, P10, P11, P12, P13, P14, P16, P17. ×, Esc, and the backdrop pop that entry. They do not add a second one. P15 is the exception: it is a gate, and only its button dismisses it.
 4. Language switch keeps the screen. P4 stays on the same city. P7 stays on the same `card`. P6 keeps `mode`, `city`, and the dates. The other language is only `/asia/` versus `/zh/asia/`.
 5. Secrets leave the address bar. `s` is stored and removed, as it is today. After `#p=` is stored, P10 opens so the person can see 我的订阅. `intent=resume` opens P7 and then P11.
