@@ -187,7 +187,7 @@ flowchart TB
   subgraph B["返回与站名去向"]
     direction TB
     B1["点站名（任何一页）<br/>→ P1 首页<br/>不回 T0、不再判断语言、不再弹 P15"]
-    B2["P7 卡片左上角 ‹（旧名 S0）<br/>→ 回到打开它的那一页<br/>P1 / P2 / P4 / P9，保留原来位置<br/>从信里或分享链接直接进来的 → P1"]
+    B2["P7 卡片左上角 ‹（旧名 S0）<br/>→ 回到打开它的那一页<br/>P1 / P2 / P4，保留原来位置<br/>从 P9 收藏打开的：特色卡 → P2，常规卡 → P3<br/>从信里或分享链接直接进来的 → P1"]
     B3["P2 / P3 / P4 的 ‹ → P1"]
     B4["P8 的 ‹、×、返回列表 → P7 原卡片"]
     B5["P9 / P11 / P12 小窗：×、Esc、点外面<br/>→ 关掉，回到底下那一页"]
@@ -206,7 +206,7 @@ flowchart TB
 Each page returns one level, and the last step is P1. These are the target rules for the site title and the backs drawn in the diagram.
 
 - Tapping the site title on any page goes to P1. It does not return to T0, it does not choose a language again, and it does not show P15 again.
-- The P7 ‹, formerly called S0, returns to the screen that opened the card (P1, P2, P4, or P9) and keeps that screen’s scroll. A card opened directly from a letter or a shared link goes to P1 on the language map.
+- The P7 ‹, formerly called S0, returns to the screen that opened the card when that screen was P1, P2, or P4, and it keeps that screen’s scroll. A card opened from P9 does not return to P9. Kind decides the list: a featured card (`kind` is `event`, drawn as `.b-feat`, without `html.atm-p10`) goes to P2, the featured list. A regular or weekly card (`html.atm-p10`) goes to P3, the weekly cities. A card opened directly from a letter or a shared link goes to P1 on the language map.
 - The ‹ on P2, P3, and P4 goes to P1.
 - On P8, the ‹, the ×, and 返回列表 / Back to list all return to that same P7 card.
 - The P9, P11, and P12 sheets close with ×, Esc, or the backdrop, and the screen underneath stays where it was.
@@ -217,7 +217,7 @@ flowchart LR
   P3["P3 每周城市"] -.-> P1
   P4["P4 一座城市"] -.-> P1
   P5["P5 搜索"] -.-> P1
-  P7["P7 活动卡"] -.-> opener["打开它的页面，保留滚动"]
+  P7["P7 活动卡"] -.-> opener["P1 / P2 / P4 保留滚动；从 P9：特色卡 → P2，常规卡 → P3"]
   P8["P8 活动长页"] -.-> P7
   sheets["P9 到 P14、P16、P17"] -.-> one["关闭时弹出一条历史"]
 ```
@@ -229,7 +229,7 @@ P5’s forward path is the search hash. It is not one of the three blocks on P1.
 These are the target rules. Where today’s code differs, the next section says so.
 
 1. T0 chooses the language, then P15 once per tab, then P1. P1 is the empty hash on the language map. P2–P5 are hashes on that same document. P6 and P7 are query URLs, because those links are already shared. P8 is its own document. A deep link (`?card=`, a confirmation letter, 我的订阅) skips the home and opens its own screen, with P15 shown once on that tab if it has not been dismissed.
-2. ‹ and the browser Back move one step. The site title on any page goes to P1 and does not repeat T0, the language choice, or P15. P2, P3, P4, and P5 return to P1. The P7 ‹ returns to the screen that opened it (P1, P2, P4, or P9) and keeps that scroll. A card opened from a letter or a shared link goes to P1 on the language map. P8’s ‹, ×, and 返回列表 / Back to list return to that P7 card. P9, P11, and P12 close with ×, Esc, or the backdrop onto the screen underneath.
+2. ‹ and the browser Back move one step. The site title on any page goes to P1 and does not repeat T0, the language choice, or P15. P2, P3, P4, and P5 return to P1. The P7 ‹ returns to P1, P2, or P4 when that screen opened it, and keeps that scroll. A card opened from P9 does not return to P9: a featured card (`kind` `event`, `.b-feat`, no `html.atm-p10`) goes to P2, and a regular or weekly card (`html.atm-p10`) goes to P3. A card opened from a letter or a shared link goes to P1 on the language map. P8’s ‹, ×, and 返回列表 / Back to list return to that P7 card. P9, P11, and P12 close with ×, Esc, or the backdrop onto the screen underneath.
 3. A sheet that covers the page owns one history entry: P9, P10, P11, P12, P13, P14, P16, P17. ×, Esc, and the backdrop pop that entry. They do not add a second one. P15 is the exception: it is a gate, and only its button dismisses it.
 4. Language switch keeps the screen. P4 stays on the same city. P7 stays on the same `card`. P6 keeps `mode`, `city`, and the dates. The other language is only `/asia/` versus `/zh/asia/`.
 5. Secrets leave the address bar. `s` is stored and removed, as it is today. After `#p=` is stored, P10 opens so the person can see 我的订阅. `intent=resume` opens P7 and then P11.
