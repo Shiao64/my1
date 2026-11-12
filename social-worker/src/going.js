@@ -260,16 +260,21 @@ async function saveVerify(env, kit, row) {
     .bind(row.email, hash, ts, row.lang, row.name || '', row.city || '', row.role || '', site, row.ret, intent || '', card, site).run();
   return { link, nonce: '' };
 }
-function allowOrigin(req) {
+function previewOrigins(env) {
+  if (!env || env.PREVIEW !== '1') return [];
+  return String(env.PREVIEW_ORIGINS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
+}
+function allowOrigin(req, env) {
   const og = req.headers.get('Origin') || '';
   if (/^https:\/\/(www\.)?tangoweekend\.org$/.test(og) || /^https:\/\/api\.tangoweekend\.org$/.test(og) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(og)) return og;
   if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(og)) return og;
+  if (previewOrigins(env).includes(og.replace(/\/$/, ''))) return og;
   return '';
 }
 const VERIFY_COOKIE = 'atm_verify=1; Path=/; Max-Age=1800; SameSite=None; Secure';
-function confirmJson(req, body, status = 200) {
+function confirmJson(req, body, status = 200, env) {
   const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
-  const og = allowOrigin(req);
+  const og = allowOrigin(req, env);
   if (og) {
     headers['Access-Control-Allow-Origin'] = og;
     headers['Access-Control-Allow-Credentials'] = 'true';
@@ -349,9 +354,9 @@ async function bindStagedPhone(env, kit, email, userId) {
   if (!cur || !String(cur.phone || '').trim()) await saveUserPhone(env, kit, userId, staged.phone);
   await env.SDB.prepare('DELETE FROM profile_phone WHERE email=?').bind(email).run();
 }
-function sessionJson(req, body, token, status = 200) {
+function sessionJson(req, body, token, status = 200, env) {
   const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
-  const og = allowOrigin(req);
+  const og = allowOrigin(req, env);
   if (og) {
     headers['Access-Control-Allow-Origin'] = og;
     headers['Access-Control-Allow-Credentials'] = 'true';
@@ -919,14 +924,23 @@ function resultPage(kit, lang, msg, dest, opt) {
 <p style="font-size:1.05rem;line-height:1.5;color:#0a4f57;font-weight:700">${kit.he(msg)}</p>${back}${hint}${passBox(kit, lang, opt.passUrl, opt.wechat)}</div></body></html>`,
     { status: 200, headers });
 }
-function mapHome(lang) {
-  return lang === 'zh' ? 'https://tangoweekend.org/zh/asia/' : 'https://tangoweekend.org/asia/';
+function mapHome(lang, env, ret) {
+  const tail = lang === 'zh' ? '/zh/asia/' : '/asia/';
+  const origins = previewOrigins(env);
+  if (origins.length) {
+    try {
+      const u = new URL(String(ret || ''));
+      if (origins.includes(u.origin)) return u.origin + tail;
+    } catch { /* use the configured preview site */ }
+    return origins[0] + tail;
+  }
+  return 'https://tangoweekend.org' + tail;
 }
 function finishPage(kit, lang, opt) {
   const zh = lang === 'zh';
   const msg = zh ? '✅ 订阅成功，可以关掉这个页面' : '✅ Subscribed — you can close this page';
   const btn = zh ? '去看亚洲探戈地图' : 'Go to Asia Tango Map';
-  const href = kit.he(mapHome(zh ? 'zh' : 'en'));
+  const href = kit.he(mapHome(zh ? 'zh' : 'en', opt.env, opt.ret));
   const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' };
   if (opt.cookie) headers['Set-Cookie'] = opt.cookie;
   const pass = passBox(kit, lang, opt.passUrl, false);
@@ -988,7 +1002,7 @@ export async function goingConfirm(req, env, url, kit) {
   const lang = row.lang === 'zh' ? 'zh' : 'en';
   const applied = await applyConfirm(env, kit, row, email);
   const passUrl = applied.pass ? passLink(env, applied.pass) : '';
-  return finishPage(kit, lang, { cookie: sessionCookie(applied.session), passUrl });
+  return finishPage(kit, lang, { cookie: sessionCookie(applied.session), passUrl, env, ret: row.ret });
 }
 export async function goingAwait(req, env, b, json, kit) {
   const nonce = String(b && b.nonce || '');
@@ -1122,10 +1136,10 @@ export async function goingPhone(req, env, b, iph, json, kit) {
   }
   await env.SDB.prepare('DELETE FROM phone_login_lock WHERE subject=?').bind('e:' + email).run();
   const token = await kit.issueSession(env, user, { keepCode: true });
-  if (!(b && b.id)) return sessionJson(req, { ok: true, session: token, verified: true, mailed: false, register: false }, token);
+  if (!(b && b.id)) return sessionJson(req, { ok: true, session: token, verified: true, mailed: false, register: false }, token, 200, env);
   const applied = await applySessionIntent(env, kit, user, b, iph);
-  if (applied.error) return sessionJson(req, { error: applied.error, session: token, mailed: false, need_profile: !!applied.need_profile }, token, applied.status);
-  return sessionJson(req, { ok: true, session: token, register: false, confirm: false, ...applied.body }, token);
+  if (applied.error) return sessionJson(req, { error: applied.error, session: token, mailed: false, need_profile: !!applied.need_profile }, token, applied.status, env);
+  return sessionJson(req, { ok: true, session: token, register: false, confirm: false, ...applied.body }, token, 200, env);
 }
 async function fillBlanks(env, kit, email, fields, opt) {
   const cur = await env.SDB.prepare('SELECT id,name,city,role FROM users WHERE email=?').bind(email).first();
@@ -1175,7 +1189,7 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   const same = !!(session && session.email === email);
   const phoneCheck = readTail(b, !same);
   if (phoneCheck.error) return json({ error: phoneCheck.error, mailed: false }, phoneCheck.status);
-  const ret = kit.safeNext(b.ret);
+  const ret = kit.safeNext(b.ret, env);
   if (!ret) return json({ error: 'bad_return' }, 400);
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const alert = flag(b.alert, 0);
@@ -1218,13 +1232,13 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1 }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
 }
 
 export async function goingRestore(req, env, b, ip, json, kit) {
   const email = kit.clean(b.email, 254).toLowerCase();
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email' }, 400);
-  const ret = kit.safeNext(b.ret);
+  const ret = kit.safeNext(b.ret, env);
   if (!ret) return json({ error: 'bad_return' }, 400);
   if (!(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
   const iph = (await kit.sha((ip || '') + 'atm')).slice(0, 16);
@@ -1238,7 +1252,7 @@ export async function goingRestore(req, env, b, ip, json, kit) {
   try { via = await sendVerify(env, kit, { email, name: u.name || email, lang, promo: false }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
 }
 
 export async function goingSubmit(req, env, b, ip, iph, json, kit) {
@@ -1247,7 +1261,7 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   if (!(b.disclose === 1 || b.disclose === true || b.disclose === '1')) return json({ error: 'need_disclose' }, 400);
   const id = String(b.id || ''), intent = intentOf(b.intent);
   if (!kit.ID_RE.test(id) || !intent) return json({ error: 'bad_input' }, 400);
-  const ret = kit.safeNext(b.ret);
+  const ret = kit.safeNext(b.ret, env);
   if (!ret) return json({ error: 'bad_return' }, 400);
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const notify = flag(b.notify, 1), transport = flag(b.transport, 0);
@@ -1296,8 +1310,8 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     await env.SDB.prepare('DELETE FROM phone_login_lock WHERE subject=?').bind('e:' + email).run();
     const token = await kit.issueSession(env, existing, { keepCode: true });
     const applied = await applySessionIntent(env, kit, existing, b, iph);
-    if (applied.error) return sessionJson(req, { error: applied.error, session: token, mailed: false, need_profile: !!applied.need_profile }, token, applied.status);
-    return sessionJson(req, { ok: true, session: token, confirm: false, ...applied.body }, token);
+    if (applied.error) return sessionJson(req, { error: applied.error, session: token, mailed: false, need_profile: !!applied.need_profile }, token, applied.status, env);
+    return sessionJson(req, { ok: true, session: token, confirm: false, ...applied.body }, token, 200, env);
   }
   const again = await resendGate(env, email, id, anchor);
   if (again) return json(again, 429);
@@ -1332,7 +1346,7 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     return json({ error: 'send_failed' }, 502);
   }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph, id, anchor);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
 }
 
 export async function goingCancel(req, env, b, json, kit) {

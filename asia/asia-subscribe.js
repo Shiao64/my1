@@ -314,7 +314,11 @@
       .then(function (d) {
         if (d.ok) {
           ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false; if (!d.session) $('tsub-f').reset();
-          if (!d.session && d.nonce) watchClaim(d.nonce, function () { ok.textContent = L.confirmed; ok.hidden = false; paintMode(true); open(); });
+          if (!d.session && d.nonce) watchClaim(d.nonce, function () {
+            open();
+            var hint = $('tsub-ok');
+            if (hint) { hint.textContent = L.confirmed; hint.hidden = false; }
+          });
           if (d.session && $('tsub-site')) $('tsub-site').checked = !!d.sitewide;
           if (d.session && d.phone_tail) paintPhone(d.phone_tail);
           if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();

@@ -13,9 +13,9 @@ SOCIAL_MAIL = "log"
 MAIL_PROVIDER = "log"
 ALLOW_NO_TURNSTILE = "1"
 PREVIEW_SHOW_CODE = "1"
-# Set this to the workers.dev URL printed by the first deploy, then deploy once more
-# so confirmation links in mail point at this preview worker directly.
-API_BASE = "https://tango-subscribe-preview.example.workers.dev"
+API_BASE = "https://tango-subscribe-preview.5mjqgtq8zh.workers.dev"
+# Origins allowed for CORS, return URLs, and the finish-page map link. Ignored unless PREVIEW=1.
+PREVIEW_ORIGINS = "https://tango-subscribe-preview.5mjqgtq8zh.workers.dev"
 
 # Create with: npx wrangler d1 create tango-subscribe-preview
 # Paste the returned database_id over the placeholder below. Both bindings

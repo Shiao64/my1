@@ -17,7 +17,7 @@ for (const name of ['push.js', 'mime.js']) fs.copyFileSync(path.join(root, 'subs
 const src = fs.readFileSync(path.join(root, 'subscribe-worker/src/index.js'), 'utf8')
   .replace("import { EmailMessage } from 'cloudflare:email';\n", 'class EmailMessage { constructor() {} }\n');
 fs.writeFileSync(path.join(dir, 'index.js'), src);
-const { confirmLetter } = await import(pathToFileURL(path.join(dir, 'index.js')).href);
+const { confirmLetter, default: worker } = await import(pathToFileURL(path.join(dir, 'index.js')).href);
 
 const en = confirmLetter('en', link, unsub);
 const zh = confirmLetter('zh', link, unsub);
@@ -28,6 +28,14 @@ check('english letter has no chinese', !/[\u3400-\u9fff]/.test(en.subject + en.t
 check('other sentences stay', en.text.includes("Please click the link below to confirm your subscription to Asia Tango Map event alerts:") && en.text.includes("If this wasn't you, just ignore this email and you won't hear from us again.") && zh.text.includes('请点击下面的链接确认订阅亚洲探戈地图的新活动通知：') && zh.text.includes('如果不是您本人操作，请忽略这封邮件，我们不会再发邮件给您。'));
 check('html still has the confirm button and the plain link', en.html.includes('>Confirm subscription</a>') && zh.html.includes('>确认订阅</a>') && en.html.includes('href="' + link + '"') && zh.html.includes('href="' + link + '"'));
 check('note is not a paragraph above the button', en.html.indexOf(enNote) > en.html.indexOf('>Confirm subscription</a>') && zh.html.indexOf(zhNote) > zh.html.indexOf('>确认订阅</a>'));
+
+const previewOrigin = 'https://tango-subscribe-preview.5mjqgtq8zh.workers.dev';
+async function opt(env) {
+  return worker.fetch(new Request('https://api.tangoweekend.org/subscribe', { method: 'OPTIONS', headers: { Origin: previewOrigin } }), env);
+}
+check('preview origin is not a production CORS origin', !(await opt({})).headers.get('Access-Control-Allow-Origin'));
+check('PREVIEW_ORIGINS is ignored unless PREVIEW=1', !(await opt({ PREVIEW_ORIGINS: previewOrigin })).headers.get('Access-Control-Allow-Origin'));
+check('preview origin is a CORS origin when PREVIEW=1', (await opt({ PREVIEW: '1', PREVIEW_ORIGINS: previewOrigin })).headers.get('Access-Control-Allow-Origin') === previewOrigin);
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('confirm letter ok');

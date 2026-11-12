@@ -70,10 +70,12 @@ letter and does not send.
 npx wrangler deploy --config wrangler.preview.toml
 ```
 
-The command prints a `*.workers.dev` URL. Put that origin in `API_BASE` in
-`wrangler.preview.toml` (no trailing slash) and deploy once more so the
-confirmation link in the letter is `https://<that-host>/social/going/confirm?...`
-with no shortener and no redirect. Do not set a route on `api.tangoweekend.org`.
+`API_BASE` and `PREVIEW_ORIGINS` are already
+`https://tango-subscribe-preview.5mjqgtq8zh.workers.dev`. `PREVIEW_ORIGINS` is
+read only when `PREVIEW=1`. It allows that origin for CORS and for the
+return URL, and the confirm finish page links 「去看亚洲探戈地图」 / “Go to Asia
+Tango Map” back to that site. Production (`PREVIEW` unset) ignores the
+variable. Do not set a route on `api.tangoweekend.org`.
 
 To actually deliver one letter to the allowlisted address, set
 `SOCIAL_MAIL` to the provider you use and the matching secret, then deploy
@@ -83,8 +85,8 @@ Leave the send flags unset.
 ## 4. Point a Pages preview at that API
 
 Production pages (`tangoweekend.org` and `www.tangoweekend.org`) ignore `?api=`
-and keep calling `https://api.tangoweekend.org`. On a `*.pages.dev` preview,
-`localhost`, or `127.0.0.1` only:
+and keep calling `https://api.tangoweekend.org`. On any other host
+(`*.pages.dev`, `*.workers.dev`, `localhost`, or `127.0.0.1`):
 
 ```text
 https://<branch>.my1-7p3.pages.dev/zh/asia/?api=https://tango-subscribe-preview.<account>.workers.dev

@@ -40,7 +40,11 @@ const T = {
   }
 };
 
-const cors = (o, env) => (ORIGINS.includes(o) || String(env.EXTRA_ORIGINS || '').split(',').includes(o) || (env.ALLOW_LOCAL === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)))
+function previewOrigins(env) {
+  if (!env || env.PREVIEW !== '1') return [];
+  return String(env.PREVIEW_ORIGINS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
+}
+const cors = (o, env) => (ORIGINS.includes(o) || String(env.EXTRA_ORIGINS || '').split(',').includes(o) || previewOrigins(env).includes(String(o || '').replace(/\/$/, '')) || (env.ALLOW_LOCAL === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)))
   ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' } : {};
 const json = (d, s, h) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
 const nowIso = () => new Date().toISOString();
@@ -50,13 +54,19 @@ const b64 = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
 async function sha(s, n = 32) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].slice(0, n).map(b => b.toString(16).padStart(2, '0')).join(''); }
 const shTime = () => new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + '（北京时间）';
 
-function page(lang, msg, status = 200) {
+function previewHome(env, lang) {
+  const origin = previewOrigins(env)[0];
+  if (!origin) return '';
+  return origin + (lang === 'zh' ? '/zh/asia/' : '/asia/');
+}
+function page(lang, msg, status = 200, env) {
   const t = T[lang] || T.en;
   const done = status === 200 && msg === t.okPage;
   const label = done ? (t.okBtn || t.back) : t.back;
+  const home = (done && previewHome(env, lang)) || t.home;
   const link = done
-    ? `<p><a href="${t.home}" style="display:inline-block;margin-top:8px;background:#0e6e78;color:#f6e3b4;border-radius:999px;padding:12px 22px;font-weight:700;text-decoration:none">${esc(label)}</a></p>`
-    : `<p><a href="${t.home}" style="color:#0e6e78">${esc(label)}</a></p>`;
+    ? `<p><a href="${home}" style="display:inline-block;margin-top:8px;background:#0e6e78;color:#f6e3b4;border-radius:999px;padding:12px 22px;font-weight:700;text-decoration:none">${esc(label)}</a></p>`
+    : `<p><a href="${home}" style="color:#0e6e78">${esc(label)}</a></p>`;
   return new Response(`<!doctype html><html lang="${lang === 'zh' ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(msg)}</title>
 <body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
 <p style="font-size:1.15rem;line-height:1.5;color:#0a4f57;font-weight:700">${esc(msg)}</p>${link}<p style="font-size:.8rem;color:#7a6255">${esc(t.foot)}</p></div></body></html>`,
@@ -193,7 +203,7 @@ async function confirm(url, env) {
   const typeZh = r.types.split(',').map(x => x === 'featured' ? '特色活动' : '常规活动').join('、');
   await notifyOwner(env, `${r.is_test ? '[测试] ' : ''}新订阅已确认 #${r.id} ${r.email}`,
     [`亚洲探戈地图 新订阅（已确认）#${r.id}`, '', `名字：${r.name || '（未填）'}`, `邮箱：${r.email}`, `微信号：${r.wechat || '（未填）'}`, `活动类型：${typeZh}`, `城市：${r.cities === 'all' ? '全部城市' : r.cities}`, `确认时间：${shTime()}`, `页面语言：${lang === 'zh' ? '中文' : 'English'}`].join('\n'));
-  return page(lang, t.okPage);
+  return page(lang, t.okPage, 200, env);
 }
 
 async function unsubscribe(url, env) {

@@ -180,5 +180,19 @@ const mine2 = await get('/going/mine', { Authorization: 'Bearer ' + token2 });
 check('restored device sees the same intents', mine2.email === 'ana@example.com' && (mine2.items || []).some(i => i.id === 'W1' && i.intent === 'going'));
 check('restore did not email an organizer', !mails.slice(mailAt).some(m => m.includes('cc=selecttango@gmail.com')));
 
+const previewOrigin = 'https://tango-subscribe-preview.5mjqgtq8zh.workers.dev';
+env.PREVIEW = '1';
+env.PREVIEW_ORIGINS = previewOrigin;
+const prev = await post('/profile', { ...base, email: 'prev@example.com', lang: 'zh', ret: previewOrigin + '/zh/asia/?card=W1' });
+check('preview return is accepted when PREVIEW=1', prev.confirm && prev.preview_link);
+const prevPage = await got('GET', prev.preview_link);
+const prevHtml = await prevPage.text();
+check('preview finish link stays on the preview site', prevHtml.includes(previewOrigin + '/zh/asia/') && !prevHtml.includes('href="https://tangoweekend.org/zh/asia/"'));
+const otherPreview = await post('/profile', { ...base, email: 'prev3@example.com', ret: 'https://other.workers.dev/zh/asia/' });
+check('preview allow list is exact', otherPreview.error === 'bad_return');
+delete env.PREVIEW;
+const blockedPreview = await post('/profile', { ...base, email: 'prev2@example.com', ret: previewOrigin + '/zh/asia/' });
+check('production rejects the preview return', blockedPreview.error === 'bad_return');
+
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going tests ok', { mails: mails.length, pendingBefore });

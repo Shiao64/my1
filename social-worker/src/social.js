@@ -27,11 +27,15 @@ async function turnstile(env, token, ip) {
   return !!(await r.json()).success;
 }
 const he = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-export function safeNext(raw) {
+export function previewOrigins(env) {
+  if (!env || env.PREVIEW !== '1') return [];
+  return String(env.PREVIEW_ORIGINS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
+}
+export function safeNext(raw, env) {
   let u; try { u = new URL(String(raw || '')); } catch { return ''; }
   const host = u.hostname.toLowerCase();
   const local = host === 'localhost' || host === '127.0.0.1';
-  const ok = host === 'tangoweekend.org' || host === 'www.tangoweekend.org' || host.endsWith('.my1-7p3.pages.dev') || local;
+  const ok = host === 'tangoweekend.org' || host === 'www.tangoweekend.org' || host.endsWith('.my1-7p3.pages.dev') || local || previewOrigins(env).includes(u.origin);
   if (!ok) return '';
   if (u.protocol !== 'https:' && !(u.protocol === 'http:' && local)) return '';
   if ((u.pathname + u.search).length > 800) return '';
@@ -304,7 +308,7 @@ export async function social(req, env, url, json) {
     const role = ROLES.includes(b.role) ? b.role : ''; if (!role) return json({ error: 'need_role' }, 400);
     if (!name) return json({ error: 'need_name' }, 400); if (!EMAIL_RE.test(email)) return json({ error: 'bad_email' }, 400);
     const magic = b.magic === 1 || b.magic === true || b.magic === '1';
-    const ret = magic ? safeNext(b.ret) : '';
+    const ret = magic ? safeNext(b.ret, env) : '';
     if (magic && !ret) return json({ error: 'bad_return' }, 400);
     if (!(await turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
     const recent = await env.SDB.prepare('SELECT COUNT(*) n FROM users WHERE ip_hash=? AND code_sent_at>?').bind(iph, new Date(Date.now() - 3600e3).toISOString()).first('n');
