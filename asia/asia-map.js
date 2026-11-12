@@ -793,9 +793,8 @@
         '.atm-c1{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;margin:0;border:0;background:transparent;color:#fff;cursor:pointer;-webkit-tap-highlight-color:transparent;flex:none}.atm-c1 svg{display:block}.atm-c1:active{opacity:.6}';
       document.head.appendChild(cs);
       function mk(cls, label, svg, fn){ var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-c1 ' + cls; b.setAttribute('aria-label', label); b.innerHTML = svg; b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); fn(); }); return b; }
-      function fromList(){ try { var r = new URL(document.referrer); return r.origin === location.origin && r.pathname === list && !/[?&]card=/.test(r.search) && history.length > 1; } catch(e){ return false; } }
       var back = mk('atm-c1-back', zhP ? '返回' : 'Back', '<svg width="14" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-        function(){ if (fromList()) history.back(); else location.assign(list + '#v-' + encodeURIComponent(cid)); });
+        function(){ if (window.atmP7Back) window.atmP7Back(cid); else location.replace(list); });
       var srch = mk('atm-c1-search', zhP ? '搜索' : 'Search', '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.8" fill="none" stroke="#FFFFFF" stroke-width="2.6"/><path d="M15.6 15.6L21 21" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"/></svg>',
         function(){ location.assign(list + '?search=1'); });
       /* v11.7: single-card top bar = beige T-style title row (dark ‹ + event name, one line), replaces the teal bar */
