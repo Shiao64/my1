@@ -63,7 +63,8 @@ Paths are the same on `/asia/` and `/zh/asia/` unless a row says otherwise.
 
 | Now | Id | What the person sees | How they get there | Back and close |
 |---|---|---|---|---|
-| Home | `#atm-home` with an empty hash. `data-view=home`. Class `atm-h-home` | Favorites row, featured strip, city tiles | Open `/asia/` or `/zh/asia/` with none of `card`, `mode`, `city`, `via`, `date`, `q`, `type` | The site title stays the header. `?from=home` is only the marker the site root adds. The map does not read it |
+| Site root (proposed T0) | `https://tangoweekend.org/` | No map yet. A language bounce | A visit to the host root | See T0 below. Today: `asiaMapLang` wins, otherwise a Chinese browser language goes to `/zh/asia/?from=home`, and anything else goes to `/asia/?from=home`. `?lang=zh` forces Chinese. A hash, or `?full=1`, skips this and opens the Beijing event page |
+| Home (proposed P1) | `#atm-home` with an empty hash. `data-view=home`. Class `atm-h-home` | Three blocks, top to bottom: the favorites row 已收藏 N 个活动 / N saved events; the featured strip 特色活动 / Featured events; the city tiles 每周活动 / Weekly events | Open `/asia/` or `/zh/asia/` with none of `card`, `mode`, `city`, `via`, `date`, `q`, `type`, after T0 and the P15 gate | The site title stays the header. `?from=home` is only the marker the site root adds. The map does not read it |
 | Featured list | `#h-feat`. Same home root, `data-view=feat`, class `atm-h-inner` | Featured events | Title or › on the home featured block | ‹ is not “always home”. If this hash was opened from home, Back uses `history.back()`. Otherwise it `pushState`s the bare path and re-renders home. Browser Back follows that history |
 | Weekly cities | `#h-reg`. `data-view=reg` | City grid for weekly events | › on the home city block | Same ‹ as the featured list |
 | One city | `#h-city-<City>`. `data-view=city` | That city’s week | A city tile or chip | Same ‹. Switching city stays on this hash |
@@ -78,7 +79,6 @@ Paths are the same on `/asia/` and `/zh/asia/` unless a row says otherwise.
 | Legacy favorites row | `.atm-favbar`, `.atm-favgrid` | 我的收藏 above the filter list | Only while the home is not showing (`html.atm-h-on` hides it) and there is at least one saved id | The bar collapses. The flag is `atm_fav_collapsed_v1`. A card opens `?card=` |
 | Event article | `/event/<slug>/` and `/event/<slug>/zh/` | The long event page | 活动详情 / Event details, or a detail URL that already has a `#anchor` | `.atm-dback`: if the referrer is the map (or any same-site page when the bar has `data-back`) and there is history, `history.back()`. Otherwise the map with `?card=<from>`. `from` comes from the query, then `sessionStorage` `atm_from_` + path, then a lookup in events.json. The gold × and 返回列表 / Back to list play a short close animation and then fire that same link |
 | Organizer and DJ | `/organizer/…`, `/dj/…` | Those profile pages | Links on a card | The regular-card ‹ will not Back into them |
-| Site root | `/` | A bounce, not a map screen | A visit to the host root | `localStorage.asiaMapLang` wins. Otherwise a Chinese browser language goes to `/zh/asia/?from=home`, and anything else goes to `/asia/?from=home`. `?lang=zh` forces Chinese. A hash, or `?full=1`, skips the language choice and opens the Beijing event page |
 
 The city dropdown on the filter list (`.atm-reglist`) is a listbox on that list. It is not its own screen. Esc closes it.
 
@@ -112,13 +112,30 @@ None of these change the path, except the poster viewer.
 
 Logged out, the home favorites row still reads `localStorage.atm_fav_v1`. Unfavorite on this browser only updates that list. The intent sheet can still open. A verified save waits until the letter is opened. 订阅 and 我的资料 are the same sheet: without a session it is the email and last-4 form.
 
+### T0, the entry
+
+T0 is the site root, `https://tangoweekend.org/`, and it sits before P1. It is not a map screen. Its only job is to choose a language and hand the person to the map.
+
+The language choice uses three inputs. On the live root, after the hash and `?full=1` bypass, the order is:
+
+1. `?lang=zh` forces Chinese. No other `?lang=` value is read.
+2. `localStorage.asiaMapLang` set to `zh`, or any saved value other than `en` together with a Chinese browser language, goes to Chinese.
+3. Otherwise the page is English. A saved `en` stays English even when the browser is Chinese.
+
+Chinese lands on `/zh/asia/`. English lands on `/asia/`.
+
+Target rule: T0 always runs language, then P15 once for this tab, then P1. A deep link does not sit through the home. `?card=`, a confirmation letter, and a 我的订阅 link go straight to their screen (P7, P11, or P10), and P15 is still shown once on that tab if this tab has not dismissed it. P15 stays a per-tab gate (`sessionStorage`). A reload of the same tab asks again. A new tab asks again.
+
+Today’s oddity: a hash on the root, or `?full=1`, skips the language choice and the beta notice and opens the Beijing event page. That is not the target. T0 does not use the hash or `?full=1` as a shortcut around the gate.
+
 ### Proposed numbers
 
-Count from P1 in the order a person moves: home, lists, card, the long article, favorites, profile, then the sheets.
+T0 is the root. From P1 the order is the path a person walks: home, lists, card, the long article, favorites, profile, then the sheets.
 
 | New | Screen | Replaces |
 |---|---|---|
-| P1 | Home | The unnamed home hash |
+| T0 | Entry at `tangoweekend.org` | The site root bounce. Language, then P15, then P1 |
+| P1 | Home. Three blocks: 已收藏 N 个活动, the featured strip, the city tiles | The unnamed home hash |
 | P2 | Featured list | `#h-feat`, and the P2 bar while this list is up |
 | P3 | Weekly cities | `#h-reg` |
 | P4 | One city’s week | `#h-city-<City>`. The old comment “P4” is retired |
@@ -141,11 +158,50 @@ Count from P1 in the order a person moves: home, lists, card, the long article, 
 
 S0 is not reused. It was a second name for P7’s back control.
 
+### Jump map
+
+Chinese labels are the screen names. The arrows are the target jumps, not a trace of every legacy query.
+
+```mermaid
+flowchart TD
+  T0["T0 入口"] --> lang{"语言"}
+  lang --> P15["P15 测试说明"]
+  P15 --> P1["P1 首页"]
+  P1 -->|"已收藏 N 个活动 标题"| P9["P9 我的收藏"]
+  P1 -->|"收藏海报"| P7["P7 活动卡"]
+  P1 -->|"特色活动 标题"| P2["P2 特色活动"]
+  P1 -->|"特色海报"| P7
+  P1 -->|"城市块 标题"| P3["P3 每周城市"]
+  P1 -->|"城市图"| P4["P4 一座城市"]
+  P3 --> P4
+  P2 --> P7
+  P4 --> P7
+  P9 --> P7
+  P7 -->|"活动详情"| P8["P8 活动长页"]
+  P7 -->|"星 未收藏"| P11["P11 活动意向"]
+  P7 -->|"星 已收藏"| P12["P12 取消收藏"]
+```
+
+Back and close, on the same screens:
+
+```mermaid
+flowchart LR
+  P2["P2 特色活动"] -.-> P1["P1 首页"]
+  P3["P3 每周城市"] -.-> P1
+  P4["P4 一座城市"] -.-> P1
+  P5["P5 搜索"] -.-> P1
+  P7["P7 活动卡"] -.-> opener["打开它的页面，保留滚动"]
+  P8["P8 活动长页"] -.-> P7
+  sheets["P9 到 P14、P16、P17"] -.-> one["关闭时弹出一条历史"]
+```
+
+P5’s forward path is the search hash. It is not one of the three blocks on P1. Its back target is still P1. A sheet’s close pops the one history entry it pushed, which returns to the screen under it. P15 is not in that sheet list: only its button dismisses it.
+
 ### Navigation rules
 
 These are the target rules. Where today’s code differs, the next section says so.
 
-1. P1 is the empty hash on the language map. P2–P5 are hashes on that same document. P6 and P7 are query URLs, because those links are already shared. P8 is its own document.
+1. T0 chooses the language, then P15 once per tab, then P1. P1 is the empty hash on the language map. P2–P5 are hashes on that same document. P6 and P7 are query URLs, because those links are already shared. P8 is its own document. A deep link (`?card=`, a confirmation letter, 我的订阅) skips the home and opens its own screen, with P15 shown once on that tab if it has not been dismissed.
 2. ‹ and the browser Back move one step. P2, P3, P4, and P5 return to P1. P7 returns to the screen that opened it (P1, P2, P4, P6, or P9), with that screen’s scroll. P8 returns to the P7 card it came from.
 3. A sheet that covers the page owns one history entry: P9, P10, P11, P12, P13, P14, P16, P17. ×, Esc, and the backdrop pop that entry. They do not add a second one. P15 is the exception: it is a gate, and only its button dismisses it.
 4. Language switch keeps the screen. P4 stays on the same city. P7 stays on the same `card`. P6 keeps `mode`, `city`, and the dates. The other language is only `/asia/` versus `/zh/asia/`.
@@ -170,4 +226,4 @@ These are the target rules. Where today’s code differs, the next section says 
 11. The bad-link sentence sends a logged-out person to 我的资料 to mint a new link. 我的资料 needs a session.
 12. Posters have two viewers. The list viewer is in history. The regular-card viewer is not. Featured posters do not open a viewer at all.
 13. Shared `?mode=` links skip the home and open the filter list. The missing-card link ★ 特色活动 uses that list too, not the home featured list.
-14. The site root treats a hash or `?full=1` as “open the Beijing event page” and skips the language gate. Every other entry uses `asiaMapLang` or the browser language.
+14. T0 does not always reach P1. A hash or `?full=1` on the site root skips the language choice and the P15 gate and opens the Beijing event page. Every other entry uses `asiaMapLang`, `?lang=zh`, or the browser language. The target is language, then P15 once per tab, then P1, with deep links going straight to their screen and still showing P15 once.
