@@ -19,13 +19,13 @@ const en = read('asia/index.html');
 
 const thumb = home.slice(home.indexOf('function evThumb'), home.indexOf('function favBlock'));
 check('favorite and featured thumbs are same-tab card links', thumb.includes("'<a class=\"ah-pt\" href=\"' + esc(cardPageHref(e))") && thumb.includes('data-card') && thumb.includes("img(e, '', eager)") && !thumb.includes('target=') && !thumb.includes('_blank') && home.includes("function cardPageHref(e) { return location.pathname + '?card=' + encodeURIComponent(e.id); }"));
-check('both home strips use that thumb', home.includes("list.slice(0, 6).map(function (e, i) { return evThumb(e, i < 2); })") && home.includes("FEAT.filter(function (e) { return e.poster; }).slice(0, 6).map(function (e, i) { return evThumb(e, i < 2); })"));
+check('both home strips use that thumb', home.includes("list.map(function (e, i) { return evThumb(e, i < 2); })") && home.includes("FEAT.filter(function (e) { return e.poster; }).map(function (e, i) { return evThumb(e, i < 2); })") && home.includes('function fitStrips') && !home.includes('slice(0, 6)'));
 check('poster click is not handled as the section button', home.indexOf("e.target.closest('a.ah-pt')") < home.indexOf("e.target.closest('button')") && home.includes('a.ah-pt')) ;
 check('favorite title and chevron still open the saved list', home.includes('data-fav="1"') && home.includes("if (b.hasAttribute('data-fav')) { openFav(); return; }"));
 check('featured title and chevron still open the featured list', home.includes('data-go="#h-feat"'));
 check('city tiles stay buttons into the city list', home.includes('class="ah-ct" data-city="') && home.includes("go('#h-city-' + encodeURIComponent(b.getAttribute('data-city')))"));
 check('list cards still use openHref', home.includes('function openHref(e)') && home.includes("'<a class=\"ah-card'"));
-check('home cache is h146 only', zh.includes('atm-home.js?v=h146') && en.includes('atm-home.js?v=h146') && !zh.includes('atm-home.js?v=h145') && !en.includes('atm-home.js?v=h145'));
+check('home cache is h147 only', zh.includes('atm-home.js?v=h147') && en.includes('atm-home.js?v=h147') && !zh.includes('atm-home.js?v=h146') && !en.includes('atm-home.js?v=h145'));
 check('other caches stay put', zh.includes('atm-i18n.js?v=i1') && zh.includes('asia-map.js?v=r14') && zh.includes('cardB.js?v=cb146') && zh.includes('atm-critical.css?v=ac7') && zh.includes('atm-star.js?v=st31') && en.includes('atm-star.js?v=st31') && zh.includes('asia-subscribe.js?v=sub73') && en.includes('asia-subscribe.js?v=sub73'));
 check('candidate label is 11.9.26 and unpublished', zh.includes('data-site-release="11.9.26"') && en.includes('data-site-release="11.9.26"') && zh.includes('data-site-release-date=""') && en.includes('data-site-release-date=""'));
 check('featured P10 poster stays inert', map.includes("cv.closest('#atm-single') && c0.getAttribute('data-kind') === 'event' && c0.getAttribute('data-oneoff') !== '1'") && map.includes('poster tap does nothing'));
