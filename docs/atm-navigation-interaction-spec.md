@@ -162,27 +162,37 @@ S0 is not reused. It was a second name for P7’s back control.
 
 Chinese labels are the screen names. The arrows are the target jumps, not a trace of every legacy query.
 
+![ATM 导航跳转图（上下排）](images/atm-nav-flow.png)
+
+返回规则见下方「返回规则」一节：每页返回上一层，最后回到 P1。
+
 ```mermaid
-flowchart TD
-  T0["T0 入口"] --> lang{"语言"}
-  lang --> P15["P15 测试说明"]
-  P15 --> P1["P1 首页"]
-  P1 -->|"已收藏 N 个活动 标题"| P9["P9 我的收藏"]
-  P1 -->|"收藏海报"| P7["P7 活动卡"]
-  P1 -->|"特色活动 标题"| P2["P2 特色活动"]
-  P1 -->|"特色海报"| P7
-  P1 -->|"城市块 标题"| P3["P3 每周城市"]
-  P1 -->|"城市图"| P4["P4 一座城市"]
-  P3 --> P4
+flowchart TB
+  T0["T0 入口<br/>tangoweekend.org"] --> L{"语言判断"}
+  L --> N["P15 测试版说明<br/>（每个分页一次）"]
+  N --> P1["P1 首页<br/>收藏行 · 特色横条 · 城市方块"]
+  P1 -->|收藏行标题| P9["P9 收藏"]
+  P1 -->|特色横条标题| P2["P2 特色列表"]
+  P1 -->|城市方块标题| P3["P3 城市格"]
+  P3 -->|点城市| P4["P4 单一城市的一周"]
+  P1 -->|点某个城市| P4
+  P1 -->|收藏行的卡 / 特色海报| P7
+  P9 --> P7["P7 活动卡片"]
   P2 --> P7
   P4 --> P7
-  P9 --> P7
-  P7 -->|"活动详情"| P8["P8 活动长页"]
-  P7 -->|"星 未收藏"| P11["P11 活动意向"]
-  P7 -->|"星 已收藏"| P12["P12 取消收藏"]
+  P7 -->|活动详情| P8["P8 活动长文"]
+  P7 -->|点星星（未收藏）| P11["P11 要参加 / 感兴趣"]
+  P7 -->|点星星（已收藏）| P12["P12 取消收藏确认"]
+  M["信里的链接<br/>确认信 · 我的订阅"] -.->|直接到| P7
+  classDef entry fill:#fde68a,stroke:#b45309;
+  classDef home fill:#bfdbfe,stroke:#1d4ed8;
+  classDef sheet fill:#e5e7eb,stroke:#6b7280;
+  class T0,L,N entry; class P1 home; class P11,P12 sheet;
 ```
 
-Back and close, on the same screens:
+### 返回规则
+
+Back and close, on the same screens. Each page returns one level, and the last step is P1.
 
 ```mermaid
 flowchart LR
