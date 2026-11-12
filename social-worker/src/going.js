@@ -1,7 +1,10 @@
 // Star intent. Profile verify is separate from organizer mail.
 // A menu profile confirm never emails an organizer.
-// Everyone else only saves. A single Going/Interested letter is sent only when
-// GOING_TEST_SEND=on and GOING_TEST_DANCER is this visitor. Both unset means no letter.
+// A single Going/Interested letter is sent to the organizer only when
+// GOING_TEST_SEND=on and GOING_TEST_DANCER is this visitor.
+// While GOING_NOTICE_SEND is not on, a non-test dancer's letter can be copied
+// only to GOING_TEST_INBOX. That copy is not sent to the organizer. If the var
+// is unset, that dancer only saves. The copy is stored as test_redirected.
 // That letter is not the digest and does not turn on GOING_DIGEST_SEND or GOING_NOTICE_SEND.
 // GOING_DIGEST_SEND stays off and no live cron calls the digest, so the summary does not send.
 // Stats drafts are written for review. This module never sends them.
@@ -112,6 +115,23 @@ export function testLetterOn(env, email, kit) {
   const who = pickEmail(email, kit.EMAIL_RE);
   if (!allow || !who) return false;
   return sameText(allow, who);
+}
+function deliveredMail(status) {
+  return status === 'sent' || status === 'test_redirected';
+}
+// Test-inbox copy. Off unless GOING_NOTICE_SEND is not on and GOING_TEST_INBOX
+// is an address. Never the test dancer, and never that dancer's own address.
+export function testInboxOf(env, email, kit) {
+  if (!env || !kit || env.GOING_NOTICE_SEND === 'on' || testLetterOn(env, email, kit)) return '';
+  const inbox = pickEmail(env.GOING_TEST_INBOX, kit.EMAIL_RE);
+  const who = pickEmail(email, kit.EMAIL_RE);
+  if (!inbox || !who || sameText(inbox, who)) return '';
+  return inbox;
+}
+function redirectTarget(env, kit, email, org) {
+  const inbox = testInboxOf(env, email, kit);
+  if (!inbox || !org || sameText(inbox, org)) return '';
+  return inbox;
 }
 function letterCc(to, dancer) {
   const out = [];
@@ -718,6 +738,33 @@ function enBlocks(orgName, dancer, title, when, going, transport) {
 function blocksHtml(blocks, esc) {
   return blocks.map(block => '<p style="margin:0 0 16px;line-height:1.55">' + String(block).split('\n').map(line => esc(line)).join('<br>') + '</p>').join('');
 }
+function maskEmail(email) {
+  const raw = String(email || '');
+  const at = raw.indexOf('@');
+  if (at < 1) return '';
+  return raw.slice(0, Math.min(2, at)) + '***@' + raw.slice(at + 1);
+}
+function orgEmailOf(raw, kit) {
+  if (raw && typeof raw === 'object') return usableEmail(raw.email || raw.mail, kit) || usableEmail(raw, kit);
+  return usableEmail(raw, kit);
+}
+function redirectBanner(card, env, kit, orgEmail) {
+  const dir = orgDirectory(env);
+  const codes = (Array.isArray(dir.links[card && card.id]) ? dir.links[card.id] : []).filter(c => /^O\d+$/.test(c));
+  let code = '';
+  for (const c of codes) {
+    const email = orgEmailOf(dir.orgs[c], kit);
+    if (email && orgEmail && sameText(email, orgEmail)) { code = c; break; }
+  }
+  const profile = letterProfile(card, env, kit);
+  const name = profile.zhName || profile.enName || '';
+  const masked = maskEmail(orgEmail);
+  const label = [code, name].filter(Boolean).join(' ');
+  const zhWho = label && masked ? label + '（' + masked + '）' : (label || masked || '该主办方');
+  const enWho = label && masked ? label + ' (' + masked + ')' : (label || masked || 'the organizer');
+  return '「[测试]」这封信没有发给主办方。真正的收件人会是主办方 ' + zhWho + '。\n'
+    + '[TEST] This message was not sent to the organizer. The real recipient would have been organizer ' + enWho + '.';
+}
 // Two complete letters. Chinese is first for mainland China, Hong Kong, Macau,
 // and Taiwan, and when the organizer directory marks that organizer lang "zh".
 export function buildIntentLetter(env, kit, card, person, dest) {
@@ -734,10 +781,15 @@ export function buildIntentLetter(env, kit, card, person, dest) {
   const esc = typeof kit.he === 'function' ? kit.he : (s => String(s == null ? '' : s));
   let text = blocks.join('\n\n');
   let html = `<!doctype html><html lang="${zhFirst ? 'zh-CN' : 'en'}"><head><meta charset="utf-8"></head><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:560px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:24px">${blocksHtml(blocks, esc)}</div></body></html>`;
-  const subject = (zhFirst
+  let subject = (zhFirst
     ? (going ? 'ATM 网站 · 活动参加通知' : 'ATM 网站 · 活动兴趣通知')
     : (going ? 'ATM Website · Event Attendance Notice' : 'ATM Website · Event Interest Notice')).slice(0, 180);
-  if (dest && dest.intended) {
+  if (dest && dest.redirect) {
+    const note = redirectBanner(card, env, kit, dest.organizer);
+    text = note + '\n\n' + text;
+    html = html.replace(blocksHtml(blocks, esc), blocksHtml([note].concat(blocks), esc));
+    subject = ('「[测试]」[TEST] ' + subject).slice(0, 180);
+  } else if (dest && dest.intended) {
     const note = `[test] Intended organizer: ${dest.intended}\n【测试】原收件主办方：${dest.intended}`;
     text = note + '\n\n' + text;
     html = html.replace(blocksHtml(blocks, esc), blocksHtml([note].concat(blocks), esc));
@@ -771,14 +823,21 @@ async function sendDigest(env, kit, card, rows, period) {
   await kit.deliver(env, dest.to, subject, text, html, undefined, { cc, replyTo, fromName: '探戈助理' });
   return { ok: true };
 }
-async function sendIntentLetter(env, kit, card, person) {
+async function sendIntentLetter(env, kit, card, person, redirectTo) {
   const org = pickEmail(card.email, kit.EMAIL_RE);
   if (!org) return { error: 'no_organizer' };
   const dancer = pickEmail(person.email, kit.EMAIL_RE);
+  const who = { ...person, email: dancer || person.email };
+  if (redirectTo) {
+    if (sameText(redirectTo, org) || (dancer && sameText(redirectTo, dancer))) return { error: 'skip' };
+    const letter = buildIntentLetter(env, kit, card, who, { redirect: true, organizer: org });
+    await kit.deliver(env, redirectTo, letter.subject, letter.text, letter.html, undefined, { fromName: '探戈助理' });
+    return { ok: true };
+  }
   const dest = rewriteTo(env, org);
   const cc = dest.intended ? '' : letterCc(dest.to, dancer);
   const replyTo = dancer && dancer !== dest.to ? dancer : '';
-  const letter = buildIntentLetter(env, kit, card, { ...person, email: dancer || person.email }, dest);
+  const letter = buildIntentLetter(env, kit, card, who, dest);
   await kit.deliver(env, dest.to, letter.subject, letter.text, letter.html, undefined, { cc, replyTo, fromName: '探戈助理' });
   return { ok: true };
 }
@@ -834,6 +893,7 @@ async function materialize(env, kit, row, iph) {
   const fp = fpOf(row.intent, show, transport);
   const ts = kit.now();
   const on = testLetterOn(env, row.email, kit);
+  const copyTo = card && card.email ? redirectTarget(env, kit, row.email, pickEmail(card.email, kit.EMAIL_RE)) : '';
   if (!card || !card.email) {
     await saveIntent(env, row, show, attend, transport, 'none', null, ts);
     await rememberFav(env, row.email, row.card_id, ts);
@@ -847,30 +907,32 @@ async function materialize(env, kit, row, iph) {
     await rememberFav(env, row.email, row.card_id, ts);
     return { ok: true, mailed: false, mail: 'withheld', notice: 'off', date: '' };
   }
-  if (!on) {
-    const sameFacts = !!(prev && prev.status === 'active' && prevFp === fp && (prev.mail_status === 'sent' || prev.mail_status === 'queued'));
+  if (!on && !copyTo) {
+    const sameFacts = !!(prev && prev.status === 'active' && prevFp === fp && (deliveredMail(prev.mail_status) || prev.mail_status === 'queued'));
     if (sameFacts) {
       await env.SDB.prepare('UPDATE going_intents SET notify=?,updated_at=? WHERE email=? AND card_id=? AND anchor=?').bind(row.notify ? 1 : 0, ts, row.email, row.card_id, show).run();
       await rememberFav(env, row.email, row.card_id, ts);
       return { ok: true, mailed: false, mail: 'unchanged', notice: 'off', date: attend };
     }
-    const alreadySent = !!(prev && prev.mail_fp === fp && prev.mail_status === 'sent');
-    await saveIntent(env, row, show, attend, transport, alreadySent ? 'sent' : 'queued', alreadySent ? fp : (prev && prev.mail_fp || null), ts);
+    const alreadySent = !!(prev && prev.mail_fp === fp && deliveredMail(prev.mail_status));
+    await saveIntent(env, row, show, attend, transport, alreadySent ? prev.mail_status : 'queued', alreadySent ? fp : (prev && prev.mail_fp || null), ts);
     await rememberFav(env, row.email, row.card_id, ts);
     return { ok: true, mailed: false, mail: alreadySent ? 'unchanged' : 'queued', notice: 'off', date: attend };
   }
-  if (prev && prev.status === 'active' && prev.mail_status === 'sent' && prev.mail_fp === fp) {
+  if (prev && prev.status === 'active' && deliveredMail(prev.mail_status) && prev.mail_fp === fp) {
     await env.SDB.prepare('UPDATE going_intents SET notify=?,updated_at=? WHERE email=? AND card_id=? AND anchor=?').bind(row.notify ? 1 : 0, ts, row.email, row.card_id, show).run();
     await rememberFav(env, row.email, row.card_id, ts);
-    return { ok: true, mailed: false, mail: 'unchanged', notice: 'unchanged', date: attend };
+    return { ok: true, mailed: false, mail: 'unchanged', notice: on ? 'unchanged' : 'off', date: attend };
   }
-  const keptFp = prev && prev.mail_status === 'sent' ? prev.mail_fp : null;
+  const keptFp = prev && deliveredMail(prev.mail_status) ? prev.mail_fp : null;
   await saveIntent(env, row, show, attend, transport, 'pending', keptFp, ts);
   await rememberFav(env, row.email, row.card_id, ts);
-  const wait = await ipLetterWait(env, iph || '');
-  if (wait > 0) {
-    await saveIntent(env, row, show, attend, transport, 'failed', keptFp, ts);
-    return { ok: true, mailed: false, mail: 'failed', notice: 'failed', wait, date: attend };
+  if (!copyTo) {
+    const wait = await ipLetterWait(env, iph || '');
+    if (wait > 0) {
+      await saveIntent(env, row, show, attend, transport, 'failed', keptFp, ts);
+      return { ok: true, mailed: false, mail: 'failed', notice: 'failed', wait, date: attend };
+    }
   }
   const currentFp = async () => {
     const cur = await env.SDB.prepare('SELECT intent,anchor,occurrence_date,transport,status FROM going_intents WHERE email=? AND card_id=? AND anchor=?').bind(row.email, row.card_id, show).first();
@@ -879,19 +941,24 @@ async function materialize(env, kit, row, iph) {
   };
   if (await currentFp() !== fp) return { ok: true, mailed: false, mail: 'saved', notice: 'off', date: attend };
   try {
-    const sent = await sendIntentLetter(env, kit, card, { email: row.email, name: row.name, city: row.city, role: row.role, intent: row.intent, show, transport });
+    const sent = await sendIntentLetter(env, kit, card, { email: row.email, name: row.name, city: row.city, role: row.role, intent: row.intent, show, transport }, copyTo);
     if (sent && sent.error === 'no_organizer') {
       await saveIntent(env, row, show, attend, transport, 'none', keptFp, ts);
-      return { ok: true, mailed: false, mail: 'no_organizer', notice: 'missing', date: attend };
+      return { ok: true, mailed: false, mail: 'no_organizer', notice: on ? 'missing' : 'off', date: attend };
+    }
+    if (sent && sent.error) {
+      await saveIntent(env, row, show, attend, transport, 'queued', keptFp, ts);
+      return { ok: true, mailed: false, mail: 'queued', notice: 'off', date: attend };
     }
   } catch (e) {
-    await saveIntent(env, row, show, attend, transport, 'failed', keptFp, ts);
-    return { ok: true, mailed: false, mail: 'failed', notice: 'failed', date: attend };
+    await saveIntent(env, row, show, attend, transport, copyTo ? 'queued' : 'failed', keptFp, ts);
+    return { ok: true, mailed: false, mail: copyTo ? 'queued' : 'failed', notice: copyTo ? 'off' : 'failed', date: attend };
   }
-  if (await currentFp() !== fp) return { ok: true, mailed: true, mail: 'sent', notice: 'sent', date: attend };
-  await env.SDB.prepare("UPDATE going_intents SET mail_status='sent',mail_fp=?,sent_at=?,updated_at=? WHERE email=? AND card_id=? AND anchor=?").bind(fp, ts, ts, row.email, row.card_id, show).run();
+  if (await currentFp() !== fp) return { ok: true, mailed: !copyTo, mail: copyTo ? 'saved' : 'sent', notice: copyTo ? 'off' : 'sent', date: attend };
+  const mailStatus = copyTo ? 'test_redirected' : 'sent';
+  await env.SDB.prepare('UPDATE going_intents SET mail_status=?,mail_fp=?,sent_at=?,updated_at=? WHERE email=? AND card_id=? AND anchor=?').bind(mailStatus, fp, ts, ts, row.email, row.card_id, show).run();
   await env.SDB.prepare('INSERT INTO going_sends(email,card_id,ip_hash,created_at) VALUES(?,?,?,?)').bind(row.email, row.card_id, iph || '', ts).run();
-  return { ok: true, mailed: true, mail: 'sent', notice: 'sent', date: attend };
+  return { ok: true, mailed: !copyTo, mail: mailStatus, notice: copyTo ? 'off' : 'sent', date: attend };
 }
 async function saveIntent(env, row, anchor, attend, transport, mailStatus, mailFp, ts) {
   await env.SDB.prepare(`INSERT INTO going_intents(email,card_id,anchor,intent,occurrence_date,attend_date,transport,notify,status,mail_status,mail_fp,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?, 'active',?,?,?,?)
@@ -1556,6 +1623,7 @@ async function claimDigest(env, key, cardId, kind, period, nowIso, staleIso) {
     .bind(nowIso, key, staleIso).run();
   return changesOf(r) === 1;
 }
+// mail_status test_redirected is not queued, so a pre-launch copy is not scanned later.
 async function queuedRows(env, cardId) {
   return (await env.SDB.prepare(`SELECT i.email email,i.card_id card_id,i.intent intent,i.occurrence_date occurrence_date,i.anchor anchor,i.transport transport,i.mail_status mail_status,i.updated_at updated_at,u.name name,u.city city,u.role role,u.verified_at verified_at
     FROM going_intents i JOIN users u ON u.email=i.email

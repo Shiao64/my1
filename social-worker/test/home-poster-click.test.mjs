@@ -27,7 +27,7 @@ check('city tiles stay buttons into the city list', home.includes('class="ah-ct"
 check('list cards still use openHref', home.includes('function openHref(e)') && home.includes("'<a class=\"ah-card'"));
 check('home cache is h146 only', zh.includes('atm-home.js?v=h146') && en.includes('atm-home.js?v=h146') && !zh.includes('atm-home.js?v=h145') && !en.includes('atm-home.js?v=h145'));
 check('other caches stay put', zh.includes('atm-i18n.js?v=i1') && zh.includes('asia-map.js?v=r14') && zh.includes('cardB.js?v=cb146') && zh.includes('atm-critical.css?v=ac7') && zh.includes('atm-star.js?v=st30') && en.includes('atm-star.js?v=st30') && zh.includes('asia-subscribe.js?v=sub72') && en.includes('asia-subscribe.js?v=sub72'));
-check('candidate label is 11.9.25 and unpublished', zh.includes('data-site-release="11.9.25"') && en.includes('data-site-release="11.9.25"') && zh.includes('data-site-release-date=""') && en.includes('data-site-release-date=""'));
+check('candidate label is 11.9.26 and unpublished', zh.includes('data-site-release="11.9.26"') && en.includes('data-site-release="11.9.26"') && zh.includes('data-site-release-date=""') && en.includes('data-site-release-date=""'));
 check('featured P10 poster stays inert', map.includes("cv.closest('#atm-single') && c0.getAttribute('data-kind') === 'event' && c0.getAttribute('data-oneoff') !== '1'") && map.includes('poster tap does nothing'));
 check('regular P10 still builds the poster viewer path', card.includes("if(li.dataset.kind==='event'&&li.dataset.oneoff!=='1') return false;") && card.includes("id='p10-pv'") && card.includes('pv.hidden=false'));
 
