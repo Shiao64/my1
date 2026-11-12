@@ -20,10 +20,10 @@ const { default: worker } = await import(pathToFileURL(path.join(dir, 'live.js')
 const fail = [];
 const check = (name, ok) => { if (!ok) fail.push(name); };
 
-async function post(pathname, origin, method = 'POST') {
+async function post(pathname, origin, method = 'POST', env = {}) {
   const headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
   if (origin !== undefined) headers.Origin = origin;
-  const res = await worker.fetch(new Request('https://api.tangoweekend.org' + pathname, { method, headers, body: method === 'POST' ? 'e=a&t=b&confirm=1' : undefined }), {}, {});
+  const res = await worker.fetch(new Request('https://api.tangoweekend.org' + pathname, { method, headers, body: method === 'POST' ? 'e=a&t=b&confirm=1' : undefined }), env, {});
   const text = await res.text();
   let body = null; try { body = JSON.parse(text); } catch { body = text; }
   return { status: res.status, body, allow: res.headers.get('Access-Control-Allow-Origin') };
@@ -71,6 +71,15 @@ for (const origin of [api, 'null', evil, undefined]) {
   check('going enter passes ' + (origin === undefined ? 'missing' : origin), enter.status === 200 && enter.body.reached === '/social/going/enter' && enter.body.error !== 'forbidden_origin');
 }
 check('pass rotate from an untrusted origin stays forbidden', (await post('/social/going/pass', evil)).status === 403 && (await post('/social/going/pass', evil)).body.error === 'forbidden_origin');
+const previewOrigin = 'https://tango-subscribe-preview.5mjqgtq8zh.workers.dev';
+check('workers.dev is not a production origin', (await post('/social/profile', previewOrigin)).status === 403 && (await post('/social/profile', previewOrigin)).body.error === 'forbidden_origin');
+check('PREVIEW_ORIGINS is ignored unless PREVIEW=1', (await post('/social/profile', previewOrigin, 'POST', { PREVIEW_ORIGINS: previewOrigin })).status === 403);
+const previewEnv = { PREVIEW: '1', PREVIEW_ORIGINS: previewOrigin };
+const previewOk = await post('/social/profile', previewOrigin, 'POST', previewEnv);
+check('preview origin is allowed when PREVIEW=1', previewOk.status === 200 && previewOk.body.reached === '/social/profile' && previewOk.allow === previewOrigin);
+check('a different workers.dev host stays forbidden in preview', (await post('/social/profile', 'https://other.workers.dev', 'POST', previewEnv)).status === 403);
+check('localhost is not a production origin', (await post('/social/profile', 'http://127.0.0.1:8787')).status === 403 && (await post('/social/profile', 'http://localhost:8787')).status === 403);
+check('localhost is allowed only when ALLOW_LOCAL=1', (await post('/social/profile', 'http://127.0.0.1:8787', 'POST', { ALLOW_LOCAL: '1' })).status === 200 && (await post('/social/profile', 'http://localhost', 'POST', { ALLOW_LOCAL: '1' })).allow === 'http://localhost');
 
 if (fail.length) { console.error('FAIL', fail.join(', ')); process.exit(1); }
 console.log('origin gate tests ok');

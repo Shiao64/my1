@@ -22,6 +22,7 @@ db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_con
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0015_going_pass.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0016_phone_bind.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0018_confirm_claim.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);`);
@@ -62,8 +63,8 @@ async function get(path, headers) {
 }
 async function confirm(link) {
   const u = new URL(link);
-  const res = await social(new Request('https://api.tangoweekend.org/social/going/confirm', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ e: u.searchParams.get('e'), t: u.searchParams.get('t'), next: ret, confirm: '1' }).toString() }), env, new URL('https://api.tangoweekend.org/social/going/confirm'), json);
-  return res.text();
+  const res = await social(new Request('https://api.tangoweekend.org/social/going/confirm' + u.search), env, new URL('https://api.tangoweekend.org/social/going/confirm' + u.search), json);
+  return { html: await res.text(), cookie: res.headers.get('Set-Cookie') || '' };
 }
 const star = fs.readFileSync(path.join(root, 'asia/atm-star.js'), 'utf8');
 check('chinese and english each use Confirm', star.includes("verifyBtn: '确认'") && star.includes("verifyBtn: 'Confirm'") && !star.includes('确认邮箱并继续') && !star.includes('Confirm email and continue') && !star.includes('asg-restore') && !star.includes('用邮箱恢复登录'));
@@ -72,14 +73,14 @@ const fresh = await post('/going', { id: 'F1', intent: 'interested', email: 'new
 check('new user email does not queue', fresh.confirm && fresh.preview_link && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('new@example.com'));
 check('choice is kept', db.prepare('SELECT intent i, notify n FROM going_pending WHERE email=? AND consumed_at IS NULL').get('new@example.com').i === 'interested' && db.prepare('SELECT notify n FROM going_pending WHERE email=?').get('new@example.com').n === 0);
 const first = await confirm(fresh.preview_link);
-const token = (first.match(/s=([0-9a-f]{64})/) || [])[1];
-check('confirm link returns to the card and does not queue', token && first.includes('card=F1') && first.includes('intent=resume') && !first.includes('#atm=') && !first.includes('going=ready') && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('new@example.com') && !mails.some(m => m.includes('to=fest@example.com')));
+const token = ((first.cookie.match(/atm_session=([0-9a-f]{64})/) || [])[1]);
+check('opening the link finishes and saves the intent without organizer mail', token && first.html.includes('订阅成功，可以关掉这个页面') && first.html.includes('去看亚洲探戈地图') && db.prepare("SELECT intent i, mail_status s FROM going_intents WHERE email=?").get('new@example.com').i === 'interested' && !mails.some(m => m.includes('to=fest@example.com')));
 const again = await confirm(fresh.preview_link);
-check('token cannot be reused', again.includes('过期') || again.includes('无效') || again.includes('expired') || again.includes('invalid'));
+check('the link can be opened again', again.html.includes('订阅成功，可以关掉这个页面'));
 const mine = await get('/going/mine', { Authorization: 'Bearer ' + token });
-check('draft survives for the new session', mine.drafts && mine.drafts[0].id === 'F1' && mine.drafts[0].intent === 'interested' && mine.drafts[0].notify === false && mine.name === 'Niu' && mine.city === 'Beijing' && mine.role === 'leader');
+check('the new session has the saved intent', mine.items && mine.items.some(x => x.id === 'F1' && x.intent === 'interested') && mine.name === 'Niu' && mine.city === 'Beijing' && mine.role === 'leader');
 const done = await post('/going', { id: 'F1', intent: 'interested', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' }, { Authorization: 'Bearer ' + token });
-check('saved profile is not asked again and queues once', done.mail === 'queued' && !done.need_profile && db.prepare("SELECT mail_status s FROM going_intents WHERE email=?").get('new@example.com').s === 'queued' && !db.prepare('SELECT id FROM going_pending WHERE email=? AND consumed_at IS NULL').get('new@example.com'));
+check('saved profile is not asked again', (done.mail === 'queued' || done.mail === 'unchanged') && !done.need_profile && !db.prepare('SELECT id FROM going_pending WHERE email=? AND consumed_at IS NULL').get('new@example.com'));
 
 db.prepare("INSERT INTO users(email,name,city,role,verified_at,created_at) VALUES('old@example.com','Ada','Seoul','leader','2026-11-01T00:00:00.000Z','2026-11-01T00:00:00.000Z')").run();
 db.prepare('INSERT INTO user_phone(user_id,phone,updated_at) VALUES(?,?,?)').run(db.prepare("SELECT id FROM users WHERE email='old@example.com'").get().id, '8000', '2026-11-01T00:00:00.000Z');
@@ -103,7 +104,7 @@ db.prepare("UPDATE profile_verify SET sent_at='2020-01-01T00:00:00.000Z' WHERE e
 const late = await post('/going', { id: 'F1', intent: 'going', email: 'late@example.com', name: 'Late', city: 'Osaka', role: 'both', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en', last4: '8000' });
 db.prepare("UPDATE profile_verify SET sent_at='2020-01-01T00:00:00.000Z' WHERE email=?").run('late@example.com');
 const lateText = await confirm(late.preview_link);
-check('expired token does not verify', (lateText.includes('expired') || lateText.includes('过期')) && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('late@example.com').v);
+check('expired token does not verify', (lateText.html.includes('expired') || lateText.html.includes('过期')) && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('late@example.com').v);
 
 const reach = await get('/going/reach?ids=LIST,NONE');
 check('directory reach still hides the address', reach.reach.LIST === true && reach.reach.NONE === false && !JSON.stringify(reach).includes('list-only@example.com'));

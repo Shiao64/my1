@@ -6,7 +6,22 @@
    This does not create Going or Interested and does not email an organizer. */
 (function () {
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
-  var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
+  function apiBase() {
+    var host = location.hostname;
+    if (host === 'tangoweekend.org' || host === 'www.tangoweekend.org') return 'https://api.tangoweekend.org';
+    try {
+      var q = new URLSearchParams(location.search).get('api');
+      if (q) {
+        var u = new URL(q);
+        var h = u.hostname;
+        var local = (u.protocol === 'http:' && (h === 'localhost' || h === '127.0.0.1'));
+        var preview = u.protocol === 'https:' && (h.endsWith('.workers.dev') || h.endsWith('.pages.dev') || h === 'api.tangoweekend.org');
+        if (local || preview) return u.origin;
+      }
+    } catch (e) {}
+    return window.TANGO_SUB_API || 'https://api.tangoweekend.org';
+  }
+  var API = apiBase();
   var L = zh ? {
     btn: '订阅', title: '订阅', mine: '我的资料', desc: '按需发送活动信息', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     email: '邮箱', emailPh: 'name@example.com', site: '加入 ATM 全站订阅',
@@ -17,7 +32,7 @@
     phone: '电话', phonePh: '手机号', last4: '电话末 4 码', signIn: '登录', signing: '登录中…', gate: '注册／登录', send: '发送确认邮件',
     needPhone: '请填写电话。', badPhone: '电话号码不正确。', needLast4: '请输入电话末 4 码。', badLogin: '邮箱或电话末 4 码不正确。',
     phoneSaved: '已保存末 4 码 ',
-    submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。', saved: '资料已保存。这个设备已经验证过，没有再发信。',
+    submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。没收到邮件？请到垃圾邮件箱查看。确认链接可能会在浏览器里打开，确认后回到这里就行。', saved: '资料已保存。这个设备已经验证过，没有再发信。', confirmed: '已确认',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。', close: '关闭',
     passTitle: '我的订阅', passHint: '在微信、Safari、Chrome 或其他浏览器打开这个链接即可登录，不必再收确认邮件。', passCopy: '复制', passCopied: '已复制', passNew: '生成新链接', passNewWarn: '生成新链接后，旧链接会失效。继续？', passMissing: '这个浏览器没有保存订阅链接。生成新链接会使旧链接失效。', passStale: '这个浏览器保存的链接已失效。可生成新链接。', passFail: '暂时无法读取订阅链接，请稍后再试。'
   } : {
@@ -30,7 +45,7 @@
     phone: 'Phone', phonePh: 'Mobile number', last4: 'Last 4 digits', signIn: 'Sign in', signing: 'Signing in…', gate: 'Register / sign in', send: 'Send confirmation email',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your phone.', badLogin: 'The email or the last 4 digits did not match.',
     phoneSaved: 'Saved, last 4 digits ',
-    submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish.', saved: 'Profile saved. This device is already verified, so no new email was sent.',
+    submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish. Didn\'t get the email? Check your spam or junk folder. The confirmation link may open in your browser. After confirming, just come back here.', saved: 'Profile saved. This device is already verified, so no new email was sent.', confirmed: 'Confirmed',
     fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.', close: 'Close',
     passTitle: 'My subscription', passHint: 'Open this link in WeChat, Safari, Chrome, or another browser to sign in. No new confirmation email.', passCopy: 'Copy', passCopied: 'Copied', passNew: 'New link', passNewWarn: 'A new link stops the old one. Continue?', passMissing: 'This browser does not have the link saved. A new link stops the old one.', passStale: 'The link saved in this browser no longer works. You can make a new one.', passFail: 'The subscription link could not be loaded. Try again later.'
   };
@@ -42,7 +57,8 @@
     '#tsub-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));box-sizing:border-box}#tsub-modal[hidden]{display:none}' +
     '#tsub-modal .tsub-bg{position:absolute;inset:0;background:rgba(6,51,58,.6)}' +
     '#tsub-modal .tsub-dlg{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:0;max-width:440px;width:100%;box-sizing:border-box;box-shadow:0 16px 48px rgba(6,51,58,.35);max-height:90vh;max-height:90dvh;overflow:hidden;overflow-x:hidden}' +
-    '#tsub-modal .tsub-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;background:#fff;padding:6px 4px 4px 16px;border-radius:10px 10px 0 0}' +
+    '#tsub-modal .tsub-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex:0 0 auto;background:#fff;padding:6px 4px 4px 16px;border-radius:10px 10px 0 0}' +
+    '#tsub-modal .tsub-titles{flex:1;min-width:0}' +
     '#tsub-modal .tsub-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:0 16px 12px;min-height:0}' +
     '#tsub-modal h2{font-family:var(--serif);color:#0a4f57;font-size:19px;line-height:26px;font-weight:700;margin:0}' +
     '#tsub-modal .tsub-x{position:static;flex:0 0 44px;width:44px;height:44px;margin:0;padding:0;background:#fff;border:0;border-radius:8px;font-size:1.7rem;line-height:1;color:#7a6255;cursor:pointer}' +
@@ -53,7 +69,7 @@
     '#tsub-modal .tsub-row{display:flex;gap:8px}#tsub-modal .tsub-col{flex:1;min-width:0}@media (max-width:420px){#tsub-modal .tsub-row{flex-wrap:wrap}#tsub-modal .tsub-col{flex:1 1 100%}}' +
     '#tsub-modal .tsub-desc{font-size:.88rem;color:#2a1a14;margin:0 0 4px;line-height:1.5}' +
     '#tsub-modal .tsub-hint{font-size:.8rem;color:#7a6255;margin:6px 0 0}#tsub-modal .tsub-err{color:#b5654a;font-size:.85rem;margin:8px 0 0;min-height:1em}' +
-    '#tsub-modal .tsub-tabs{display:flex;margin:10px 0 6px;border:1px solid #0e6e78;border-radius:8px;overflow:hidden}#tsub-modal .tsub-tab{flex:1;padding:9px 0;border:0;background:#fff;color:#0e6e78;font:600 .95rem system-ui;cursor:pointer}#tsub-modal .tsub-tab[aria-selected=true]{background:#0e6e78;color:#fff}#tsub-modal .tsub-tab.tsub-off,#tsub-modal .tsub-tab:disabled{opacity:.45;cursor:not-allowed;background:#eee;color:#9a9a9a;pointer-events:none}#tsub-modal [data-m=wx] .tsub-emf,#tsub-modal [data-m=em] .tsub-wxf,#tsub-modal [data-m] .tsub-hint{display:none!important}#tsub-modal .tsub-qa{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}#tsub-modal .tsub-qb{padding:7px 14px;border:1px solid #0e6e78;border-radius:8px;color:#0e6e78;text-decoration:none;font:600 .9rem system-ui;background:#fff}#tsub-modal .tsub-wid{text-align:center;font-size:.88rem;margin:6px 0 2px}#tsub-modal .tsub-wid .tsub-qb{padding:4px 10px;font-size:.82rem;cursor:pointer}#tsub-modal .tsub-wxb{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#07a050;font:600 .72rem system-ui}#tsub-modal .tsub-qr{-webkit-touch-callout:default;user-select:auto}#tsub-modal .tsub-qh{text-align:center;font-size:.82rem;color:#7a6255;margin:2px 0 6px}#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;margin:8px 0 0;line-height:1.6}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:auto;margin:10px auto 0;border-radius:8px}' +
+    '#tsub-modal .tsub-tabs{display:flex;margin:10px 0 6px;border:1px solid #0e6e78;border-radius:8px;overflow:hidden}#tsub-modal .tsub-tab{flex:1;padding:9px 0;border:0;background:#fff;color:#0e6e78;font:600 .95rem system-ui;cursor:pointer}#tsub-modal .tsub-tab[aria-selected=true]{background:#0e6e78;color:#fff}#tsub-modal .tsub-tab.tsub-off,#tsub-modal .tsub-tab:disabled{opacity:.45;cursor:not-allowed;background:#eee;color:#9a9a9a;pointer-events:none}#tsub-modal [data-m=wx] .tsub-emf,#tsub-modal [data-m=em] .tsub-wxf,#tsub-modal [data-m] .tsub-hint{display:none!important}#tsub-modal .tsub-qa{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}#tsub-modal .tsub-qb{padding:7px 14px;border:1px solid #0e6e78;border-radius:8px;color:#0e6e78;text-decoration:none;font:600 .9rem system-ui;background:#fff}#tsub-modal .tsub-wid{text-align:center;font-size:.88rem;margin:6px 0 2px}#tsub-modal .tsub-wid .tsub-qb{padding:4px 10px;font-size:.82rem;cursor:pointer}#tsub-modal .tsub-wxb{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#07a050;font:600 .72rem system-ui}#tsub-modal .tsub-qr{-webkit-touch-callout:default;user-select:auto}#tsub-modal .tsub-qh{text-align:center;font-size:.82rem;color:#7a6255;margin:2px 0 6px}#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;font-weight:700;margin:2px 8px 6px 0;line-height:1.45}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:auto;margin:10px auto 0;border-radius:8px}' +
     '#tsub-modal .tsub-go{width:100%;min-height:48px;margin-top:10px;border-radius:12px;font:600 15px/20px var(--sans);background:#0e6e78;color:#FFFFFF;border:0;cursor:pointer}#tsub-modal .tsub-go:disabled{opacity:.5}' +
     '#tsub-modal .tsub-check{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;font-size:.88rem;color:#2a1a14}#tsub-modal .tsub-check input{width:auto;min-height:0;margin-top:3px}' +
     '#tsub-modal .tsub-unsub{width:100%;min-height:44px;margin-top:8px;border-radius:999px;background:#fff;color:#7a6255;border:1px solid #ead9b8;cursor:pointer}' +
@@ -89,7 +105,7 @@
   function EM() { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '<span class="tsub-star" id="tsub-email-star">*</span></label><input type="email" class="tsub-in tsub-must" id="tsub-e" autocomplete="email" required aria-required="true" maxlength="80" placeholder="' + L.emailPh + '">'; }
   var m = document.createElement('div'); m.id = 'tsub-modal'; m.hidden = true;
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
-    '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-need" id="tsub-need">' + L.gateHelp + '</p><p class="tsub-desc" id="tsub-desc">' + L.desc + '</p>' +
+    '<div class="tsub-hd"><div class="tsub-titles"><h2 id="tsub-t">' + L.title + '</h2><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></div><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-need" id="tsub-need">' + L.gateHelp + '</p><p class="tsub-desc" id="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate data-m="em">' +
     EM() +
     '<label class="tsub-lbl" for="tsub-last4">' + L.last4 + '<span class="tsub-star" id="tsub-tail-star">*</span></label><input type="text" class="tsub-in tsub-must" id="tsub-last4" inputmode="numeric" autocomplete="off" maxlength="4">' +
@@ -106,8 +122,7 @@
     '<div class="tsub-pass" id="tsub-pass" hidden><p class="tsub-lbl">' + L.passTitle + '</p><p class="tsub-pass-note" id="tsub-pass-hint">' + L.passHint + '</p>' +
     '<div class="tsub-pass-row"><input class="tsub-in" id="tsub-pass-url" readonly autocomplete="off" spellcheck="false" aria-label="' + L.passTitle + '"><button type="button" class="tsub-pass-copy" id="tsub-pass-copy">' + L.passCopy + '</button></div>' +
     '<p class="tsub-pass-note" id="tsub-pass-note"></p><button type="button" class="tsub-pass-new" id="tsub-pass-new">' + L.passNew + '</button></div></div>' +
-    '<p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
-    '<p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
+    '<p class="tsub-err" id="tsub-err" aria-live="polite"></p></form>' +
     '<p class="tsub-foot">' + L.foot + '</p></div></div>';
   document.body.appendChild(m);
   var $ = function (id) { return document.getElementById(id); };
@@ -127,6 +142,38 @@
   }
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
+  function watchClaim(nonce, onOk) {
+    if (!/^[0-9a-f]{64}$/.test(nonce || '')) return function () {};
+    var stop = Date.now() + 30 * 60 * 1000;
+    var timer = 0;
+    var done = false;
+    function finish(session) {
+      if (done) return;
+      done = true;
+      if (timer) clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pageshow', kick);
+      window.removeEventListener('focus', kick);
+      setToken(session);
+      if (onOk) onOk(session);
+    }
+    function kick() {
+      if (done) return;
+      if (Date.now() > stop) { if (timer) clearInterval(timer); return; }
+      fetch(API + '/social/going/await', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nonce: nonce }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && d.confirmed && /^[0-9a-f]{64}$/.test(d.session || '')) finish(d.session); })
+        .catch(function () {});
+    }
+    function onVis() { if (document.visibilityState === 'visible') kick(); }
+    timer = setInterval(kick, 4000);
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pageshow', kick);
+    window.addEventListener('focus', kick);
+    kick();
+    return kick;
+  }
+  window.ATM_CLAIM = { watch: watchClaim, kick: function (nonce) { return watchClaim(nonce, function () {}); } };
   function paintPhone(tail) {
     var el = $('tsub-last4'); if (!el) return;
     el.value = '';
@@ -212,12 +259,17 @@
     var go = $('tsub-go'); if (go && go.dataset.busy !== '1') go.textContent = L.send;
     mountSubTs();
   }
+  function scrollModalTop() {
+    var scroller = m.querySelector('.tsub-body');
+    if (scroller) scroller.scrollTop = 0;
+  }
   function open() {
     if (tmr) { clearTimeout(tmr); tmr = null; }
     $('tsub-ok').hidden = true; $('tsub-err').textContent = '';
     var tok = token();
     paintMode(!!tok);
     m.hidden = false;
+    scrollModalTop();
     if (!tok) { paintPhone(''); paintMode(false); return; }
     var headers = { Authorization: 'Bearer ' + tok };
     fetch(API + '/social/going/mine', { headers: headers }).then(function (r) { return r.json(); }).then(function (d) {
@@ -267,6 +319,12 @@
       .then(function (d) {
         if (d.ok) {
           ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false; if (!d.session) $('tsub-f').reset();
+          if (!d.session && d.nonce) watchClaim(d.nonce, function () {
+            open();
+            var hint = $('tsub-ok');
+            if (hint) { hint.textContent = L.confirmed; hint.hidden = false; }
+            scrollModalTop();
+          });
           if (d.session && $('tsub-site')) $('tsub-site').checked = !!d.sitewide;
           if (d.session && d.phone_tail) paintPhone(d.phone_tail);
           if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();

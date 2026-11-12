@@ -16,7 +16,7 @@ fs.writeFileSync(path.join(dir, 'social.js'), src);
 const { social } = await import(pathToFileURL(path.join(dir, 'social.js')).href);
 
 const db = new DatabaseSync(':memory:');
-for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql']) {
+for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql', '0018_confirm_claim.sql']) {
   db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', file), 'utf8'));
 }
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
@@ -56,27 +56,29 @@ async function confirm(link, headers) {
   const res = await social(new Request('https://api.tangoweekend.org/social/going/confirm', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...(headers || {}) }, body: new URLSearchParams({ e: u.searchParams.get('e'), t: u.searchParams.get('t'), confirm: '1' }).toString() }), env, new URL('https://api.tangoweekend.org/social/going/confirm'), json);
   return { status: res.status, html: await res.text(), cookie: res.headers.get('Set-Cookie') || '' };
 }
-function tokenOf(html) { return (html.match(/s=([0-9a-f]{64})/) || [])[1] || ''; }
+function tokenOf(cookie) { return (String(cookie || '').match(/atm_session=([0-9a-f]{64})/) || [])[1] || ''; }
 
 const star = await post('/going', { id: 'F1', intent: 'interested', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, alert: 1, ts: 'x', ret: zhRet, lang: 'zh', notify: 1, last4: '8000' });
 const row = db.prepare('SELECT pending_intent i, card_id c, wants_sitewide w, ret r FROM profile_verify WHERE email=?').get('new@example.com');
 check('token row keeps the profile choice', star.confirm && star._cookie.includes('atm_verify=1') && row.i === 'interested' && row.c === 'F1' && row.w === 1 && row.r === zhRet);
 const same = await confirm(star.preview_link, { Cookie: 'atm_verify=1' });
-const sameToken = tokenOf(same.html);
-check('same browser redirects to the card query', same.status === 200 && same.html.includes('http-equiv="refresh"') && same.html.includes('/zh/asia/?card=F1&amp;intent=resume&amp;s=' + sameToken) && same.html.includes('返回活动') && !same.html.includes('#atm=') && !same.html.includes('going=') && same.cookie.includes('atm_session=' + sameToken));
+const sameToken = tokenOf(same.cookie);
+check('any browser gets the finish page and a session', same.status === 200 && same.html.includes('订阅成功，可以关掉这个页面') && same.html.includes('去看亚洲探戈地图') && same.html.includes('https://tangoweekend.org/zh/asia/') && !same.html.includes('http-equiv="refresh"') && same.cookie.includes('atm_session=' + sameToken));
 const other = await post('/going', { id: 'F1', intent: 'going', email: 'other@example.com', name: 'Ora', city: 'Osaka', role: 'follower', explicit: 1, disclose: 1, alert: 0, ts: 'x', ret, lang: 'en', last4: '8000' });
 const otherPage = await confirm(other.preview_link);
-check('a different browser shows the button and does not refresh', otherPage.status === 200 && !otherPage.html.includes('http-equiv="refresh"') && otherPage.html.includes('Back to event') && otherPage.html.includes('/asia/?card=F1') && otherPage.html.includes('intent=resume') && !otherPage.html.includes('WeChat') && !otherPage.html.includes('微信'));
+check('english finish page has no refresh', otherPage.status === 200 && !otherPage.html.includes('http-equiv="refresh"') && otherPage.html.includes('Subscribed — you can close this page') && otherPage.html.includes('Go to Asia Tango Map') && otherPage.html.includes('https://tangoweekend.org/asia/') && !otherPage.html.includes('WeChat') && !otherPage.html.includes('微信'));
 const wx = await post('/going', { id: 'F1', intent: 'going', email: 'wx@example.com', name: 'Wei', city: 'Shanghai', role: 'both', explicit: 1, disclose: 1, alert: 1, ts: 'x', ret: zhRet, lang: 'zh', last4: '8000' });
 const wxPage = await confirm(wx.preview_link, { Cookie: 'atm_verify=1', 'User-Agent': 'Mozilla/5.0 MicroMessenger/8.0' });
-check('wechat shows the system-browser hint and no refresh', wxPage.status === 200 && !wxPage.html.includes('http-equiv="refresh"') && wxPage.html.includes('返回活动') && wxPage.html.includes('微信内置浏览器') && wxPage.html.includes('在浏览器中打开') && wxPage.html.includes('intent=resume'));
-check('confirm did not record the intent', !db.prepare('SELECT id FROM going_intents WHERE email=?').get('wx@example.com'));
-const wxToken = tokenOf(wxPage.html);
+check('wechat still gets the finish page', wxPage.status === 200 && !wxPage.html.includes('http-equiv="refresh"') && wxPage.html.includes('订阅成功，可以关掉这个页面') && !wxPage.html.includes('在浏览器中打开'));
+check('opening the link records the intent', db.prepare("SELECT intent i FROM going_intents WHERE email=?").get('wx@example.com').i === 'going');
+const wxToken = tokenOf(wxPage.cookie);
+const awaited = await post('/going/await', { nonce: wx.nonce });
+check('the nonce, not the email, returns the session', awaited.confirmed === true && awaited.session === wxToken && !(await post('/going/await', { email: 'wx@example.com' })).session);
 const mine = await social(new Request('https://api.tangoweekend.org/social/going/mine', { headers: { Authorization: 'Bearer ' + wxToken } }), env, new URL('https://api.tangoweekend.org/social/going/mine'), json);
 const mineBody = await mine.json();
-check('the new session already has the shared profile and the pending intent', mineBody.name === 'Wei' && mineBody.city === 'Shanghai' && mineBody.role === 'both' && mineBody.drafts[0].intent === 'going' && mineBody.sitewide === true);
+check('the new session already has the shared profile and the saved intent', mineBody.name === 'Wei' && mineBody.city === 'Shanghai' && mineBody.role === 'both' && mineBody.items.some(x => x.intent === 'going') && mineBody.sitewide === true);
 const again = await confirm(wx.preview_link);
-check('the confirm token is one-time', again.status === 400 && again.html.includes('链接已过期') && again.html.includes('tap the star again'));
+check('the link still opens after the first confirm', again.status === 200 && again.html.includes('订阅成功，可以关掉这个页面'));
 
 db.prepare("UPDATE profile_verify SET sent_at='2020-01-01T00:00:00.000Z' WHERE email=?").run('other@example.com');
 const late = await confirm(other.preview_link);
@@ -84,8 +86,8 @@ check('an expired link is the bilingual star page', late.status === 400 && late.
 
 const menu = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Osaka', role: 'follower', lang: 'zh', alert: 1, ret: zhRet, ts: 'x', last4: '8000' });
 const menuPage = await confirm(menu.preview_link, { Cookie: 'atm_verify=1' });
-const menuToken = tokenOf(menuPage.html);
-check('menu confirm returns to the saved page without the intent dialog', menuPage.html.includes('http-equiv="refresh"') && menuPage.html.includes('atm_y=220') && menuPage.html.includes('资料已保存') && !menuPage.html.includes('intent=resume') && menuPage.html.includes('返回</a>') && !menuPage.html.includes('返回活动'));
+const menuToken = tokenOf(menuPage.cookie);
+check('menu confirm is the finish page and does not open the intent dialog', menuPage.html.includes('订阅成功，可以关掉这个页面') && menuPage.html.includes('去看亚洲探戈地图') && !menuPage.html.includes('intent=resume'));
 check('menu confirm created no intent', !db.prepare('SELECT id FROM going_intents WHERE email=?').get('mei@example.com') && !db.prepare('SELECT id FROM going_pending WHERE email=?').get('mei@example.com'));
 const before = mails.length;
 const off = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Kyoto', role: 'both', lang: 'zh', alert: 0, ret: zhRet, ts: 'x' }, { Authorization: 'Bearer ' + menuToken });
@@ -93,7 +95,7 @@ check('unchecking site-wide takes effect without another email', off.session && 
 const on = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Kyoto', role: 'both', lang: 'zh', alert: 1, ret: zhRet, ts: 'x' }, { Authorization: 'Bearer ' + menuToken });
 check('re-checking site-wide takes effect without another email', on.session && on.mailed === false && on.sitewide === true && mails.length === before && db.prepare("SELECT status s FROM email_subs WHERE email=?").get('mei@example.com').s === 'active');
 const final = await post('/going', { id: 'F1', intent: 'interested', explicit: 1, disclose: 1, ts: 'x', ret: zhRet, lang: 'zh' }, { Authorization: 'Bearer ' + sameToken });
-check('a confirmed profile is not asked again', final.mail === 'queued' && !final.need_profile && db.prepare('SELECT name n, city c, role r FROM users WHERE email=?').get('new@example.com').n === 'Niu');
+check('a confirmed profile is not asked again', (final.mail === 'queued' || final.mail === 'unchanged') && !final.need_profile && db.prepare('SELECT name n, city c, role r FROM users WHERE email=?').get('new@example.com').n === 'Niu');
 
 const shot = process.env.ATM_SHOT_DIR;
 if (shot) {

@@ -16,7 +16,7 @@ fs.writeFileSync(path.join(dir, 'social.js'), src);
 const { social } = await import(pathToFileURL(path.join(dir, 'social.js')).href);
 
 const db = new DatabaseSync(':memory:');
-for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql']) {
+for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql', '0018_confirm_claim.sql']) {
   db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', file), 'utf8'));
 }
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
@@ -67,8 +67,9 @@ function sessionOf(cookie) { return (String(cookie || '').match(/atm_session=([0
 
 const scan = await post('/profile', who);
 const scanned = await social(new Request(scan.preview_link), env, new URL(scan.preview_link), json);
-check('a preview of the confirm link does not issue a personal link', (await scanned.text()).includes('name="confirm"') && !db.prepare('SELECT user_id FROM going_pass').get());
-const done = await confirm(scan.preview_link, { Cookie: 'atm_verify=1' });
+const scannedHtml = await scanned.text();
+check('opening the link confirms and shows the personal link once', scannedHtml.includes('订阅成功，可以关掉这个页面') && scannedHtml.includes('去看亚洲探戈地图') && !!db.prepare('SELECT user_id FROM going_pass').get());
+const done = { status: scanned.status, html: scannedHtml, cookie: scanned.headers.get('Set-Cookie') || '' };
 const link = passUrlOf(done.html);
 const token = passTok(link);
 const session = sessionOf(done.cookie);
@@ -76,7 +77,7 @@ const hash = token ? await sha('atm-pass:' + token) : '';
 const stored = db.prepare('SELECT token_hash h, created_at at FROM going_pass').get();
 check('confirm shows one personal link and stores only its hash', done.status === 200 && /^https:\/\/api\.tangoweekend\.org\/social\/going\/enter\/[0-9a-f]{64}$/.test(link) && stored && stored.h === hash && stored.h !== token && !JSON.stringify(stored).includes(token));
 check('confirm mail is still the short confirm, not the personal link', logs.length === 1 && logs.every(line => !line.includes('/going/enter/') && !line.includes(token)));
-check('the confirm page hands the link to this browser without putting it in the session cookie', done.html.includes('#p=' + token) && done.cookie.includes('atm_session=' + session) && !done.cookie.includes(token) && session !== token);
+check('the confirm page hands the link to this browser without putting it in the session cookie', done.html.includes(link) && done.cookie.includes('atm_session=' + session) && !done.cookie.includes(token) && session !== token);
 
 const open = await social(new Request(link, { headers: { 'User-Agent': 'Mozilla/5.0 MicroMessenger/8.0' } }), env, new URL(link), json);
 const openHtml = await open.text();

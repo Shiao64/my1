@@ -1,6 +1,6 @@
 import { gmailSend } from './smtp.js';
 import { updateFooter } from './unsub.js';
-import { goingConfirm, goingEnter, goingPass, goingPhone, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
+import { goingConfirm, goingAwait, goingEnter, goingPass, goingPhone, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
 export { generateGoingStats, runGoingNotices };
 // Asia Tango Map likes API, plus email confirm for the update list. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
@@ -27,11 +27,15 @@ async function turnstile(env, token, ip) {
   return !!(await r.json()).success;
 }
 const he = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-export function safeNext(raw) {
+export function previewOrigins(env) {
+  if (!env || env.PREVIEW !== '1') return [];
+  return String(env.PREVIEW_ORIGINS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
+}
+export function safeNext(raw, env) {
   let u; try { u = new URL(String(raw || '')); } catch { return ''; }
   const host = u.hostname.toLowerCase();
   const local = host === 'localhost' || host === '127.0.0.1';
-  const ok = host === 'tangoweekend.org' || host === 'www.tangoweekend.org' || host.endsWith('.my1-7p3.pages.dev') || local;
+  const ok = host === 'tangoweekend.org' || host === 'www.tangoweekend.org' || host.endsWith('.my1-7p3.pages.dev') || local || previewOrigins(env).includes(u.origin);
   if (!ok) return '';
   if (u.protocol !== 'https:' && !(u.protocol === 'http:' && local)) return '';
   if ((u.pathname + u.search).length > 800) return '';
@@ -64,6 +68,8 @@ async function deliver(env, to, subject, text, html, headers, opt) {
   // EMAIL and SUB_MAIL are the send_email bindings. EMAIL can only mail its
   // fixed destination, so organizer mail uses SUB_MAIL when the var is unset.
   const p = String(env.SOCIAL_MAIL || '').trim() || (env.SUB_MAIL && typeof env.SUB_MAIL.send === 'function' ? 'sub_mail' : 'log');
+  const previewAllow = String(env.PREVIEW_ALLOWED_EMAIL || '').trim().toLowerCase();
+  if (env.PREVIEW === '1' && previewAllow && p !== 'log' && String(to || '').trim().toLowerCase() !== previewAllow) throw new Error('preview recipient not allowed');
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
   const hdrs = Object.assign({}, headers || {});
   if (cc) hdrs.Cc = cc;
@@ -271,6 +277,7 @@ export async function social(req, env, url, json) {
   if (p === '/profile' && req.method === 'POST') return goingProfile(req, env, b, ip, iph, json, goingKit());
   if (p === '/going/pass' && req.method === 'POST') return goingPass(req, env, b, json, goingKit());
   if (p === '/going/phone' && req.method === 'POST') return goingPhone(req, env, b, iph, json, goingKit());
+  if (p === '/going/await' && req.method === 'POST') return goingAwait(req, env, b, json, goingKit());
   if (p === '/going' && req.method === 'POST') return goingSubmit(req, env, b, ip, iph, json, goingKit());
   if (p === '/going/cancel' && req.method === 'POST') return goingCancel(req, env, b, json, goingKit());
   if (p === '/going/unfav' && req.method === 'POST') return goingUnfav(req, env, b, json, goingKit());
@@ -302,7 +309,7 @@ export async function social(req, env, url, json) {
     const role = ROLES.includes(b.role) ? b.role : ''; if (!role) return json({ error: 'need_role' }, 400);
     if (!name) return json({ error: 'need_name' }, 400); if (!EMAIL_RE.test(email)) return json({ error: 'bad_email' }, 400);
     const magic = b.magic === 1 || b.magic === true || b.magic === '1';
-    const ret = magic ? safeNext(b.ret) : '';
+    const ret = magic ? safeNext(b.ret, env) : '';
     if (magic && !ret) return json({ error: 'bad_return' }, 400);
     if (!(await turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
     const recent = await env.SDB.prepare('SELECT COUNT(*) n FROM users WHERE ip_hash=? AND code_sent_at>?').bind(iph, new Date(Date.now() - 3600e3).toISOString()).first('n');

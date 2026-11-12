@@ -102,8 +102,8 @@ await zh.evaluate(() => {
   document.querySelector('#asg-go').click();
 });
 await zh.waitForFunction(() => window.__posts.length === 1);
-const posted = await zh.evaluate(() => ({ body: window.__posts[0], go: document.querySelector('#asg-go').textContent, off: document.querySelector('#asg-go').disabled, hidden: document.querySelector('#atm-star').hidden, promo: document.querySelector('#asg-promo').checked }));
-check('confirm posts once and keeps the button disabled', posted.body.intent === 'going' && posted.body.email === 'guest@example.com' && posted.body.name === 'Guest' && posted.body.city === 'Osaka' && posted.body.role === 'leader' && posted.body.last4 === '1111' && !posted.body.phone && posted.body.alert === 1 && posted.promo === true && posted.go === '已发送邮件，请到邮箱确认' && posted.off === true && posted.hidden === false);
+const posted = await zh.evaluate(() => ({ body: window.__posts[0], go: document.querySelector('#asg-go').textContent, off: document.querySelector('#asg-go').disabled, hidden: document.querySelector('#atm-star').hidden, promo: document.querySelector('#asg-promo').checked, spam: (document.querySelector('#asg-spam') || {}).textContent || '' }));
+check('confirm posts once and keeps the button disabled', posted.body.intent === 'going' && posted.body.email === 'guest@example.com' && posted.body.name === 'Guest' && posted.body.city === 'Osaka' && posted.body.role === 'leader' && posted.body.last4 === '1111' && !posted.body.phone && posted.body.alert === 1 && posted.promo === true && posted.go === '已发送邮件，请到邮箱确认' && posted.spam.indexOf('没收到邮件？请到垃圾邮件箱查看。') === 0 && posted.spam.indexOf('确认链接可能会在浏览器里打开，确认后回到这里就行。') > 0 && posted.off === true && posted.hidden === false);
 await zh.evaluate(() => document.querySelector('#asg-go').click());
 check('a second tap in the same dialog does not send', await zh.evaluate(() => window.__posts.length === 1));
 await zh.click('[data-x]');
@@ -185,7 +185,7 @@ await enSent.evaluate(() => {
   document.querySelector('#asg-go').click();
 });
 await enSent.waitForFunction(() => window.__posts.length === 1);
-check('english sent label stays disabled', await enSent.evaluate(() => document.querySelector('#asg-go').textContent === 'Email sent — please confirm in your inbox' && document.querySelector('#asg-go').disabled === true && window.__posts.length === 1));
+check('english sent label stays disabled', await enSent.evaluate(() => document.querySelector('#asg-go').textContent === 'Email sent — please confirm in your inbox' && document.querySelector('#asg-spam').textContent.indexOf("Didn't get the email? Check your spam or junk folder.") === 0 && document.querySelector('#asg-spam').textContent.indexOf('The confirmation link may open in your browser. After confirming, just come back here.') > 0 && document.querySelector('#asg-go').disabled === true && window.__posts.length === 1));
 await enSent.evaluate(() => document.querySelector('#asg-go').click());
 check('english second tap does not send', await enSent.evaluate(() => window.__posts.length === 1));
 await enSent.close();

@@ -23,6 +23,7 @@ db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_con
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0015_going_pass.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0016_phone_bind.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0018_confirm_claim.sql'), 'utf8'));
 db.exec(`
 CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT, wx_used INTEGER);
@@ -93,11 +94,9 @@ check('menu mail is not organizer', userMails('ana@example.com').length === 1 &&
 const link = menu.preview_link;
 const got = async (method, u, body) => social(new Request(u, { method, ...(body ? { body, headers: { 'Content-Type': 'application/x-www-form-urlencoded' } } : {}) }), env, new URL(u), json);
 const scan = await got('GET', link);
-check('scanner does not confirm', (await scan.text()).includes('name="confirm"') && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('ana@example.com').v);
-const done = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'ana@example.com', t: new URL(link).searchParams.get('t'), next: ret, confirm: '1' }).toString());
-const doneText = await done.text();
-check('profile confirm is not organizer mail', done.status === 200 && doneText.includes('Profile saved') && !doneText.includes('notified') && orgMails().length === 0);
-const token = (doneText.match(/s=([0-9a-f]{64})/) || [])[1];
+const scanText = await scan.text();
+check('opening the link confirms in any browser', scan.status === 200 && scanText.includes('Subscribed — you can close this page') && scanText.includes('Go to Asia Tango Map') && !!db.prepare('SELECT verified_at v FROM users WHERE email=?').get('ana@example.com').v && orgMails().length === 0);
+const token = ((scan.headers.get('set-cookie') || '').match(/atm_session=([0-9a-f]{64})/) || [])[1];
 check('session issued', !!token && db.prepare('SELECT COUNT(*) n FROM sessions').get().n === 1);
 check('no intent from menu', db.prepare('SELECT COUNT(*) n FROM going_intents').get().n === 0);
 
@@ -123,13 +122,16 @@ check('unverified explicit does not mail organizer', fresh.confirm && fresh.mail
 check('pending stored', db.prepare("SELECT intent i FROM going_pending WHERE email=? AND consumed_at IS NULL").get('bea@example.com').i === 'interested');
 check('unverified not counted', (await get('/going/counts?ids=F1')).counts.F1 === 0);
 const beaLink = fresh.preview_link;
-const beaDone = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'bea@example.com', t: new URL(beaLink).searchParams.get('t'), next: 'https://tangoweekend.org/asia/?card=F1', confirm: '1' }).toString());
+const beaDone = await got('GET', beaLink);
 const beaText = await beaDone.text();
-check('verify does not queue or mail', beaText.includes('tap Confirm') && !beaText.includes('next summary') && !mails.some(m => m.includes('to=fest@example.com')) && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('bea@example.com'));
-check('featured still zero after email confirm', (await get('/going/counts?ids=F1')).counts.F1 === 0);
-const beaToken = (beaText.match(/s=([0-9a-f]{64})/) || [])[1];
+check('opening the star link saves the intent and does not mail', beaText.includes('✅ Subscribed') && !beaText.includes('next summary') && !mails.some(m => m.includes('to=fest@example.com')) && db.prepare('SELECT intent i FROM going_intents WHERE email=?').get('bea@example.com').i === 'interested');
+check('featured count is one after the link', (await get('/going/counts?ids=F1')).counts.F1 === 1);
+const beaToken = ((beaDone.headers.get('set-cookie') || '').match(/atm_session=([0-9a-f]{64})/) || [])[1];
+const beaNonce = fresh.nonce;
+const awaited = await post('/going/await', { nonce: beaNonce });
+check('only the pending nonce receives the session', awaited.confirmed === true && awaited.session === beaToken && (await post('/going/await', { nonce: 'ab'.repeat(32) })).pending === false && !(await post('/going/await', { email: 'bea@example.com' })).session);
 const beaFinal = await post('/going', { id: 'F1', intent: 'interested', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' }, { Authorization: 'Bearer ' + beaToken });
-check('final confirm after email queues', beaFinal.mail === 'queued' && (await get('/going/counts?ids=F1')).counts.F1 === 1);
+check('a later tap does not send another letter', beaFinal.mail === 'unchanged' && (await get('/going/counts?ids=F1')).counts.F1 === 1);
 
 const none = await post('/going', { ...base, id: 'NONE', intent: 'going' }, auth);
 check('no organizer email still saves and does not mail', none.ok && none._s === 200 && none.notice === 'off' && none.mail === 'no_organizer' && none.mailed === false && orgMails().length === 0 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='NONE'").get('ana@example.com').i === 'going');
@@ -172,11 +174,25 @@ db.prepare('DELETE FROM going_pending WHERE email=?').run('ana@example.com');
 const mailAt = mails.length;
 const restored = await post('/going/restore', { email: 'ana@example.com', ret, ts: 'x', lang: 'en' });
 check('restore link is not a session', restored.confirm && restored.preview_link && !restored.token);
-const back = await got('POST', 'https://api.tangoweekend.org/social/going/confirm', new URLSearchParams({ e: 'ana@example.com', t: new URL(restored.preview_link).searchParams.get('t'), next: ret, confirm: '1' }).toString());
-const token2 = ((await back.text()).match(/s=([0-9a-f]{64})/) || [])[1];
+const back = await got('GET', restored.preview_link);
+const token2 = ((back.headers.get('set-cookie') || '').match(/atm_session=([0-9a-f]{64})/) || [])[1];
 const mine2 = await get('/going/mine', { Authorization: 'Bearer ' + token2 });
 check('restored device sees the same intents', mine2.email === 'ana@example.com' && (mine2.items || []).some(i => i.id === 'W1' && i.intent === 'going'));
 check('restore did not email an organizer', !mails.slice(mailAt).some(m => m.includes('cc=selecttango@gmail.com')));
+
+const previewOrigin = 'https://tango-subscribe-preview.5mjqgtq8zh.workers.dev';
+env.PREVIEW = '1';
+env.PREVIEW_ORIGINS = previewOrigin;
+const prev = await post('/profile', { ...base, email: 'prev@example.com', lang: 'zh', ret: previewOrigin + '/zh/asia/?card=W1' });
+check('preview return is accepted when PREVIEW=1', prev.confirm && prev.preview_link);
+const prevPage = await got('GET', prev.preview_link);
+const prevHtml = await prevPage.text();
+check('preview finish link stays on the preview site', prevHtml.includes(previewOrigin + '/zh/asia/') && !prevHtml.includes('href="https://tangoweekend.org/zh/asia/"'));
+const otherPreview = await post('/profile', { ...base, email: 'prev3@example.com', ret: 'https://other.workers.dev/zh/asia/' });
+check('preview allow list is exact', otherPreview.error === 'bad_return');
+delete env.PREVIEW;
+const blockedPreview = await post('/profile', { ...base, email: 'prev2@example.com', ret: previewOrigin + '/zh/asia/' });
+check('production rejects the preview return', blockedPreview.error === 'bad_return');
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going tests ok', { mails: mails.length, pendingBefore });

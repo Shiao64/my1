@@ -48,6 +48,9 @@ check('chinese letter signs in chinese', zhNamed.text.endsWith('探戈助理 · 
 check('english letter signs in english', enNamed.text.endsWith('Tango Assistant · Asia Tango Map') && enNamed.html.includes('Tango Assistant · Asia Tango Map</p>') && enNamed.text.includes('If this wasn\'t you, you can simply ignore this email.'));
 check('a name is escaped', letter('en', 'Ann <b>').html.includes('Hi Ann &lt;b&gt;,') && !letter('en', 'Ann <b>').html.includes('<b>'));
 check('the confirm link and button stay', enNamed.html.includes('>Confirm subscription</a>') && zhNamed.html.includes('>确认订阅</a>') && enNamed.text.includes(link) && zhNamed.text.includes(link));
+const enNote = "This link works in WeChat or any web browser. If tapping it doesn't work, copy the full link (starting with https://api.tangoweekend.org/) and open it in WeChat or your browser.";
+const zhNote = '此链接可在微信或任何浏览器中打开。点不开时，请复制完整链接（以 https://api.tangoweekend.org/ 开头），到微信或浏览器里打开。';
+check('wechat note sits under the confirm link', enNamed.text.includes(link + '\n\n' + enNote) && zhNamed.text.includes(link + '\n\n' + zhNote) && enNamed.html.indexOf('This link works in WeChat') > enNamed.html.indexOf('>Confirm subscription</a>') && zhNamed.html.indexOf(zhNote) > zhNamed.html.indexOf('>确认订阅</a>') && enNamed.html.indexOf('you can simply ignore this email') > enNamed.html.indexOf('This link works in WeChat') && zhNamed.html.indexOf('如果不是你本人操作') > zhNamed.html.indexOf(zhNote));
 check('intent notes and the delete line stay out of the letter', !zhGoing.text.includes('周五探戈') && !zhGoing.text.includes('要删除资料') && !zhGoing.text.includes('组织者') && !enGoing.text.includes('Friday milonga') && !enGoing.text.includes('selecttango') && !enGoing.html.includes('Going'));
 const promo = buildConfirmLetter({ lang: 'zh', name: '安', promo: true }, link, { title: '周五探戈', intent: 'going' }, he);
 check('a checked subscribe box does not add a second paragraph', promo.text === zhNamed.text && promo.html === zhNamed.html);
@@ -66,7 +69,9 @@ db.exec(read('social-worker/migrations/0009_going.sql'));
 db.exec(read('social-worker/migrations/0012_going_occ.sql'));
 db.exec(read('social-worker/migrations/0013_going_confirm_show.sql'));
 db.exec(read('social-worker/migrations/0014_profile_verify_pending.sql'));
+db.exec(read('social-worker/migrations/0015_going_pass.sql'));
 db.exec(read('social-worker/migrations/0016_phone_bind.sql'));
+db.exec(read('social-worker/migrations/0018_confirm_claim.sql'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);
@@ -109,16 +114,15 @@ const star = await post('/going', { id: 'F1', intent: 'interested', email: 'name
 check('star mail with a name stays the short chinese letter', star.confirm && mails.some(m => m.includes('from=探戈助理 · 亚洲探戈地图') && m.includes('to=named@example.com') && m.includes('安，你好！') && m.includes(body.zh) && !m.includes('节日')));
 
 const fresh = await openConfirm(menu.preview_link, 'GET');
-check('a new link still shows the confirm button', fresh.status === 200 && fresh.html.includes('Confirm') && !fresh.html.includes('expired'));
-db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 29 * 60e3).toISOString(), 'mei@example.com');
+check('opening the link is the finish page', fresh.status === 200 && fresh.html.includes('Subscribed — you can close this page') && fresh.html.includes('Go to Asia Tango Map') && !!db.prepare('SELECT verified_at v FROM users WHERE email=?').get('mei@example.com').v);
 const within = await openConfirm(menu.preview_link, 'GET');
-check('29 minutes is still valid', within.status === 200 && within.html.includes('name="confirm"') && !within.html.includes('expired'));
+check('a second open still shows the finish page', within.status === 200 && within.html.includes('Subscribed — you can close this page') && !within.html.includes('expired'));
 db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 31 * 60e3).toISOString(), 'mei@example.com');
 const late = await openConfirm(menu.preview_link, 'GET');
-check('31 minutes is the expired page', late.status === 400 && late.html.includes(expiredCopy) && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('mei@example.com').v);
+check('31 minutes is the expired page', late.status === 400 && late.html.includes(expiredCopy));
 db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 31 * 60e3).toISOString(), 'named@example.com');
 const lateZh = await openConfirm(star.preview_link, 'GET');
-check('the chinese expired page says the same thing', lateZh.status === 400 && lateZh.html.includes('链接已过期') && lateZh.html.includes('tap the star again') && lateZh.html.includes('lang="zh-CN"'));
+check('the chinese expired page says the same thing', lateZh.status === 400 && lateZh.html.includes('链接已过期') && lateZh.html.includes('tap the star again') && lateZh.html.includes('lang="zh-CN"') && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('named@example.com').v);
 
 const out = process.env.ATM_LETTER_OUT;
 if (out) {

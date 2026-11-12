@@ -13,28 +13,38 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const SUB_CC = 'guazong@mail.grokbot.com'; // CC on every subscriber-facing email (confirm + welcome)
 const RATE_MAX = 5, RATE_WIN_MIN = 60, PENDING_DAYS = 7, DAY = 86400000;
 
+const LINK_NOTE = {
+  zh: '此链接可在微信或任何浏览器中打开。点不开时，请复制完整链接（以 https://api.tangoweekend.org/ 开头），到微信或浏览器里打开。',
+  en: "This link works in WeChat or any web browser. If tapping it doesn't work, copy the full link (starting with https://api.tangoweekend.org/) and open it in WeChat or your browser."
+};
 const T = {
   zh: {
     cSubj: '请确认订阅：亚洲探戈地图新活动通知',
-    cBody: l => `您好！\n\n请点击下面的链接确认订阅亚洲探戈地图的新活动通知：\n${l}\n\n链接7天内有效。7天内没有确认，您的邮箱会被自动删除。\n如果不是您本人操作，请忽略这封邮件，我们不会再发邮件给您。`,
+    linkNote: LINK_NOTE.zh,
+    cBody: l => `您好！\n\n请点击下面的链接确认订阅亚洲探戈地图的新活动通知：\n${l}${l ? '\n\n' + LINK_NOTE.zh : ''}\n\n链接7天内有效。7天内没有确认，您的邮箱会被自动删除。\n如果不是您本人操作，请忽略这封邮件，我们不会再发邮件给您。`,
     wSubj: '订阅成功：亚洲探戈地图新活动通知',
     wBody: '谢谢订阅！以后有新活动，我们会发邮件通知您。',
-    okPage: '订阅成功！欢迎邮件已发到您的邮箱。', already: '您已经订阅过了，不需要再确认。',
+    okPage: '✅ 订阅成功，可以关掉这个页面', okBtn: '去看亚洲探戈地图', already: '您已经订阅过了，不需要再确认。',
     bad: '链接无效或已过期（7天），请重新订阅。', unsub: '已退订，您不会再收到新活动通知。',
     unsubLine: '退订', foot: '随时可退订。这封信只关于地图通知。点五角星确认 Going 或 Interested 时，姓名和邮箱才会发给该活动组织者。', back: '返回亚洲探戈地图', home: 'https://tangoweekend.org/zh/asia/'
   },
   en: {
     cSubj: 'Please confirm: Asia Tango Map event alerts',
-    cBody: l => `Hi!\n\nPlease click the link below to confirm your subscription to Asia Tango Map event alerts:\n${l}\n\nThe link is valid for 7 days. If you don't confirm within 7 days, your email address is deleted automatically.\nIf this wasn't you, just ignore this email and you won't hear from us again.`,
+    linkNote: LINK_NOTE.en,
+    cBody: l => `Hi!\n\nPlease click the link below to confirm your subscription to Asia Tango Map event alerts:\n${l}${l ? '\n\n' + LINK_NOTE.en : ''}\n\nThe link is valid for 7 days. If you don't confirm within 7 days, your email address is deleted automatically.\nIf this wasn't you, just ignore this email and you won't hear from us again.`,
     wSubj: "You're subscribed: Asia Tango Map event alerts",
     wBody: "Thanks for subscribing! We'll email you when new events are added.",
-    okPage: "You're subscribed! A welcome email is on its way.", already: "You're already subscribed. Nothing more to do.",
+    okPage: '✅ Subscribed — you can close this page', okBtn: 'Go to Asia Tango Map', already: "You're already subscribed. Nothing more to do.",
     bad: 'This link is invalid or has expired (7 days). Please subscribe again.', unsub: "You're unsubscribed. You won't get any more event alerts.",
     unsubLine: 'Unsubscribe', foot: 'Unsubscribe anytime. This mail is only about map alerts. Your name and email go to an organizer only if you confirm Going or Interested on a star.', back: 'Back to the Asia Tango Map', home: 'https://tangoweekend.org/asia/'
   }
 };
 
-const cors = (o, env) => (ORIGINS.includes(o) || String(env.EXTRA_ORIGINS || '').split(',').includes(o) || (env.ALLOW_LOCAL === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)))
+function previewOrigins(env) {
+  if (!env || env.PREVIEW !== '1') return [];
+  return String(env.PREVIEW_ORIGINS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
+}
+const cors = (o, env) => (ORIGINS.includes(o) || String(env.EXTRA_ORIGINS || '').split(',').includes(o) || previewOrigins(env).includes(String(o || '').replace(/\/$/, '')) || (env.ALLOW_LOCAL === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)))
   ? { 'Access-Control-Allow-Origin': o, 'Access-Control-Allow-Methods': 'GET,POST,OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type', Vary: 'Origin' } : {};
 const json = (d, s, h) => new Response(JSON.stringify(d), { status: s, headers: { 'Content-Type': 'application/json', ...h } });
 const nowIso = () => new Date().toISOString();
@@ -44,20 +54,33 @@ const b64 = s => btoa(String.fromCharCode(...new TextEncoder().encode(s)));
 async function sha(s, n = 32) { const d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(d)].slice(0, n).map(b => b.toString(16).padStart(2, '0')).join(''); }
 const shTime = () => new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + '（北京时间）';
 
-function page(lang, msg, status = 200) {
+function previewHome(env, lang) {
+  const origin = previewOrigins(env)[0];
+  if (!origin) return '';
+  return origin + (lang === 'zh' ? '/zh/asia/' : '/asia/');
+}
+function page(lang, msg, status = 200, env) {
   const t = T[lang] || T.en;
+  const done = status === 200 && msg === t.okPage;
+  const label = done ? (t.okBtn || t.back) : t.back;
+  const home = (done && previewHome(env, lang)) || t.home;
+  const link = done
+    ? `<p><a href="${home}" style="display:inline-block;margin-top:8px;background:#0e6e78;color:#f6e3b4;border-radius:999px;padding:12px 22px;font-weight:700;text-decoration:none">${esc(label)}</a></p>`
+    : `<p><a href="${home}" style="color:#0e6e78">${esc(label)}</a></p>`;
   return new Response(`<!doctype html><html lang="${lang === 'zh' ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(msg)}</title>
 <body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
-<p style="font-size:1.1rem;color:#0a4f57;font-weight:700">${esc(msg)}</p><p><a href="${t.home}" style="color:#0e6e78">${t.back}</a></p><p style="font-size:.8rem;color:#7a6255">${t.foot}</p></div></body></html>`,
+<p style="font-size:1.15rem;line-height:1.5;color:#0a4f57;font-weight:700">${esc(msg)}</p>${link}<p style="font-size:.8rem;color:#7a6255">${esc(t.foot)}</p></div></body></html>`,
     { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
 
 // Subscriber mail. Provider chosen by env.MAIL_PROVIDER: 'cloudflare' (Email Sending binding SUB_MAIL, Workers Paid),
 // 'gmail' (Gmail SMTP as selecttango@gmail.com, secret GMAIL_APP_PASSWORD), 'resend' (RESEND_API_KEY secret), or 'log' (default: print only, nothing is sent).
 async function sendToSubscriber(env, to, subject, text, html, unsubUrl) {
+  const previewAllow = String(env.PREVIEW_ALLOWED_EMAIL || '').trim().toLowerCase();
+  if (env.PREVIEW === '1' && previewAllow && (env.MAIL_PROVIDER || 'log') !== 'log' && String(to || '').trim().toLowerCase() !== previewAllow) throw new Error('preview recipient not allowed');
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT) throw new Error('recipient not allowed in test mode');
   const headers = unsubUrl ? { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' } : {};
-  const cc = SUB_CC && SUB_CC !== to ? SUB_CC : '';
+  const cc = env.PREVIEW === '1' ? '' : (SUB_CC && SUB_CC !== to ? SUB_CC : '');
   if (cc) headers.Cc = `<${cc}>`;
   const p = env.MAIL_PROVIDER || 'log';
   if (p === 'cloudflare') {
@@ -76,9 +99,20 @@ async function sendToSubscriber(env, to, subject, text, html, unsubUrl) {
   return 'sent:' + p;
 }
 function mailHtml(lines, link, t, unsub) {
+  const note = link && t.linkNote ? `<p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#5b5148">${esc(t.linkNote)}</p>` : '';
   return `<div style="font-family:system-ui,sans-serif;color:#2a1a14;max-width:520px">${lines.map(l => `<p>${esc(l)}</p>`).join('')}` +
-    (link ? `<p><a href="${link}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:10px 18px;border-radius:999px;text-decoration:none">${esc(link.includes('/confirm') ? (t === T.zh ? '确认订阅' : 'Confirm subscription') : link)}</a></p><p style="font-size:12px;color:#777">${esc(link)}</p>` : '') +
+    (link ? `<p><a href="${link}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:10px 18px;border-radius:999px;text-decoration:none">${esc(link.includes('/confirm') ? (t === T.zh ? '确认订阅' : 'Confirm subscription') : link)}</a></p><p style="font-size:12px;color:#777">${esc(link)}</p>${note}` : '') +
     `<hr style="border:0;border-top:1px dashed #ead9b8"><p style="font-size:12px;color:#777">${esc(t.foot)}${unsub ? ` <a href="${unsub}">${esc(t.unsubLine)}</a>` : ''}</p></div>`;
+}
+// The letter POST /subscribe sends. Pure: it does not send mail.
+export function confirmLetter(lang, link, unsubUrl) {
+  const t = T[lang === 'zh' ? 'zh' : 'en'];
+  const unsub = unsubUrl || '';
+  return {
+    subject: t.cSubj,
+    text: `${t.cBody(link)}\n\n${t.foot}\n${t.unsubLine}: ${unsub}`,
+    html: mailHtml(t.cBody('').split('\n').filter(Boolean), link, t, unsub)
+  };
 }
 // Owner notification via the existing Email Routing binding (fixed destination, works on Workers Free).
 async function notifyOwner(env, subject, text) {
@@ -170,7 +204,7 @@ async function confirm(url, env) {
   const typeZh = r.types.split(',').map(x => x === 'featured' ? '特色活动' : '常规活动').join('、');
   await notifyOwner(env, `${r.is_test ? '[测试] ' : ''}新订阅已确认 #${r.id} ${r.email}`,
     [`亚洲探戈地图 新订阅（已确认）#${r.id}`, '', `名字：${r.name || '（未填）'}`, `邮箱：${r.email}`, `微信号：${r.wechat || '（未填）'}`, `活动类型：${typeZh}`, `城市：${r.cities === 'all' ? '全部城市' : r.cities}`, `确认时间：${shTime()}`, `页面语言：${lang === 'zh' ? '中文' : 'English'}`].join('\n'));
-  return page(lang, t.okPage);
+  return page(lang, t.okPage, 200, env);
 }
 
 async function unsubscribe(url, env) {
