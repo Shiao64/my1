@@ -17,7 +17,7 @@ check('home fav block hides strip when empty', home.includes("list.length ? '<di
 check('home fav strip markup', home.includes("var strip = list.length ? '<div class=\"ah-strip\">'".replace(/\\"/g,'"')) || home.includes('class="ah-strip"'));
 check('tombstone helpers exist', star.includes("atm_fav_removed_v1") && star.includes('function isRemoved') && star.includes('function markRemoved') && star.includes('function unmarkRemoved') && star.includes('function requestUnfav') && star.includes('function seriesFavIds'));
 check('unfav without token stays local', /function requestUnfav\([\s\S]*if \(!token\(\)\)[\s\S]*dropLocalOne/.test(star) && star.includes("/social/going/unfav"));
-check('take in fav list unfavs instead of opening intent', star.includes("b.closest('.ah-ly')") && star.includes('requestUnfav(uid)'));
+check('take in fav list asks before unfavorite and does not open intent', star.includes("b.closest('.ah-ly')") && star.includes('confirmUnfav(uid)') && star.includes('function confirmUnfav') && star.includes('取消收藏这个活动？') && star.includes('Remove this event from favorites?') && star.includes("unfavKeep: '保留'") && star.includes("unfavKeep: 'Keep'") && star.includes('openedFavStar'));
 check('addLocalFav clears tombstone', /function addLocalFav\([\s\S]*unmarkRemoved\(id\)/.test(star));
 check('loadLocalFavs drops tombstoned ids', /function loadLocalFavs\([\s\S]*rem\.indexOf\(id\) < 0/.test(star));
 if (failed) { console.error(failed + '/' + n + ' failed'); process.exit(1); }

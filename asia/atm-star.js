@@ -46,6 +46,8 @@
     limited: '确认邮件已达上限，请稍后再试。',
     withheld: '已记下。这一场不会交给主办。',
     unfav: '取消收藏',
+    unfavAsk: '取消收藏这个活动？',
+    unfavKeep: '保留',
     notify: '接收主办方信息',
     scope: '',
     transport: '交通指引（可选）',
@@ -112,6 +114,8 @@
     limited: 'Too many confirmation emails. Please try again later.',
     withheld: 'Saved. This one is not sent to the organizer.',
     unfav: 'Remove from favorites',
+    unfavAsk: 'Remove this event from favorites?',
+    unfavKeep: 'Keep',
     notify: 'Receive organizer updates',
     scope: '',
     transport: 'Directions (optional)',
@@ -161,6 +165,17 @@
     '.atm-heart.atm-star-wait{cursor:pointer;background:transparent}.atm-heart.atm-star-wait path{stroke:#0e6e78;fill:none;stroke-dasharray:2.2 1.4}' +
     'html.atm-p10 #atm-c1bar .p10-heart.atm-star-off{cursor:pointer!important;background:transparent!important;opacity:1!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-off path{fill:none!important;stroke:#b8913a!important;stroke-width:1.15!important;opacity:.25!important}' +
     'html.atm-p10 #atm-c1bar .p10-heart.atm-star-wait{cursor:pointer!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-wait path{fill:none!important;stroke:#0e6e78!important;stroke-dasharray:2.2 1.4}' +
+    'html.atm-p10 #atm-c1bar .p10-heart,#atm-single .ev-card>.atm-heart,.atm-favfc>.atm-heart,.ah-ly .ah-heart{width:44px!important;height:44px!important;min-width:44px;min-height:44px;box-sizing:border-box}' +
+    'html.atm-p10 #atm-c1bar .p10-heart svg,#atm-single .ev-card>.atm-heart svg,.atm-favfc>.atm-heart svg,.ah-ly .ah-heart svg{width:26px!important;height:26px!important}' +
+    'html.atm-p10 #atm-c1bar .atm-c1-t{right:56px!important}' +
+    '#atm-single .ev-card>.atm-heart path,html.atm-p10 #atm-c1bar .p10-heart path,.atm-favfc>.atm-heart path{fill:none;stroke:#0E6E78;stroke-width:1.8}' +
+    '#atm-single .ev-card>.atm-heart[aria-pressed="true"] path,html.atm-p10 #atm-c1bar .p10-heart[aria-pressed="true"] path,.atm-favfc>.atm-heart[aria-pressed="true"] path{fill:#B3261E!important;stroke:#B3261E!important}' +
+    '#atm-unfav-ask{position:fixed;inset:0;z-index:12000;display:flex;align-items:flex-end;justify-content:center;background:rgba(6,51,58,.55)}' +
+    '#atm-unfav-ask .auf{background:#fffdf8;width:100%;max-width:420px;border-radius:16px 16px 0 0;padding:18px 16px 22px;box-sizing:border-box;color:#2a1a14}' +
+    '@media(min-width:700px){#atm-unfav-ask{align-items:center}#atm-unfav-ask .auf{border-radius:16px}}' +
+    '#atm-unfav-ask p{margin:0 0 14px;font:700 1.05rem/1.45 "Noto Serif SC",Georgia,serif;color:#0a4f57}' +
+    '#atm-unfav-ask .auf-row{display:flex;gap:8px}#atm-unfav-ask button{flex:1;min-height:44px;border-radius:12px;font-weight:700;font-size:1rem;cursor:pointer}' +
+    '#atm-unfav-ask .auf-yes{border:0;background:#0e6e78;color:#f6e3b4}#atm-unfav-ask .auf-no{border:1px solid #0e6e78;background:#fff;color:#0e6e78}' +
     '#atm-star{position:fixed;inset:0;z-index:3000;display:flex;align-items:flex-end;justify-content:center;background:rgba(6,51,58,.55)}#atm-star[hidden]{display:none}' +
     '#atm-star .asg{position:relative;background:#fffdf8;width:100%;max-width:480px;max-height:92dvh;overflow:hidden;display:flex;flex-direction:column;border-radius:16px 16px 0 0;padding:16px 16px 22px;box-sizing:border-box;color:#2a1a14}' +
     '@media(min-width:700px){#atm-star{align-items:center}#atm-star .asg{border-radius:16px;max-height:88vh}}' +
@@ -946,7 +961,7 @@
       if (!b.querySelector('path')) return;
       var path = b.querySelector('path'); if (path && path.getAttribute('d') !== STAR) path.setAttribute('d', STAR);
       var id = idOf(b); if (!id) return;
-      if (b.closest && b.closest('.ah-ly')) {
+      if ((b.closest && b.closest('.ah-ly')) || openedFavStar(b, id)) {
         b.classList.remove('atm-star-off', 'atm-star-wait');
         b.setAttribute('aria-disabled', 'false');
         b.setAttribute('aria-busy', 'false');
@@ -1039,6 +1054,37 @@
       if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
     }
   }
+  function openedFavStar(b, id) {
+    if (!b || !id || !favs[id]) return false;
+    if (b.classList.contains('p10-heart')) return true;
+    return !!(b.closest && b.closest('#atm-single'));
+  }
+  var askEl = null;
+  function closeAsk() {
+    if (askEl) { askEl.remove(); askEl = null; }
+    document.removeEventListener('keydown', onAskKey, true);
+  }
+  function onAskKey(e) {
+    if (e.key !== 'Escape' || !askEl) return;
+    e.preventDefault();
+    closeAsk();
+  }
+  function confirmUnfav(id) {
+    if (!id) return;
+    closeAsk();
+    var box = document.createElement('div');
+    box.id = 'atm-unfav-ask';
+    box.innerHTML = '<div class="auf" role="dialog" aria-modal="true" aria-labelledby="atm-unfav-q"><p id="atm-unfav-q">' + esc(L.unfavAsk) + '</p><div class="auf-row"><button type="button" class="auf-yes">' + esc(L.unfav) + '</button><button type="button" class="auf-no">' + esc(L.unfavKeep) + '</button></div></div>';
+    askEl = box;
+    document.body.appendChild(box);
+    var no = box.querySelector('.auf-no');
+    if (no) no.focus();
+    box.addEventListener('click', function (ev) {
+      if (ev.target === box || (ev.target.closest && ev.target.closest('.auf-no'))) { closeAsk(); return; }
+      if (ev.target.closest && ev.target.closest('.auf-yes')) { closeAsk(); requestUnfav(id); }
+    });
+    document.addEventListener('keydown', onAskKey, true);
+  }
   function requestUnfav(id) {
     var ids = seriesFavIds(id);
     if (!token()) {
@@ -1127,7 +1173,8 @@
     refresh: function () { return refreshMine(); },
     take: function (b) {
       if (b.closest && b.closest('[data-unfav]')) return false;
-      if (b.closest && b.closest('.ah-ly')) { var uid = idOf(b); if (uid) requestUnfav(uid); return true; }
+      if (b.closest && b.closest('.ah-ly')) { var uid = idOf(b); if (uid) confirmUnfav(uid); return true; }
+      if (openedFavStar(b, idOf(b))) { confirmUnfav(idOf(b)); return true; }
       if (b.classList.contains('atm-star-off')) { toast(L.noRsvp, 'off', b); return true; }
       if (b.getAttribute('aria-disabled') === 'true') return true;
       var id = idOf(b), e = id ? eventOf(id) : null;
@@ -1143,7 +1190,7 @@
     if (!u) return;
     e.preventDefault(); e.stopPropagation();
     var id = u.getAttribute('data-unfav');
-    if (id) requestUnfav(id);
+    if (id) confirmUnfav(id);
   }, true);
   document.addEventListener('atm-more', function () { paint(); });
   (function () {

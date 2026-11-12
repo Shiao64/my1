@@ -153,6 +153,8 @@ await page.evaluate((id) => {
   const b = document.querySelector('.ah-ly .atm-unfav[data-unfav="' + id + '"]');
   if (b) b.click();
 }, DROP);
+await page.waitForSelector('#atm-unfav-ask .auf-yes', { timeout: 4000 });
+await page.evaluate(() => { const y = document.querySelector('#atm-unfav-ask .auf-yes'); if (y) y.click(); });
 await new Promise((r) => setTimeout(r, 500));
 st = await state(page);
 check('zh after cancel count 2', st.favs.length === 2 && !st.favs.includes(DROP) && st.removed.includes(DROP));
@@ -180,6 +182,8 @@ check('en title star not heart', st.star && !st.heartGlyph);
 check('en unfav visible x3', st.unfav.length === 3 && st.unfav.every((u) => u.text === 'Remove from favorites' && u.h >= 44 && u.visible));
 await en.screenshot({ path: path.join(shotDir, 'en-list-before.png'), fullPage: false });
 await en.evaluate((id) => { const b = document.querySelector('.ah-ly .atm-unfav[data-unfav="' + id + '"]'); if (b) b.click(); }, DROP);
+await en.waitForSelector('#atm-unfav-ask .auf-yes', { timeout: 4000 });
+await en.evaluate(() => { const y = document.querySelector('#atm-unfav-ask .auf-yes'); if (y) y.click(); });
 await new Promise((r) => setTimeout(r, 500));
 st = await state(en);
 check('en after cancel count 2', st.favs.length === 2 && !st.favs.includes(DROP) && st.removed.includes(DROP) && st.title.includes('2') && st.unfav.length === 2);
@@ -203,6 +207,80 @@ st = await state(pMine);
 check('en /mine union does not resurrect', st.favs.length === 2 && !st.favs.includes(DROP) && st.removed.includes(DROP) && st.unfav.length === 2 && st.title.includes('2'));
 await pMine.close();
 await ctxEn.close();
+
+async function starBox(page) {
+  return page.evaluate(() => {
+    const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart');
+    const r = el ? el.getBoundingClientRect() : { width: 0, height: 0 };
+    const svg = el && el.querySelector('svg');
+    const sr = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+    const ask = document.getElementById('atm-unfav-ask');
+    return {
+      w: Math.round(r.width), h: Math.round(r.height), svg: svg ? Math.round(sr.width) : 0,
+      label: el ? (el.getAttribute('aria-label') || '') : '',
+      pressed: el ? el.getAttribute('aria-pressed') : '',
+      ask: ask ? (ask.innerText || '') : '',
+      yesH: ask && ask.querySelector('.auf-yes') ? ask.querySelector('.auf-yes').getBoundingClientRect().height : 0,
+      favs: JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'),
+      intent: !!document.querySelector('#atm-star:not([hidden]) .asg'),
+    };
+  });
+}
+async function openSaved(page, path) {
+  await page.goto(origin + path, { waitUntil: 'networkidle0', timeout: 40000 });
+  await dismiss(page);
+  await page.waitForSelector('#atm-single .ev-card > .atm-heart, #atm-c1bar .p10-heart', { timeout: 15000 });
+  await new Promise((r) => setTimeout(r, 500));
+}
+const ctxCard = await browser.createBrowserContext();
+const zhCard = await ctxCard.newPage();
+await arm(zhCard, { seed: ['E093'] });
+await openSaved(zhCard, '/zh/asia/?card=E093');
+let box = await starBox(zhCard);
+check('zh opened star is 44px and means 取消收藏', box.w >= 44 && box.h >= 44 && box.svg >= 24 && box.label === '取消收藏' && box.pressed === 'true');
+await zhCard.screenshot({ path: path.join(shotDir, 'zh-open-before-tap.png') });
+await zhCard.evaluate(() => { const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart'); if (el) el.click(); });
+await zhCard.waitForSelector('#atm-unfav-ask', { timeout: 4000 });
+box = await starBox(zhCard);
+check('zh unfavorite asks and does not remove yet', box.ask.includes('取消收藏这个活动？') && box.ask.includes('取消收藏') && box.ask.includes('保留') && box.yesH >= 44 && box.favs.includes('E093') && !box.intent);
+await zhCard.screenshot({ path: path.join(shotDir, 'zh-open-confirm.png') });
+await zhCard.click('#atm-unfav-ask .auf-no');
+await new Promise((r) => setTimeout(r, 200));
+box = await starBox(zhCard);
+check('zh 保留 keeps the favorite', !box.ask && box.favs.includes('E093') && box.label === '取消收藏');
+await zhCard.evaluate(() => { const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart'); if (el) el.click(); });
+await zhCard.waitForSelector('#atm-unfav-ask .auf-yes');
+await zhCard.click('#atm-unfav-ask .auf-yes');
+await new Promise((r) => setTimeout(r, 400));
+box = await starBox(zhCard);
+check('zh 取消收藏 removes it and does not ask to add', !box.favs.includes('E093') && box.label !== '取消收藏' && !box.ask);
+await zhCard.screenshot({ path: path.join(shotDir, 'zh-open-after.png') });
+
+const enCard = await ctxCard.newPage();
+await arm(enCard, { seed: ['E093'] });
+await openSaved(enCard, '/asia/?card=E093');
+box = await starBox(enCard);
+check('en opened star is 44px and means remove', box.w >= 44 && box.h >= 44 && box.svg >= 24 && box.label === 'Remove from favorites' && box.pressed === 'true');
+await enCard.screenshot({ path: path.join(shotDir, 'en-open-before-tap.png') });
+await enCard.evaluate(() => { const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart'); if (el) el.click(); });
+await enCard.waitForSelector('#atm-unfav-ask');
+box = await starBox(enCard);
+check('en unfavorite asks and does not remove yet', box.ask.includes('Remove this event from favorites?') && box.ask.includes('Remove from favorites') && box.ask.includes('Keep') && box.favs.includes('E093') && !box.intent);
+await enCard.screenshot({ path: path.join(shotDir, 'en-open-confirm.png') });
+await enCard.click('#atm-unfav-ask .auf-no');
+box = await starBox(enCard);
+check('en Keep leaves the favorite', box.favs.includes('E093') && box.label === 'Remove from favorites');
+await enCard.goto(origin + '/asia/?card=E167', { waitUntil: 'networkidle0', timeout: 40000 });
+await dismiss(enCard);
+await enCard.waitForSelector('#atm-single .ev-card > .atm-heart, #atm-c1bar .p10-heart', { timeout: 15000 });
+await new Promise((r) => setTimeout(r, 400));
+box = await starBox(enCard);
+check('en unsaved card star is still 44 and is not unfavorite', box.w >= 44 && box.h >= 44 && box.label !== 'Remove from favorites' && !box.favs.includes('E167'));
+await enCard.evaluate(() => { const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart'); if (el) el.click(); });
+await new Promise((r) => setTimeout(r, 400));
+box = await starBox(enCard);
+check('en adding a favorite does not ask', !box.ask && !box.favs.includes('E167'));
+await ctxCard.close();
 
 await browser.close();
 server.close();
