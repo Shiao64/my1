@@ -20,7 +20,8 @@ SLUGS = {
 # preliminary together). The template drops TBA venues. E163 is not a second page.
 # E167 keeps two venues, the price table, and the unlabeled names on the poster.
 # If the row is missing from asia/events.json, main() prints "missing <id>" and does not invent a page.
-HANDWRITTEN = {'JHeguuQb', 'E162', 'E167'}
+# E044 is the handwritten Hong Kong Tango Marathon page (9th recap + 10th edition #2027). Do not regenerate.
+HANDWRITTEN = {'JHeguuQb', 'E162', 'E167', 'E044'}
 CITY_ZH = {'Guangzhou':'广州','Hong Kong':'香港','Shanghai':'上海','Taipei':'台北','Beijing':'北京','Kuala Lumpur':'吉隆坡',
  'Da Nang':'岘港','Bandar Seri Begawan':'斯里巴加湾','Penang':'槟城','Wuhan':'武汉','Chengdu':'成都'}
 TYPE = {'festival':('探戈节','Festival'),'marathon':('马拉松','Marathon'),'milonga':('舞会','Milonga'),'event':('活动','Event')}
