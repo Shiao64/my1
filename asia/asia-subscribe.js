@@ -57,7 +57,8 @@
     '#tsub-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:flex-start;justify-content:center;padding:max(10px,env(safe-area-inset-top)) 12px max(10px,env(safe-area-inset-bottom));box-sizing:border-box}#tsub-modal[hidden]{display:none}' +
     '#tsub-modal .tsub-bg{position:absolute;inset:0;background:rgba(6,51,58,.6)}' +
     '#tsub-modal .tsub-dlg{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px;padding:0;max-width:440px;width:100%;box-sizing:border-box;box-shadow:0 16px 48px rgba(6,51,58,.35);max-height:90vh;max-height:90dvh;overflow:hidden;overflow-x:hidden}' +
-    '#tsub-modal .tsub-hd{display:flex;align-items:center;justify-content:space-between;gap:8px;flex:0 0 auto;background:#fff;padding:6px 4px 4px 16px;border-radius:10px 10px 0 0}' +
+    '#tsub-modal .tsub-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex:0 0 auto;background:#fff;padding:6px 4px 4px 16px;border-radius:10px 10px 0 0}' +
+    '#tsub-modal .tsub-titles{flex:1;min-width:0}' +
     '#tsub-modal .tsub-body{overflow:auto;-webkit-overflow-scrolling:touch;padding:0 16px 12px;min-height:0}' +
     '#tsub-modal h2{font-family:var(--serif);color:#0a4f57;font-size:19px;line-height:26px;font-weight:700;margin:0}' +
     '#tsub-modal .tsub-x{position:static;flex:0 0 44px;width:44px;height:44px;margin:0;padding:0;background:#fff;border:0;border-radius:8px;font-size:1.7rem;line-height:1;color:#7a6255;cursor:pointer}' +
@@ -68,7 +69,7 @@
     '#tsub-modal .tsub-row{display:flex;gap:8px}#tsub-modal .tsub-col{flex:1;min-width:0}@media (max-width:420px){#tsub-modal .tsub-row{flex-wrap:wrap}#tsub-modal .tsub-col{flex:1 1 100%}}' +
     '#tsub-modal .tsub-desc{font-size:.88rem;color:#2a1a14;margin:0 0 4px;line-height:1.5}' +
     '#tsub-modal .tsub-hint{font-size:.8rem;color:#7a6255;margin:6px 0 0}#tsub-modal .tsub-err{color:#b5654a;font-size:.85rem;margin:8px 0 0;min-height:1em}' +
-    '#tsub-modal .tsub-tabs{display:flex;margin:10px 0 6px;border:1px solid #0e6e78;border-radius:8px;overflow:hidden}#tsub-modal .tsub-tab{flex:1;padding:9px 0;border:0;background:#fff;color:#0e6e78;font:600 .95rem system-ui;cursor:pointer}#tsub-modal .tsub-tab[aria-selected=true]{background:#0e6e78;color:#fff}#tsub-modal .tsub-tab.tsub-off,#tsub-modal .tsub-tab:disabled{opacity:.45;cursor:not-allowed;background:#eee;color:#9a9a9a;pointer-events:none}#tsub-modal [data-m=wx] .tsub-emf,#tsub-modal [data-m=em] .tsub-wxf,#tsub-modal [data-m] .tsub-hint{display:none!important}#tsub-modal .tsub-qa{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}#tsub-modal .tsub-qb{padding:7px 14px;border:1px solid #0e6e78;border-radius:8px;color:#0e6e78;text-decoration:none;font:600 .9rem system-ui;background:#fff}#tsub-modal .tsub-wid{text-align:center;font-size:.88rem;margin:6px 0 2px}#tsub-modal .tsub-wid .tsub-qb{padding:4px 10px;font-size:.82rem;cursor:pointer}#tsub-modal .tsub-wxb{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#07a050;font:600 .72rem system-ui}#tsub-modal .tsub-qr{-webkit-touch-callout:default;user-select:auto}#tsub-modal .tsub-qh{text-align:center;font-size:.82rem;color:#7a6255;margin:2px 0 6px}#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;margin:8px 0 0;line-height:1.6}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:auto;margin:10px auto 0;border-radius:8px}' +
+    '#tsub-modal .tsub-tabs{display:flex;margin:10px 0 6px;border:1px solid #0e6e78;border-radius:8px;overflow:hidden}#tsub-modal .tsub-tab{flex:1;padding:9px 0;border:0;background:#fff;color:#0e6e78;font:600 .95rem system-ui;cursor:pointer}#tsub-modal .tsub-tab[aria-selected=true]{background:#0e6e78;color:#fff}#tsub-modal .tsub-tab.tsub-off,#tsub-modal .tsub-tab:disabled{opacity:.45;cursor:not-allowed;background:#eee;color:#9a9a9a;pointer-events:none}#tsub-modal [data-m=wx] .tsub-emf,#tsub-modal [data-m=em] .tsub-wxf,#tsub-modal [data-m] .tsub-hint{display:none!important}#tsub-modal .tsub-qa{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}#tsub-modal .tsub-qb{padding:7px 14px;border:1px solid #0e6e78;border-radius:8px;color:#0e6e78;text-decoration:none;font:600 .9rem system-ui;background:#fff}#tsub-modal .tsub-wid{text-align:center;font-size:.88rem;margin:6px 0 2px}#tsub-modal .tsub-wid .tsub-qb{padding:4px 10px;font-size:.82rem;cursor:pointer}#tsub-modal .tsub-wxb{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#07a050;font:600 .72rem system-ui}#tsub-modal .tsub-qr{-webkit-touch-callout:default;user-select:auto}#tsub-modal .tsub-qh{text-align:center;font-size:.82rem;color:#7a6255;margin:2px 0 6px}#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;font-weight:700;margin:2px 8px 6px 0;line-height:1.45}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:auto;margin:10px auto 0;border-radius:8px}' +
     '#tsub-modal .tsub-go{width:100%;min-height:48px;margin-top:10px;border-radius:12px;font:600 15px/20px var(--sans);background:#0e6e78;color:#FFFFFF;border:0;cursor:pointer}#tsub-modal .tsub-go:disabled{opacity:.5}' +
     '#tsub-modal .tsub-check{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;font-size:.88rem;color:#2a1a14}#tsub-modal .tsub-check input{width:auto;min-height:0;margin-top:3px}' +
     '#tsub-modal .tsub-unsub{width:100%;min-height:44px;margin-top:8px;border-radius:999px;background:#fff;color:#7a6255;border:1px solid #ead9b8;cursor:pointer}' +
@@ -104,7 +105,7 @@
   function EM() { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '<span class="tsub-star" id="tsub-email-star">*</span></label><input type="email" class="tsub-in tsub-must" id="tsub-e" autocomplete="email" required aria-required="true" maxlength="80" placeholder="' + L.emailPh + '">'; }
   var m = document.createElement('div'); m.id = 'tsub-modal'; m.hidden = true;
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
-    '<div class="tsub-hd"><h2 id="tsub-t">' + L.title + '</h2><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-need" id="tsub-need">' + L.gateHelp + '</p><p class="tsub-desc" id="tsub-desc">' + L.desc + '</p>' +
+    '<div class="tsub-hd"><div class="tsub-titles"><h2 id="tsub-t">' + L.title + '</h2><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></div><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-need" id="tsub-need">' + L.gateHelp + '</p><p class="tsub-desc" id="tsub-desc">' + L.desc + '</p>' +
     '<form id="tsub-f" novalidate data-m="em">' +
     EM() +
     '<label class="tsub-lbl" for="tsub-last4">' + L.last4 + '<span class="tsub-star" id="tsub-tail-star">*</span></label><input type="text" class="tsub-in tsub-must" id="tsub-last4" inputmode="numeric" autocomplete="off" maxlength="4">' +
@@ -121,8 +122,7 @@
     '<div class="tsub-pass" id="tsub-pass" hidden><p class="tsub-lbl">' + L.passTitle + '</p><p class="tsub-pass-note" id="tsub-pass-hint">' + L.passHint + '</p>' +
     '<div class="tsub-pass-row"><input class="tsub-in" id="tsub-pass-url" readonly autocomplete="off" spellcheck="false" aria-label="' + L.passTitle + '"><button type="button" class="tsub-pass-copy" id="tsub-pass-copy">' + L.passCopy + '</button></div>' +
     '<p class="tsub-pass-note" id="tsub-pass-note"></p><button type="button" class="tsub-pass-new" id="tsub-pass-new">' + L.passNew + '</button></div></div>' +
-    '<p class="tsub-err" id="tsub-err" aria-live="polite"></p>' +
-    '<p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></form>' +
+    '<p class="tsub-err" id="tsub-err" aria-live="polite"></p></form>' +
     '<p class="tsub-foot">' + L.foot + '</p></div></div>';
   document.body.appendChild(m);
   var $ = function (id) { return document.getElementById(id); };
@@ -259,12 +259,17 @@
     var go = $('tsub-go'); if (go && go.dataset.busy !== '1') go.textContent = L.send;
     mountSubTs();
   }
+  function scrollModalTop() {
+    var scroller = m.querySelector('.tsub-body');
+    if (scroller) scroller.scrollTop = 0;
+  }
   function open() {
     if (tmr) { clearTimeout(tmr); tmr = null; }
     $('tsub-ok').hidden = true; $('tsub-err').textContent = '';
     var tok = token();
     paintMode(!!tok);
     m.hidden = false;
+    scrollModalTop();
     if (!tok) { paintPhone(''); paintMode(false); return; }
     var headers = { Authorization: 'Bearer ' + tok };
     fetch(API + '/social/going/mine', { headers: headers }).then(function (r) { return r.json(); }).then(function (d) {
@@ -318,6 +323,7 @@
             open();
             var hint = $('tsub-ok');
             if (hint) { hint.textContent = L.confirmed; hint.hidden = false; }
+            scrollModalTop();
           });
           if (d.session && $('tsub-site')) $('tsub-site').checked = !!d.sitewide;
           if (d.session && d.phone_tail) paintPhone(d.phone_tail);

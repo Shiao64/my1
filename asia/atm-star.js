@@ -39,7 +39,7 @@
     needName: '请填写姓名。', needEmail: '请填写邮箱。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     returnHint: '已经订阅过？请输入邮箱和电话末 4 码，不必再等确认信。',
     gateHelp: '邮箱和电话末 4 码<em>必填</em>。系统会识别是注册还是登录。第一次注册仍要发送确认邮件；在信里点确认以后，电话末 4 码才会生效。已确认过的，填邮箱和电话末 4 码即可登录，不必再等确认信。',
-    regHelp: '请完成注册。邮箱和电话末 4 码<em>必填</em>。请补全资料并发送确认邮件。在信里点确认以后，电话末 4 码才会生效；再回到本页点「确认」，才会记录意向。',
+    regHelp: '请完成注册。邮箱和电话末 4 码<em>必填</em>。请补全资料并发送确认邮件。在信里点确认以后，电话末 4 码才会生效。',
     phone: '电话', last4: '电话末 4 码', signIn: '登录', gate: '注册／登录', send: '发送确认邮件',
     needPhone: '请填写电话。', badPhone: '电话号码不正确。', needLast4: '请输入电话末 4 码。', badLogin: '邮箱或电话末 4 码不正确。',
     later: '请稍后再试。',
@@ -53,12 +53,12 @@
     optin: '勾选后，可接收早鸟报名及截止时间、场地交通指引、临时通知和主办方消息。',
     submit: '确认', needIntent: '请选择要参加、感兴趣或去不了。',
     profileTitle: '',
-    profileDesc: '先确认邮箱。回到本页后再点「确认」，才会记录意向。',
+    profileDesc: '先确认邮箱。确认后会记下意向。',
     req: '以下均为必填',
     name: '姓名', email: '邮箱', city: '城市', role: '角色',
     rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', rolePh: '请选择',
     once: '同一设备验证通过后，再选 Going／Interested 无需重复验证。',
-    verifyBtn: '确认', pending: '确认邮件已发出，请查收。点开邮件里的确认后，再回到这里点「确认」。',
+    verifyBtn: '确认', pending: '确认邮件已发出，请查收。确认后会记下意向。',
     sentHold: '已发送邮件，请到邮箱确认',
     spam: '没收到邮件？请到垃圾邮件箱查看。',
     backHint: '确认链接可能会在浏览器里打开，确认后回到这里就行。',
@@ -67,7 +67,7 @@
     resendWait: '{n} 秒后可重发',
     resendUsed: '已重发过，请查收或稍后再试。',
     resend: '重新发送验证邮件',
-    ready: '邮箱已确认。再点「确认」才会记录意向。',
+    ready: '邮箱已确认，意向已记下。',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
     savedNotify: '已保存，主办方会收到通知',
     savedShort: '已保存',
@@ -105,7 +105,7 @@
     needName: 'Please enter your name.', needEmail: 'Please enter your email.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
     returnHint: 'Already subscribed? Enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.',
     gateHelp: 'Email and the last 4 digits are <em>required</em>. The form tells registration from sign-in. The first registration still sends a confirmation email. The last 4 digits work only after you tap the link in that email. If you already confirmed, enter your email and the last 4 digits to sign in. You don\u2019t need another confirmation email.',
-    regHelp: 'Finish registration. Email and the last 4 digits are <em>required</em>. Complete your details and send the confirmation email. The last 4 digits work only after you tap the link in that email. Come back to this page and tap Confirm to save your intent.',
+    regHelp: 'Finish registration. Email and the last 4 digits are <em>required</em>. Complete your details and send the confirmation email. The last 4 digits work only after you tap the link in that email.',
     phone: 'Phone', last4: 'Last 4 digits', signIn: 'Sign in', gate: 'Register / sign in', send: 'Send confirmation email',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your phone.', badLogin: 'The email or the last 4 digits did not match.',
     later: 'Please try again later.',
@@ -119,12 +119,12 @@
     optin: 'Get early-bird deadlines, directions and updates from the organizer.',
     submit: 'Confirm', needIntent: 'Choose Going, Interested, or Not Going.',
     profileTitle: '',
-    profileDesc: 'Confirm your email first. After you come back, tap Confirm to save your intent.',
+    profileDesc: 'Confirm your email first. Your intent is saved when you confirm.',
     req: 'All fields are required',
     name: 'Name', email: 'Email', city: 'City', role: 'Role',
     rl: 'Leader', rf: 'follower', rb: 'both', rolePh: 'Choose',
     once: 'After one verification on this device, you won’t need to verify again to choose Going or Interested.',
-    verifyBtn: 'Confirm', pending: 'Confirmation email sent. Open it, then come back and tap Confirm.',
+    verifyBtn: 'Confirm', pending: 'Confirmation email sent. Your intent is saved when you confirm.',
     sentHold: 'Email sent — please confirm in your inbox',
     spam: 'Didn\'t get the email? Check your spam or junk folder.',
     backHint: 'The confirmation link may open in your browser. After confirming, just come back here.',
@@ -133,7 +133,7 @@
     resendWait: 'Resend in {n}s',
     resendUsed: 'Already resent. Please check your inbox, or try again later.',
     resend: 'Resend verification email',
-    ready: 'Email confirmed. Tap Confirm to save your intent.',
+    ready: 'Email confirmed. Your intent is saved.',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
     savedNotify: 'Saved. The organizer will be notified.',
     savedShort: 'Saved',
@@ -554,6 +554,24 @@
     });
     return best ? { email: email, n: best.n || 0, at: best.at || 0 } : null;
   }
+  function confirmedLabel(intent) {
+    var word = intent === 'interested' ? L.interested : intent === 'absent' ? L.absent : L.going;
+    return L.confirmed + ' · ' + word;
+  }
+  function showConfirmed(go, intent) {
+    if (!go) return;
+    go.disabled = true;
+    go.dataset.busy = '';
+    go.dataset.sent = '1';
+    go.dataset.confirmed = '1';
+    go.dataset.savedIntent = intent || 'going';
+    go.setAttribute('aria-busy', 'false');
+    go.textContent = confirmedLabel(intent);
+    var note = go.parentNode && go.parentNode.querySelector('#asg-spam');
+    if (note) note.textContent = confirmedLabel(intent);
+    var mail = document.getElementById('asg-mailnote');
+    if (mail) { mail.hidden = false; mail.textContent = confirmedLabel(intent); }
+  }
   function holdSent(go) {
     go.disabled = true;
     go.dataset.busy = '';
@@ -703,7 +721,8 @@
       var rest = body().querySelector('#asg-rest'); if (rest) rest.hidden = false;
       lockFields();
       var goNow = body().querySelector('#asg-go');
-      if (goNow && goNow.dataset.sent === '1') holdSent(goNow);
+      if (goNow && goNow.dataset.confirmed === '1') showConfirmed(goNow, goNow.dataset.savedIntent || draft.intent);
+      else if (goNow && goNow.dataset.sent === '1') holdSent(goNow);
       else paintResend();
       ctxSet(draft);
       body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
@@ -881,9 +900,9 @@
       if (d && d.confirm) {
         addLocalFav(e.id);
         holdSent(go);
+        var recorded = payload.intent;
         if (d.nonce && window.ATM_CLAIM) window.ATM_CLAIM.watch(d.nonce, function () {
-          var note = document.getElementById('asg-spam');
-          if (note) note.textContent = L.confirmed;
+          showConfirmed(go, recorded);
           refreshMine();
         });
         return;

@@ -31,7 +31,7 @@ check('verified en dialog', star.includes("going: 'Going'") && star.includes("in
 check('old disclosure is not in the dialog', !star.includes('Selecttango@gmail.com') && !star.includes('确认意向') && !star.includes('Confirm intent') && !star.includes('资料说明') && !star.includes('详细说明') && !star.includes('姓名、邮箱及意向将发给主办') && !star.includes('设计预览') && !star.includes('Going · 要参加'));
 check('confirm is still explicit', star.includes('explicit: 1') && star.includes('disclose: 1') && star.includes('data-intent'));
 check('not a like', !star.includes('不是点赞') && !star.includes('not a like'));
-check('star cache', read('zh/asia/index.html').includes('atm-star.js?v=st29'));
+check('star cache', read('zh/asia/index.html').includes('atm-star.js?v=st30'));
 check('reach is a boolean and a missing session is not the grey switch', star.includes('/social/going/reach') && star.includes('canIntent') && !star.includes('if (!token()) grey'));
 check('one confirm button', star.includes("submit: '确认'") && star.includes("submit: 'Confirm'") && star.includes("verifyBtn: '确认'") && star.includes("verifyBtn: 'Confirm'") && !star.includes('确认邮箱并继续') && !star.includes('Confirm email and continue') && !star.includes('asg-restore'));
 check('bar', star.includes("bar: '我的收藏'") && star.includes("bar: 'My saved events'") && !star.includes("bar: '我的活动意向'") && !star.includes("bar: 'My event intents'"));
@@ -55,7 +55,7 @@ check('listedSaved falls back to favIds', home.includes('favIds().length'));
 check('map english event counts pluralize', read('asia/asia-map.js').includes("(reg ? ' regular event' : ' featured event') + (n === 1 ? '' : 's')") && read('asia/asia-map.js').includes("totalVisible === 1 ? ' listing' : ' listings'") && read('asia/asia-map.js').includes("'项常规活动'") && read('asia/asia-map.js').includes("'项特色活动'"));
 
 check('fav bar saved count is bilingual with ☆', fav.includes('☆ 已收藏 ') && fav.includes("☆ ' + n + ' saved event'") && !fav.includes('\\u2661') && !fav.includes('\\u2764'));
-check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h146') && read('zh/asia/index.html').includes('atm-star.js?v=st29') && read('asia/index.html').includes('atm-star.js?v=st29') && read('asia/index.html').includes('atm-later.js?v=lt10') && read('asia/index.html').includes('atm-data.js?v=r10') && read('asia/index.html').includes('atm-i18n.js?v=i1') && read('asia/index.html').includes('asia-map.js?v=r14') && read('asia/index.html').includes('cardB.js?v=cb146'));
+check('cache bumps', read('zh/asia/index.html').includes('atm-home.js?v=h146') && read('zh/asia/index.html').includes('atm-star.js?v=st30') && read('asia/index.html').includes('atm-star.js?v=st30') && read('asia/index.html').includes('atm-later.js?v=lt10') && read('asia/index.html').includes('atm-data.js?v=r10') && read('asia/index.html').includes('atm-i18n.js?v=i1') && read('asia/index.html').includes('asia-map.js?v=r14') && read('asia/index.html').includes('cardB.js?v=cb146'));
 check('close replaces the cancel-intent button', star.includes('class="asg-x"') && star.includes("close: '关闭'") && star.includes("close: 'Close'") && !star.includes('id="asg-cancel"') && !star.includes('/social/going/cancel'));
 check('favorite unfavorite label stays', home.includes('取消收藏') && home.includes('Remove from favorites'));
 check('home list title is saved events not intents', home.includes("fav: '我的收藏'") && home.includes("fav: 'My saved events'") && !home.includes('我的活动意向') && !home.includes('My event intents') && home.includes('还没有收藏。点活动上的星星即可收藏。') && home.includes('No saved events yet. Tap the star on an event to save it.'));
@@ -66,6 +66,7 @@ check('subscribe success names the spam folder only when mail is sent', sub.incl
 const logged = star.slice(star.indexOf('function loggedLine'), star.indexOf('function roleSelect'));
 const hold = star.slice(star.indexOf('function holdSent'), star.indexOf('function saveAbsent'));
 check('star adds the spam line only after a confirmation email', star.includes("spam: '没收到邮件？请到垃圾邮件箱查看。'") && star.includes("spam: 'Didn\\'t get the email? Check your spam or junk folder.'") && hold.includes('note.textContent = L.spam') && !logged.includes('L.spam') && !logged.includes('没收到邮件') && !logged.includes('spam or junk'));
+check('confirmed star label and no second confirm tap', star.includes('function confirmedLabel') && star.includes("return L.confirmed + ' · ' + word") && star.includes('showConfirmed(go, recorded)') && !star.includes('回到本页') && !star.includes('再回到这里点') && !star.includes('Come back to this page and tap Confirm') && !star.includes('come back and tap Confirm') && !star.includes('Tap Confirm to save your intent') && !star.includes('再点「确认」才会记录意向') && !star.includes('讯息'));
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going copy ok');

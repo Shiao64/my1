@@ -23,7 +23,12 @@ window.fetch = function (url, opt) {
   var u = String(url);
   var json = function (d) { return Promise.resolve({ ok: true, status: 200, json: async function () { return d; } }); };
   if (u.indexOf('/social/profile') >= 0) { window.__posts.push('profile'); return json({ ok: true, confirm: true, nonce: ${JSON.stringify(nonce)} }); }
-  if (u.indexOf('/social/going/await') >= 0) { window.__posts.push('await'); return json({ ok: true, confirmed: true, session: ${JSON.stringify(session)} }); }
+  if (u.indexOf('/social/going/await') >= 0) {
+    window.__posts.push('await');
+    return new Promise(function (resolve) {
+      window.__releaseAwait = function () { json({ ok: true, confirmed: true, session: ${JSON.stringify(session)} }).then(resolve); };
+    });
+  }
   if (u.indexOf('/social/going/mine') >= 0) return json({ email: 'ada@example.com', name: ${JSON.stringify(zh ? '安' : 'Ada')}, city: ${JSON.stringify(zh ? '上海' : 'Shanghai')}, role: 'leader', phone_tail: '1234', sitewide: false });
   if (u.indexOf('/social/going/pass') >= 0) return json({ active: false });
   return json({});
@@ -58,19 +63,47 @@ async function run(lang, word) {
     document.getElementById('tsub-r').value = 'leader';
     document.getElementById('tsub-f').requestSubmit();
   });
+  await p.waitForFunction(() => typeof window.__releaseAwait === 'function');
+  await p.evaluate(() => {
+    var body = document.querySelector('#tsub-modal .tsub-body');
+    var tall = document.createElement('div');
+    tall.style.height = '2400px';
+    body.appendChild(tall);
+    body.scrollTop = 1800;
+    window.__scrolled = body.scrollTop;
+    window.__releaseAwait();
+  });
   await p.waitForFunction((text) => {
     const ok = document.getElementById('tsub-ok');
     const email = document.getElementById('tsub-e');
-    return ok && ok.hidden === false && ok.textContent === text && email && email.value === 'ada@example.com' && document.getElementById('tsub-modal').hidden === false;
+    const title = document.getElementById('tsub-t');
+    const mine = document.documentElement.getAttribute('data-asia-lang') === 'zh' ? '我的资料' : 'My profile';
+    return ok && ok.hidden === false && ok.textContent === text && title && title.textContent === mine && email && email.value === 'ada@example.com' && document.getElementById('tsub-modal').hidden === false;
   }, {}, word);
-  const state = await p.evaluate(() => ({
-    text: document.getElementById('tsub-ok').textContent,
-    hidden: document.getElementById('tsub-ok').hidden,
-    modal: document.getElementById('tsub-modal').hidden,
-    session: localStorage.getItem('atm_session'),
-    posts: window.__posts.slice()
-  }));
-  check(lang + ' confirmed hint stays visible after open()', state.text === word && state.hidden === false && state.modal === false && state.session === session && state.posts.indexOf('await') >= 0 && state.posts.indexOf('profile') >= 0);
+  const state = await p.evaluate(() => {
+    const ok = document.getElementById('tsub-ok');
+    const title = document.getElementById('tsub-t');
+    const body = document.querySelector('#tsub-modal .tsub-body');
+    const hd = document.querySelector('#tsub-modal .tsub-hd');
+    const hintBox = ok.getBoundingClientRect();
+    const bodyBox = body.getBoundingClientRect();
+    const dlg = document.querySelector('#tsub-modal .tsub-dlg').getBoundingClientRect();
+    return {
+      text: ok.textContent,
+      hidden: ok.hidden,
+      modal: document.getElementById('tsub-modal').hidden,
+      title: title.textContent,
+      underTitle: ok.previousElementSibling === title && hd.contains(ok) && !body.contains(ok),
+      aboveBody: hintBox.bottom <= bodyBox.top + 1,
+      inView: hintBox.top >= dlg.top && hintBox.bottom <= dlg.bottom,
+      scroll: body.scrollTop,
+      scrolled: window.__scrolled,
+      session: localStorage.getItem('atm_session'),
+      posts: window.__posts.slice()
+    };
+  });
+  const mine = lang === 'zh' ? '我的资料' : 'My profile';
+  check(lang + ' confirmed hint stays visible under the title', state.text === word && state.hidden === false && state.modal === false && state.title === mine && state.underTitle && state.aboveBody && state.inView && state.scrolled > 200 && state.scroll === 0 && state.session === session && state.posts.indexOf('await') >= 0 && state.posts.indexOf('profile') >= 0);
   await p.close();
 }
 await run('zh', '已确认');
