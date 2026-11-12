@@ -12,6 +12,9 @@ routes = [{ pattern = "api.tangoweekend.org", custom_domain = true }]
 # already has them, and a wrong value here would replace them if keep_vars
 # were ignored. SOCIAL_MAIL is a plain var (currently resend), not a binding.
 # GOING_STATS and GOING_NOTICE_SEND stay unset.
+# GOING_TEST_INBOX stays unset. Do not assign it here. When set later to
+# selecttango@gmail.com, and GOING_NOTICE_SEND is still not on, a non-test
+# dancer's Going/Interested letter is copied only to that inbox.
 
 # Both crons are already live. The 10-minute one runs the WeChat sweep.
 # The 03:17 UTC one cleans unconfirmed subscribe rows. Do not drop either.

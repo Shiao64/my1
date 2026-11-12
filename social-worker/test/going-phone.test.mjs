@@ -99,10 +99,10 @@ async function login(email, last4, headers) {
   return post('/going/phone', { email, last4 }, headers);
 }
 
-const hintZh = '已经订阅过？请输入邮箱和电话末 4 码，不必再等确认信。';
-const hintEn = 'Already subscribed? Enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.';
-const nextZh = '确认后，若要在微信或其他浏览器使用，请输入你的邮箱和电话末 4 码，不必再等确认信。';
-const nextEn = 'After you confirm, to use WeChat or another browser, enter your email and the last 4 digits of your phone. You don\u2019t need another confirmation email.';
+const hintZh = '已经订阅过？请输入邮箱和手机末 4 码，不必再等确认信。';
+const hintEn = 'Already subscribed? Enter your email and the last 4 digits of your mobile. You don\u2019t need another confirmation email.';
+const nextZh = '确认后，若要在微信或其他浏览器使用，请输入你的邮箱和手机末 4 码，不必再等确认信。';
+const nextEn = 'After you confirm, to use WeChat or another browser, enter your email and the last 4 digits of your mobile. You don\u2019t need another confirmation email.';
 const starSrc = read('asia/atm-star.js');
 const subSrc = read('asia/asia-subscribe.js');
 const migration = read('social-worker/migrations/0016_phone_bind.sql');
