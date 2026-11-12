@@ -78,6 +78,8 @@ const previewEnv = { PREVIEW: '1', PREVIEW_ORIGINS: previewOrigin };
 const previewOk = await post('/social/profile', previewOrigin, 'POST', previewEnv);
 check('preview origin is allowed when PREVIEW=1', previewOk.status === 200 && previewOk.body.reached === '/social/profile' && previewOk.allow === previewOrigin);
 check('a different workers.dev host stays forbidden in preview', (await post('/social/profile', 'https://other.workers.dev', 'POST', previewEnv)).status === 403);
+check('localhost is not a production origin', (await post('/social/profile', 'http://127.0.0.1:8787')).status === 403 && (await post('/social/profile', 'http://localhost:8787')).status === 403);
+check('localhost is allowed only when ALLOW_LOCAL=1', (await post('/social/profile', 'http://127.0.0.1:8787', 'POST', { ALLOW_LOCAL: '1' })).status === 200 && (await post('/social/profile', 'http://localhost', 'POST', { ALLOW_LOCAL: '1' })).allow === 'http://localhost');
 
 if (fail.length) { console.error('FAIL', fail.join(', ')); process.exit(1); }
 console.log('origin gate tests ok');

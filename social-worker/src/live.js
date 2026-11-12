@@ -6,7 +6,7 @@ function previewOrigins(env) {
   if (!env || env.PREVIEW !== '1') return [];
   return String(env.PREVIEW_ORIGINS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
 }
-const hostOK = (o, env) => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\/\/api\.tangoweekend\.org$/.test(o) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o) || previewOrigins(env).includes(o);
+const hostOK = (o, env) => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\/\/api\.tangoweekend\.org$/.test(o) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(o) || (env && env.ALLOW_LOCAL === '1' && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o)) || previewOrigins(env).includes(o);
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), og = req.headers.get('Origin') || '', allow = hostOK(og, env) ? og : 'https://tangoweekend.org';

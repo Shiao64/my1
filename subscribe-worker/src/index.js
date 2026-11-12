@@ -76,7 +76,8 @@ function page(lang, msg, status = 200, env) {
 // Subscriber mail. Provider chosen by env.MAIL_PROVIDER: 'cloudflare' (Email Sending binding SUB_MAIL, Workers Paid),
 // 'gmail' (Gmail SMTP as selecttango@gmail.com, secret GMAIL_APP_PASSWORD), 'resend' (RESEND_API_KEY secret), or 'log' (default: print only, nothing is sent).
 async function sendToSubscriber(env, to, subject, text, html, unsubUrl) {
-  if (env.PREVIEW === '1' && (env.MAIL_PROVIDER || 'log') !== 'log' && String(to || '').toLowerCase() !== 'shiao.li.chang@gmail.com') throw new Error('preview recipient not allowed');
+  const previewAllow = String(env.PREVIEW_ALLOWED_EMAIL || '').trim().toLowerCase();
+  if (env.PREVIEW === '1' && previewAllow && (env.MAIL_PROVIDER || 'log') !== 'log' && String(to || '').trim().toLowerCase() !== previewAllow) throw new Error('preview recipient not allowed');
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT) throw new Error('recipient not allowed in test mode');
   const headers = unsubUrl ? { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' } : {};
   const cc = env.PREVIEW === '1' ? '' : (SUB_CC && SUB_CC !== to ? SUB_CC : '');

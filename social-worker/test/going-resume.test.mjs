@@ -16,7 +16,7 @@ fs.writeFileSync(path.join(dir, 'social.js'), src);
 const { social } = await import(pathToFileURL(path.join(dir, 'social.js')).href);
 
 const db = new DatabaseSync(':memory:');
-for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql', '0017_confirm_claim.sql']) {
+for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql', '0018_confirm_claim.sql']) {
   db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', file), 'utf8'));
 }
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',

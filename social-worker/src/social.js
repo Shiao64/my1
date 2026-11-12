@@ -68,7 +68,8 @@ async function deliver(env, to, subject, text, html, headers, opt) {
   // EMAIL and SUB_MAIL are the send_email bindings. EMAIL can only mail its
   // fixed destination, so organizer mail uses SUB_MAIL when the var is unset.
   const p = String(env.SOCIAL_MAIL || '').trim() || (env.SUB_MAIL && typeof env.SUB_MAIL.send === 'function' ? 'sub_mail' : 'log');
-  if (env.PREVIEW === '1' && p !== 'log' && String(to || '').toLowerCase() !== 'shiao.li.chang@gmail.com') throw new Error('preview recipient not allowed');
+  const previewAllow = String(env.PREVIEW_ALLOWED_EMAIL || '').trim().toLowerCase();
+  if (env.PREVIEW === '1' && previewAllow && p !== 'log' && String(to || '').trim().toLowerCase() !== previewAllow) throw new Error('preview recipient not allowed');
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
   const hdrs = Object.assign({}, headers || {});
   if (cc) hdrs.Cc = cc;

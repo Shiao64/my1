@@ -17,7 +17,7 @@ const { social } = await import(pathToFileURL(path.join(dir, 'social.js')).href)
 const { buildConfirmLetter, normalizePhone, phoneLast4 } = await import(pathToFileURL(path.join(dir, 'going.js')).href);
 
 const db = new DatabaseSync(':memory:');
-for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql', '0017_confirm_claim.sql']) {
+for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql', '0018_confirm_claim.sql']) {
   db.exec(read(path.join('social-worker/migrations', file)));
 }
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
