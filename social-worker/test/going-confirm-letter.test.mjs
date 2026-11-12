@@ -69,7 +69,9 @@ db.exec(read('social-worker/migrations/0009_going.sql'));
 db.exec(read('social-worker/migrations/0012_going_occ.sql'));
 db.exec(read('social-worker/migrations/0013_going_confirm_show.sql'));
 db.exec(read('social-worker/migrations/0014_profile_verify_pending.sql'));
+db.exec(read('social-worker/migrations/0015_going_pass.sql'));
 db.exec(read('social-worker/migrations/0016_phone_bind.sql'));
+db.exec(read('social-worker/migrations/0017_confirm_claim.sql'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);
@@ -112,16 +114,15 @@ const star = await post('/going', { id: 'F1', intent: 'interested', email: 'name
 check('star mail with a name stays the short chinese letter', star.confirm && mails.some(m => m.includes('from=探戈助理 · 亚洲探戈地图') && m.includes('to=named@example.com') && m.includes('安，你好！') && m.includes(body.zh) && !m.includes('节日')));
 
 const fresh = await openConfirm(menu.preview_link, 'GET');
-check('a new link still shows the confirm button', fresh.status === 200 && fresh.html.includes('Confirm') && !fresh.html.includes('expired'));
-db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 29 * 60e3).toISOString(), 'mei@example.com');
+check('opening the link is the finish page', fresh.status === 200 && fresh.html.includes('Subscribed — you can close this page') && fresh.html.includes('Go to Asia Tango Map') && !!db.prepare('SELECT verified_at v FROM users WHERE email=?').get('mei@example.com').v);
 const within = await openConfirm(menu.preview_link, 'GET');
-check('29 minutes is still valid', within.status === 200 && within.html.includes('name="confirm"') && !within.html.includes('expired'));
+check('a second open still shows the finish page', within.status === 200 && within.html.includes('Subscribed — you can close this page') && !within.html.includes('expired'));
 db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 31 * 60e3).toISOString(), 'mei@example.com');
 const late = await openConfirm(menu.preview_link, 'GET');
-check('31 minutes is the expired page', late.status === 400 && late.html.includes(expiredCopy) && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('mei@example.com').v);
+check('31 minutes is the expired page', late.status === 400 && late.html.includes(expiredCopy));
 db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 31 * 60e3).toISOString(), 'named@example.com');
 const lateZh = await openConfirm(star.preview_link, 'GET');
-check('the chinese expired page says the same thing', lateZh.status === 400 && lateZh.html.includes('链接已过期') && lateZh.html.includes('tap the star again') && lateZh.html.includes('lang="zh-CN"'));
+check('the chinese expired page says the same thing', lateZh.status === 400 && lateZh.html.includes('链接已过期') && lateZh.html.includes('tap the star again') && lateZh.html.includes('lang="zh-CN"') && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('named@example.com').v);
 
 const out = process.env.ATM_LETTER_OUT;
 if (out) {

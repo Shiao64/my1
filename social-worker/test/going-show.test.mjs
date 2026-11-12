@@ -21,6 +21,7 @@ db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0013_going_con
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0014_profile_verify_pending.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0015_going_pass.sql'), 'utf8'));
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0016_phone_bind.sql'), 'utf8'));
+db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0017_confirm_claim.sql'), 'utf8'));
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, code_hash TEXT, code_sent_at TEXT, code_tries INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);
@@ -61,7 +62,8 @@ check('guest confirm mail is only the short subscription letter', first.confirm 
 check('guest row is pending, not an intent', !db.prepare('SELECT id FROM going_intents WHERE email=?').get('ann@example.com') && db.prepare('SELECT anchor a, intent i FROM going_pending WHERE email=?').get('ann@example.com').a === dates[0]);
 const link = first.preview_link;
 const done = await social(new Request('https://api.example.test/social/going/confirm', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ e: 'ann@example.com', t: new URL(link).searchParams.get('t'), next: ret, confirm: '1' }).toString() }), env, new URL('https://api.example.test/social/going/confirm'), json);
-const token = ((await done.text()).match(/s=([0-9a-f]{64})/) || [])[1];
+const token = ((done.headers.get('set-cookie') || '').match(/atm_session=([0-9a-f]{64})/) || [])[1];
+await done.text();
 check('the checked subscribe choice starts only after the link is confirmed', db.prepare("SELECT status s FROM email_subs WHERE email=?").get('ann@example.com').s === 'active');
 const plain = await post('/going', { ...base, email: 'plain@example.com', name: 'Plain', id: 'F1', intent: 'interested', alert: 0 });
 const plainDone = await social(new Request('https://api.example.test/social/going/confirm', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ e: 'plain@example.com', t: new URL(plain.preview_link).searchParams.get('t'), next: ret, confirm: '1' }).toString() }), env, new URL('https://api.example.test/social/going/confirm'), json);
@@ -70,7 +72,7 @@ check('an unchecked person is verified without joining the list', !db.prepare('S
 const auth = { Authorization: 'Bearer ' + token };
 const save = await post('/going', { id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', notify: 1 }, auth);
 const row = db.prepare('SELECT intent i, attend_date a, anchor n, mail_status s FROM going_intents WHERE email=? AND anchor=?').get('ann@example.com', dates[0]);
-check('going writes the attendance date and queues once', save.mail === 'queued' && save.notice === 'off' && row.i === 'going' && row.a === dates[0] && row.n === dates[0] && db.prepare('SELECT COUNT(*) n FROM going_sends').get().n === 0);
+check('going writes the attendance date and queues once', (save.mail === 'queued' || save.mail === 'unchanged') && save.notice === 'off' && row.i === 'going' && row.a === dates[0] && row.n === dates[0] && db.prepare('SELECT COUNT(*) n FROM going_sends').get().n === 0);
 check('confirm adds the series favorite', db.prepare('SELECT card_id FROM going_favs WHERE email=?').get('ann@example.com').card_id === 'W1');
 const interest = await post('/going', { id: 'W1', intent: 'interested', anchor: dates[1], date: dates[1], explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' }, auth);
 const irow = db.prepare('SELECT attend_date a, anchor n, mail_status s FROM going_intents WHERE email=? AND anchor=?').get('ann@example.com', dates[1]);

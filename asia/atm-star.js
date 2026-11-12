@@ -5,7 +5,22 @@
 (function () {
   var R = document.documentElement;
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || document.body.getAttribute('data-lang') || R.lang || '') || location.pathname.indexOf('/zh/') === 0;
-  var API = (window.ATM_SOCIAL_API || window.TANGO_SUB_API || 'https://api.tangoweekend.org');
+  function apiBase() {
+    var host = location.hostname;
+    if (host === 'tangoweekend.org' || host === 'www.tangoweekend.org') return 'https://api.tangoweekend.org';
+    try {
+      var q = new URLSearchParams(location.search).get('api');
+      if (q) {
+        var u = new URL(q);
+        var h = u.hostname;
+        var local = (u.protocol === 'http:' && (h === 'localhost' || h === '127.0.0.1'));
+        var preview = u.protocol === 'https:' && (h.endsWith('.workers.dev') || h.endsWith('.pages.dev') || h === 'api.tangoweekend.org');
+        if (local || preview) return u.origin;
+      }
+    } catch (e) {}
+    return window.ATM_SOCIAL_API || window.TANGO_SUB_API || 'https://api.tangoweekend.org';
+  }
+  var API = apiBase();
   var STAR = 'M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z';
   var L = zh ? {
     grey: '组织者尚未提供邮箱',
@@ -46,6 +61,8 @@
     verifyBtn: '确认', pending: '确认邮件已发出，请查收。点开邮件里的确认后，再回到这里点「确认」。',
     sentHold: '已发送邮件，请到邮箱确认',
     spam: '没收到邮件？请到垃圾邮件箱查看。',
+    backHint: '确认链接可能会在浏览器里打开，确认后回到这里就行。',
+    confirmed: '已确认',
     resendHint: '请先检查垃圾邮件；1 分钟后可重发一次',
     resendWait: '{n} 秒后可重发',
     resendUsed: '已重发过，请查收或稍后再试。',
@@ -110,6 +127,8 @@
     verifyBtn: 'Confirm', pending: 'Confirmation email sent. Open it, then come back and tap Confirm.',
     sentHold: 'Email sent — please confirm in your inbox',
     spam: 'Didn\'t get the email? Check your spam or junk folder.',
+    backHint: 'The confirmation link may open in your browser. After confirming, just come back here.',
+    confirmed: 'Confirmed',
     resendHint: 'Check your spam folder first. You can resend once after 1 minute.',
     resendWait: 'Resend in {n}s',
     resendUsed: 'Already resent. Please check your inbox, or try again later.',
@@ -548,7 +567,7 @@
       note.className = 'asg-ok';
       go.insertAdjacentElement('afterend', note);
     }
-    if (note) note.textContent = L.spam;
+    if (note) note.textContent = L.spam + ' ' + L.backHint;
   }
   function saveAbsent(ev, id, anchor) {
     rememberAbsent(id, anchor);
@@ -859,7 +878,16 @@
         putHold(e.id, payload.anchor, payload.email, (prev.n || 0) + 1, Date.now());
       }
       if (!here) return;
-      if (d && d.confirm) { addLocalFav(e.id); holdSent(go); return; }
+      if (d && d.confirm) {
+        addLocalFav(e.id);
+        holdSent(go);
+        if (d.nonce && window.ATM_CLAIM) window.ATM_CLAIM.watch(d.nonce, function () {
+          var note = document.getElementById('asg-spam');
+          if (note) note.textContent = L.confirmed;
+          refreshMine();
+        });
+        return;
+      }
       if (d && (d.error === 'resend_wait' || d.error === 'resend_used')) {
         if (d.error === 'resend_used') putHold(e.id, payload.anchor, payload.email, 2, Date.now());
         else putHold(e.id, payload.anchor, payload.email, Math.max(1, ((getHold(e.id, payload.anchor, payload.email) || {}).n) || 1), Date.now() - Math.max(0, 60000 - (Number(d.wait) || 1) * 1000));

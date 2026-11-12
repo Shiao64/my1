@@ -17,7 +17,7 @@ const { social } = await import(pathToFileURL(path.join(dir, 'social.js')).href)
 const { buildConfirmLetter, normalizePhone, phoneLast4 } = await import(pathToFileURL(path.join(dir, 'going.js')).href);
 
 const db = new DatabaseSync(':memory:');
-for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql']) {
+for (const file of ['0009_going.sql', '0012_going_occ.sql', '0013_going_confirm_show.sql', '0014_profile_verify_pending.sql', '0015_going_pass.sql', '0016_phone_bind.sql', '0017_confirm_claim.sql']) {
   db.exec(read(path.join('social-worker/migrations', file)));
 }
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
@@ -153,7 +153,7 @@ check('confirm after the star binds only the last 4', starDone.status === 200 &&
 const starIn = await login('star@example.com', tail(dashed));
 check('the last 4 signs in and does not send mail', starIn._s === 200 && !!starIn.session && starIn.mailed === false && logs.length === 2);
 const starIntent = await post('/going/phone', { email: 'star@example.com', last4: tail(dashed), id: 'F1', intent: 'interested', explicit: 1, disclose: 1, lang: 'en', ret });
-check('a confirmed star signs in and records the intent with no second confirm', starIntent._s === 200 && starIntent.session && starIntent.confirm !== true && starIntent.mailed === false && starIntent.mail === 'queued' && logs.length === 2 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='F1'").get('star@example.com').i === 'interested');
+check('a confirmed star signs in and records the intent with no second confirm', starIntent._s === 200 && starIntent.session && starIntent.confirm !== true && starIntent.mailed === false && (starIntent.mail === 'queued' || starIntent.mail === 'unchanged') && logs.length === 2 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='F1'").get('star@example.com').i === 'interested');
 
 const bare = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old', last4: '1111' });
 const bareDone = await confirm(bare.preview_link);

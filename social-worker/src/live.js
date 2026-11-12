@@ -2,7 +2,7 @@
 import SUB from '../../subscribe-worker/src/index.js';
 import { social, wxExpireSweep, generateGoingStats, runGoingNotices } from './social.js';
 import { unsubscribe as unsub2 } from './unsub.js';
-const hostOK = o => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\/\/api\.tangoweekend\.org$/.test(o) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(o);
+const hostOK = o => /^https:\/\/(www\.)?tangoweekend\.org$/.test(o) || /^https:\/\/api\.tangoweekend\.org$/.test(o) || /^https:\/\/[a-z0-9-]+\.my1-7p3\.pages\.dev$/.test(o) || /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(o);
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url), og = req.headers.get('Origin') || '', allow = hostOK(og) ? og : 'https://tangoweekend.org';

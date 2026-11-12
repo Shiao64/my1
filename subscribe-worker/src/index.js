@@ -24,7 +24,7 @@ const T = {
     cBody: l => `您好！\n\n请点击下面的链接确认订阅亚洲探戈地图的新活动通知：\n${l}${l ? '\n\n' + LINK_NOTE.zh : ''}\n\n链接7天内有效。7天内没有确认，您的邮箱会被自动删除。\n如果不是您本人操作，请忽略这封邮件，我们不会再发邮件给您。`,
     wSubj: '订阅成功：亚洲探戈地图新活动通知',
     wBody: '谢谢订阅！以后有新活动，我们会发邮件通知您。',
-    okPage: '订阅成功！欢迎邮件已发到您的邮箱。', already: '您已经订阅过了，不需要再确认。',
+    okPage: '✅ 订阅成功，可以关掉这个页面', okBtn: '去看亚洲探戈地图', already: '您已经订阅过了，不需要再确认。',
     bad: '链接无效或已过期（7天），请重新订阅。', unsub: '已退订，您不会再收到新活动通知。',
     unsubLine: '退订', foot: '随时可退订。这封信只关于地图通知。点五角星确认 Going 或 Interested 时，姓名和邮箱才会发给该活动组织者。', back: '返回亚洲探戈地图', home: 'https://tangoweekend.org/zh/asia/'
   },
@@ -34,7 +34,7 @@ const T = {
     cBody: l => `Hi!\n\nPlease click the link below to confirm your subscription to Asia Tango Map event alerts:\n${l}${l ? '\n\n' + LINK_NOTE.en : ''}\n\nThe link is valid for 7 days. If you don't confirm within 7 days, your email address is deleted automatically.\nIf this wasn't you, just ignore this email and you won't hear from us again.`,
     wSubj: "You're subscribed: Asia Tango Map event alerts",
     wBody: "Thanks for subscribing! We'll email you when new events are added.",
-    okPage: "You're subscribed! A welcome email is on its way.", already: "You're already subscribed. Nothing more to do.",
+    okPage: '✅ Subscribed — you can close this page', okBtn: 'Go to Asia Tango Map', already: "You're already subscribed. Nothing more to do.",
     bad: 'This link is invalid or has expired (7 days). Please subscribe again.', unsub: "You're unsubscribed. You won't get any more event alerts.",
     unsubLine: 'Unsubscribe', foot: 'Unsubscribe anytime. This mail is only about map alerts. Your name and email go to an organizer only if you confirm Going or Interested on a star.', back: 'Back to the Asia Tango Map', home: 'https://tangoweekend.org/asia/'
   }
@@ -52,18 +52,24 @@ const shTime = () => new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shangh
 
 function page(lang, msg, status = 200) {
   const t = T[lang] || T.en;
+  const done = status === 200 && msg === t.okPage;
+  const label = done ? (t.okBtn || t.back) : t.back;
+  const link = done
+    ? `<p><a href="${t.home}" style="display:inline-block;margin-top:8px;background:#0e6e78;color:#f6e3b4;border-radius:999px;padding:12px 22px;font-weight:700;text-decoration:none">${esc(label)}</a></p>`
+    : `<p><a href="${t.home}" style="color:#0e6e78">${esc(label)}</a></p>`;
   return new Response(`<!doctype html><html lang="${lang === 'zh' ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(msg)}</title>
 <body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
-<p style="font-size:1.1rem;color:#0a4f57;font-weight:700">${esc(msg)}</p><p><a href="${t.home}" style="color:#0e6e78">${t.back}</a></p><p style="font-size:.8rem;color:#7a6255">${t.foot}</p></div></body></html>`,
+<p style="font-size:1.15rem;line-height:1.5;color:#0a4f57;font-weight:700">${esc(msg)}</p>${link}<p style="font-size:.8rem;color:#7a6255">${esc(t.foot)}</p></div></body></html>`,
     { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
 
 // Subscriber mail. Provider chosen by env.MAIL_PROVIDER: 'cloudflare' (Email Sending binding SUB_MAIL, Workers Paid),
 // 'gmail' (Gmail SMTP as selecttango@gmail.com, secret GMAIL_APP_PASSWORD), 'resend' (RESEND_API_KEY secret), or 'log' (default: print only, nothing is sent).
 async function sendToSubscriber(env, to, subject, text, html, unsubUrl) {
+  if (env.PREVIEW === '1' && (env.MAIL_PROVIDER || 'log') !== 'log' && String(to || '').toLowerCase() !== 'shiao.li.chang@gmail.com') throw new Error('preview recipient not allowed');
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT) throw new Error('recipient not allowed in test mode');
   const headers = unsubUrl ? { 'List-Unsubscribe': `<${unsubUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' } : {};
-  const cc = SUB_CC && SUB_CC !== to ? SUB_CC : '';
+  const cc = env.PREVIEW === '1' ? '' : (SUB_CC && SUB_CC !== to ? SUB_CC : '');
   if (cc) headers.Cc = `<${cc}>`;
   const p = env.MAIL_PROVIDER || 'log';
   if (p === 'cloudflare') {

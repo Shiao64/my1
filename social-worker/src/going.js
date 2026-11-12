@@ -235,17 +235,30 @@ async function upsertUser(env, kit, email, fields) {
       lang=excluded.lang`).bind(email, fields.name || '', fields.lang, ts, fields.iph || '', fields.city || null, fields.role || null).run();
   return env.SDB.prepare('SELECT id,email,name,city,role,lang,verified_at FROM users WHERE email=?').bind(email).first();
 }
+function missingColumn(e) { return /no such column/i.test(String(e && e.message || e)); }
 async function saveVerify(env, kit, row) {
   const mag = kit.rnd(32);
   const hash = await kit.sha(row.email + ':' + mag);
+  const nonce = kit.rnd(32);
+  const claim = await kit.sha('claim:' + nonce);
   const site = row.alert ? 1 : 0;
   const intent = intentOf(row.intent);
   const card = kit.ID_RE.test(String(row.card || '')) ? String(row.card) : '';
+  const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+  const link = base + '/social/going/confirm?e=' + encodeURIComponent(row.email) + '&t=' + mag;
+  const ts = kit.now();
+  try {
+    await env.SDB.prepare(`INSERT INTO profile_verify(email,token_hash,sent_at,tries,lang,name,city,role,alert_opt_in,ret,pending_intent,card_id,wants_sitewide,claim_hash,confirmed_at,claim_session) VALUES(?,?,?,0,?,?,?,?,?,?,?,?,?,?,NULL,NULL)
+      ON CONFLICT(email) DO UPDATE SET token_hash=excluded.token_hash,sent_at=excluded.sent_at,tries=0,lang=excluded.lang,name=excluded.name,city=excluded.city,role=excluded.role,alert_opt_in=excluded.alert_opt_in,ret=excluded.ret,pending_intent=excluded.pending_intent,card_id=excluded.card_id,wants_sitewide=excluded.wants_sitewide,claim_hash=excluded.claim_hash,confirmed_at=NULL,claim_session=NULL`)
+      .bind(row.email, hash, ts, row.lang, row.name || '', row.city || '', row.role || '', site, row.ret, intent || '', card, site, claim).run();
+    return { link, nonce };
+  } catch (e) {
+    if (!missingColumn(e)) throw e;
+  }
   await env.SDB.prepare(`INSERT INTO profile_verify(email,token_hash,sent_at,tries,lang,name,city,role,alert_opt_in,ret,pending_intent,card_id,wants_sitewide) VALUES(?,?,?,0,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(email) DO UPDATE SET token_hash=excluded.token_hash,sent_at=excluded.sent_at,tries=0,lang=excluded.lang,name=excluded.name,city=excluded.city,role=excluded.role,alert_opt_in=excluded.alert_opt_in,ret=excluded.ret,pending_intent=excluded.pending_intent,card_id=excluded.card_id,wants_sitewide=excluded.wants_sitewide`)
-    .bind(row.email, hash, kit.now(), row.lang, row.name || '', row.city || '', row.role || '', site, row.ret, intent || '', card, site).run();
-  const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
-  return base + '/social/going/confirm?e=' + encodeURIComponent(row.email) + '&t=' + mag;
+    .bind(row.email, hash, ts, row.lang, row.name || '', row.city || '', row.role || '', site, row.ret, intent || '', card, site).run();
+  return { link, nonce: '' };
 }
 function allowOrigin(req) {
   const og = req.headers.get('Origin') || '';
@@ -906,19 +919,63 @@ function resultPage(kit, lang, msg, dest, opt) {
 <p style="font-size:1.05rem;line-height:1.5;color:#0a4f57;font-weight:700">${kit.he(msg)}</p>${back}${hint}${passBox(kit, lang, opt.passUrl, opt.wechat)}</div></body></html>`,
     { status: 200, headers });
 }
-function confirmForm(kit, lang, email, tok, next) {
-  const zh = lang === 'zh';
-  const msg = zh ? '请点下面的按钮确认邮箱。打开链接本身不会通知组织者。' : 'Tap the button to confirm your email. Opening this page does not notify an organizer.';
-  return new Response(`<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${zh ? '确认邮箱' : 'Confirm your email'}</title>
-<body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
-<p style="font-size:1.05rem;line-height:1.5">${kit.he(msg)}</p>
-<form method="post" action="/social/going/confirm"><input type="hidden" name="e" value="${kit.he(email)}"><input type="hidden" name="t" value="${kit.he(tok)}"><input type="hidden" name="next" value="${kit.he(next)}"><input type="hidden" name="confirm" value="1">
-<button type="submit" style="margin-top:8px;min-height:44px;background:#0e6e78;color:#f6e3b4;border:0;border-radius:999px;padding:12px 22px;font-weight:700">${zh ? '确认' : 'Confirm'}</button></form></div></body></html>`,
-    { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' } });
+function mapHome(lang) {
+  return lang === 'zh' ? 'https://tangoweekend.org/zh/asia/' : 'https://tangoweekend.org/asia/';
 }
-
+function finishPage(kit, lang, opt) {
+  const zh = lang === 'zh';
+  const msg = zh ? '✅ 订阅成功，可以关掉这个页面' : '✅ Subscribed — you can close this page';
+  const btn = zh ? '去看亚洲探戈地图' : 'Go to Asia Tango Map';
+  const href = kit.he(mapHome(zh ? 'zh' : 'en'));
+  const headers = { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' };
+  if (opt.cookie) headers['Set-Cookie'] = opt.cookie;
+  const pass = passBox(kit, lang, opt.passUrl, false);
+  return new Response(`<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${kit.he(msg)}</title>
+<body style="margin:0;background:#fbf5e9;font-family:system-ui,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:12vh auto;padding:24px;background:#fff;border:1px solid #ead9b8;border-top:4px solid #0e6e78;border-radius:14px">
+<p style="font-size:1.15rem;line-height:1.5;color:#0a4f57;font-weight:700">${kit.he(msg)}</p>
+<p><a href="${href}" style="display:inline-block;margin-top:8px;background:#0e6e78;color:#f6e3b4;border-radius:999px;padding:12px 22px;font-weight:700;text-decoration:none">${kit.he(btn)}</a></p>${pass}</div></body></html>`,
+    { status: 200, headers });
+}
+async function settlePending(env, kit, email, user) {
+  let rows = [];
+  try { rows = (await env.SDB.prepare('SELECT * FROM going_pending WHERE email=? AND consumed_at IS NULL').bind(email).all()).results || []; }
+  catch (e) { if (missingTable(e)) return; throw e; }
+  for (const row of rows) {
+    await materialize(env, kit, {
+      email, card_id: row.card_id, intent: row.intent, anchor: row.anchor || '',
+      occurrence_date: row.occurrence_date, attend: row.attend_date || row.occurrence_date,
+      transport: row.transport, notify: row.notify, name: row.name || user.name, city: user.city, role: user.role
+    }, '');
+    await env.SDB.prepare('UPDATE going_pending SET consumed_at=? WHERE id=? AND consumed_at IS NULL').bind(kit.now(), row.id).run();
+  }
+}
+async function applyConfirm(env, kit, row, email) {
+  const lang = row.lang === 'zh' ? 'zh' : 'en';
+  if (row.confirmed_at && row.claim_session) {
+    const user = await env.SDB.prepare('SELECT id,email,name,city,role,lang,verified_at FROM users WHERE email=?').bind(email).first();
+    return { session: row.claim_session, pass: '', user };
+  }
+  const user = await fillBlanks(env, kit, email, { name: row.name, city: row.city, role: row.role, lang, iph: '' });
+  try { await bindStagedPhone(env, kit, email, user.id); }
+  catch (e) { console.log('going phone', String(e && e.message || e).slice(0, 120)); }
+  const token = await kit.issueSession(env, { ...user, lang }, { keepCode: true });
+  const want = row.wants_sitewide === 1 || row.wants_sitewide === '1' || row.alert_opt_in === 1 || row.alert_opt_in === '1';
+  if (want) { try { await kit.applyList(env, { email, name: user.name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
+  try { await settlePending(env, kit, email, user); }
+  catch (e) { console.log('going settle', String(e && e.message || e).slice(0, 160)); }
+  let pass = '';
+  try { pass = await ensurePass(env, kit, user.id); }
+  catch (e) { console.log('going pass', String(e && e.message || e).slice(0, 120)); }
+  try {
+    await env.SDB.prepare('UPDATE profile_verify SET confirmed_at=?, claim_session=? WHERE email=?').bind(kit.now(), token, email).run();
+  } catch (e) {
+    if (!missingColumn(e)) throw e;
+    await env.SDB.prepare('DELETE FROM profile_verify WHERE email=?').bind(email).run();
+  }
+  return { session: token, pass, user };
+}
 export async function goingConfirm(req, env, url, kit) {
-  const { email, tok, next, go } = await kit.confirmFields(req, url);
+  const { email, tok, go } = await kit.confirmFields(req, url);
   if (!kit.EMAIL_RE.test(email) || !/^[0-9a-f]{64}$/.test(tok)) return page(kit, false, 'en', INVALID, '');
   const hash = await kit.sha(email + ':' + tok);
   const row = await env.SDB.prepare('SELECT * FROM profile_verify WHERE email=?').bind(email).first();
@@ -927,30 +984,27 @@ export async function goingConfirm(req, env, url, kit) {
     if (req.method === 'POST' && go && row && row.token_hash !== hash) await env.SDB.prepare('UPDATE profile_verify SET tries=tries+1 WHERE email=?').bind(email).run();
     return page(kit, false, row && row.lang === 'zh' ? 'zh' : 'en', !row || sent + PROFILE_MS < Date.now() ? EXPIRED : INVALID, '');
   }
+  if (req.method === 'HEAD') return new Response(null, { status: 200, headers: { 'Cache-Control': 'no-store' } });
   const lang = row.lang === 'zh' ? 'zh' : 'en';
-  if (req.method !== 'POST' || !go) return confirmForm(kit, lang, email, tok, next || row.ret || '');
-  const user = await fillBlanks(env, kit, email, { name: row.name, city: row.city, role: row.role, lang, iph: '' });
-  try { await bindStagedPhone(env, kit, email, user.id); }
-  catch (e) { console.log('going phone', String(e && e.message || e).slice(0, 120)); }
-  const token = await kit.issueSession(env, { ...user, lang }, { keepCode: true });
-  const want = row.wants_sitewide === 1 || row.wants_sitewide === '1' || row.alert_opt_in === 1 || row.alert_opt_in === '1';
-  if (want) { try { await kit.applyList(env, { email, name: user.name, lang }, true); } catch (e) { console.log('going list', String(e && e.message || e).slice(0, 120)); } }
-  let card = '';
-  if (row.card_id == null) {
-    const latest = await env.SDB.prepare('SELECT card_id FROM going_pending WHERE email=? AND consumed_at IS NULL ORDER BY created_at DESC LIMIT 1').bind(email).first();
-    card = latest && kit.ID_RE.test(String(latest.card_id || '')) ? String(latest.card_id) : '';
-  } else if (kit.ID_RE.test(String(row.card_id))) card = String(row.card_id);
-  let pass = '';
-  try { pass = await ensurePass(env, kit, user.id); }
-  catch (e) { console.log('going pass', String(e && e.message || e).slice(0, 120)); }
-  await env.SDB.prepare('DELETE FROM profile_verify WHERE email=?').bind(email).run();
-  const star = !!card;
-  const dest = withPass(star ? resumeDest({ ...row, lang }, card, token) : menuDest(kit, row.ret, token), pass);
-  const msg = star
-    ? (lang === 'zh' ? '邮箱已确认。回到活动后，再点「确认」才会记录意向。' : 'Email confirmed. Go back to the event and tap Confirm to save your intent.')
-    : (lang === 'zh' ? '邮箱已验证，资料已保存。可到活动五角星选择要参加或感兴趣。' : 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.');
-  const wx = wechatUa(req);
-  return resultPage(kit, lang, msg, dest, { event: star, redirect: sameBrowser(req) && !wx, wechat: wx, cookie: sessionCookie(token), passUrl: pass ? passLink(env, pass) : '' });
+  const applied = await applyConfirm(env, kit, row, email);
+  const passUrl = applied.pass ? passLink(env, applied.pass) : '';
+  return finishPage(kit, lang, { cookie: sessionCookie(applied.session), passUrl });
+}
+export async function goingAwait(req, env, b, json, kit) {
+  const nonce = String(b && b.nonce || '');
+  if (!/^[0-9a-f]{64}$/.test(nonce)) return json({ ok: true, pending: false });
+  let row = null;
+  try {
+    row = await env.SDB.prepare('SELECT confirmed_at, claim_session, sent_at FROM profile_verify WHERE claim_hash=?').bind(await kit.sha('claim:' + nonce)).first();
+  } catch (e) {
+    if (missingColumn(e) || missingTable(e)) return json({ ok: true, pending: false });
+    throw e;
+  }
+  if (!row) return json({ ok: true, pending: false });
+  const sent = Date.parse(row.sent_at || '');
+  if (!Number.isFinite(sent) || sent + PROFILE_MS < Date.now()) return json({ ok: true, pending: false });
+  if (!row.confirmed_at || !row.claim_session) return json({ ok: true, pending: true });
+  return json({ ok: true, confirmed: true, session: row.claim_session });
 }
 function enterHeaders() {
   return {
@@ -1141,12 +1195,18 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
     await setSitewide(env, kit, { email, name, lang }, alert === 1);
     return json({ ok: true, verified: true, session: true, mailed: false, sitewide: alert === 1, phone_tail: await phoneTailOf(env, session.id) });
   }
-  const recent = await env.SDB.prepare('SELECT sent_at FROM profile_verify WHERE email=?').bind(email).first();
-  if (recent && Date.now() - Date.parse(recent.sent_at) < 60e3) return json({ error: 'rate_limited' }, 429);
+  let recent = null;
+  try { recent = await env.SDB.prepare('SELECT sent_at, confirmed_at FROM profile_verify WHERE email=?').bind(email).first(); }
+  catch (e) {
+    if (!missingColumn(e)) throw e;
+    recent = await env.SDB.prepare('SELECT sent_at FROM profile_verify WHERE email=?').bind(email).first();
+  }
+  if (recent && !recent.confirmed_at && Date.now() - Date.parse(recent.sent_at) < 60e3) return json({ error: 'rate_limited' }, 429);
   const ipCount = await env.SDB.prepare('SELECT COUNT(*) n FROM users WHERE ip_hash=? AND created_at>?').bind(iph, new Date(Date.now() - 3600e3).toISOString()).first('n');
   if ((ipCount || 0) >= 8) return json({ error: 'rate_limited' }, 429);
   await upsertUser(env, kit, email, { name, city, role, lang, iph });
-  const link = await saveVerify(env, kit, { email, name, city, role, lang, alert, ret });
+  const saved = await saveVerify(env, kit, { email, name, city, role, lang, alert, ret });
+  const link = saved.link;
   if (phoneCheck.phone) {
     try { await stagePhone(env, kit, email, phoneCheck.phone); }
     catch (e) {
@@ -1158,7 +1218,7 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1 }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
 export async function goingRestore(req, env, b, ip, json, kit) {
@@ -1172,12 +1232,13 @@ export async function goingRestore(req, env, b, ip, json, kit) {
   const u = await env.SDB.prepare('SELECT name,city,role,lang,verified_at FROM users WHERE email=?').bind(email).first();
   if (!u || !u.verified_at) return json({ ok: true, confirm: true, mailed: false });
   const lang = b.lang === 'zh' ? 'zh' : 'en';
-  const link = await saveVerify(env, kit, { email, name: u.name || email, city: u.city || '', role: roleOf(u.role), lang, alert: 0, ret });
+  const saved = await saveVerify(env, kit, { email, name: u.name || email, city: u.city || '', role: roleOf(u.role), lang, alert: 0, ret });
+  const link = saved.link;
   let via;
   try { via = await sendVerify(env, kit, { email, name: u.name || email, lang, promo: false }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
 export async function goingSubmit(req, env, b, ip, iph, json, kit) {
@@ -1252,7 +1313,8 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   await env.SDB.prepare(`INSERT INTO going_pending(email,card_id,anchor,intent,occurrence_date,attend_date,transport,notify,name,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(email,card_id,anchor) DO UPDATE SET intent=excluded.intent,occurrence_date=excluded.occurrence_date,attend_date=excluded.attend_date,transport=excluded.transport,notify=excluded.notify,name=excluded.name,created_at=excluded.created_at,consumed_at=NULL`)
     .bind(email, id, anchor, intent, attend || null, attend || null, useTransport, notify, name, kit.now()).run();
-  const link = await saveVerify(env, kit, { email, name: name || (existing && existing.name) || '', city: city || (existing && existing.city) || '', role: role || (existing && existing.role) || '', lang, alert: promo, ret, intent, card: id });
+  const saved = await saveVerify(env, kit, { email, name: name || (existing && existing.name) || '', city: city || (existing && existing.city) || '', role: role || (existing && existing.role) || '', lang, alert: promo, ret, intent, card: id });
+  const link = saved.link;
   if (phoneCheck.phone) {
     try { await stagePhone(env, kit, email, phoneCheck.phone); }
     catch (e) {
@@ -1270,7 +1332,7 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     return json({ error: 'send_failed' }, 502);
   }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph, id, anchor);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) });
 }
 
 export async function goingCancel(req, env, b, json, kit) {

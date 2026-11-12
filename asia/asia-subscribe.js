@@ -6,7 +6,22 @@
    This does not create Going or Interested and does not email an organizer. */
 (function () {
   var zh = document.documentElement.getAttribute('data-asia-lang') === 'zh';
-  var API = window.TANGO_SUB_API || 'https://api.tangoweekend.org';
+  function apiBase() {
+    var host = location.hostname;
+    if (host === 'tangoweekend.org' || host === 'www.tangoweekend.org') return 'https://api.tangoweekend.org';
+    try {
+      var q = new URLSearchParams(location.search).get('api');
+      if (q) {
+        var u = new URL(q);
+        var h = u.hostname;
+        var local = (u.protocol === 'http:' && (h === 'localhost' || h === '127.0.0.1'));
+        var preview = u.protocol === 'https:' && (h.endsWith('.workers.dev') || h.endsWith('.pages.dev') || h === 'api.tangoweekend.org');
+        if (local || preview) return u.origin;
+      }
+    } catch (e) {}
+    return window.TANGO_SUB_API || 'https://api.tangoweekend.org';
+  }
+  var API = apiBase();
   var L = zh ? {
     btn: '订阅', title: '订阅', mine: '我的资料', desc: '按需发送活动信息', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     email: '邮箱', emailPh: 'name@example.com', site: '加入 ATM 全站订阅',
@@ -17,7 +32,7 @@
     phone: '电话', phonePh: '手机号', last4: '电话末 4 码', signIn: '登录', signing: '登录中…', gate: '注册／登录', send: '发送确认邮件',
     needPhone: '请填写电话。', badPhone: '电话号码不正确。', needLast4: '请输入电话末 4 码。', badLogin: '邮箱或电话末 4 码不正确。',
     phoneSaved: '已保存末 4 码 ',
-    submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。没收到邮件？请到垃圾邮件箱查看。', saved: '资料已保存。这个设备已经验证过，没有再发信。',
+    submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。没收到邮件？请到垃圾邮件箱查看。确认链接可能会在浏览器里打开，确认后回到这里就行。', saved: '资料已保存。这个设备已经验证过，没有再发信。', confirmed: '已确认',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。', close: '关闭',
     passTitle: '我的订阅', passHint: '在微信、Safari、Chrome 或其他浏览器打开这个链接即可登录，不必再收确认邮件。', passCopy: '复制', passCopied: '已复制', passNew: '生成新链接', passNewWarn: '生成新链接后，旧链接会失效。继续？', passMissing: '这个浏览器没有保存订阅链接。生成新链接会使旧链接失效。', passStale: '这个浏览器保存的链接已失效。可生成新链接。', passFail: '暂时无法读取订阅链接，请稍后再试。'
   } : {
@@ -30,7 +45,7 @@
     phone: 'Phone', phonePh: 'Mobile number', last4: 'Last 4 digits', signIn: 'Sign in', signing: 'Signing in…', gate: 'Register / sign in', send: 'Send confirmation email',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your phone.', badLogin: 'The email or the last 4 digits did not match.',
     phoneSaved: 'Saved, last 4 digits ',
-    submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish. Didn\'t get the email? Check your spam or junk folder.', saved: 'Profile saved. This device is already verified, so no new email was sent.',
+    submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish. Didn\'t get the email? Check your spam or junk folder. The confirmation link may open in your browser. After confirming, just come back here.', saved: 'Profile saved. This device is already verified, so no new email was sent.', confirmed: 'Confirmed',
     fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.', close: 'Close',
     passTitle: 'My subscription', passHint: 'Open this link in WeChat, Safari, Chrome, or another browser to sign in. No new confirmation email.', passCopy: 'Copy', passCopied: 'Copied', passNew: 'New link', passNewWarn: 'A new link stops the old one. Continue?', passMissing: 'This browser does not have the link saved. A new link stops the old one.', passStale: 'The link saved in this browser no longer works. You can make a new one.', passFail: 'The subscription link could not be loaded. Try again later.'
   };
@@ -127,6 +142,38 @@
   }
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
+  function watchClaim(nonce, onOk) {
+    if (!/^[0-9a-f]{64}$/.test(nonce || '')) return function () {};
+    var stop = Date.now() + 30 * 60 * 1000;
+    var timer = 0;
+    var done = false;
+    function finish(session) {
+      if (done) return;
+      done = true;
+      if (timer) clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVis);
+      window.removeEventListener('pageshow', kick);
+      window.removeEventListener('focus', kick);
+      setToken(session);
+      if (onOk) onOk(session);
+    }
+    function kick() {
+      if (done) return;
+      if (Date.now() > stop) { if (timer) clearInterval(timer); return; }
+      fetch(API + '/social/going/await', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nonce: nonce }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && d.confirmed && /^[0-9a-f]{64}$/.test(d.session || '')) finish(d.session); })
+        .catch(function () {});
+    }
+    function onVis() { if (document.visibilityState === 'visible') kick(); }
+    timer = setInterval(kick, 4000);
+    document.addEventListener('visibilitychange', onVis);
+    window.addEventListener('pageshow', kick);
+    window.addEventListener('focus', kick);
+    kick();
+    return kick;
+  }
+  window.ATM_CLAIM = { watch: watchClaim, kick: function (nonce) { return watchClaim(nonce, function () {}); } };
   function paintPhone(tail) {
     var el = $('tsub-last4'); if (!el) return;
     el.value = '';
@@ -267,6 +314,7 @@
       .then(function (d) {
         if (d.ok) {
           ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false; if (!d.session) $('tsub-f').reset();
+          if (!d.session && d.nonce) watchClaim(d.nonce, function () { ok.textContent = L.confirmed; ok.hidden = false; paintMode(true); open(); });
           if (d.session && $('tsub-site')) $('tsub-site').checked = !!d.sitewide;
           if (d.session && d.phone_tail) paintPhone(d.phone_tail);
           if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
