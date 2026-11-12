@@ -13,10 +13,15 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const SUB_CC = 'guazong@mail.grokbot.com'; // CC on every subscriber-facing email (confirm + welcome)
 const RATE_MAX = 5, RATE_WIN_MIN = 60, PENDING_DAYS = 7, DAY = 86400000;
 
+const LINK_NOTE = {
+  zh: '此链接可在微信或任何浏览器中打开。点不开时，请复制完整链接（以 https://api.tangoweekend.org/ 开头），到微信或浏览器里打开。',
+  en: "This link works in WeChat or any web browser. If tapping it doesn't work, copy the full link (starting with https://api.tangoweekend.org/) and open it in WeChat or your browser."
+};
 const T = {
   zh: {
     cSubj: '请确认订阅：亚洲探戈地图新活动通知',
-    cBody: l => `您好！\n\n请点击下面的链接确认订阅亚洲探戈地图的新活动通知：\n${l}\n\n链接7天内有效。7天内没有确认，您的邮箱会被自动删除。\n如果不是您本人操作，请忽略这封邮件，我们不会再发邮件给您。`,
+    linkNote: LINK_NOTE.zh,
+    cBody: l => `您好！\n\n请点击下面的链接确认订阅亚洲探戈地图的新活动通知：\n${l}${l ? '\n\n' + LINK_NOTE.zh : ''}\n\n链接7天内有效。7天内没有确认，您的邮箱会被自动删除。\n如果不是您本人操作，请忽略这封邮件，我们不会再发邮件给您。`,
     wSubj: '订阅成功：亚洲探戈地图新活动通知',
     wBody: '谢谢订阅！以后有新活动，我们会发邮件通知您。',
     okPage: '订阅成功！欢迎邮件已发到您的邮箱。', already: '您已经订阅过了，不需要再确认。',
@@ -25,7 +30,8 @@ const T = {
   },
   en: {
     cSubj: 'Please confirm: Asia Tango Map event alerts',
-    cBody: l => `Hi!\n\nPlease click the link below to confirm your subscription to Asia Tango Map event alerts:\n${l}\n\nThe link is valid for 7 days. If you don't confirm within 7 days, your email address is deleted automatically.\nIf this wasn't you, just ignore this email and you won't hear from us again.`,
+    linkNote: LINK_NOTE.en,
+    cBody: l => `Hi!\n\nPlease click the link below to confirm your subscription to Asia Tango Map event alerts:\n${l}${l ? '\n\n' + LINK_NOTE.en : ''}\n\nThe link is valid for 7 days. If you don't confirm within 7 days, your email address is deleted automatically.\nIf this wasn't you, just ignore this email and you won't hear from us again.`,
     wSubj: "You're subscribed: Asia Tango Map event alerts",
     wBody: "Thanks for subscribing! We'll email you when new events are added.",
     okPage: "You're subscribed! A welcome email is on its way.", already: "You're already subscribed. Nothing more to do.",
@@ -76,9 +82,20 @@ async function sendToSubscriber(env, to, subject, text, html, unsubUrl) {
   return 'sent:' + p;
 }
 function mailHtml(lines, link, t, unsub) {
+  const note = link && t.linkNote ? `<p style="margin:8px 0 0;font-size:13px;line-height:1.5;color:#5b5148">${esc(t.linkNote)}</p>` : '';
   return `<div style="font-family:system-ui,sans-serif;color:#2a1a14;max-width:520px">${lines.map(l => `<p>${esc(l)}</p>`).join('')}` +
-    (link ? `<p><a href="${link}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:10px 18px;border-radius:999px;text-decoration:none">${esc(link.includes('/confirm') ? (t === T.zh ? '确认订阅' : 'Confirm subscription') : link)}</a></p><p style="font-size:12px;color:#777">${esc(link)}</p>` : '') +
+    (link ? `<p><a href="${link}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:10px 18px;border-radius:999px;text-decoration:none">${esc(link.includes('/confirm') ? (t === T.zh ? '确认订阅' : 'Confirm subscription') : link)}</a></p><p style="font-size:12px;color:#777">${esc(link)}</p>${note}` : '') +
     `<hr style="border:0;border-top:1px dashed #ead9b8"><p style="font-size:12px;color:#777">${esc(t.foot)}${unsub ? ` <a href="${unsub}">${esc(t.unsubLine)}</a>` : ''}</p></div>`;
+}
+// The letter POST /subscribe sends. Pure: it does not send mail.
+export function confirmLetter(lang, link, unsubUrl) {
+  const t = T[lang === 'zh' ? 'zh' : 'en'];
+  const unsub = unsubUrl || '';
+  return {
+    subject: t.cSubj,
+    text: `${t.cBody(link)}\n\n${t.foot}\n${t.unsubLine}: ${unsub}`,
+    html: mailHtml(t.cBody('').split('\n').filter(Boolean), link, t, unsub)
+  };
 }
 // Owner notification via the existing Email Routing binding (fixed destination, works on Workers Free).
 async function notifyOwner(env, subject, text) {

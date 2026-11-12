@@ -457,6 +457,10 @@ const CONFIRM_IGNORE = {
   zh: '如果不是你本人操作，忽略这封信即可。',
   en: 'If this wasn\'t you, you can simply ignore this email.'
 };
+const CONFIRM_LINK_NOTE = {
+  zh: '此链接可在微信或任何浏览器中打开。点不开时，请复制完整链接（以 https://api.tangoweekend.org/ 开头），到微信或浏览器里打开。',
+  en: 'This link works in WeChat or any web browser. If tapping it doesn\'t work, copy the full link (starting with https://api.tangoweekend.org/) and open it in WeChat or your browser.'
+};
 function mailName(name) {
   return String(name || '').replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
 }
@@ -475,11 +479,12 @@ export function buildConfirmLetter(row, link, _pending, he) {
   const next = zh ? CONFIRM_NEXT.zh : CONFIRM_NEXT.en;
   const back = zh ? CONFIRM_RETURN.zh : CONFIRM_RETURN.en;
   const ignore = zh ? CONFIRM_IGNORE.zh : CONFIRM_IGNORE.en;
+  const note = zh ? CONFIRM_LINK_NOTE.zh : CONFIRM_LINK_NOTE.en;
   const sign = zh ? ZH_SIGN : EN_SIGN;
   const button = zh ? '确认订阅' : 'Confirm subscription';
   const subject = zh ? '请确认订阅亚洲探戈地图' : 'Please confirm your Asia Tango Map subscription';
-  const text = `${hello}\n\n${body}\n\n${next}\n\n${back}\n\n${link}\n\n${ignore}\n\n${sign}`;
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:28px 24px"><p style="margin:0 0 14px">${esc(hello)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(body)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(next)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(back)}</p><p style="margin:22px 0"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${button}</a></p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(ignore)}</p><p style="margin:26px 0 0">${esc(sign)}</p></div></body></html>`;
+  const text = `${hello}\n\n${body}\n\n${next}\n\n${back}\n\n${link}\n\n${note}\n\n${ignore}\n\n${sign}`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:28px 24px"><p style="margin:0 0 14px">${esc(hello)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(body)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(next)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(back)}</p><p style="margin:22px 0 8px"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${button}</a></p><p style="margin:0 0 14px;font-size:13px;line-height:1.5;color:#5b5148">${esc(note)}</p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(ignore)}</p><p style="margin:26px 0 0">${esc(sign)}</p></div></body></html>`;
   return { subject, text, html, fromName: sign };
 }
 async function sendVerify(env, kit, row, link, pending) {

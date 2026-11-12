@@ -45,6 +45,7 @@
     once: '同一设备验证通过后，再选 Going／Interested 无需重复验证。',
     verifyBtn: '确认', pending: '确认邮件已发出，请查收。点开邮件里的确认后，再回到这里点「确认」。',
     sentHold: '已发送邮件，请到邮箱确认',
+    spam: '没收到邮件？请到垃圾邮件箱查看。',
     resendHint: '请先检查垃圾邮件；1 分钟后可重发一次',
     resendWait: '{n} 秒后可重发',
     resendUsed: '已重发过，请查收或稍后再试。',
@@ -108,6 +109,7 @@
     once: 'After one verification on this device, you won’t need to verify again to choose Going or Interested.',
     verifyBtn: 'Confirm', pending: 'Confirmation email sent. Open it, then come back and tap Confirm.',
     sentHold: 'Email sent — please confirm in your inbox',
+    spam: 'Didn\'t get the email? Check your spam or junk folder.',
     resendHint: 'Check your spam folder first. You can resend once after 1 minute.',
     resendWait: 'Resend in {n}s',
     resendUsed: 'Already resent. Please check your inbox, or try again later.',
@@ -539,6 +541,14 @@
     go.dataset.sent = '1';
     go.setAttribute('aria-busy', 'false');
     go.textContent = L.sentHold;
+    var note = go.parentNode && go.parentNode.querySelector('#asg-spam');
+    if (!note && go.parentNode) {
+      note = document.createElement('p');
+      note.id = 'asg-spam';
+      note.className = 'asg-ok';
+      go.insertAdjacentElement('afterend', note);
+    }
+    if (note) note.textContent = L.spam;
   }
   function saveAbsent(ev, id, anchor) {
     rememberAbsent(id, anchor);
