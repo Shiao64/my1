@@ -32,8 +32,8 @@
     phone: '手机', phonePh: '手机号', last4: '手机末 4 码', signIn: '登录', signing: '登录中…', gate: '注册／登录', send: '发送确认邮件',
     needPhone: '请填写手机。', badPhone: '手机号码不正确。', needLast4: '请输入手机末 4 码。', badLogin: '邮箱或手机末 4 码不正确。',
     phoneSaved: '已保存末 4 码 ',
-    submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。没收到邮件？请到垃圾邮件箱查看。确认链接可能会在浏览器里打开，确认后回到这里就行。', saved: '资料已保存。这个设备已经验证过，没有再发信。', confirmed: '已确认',
-    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。', close: '关闭',
+    submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', saved: '资料已保存。这个设备已经验证过，没有再发信。', confirmed: '已确认',
+    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', tsFail: '人机验证已失效，请重新验证后再发送。', foot: '订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。', close: '关闭',
     passTitle: '我的订阅', passHint: '在微信、Safari、Chrome 或其他浏览器打开这个链接即可登录，不必再收确认邮件。', passCopy: '复制', passCopied: '已复制', passNew: '生成新链接', passNewWarn: '生成新链接后，旧链接会失效。继续？', passMissing: '这个浏览器没有保存订阅链接。生成新链接会使旧链接失效。', passStale: '这个浏览器保存的链接已失效。可生成新链接。', passFail: '暂时无法读取订阅链接，请稍后再试。'
   } : {
     btn: 'Subscribe', title: 'Subscribe', mine: 'My profile', desc: 'Event updates, sent as needed.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
@@ -45,8 +45,8 @@
     phone: 'Phone', phonePh: 'Mobile number', last4: 'Mobile last 4 digits', signIn: 'Sign in', signing: 'Signing in…', gate: 'Register / sign in', send: 'Send confirmation email',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your mobile.', badLogin: 'The email or the mobile last 4 digits did not match.',
     phoneSaved: 'Saved, last 4 digits ',
-    submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish. Didn\'t get the email? Check your spam or junk folder. The confirmation link may open in your browser. After confirming, just come back here.', saved: 'Profile saved. This device is already verified, so no new email was sent.', confirmed: 'Confirmed',
-    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.', close: 'Close',
+    submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', saved: 'Profile saved. This device is already verified, so no new email was sent.', confirmed: 'Confirmed',
+    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', tsFail: 'The human check expired. Please verify again and send.', foot: 'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.', close: 'Close',
     passTitle: 'My subscription', passHint: 'Open this link in WeChat, Safari, Chrome, or another browser to sign in. No new confirmation email.', passCopy: 'Copy', passCopied: 'Copied', passNew: 'New link', passNewWarn: 'A new link stops the old one. Continue?', passMissing: 'This browser does not have the link saved. A new link stops the old one.', passStale: 'The link saved in this browser no longer works. You can make a new one.', passFail: 'The subscription link could not be loaded. Try again later.'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
@@ -70,7 +70,7 @@
     '#tsub-modal .tsub-desc{font-size:.88rem;color:#2a1a14;margin:0 0 4px;line-height:1.5}' +
     '#tsub-modal .tsub-hint{font-size:.8rem;color:#7a6255;margin:6px 0 0}#tsub-modal .tsub-err{color:#b5654a;font-size:.85rem;margin:8px 0 0;min-height:1em}' +
     '#tsub-modal .tsub-tabs{display:flex;margin:10px 0 6px;border:1px solid #0e6e78;border-radius:8px;overflow:hidden}#tsub-modal .tsub-tab{flex:1;padding:9px 0;border:0;background:#fff;color:#0e6e78;font:600 .95rem system-ui;cursor:pointer}#tsub-modal .tsub-tab[aria-selected=true]{background:#0e6e78;color:#fff}#tsub-modal .tsub-tab.tsub-off,#tsub-modal .tsub-tab:disabled{opacity:.45;cursor:not-allowed;background:#eee;color:#9a9a9a;pointer-events:none}#tsub-modal [data-m=wx] .tsub-emf,#tsub-modal [data-m=em] .tsub-wxf,#tsub-modal [data-m] .tsub-hint{display:none!important}#tsub-modal .tsub-qa{display:flex;gap:10px;justify-content:center;margin:6px 0 2px}#tsub-modal .tsub-qb{padding:7px 14px;border:1px solid #0e6e78;border-radius:8px;color:#0e6e78;text-decoration:none;font:600 .9rem system-ui;background:#fff}#tsub-modal .tsub-wid{text-align:center;font-size:.88rem;margin:6px 0 2px}#tsub-modal .tsub-wid .tsub-qb{padding:4px 10px;font-size:.82rem;cursor:pointer}#tsub-modal .tsub-wxb{display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;color:#07a050;font:600 .72rem system-ui}#tsub-modal .tsub-qr{-webkit-touch-callout:default;user-select:auto}#tsub-modal .tsub-qh{text-align:center;font-size:.82rem;color:#7a6255;margin:2px 0 6px}#tsub-modal .tsub-stp{margin:10px 0 4px;font-size:.92rem;color:#0a4f57}#tsub-modal .tsub-ok{color:#0a4f57;font-size:.92rem;font-weight:700;margin:2px 8px 6px 0;line-height:1.45}#tsub-modal .tsub-code{font-size:1.4rem;letter-spacing:.15em;color:#C8102E}#tsub-modal .tsub-tpl{display:flex;gap:6px;align-items:center;background:#f6f1e7;border:1px dashed #0e6e78;border-radius:8px;padding:6px 8px;margin:6px 0}#tsub-modal .tsub-tpl code{flex:1;color:#0a4f57}#tsub-modal .tsub-cp{border:1px solid #0e6e78;background:#fff;color:#0e6e78;border-radius:999px;padding:3px 10px;cursor:pointer}#tsub-modal .tsub-qr{display:block;width:180px;height:auto;margin:10px auto 0;border-radius:8px}' +
-    '#tsub-modal .tsub-go{width:100%;min-height:48px;margin-top:10px;border-radius:12px;font:600 15px/20px var(--sans);background:#0e6e78;color:#FFFFFF;border:0;cursor:pointer}#tsub-modal .tsub-go:disabled{opacity:.5}' +
+    '#tsub-modal .tsub-go{width:100%;min-height:48px;margin-top:10px;border-radius:12px;font:600 15px/20px var(--sans);background:#0e6e78;color:#FFFFFF;border:0;cursor:pointer}#tsub-modal .tsub-go:disabled{background:#bdb6aa;color:#3f3a34;cursor:not-allowed;opacity:1}' +
     '#tsub-modal .tsub-check{display:flex;gap:8px;align-items:flex-start;margin:10px 0 0;font-size:.88rem;color:#2a1a14}#tsub-modal .tsub-check input{width:auto;min-height:0;margin-top:3px}' +
     '#tsub-modal .tsub-unsub{width:100%;min-height:44px;margin-top:8px;border-radius:999px;background:#fff;color:#7a6255;border:1px solid #ead9b8;cursor:pointer}' +
     '#tsub-modal .tsub-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}' +
@@ -134,7 +134,7 @@
     function render() {
       if (!window.turnstile || !el.isConnected || el.dataset.ts) return;
       el.dataset.ts = '1';
-      window.turnstile.render(el, { sitekey: key, action: 'profile' });
+      el.dataset.wid = window.turnstile.render(el, { sitekey: key, action: 'profile', 'refresh-expired': 'auto' });
     }
     function start(k) { key = k || key; if (!key) return; if (window.turnstile) render(); else { var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = render; document.head.appendChild(s); } }
     if (key) start(key);
@@ -237,7 +237,7 @@
   function paintMode(on) {
     $('tsub-t').textContent = on ? L.mine : L.title;
     var go = $('tsub-go');
-    if (go && go.dataset.busy !== '1') go.textContent = on ? L.save : L.send;
+    if (go && go.dataset.busy !== '1' && go.dataset.sent !== '1') go.textContent = on ? L.save : L.send;
     var un = $('tsub-unsub'); if (un) un.hidden = !on;
     var em = $('tsub-e'); if (em) { em.disabled = !!on; em.classList.toggle('tsub-must', !on); }
     var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = true;
@@ -256,14 +256,64 @@
     var gateBtn = $('tsub-phone-go'); if (gateBtn) gateBtn.hidden = true;
     var reg = $('tsub-reg'); if (reg) reg.hidden = false;
     var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = false;
-    var go = $('tsub-go'); if (go && go.dataset.busy !== '1') go.textContent = L.send;
+    var go = $('tsub-go'); if (go && go.dataset.busy !== '1' && go.dataset.sent !== '1') go.textContent = L.send;
     mountSubTs();
   }
   function scrollModalTop() {
     var scroller = m.querySelector('.tsub-body');
     if (scroller) scroller.scrollTop = 0;
   }
+  function resetTurnstile() {
+    try {
+      var tsEl = document.querySelector('#tsub-f .tsub-ts');
+      if (tsEl && window.turnstile && tsEl.dataset.wid) window.turnstile.reset(tsEl.dataset.wid);
+    } catch (eTs) {}
+  }
+  function mailAddr(entered, d) {
+    var masked = d && (d.masked || d.email_masked);
+    if (typeof masked === 'string' && masked.indexOf('@') > 0) return masked;
+    return entered || '';
+  }
+  function sentHide() {
+    var list = [];
+    ['tsub-need', 'tsub-desc', 'tsub-e', 'tsub-last4', 'tsub-phone-go', 'tsub-n', 'tsub-r', 'tsub-c'].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      list.push(el);
+      if (el.labels) Array.prototype.forEach.call(el.labels, function (lb) { list.push(lb); });
+    });
+    var site = $('tsub-site');
+    if (site) {
+      list.push(site);
+      if (site.closest) { var lab = site.closest('label'); if (lab) list.push(lab); }
+    }
+    var row = document.querySelector('#tsub-reg .tsub-row');
+    if (row) list.push(row);
+    var ts = document.querySelector('#tsub-f .tsub-ts');
+    if (ts) list.push(ts);
+    var hp = document.querySelector('#tsub-f .tsub-hp');
+    if (hp) list.push(hp);
+    return list;
+  }
+  function lockSent(shown, entered) {
+    var go = $('tsub-go'), ok = $('tsub-ok');
+    if (!go || !window.ATM_MAIL_SENT) return;
+    if (ok) { ok.hidden = true; ok.textContent = ''; }
+    window.ATM_MAIL_SENT.hold({
+      button: go,
+      email: shown,
+      match: entered,
+      hide: sentHide(),
+      sendLabel: L.send,
+      onEdit: function () { var em = $('tsub-e'); if (em && em.focus) { em.focus(); try { em.select(); } catch (e) {} } }
+    });
+  }
+  function unlockSent() {
+    var go = $('tsub-go');
+    if (go && go.dataset.sent === '1' && window.ATM_MAIL_SENT) window.ATM_MAIL_SENT.release(go, { label: L.send });
+  }
   function open() {
+    if (!m.hidden && $('tsub-go') && $('tsub-go').dataset.sent === '1') return;
     if (tmr) { clearTimeout(tmr); tmr = null; }
     $('tsub-ok').hidden = true; $('tsub-err').textContent = '';
     var tok = token();
@@ -284,7 +334,7 @@
       loadPass();
     }).catch(function () { paintMode(false); });
   }
-  function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; }
+  function close() { if (tmr) { clearTimeout(tmr); tmr = null; } unlockSent(); m.hidden = true; }
   $('tsub-open').addEventListener('click', open);
   m.addEventListener('click', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-x')) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !m.hidden) close(); });
@@ -295,6 +345,7 @@
     var profile = $('tsub-e') && $('tsub-e').disabled;
     var unsubmitting = e.submitter && e.submitter.id === 'tsub-unsub';
     var em = $('tsub-e') ? $('tsub-e').value.trim() : '', nm = $('tsub-n').value.trim(), cy = $('tsub-c') ? $('tsub-c').value.trim() : '', role = $('tsub-r') ? $('tsub-r').value : '', err = $('tsub-err'), ok = $('tsub-ok'), go = $('tsub-go');
+    if (go && (go.dataset.busy === '1' || go.dataset.sent === '1')) return;
     var site = unsubmitting ? 0 : ($('tsub-site') && $('tsub-site').checked ? 1 : 0);
     err.textContent = ''; ok.hidden = true;
     if (!nm) { err.textContent = L.needName; $('tsub-n').focus(); return; }
@@ -305,43 +356,60 @@
     var tail = $('tsub-last4') ? $('tsub-last4').value.replace(/\D/g, '') : '';
     if (!profile && !/^\d{4}$/.test(tail)) { err.textContent = L.needLast4; if ($('tsub-last4')) $('tsub-last4').focus(); return; }
     if (profile && $('tsub-last4') && $('tsub-last4').value.trim() && !/^\d{4}$/.test(tail)) { err.textContent = L.needLast4; if ($('tsub-last4')) $('tsub-last4').focus(); return; }
-    if ($('tsub-hp').value) { ok.textContent = L.ok; ok.hidden = false; return; }
-    go.disabled = true; go.dataset.busy = '1'; go.textContent = profile ? L.saving : L.sending;
+    if ($('tsub-hp').value) { ok.textContent = window.ATM_MAIL_SENT.note(em); ok.hidden = false; return; }
+    if (profile) { go.disabled = true; go.dataset.busy = '1'; go.textContent = L.saving; }
+    else if (!window.ATM_MAIL_SENT.arm(go, window.ATM_MAIL_SENT.L.sending)) return;
     var headers = { 'Content-Type': 'application/json' }; try { var tok = localStorage.getItem('atm_session'); if (tok) headers.Authorization = 'Bearer ' + tok; } catch (e2) {}
     var tsEl = document.querySelector('#tsub-f .tsub-ts');
     var ts = '';
     if (tsEl && !tsEl.hidden) { var inp = tsEl.querySelector('[name="cf-turnstile-response"]'); ts = inp ? String(inp.value || '').trim() : ''; }
-    if (!profile && !ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.dataset.busy = ''; go.textContent = L.send; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
+    if (!profile && !ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; window.ATM_MAIL_SENT.disarm(go, L.send); if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
     var body = { name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: site, ret: pageRet(), website: $('tsub-hp').value, ts: ts };
     if (tail) body.last4 = tail;
     fetch(API + '/social/profile', { method: 'POST', credentials: 'include', headers: headers, body: JSON.stringify(body) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.ok) {
-          ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false; if (!d.session) $('tsub-f').reset();
-          if (!d.session && d.nonce) watchClaim(d.nonce, function () {
-            open();
-            var hint = $('tsub-ok');
-            if (hint) { hint.textContent = L.confirmed; hint.hidden = false; }
-            scrollModalTop();
-          });
-          if (d.session && $('tsub-site')) $('tsub-site').checked = !!d.sitewide;
-          if (d.session && d.phone_tail) paintPhone(d.phone_tail);
+          if (d.session) {
+            ok.textContent = L.saved; ok.hidden = false;
+            if ($('tsub-site')) $('tsub-site').checked = !!d.sitewide;
+            if (d.phone_tail) paintPhone(d.phone_tail);
+            if (tmr) clearTimeout(tmr);
+            tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 6000);
+          } else {
+            if (tmr) { clearTimeout(tmr); tmr = null; }
+            lockSent(mailAddr(em, d), em);
+            if (d.nonce) watchClaim(d.nonce, function () {
+              unlockSent();
+              open();
+              var hint = $('tsub-ok');
+              if (hint) { hint.textContent = L.confirmed; hint.hidden = false; }
+              scrollModalTop();
+            });
+          }
           if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
-          if (tmr) clearTimeout(tmr);
-          tmr = setTimeout(function () { tmr = null; m.hidden = true; ok.hidden = true; ok.textContent = ''; }, 6000);
         }
         else {
-          err.textContent = d.error === 'need_name' ? L.needName : d.error === 'need_city' ? L.needCity : d.error === 'need_role' ? L.needRole : d.error === 'need_phone' ? L.needLast4 : d.error === 'bad_phone' ? L.needLast4 : d.error === 'bad_email' ? L.bad : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : L.fail;
+          err.textContent = d.error === 'need_name' ? L.needName : d.error === 'need_city' ? L.needCity : d.error === 'need_role' ? L.needRole : d.error === 'need_phone' ? L.needLast4 : d.error === 'bad_phone' ? L.needLast4 : d.error === 'bad_email' ? L.bad : (d.error === 'need_email' || d.error === 'need_contact') ? L.need : d.error === 'send_failed' ? L.sendfail : d.error === 'rate_limited' ? L.rate : d.error === 'turnstile' ? L.tsFail : L.fail;
         }
       })
       .catch(function () { err.textContent = L.fail; })
       .then(function () {
-        go.disabled = false; go.dataset.busy = '';
+        resetTurnstile();
+        if (go.dataset.sent === '1') return;
+        window.ATM_MAIL_SENT.disarm(go);
         if ($('tsub-e') && $('tsub-e').disabled && token()) paintMode(true);
         else if ($('tsub-reg') && !$('tsub-reg').hidden) go.textContent = L.send;
         else paintMode(false);
       });
+  });
+  var emailInput = $('tsub-e');
+  if (emailInput) emailInput.addEventListener('input', function () {
+    var go = $('tsub-go');
+    if (!go || go.dataset.sent !== '1') return;
+    var now = emailInput.value.trim().toLowerCase();
+    var prev = String(go.dataset.sentAddr || '').trim().toLowerCase();
+    if (now && now !== prev) unlockSent();
   });
   var phoneGo = $('tsub-phone-go');
   if (phoneGo) phoneGo.addEventListener('click', function () {

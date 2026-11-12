@@ -9,6 +9,7 @@ const puppeteer = require(process.env.PUPPETEER_CORE || '/tmp/node_modules/puppe
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const star = fs.readFileSync(path.join(root, 'asia/atm-star.js'));
+const mailSent = fs.readFileSync(path.join(root, 'asia/atm-mail-sent.js'));
 const fail = [];
 const check = (n, ok) => { if (!ok) fail.push(n); };
 const events = JSON.stringify([
@@ -29,11 +30,12 @@ window.fetch=function(url,opt){
   if(opt&&String(opt.method).toUpperCase()==='POST')return json(window.__mode, window.__mode._s||200);
   return json({});
 };
-</script><script src="/atm-star.js"></script>
+</script><script src="/atm-mail-sent.js"></script><script src="/atm-star.js"></script>
 <button class="atm-heart" data-fid="R"><svg viewBox="0 0 24 24"><path/></svg></button>
 </body></html>`;
 }
 const server = http.createServer((req, res) => {
+  if (req.url.startsWith('/atm-mail-sent.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(mailSent); return; }
   if (req.url.startsWith('/atm-star.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(star); return; }
   res.setHeader('content-type', 'text/html; charset=utf-8');
   res.end(page(req.url.includes('/en') ? 'en' : 'zh'));

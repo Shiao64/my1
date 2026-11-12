@@ -9,6 +9,7 @@ const puppeteer = require(process.env.PUPPETEER_CORE || '/tmp/node_modules/puppe
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const star = fs.readFileSync(path.join(root, 'asia/atm-star.js'));
 const sub = fs.readFileSync(path.join(root, 'asia/asia-subscribe.js'));
+const sent = fs.readFileSync(path.join(root, 'asia/atm-mail-sent.js'));
 const fail = [];
 const check = (n, ok) => { if (!ok) fail.push(n); };
 const nonce = 'ab'.repeat(32);
@@ -41,12 +42,14 @@ window.fetch = function (url, opt) {
   return json({});
 };
 </script>
+<script src="/atm-mail-sent.js"></script>
 <script src="/asia-subscribe.js"></script>
 <script src="/atm-star.js"></script>
 <button class="atm-heart" data-fid="R"><svg viewBox="0 0 24 24"><path/></svg></button>
 </body></html>`;
 }
 const server = http.createServer((req, res) => {
+  if (req.url.startsWith('/atm-mail-sent.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(sent); return; }
   if (req.url.startsWith('/atm-star.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(star); return; }
   if (req.url.startsWith('/asia-subscribe.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(sub); return; }
   res.setHeader('content-type', 'text/html; charset=utf-8');

@@ -9,6 +9,7 @@ const puppeteer = require(process.env.PUPPETEER_CORE || '/tmp/node_modules/puppe
 
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const star = fs.readFileSync(path.join(root, 'asia/atm-star.js'));
+const sent = fs.readFileSync(path.join(root, 'asia/atm-mail-sent.js'));
 const fail = [];
 const check = (n, ok) => { if (!ok) fail.push(n); };
 const events = JSON.stringify([
@@ -43,11 +44,12 @@ window.fetch=function(url,opt){
   }
   return Promise.reject(new Error(u));
 };
-</script><script src="/atm-star.js"></script>
+</script><script src="/atm-mail-sent.js"></script><script src="/atm-star.js"></script>
 <button class="atm-heart" data-fid="R"><svg viewBox="0 0 24 24"><path/></svg></button>
 </body></html>`;
 }
 const server = http.createServer((req, res) => {
+  if (req.url.startsWith('/atm-mail-sent.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(sent); return; }
   if (req.url.startsWith('/atm-star.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(star); return; }
   res.setHeader('content-type', 'text/html; charset=utf-8');
   res.end(page(req.url.includes('/en') ? 'en' : 'zh'));
@@ -103,7 +105,7 @@ await zh.evaluate(() => {
 });
 await zh.waitForFunction(() => window.__posts.length === 1);
 const posted = await zh.evaluate(() => ({ body: window.__posts[0], go: document.querySelector('#asg-go').textContent, off: document.querySelector('#asg-go').disabled, hidden: document.querySelector('#atm-star').hidden, promo: document.querySelector('#asg-promo').checked, spam: (document.querySelector('#asg-spam') || {}).textContent || '' }));
-check('confirm posts once and keeps the button disabled', posted.body.intent === 'going' && posted.body.email === 'guest@example.com' && posted.body.name === 'Guest' && posted.body.city === 'Osaka' && posted.body.role === 'leader' && posted.body.last4 === '1111' && !posted.body.phone && posted.body.alert === 1 && posted.promo === true && posted.go === '已发送邮件，请到邮箱确认' && posted.spam.indexOf('没收到邮件？请到垃圾邮件箱查看。') === 0 && posted.spam.indexOf('确认链接可能会在浏览器里打开，确认后回到这里就行。') > 0 && posted.off === true && posted.hidden === false);
+check('confirm posts once and keeps the button disabled', posted.body.intent === 'going' && posted.body.email === 'guest@example.com' && posted.body.name === 'Guest' && posted.body.city === 'Osaka' && posted.body.role === 'leader' && posted.body.last4 === '1111' && !posted.body.phone && posted.body.alert === 1 && posted.promo === true && posted.go === '确认邮件已发送' && posted.spam.indexOf('确认邮件已寄到 guest@example.com') === 0 && posted.spam.indexOf('也请查看垃圾邮件箱') > 0 && posted.spam.indexOf('30 分钟内有效') > 0 && posted.off === true && posted.hidden === false);
 await zh.evaluate(() => document.querySelector('#asg-go').click());
 check('a second tap in the same dialog does not send', await zh.evaluate(() => window.__posts.length === 1));
 await zh.click('[data-x]');
@@ -115,8 +117,13 @@ await zh.evaluate(() => {
   document.querySelector('#asg-last4').value = '1111';
   document.querySelector('#asg-go').click();
 });
-await zh.waitForSelector('#asg-resend');
-check('reopen within a minute stays grey and shows the spam reminder', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').textContent.indexOf('秒后可重发') >= 0 && document.querySelector('#asg-resend').textContent === '请先检查垃圾邮件；1 分钟后可重发一次' && window.__posts.length === 1));
+await zh.waitForFunction(() => {
+  const go = document.querySelector('#asg-go');
+  const note = document.querySelector('.atm-sent-note');
+  const link = document.querySelector('#asg-resend');
+  return go && note && link && go.textContent === '确认邮件已发送';
+});
+check('reopen within a minute stays grey and shows the check-email panel', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').classList.contains('atm-sent-go') && document.querySelector('.atm-sent-note').textContent.indexOf('guest@example.com') >= 0 && document.querySelector('#asg-resend').hidden === true && window.__posts.length === 1));
 await zh.evaluate(() => document.querySelector('#asg-go').click());
 check('the waiting button does not post', await zh.evaluate(() => window.__posts.length === 1));
 await zh.evaluate(() => {
@@ -132,8 +139,10 @@ await zh.evaluate(() => {
   document.querySelector('#asg-last4').value = '1111';
   document.querySelector('#asg-go').click();
 });
+await zh.waitForFunction(() => { const link = document.querySelector('#asg-resend'); return link && link.hidden === false; });
+check('after one minute the resend link is the way to send again', await zh.evaluate(() => document.querySelector('#asg-resend').textContent === '没收到？重新发送' && document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').textContent === '确认邮件已发送'));
+await zh.click('#asg-resend');
 await zh.waitForFunction(() => document.querySelector('#asg-go').disabled === false && document.querySelector('#asg-go').textContent === '发送确认邮件');
-check('after one minute the same show can be resent once', await zh.evaluate(() => document.querySelector('#asg-resend').textContent === '请先检查垃圾邮件；1 分钟后可重发一次' && document.querySelector('#asg-go').textContent === '发送确认邮件'));
 await zh.evaluate(() => {
   document.querySelector('#asg-name').value = 'Guest';
   document.querySelector('#asg-city').value = 'Osaka';
@@ -141,7 +150,7 @@ await zh.evaluate(() => {
 });
 await zh.click('#asg-go');
 await zh.waitForFunction(() => window.__posts.length === 2);
-check('the resend locks the button again', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').textContent === '已发送邮件，请到邮箱确认'));
+check('the resend locks the button again', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').textContent === '确认邮件已发送' && document.querySelector('.atm-sent-note').textContent.indexOf('guest@example.com') >= 0));
 await zh.click('[data-x]');
 await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
 await zh.waitForSelector('#asg-go');
@@ -150,8 +159,8 @@ await zh.evaluate(() => {
   document.querySelector('#asg-last4').value = '1111';
   document.querySelector('#asg-go').click();
 });
-await zh.waitForFunction(() => document.querySelector('#asg-go').textContent.indexOf('已重发过') === 0);
-check('a third open says the resend was used', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && window.__posts.length === 2));
+await zh.waitForFunction(() => (document.querySelector('.atm-sent-used') || {}).textContent === '已重发过，请查收或稍后再试。');
+check('a third open says the resend was used', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').textContent === '确认邮件已发送' && document.querySelector('#asg-resend').hidden === true && window.__posts.length === 2));
 await zh.close();
 
 const en = await open('en');
@@ -185,7 +194,7 @@ await enSent.evaluate(() => {
   document.querySelector('#asg-go').click();
 });
 await enSent.waitForFunction(() => window.__posts.length === 1);
-check('english sent label stays disabled', await enSent.evaluate(() => document.querySelector('#asg-go').textContent === 'Email sent — please confirm in your inbox' && document.querySelector('#asg-spam').textContent.indexOf("Didn't get the email? Check your spam or junk folder.") === 0 && document.querySelector('#asg-spam').textContent.indexOf('The confirmation link may open in your browser. After confirming, just come back here.') > 0 && document.querySelector('#asg-go').disabled === true && window.__posts.length === 1));
+check('english sent label stays disabled', await enSent.evaluate(() => document.querySelector('#asg-go').textContent === 'Confirmation email sent' && document.querySelector('#asg-spam').textContent.indexOf('We sent a confirmation email to guest@example.com.') === 0 && document.querySelector('#asg-spam').textContent.indexOf('check spam too') > 0 && document.querySelector('#asg-spam').textContent.indexOf('within 30 minutes') > 0 && document.querySelector('#asg-go').disabled === true && window.__posts.length === 1));
 await enSent.evaluate(() => document.querySelector('#asg-go').click());
 check('english second tap does not send', await enSent.evaluate(() => window.__posts.length === 1));
 await enSent.close();

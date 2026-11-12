@@ -8,6 +8,7 @@ const require = createRequire(import.meta.url);
 const puppeteer = require(process.env.PUPPETEER_CORE || '/tmp/node_modules/puppeteer-core');
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const sub = fs.readFileSync(path.join(root, 'asia/asia-subscribe.js'));
+const sent = fs.readFileSync(path.join(root, 'asia/atm-mail-sent.js'));
 const fail = [];
 const check = (n, ok) => { if (!ok) fail.push(n); };
 const nonce = 'ab'.repeat(32);
@@ -34,10 +35,12 @@ window.fetch = function (url, opt) {
   return json({});
 };
 </script>
+<script src="/atm-mail-sent.js"></script>
 <script src="/asia-subscribe.js"></script>
 </body></html>`;
 }
 const server = http.createServer((req, res) => {
+  if (req.url.startsWith('/atm-mail-sent.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(sent); return; }
   if (req.url.startsWith('/asia-subscribe.js')) { res.setHeader('content-type', 'text/javascript; charset=utf-8'); res.end(sub); return; }
   res.setHeader('content-type', 'text/html; charset=utf-8');
   res.end(page(req.url.includes('/en') ? 'en' : 'zh'));

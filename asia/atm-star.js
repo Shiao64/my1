@@ -61,14 +61,7 @@
     rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', rolePh: '请选择',
     once: '同一设备验证通过后，再选 Going／Interested 无需重复验证。',
     verifyBtn: '确认', pending: '确认邮件已发出，请查收。确认后会记下意向。',
-    sentHold: '已发送邮件，请到邮箱确认',
-    spam: '没收到邮件？请到垃圾邮件箱查看。',
-    backHint: '确认链接可能会在浏览器里打开，确认后回到这里就行。',
     confirmed: '已确认',
-    resendHint: '请先检查垃圾邮件；1 分钟后可重发一次',
-    resendWait: '{n} 秒后可重发',
-    resendUsed: '已重发过，请查收或稍后再试。',
-    resend: '重新发送验证邮件',
     ready: '邮箱已确认，意向已记下。',
     saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
     savedNotify: '已保存，主办方会收到通知',
@@ -129,14 +122,7 @@
     rl: 'Leader', rf: 'follower', rb: 'both', rolePh: 'Choose',
     once: 'After one verification on this device, you won’t need to verify again to choose Going or Interested.',
     verifyBtn: 'Confirm', pending: 'Confirmation email sent. Your intent is saved when you confirm.',
-    sentHold: 'Email sent — please confirm in your inbox',
-    spam: 'Didn\'t get the email? Check your spam or junk folder.',
-    backHint: 'The confirmation link may open in your browser. After confirming, just come back here.',
     confirmed: 'Confirmed',
-    resendHint: 'Check your spam folder first. You can resend once after 1 minute.',
-    resendWait: 'Resend in {n}s',
-    resendUsed: 'Already resent. Please check your inbox, or try again later.',
-    resend: 'Resend verification email',
     ready: 'Email confirmed. Your intent is saved.',
     saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
     savedNotify: 'Saved. The organizer will be notified.',
@@ -573,34 +559,53 @@
     var word = intent === 'interested' ? L.interested : intent === 'absent' ? L.absent : L.going;
     return L.confirmed + ' · ' + word;
   }
+  function sentHide(btn) {
+    var list = [];
+    if (!btn || !btn.parentNode) return list;
+    Array.prototype.forEach.call(btn.parentNode.children, function (el) {
+      if (el === btn || el.classList.contains('atm-sent-panel') || el.classList.contains('atm-sent-links') || el.id === 'asg-err') return;
+      list.push(el);
+    });
+    return list;
+  }
+  function sentOpts(go, email, sentAt, canResend) {
+    return {
+      button: go,
+      email: email || '',
+      match: email || '',
+      sentAt: sentAt || Date.now(),
+      canResend: canResend !== false,
+      hide: sentHide(go),
+      sendLabel: L.send,
+      noteId: 'asg-spam',
+      resendId: 'asg-resend',
+      onResend: function () { go.dataset.allow = '1'; },
+      onEdit: function () {
+        var em = body().querySelector('#asg-email');
+        if (em && em.focus) { em.focus(); try { em.select(); } catch (e) {} }
+      }
+    };
+  }
   function showConfirmed(go, intent) {
     if (!go) return;
+    if (window.ATM_MAIL_SENT) window.ATM_MAIL_SENT.quiet(go);
     go.disabled = true;
     go.dataset.busy = '';
     go.dataset.sent = '1';
     go.dataset.confirmed = '1';
     go.dataset.savedIntent = intent || 'going';
     go.setAttribute('aria-busy', 'false');
+    go.classList.remove('atm-sent-go');
     go.textContent = confirmedLabel(intent);
     var note = go.parentNode && go.parentNode.querySelector('#asg-spam');
     if (note) note.textContent = confirmedLabel(intent);
     var mail = document.getElementById('asg-mailnote');
     if (mail) { mail.hidden = false; mail.textContent = confirmedLabel(intent); }
   }
-  function holdSent(go) {
-    go.disabled = true;
-    go.dataset.busy = '';
-    go.dataset.sent = '1';
-    go.setAttribute('aria-busy', 'false');
-    go.textContent = L.sentHold;
-    var note = go.parentNode && go.parentNode.querySelector('#asg-spam');
-    if (!note && go.parentNode) {
-      note = document.createElement('p');
-      note.id = 'asg-spam';
-      note.className = 'asg-ok';
-      go.insertAdjacentElement('afterend', note);
-    }
-    if (note) note.textContent = L.spam + ' ' + L.backHint;
+  function holdSent(go, email) {
+    var mail = body().querySelector('#asg-email');
+    var addr = email || (mail ? String(mail.value || '').trim() : '') || go.dataset.sentAddr || '';
+    window.ATM_MAIL_SENT.hold(sentOpts(go, addr, Date.now(), true));
   }
   function saveAbsent(ev, id, anchor) {
     rememberAbsent(id, anchor);
@@ -746,66 +751,44 @@
     var noteEl = body().querySelector('#asg-notify'); if (noteEl) noteEl.onchange = function () { draft.notify = noteEl.checked; ctxSet(draft); };
     var dirEl = body().querySelector('#asg-dir'); if (dirEl) dirEl.onchange = function () { draft.transport = dirEl.checked; ctxSet(draft); };
     var emailEl = body().querySelector('#asg-email');
-    if (emailEl) emailEl.oninput = function () { paintResend(); };
+    if (emailEl) emailEl.oninput = function () {
+      var btn = body().querySelector('#asg-go');
+      if (btn && btn.dataset.sent === '1') {
+        var now = emailEl.value.trim().toLowerCase();
+        var prev = String(btn.dataset.sentAddr || '').trim().toLowerCase();
+        if (now && now !== prev) {
+          window.ATM_MAIL_SENT.release(btn, { label: L.send });
+          btn.dataset.allow = '1';
+        }
+        return;
+      }
+      paintResend();
+    };
     var known = latestHold(id, draft.anchor || '');
     if (emailEl && known && known.email && !emailEl.value) emailEl.value = known.email;
     var go = body().querySelector('#asg-go');
     function paintResend() {
-      if (resendTick) { clearInterval(resendTick); resendTick = 0; }
       var btn = body().querySelector('#asg-go');
       if (!btn || btn.dataset.sent === '1') return;
-      if (phase !== 'register') {
-        var idleNote = body().querySelector('#asg-resend');
-        if (idleNote) idleNote.hidden = true;
+      if (btn.dataset.allow === '1') {
         btn.disabled = false;
-        btn.textContent = phase === 'start' ? L.gate : L.submit;
+        btn.textContent = phase === 'register' ? L.send : (phase === 'start' ? L.gate : L.submit);
         return;
       }
-      if (draft.intent === 'absent') {
-        var awayNote = body().querySelector('#asg-resend');
-        if (awayNote) awayNote.hidden = true;
+      if (phase !== 'register' || draft.intent === 'absent') {
+        window.ATM_MAIL_SENT.release(btn, { enable: false });
         btn.disabled = false;
-        btn.textContent = L.send;
+        btn.textContent = phase === 'register' ? L.send : (phase === 'start' ? L.gate : L.submit);
         return;
       }
       var mail = body().querySelector('#asg-email');
       var addr = mail ? mail.value.trim().toLowerCase() : '';
       var row = addr ? getHold(id, draft.anchor || '', addr) : null;
-      var hint = body().querySelector('#asg-resend');
       if (!row) {
-        if (hint) hint.hidden = true;
-        btn.disabled = false;
-        btn.textContent = L.send;
+        window.ATM_MAIL_SENT.release(btn, { label: L.send });
         return;
       }
-      if (!hint) {
-        hint = document.createElement('p');
-        hint.id = 'asg-resend';
-        hint.className = 'asg-note';
-        btn.parentNode.insertBefore(hint, btn);
-      }
-      hint.hidden = false;
-      if ((row.n || 0) >= 2) {
-        hint.textContent = L.resendUsed;
-        btn.disabled = true;
-        btn.textContent = L.resendUsed;
-        return;
-      }
-      hint.textContent = L.resendHint;
-      var left = Math.ceil((60000 - (Date.now() - row.at)) / 1000);
-      if (left > 0) {
-        btn.disabled = true;
-        btn.textContent = L.resendWait.replace('{n}', String(left));
-        resendTick = setInterval(function () {
-          if (!btn.isConnected || box.hidden || btn.dataset.sent === '1') { if (resendTick) { clearInterval(resendTick); resendTick = 0; } return; }
-          var n = Math.ceil((60000 - (Date.now() - row.at)) / 1000);
-          if (n > 0) btn.textContent = L.resendWait.replace('{n}', String(n));
-          else { clearInterval(resendTick); resendTick = 0; btn.disabled = false; btn.textContent = L.send; }
-        }, 250);
-      } else {
-        btn.disabled = false;
-        btn.textContent = L.send;
-      }
+      window.ATM_MAIL_SENT.hold(sentOpts(btn, addr, row.at, (row.n || 0) < 2));
     }
     if (go) go.onclick = function () {
       if (phase === 'start') gate(e, draft, go);
@@ -874,7 +857,8 @@
       if (!String(cy).trim()) { err.textContent = L.needCity; return; }
       if (rl !== 'leader' && rl !== 'follower' && rl !== 'both') { err.textContent = L.needRole; return; }
     }
-    go.dataset.busy = '1';
+    if (!window.ATM_MAIL_SENT.arm(go, window.ATM_MAIL_SENT.L.sending)) return;
+    go.dataset.allow = '';
     var dateEl = body().querySelector('#asg-date');
     var going = draft.intent === 'going';
     var promo = body().querySelector('#asg-promo');
@@ -884,8 +868,6 @@
     if (tailEl && String(tailEl.value || '').replace(/\D/g, '')) payload.last4 = String(tailEl.value).replace(/\D/g, '');
     var role = body().querySelector('#asg-role'); if (role) payload.role = role.value;
     ctxSet({ id: e.id, intent: draft.intent, date: payload.date, notify: payload.notify !== 0, transport: !!payload.transport });
-    go.disabled = true;
-    go.setAttribute('aria-busy', 'true');
     var seen = view;
     var settled = false;
     function sameView() { return seen === view && go.isConnected && !box.hidden; }
@@ -894,14 +876,10 @@
       settled = true;
       if (!sameView()) return;
       if (!stay) { shut(); return; }
-      go.disabled = false;
-      go.dataset.busy = '';
-      go.setAttribute('aria-busy', 'false');
+      window.ATM_MAIL_SENT.disarm(go, phase === 'register' ? L.send : L.submit);
     }
     function unlock() {
-      go.disabled = false;
-      go.dataset.busy = '';
-      go.setAttribute('aria-busy', 'false');
+      window.ATM_MAIL_SENT.disarm(go, phase === 'register' ? L.send : L.submit);
     }
     api('/social/going', payload).then(function (d) {
       var here = sameView();
