@@ -61,3 +61,118 @@
   D.body.appendChild(bt);
   setTimeout(function () { x.href = bt.firstChild.href = back.href; }, 1500);
 })();
+/* Event-article posters use the list viewer (.atm-pv). The href stays, so the file still opens when JavaScript is off. */
+(function () {
+  if (!/\/event\//.test(location.pathname)) return;
+  var D = document, zh = /\/zh\//.test(location.pathname);
+  var IMG = /\.(jpe?g|png|webp|gif)$/i;
+  var pv, img, prev, next, open = false, y = 0, list = [], i = 0, stamp = 0;
+  try { history.scrollRestoration = 'manual'; } catch (e) {}
+  var css = D.createElement('style');
+  css.textContent = '.atm-pv{position:fixed;inset:0;z-index:2147483646;background:rgba(6,20,24,.92);overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y pinch-zoom}.atm-pv[hidden]{display:none!important}' +
+    '.atm-pv-img{display:block;margin:0 auto;max-width:100%;height:auto;cursor:default;touch-action:pinch-zoom}' +
+    '.atm-pv-x{position:fixed;top:10px;right:10px;z-index:3;width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.85);background:rgba(0,0,0,.55);color:#fff;font:400 30px/1 system-ui,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center}' +
+    '.atm-pv-nav{position:fixed;top:50%;z-index:3;width:44px;height:44px;margin-top:-22px;border:0;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font:700 28px/1 system-ui,sans-serif;cursor:pointer}' +
+    '.atm-pv-prev{left:8px}.atm-pv-next{right:8px}';
+  D.head.appendChild(css);
+  function isImg(a) {
+    var h = a.getAttribute('href') || '';
+    if (!h || /^(mailto|tel|sms|javascript):/i.test(h)) return false;
+    try { return IMG.test(new URL(h, location.href).pathname); } catch (e) { return false; }
+  }
+  function srcOf(a) { return new URL(a.getAttribute('href'), location.href).href; }
+  function groupOf(a) {
+    var lb = a.getAttribute('data-lb');
+    if (lb) {
+      var same = [].filter.call(D.querySelectorAll('a[data-lb]'), function (n) { return n.getAttribute('data-lb') === lb && isImg(n); });
+      if (same.length) return same;
+    }
+    var box = a.closest('.ev-posters, .wt-posters, .gallery, .gs-photos, .sy-poster, .hz-poster-wrap, .cw-topbanner');
+    var links = box ? [].filter.call(box.querySelectorAll('a[href]'), isImg) : [];
+    if (links.indexOf(a) >= 0 && links.length) return links;
+    return [a];
+  }
+  function build() {
+    if (pv) return;
+    pv = D.createElement('div'); pv.className = 'atm-pv'; pv.hidden = true; pv.setAttribute('role', 'dialog'); pv.setAttribute('aria-modal', 'true');
+    img = D.createElement('img'); img.className = 'atm-pv-img'; img.alt = '';
+    var x = D.createElement('button'); x.type = 'button'; x.className = 'atm-pv-x'; x.setAttribute('aria-label', zh ? '关闭' : 'Close'); x.textContent = '\u2715';
+    prev = D.createElement('button'); prev.type = 'button'; prev.className = 'atm-pv-nav atm-pv-prev'; prev.setAttribute('aria-label', zh ? '上一张' : 'Previous poster'); prev.textContent = '\u2039';
+    next = D.createElement('button'); next.type = 'button'; next.className = 'atm-pv-nav atm-pv-next'; next.setAttribute('aria-label', zh ? '下一张' : 'Next poster'); next.textContent = '\u203a';
+    pv.appendChild(img); pv.appendChild(x); pv.appendChild(prev); pv.appendChild(next);
+    D.body.appendChild(pv);
+    function shut() { if (open) history.back(); }
+    x.addEventListener('click', function (e) { e.stopPropagation(); shut(); });
+    prev.addEventListener('click', function (e) { e.stopPropagation(); show(i - 1); });
+    next.addEventListener('click', function (e) { e.stopPropagation(); show(i + 1); });
+    pv.addEventListener('click', function (e) { if (e.target === img || e.target.closest('button')) return; shut(); });
+    var sx, sy, track;
+    pv.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1) { track = false; return; }
+      track = true; sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+    }, { passive: true });
+    pv.addEventListener('touchend', function (e) {
+      if (!track || !open) return;
+      var t = e.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+      track = false;
+      if (list.length > 1 && Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy)) { if (dx < 0) show(i + 1); else show(i - 1); }
+      else if (dy > 72 && dy > Math.abs(dx) && pv.scrollTop <= 0) shut();
+    }, { passive: true });
+  }
+  function show(n) {
+    if (!list.length) return;
+    if (n < 0) n = 0;
+    if (n >= list.length) n = list.length - 1;
+    i = n;
+    var a = list[i], im = a.querySelector('img');
+    img.src = srcOf(a);
+    img.alt = (im && im.alt) || '';
+    var many = list.length > 1;
+    prev.hidden = !many || i === 0;
+    next.hidden = !many || i === list.length - 1;
+    pv.scrollTop = 0;
+  }
+  function close() {
+    if (!open) return false;
+    open = false;
+    var keep = y;
+    pv.hidden = true;
+    D.documentElement.style.overflow = '';
+    function put() { window.scrollTo(0, keep); }
+    put();
+    var n = 0, t = setInterval(function () { put(); if (++n > 10) clearInterval(t); }, 40);
+    return true;
+  }
+  function openAt(links, index) {
+    build();
+    list = links;
+    pv.hidden = false;
+    D.documentElement.style.overflow = 'hidden';
+    show(index);
+    if (!open) history.pushState({ atmPv: 1 }, '', location.href);
+    open = true;
+  }
+  D.addEventListener('pointerdown', function (e) {
+    if (e.button) return;
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || !isImg(a)) return;
+    y = window.scrollY || window.pageYOffset || 0;
+    stamp = Date.now();
+  }, true);
+  D.addEventListener('click', function (e) {
+    if (e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || !isImg(a)) return;
+    e.preventDefault();
+    if (Date.now() - stamp > 800) y = window.scrollY || window.pageYOffset || 0;
+    var links = groupOf(a);
+    openAt(links, Math.max(0, links.indexOf(a)));
+  }, true);
+  window.addEventListener('popstate', function () { close(); });
+  D.addEventListener('keydown', function (e) {
+    if (!open) return;
+    if (e.key === 'Escape') { e.preventDefault(); history.back(); }
+    else if (e.key === 'ArrowLeft') show(i - 1);
+    else if (e.key === 'ArrowRight') show(i + 1);
+  });
+})();
