@@ -33,6 +33,7 @@
     'html body.china-page nav.top-lang.china-map-lang a.atm-langbtn:after{display:none!important}.atm-burger svg{position:relative;width:22px!important;height:22px!important}' +
     'html.atm-h-inner .atm-burger,html.atm-h-inner nav.top-lang a.atm-langbtn{color:#0E6E78!important}' +
     'html.atm-h-inner nav.top-lang a.atm-langbtn:before,html.atm-h-inner .atm-burger:before{border-color:rgba(14,110,120,.45)!important}' +
+    '.atm-me{width:44px;height:44px;min-width:44px;min-height:44px;margin:0 2px;padding:0;border:1.5px solid rgba(242,207,127,.45);border-radius:10px;background:transparent;color:#F2CF7F;font:700 15px/1 system-ui,sans-serif;cursor:pointer}.atm-me[hidden]{display:none!important}html.atm-h-inner .atm-me{color:#0E6E78;border-color:rgba(14,110,120,.45)}' +
     'html.atm-sug-on #china-suggest-modal:not([hidden]){display:flex!important}';
   document.head.appendChild(css);
   var nav = document.querySelector('nav.top-lang'); if (!nav) return;
@@ -40,7 +41,10 @@
   if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', zh ? 'English' : '中文'); other.title = zh ? 'English' : '中文'; other.textContent = zh ? 'EN' : '中文'; }
   var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-burger'; b.setAttribute('aria-label', L.menu); b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
-  nav.parentNode.insertBefore(b, nav.nextSibling);
+  var meBtn = document.createElement('button'); meBtn.type = 'button'; meBtn.className = 'atm-me'; meBtn.textContent = zh ? '我' : 'Me'; meBtn.setAttribute('aria-label', zh ? '我' : 'Me'); meBtn.hidden = true;
+  nav.parentNode.insertBefore(meBtn, nav.nextSibling);
+  nav.parentNode.insertBefore(b, meBtn.nextSibling);
+  meBtn.addEventListener('click', function () { if (window.ATM_STAR && window.ATM_STAR.openMe) window.ATM_STAR.openMe(); });
   var m = document.createElement('div'); m.id = 'atm-menu'; m.hidden = true;
   function ic(p) { return '<svg class="atm-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="' + p + '"/></svg>'; }
   var I = { add: 'M12 5v14M5 12h14', sub: 'M6 16V11a6 6 0 0112 0v5l1.5 2h-15zM10 20a2 2 0 004 0', mail: 'M3 5h18v14H3zM3 7l9 6 9-6', src: 'M4 5h6a2 2 0 012 2v12a2 2 0 00-2-2H4zM20 5h-6a2 2 0 00-2 2v12a2 2 0 012-2h6z', share: 'M12 15V3M7 8l5-5 5 5M5 13v7h14v-7', copy: 'M8 8h12v12H8zM4 16V4h12', reload: 'M20 12a8 8 0 11-3-6.2M20 4v5h-5', mine: 'M12 8a4 4 0 110 0.01M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6' };
@@ -74,6 +78,7 @@
     btn.setAttribute('aria-label', L.sub);
     btn.innerHTML = ic(I.sub) + L.sub;
   }
+  function paintMe() { meBtn.hidden = !sessionOn(); }
   function open() { paintSub(); last = document.activeElement; m.hidden = false; b.setAttribute('aria-expanded', 'true'); document.documentElement.style.overflow = 'hidden'; m.querySelector('.atm-mx').focus(); }
   function close() { if (m.hidden) return; m.hidden = true; b.setAttribute('aria-expanded', 'false'); document.documentElement.style.overflow = ''; if (last && last.focus) last.focus(); }
   b.addEventListener('click', open);
@@ -95,5 +100,6 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   paintSub();
-  window.ATM_MENU = { open: open, close: close, paintSub: paintSub };
+  paintMe();
+  window.ATM_MENU = { open: open, close: close, paintSub: paintSub, paintMe: paintMe };
 })();

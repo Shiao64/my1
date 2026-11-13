@@ -58,9 +58,9 @@ async function confirm(link, headers) {
 }
 function tokenOf(cookie) { return (String(cookie || '').match(/atm_session=([0-9a-f]{64})/) || [])[1] || ''; }
 
-const star = await post('/going', { id: 'F1', intent: 'interested', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, alert: 1, ts: 'x', ret: zhRet, lang: 'zh', notify: 1, last4: '8000' });
+const star = await post('/going', { id: 'F1', intent: 'going', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, alert: 1, ts: 'x', ret: zhRet, lang: 'zh', notify: 1, last4: '8000' });
 const row = db.prepare('SELECT pending_intent i, card_id c, wants_sitewide w, ret r FROM profile_verify WHERE email=?').get('new@example.com');
-check('token row keeps the profile choice', star.confirm && star._cookie.includes('atm_verify=1') && row.i === 'interested' && row.c === 'F1' && row.w === 1 && row.r === zhRet);
+check('token row keeps the profile choice', star.confirm && star._cookie.includes('atm_verify=1') && row.i === 'going' && row.c === 'F1' && row.w === 1 && row.r === zhRet);
 const same = await confirm(star.preview_link, { Cookie: 'atm_verify=1' });
 const sameToken = tokenOf(same.cookie);
 check('any browser gets the finish page and a session', same.status === 200 && same.html.includes('订阅成功，可以关掉这个页面') && same.html.includes('去看亚洲探戈地图') && same.html.includes('https://tangoweekend.org/zh/asia/') && !same.html.includes('http-equiv="refresh"') && same.cookie.includes('atm_session=' + sameToken));
@@ -94,7 +94,7 @@ const off = await post('/profile', { name: 'Mei', email: 'mei@example.com', city
 check('unchecking site-wide takes effect without another email', off.session && off.mailed === false && off.sitewide === false && mails.length === before && db.prepare("SELECT status s FROM email_subs WHERE email=?").get('mei@example.com').s === 'unsubscribed' && db.prepare('SELECT city c, role r FROM users WHERE email=?').get('mei@example.com').c === 'Kyoto');
 const on = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Kyoto', role: 'both', lang: 'zh', alert: 1, ret: zhRet, ts: 'x' }, { Authorization: 'Bearer ' + menuToken });
 check('re-checking site-wide takes effect without another email', on.session && on.mailed === false && on.sitewide === true && mails.length === before && db.prepare("SELECT status s FROM email_subs WHERE email=?").get('mei@example.com').s === 'active');
-const final = await post('/going', { id: 'F1', intent: 'interested', explicit: 1, disclose: 1, ts: 'x', ret: zhRet, lang: 'zh' }, { Authorization: 'Bearer ' + sameToken });
+const final = await post('/going', { id: 'F1', intent: 'going', explicit: 1, disclose: 1, ts: 'x', ret: zhRet, lang: 'zh' }, { Authorization: 'Bearer ' + sameToken });
 check('a confirmed profile is not asked again', (final.mail === 'queued' || final.mail === 'unchanged') && !final.need_profile && db.prepare('SELECT name n, city c, role r FROM users WHERE email=?').get('new@example.com').n === 'Niu');
 
 const shot = process.env.ATM_SHOT_DIR;

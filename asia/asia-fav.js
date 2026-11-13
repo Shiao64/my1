@@ -5,7 +5,7 @@
 (function () {
   var KEY = 'atm_fav_v1', mem = null;
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var T = zh ? { title: '我的收藏', clear: '清除', add: '活动意向', del: '管理意向' } : { title: 'My saved events', clear: 'Clear', add: 'Event intent', del: 'Manage intent' };
+  var T = zh ? { title: '我的收藏', clear: '清除', add: '收藏', del: '取消收藏' } : { title: 'My saved events', clear: 'Clear', add: 'Save', del: 'Unsave' };
   function load() { if (mem) return mem.slice(); try { var a = JSON.parse(localStorage.getItem(KEY) || '[]'); return Array.isArray(a) ? a.filter(function (x) { return typeof x === 'string'; }) : []; } catch (e) { return []; } }
   function save(a) { mem = null; try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) { mem = a.slice(); } }
   function byId() { var m = {}; (window._chinaData || []).forEach(function (r) { if (!r.hidden) m[r.id] = r; }); return m; }
@@ -34,7 +34,7 @@
   var CK = 'atm_fav_collapsed_v1', TK = 'atm_fav_toasted_v1', memC = false, memT = false;
   function getC() { try { return localStorage.getItem(CK) === '1'; } catch (e) { return memC; } }
   function setC(v) { memC = v; try { localStorage.setItem(CK, v ? '1' : '0'); } catch (e) {} }
-  var T2 = zh ? { hint: '点五角星选择 Going 或 Interested。验证邮箱后显示在这里。', toast: '已记录活动意向' } : { hint: 'Tap the star to choose Going or Interested. It shows here after you verify your email.', toast: 'Intent saved' };
+  var T2 = zh ? { hint: '星星用来收藏。想让主办知道，请打开活动后点「我要去」。', toast: '已收藏' } : { hint: 'The star saves an event. To tell the organizer, open the event and tap I\u2019m going.', toast: 'Saved' };
   var bar = document.createElement('button'); bar.type = 'button'; bar.className = 'atm-favbar';
   var grid = document.createElement('div'); grid.className = 'tw-m-feat-grid tw-feat-ad atm-favgrid';
   function hostGrid() { return document.querySelector('.tw-m-feat-grid.tw-feat-ad:not(.atm-favgrid)'); }

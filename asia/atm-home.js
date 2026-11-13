@@ -32,7 +32,7 @@
   };
   /* v11.7: single card page (?card=) gets the same red heart toggle (asia-fav.js toggles via .ev-card[data-id]) */
   if (/[?&]card=/.test(location.search)) (function () { var z = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
-    var k = 0, t = setInterval(function () { var c = D.querySelector('#atm-single .ev-card[data-id]'); if (c && !c.querySelector('.atm-heart')) { if (getComputedStyle(c).position === 'static') c.style.position = 'relative'; var lab = z ? '活动意向' : 'Event intent'; c.insertAdjacentHTML('beforeend', '<span class="atm-heart ah-sheart" role="button" tabindex="0" data-sid="' + c.getAttribute('data-id').replace(/"/g, '') + '" aria-label="' + lab + '" title="' + lab + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z"/></svg></span>'); } if (++k > 40) clearInterval(t); }, 250);
+    var k = 0, t = setInterval(function () { var c = D.querySelector('#atm-single .ev-card[data-id]'); if (c && !c.querySelector('.atm-heart')) { if (getComputedStyle(c).position === 'static') c.style.position = 'relative'; var id = c.getAttribute('data-id') || '', on = false; try { on = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (e) {} var lab = on ? (z ? '取消收藏' : 'Unsave') : (z ? '收藏' : 'Save'); c.insertAdjacentHTML('beforeend', '<span class="atm-heart ah-sheart" role="button" tabindex="0" data-sid="' + id.replace(/"/g, '') + '" aria-pressed="' + on + '" aria-label="' + lab + '" title="' + lab + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z"/></svg></span>'); } if (++k > 40) clearInterval(t); }, 250);
     D.addEventListener('keydown', function (e) { var h = e.target.closest && e.target.closest('.ah-sheart'); if (h && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); h.click(); } }); })();
   if (/[?&](card|mode|city|via|date|q|type)=/.test(location.search)) return;
   try { if (sessionStorage.getItem('atm_legacy_list') === '1') return; } catch (e) {} /* regression hook: old full list for the pre-v11.6 test suite */
@@ -142,7 +142,7 @@
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
-  function heart(id) { var on = isFav(id); var l = on ? (zh ? '取消收藏' : 'Remove from favorites') : (zh ? '收藏' : 'Add to favorites'); return '<span class="atm-heart ah-heart" role="button" tabindex="0" data-fid="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + l + '" title="' + l + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z"/></svg></span>'; }
+  function heart(id) { var on = isFav(id); var l = on ? (zh ? '取消收藏' : 'Unsave') : (zh ? '收藏' : 'Save'); return '<span class="atm-heart ah-heart" role="button" tabindex="0" data-fid="' + esc(id) + '" aria-pressed="' + on + '" aria-label="' + l + '" title="' + l + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z"/></svg></span>'; }
   function n(x) { return zh ? x + ' ' + T.items : String(x); }
   function enUnit(n, unit) { return '<i>' + n + '</i> ' + unit + (n === 1 ? '' : 's'); }
   var root = D.createElement('div'); root.id = 'atm-home'; root.className = 'wrap';
@@ -439,7 +439,7 @@
     try { sessionStorage.setItem(P7K, JSON.stringify(rec)); } catch (err) {}
   }, true);
   D.addEventListener('click', function (e) { var h = e.target.closest && e.target.closest('.ah-heart'); if (!h) return; e.preventDefault(); var id = h.getAttribute('data-fid'), inCar = !!h.closest('.ah-fav');
-    setTimeout(function () { var f = isFav(id), l = f ? (zh ? '取消收藏' : 'Remove from favorites') : (zh ? '收藏' : 'Add to favorites'); D.querySelectorAll('.ah-heart[data-fid="' + id + '"]').forEach(function (x) { x.setAttribute('aria-pressed', String(f)); x.setAttribute('aria-label', l); x.title = l; }); if (inCar || (!!D.querySelector('#atm-home .ah-fav')) !== (favLive().length > 0)) setTimeout(render, 200); }, 30); }, true);
+    setTimeout(function () { var f = isFav(id), l = f ? (zh ? '取消收藏' : 'Unsave') : (zh ? '收藏' : 'Save'); D.querySelectorAll('.ah-heart[data-fid="' + id + '"]').forEach(function (x) { x.setAttribute('aria-pressed', String(f)); x.setAttribute('aria-label', l); x.title = l; }); if (inCar || (!!D.querySelector('#atm-home .ah-fav')) !== (favLive().length > 0)) setTimeout(render, 200); }, 30); }, true);
   D.addEventListener('keydown', function (e) { var h = e.target.closest && e.target.closest('.ah-heart'); if (h && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); h.click(); } });
   var lastFromHome = false, prevHash = null;
   addEventListener('hashchange', function (e) { lastFromHome = true; try { prevHash = new URL(e.oldURL).hash; } catch (er) { prevHash = null; } render(); });

@@ -91,75 +91,44 @@ function snap(p, id) {
 const pending = await boot('delay');
 await add(pending, ['PUB', 'WAIT']);
 const during = await snap(pending, 'WAIT');
-check('delayed true is not painted as no-email', !during.off && during.wait && during.label === '正在确认组织者邮箱' && during.disabled !== 'true');
+const reachN = await pending.evaluate(() => window.__reach.n);
+check('painting a star does not ask the network and uses the save label', reachN === 0 && !during.off && !during.wait && during.label === '收藏' && during.disabled !== 'true');
 const pub = await snap(pending, 'PUB');
-check('public email stays a normal star and is not waiting', !pub.off && !pub.wait && pub.label === '活动意向');
-await pending.waitForFunction(() => !document.querySelector('[data-fid="WAIT"]').classList.contains('atm-star-wait'));
-const after = await snap(pending, 'WAIT');
-check('true removes the waiting state and stays enabled', !after.off && !after.wait && after.label === '活动意向');
-await pending.close();
-
-const recovered = await boot('then-true');
-await add(recovered, ['WAIT']);
-await recovered.waitForFunction(() => window.__reach.n >= 2, { timeout: 5000 });
-await recovered.waitForFunction(() => !document.querySelector('[data-fid="WAIT"]').classList.contains('atm-star-wait'));
-const back = await snap(recovered, 'WAIT');
-check('a network failure retries and then enables', !back.off && !back.wait && (await recovered.evaluate(() => window.__reach.n)) === 2);
-await recovered.close();
-
-const dead = await boot('fail');
-await add(dead, ['WAIT']);
-await dead.waitForFunction(() => window.__reach.n >= 3, { timeout: 8000 });
-await new Promise(r => setTimeout(r, 400));
-const stuck = await snap(dead, 'WAIT');
-const deadN = await dead.evaluate(() => { window.ATM_STAR.paint(); window.ATM_STAR.paint(); return window.__reach.n; });
-check('repeated failure is not stored as no-email and stops', !stuck.off && stuck.wait && stuck.label !== '组织者尚未提供邮箱' && deadN === 3);
-await dead.close();
-
-const httpFail = await boot('http');
-await add(httpFail, ['WAIT']);
-await httpFail.waitForFunction(() => window.__reach.n >= 1);
-await new Promise(r => setTimeout(r, 200));
-const httpSnap = await snap(httpFail, 'WAIT');
-check('a failed response body is not stored as false', !httpSnap.off && httpSnap.label !== '组织者尚未提供邮箱');
-await httpFail.close();
-
-const missing = await boot('miss');
-await add(missing, ['MISS']);
-await missing.waitForFunction(() => window.__reach.n >= 2, { timeout: 5000 });
-const missSnap = await snap(missing, 'MISS');
-check('a missing id is not stored as false', !missSnap.off && missSnap.label !== '组织者尚未提供邮箱');
-await missing.close();
-
-const no = await boot('false');
-await add(no, ['NO']);
-await no.waitForFunction(() => document.querySelector('[data-fid="NO"]').classList.contains('atm-star-off'));
-const noSnap = await snap(no, 'NO');
-const opened = await no.evaluate(() => {
-  const b = document.querySelector('[data-fid="NO"]');
-  const path = b.querySelector('path');
-  const paint = path ? getComputedStyle(path) : null;
+check('a card with an organizer email uses the same save label', !pub.off && !pub.wait && pub.label === '收藏');
+const toggled = await pending.evaluate(() => {
+  const b = document.querySelector('[data-fid="WAIT"]');
+  const before = window.__reach.n;
   window.ATM_STAR.take(b);
   const bar = document.getElementById('atm-savebar');
   return {
     dialog: !document.querySelector('#atm-star').hidden,
+    pressed: b.getAttribute('aria-pressed'),
+    label: b.getAttribute('aria-label'),
     text: bar ? bar.textContent : '',
-    off: !!(bar && bar.classList.contains('atm-savebar-off')),
-    opacity: paint ? paint.opacity : '',
-    fill: paint ? paint.fill : ''
+    n: window.__reach.n - before,
+    saved: JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf('WAIT') >= 0
   };
 });
-check('explicit false stays a faint outline, does not open, and explains RSVP is unavailable', noSnap.off && noSnap.label === '组织者尚未提供邮箱' && opened.dialog === false && opened.text === '暂不支持在线登记，请联系主办方' && opened.off && opened.opacity === '0.25' && (opened.fill === 'none' || opened.fill === 'rgba(0, 0, 0, 0)'));
-await no.close();
+check('an anonymous star asks for email and does not save yet', toggled.dialog === true && toggled.pressed !== 'true' && toggled.saved === false && toggled.n === 0);
+await pending.close();
 
-const batch = await boot('batch');
-await add(batch, ['B1', 'B2', 'B3']);
-await batch.waitForFunction(() => window.__reach.n === 1);
-for (let i = 0; i < 8; i++) await batch.evaluate(() => window.ATM_STAR.paint());
-const info = await batch.evaluate(() => ({ n: window.__reach.n, url: window.__reach.urls[0] }));
-const b2 = await snap(batch, 'B2');
-check('one batch request covers every id and extra paints do not repeat it', info.n === 1 && info.url.includes('B1') && info.url.includes('B2') && info.url.includes('B3') && b2.off);
-await batch.close();
+const no = await boot('false');
+await add(no, ['NO', 'PUB']);
+const blocked = await no.evaluate(async () => {
+  window.ATM_STAR.openIntent('NO', 'going');
+  await new Promise(r => setTimeout(r, 300));
+  const bar = document.getElementById('atm-savebar');
+  return { dialog: !document.querySelector('#atm-star').hidden, text: bar ? bar.textContent : '' };
+});
+check('Going stays closed when the organizer cannot be reached', blocked.dialog === false);
+const opened = await no.evaluate(async () => {
+  window.ATM_STAR.openIntent('PUB');
+  await new Promise(r => setTimeout(r, 50));
+  const pressed = document.querySelector('[data-intent][aria-pressed="true"]');
+  return { dialog: !document.querySelector('#atm-star').hidden, pressed: pressed ? pressed.textContent : '', absent: !!document.querySelector('[data-intent="absent"]'), interested: !!document.querySelector('[data-intent="interested"]') };
+});
+check('the sheet offers only I am going', opened.dialog === true && opened.pressed === '我要去' && opened.absent === false && opened.interested === false);
+await no.close();
 
 await browser.close();
 server.close();

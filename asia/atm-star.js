@@ -1,7 +1,10 @@
-/* Star intent. Replaces the local heart as the way to say Going or Interested.
-   The star stays disabled only when neither the card nor the linked organizer
-   record has a usable email. A visitor without a session can still open it. The public
-   Going+Interested total stays on the server and is not drawn on the card. */
+/* Browsing stays anonymous. Saving, I'm going, and subscribe open one login
+   sheet (email + last 4 digits) and then use the account. Favorites live in
+   going_favs when a session exists; atm_fav_v1 is only the local mirror and
+   merges once on first login. Unsaving does not cancel a going intent.
+   The opened card offers a star and I'm going. Interested and Not Going are
+   not offered. The count uses GET /social/going/counts field `going`
+   (Worker deploy). */
 (function () {
   var R = document.documentElement;
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || document.body.getAttribute('data-lang') || R.lang || '') || location.pathname.indexOf('/zh/') === 0;
@@ -32,15 +35,21 @@
     tsVerify: '验证没有被接受，请等它重新完成后再试。',
     net: '网络异常，请再试一次。',
     again: '这次没有提交成功，请再试一次。',
-    title: '活动意向',
+    title: '收藏',
+    save: '收藏',
+    toastOn: '已收藏',
+    toastOff: '已取消收藏',
+    teach: '星星用来收藏。想让主办知道，请打开活动后点「我要去」。',
     explain: '不是购票或正式报名。',
-    going: '要参加', interested: '感兴趣', absent: '去不了',
+    going: '我要去', interested: '感兴趣', absent: '去不了',
+    meanGoing: '我要去：我们会把你的意向告诉主办（这不是报名或购票）。',
+    meanInterested: '',
     promo: '加入 ATM 全站订阅',
     needName: '请填写姓名。', needEmail: '请填写邮箱。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     returnHint: '已经订阅过？请输入邮箱和手机末 4 码，不必再等确认信。',
-    gateHelp: '邮箱和手机末 4 码<em>必填</em>。系统会识别是注册还是登录。第一次注册仍要发送确认邮件；在信里点确认以后，手机末 4 码才会生效。已确认过的，填邮箱和手机末 4 码即可登录，不必再等确认信。',
+    gateHelp: '邮箱和手机末 4 码<em>必填</em>。第一次会发送确认邮件；在信里点确认以后，手机末 4 码才会生效。已确认过的，填邮箱和手机末 4 码即可继续，不必再等确认信。',
     regHelp: '请完成注册。邮箱和手机末 4 码<em>必填</em>。请补全资料并发送确认邮件。在信里点确认以后，手机末 4 码才会生效。',
-    phone: '手机', last4: '手机末 4 码', signIn: '登录', gate: '注册／登录', send: '发送确认邮件',
+    phone: '手机', last4: '手机末 4 码', signIn: '继续', gate: '继续', send: '发送确认邮件', cont: '继续',
     needPhone: '请填写手机。', badPhone: '手机号码不正确。', needLast4: '请输入手机末 4 码。', badLogin: '邮箱或手机末 4 码不正确。',
     later: '请稍后再试。',
     limited: '确认邮件已达上限，请稍后再试。',
@@ -53,7 +62,7 @@
     transport: '交通指引（可选）',
     noPromise: '',
     optin: '勾选后，可接收早鸟报名及截止时间、场地交通指引、临时通知和主办方消息。',
-    submit: '确认', needIntent: '请选择要参加、感兴趣或去不了。',
+    submit: '确认', needIntent: '请选择「我要去」。',
     profileTitle: '',
     profileDesc: '先确认邮箱。确认后会记下意向。',
     req: '以下均为必填',
@@ -70,7 +79,7 @@
     resendUsed: '已重发过，请查收或稍后再试。',
     resend: '重新发送验证邮件',
     ready: '邮箱已确认，意向已记下。',
-    saved: '邮箱已验证，资料已保存。可到活动五角星选择 Going／Interested。',
+    saved: '邮箱已验证，资料已保存。打开活动后点「我要去」。',
     savedNotify: '已保存，主办方会收到通知',
     savedShort: '已保存',
     noOrg: '已保存，未找到主办方邮箱',
@@ -81,14 +90,15 @@
     failWait: '已保存，通知邮件未能发出。请 {n}后再试。',
     queued: '已保存，主办方会收到通知',
     fill: '请补全城市与角色等信息后继续。无需再次验证同一邮箱。',
-    bar: '我的收藏', manage: '管理意向', cancel: '取消意向',
+    bar: '我的收藏', manage: '收藏', cancel: '取消意向',
+    me: '我', meSaved: '收藏', meGoing: '我要去', meAlert: '接收活动信息', meEmpty: '还没有收藏。', meNone: '还没有要去的活动。', meNeed: '请先补全姓名、城市和角色。',
     cancelAsk: '取消意向？这不会再发邮件给组织者，也不会撤回已经发出的信。',
     cancelled: '已取消意向。没有新的邮件发给组织者。',
     emailKept: '邮箱已确认',
     unsub: '退订本活动更新（不会取消你的 Going／Interested）',
     date: '参加日期（北京时间 UTC+8）', close: '关闭',
-    hint: '点五角星选择 Going 或 Interested。验证邮箱后，意向会显示在这里，并可在其他设备恢复。',
-    empty: '还没有活动意向。',
+    hint: '星星用来收藏。想让主办知道，请打开活动后点「我要去」。',
+    empty: '点活动上的星星即可收藏。',
     notTicket: 'Going 不是购票或正式报名。'
   } : {
     grey: 'Organizer email not available yet',
@@ -100,20 +110,26 @@
     tsVerify: 'The check was not accepted. Wait until it finishes, then try again.',
     net: 'Network error. Please try again.',
     again: 'This did not go through. Please try again.',
-    title: 'Event intent',
+    title: 'Save',
+    save: 'Save',
+    toastOn: 'Saved',
+    toastOff: 'Removed from saved',
+    teach: 'The star saves an event. To tell the organizer, open the event and tap I\u2019m going.',
     explain: 'Not a ticket or a formal registration.',
-    going: 'Going', interested: 'Interested', absent: 'Not Going',
+    going: 'I\u2019m going', interested: 'Interested', absent: 'Not Going',
+    meanGoing: 'I\u2019m going: we\u2019ll tell the organizer you plan to attend (this is not registration or a ticket).',
+    meanInterested: '',
     promo: 'Join ATM site-wide subscription',
     needName: 'Please enter your name.', needEmail: 'Please enter your email.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
     returnHint: 'Already subscribed? Enter your email and the last 4 digits of your mobile. You don\u2019t need another confirmation email.',
-    gateHelp: 'Email and the mobile last 4 digits are <em>required</em>. The form tells registration from sign-in. The first registration still sends a confirmation email. The mobile last 4 digits work only after you tap the link in that email. If you already confirmed, enter your email and the mobile last 4 digits to sign in. You don\u2019t need another confirmation email.',
+    gateHelp: 'Email and the mobile last 4 digits are <em>required</em>. The first time still sends a confirmation email. The mobile last 4 digits work only after you tap the link in that email. If you already confirmed, enter your email and the mobile last 4 digits to continue. You don\u2019t need another confirmation email.',
     regHelp: 'Finish registration. Email and the mobile last 4 digits are <em>required</em>. Complete your details and send the confirmation email. The mobile last 4 digits work only after you tap the link in that email.',
-    phone: 'Phone', last4: 'Mobile last 4 digits', signIn: 'Sign in', gate: 'Register / sign in', send: 'Send confirmation email',
+    phone: 'Phone', last4: 'Mobile last 4 digits', signIn: 'Continue', gate: 'Continue', send: 'Send confirmation email', cont: 'Continue',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your mobile.', badLogin: 'The email or the mobile last 4 digits did not match.',
     later: 'Please try again later.',
     limited: 'Too many confirmation emails. Please try again later.',
     withheld: 'Saved. This one is not sent to the organizer.',
-    unfav: 'Remove from favorites',
+    unfav: 'Unsave',
     unfavAsk: 'Remove this event from favorites?',
     unfavKeep: 'Keep',
     notify: 'Receive organizer updates',
@@ -121,7 +137,7 @@
     transport: 'Directions (optional)',
     noPromise: '',
     optin: 'Get early-bird deadlines, directions and updates from the organizer.',
-    submit: 'Confirm', needIntent: 'Choose Going, Interested, or Not Going.',
+    submit: 'Confirm', needIntent: 'Choose I\u2019m going.',
     profileTitle: '',
     profileDesc: 'Confirm your email first. Your intent is saved when you confirm.',
     req: 'All fields are required',
@@ -138,7 +154,7 @@
     resendUsed: 'Already resent. Please check your inbox, or try again later.',
     resend: 'Resend verification email',
     ready: 'Email confirmed. Your intent is saved.',
-    saved: 'Email verified. Profile saved. Use the star on an event to choose Going or Interested.',
+    saved: 'Email verified. Profile saved. Open an event and tap I\u2019m going.',
     savedNotify: 'Saved. The organizer will be notified.',
     savedShort: 'Saved',
     noOrg: 'Saved. The organizer email was not found.',
@@ -149,14 +165,15 @@
     failWait: 'Saved. The notification failed to send. Please try again in {n}.',
     queued: 'Saved. The organizer will be notified.',
     fill: 'Please complete city, role, and any missing fields. No need to re-verify the same email.',
-    bar: 'My saved events', manage: 'Manage intent', cancel: 'Cancel intent',
+    bar: 'My saved events', manage: 'Save', cancel: 'Cancel intent',
+    me: 'Me', meSaved: 'Saved', meGoing: 'I\u2019m going', meAlert: 'Event updates', meEmpty: 'Nothing saved yet.', meNone: 'Nothing here yet.', meNeed: 'Add your name, city, and role first.',
     cancelAsk: 'Cancel this intent? We will not email the organizer again, and mail already sent is not recalled.',
     cancelled: 'Intent cancelled. No new email was sent to the organizer.',
     emailKept: 'Email confirmed',
     unsub: 'Unsubscribe from this event’s updates (keeps your Going / Interested)',
     date: 'Date (Beijing time, UTC+8)', close: 'Close',
-    hint: 'Tap the star to choose Going or Interested. After you verify your email, intents show here and restore on your other devices.',
-    empty: 'No event intents yet.',
+    hint: 'The star saves an event. To tell the organizer, open the event and tap I\u2019m going.',
+    empty: 'Tap the star on an event to save it.',
     notTicket: 'Going is not a ticket or a formal registration.'
   };
   var css = document.createElement('style');
@@ -188,6 +205,7 @@
     '#atm-star select:disabled,#atm-star input:disabled{opacity:.55;background:#f3ece0}' +
     '.atm-unfav{min-height:44px;margin:6px 0 0;padding:0 12px;border:1px solid #ead9b8;border-radius:999px;background:#fff;color:#2a1a14;font-weight:700}' +
     '#atm-star .asg-opt button[aria-pressed="true"]{background:#0e6e78;color:#f6e3b4}' +
+    '#atm-star .asg-mean{margin:4px 2px 8px;color:#5b5148;font-size:.8rem;line-height:1.45}#atm-star .asg-mean:empty{display:none}' +
     '#atm-star .asg-go{min-height:48px;font-weight:700;border:0;width:100%;margin-top:10px;background:#0e6e78;color:#f6e3b4;border-radius:12px}#atm-star .asg-go[aria-busy="true"],#atm-star .asg-go:disabled{opacity:.72}' +
     '#atm-star .asg-alt{min-height:44px;font-weight:700;border:1px solid #0e6e78;width:100%;margin-top:8px;background:#fff;color:#0e6e78;border-radius:12px}#atm-star .asg-alt:disabled{opacity:.72}' +
     '#atm-star .asg-return{font-weight:700;color:#0a4f57}' +
@@ -203,10 +221,16 @@
     '.atm-savebar{box-sizing:border-box;display:block;width:100%;margin:0 0 8px;padding:8px 12px;border-radius:8px;font:600 13px/1.35 system-ui,-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Helvetica Neue",sans-serif;text-align:left;pointer-events:none;-webkit-tap-highlight-color:transparent}' +
     '.atm-savebar-ok{background:#e5f4ee;color:#1b7a46}.atm-savebar-off,.atm-savebar-note{background:#f4efe6;color:#6a5e52}' +
     '.atm-savebar-fixed{position:fixed;z-index:80;left:max(12px,env(safe-area-inset-left,0px));right:max(12px,env(safe-area-inset-right,0px));width:auto;top:var(--atm-save-top,calc(env(safe-area-inset-top,0px) + 8px));margin:0}' +
-    '.atm-favbar b{color:#0a4f57}';
+    '.atm-favbar b{color:#0a4f57}' +
+    '#atm-me{position:fixed;inset:0;z-index:3200;display:flex;justify-content:flex-end;background:rgba(6,51,58,.55)}#atm-me[hidden]{display:none}' +
+    '#atm-me .atm-me-panel{background:#fffdf8;width:min(100%,420px);height:100%;overflow:auto;padding:12px 16px 28px;box-sizing:border-box;color:#2a1a14}' +
+    '#atm-me .atm-me-hd{display:flex;align-items:center;justify-content:space-between}#atm-me .atm-me-hd b{font:700 1.2rem Georgia,serif;color:#0a4f57}#atm-me .atm-me-hd button{width:44px;height:44px;border:0;background:transparent;font-size:28px;color:#7a6255;cursor:pointer}' +
+    '#atm-me h3{margin:16px 0 6px;font-size:.95rem;color:#0a4f57}#atm-me a{display:flex;align-items:center;min-height:44px;color:#0a4f57;text-decoration:none;border-bottom:1px solid #ead9b8}#atm-me .atm-me-empty{margin:0;color:#6b5d52;font-size:.88rem}' +
+    '#atm-me .atm-me-alert{display:flex;align-items:center;gap:8px;min-height:44px;margin-top:16px;font-weight:700;color:#0a4f57}#atm-me .atm-me-need{margin:4px 0 0;color:#b5654a;font-size:.82rem}';
   document.head.appendChild(css);
 
   var mine = {}, occ = {}, favs = {}, drafts = {}, me = null, ready = false, eventsP = null, reach = {}, reachWait = {}, reachTries = {}, reachNext = {}, reachTimer = 0, reachWaiters = {}, reopen = '';
+  var loginPurpose = '', loginId = '';
   var REACH_MAX = 3;
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
@@ -346,7 +370,14 @@
     return out;
   }
   function regular(e) { return e && e.kind !== 'event' && e.kind !== 'featured'; }
-  function titleOf(e) { return (zh && e && (e.name_zh || e.title_zh)) || (e && (e.name || e.title)) || ''; }
+  function titleOf(e) {
+    if (!e) return '';
+    if (window.atmI18n && window.atmI18n.fieldText) {
+      var named = window.atmI18n.fieldText(e, 'name', zh ? 'zh' : 'en');
+      if (named) return named;
+    }
+    return (zh && (e.name_zh || e.title_zh)) || e.name || e.title || '';
+  }
 
   var box = document.createElement('div'); box.id = 'atm-star'; box.hidden = true;
   var view = 0;
@@ -515,7 +546,7 @@
     var rect = barEl.getBoundingClientRect();
     if (rect.top < limit - 2 || rect.bottom > window.innerHeight - 12) window.scrollBy(0, rect.top - limit);
   }
-  function toast(text, kind, anchor) {
+  function toast(text, kind, anchor, sub) {
     if (anchor) barAnchor = anchor;
     kind = kind || 'ok';
     if (!barEl) {
@@ -525,15 +556,29 @@
       barEl.setAttribute('aria-live', 'polite');
     }
     barEl.className = 'atm-savebar atm-savebar-' + (kind === 'off' || kind === 'note' ? kind : 'ok');
-    barEl.textContent = text;
-    barHold = Date.now() + 2000;
+    barEl.textContent = '';
+    var main = document.createElement('div');
+    main.textContent = text;
+    barEl.appendChild(main);
+    var hold = 2000;
+    if (sub) {
+      var extra = document.createElement('div');
+      extra.style.fontWeight = '500';
+      extra.style.fontSize = '12px';
+      extra.style.marginTop = '4px';
+      extra.style.lineHeight = '1.4';
+      extra.textContent = sub;
+      barEl.appendChild(extra);
+      hold = 4500;
+    }
+    barHold = Date.now() + hold;
     placeBar();
     revealBar();
     clearTimeout(barTimer);
     barTimer = setTimeout(function () {
       barHold = 0;
       if (barEl && barEl.parentNode) barEl.parentNode.removeChild(barEl);
-    }, 2000);
+    }, hold);
   }
   function localOcc() { try { var o = JSON.parse(localStorage.getItem('atm_occ_v1') || '{}'); return o && typeof o === 'object' ? o : {}; } catch (e) { return {}; } }
   function rememberAbsent(id, anchor) {
@@ -602,25 +647,33 @@
     }
     if (note) note.textContent = L.spam + ' ' + L.backHint;
   }
-  function saveAbsent(ev, id, anchor) {
-    rememberAbsent(id, anchor);
-    addLocalFav(id);
-    paint();
-    toast(L.savedShort, 'ok', document.querySelector('.atm-heart[data-fid="' + id + '"], .atm-heart[data-sid="' + id + '"]'));
-    shut();
-    if (!token()) return;
-    api('/social/going', { id: id, intent: 'absent', anchor: anchor || '', date: '', explicit: 1, disclose: 1, notify: 0, transport: 0, alert: 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], dev: dev() }).then(function (d) {
-      if (!(d && d.ok && !d.confirm)) toast(L.later, 'note');
-      else refreshMine();
-    }).catch(function () { toast(L.later, 'note'); });
+  function saveAbsent() {
+    return;
+  }
+  function cardHasIntent(id) {
+    if (!id) return false;
+    if (drafts[id] && drafts[id].intent) return true;
+    if (mine[id] && mine[id].intent) return true;
+    var bag = occ[id];
+    if (!bag) return false;
+    return Object.keys(bag).some(function (k) {
+      var st = bag[k];
+      return !!(st && (st.intent === 'going' || st.intent === 'interested' || st.intent === 'absent'));
+    });
+  }
+  function meanOf(intent) {
+    if (intent === 'going') return L.meanGoing;
+    if (intent === 'interested') return L.meanInterested;
+    return '';
   }
   function open(b, opt) {
     opt = opt || {};
+    var accountOnly = opt.login === 'fav' || opt.login === 'sub' || opt.login === 'me';
     var id = idOf(b); if (!id) return;
     var e = eventOf(id);
-    if (!e) { ensureEvents().then(function () { open(b, opt); }); return; }
-    if (canIntent(e, id) === false) return;
-    if (canIntent(e, id) !== true) { awaitReach(id).then(function (v) { if (v === true) open(b, opt); }); return; }
+    if (!e && !accountOnly) { ensureEvents().then(function () { open(b, opt); }); return; }
+    if (!accountOnly && canIntent(e, id) === false) { toast(L.noRsvp, 'off', b); return; }
+    if (!accountOnly && canIntent(e, id) !== true) { awaitReach(id).then(function (v) { if (v === true) open(b, opt); else if (v === false) toast(L.noRsvp, 'off', b); }); return; }
     var dates = datesOf(e), reg = regular(e);
     var anchor0 = reg ? (dates[0] || '') : '';
     var saved = (occ[id] && occ[id][anchor0]) || null;
@@ -631,6 +684,7 @@
       ? { id: id, anchor: anchor0, intent: saved.intent, date: saved.intent === 'going' ? (saved.date || anchor0) : '', notify: saved.intent === 'absent' ? false : saved.notify !== false, transport: saved.intent === 'going' && !!saved.transport }
       : { id: id, anchor: anchor0, intent: 'going', date: reg ? anchor0 : '', notify: true, transport: false };
     if (opt.draft && opt.draft.id === id && (opt.draft.intent === 'going' || opt.draft.intent === 'interested' || opt.draft.intent === 'absent')) draft = opt.draft;
+    draft.intent = 'going';
     ctxSet(draft);
     h2().textContent = titleOf(e) || L.title;
     var verified = !!token();
@@ -642,9 +696,14 @@
     var action = phase === 'register' ? L.send : (phase === 'start' ? L.gate : L.submit);
     var html = '';
     if (phase === 'start' || phase === 'register' || phase === 'saved' || needProfile) html += '<p class="asg-note">' + L.explain + '</p>';
-    html += '<div class="asg-opt">';
-    ['going', 'interested', 'absent'].forEach(function (k) { html += '<button type="button" data-intent="' + k + '" aria-pressed="' + (draft.intent === k) + '">' + L[k] + '</button>'; });
-    html += '</div><div id="asg-rest"' + (draft.intent ? '' : ' hidden') + '>';
+    if (opt.login) loginPurpose = opt.login;
+    if (accountOnly) h2().textContent = L.cont;
+    if (!accountOnly) {
+      html += '<div class="asg-opt">';
+      html += '<button type="button" data-intent="going" aria-pressed="true">' + L.going + '</button>';
+      html += '</div><p class="asg-mean" id="asg-mean">' + esc(meanOf('going')) + '</p>';
+    }
+    html += '<div id="asg-rest"' + (draft.intent ? '' : ' hidden') + '>';
     if (reg && dates.length) {
       html += '<label class="asg-l" for="asg-date">' + L.date + '</label><select id="asg-date"' + (draft.intent === 'going' ? '' : ' disabled') + '>';
       dates.forEach(function (d) { html += '<option value="' + d + '"' + ((draft.date || anchor0) === d ? ' selected' : '') + '>' + d + '</option>'; });
@@ -665,6 +724,7 @@
       html += '<p class="asg-req">' + L.req + '</p><div id="asg-profile">';
       html += '<div class="asg-grid">' + field(L.name, 'asg-name') + roleSelect(false) + field(L.city, 'asg-city') + '</div></div>';
       html += '<label class="asg-check" id="asg-promolab"><input type="checkbox" id="asg-promo" checked>' + L.promo + '</label>';
+      if (loginPurpose === 'fav' || loginPurpose === 'sub' || loginPurpose === 'me') html += '<div class="asg-ts" id="asg-ts"></div>';
     } else if (needProfile) {
       html += '<div id="asg-profile"><p class="asg-note">' + L.fill + '</p>';
       if (me && me.email) html += '<p class="asg-note">' + L.emailKept + (zh ? '：' : ': ') + esc(me.email) + '</p>';
@@ -677,6 +737,7 @@
     if (phase !== 'saved') html += '<button type="button" class="asg-go" id="asg-go" data-phase="' + phase + '" aria-busy="false">' + action + '</button>';
     if (phase === 'in') html += '<p class="asg-hint">' + L.optin + '</p>';
     html += '</div>';
+    if (cardHasIntent(id)) html += '<button type="button" class="asg-alt" id="asg-clear">' + esc(L.cancel) + '</button>';
     view++;
     body().innerHTML = html;
     if (me && phase === 'in') { var n = body().querySelector('#asg-name'); if (n && me.name) n.value = me.name; var c = body().querySelector('#asg-city'); if (c && me.city) c.value = me.city; var rr = body().querySelector('#asg-role'); if (rr && me.role) rr.value = me.role; }
@@ -723,6 +784,7 @@
     }
     body().querySelectorAll('[data-intent]').forEach(function (btn) { btn.onclick = function () {
       var next = btn.getAttribute('data-intent');
+      if (next !== 'going' && next !== 'interested') return;
       var wasAway = draft.intent === 'absent';
       if (draft.intent === 'going' && dateEl) { draft.anchor = dateEl.value; draft.date = dateEl.value; }
       draft.intent = next;
@@ -740,6 +802,8 @@
       else if (goNow && goNow.dataset.sent === '1') holdSent(goNow);
       else paintResend();
       ctxSet(draft);
+      var mean = body().querySelector('#asg-mean');
+      if (mean) mean.textContent = meanOf(draft.intent);
       body().querySelectorAll('[data-intent]').forEach(function (x) { x.setAttribute('aria-pressed', x === btn ? 'true' : 'false'); });
     }; });
     if (dateEl) dateEl.onchange = function () { if (draft.intent !== 'going') return; draft.date = dateEl.value; draft.anchor = dateEl.value; ctxSet(draft); paintResend(); };
@@ -811,10 +875,63 @@
       if (phase === 'start') gate(e, draft, go);
       else submit(e, draft, go, phase);
     };
+    var clearBtn = body().querySelector('#asg-clear');
+    if (clearBtn) clearBtn.onclick = function () {
+      if (clearBtn.dataset.sure !== '1') {
+        clearBtn.dataset.sure = '1';
+        var note = body().querySelector('#asg-err');
+        if (note) note.textContent = L.cancelAsk;
+        return;
+      }
+      function dropped() {
+        forgetLocalCard(id);
+        delete occ[id];
+        delete mine[id];
+        delete drafts[id];
+        toast(L.cancelled);
+        shut();
+        paint();
+        paintBar();
+      }
+      if (!token()) { dropped(); return; }
+      clearBtn.disabled = true;
+      api('/social/going/cancel', { id: id, explicit: 1 }).then(function (d) {
+        if (d && (d.ok || d.cancelled === false)) { dropped(); refreshMine(); return; }
+        toast(L.later, 'note');
+        clearBtn.disabled = false;
+      }).catch(function () { toast(L.later, 'note'); clearBtn.disabled = false; });
+    };
     refreshResend = paintResend;
     lockFields();
     paintResend();
+    if (document.getElementById('asg-ts')) mountStarTs();
     box.hidden = false;
+  }
+  function mountStarTs() {
+    var el = document.getElementById('asg-ts');
+    if (!el || el.dataset.ts) return;
+    var key = window.ATM_TS_KEY || '';
+    function render() {
+      if (!window.turnstile || !el.isConnected || el.dataset.ts) return;
+      el.dataset.ts = '1';
+      window.turnstile.render(el, { sitekey: key, action: 'profile' });
+    }
+    function start(k) {
+      key = k || key;
+      if (!key) return;
+      if (window.turnstile) render();
+      else {
+        var s = document.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+        s.async = true;
+        s.onload = render;
+        document.head.appendChild(s);
+      }
+    }
+    if (key) start(key);
+    else fetch(API + '/social/going/config').then(function (r) { return r.json(); }).then(function (d) {
+      if (d && d.sitekey) { window.ATM_TS_KEY = d.sitekey; start(d.sitekey); }
+    }).catch(function () {});
   }
   function gate(ev, draft, btn) {
     var err = body().querySelector('#asg-err');
@@ -829,25 +946,31 @@
     var note = body().querySelector('#asg-notify');
     var dir = body().querySelector('#asg-dir');
     if (going && dateEl) { draft.date = dateEl.value; draft.anchor = dateEl.value; }
-    var payload = {
-      email: em, last4: tail, lang: zh ? 'zh' : 'en',
-      id: ev.id, intent: draft.intent, explicit: 1, disclose: 1,
-      notify: note && note.checked ? 1 : 0,
-      transport: going && dir && dir.checked ? 1 : 0,
-      anchor: draft.anchor || '',
-      date: going ? (draft.date || '') : '',
-      ret: location.href.split('#')[0], dev: dev()
-    };
+    var account = loginPurpose === 'fav' || loginPurpose === 'sub' || loginPurpose === 'me';
+    var payload = { email: em, last4: tail, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0], dev: dev() };
+    if (!account) {
+      payload.id = ev.id;
+      payload.intent = 'going';
+      payload.explicit = 1;
+      payload.disclose = 1;
+      payload.notify = note && note.checked ? 1 : 0;
+      payload.transport = going && dir && dir.checked ? 1 : 0;
+      payload.anchor = draft.anchor || '';
+      payload.date = going ? (draft.date || '') : '';
+    }
     btn.disabled = true;
     api('/social/going/phone', payload).then(function (d) {
       if (d && d.register) {
-        open(document.querySelector('.atm-heart[data-fid="' + ev.id + '"], .atm-heart[data-sid="' + ev.id + '"]') || { getAttribute: function () { return ev.id; } }, { phase: 'register', kept: { email: em, last4: tail }, draft: draft });
+        open(stub(ev && ev.id || loginId), { phase: 'register', kept: { email: em, last4: tail }, draft: draft, login: loginPurpose || '' });
         return;
       }
       if (d && d.session && d.ok && !d.error) {
         setToken(d.session);
-        refreshMine();
-        open(document.querySelector('.atm-heart[data-fid="' + ev.id + '"], .atm-heart[data-sid="' + ev.id + '"]') || { getAttribute: function () { return ev.id; } }, { phase: 'saved', line: loggedLine(draft.intent), draft: draft });
+        var purpose = loginPurpose, pid = loginId || (ev && ev.id);
+        if (account) { afterSession(purpose, pid); return; }
+        mergeLocalFavs().then(function () { return refreshMine(); }).then(function () {
+          open(stub(ev && ev.id), { phase: 'saved', line: loggedLine('going'), draft: draft });
+        });
         return;
       }
       if (d && d.session) setToken(d.session);
@@ -860,8 +983,7 @@
     if (!err || !ok) return;
     if (go.dataset.busy === '1' || go.dataset.sent === '1') return;
     err.textContent = ''; ok.textContent = '';
-    if (draft.intent !== 'going' && draft.intent !== 'interested' && draft.intent !== 'absent') { err.textContent = L.needIntent; return; }
-    if (draft.intent === 'absent' && phase === 'in') { saveAbsent(e, e.id, draft.anchor || ''); return; }
+    if (draft.intent !== 'going') { err.textContent = L.needIntent; return; }
     if (phase === 'register') {
       var nm = (body().querySelector('#asg-name') || {}).value || '';
       var em = (body().querySelector('#asg-email') || {}).value || '';
@@ -903,7 +1025,15 @@
       go.dataset.busy = '';
       go.setAttribute('aria-busy', 'false');
     }
-    api('/social/going', payload).then(function (d) {
+    var accountReg = (loginPurpose === 'fav' || loginPurpose === 'sub' || loginPurpose === 'me') && phase === 'register';
+    var postUrl = accountReg ? '/social/profile' : '/social/going';
+    if (accountReg) {
+      payload = { name: payload.name, email: payload.email, city: payload.city, role: payload.role, lang: payload.lang, alert: loginPurpose === 'sub' ? 1 : 0, ret: payload.ret, last4: payload.last4, dev: payload.dev, website: '' };
+      var tsEl = body().querySelector('#asg-ts [name="cf-turnstile-response"]');
+      payload.ts = tsEl ? String(tsEl.value || '').trim() : '';
+      if (!payload.ts) { err.textContent = L.tsWait; go.disabled = false; go.dataset.busy = ''; go.setAttribute('aria-busy', 'false'); return; }
+    }
+    api(postUrl, payload).then(function (d) {
       var here = sameView();
       var savedOk = !!(d && d.ok && !d.confirm && !d.need_profile && !d.error);
       if (d && d.ok && !d.confirm) refreshMine();
@@ -913,10 +1043,11 @@
       }
       if (!here) return;
       if (d && d.confirm) {
-        addLocalFav(e.id);
         holdSent(go);
         var recorded = payload.intent;
         if (d.nonce && window.ATM_CLAIM) window.ATM_CLAIM.watch(d.nonce, function () {
+          var purpose = loginPurpose, pid = loginId || (e && e.id);
+          if (purpose === 'fav' || purpose === 'sub' || purpose === 'me') { afterSession(purpose, pid); return; }
           showConfirmed(go, recorded);
           refreshMine();
         });
@@ -939,7 +1070,6 @@
         else if (!d.ok) err.textContent = L.again;
       }
       if (savedOk) {
-        addLocalFav(e.id);
         var line = noticeLine(d);
         toast(line, d.notice === 'failed' || d.notice === 'missing' ? 'note' : 'ok', document.querySelector('.atm-heart[data-fid="' + e.id + '"], .atm-heart[data-sid="' + e.id + '"]'));
         unlock();
@@ -961,28 +1091,16 @@
       if (!b.querySelector('path')) return;
       var path = b.querySelector('path'); if (path && path.getAttribute('d') !== STAR) path.setAttribute('d', STAR);
       var id = idOf(b); if (!id) return;
-      if ((b.closest && b.closest('.ah-ly')) || openedFavStar(b, id)) {
-        b.classList.remove('atm-star-off', 'atm-star-wait');
-        b.setAttribute('aria-disabled', 'false');
-        b.setAttribute('aria-busy', 'false');
-        b.setAttribute('aria-pressed', favs[id] ? 'true' : 'false');
-        b.title = L.unfav;
-        b.setAttribute('aria-label', L.unfav);
-        return;
-      }
-      var e = eventOf(id);
-      var state = canIntent(e, id);
-      var off = state === false;
-      var waiting = state === null && !!(e || ready) && !(e && hasEmail(e));
-      b.classList.toggle('atm-star-off', off);
-      b.classList.toggle('atm-star-wait', waiting);
-      if (off) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
-      else if (waiting) { b.setAttribute('aria-disabled', 'false'); b.setAttribute('aria-busy', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.checking; b.setAttribute('aria-label', L.checking); }
-      else if (showSolid(id, e)) { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var st = occNow(id, e); var lab = L.manage + ' ' + (st && st.intent === 'going' ? L.going : L.interested); b.title = lab; b.setAttribute('aria-label', lab); }
-      else { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', favs[id] ? 'true' : 'false'); b.setAttribute('aria-disabled', 'false'); b.title = favs[id] ? L.unfav : L.title; b.setAttribute('aria-label', favs[id] ? L.unfav : L.title); }
+      var on = !!token() && !!favs[id];
+      var lab = on ? L.unfav : L.save;
+      b.classList.remove('atm-star-off', 'atm-star-wait');
+      b.setAttribute('aria-disabled', 'false');
+      b.setAttribute('aria-busy', 'false');
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.title = lab;
+      b.setAttribute('aria-label', lab);
     });
     document.querySelectorAll('.atm-star-n').forEach(function (n) { n.remove(); });
-    queueReach();
   }
   function nextAnchor(e) { if (!e || !regular(e)) return ''; var ds = datesOf(e); return ds[0] || ''; }
   function occNow(id, e) { var bag = occ[id]; if (!bag) return null; return bag[nextAnchor(e)] || null; }
@@ -1054,6 +1172,70 @@
       if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
     }
   }
+  function removeLocalFav(id) {
+    if (!id) return;
+    seriesFavIds(id).forEach(function (one) {
+      markRemoved(one);
+      delete favs[one];
+      try {
+        var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]');
+        localStorage.setItem('atm_fav_v1', JSON.stringify((a || []).filter(function (x) { return x !== one; })));
+      } catch (e) {}
+    });
+    paint();
+    paintBar();
+    if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
+  }
+  var TEACH = 'atm_star_taught_v1';
+  function localFavIds() {
+    try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function mergeLocalFavs() {
+    var flag = '';
+    try { flag = localStorage.getItem('atm_fav_merged_v1') || ''; } catch (e) {}
+    if (flag === '1') return Promise.resolve();
+    var ids = localFavIds().filter(function (id) { return /^[A-Za-z0-9_-]{1,64}$/.test(id); }).slice(0, 100);
+    if (!ids.length) { try { localStorage.setItem('atm_fav_merged_v1', '1'); } catch (e) {} return Promise.resolve(); }
+    return api('/social/going/fav', { ids: ids, explicit: 1 }).then(function (d) {
+      if (d && d.ok) { try { localStorage.setItem('atm_fav_merged_v1', '1'); } catch (e) {} }
+    });
+  }
+  function applyServerFavs(list) {
+    favs = {};
+    var ids = [];
+    (list || []).forEach(function (id) { if (typeof id === 'string' && ids.indexOf(id) < 0) { favs[id] = 1; ids.push(id); } });
+    try { localStorage.setItem('atm_fav_v1', JSON.stringify(ids)); } catch (e) {}
+  }
+  function accountFav(id, anchor) {
+    if (!id || !token()) return;
+    var off = !!favs[id];
+    api(off ? '/social/going/unfav' : '/social/going/fav', { id: id, explicit: 1 }).then(function (d) {
+      if (!(d && d.ok)) { toast(L.later, 'note', anchor); return; }
+      if (off) { removeLocalFav(id); toast(L.toastOff, 'ok', anchor); return; }
+      addLocalFav(id);
+      var teach = false;
+      try { if (localStorage.getItem(TEACH) !== '1') { localStorage.setItem(TEACH, '1'); teach = true; } } catch (e) {}
+      paint(); paintBar();
+      toast(L.toastOn, 'ok', anchor, teach ? L.teach : '');
+    }).catch(function () { toast(L.net, 'note', anchor); });
+  }
+  function afterSession(purpose, id) {
+    loginPurpose = '';
+    mergeLocalFavs().then(function () { return refreshMine(); }).then(function () {
+      if (window.ATM_MENU && window.ATM_MENU.paintMe) window.ATM_MENU.paintMe();
+      if (purpose === 'fav') { shut(); accountFav(id); }
+      else if (purpose === 'sub') { shut(); var t = document.getElementById('tsub-open'); if (t) t.click(); }
+      else if (purpose === 'me') { shut(); openMe(); }
+      else shut();
+    });
+  }
+  function askLogin(purpose, id) {
+    loginPurpose = purpose || '';
+    loginId = id || '';
+    if (token()) return Promise.resolve(true);
+    open(stub(id || 'login'), { intent: 'going', login: loginPurpose });
+    return Promise.resolve(false);
+  }
   function openedFavStar(b, id) {
     if (!b || !id || !favs[id]) return false;
     if (b.classList.contains('p10-heart')) return true;
@@ -1086,28 +1268,8 @@
     document.addEventListener('keydown', onAskKey, true);
   }
   function requestUnfav(id) {
-    var ids = seriesFavIds(id);
-    if (!token()) {
-      ids.forEach(dropLocalOne);
-      paint(); paintBar();
-      if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
-      return;
-    }
-    var pending = ids.slice();
-    function next() {
-      if (!pending.length) {
-        paint(); paintBar();
-        if (window.ATM_FAV && window.ATM_FAV.refresh) window.ATM_FAV.refresh();
-        return;
-      }
-      var one = pending.shift();
-      api('/social/going/unfav', { id: one, explicit: 1 }).then(function (d) {
-        if (d && d.ok) { dropLocalOne(one); toast(L.savedShort, 'ok'); }
-        else toast(L.later, 'note');
-        next();
-      }).catch(function () { toast(L.later, 'note'); });
-    }
-    next();
+    removeLocalFav(id);
+    toast(L.toastOff);
   }
   function savedText(n) { return zh ? ('☆ 已收藏 ' + n + ' 个活动') : ('☆ ' + n + ' saved event' + (n === 1 ? '' : 's')); }
   function favCount() { return Object.keys(favs).length; }
@@ -1133,10 +1295,9 @@
         var e = eventOf(id), a = document.createElement('a');
         a.className = 'tw-fc atm-favfc'; a.href = location.pathname + '?card=' + encodeURIComponent(id); a.setAttribute('data-fid', id);
         var name = titleOf(e) || id;
-        var st = occNow(id, e);
-        var meta = st ? ((st.intent === 'going' ? L.going : st.intent === 'interested' ? L.interested : L.absent) + (st.intent === 'going' && st.date ? ' · ' + st.date : '')) : (zh ? '已收藏' : 'Saved');
+        var meta = zh ? '已收藏' : 'Saved';
         a.innerHTML = '<span class="tw-fc-body"><strong>' + esc(name) + '</strong><span class="tw-fc-meta">' + esc(meta) + '</span></span>';
-        var btn = document.createElement('span'); btn.className = 'atm-heart'; btn.setAttribute('role', 'button'); btn.tabIndex = 0; btn.setAttribute('aria-pressed', showSolid(id, e) ? 'true' : 'false'); btn.title = L.manage; btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR + '"/></svg>';
+        var btn = document.createElement('span'); btn.className = 'atm-heart'; btn.setAttribute('role', 'button'); btn.tabIndex = 0; btn.setAttribute('aria-pressed', favs[id] ? 'true' : 'false'); btn.title = favs[id] ? L.unfav : L.save; btn.setAttribute('aria-label', favs[id] ? L.unfav : L.save); btn.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="' + STAR + '"/></svg>';
         var ux = document.createElement('button'); ux.type = 'button'; ux.className = 'atm-unfav'; ux.setAttribute('data-unfav', id); ux.textContent = L.unfav;
         a.appendChild(btn); a.appendChild(ux); grid.appendChild(a);
       });
@@ -1147,18 +1308,21 @@
     var back = resumeId || reopen;
     resumeId = '';
     reopen = '';
-    if (!token()) { me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); mergeLocalOcc(); paint(); paintBar(); return Promise.resolve(); }
-    return api('/social/going/mine').then(function (d) {
-      if (d._s === 401) { try { localStorage.removeItem('atm_session'); } catch (e) {} me = null; mine = {}; occ = {}; drafts = {}; loadLocalFavs(); }
+    if (!token()) { me = null; mine = {}; occ = {}; drafts = {}; favs = {}; mergeLocalOcc(); paint(); paintBar(); if (window.ATM_MENU && window.ATM_MENU.paintMe) window.ATM_MENU.paintMe(); return Promise.resolve(); }
+    return mergeLocalFavs().then(function () { return api('/social/going/mine'); }).then(function (d) {
+      if (d._s === 401) {
+        try { localStorage.removeItem('atm_session'); localStorage.removeItem('atm_fav_v1'); localStorage.removeItem('atm_fav_merged_v1'); } catch (e) {}
+        me = null; mine = {}; occ = {}; drafts = {}; favs = {};
+      }
       else {
-        me = { email: d.email, name: d.name, city: d.city, role: d.role };
+        me = { email: d.email, name: d.name, city: d.city, role: d.role, sitewide: !!d.sitewide };
         mine = {}; occ = {}; drafts = {};
         (d.items || []).forEach(function (it) { mine[it.id] = it; if (!occ[it.id]) occ[it.id] = {}; occ[it.id][it.anchor || ''] = it; });
         (d.drafts || []).forEach(function (it) { drafts[it.id] = it; });
-        (d.favs || []).forEach(function (fid) { if (!isRemoved(fid)) addLocalFav(fid); });
-        loadLocalFavs();
+        applyServerFavs(d.favs || []);
         mergeLocalOcc();
       }
+      if (window.ATM_MENU && window.ATM_MENU.paintMe) window.ATM_MENU.paintMe();
       paint(); paintBar();
       if (back) whenAck(function () { openId(back, { resume: true }); });
     }).catch(function () {});
@@ -1169,20 +1333,86 @@
     if (!b) { b = document.createElement('button'); b.setAttribute('data-fid', id); }
     open(b, opt);
   }
+  function stub(id) {
+    var b = document.querySelector('.atm-heart[data-fid="' + id + '"], .atm-heart[data-sid="' + id + '"], [data-fid="' + id + '"]');
+    if (b) return b;
+    b = document.createElement('button');
+    b.setAttribute('data-fid', id);
+    return b;
+  }
+  function openIntent(id) {
+    if (!id) return;
+    var b = stub(id);
+    var e = eventOf(id);
+    if (e && canIntent(e, id) === false) { toast(L.noRsvp, 'off', b); return; }
+    if (!token()) { loginPurpose = 'going'; loginId = id; open(b, { intent: 'going' }); return; }
+    loginPurpose = '';
+    open(b, { intent: 'going' });
+  }
+  function paintGoing(el, id) {
+    if (!el || !id) return;
+    el.hidden = true;
+    el.textContent = '';
+    fetch(API + '/social/going/counts?ids=' + encodeURIComponent(id), { credentials: 'omit' }).then(function (r) { return r.json(); }).then(function (d) {
+      var n = d && d.going && typeof d.going[id] === 'number' ? d.going[id] : 0;
+      if (!n) { el.hidden = true; el.textContent = ''; return; }
+      el.hidden = false;
+      el.textContent = zh ? ('要去 ' + n) : (n + ' going');
+    }).catch(function () { el.hidden = true; });
+  }
+  function openMe() {
+    if (!token()) { askLogin('me'); return; }
+    var box = document.getElementById('atm-me');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'atm-me';
+      document.body.appendChild(box);
+    }
+    var saved = Object.keys(favs);
+    var going = [];
+    Object.keys(occ).forEach(function (id) {
+      var bag = occ[id] || {};
+      Object.keys(bag).forEach(function (k) { if (bag[k] && bag[k].intent === 'going') going.push(bag[k]); });
+    });
+    function rows(list, empty) {
+      if (!list.length) return '<p class="atm-me-empty">' + empty + '</p>';
+      return list.map(function (item) {
+        var id = item.id || item;
+        var e = eventOf(id);
+        return '<a href="' + location.pathname + '?card=' + encodeURIComponent(id) + '">' + esc(titleOf(e) || id) + '</a>';
+      }).join('');
+    }
+    var alertOn = !!(me && me.sitewide);
+    box.innerHTML = '<div class="atm-me-bg" data-x></div><div class="atm-me-panel" role="dialog" aria-modal="true" aria-label="' + esc(L.me) + '"><div class="atm-me-hd"><b>' + esc(L.me) + '</b><button type="button" data-x aria-label="' + esc(L.close) + '">×</button></div>' +
+      '<h3>' + esc(L.meSaved) + '</h3>' + rows(saved, L.meEmpty) +
+      '<h3>' + esc(L.meGoing) + '</h3>' + rows(going, L.meNone) +
+      '<label class="atm-me-alert"><input type="checkbox" id="atm-me-alert"' + (alertOn ? ' checked' : '') + '>' + esc(L.meAlert) + '</label><p class="atm-me-need" id="atm-me-need"></p></div>';
+    box.hidden = false;
+    box.onclick = function (ev) { if (ev.target === box || (ev.target.closest && ev.target.closest('[data-x]'))) box.hidden = true; };
+    var toggle = box.querySelector('#atm-me-alert');
+    if (toggle) toggle.onchange = function () {
+      var need = box.querySelector('#atm-me-need');
+      if (!me || !me.name || !me.city || !me.role) { if (need) need.textContent = L.meNeed; toggle.checked = alertOn; return; }
+      api('/social/profile', { name: me.name, email: me.email, city: me.city, role: me.role, alert: toggle.checked ? 1 : 0, lang: zh ? 'zh' : 'en', ret: location.href.split('#')[0] }).then(function (d) {
+        if (d && d.ok) { me.sitewide = !!toggle.checked; if (need) need.textContent = ''; }
+        else { toggle.checked = !toggle.checked; if (need) need.textContent = L.later; }
+      }).catch(function () { toggle.checked = !toggle.checked; });
+    };
+  }
   window.ATM_STAR = {
     refresh: function () { return refreshMine(); },
     take: function (b) {
-      if (b.closest && b.closest('[data-unfav]')) return false;
-      if (b.closest && b.closest('.ah-ly')) { var uid = idOf(b); if (uid) confirmUnfav(uid); return true; }
-      if (openedFavStar(b, idOf(b))) { confirmUnfav(idOf(b)); return true; }
-      if (b.classList.contains('atm-star-off')) { toast(L.noRsvp, 'off', b); return true; }
-      if (b.getAttribute('aria-disabled') === 'true') return true;
-      var id = idOf(b), e = id ? eventOf(id) : null;
-      if (!id || (e && hasEmail(e)) || reach[id] === true) { open(b); return true; }
-      if (reach[id] === false) { toast(L.noRsvp, 'off', b); return true; }
-      awaitReach(id).then(function (v) { if (v === true) open(b); else if (v === false) toast(L.noRsvp, 'off', b); else paint(); });
+      if (!b || (b.closest && b.closest('[data-unfav]'))) return false;
+      var id = idOf(b);
+      if (!id) return false;
+      if (!token()) { askLogin('fav', id); return true; }
+      accountFav(id, b);
       return true;
     },
+    askLogin: askLogin,
+    openMe: openMe,
+    openIntent: openIntent,
+    paintGoing: paintGoing,
     paintBar: paintBar, paint: paint, listed: function () { return Object.keys(favs).length; }
   };
   document.addEventListener('click', function (e) {
@@ -1190,7 +1420,9 @@
     if (!u) return;
     e.preventDefault(); e.stopPropagation();
     var id = u.getAttribute('data-unfav');
-    if (id) confirmUnfav(id);
+    if (!id) return;
+    if (!token()) { askLogin('fav', id); return; }
+    accountFav(id, u);
   }, true);
   document.addEventListener('atm-more', function () { paint(); });
   (function () {

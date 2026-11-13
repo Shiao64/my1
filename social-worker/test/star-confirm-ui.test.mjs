@@ -61,7 +61,7 @@ async function run(lang, label) {
   await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
   await p.reload({ waitUntil: 'domcontentloaded' });
   await p.waitForFunction(() => window.ATM_STAR && window.ATM_CLAIM);
-  await p.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
+  await p.evaluate(() => window.ATM_STAR.openIntent('R', 'going'));
   await p.waitForSelector('#asg-go');
   await p.evaluate(() => {
     document.querySelector('#asg-email').value = 'guest@example.com';
@@ -91,8 +91,8 @@ async function run(lang, label) {
   check(lang + ' star button shows the recorded intent', state.go === label && state.note === label && state.spam === label && state.intent === 'going' && state.awaited && state.session === session && state.body.indexOf('回到本页') < 0 && state.body.indexOf('come back and tap Confirm') < 0 && state.body.indexOf('Tap Confirm to save') < 0);
   await p.close();
 }
-await run('zh', '已确认 · 要参加');
-await run('en', 'Confirmed · Going');
+await run('zh', '已确认 · 我要去');
+await run('en', 'Confirmed · I\u2019m going');
 await browser.close();
 server.close();
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }

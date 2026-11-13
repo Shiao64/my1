@@ -69,17 +69,17 @@ async function confirm(link) {
 const star = fs.readFileSync(path.join(root, 'asia/atm-star.js'), 'utf8');
 check('chinese and english each use Confirm', star.includes("verifyBtn: '确认'") && star.includes("verifyBtn: 'Confirm'") && !star.includes('确认邮箱并继续') && !star.includes('Confirm email and continue') && !star.includes('asg-restore') && !star.includes('用邮箱恢复登录'));
 
-const fresh = await post('/going', { id: 'F1', intent: 'interested', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', notify: 0, date: '', last4: '8000' });
+const fresh = await post('/going', { id: 'F1', intent: 'going', email: 'new@example.com', name: 'Niu', city: 'Beijing', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', notify: 0, date: '', last4: '8000' });
 check('new user email does not queue', fresh.confirm && fresh.preview_link && !db.prepare('SELECT id FROM going_intents WHERE email=?').get('new@example.com'));
-check('choice is kept', db.prepare('SELECT intent i, notify n FROM going_pending WHERE email=? AND consumed_at IS NULL').get('new@example.com').i === 'interested' && db.prepare('SELECT notify n FROM going_pending WHERE email=?').get('new@example.com').n === 0);
+check('choice is kept', db.prepare('SELECT intent i, notify n FROM going_pending WHERE email=? AND consumed_at IS NULL').get('new@example.com').i === 'going' && db.prepare('SELECT notify n FROM going_pending WHERE email=?').get('new@example.com').n === 0);
 const first = await confirm(fresh.preview_link);
 const token = ((first.cookie.match(/atm_session=([0-9a-f]{64})/) || [])[1]);
-check('opening the link finishes and saves the intent without organizer mail', token && first.html.includes('订阅成功，可以关掉这个页面') && first.html.includes('去看亚洲探戈地图') && db.prepare("SELECT intent i, mail_status s FROM going_intents WHERE email=?").get('new@example.com').i === 'interested' && !mails.some(m => m.includes('to=fest@example.com')));
+check('opening the link finishes and saves the intent without organizer mail', token && first.html.includes('订阅成功，可以关掉这个页面') && first.html.includes('去看亚洲探戈地图') && db.prepare("SELECT intent i, mail_status s FROM going_intents WHERE email=?").get('new@example.com').i === 'going' && !mails.some(m => m.includes('to=fest@example.com')));
 const again = await confirm(fresh.preview_link);
 check('the link can be opened again', again.html.includes('订阅成功，可以关掉这个页面'));
 const mine = await get('/going/mine', { Authorization: 'Bearer ' + token });
-check('the new session has the saved intent', mine.items && mine.items.some(x => x.id === 'F1' && x.intent === 'interested') && mine.name === 'Niu' && mine.city === 'Beijing' && mine.role === 'leader');
-const done = await post('/going', { id: 'F1', intent: 'interested', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' }, { Authorization: 'Bearer ' + token });
+check('the new session has the saved intent', mine.items && mine.items.some(x => x.id === 'F1' && x.intent === 'going') && mine.name === 'Niu' && mine.city === 'Beijing' && mine.role === 'leader');
+const done = await post('/going', { id: 'F1', intent: 'going', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' }, { Authorization: 'Bearer ' + token });
 check('saved profile is not asked again', (done.mail === 'queued' || done.mail === 'unchanged') && !done.need_profile && !db.prepare('SELECT id FROM going_pending WHERE email=? AND consumed_at IS NULL').get('new@example.com'));
 
 db.prepare("INSERT INTO users(email,name,city,role,verified_at,created_at) VALUES('old@example.com','Ada','Seoul','leader','2026-11-01T00:00:00.000Z','2026-11-01T00:00:00.000Z')").run();
@@ -96,7 +96,7 @@ check('complete old user queues without a new profile', (oldFinal.mail === 'queu
 db.prepare("UPDATE users SET city=NULL WHERE email=?").run('gap@example.com');
 db.prepare("INSERT INTO users(email,name,city,role,verified_at,created_at) VALUES('gap@example.com','Gao',NULL,'follower','2026-11-01T00:00:00.000Z','2026-11-01T00:00:00.000Z')").run();
 db.prepare('INSERT INTO user_phone(user_id,phone,updated_at) VALUES(?,?,?)').run(db.prepare("SELECT id FROM users WHERE email='gap@example.com'").get().id, '8000', '2026-11-01T00:00:00.000Z');
-const gap = await post('/going', { id: 'F1', intent: 'interested', email: 'gap@example.com', name: '', city: 'Busan', role: '', last4: '8000', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' });
+const gap = await post('/going', { id: 'F1', intent: 'going', email: 'gap@example.com', name: '', city: 'Busan', role: '', last4: '8000', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'en' });
 const gapUser = db.prepare('SELECT name n, city c, role r FROM users WHERE email=?').get('gap@example.com');
 check('only the blank city is filled', gap.confirm !== true && gap.session && gapUser.n === 'Gao' && gapUser.c === 'Busan' && gapUser.r === 'follower');
 

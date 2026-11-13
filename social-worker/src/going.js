@@ -907,6 +907,12 @@ async function materialize(env, kit, row, iph) {
     await rememberFav(env, row.email, row.card_id, ts);
     return { ok: true, mailed: false, mail: 'withheld', notice: 'off', date: '' };
   }
+  // 11.9.28 DEPLOY: Interested is stored and is not queued or mailed to the organizer.
+  if (row.intent === 'interested') {
+    await saveIntent(env, row, show, attend, 0, 'none', null, ts);
+    await rememberFav(env, row.email, row.card_id, ts);
+    return { ok: true, mailed: false, mail: 'withheld', notice: 'off', date: attend };
+  }
   if (!on && !copyTo) {
     const sameFacts = !!(prev && prev.status === 'active' && prevFp === fp && (deliveredMail(prev.mail_status) || prev.mail_status === 'queued'));
     if (sameFacts) {
@@ -1151,6 +1157,8 @@ export async function goingPass(req, env, b, json, kit) {
 async function applySessionIntent(env, kit, session, b, iph) {
   const id = String(b.id || ''), intent = intentOf(b.intent);
   if (!kit.ID_RE.test(id) || !intent) return { error: 'bad_input', status: 400 };
+  // 11.9.28 DEPLOY: new Interested and Not Going submissions are refused. Existing rows stay.
+  if (intent === 'absent' || intent === 'interested') return { error: intent === 'absent' ? 'absent_closed' : 'interested_closed', status: 400 };
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const notify = flag(b.notify, 1), transport = flag(b.transport, 0);
   let card;
@@ -1328,14 +1336,14 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
   if (!(b.disclose === 1 || b.disclose === true || b.disclose === '1')) return json({ error: 'need_disclose' }, 400);
   const id = String(b.id || ''), intent = intentOf(b.intent);
   if (!kit.ID_RE.test(id) || !intent) return json({ error: 'bad_input' }, 400);
+  // 11.9.28 DEPLOY: refuse a new Interested or Not Going write. Do not delete an existing row.
+  if (intent === 'absent' || intent === 'interested') return json({ ok: false, error: intent === 'absent' ? 'absent_closed' : 'interested_closed', stored: false, mailed: false }, 400);
   const ret = kit.safeNext(b.ret, env);
   if (!ret) return json({ error: 'bad_return' }, 400);
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const notify = flag(b.notify, 1), transport = flag(b.transport, 0);
   const promo = flag(b.alert, 0);
   const sessionEarly = await sessionUser(req, env);
-  const hintedEmail = kit.clean(b.email, 254).toLowerCase();
-  if (!sessionEarly && intent === 'absent' && !kit.EMAIL_RE.test(hintedEmail)) return json({ ok: true, mail: 'withheld', stored: false });
   let card;
   try { card = await goingCard(env, id, kit); }
   catch (e) { console.log('going events', String(e && e.message || e).slice(0, 160)); return json({ error: 'lookup_failed' }, 503); }
@@ -1433,20 +1441,44 @@ export async function goingUnfav(req, env, b, json, kit) {
   const id = String(b.id || '');
   if (!kit.ID_RE.test(id)) return json({ error: 'bad_input' }, 400);
   if (!(b.explicit === 1 || b.explicit === true || b.explicit === '1')) return json({ error: 'need_explicit' }, 400);
+  // 11.9.28 DEPLOY: unfavorite removes only going_favs. It does not cancel a Going intent.
   await env.SDB.prepare('DELETE FROM going_favs WHERE email=? AND card_id=?').bind(session.email, id).run();
-  await env.SDB.prepare("UPDATE going_intents SET status='cancelled',mail_status='none',updated_at=? WHERE email=? AND card_id=? AND status='active'").bind(kit.now(), session.email, id).run();
   return json({ ok: true, removed: true, mailed: false, notice: 'off' });
+}
+export async function goingFav(req, env, b, json, kit) {
+  const session = await sessionUser(req, env);
+  if (!session) return json({ error: 'auth' }, 401);
+  if (!(b.explicit === 1 || b.explicit === true || b.explicit === '1')) return json({ error: 'need_explicit' }, 400);
+  const ids = [];
+  const push = (raw) => {
+    const id = String(raw || '');
+    if (kit.ID_RE.test(id) && ids.indexOf(id) < 0 && ids.length < 100) ids.push(id);
+  };
+  push(b.id);
+  if (Array.isArray(b.ids)) b.ids.forEach(push);
+  if (!ids.length) return json({ error: 'bad_input' }, 400);
+  const ts = kit.now();
+  for (const id of ids) {
+    await env.SDB.prepare('INSERT INTO going_favs(email,card_id,created_at) VALUES(?,?,?) ON CONFLICT(email,card_id) DO NOTHING').bind(session.email, id, ts).run();
+  }
+  return json({ ok: true, saved: ids.length, mailed: false });
 }
 
 export async function goingCounts(url, env, json) {
   const ids = (url.searchParams.get('ids') || '').split(',').map(s => s.trim()).filter(s => /^[A-Za-z0-9_-]{1,64}$/.test(s)).slice(0, 100);
   const counts = {};
-  ids.forEach(id => { counts[id] = 0; });
-  if (!ids.length) return json({ counts });
+  const going = {};
+  const interested = {};
+  ids.forEach(id => { counts[id] = 0; going[id] = 0; interested[id] = 0; });
+  if (!ids.length) return json({ counts, going, interested });
   const q = ids.map(() => '?').join(',');
+  // `counts` stays the previous going+interested total so older clients do not change.
   (await env.SDB.prepare(`SELECT card_id,COUNT(DISTINCT email) n FROM going_intents WHERE status='active' AND intent IN ('going','interested') AND card_id IN (${q}) GROUP BY card_id`).bind(...ids).all()).results
     .forEach(r => { counts[r.card_id] = r.n; });
-  return json({ counts });
+  // 11.9.28 DEPLOY: `going` is verified active Going only. The opened-card pill reads this field.
+  (await env.SDB.prepare(`SELECT i.card_id card_id, i.intent intent, COUNT(DISTINCT i.email) n FROM going_intents i JOIN users u ON u.email=i.email AND u.verified_at IS NOT NULL WHERE i.status='active' AND i.intent IN ('going','interested') AND i.card_id IN (${q}) GROUP BY i.card_id, i.intent`).bind(...ids).all()).results
+    .forEach(r => { if (r.intent === 'going') going[r.card_id] = r.n; else if (r.intent === 'interested') interested[r.card_id] = r.n; });
+  return json({ counts, going, interested });
 }
 
 export async function goingMine(req, env, json) {
@@ -1627,7 +1659,7 @@ async function claimDigest(env, key, cardId, kind, period, nowIso, staleIso) {
 async function queuedRows(env, cardId) {
   return (await env.SDB.prepare(`SELECT i.email email,i.card_id card_id,i.intent intent,i.occurrence_date occurrence_date,i.anchor anchor,i.transport transport,i.mail_status mail_status,i.updated_at updated_at,u.name name,u.city city,u.role role,u.verified_at verified_at
     FROM going_intents i JOIN users u ON u.email=i.email
-    WHERE i.card_id=? AND i.status='active' AND i.mail_status='queued' AND i.intent IN ('going','interested') AND u.verified_at IS NOT NULL
+    WHERE i.card_id=? AND i.status='active' AND i.mail_status='queued' AND i.intent='going' AND u.verified_at IS NOT NULL
     ORDER BY i.email`).bind(cardId).all()).results || [];
 }
 function showOf(r) { return (r && (r.anchor || r.occurrence_date)) || ''; }

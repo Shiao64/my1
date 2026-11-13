@@ -100,7 +100,7 @@ const before = orgMails().length;
 const off = await going(dancerToken, 'DIR', 'going');
 check('unset flag saves and does not mail', off.ok && off.notice === 'off' && off.mailed === false && off.mail === 'queued' && orgMails().length === before);
 const cap = [];
-for (const intent of ['interested', 'going', 'interested', 'going']) cap.push(await going(otherToken, 'DIR', intent));
+for (const intent of ['going', 'going', 'going', 'going']) cap.push(await going(otherToken, 'DIR', intent));
 check('other visitors stay saved with no notification failure', cap.every(d => d.ok && d.notice === 'off' && d.mailed === false && d.mail !== 'rate_limited' && d._s === 200) && orgMails().length === before && db.prepare('SELECT COUNT(*) n FROM going_sends').get().n === 0);
 
 env.GOING_TEST_SEND = 'on';
@@ -120,18 +120,16 @@ check('an older queued intent is not mailed', still.enabled === false && !orgMai
 
 const first = await going(dancerToken, 'DIR', 'interested');
 const firstMail = orgMails().filter(m => m.includes('to=dir-o114@example.com'));
-check('directory address is used when the card shows none', first.ok && first.notice === 'sent' && first.mailed === true && firstMail.length === 1);
-check('letter is to the organizer and CC the dancer plus both inboxes', firstMail[0].includes('from=探戈助理') && firstMail[0].includes('to=dir-o114@example.com') && firstMail[0].includes('cc=' + DANCER + ', selecttango@gmail.com, guazong@mail.grokbot.com') && firstMail[0].includes('reply-to=' + DANCER) && firstMail[0].includes('subject=ATM Website · Event Interest Notice') && firstMail[0].includes('has selected that they are interested') && firstMail[0].includes('勾选了对你的以下活动感兴趣') && !firstMail[0].includes('要参加') && !firstMail[0].includes('going to') && !firstMail[0].includes('Card:'));
-check('regular letter names city and role in both languages', firstMail[0].includes('探友Shiao（领舞，Shanghai）') && firstMail[0].includes('Dancer Shiao (leader, Shanghai)') && firstMail[0].includes('————') && firstMail[0].includes('<p style="margin:0 0 16px;line-height:1.55">Dancer Shiao (leader, Shanghai) has selected that they are interested') && firstMail[0].includes('<p style="margin:0 0 16px;line-height:1.55">探友Shiao（领舞，Shanghai）勾选了对你的以下活动感兴趣：') && firstMail[0].includes('They are copied on this message; please “Reply all”.') && !firstMail[0].includes('asked for directions'));
+check('a new interested submission is refused and the going row stays', first._s === 400 && first.error === 'interested_closed' && first.stored === false && firstMail.length === 0 && db.prepare("SELECT intent i, mail_status s FROM going_intents WHERE email=? AND card_id='DIR' AND anchor=?").get(DANCER, dates[0]).i === 'going' && db.prepare("SELECT mail_status s FROM going_intents WHERE email=? AND card_id='DIR' AND anchor=?").get(DANCER, dates[0]).s === 'queued');
 const sample = dancerLine('探戈助理', 'follower', '北京');
 check('wording shape is name, role, from city', sample.zh === '探戈助理，跟舞，来自北京' && sample.en === '探戈助理, follower, from 北京' && dancerLine('Tango Assistant', 'follower', 'Beijing').en === 'Tango Assistant, follower, from Beijing' && dancerLine('Tango Assistant', 'follower', 'Beijing').zh === 'Tango Assistant，跟舞，来自Beijing');
 check('both is 都可 / both', dancerLine('A', 'both', '北京').zh === 'A，都可，来自北京' && dancerLine('A', 'both', '北京').en === 'A, both, from 北京');
 check('a missing city or role is omitted', dancerLine('A', 'leader', '').zh === 'A，领舞' && dancerLine('A', 'leader', '').en === 'A, leader' && dancerLine('A', '', '北京').zh === 'A，来自北京' && dancerLine('A', '', '北京').en === 'A, from 北京' && dancerLine('A', '', '').zh === 'A' && dancerLine('A', '', '').en === 'A');
 check('the unsent earlier Going was not sent', orgMails().filter(m => m.includes('要参加') && m.includes('to=dir-o114@example.com')).length === 0);
-check('row is sent, not left queued', db.prepare("SELECT mail_status s FROM going_intents WHERE email=? AND card_id='DIR' AND anchor=?").get(DANCER, dates[0]).s === 'sent');
+check('the going row stays queued', db.prepare("SELECT mail_status s FROM going_intents WHERE email=? AND card_id='DIR' AND anchor=?").get(DANCER, dates[0]).s === 'queued');
 
 const again = await going(dancerToken, 'DIR', 'interested');
-check('identical sent content is not resent', again.mail === 'unchanged' && again.notice === 'unchanged' && again.mailed === false && orgMails().filter(m => m.includes('to=dir-o114@example.com')).length === 1);
+check('interested again is refused and does not mail', again._s === 400 && again.error === 'interested_closed' && orgMails().filter(m => m.includes('to=dir-o114@example.com')).length === 0);
 
 const other = await going(otherToken, 'OTH', 'going');
 check('another visitor still only saves', other.notice === 'off' && other.mailed === false && !orgMails().some(m => m.includes('to=dir-other@example.com')));
@@ -142,15 +140,15 @@ const pub = await going(dancerToken, 'PUB', 'going');
 check('a public card address is mailed too', pub.notice === 'sent' && orgMails().some(m => m.includes('to=public-org@example.com') && m.includes('探友Shiao（领舞，Shanghai）') && m.includes('Dancer Shiao (leader, Shanghai)')));
 
 const away = await going(dancerToken, 'DIR', 'absent');
-check('not going saves and does not send a cancellation', away.ok && away.notice === 'off' && away.mail === 'withheld' && away.mailed === false && orgMails().filter(m => m.includes('to=dir-o114@example.com')).length === 1);
+check('a new not-going is refused and does not send', away._s === 400 && away.error === 'absent_closed' && away.stored === false && orgMails().filter(m => m.includes('to=dir-o114@example.com')).length === 0);
 db.prepare('UPDATE users SET city=?, role=? WHERE email=?').run('北京', 'follower', DANCER);
 const shaped = await going(dancerToken, 'DIR', 'going');
 const shapedMail = orgMails().filter(m => m.includes('to=dir-o114@example.com')).pop();
 check('a later regular letter uses 跟舞 and the city', shaped.notice === 'sent' && shapedMail.includes('subject=ATM Website · Event Attendance Notice') && shapedMail.includes('探友Shiao（跟舞，北京）') && shapedMail.includes('Dancer Shiao (follower, 北京)') && shapedMail.includes('勾选了要参加') && shapedMail.includes('going to') && shapedMail.includes('对方已在抄送里，请「回复全部」。') && !shapedMail.includes('希望收到交通指引') && !shapedMail.includes('asked for directions'));
 db.prepare('UPDATE users SET city=NULL, role=NULL WHERE email=?').run(DANCER);
 const partial = await going(dancerToken, 'DIR', 'interested');
-const partialMail = orgMails().filter(m => m.includes('to=dir-o114@example.com')).pop();
-check('missing city and role still send and omit only those parts', partial.ok && partial.notice === 'sent' && partial.mailed === true && partialMail.includes('探友Shiao勾选了对你的以下活动感兴趣：') && partialMail.includes('Dancer Shiao has selected that they are interested') && !partialMail.includes('探友Shiao（') && !partialMail.includes('Dancer Shiao (') && !partialMail.includes('来自') && !partialMail.includes('领舞') && !partialMail.includes('跟舞') && !partialMail.includes('都可') && !/, (leader|follower|both)/.test(partialMail) && !partialMail.includes('from '));
+const partialCount = orgMails().filter(m => m.includes('to=dir-o114@example.com')).length;
+check('interested after a letter is refused and does not send another', partial._s === 400 && partial.error === 'interested_closed' && partial.stored === false && partialCount === 1 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='DIR' AND anchor=?").get(DANCER, dates[0]).i === 'going');
 const unfav = await post('/going/unfav', { id: 'OTH', explicit: 1 }, dancerToken);
 check('unfavorite saves and does not mail', unfav.ok && unfav.removed && unfav.notice === 'off' && unfav.mailed === false && orgMails().filter(m => m.includes('to=dir-other@example.com')).length === 1);
 
@@ -159,7 +157,7 @@ check('a missing directory address is saved and is not called a send failure', m
 
 const flips = [];
 for (const intent of ['interested', 'going', 'interested', 'going']) flips.push(await going(dancerToken, 'PUB', intent));
-check('more than three fact changes still send', flips.every(d => d.ok && d.notice === 'sent' && d.mail !== 'rate_limited'));
+check('Going changes still save and Interested is refused', flips[0]._s === 400 && flips[0].error === 'interested_closed' && flips[1].ok && flips[1].notice !== 'failed' && flips[2]._s === 400 && flips[3].ok && flips[3].notice !== 'failed');
 
 const ip = '203.0.113.9';
 const iph = sha(ip + 'atm').slice(0, 16);
@@ -167,7 +165,7 @@ for (let i = 0; i < 12; i++) db.prepare('INSERT INTO going_sends(email,card_id,i
 const capped = await going(dancerToken, 'OTH', 'interested', {});
 const cappedIp = await post('/going', { id: 'OTH', intent: 'going', anchor: dates[1], date: dates[1], explicit: 1, disclose: 1, notify: 1, transport: 0, ts: 'x', ret, lang: 'zh' }, dancerToken, { 'CF-Connecting-IP': ip });
 check('ip cap still saves, names the wait, and does not send', cappedIp.ok && cappedIp.notice === 'failed' && cappedIp.mailed === false && cappedIp.wait > 0 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='OTH' AND anchor=?").get(DANCER, dates[1]).i === 'going');
-check('the ip cap did not apply to the previous address', capped.notice === 'sent');
+check('the ip cap did not apply to the previous address', capped._s === 400 && capped.error === 'interested_closed' && !capped.wait);
 
 const realFetch = globalThis.fetch;
 let resendCalls = [];
@@ -184,9 +182,9 @@ env.RESEND_API_KEY = 'test-key';
 const failed = await going(dancerToken, 'OLD', 'going');
 check('a send failure still saves', failed.ok && failed.notice === 'failed' && failed.mailed === false && db.prepare("SELECT intent i, status s FROM going_intents WHERE email=? AND card_id='OLD'").get(DANCER).i === 'going' && db.prepare("SELECT status s FROM going_intents WHERE email=? AND card_id='OLD'").get(DANCER).s === 'active');
 const dropped = await going(dancerToken, 'OLD', 'absent');
-check('not going after a failed letter sends nothing', dropped.notice === 'off' && dropped.mail === 'withheld' && resendCalls.length === 1);
+check('not going after a failed letter is refused and sends nothing', dropped._s === 400 && dropped.error === 'absent_closed' && resendCalls.length === 1 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='OLD'").get(DANCER).i === 'going');
 const final = await going(dancerToken, 'OLD', 'interested');
-check('the next Going or Interested sends only the final state', final.notice === 'sent' && final.mailed === true && resendCalls.length === 2 && resendCalls[1].includes('Event Interest Notice') && resendCalls[1].includes('interested') && !resendCalls[1].includes('going to') && !resendCalls[1].includes('要参加'));
+check('interested after a failed Going letter is refused', final._s === 400 && final.error === 'interested_closed' && final.stored === false && resendCalls.length === 1 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='OLD'").get(DANCER).i === 'going');
 globalThis.fetch = realFetch;
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }

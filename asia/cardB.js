@@ -206,14 +206,24 @@ function p10noticeUI(e, notices){ if(!notices||!notices.length) return null; var
   btn.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); setOpen(panel.hidden); });
   less.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); setOpen(false); });
   wrap.appendChild(btn); wrap.appendChild(panel); return wrap; }
+function intentChoices(id){ if(!id||document.querySelector('#atm-single .p10-intent[data-for="'+id+'"]')) return null; var bar=document.createElement('div'); bar.className='p10-intent'; bar.setAttribute('data-for', id);
+  function btn(kind, label){ var b=document.createElement('button'); b.type='button'; b.className='p10-intent-btn'; b.setAttribute('data-open-intent', kind); b.textContent=label;
+    b.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); if(window.ATM_STAR&&window.ATM_STAR.openIntent) window.ATM_STAR.openIntent(id, kind); }); return b; }
+  bar.appendChild(btn('going', zh?'我要去':"I'm going"));
+  var pill=document.createElement('span'); pill.className='p10-going-n'; pill.hidden=true; bar.appendChild(pill);
+  (function paint(n){ if(window.ATM_STAR&&window.ATM_STAR.paintGoing){ window.ATM_STAR.paintGoing(pill, id); return; } if(n<40) setTimeout(function(){ paint(n+1); }, 80); })(0);
+  return bar; }
+function placeIntent(li){ if(!li||li.querySelector(':scope>.p10-intent, .p10-info>.p10-intent')) return; var bar=intentChoices(li.dataset.id); if(!bar) return; var info=li.querySelector('.p10-info'); if(info){ var row=info.querySelector('.p10-row1'); if(row) row.insertAdjacentElement('afterend', bar); else info.insertBefore(bar, info.firstChild); return; } var name=li.querySelector('.ev-name'); if(name) name.insertAdjacentElement('afterend', bar); else li.insertBefore(bar, li.firstChild); }
+(function(){ if(document.getElementById('p10-intent-css')) return; var st=document.createElement('style'); st.id='p10-intent-css'; st.textContent='#atm-single .p10-intent{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:8px 0 4px}#atm-single .p10-intent-btn{flex:1 1 120px;box-sizing:border-box;min-height:44px;min-width:44px;padding:8px 12px;border-radius:12px;border:1.5px solid #0e6e78;background:#fff;color:#0a4f57;font:700 15px/1.2 system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif;cursor:pointer}#atm-single .p10-intent-btn:focus-visible{outline:2px solid #0e6e78;outline-offset:2px}#atm-single .p10-going-n{flex:0 0 auto;display:inline-flex;align-items:center;min-height:28px;padding:4px 10px;border-radius:999px;background:#f3ece0;color:#0a4f57;font:700 12px/20px system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif;border:1px solid #ead9b8}#atm-single .p10-going-n[hidden]{display:none}'; document.head.appendChild(st); })();
 function p10bar(name, id){ document.documentElement.classList.add('atm-p10'); var bar=document.getElementById('atm-c1bar'); if(!bar) return;
   if(!bar.querySelector('.p10-in')){ var inn=document.createElement('div'); inn.className='p10-in'; while(bar.firstChild) inn.appendChild(bar.firstChild); bar.appendChild(inn); }
   var t=bar.querySelector('.atm-c1-t'); if(t&&name) t.textContent=name;
   var back=bar.querySelector('.atm-c1-back'); if(back&&!back.dataset.p10){ var nb=back.cloneNode(true); nb.dataset.p10='1'; var path=nb.querySelector('path'); if(path) path.setAttribute('stroke','#0A4F57'); back.parentNode.replaceChild(nb, back);
     nb.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); /* 2026-11-12: same opener as the featured ‹. A regular card from 已收藏 or P9 goes to that city's week, not the site root. */ if(window.atmP7Back) window.atmP7Back(id); else location.replace(location.pathname); }); }
   if(!bar.querySelector('.p10-heart')){ var host=bar.querySelector('.p10-in')||bar, h=document.createElement('span'); h.className='atm-heart p10-heart ah-sheart'; h.setAttribute('role','button'); h.tabIndex=0; h.setAttribute('data-fid', id); h.setAttribute('data-sid', id);
-    var lab=zh?'活动意向':'Event intent';
-    h.setAttribute('aria-pressed', 'false'); h.setAttribute('aria-label', lab); h.title=lab;
+    var saved=false; try{ saved=JSON.parse(localStorage.getItem('atm_fav_v1')||'[]').indexOf(id)>=0; }catch(err){}
+    var lab=saved?(zh?'取消收藏':'Unsave'):(zh?'收藏':'Save');
+    h.setAttribute('aria-pressed', saved?'true':'false'); h.setAttribute('aria-label', lab); h.title=lab;
     h.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z"/></svg>'; host.appendChild(h); } }
 function p10(li, sg, e){ li.dataset.atm='1'; var CHG=p10change(e); if(CHG) e=p10apply(e,CHG); var nameEl=li.querySelector('.ev-name'), name=(nameEl&&nameEl.textContent||'').trim()||evName(e); if(/^S[01]$/.test(name)) name=evName(e)||name;
   var keep=''; li.querySelectorAll(':scope>.china-cancelled-bar,:scope>.atm-theme-bar').forEach(function(n){ keep+=n.outerHTML; });
@@ -247,10 +257,10 @@ function p10(li, sg, e){ li.dataset.atm='1'; var CHG=p10change(e); if(CHG) e=p10
     var drag=null; stage.querySelector('.p10-frame').addEventListener('pointerdown', function(ev){ if(ev.target.closest&&ev.target.closest('button')) return; drag={x:ev.clientX,y:ev.clientY}; });
     stage.querySelector('.p10-frame').addEventListener('pointerup', function(ev){ if(!drag) return; var dx=ev.clientX-drag.x, dy=ev.clientY-drag.y; drag=null; if(!one&&Math.abs(dx)>36&&Math.abs(dx)>Math.abs(dy)){ if(dx<0&&i<slides.length-1) show(i+1); else if(dx>0&&i>0) show(i-1); } else if(Math.abs(dx)<12&&Math.abs(dy)<12){ var pv=document.getElementById('p10-pv'); if(!pv){ pv=document.createElement('div'); pv.id='p10-pv'; pv.className='p10-pv'; pv.hidden=true; pv.innerHTML='<img alt=""><button type="button" class="p10-pv-x" aria-label="'+(zh?'关闭':'Close')+'">✕</button>'; document.body.appendChild(pv); pv.querySelector('button').addEventListener('click', function(){ pv.hidden=true; }); } var full=img.getAttribute('data-full')||img.currentSrc||img.src; pv.querySelector('img').src=full; pv.querySelector('img').alt=img.alt; pv.hidden=false; } });
     stage.addEventListener('click', function(ev){ ev.stopPropagation(); }); }
-  li.dataset.p10='1'; li.classList.add('b-reg'); li.innerHTML=keep+'<h3 class="ev-name b-name p10-sr"></h3>'; li.querySelector('.ev-name').textContent=name; li.appendChild(info); if(stage) li.appendChild(stage); p10bar(name, li.dataset.id); li.removeAttribute('data-t'); try{ trad(); }catch(err){} }
+  li.dataset.p10='1'; li.classList.add('b-reg'); li.innerHTML=keep+'<h3 class="ev-name b-name p10-sr"></h3>'; li.querySelector('.ev-name').textContent=name; li.appendChild(info); if(stage) li.appendChild(stage); placeIntent(li); p10bar(name, li.dataset.id); li.removeAttribute('data-t'); try{ trad(); }catch(err){} }
 function p10mount(){ var sg=document.getElementById('atm-single'); if(!sg) return false; var li=sg.querySelector('.ev-card.b-card'); if(!li) return false; if(li.dataset.kind==='event'&&li.dataset.oneoff!=='1') return false; if(li.dataset.p10) return true; if(!EV||!EV[li.dataset.id]) return false; p10(li, sg, EV[li.dataset.id]); return true; }
 function single(){ var sg=document.getElementById('atm-single'); if(!sg) return; var li=sg.querySelector('.ev-card.b-card'); if(!li) return;
- var feat=li.dataset.kind==='event'&&li.dataset.oneoff!=='1'; li.classList.add(feat?'b-feat':'b-reg'); if(feat) return; p10mount(); }
+ var feat=li.dataset.kind==='event'&&li.dataset.oneoff!=='1'; li.classList.add(feat?'b-feat':'b-reg'); if(feat){ placeIntent(li); return; } p10mount(); }
 function run(){document.querySelectorAll('.ev-card:not([data-b])').forEach(fix); trad(); single(); prevBadges();}
 new MutationObserver(function(){run()}).observe(document.documentElement,{childList:true,subtree:true}); run();
 })();

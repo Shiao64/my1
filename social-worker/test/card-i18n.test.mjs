@@ -78,8 +78,8 @@ const zh = read('zh/asia/index.html');
 check('list uses evName/evVenue/dj pick', home.includes('evName(e)') && home.includes('evVenue(e)') && home.includes("pick(e, 'dj'"));
 check('opened map card uses evName and addressLines', map.includes('esc(evName(r))') && map.includes('addressLines(r, i18nLang())') && map.includes('china-addr-orig'));
 check('cardB uses helper for name venue address dj and map', card.includes('evName(e)') && card.includes('evVenue(e)') && card.includes('addrLines(e)') && card.includes("pick(e, 'dj'") && card.includes('al.mapQuery'));
-check('i18n script precedes map on both pages', en.includes('atm-i18n.js?v=i1') && en.includes('asia-map.js?v=r14') && en.indexOf('atm-i18n.js?v=i1') < en.indexOf('asia-map.js?v=r14') && zh.includes('atm-i18n.js?v=i1') && zh.indexOf('atm-i18n.js?v=i1') < zh.indexOf('asia-map.js?v=r14'));
-check('home and card cache bumped', en.includes('atm-home.js?v=h147') && en.includes('cardB.js?v=cb146') && en.includes('atm-critical.css?v=ac7') && zh.includes('atm-home.js?v=h147') && zh.includes('cardB.js?v=cb146') && zh.includes('atm-critical.css?v=ac7'));
+check('i18n script precedes map on both pages', en.includes('atm-i18n.js?v=i1') && en.includes('asia-map.js?v=r15') && en.indexOf('atm-i18n.js?v=i1') < en.indexOf('asia-map.js?v=r15') && zh.includes('atm-i18n.js?v=i1') && zh.indexOf('atm-i18n.js?v=i1') < zh.indexOf('asia-map.js?v=r15'));
+check('home and card cache bumped', en.includes('atm-home.js?v=h149') && en.includes('cardB.js?v=cb148') && en.includes('atm-critical.css?v=ac7') && zh.includes('atm-home.js?v=h149') && zh.includes('cardB.js?v=cb148') && zh.includes('atm-critical.css?v=ac7'));
 
 if (fail.length) {
   console.error('FAIL', fail.length);

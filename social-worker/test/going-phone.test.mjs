@@ -144,7 +144,7 @@ check('a wrong last 4 does not log in and does not send mail', wrong._s === 401 
 const unknown = await login('nobody@example.com', tail(spaced));
 check('an unknown email is registration, not a login, and does not send mail', unknown.register === true && unknown.mailed === false && !unknown.session && logs.length === 1 && unknown.error !== 'phone_login');
 
-const star = await post('/going', { id: 'F1', intent: 'interested', email: 'star@example.com', name: 'An', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, lang: 'en', ret, last4: tail(dashed) });
+const star = await post('/going', { id: 'F1', intent: 'going', email: 'star@example.com', name: 'An', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, lang: 'en', ret, last4: tail(dashed) });
 check('a first star subscribe still sends the confirm mail and waits to bind', star.confirm === true && star._s === 200 && logs.length === 2 && !userPhone('star@example.com') && stagedPhone('star@example.com') === tail(dashed) && !leaked(logs[1], dashed));
 const starEarly = await login('star@example.com', tail(dashed));
 check('the star phone cannot sign in before confirm', starEarly.register === true && !starEarly.session && logs.length === 2);
@@ -152,8 +152,8 @@ const starDone = await confirm(star.preview_link);
 check('confirm after the star binds only the last 4', starDone.status === 200 && userPhone('star@example.com') === tail(dashed) && logs.length === 2 && !leaked(starDone.html, dashed));
 const starIn = await login('star@example.com', tail(dashed));
 check('the last 4 signs in and does not send mail', starIn._s === 200 && !!starIn.session && starIn.mailed === false && logs.length === 2);
-const starIntent = await post('/going/phone', { email: 'star@example.com', last4: tail(dashed), id: 'F1', intent: 'interested', explicit: 1, disclose: 1, lang: 'en', ret });
-check('a confirmed star signs in and records the intent with no second confirm', starIntent._s === 200 && starIntent.session && starIntent.confirm !== true && starIntent.mailed === false && (starIntent.mail === 'queued' || starIntent.mail === 'unchanged') && logs.length === 2 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='F1'").get('star@example.com').i === 'interested');
+const starIntent = await post('/going/phone', { email: 'star@example.com', last4: tail(dashed), id: 'F1', intent: 'going', explicit: 1, disclose: 1, lang: 'en', ret });
+check('a confirmed star signs in and records going without a second confirm', starIntent._s === 200 && starIntent.session && starIntent.confirm !== true && starIntent.mailed === false && (starIntent.mail === 'queued' || starIntent.mail === 'unchanged') && logs.length === 2 && db.prepare("SELECT intent i FROM going_intents WHERE email=? AND card_id='F1'").get('star@example.com').i === 'going');
 
 const bare = await post('/profile', { ...baseWho, email: 'old@example.com', name: 'Old', last4: '1111' });
 const bareDone = await confirm(bare.preview_link);

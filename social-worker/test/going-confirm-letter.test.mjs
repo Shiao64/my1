@@ -31,9 +31,9 @@ function letter(lang, name, pending) {
   return buildConfirmLetter({ lang, name, email: 'person@example.com', promo: false }, link, pending || null, he);
 }
 const enNamed = letter('en', 'Ann', { title: 'Friday milonga', intent: 'going' });
-const enEmpty = letter('en', '  \n', { title: 'Friday milonga', intent: 'interested' });
+const enEmpty = letter('en', '  \n', { title: 'Friday milonga', intent: 'going' });
 const zhNamed = letter('zh', '安', { title: '周五探戈', intent: 'going' });
-const zhEmpty = letter('zh', '', { title: '周五探戈', intent: 'interested' });
+const zhEmpty = letter('zh', '', { title: '周五探戈', intent: 'going' });
 const enGoing = enNamed;
 const zhGoing = zhNamed;
 
@@ -108,9 +108,9 @@ async function openConfirm(preview, method) {
 
 const menu = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Osaka', role: 'follower', lang: 'en', alert: 0, ret, ts: 'x', last4: '8000' });
 check('menu profile sends the english letter', menu.confirm && mails.some(m => m.includes('from=Tango Assistant · Asia Tango Map') && m.includes('to=mei@example.com') && m.includes('Hi Mei,') && m.includes(body.en) && m.includes('Confirm subscription') && !cjk.test(m)));
-const blank = await post('/going', { id: 'F1', intent: 'interested', email: 'noname@example.com', name: '', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' });
+const blank = await post('/going', { id: 'F1', intent: 'going', email: 'noname@example.com', name: '', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh' });
 check('a star submit without a name is refused', blank._s === 400 && blank.error === 'need_name' && !mails.some(m => m.includes('to=noname@example.com')));
-const star = await post('/going', { id: 'F1', intent: 'interested', email: 'named@example.com', name: '安', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', last4: '8000' });
+const star = await post('/going', { id: 'F1', intent: 'going', email: 'named@example.com', name: '安', city: 'Seoul', role: 'leader', explicit: 1, disclose: 1, ts: 'x', ret, lang: 'zh', last4: '8000' });
 check('star mail with a name stays the short chinese letter', star.confirm && mails.some(m => m.includes('from=探戈助理 · 亚洲探戈地图') && m.includes('to=named@example.com') && m.includes('安，你好！') && m.includes(body.zh) && !m.includes('节日')));
 
 const fresh = await openConfirm(menu.preview_link, 'GET');

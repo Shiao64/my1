@@ -61,7 +61,7 @@ async function open(lang) {
   await p.evaluate(() => { localStorage.clear(); sessionStorage.clear(); });
   await p.reload({ waitUntil: 'domcontentloaded' });
   await p.waitForFunction(() => window.ATM_STAR);
-  await p.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
+  await p.evaluate(() => window.ATM_STAR.openIntent('R', 'going'));
   await p.waitForSelector('#asg-go');
   return p;
 }
@@ -82,12 +82,10 @@ function fields() {
 }
 const zh = await open('zh');
 const opened = await zh.evaluate(fields);
-check('chinese going opens without a human check', opened.pressed === '要参加' && opened.widget === 0 && opened.renders === 0 && opened.note === true && opened.dateOff === false && opened.hidden === false);
-await zh.evaluate(() => { document.querySelector('[data-intent="absent"]').click(); });
-const away = await zh.evaluate(fields);
-check('not going keeps the email fields and does not post by itself', away.pressed === '去不了' && away.note === false && away.noteOff === true && away.emailOff === false && away.dateOff === true && away.hidden === false && away.widget === 0);
+check('chinese going opens without a human check', opened.pressed === '我要去' && opened.widget === 0 && opened.renders === 0 && opened.note === true && opened.dateOff === false && opened.hidden === false);
+check('the sheet is going only', await zh.evaluate(() => !document.querySelector('[data-intent="absent"]') && !document.querySelector('[data-intent="interested"]') && document.querySelector('#asg-mean').textContent.indexOf('我要去：我们会把你的意向告诉主办') === 0 && document.querySelector('#asg-go').textContent === '继续'));
 await zh.click('#asg-go');
-check('unverified not going asks for the email and does not post', await zh.evaluate(() => window.__posts.length === 0 && document.querySelector('#atm-star').hidden === false && document.querySelector('#asg-err').textContent === '请填写邮箱。'));
+check('continuing asks for the email and does not post', await zh.evaluate(() => window.__posts.length === 0 && document.querySelector('#atm-star').hidden === false && document.querySelector('#asg-err').textContent === '请填写邮箱。'));
 await zh.evaluate(() => document.querySelector('[data-intent="going"]').click());
 await zh.evaluate(() => {
   document.querySelector('#asg-email').value = 'guest@example.com';
@@ -108,7 +106,7 @@ await zh.evaluate(() => document.querySelector('#asg-go').click());
 check('a second tap in the same dialog does not send', await zh.evaluate(() => window.__posts.length === 1));
 await zh.click('[data-x]');
 await zh.waitForFunction(() => document.querySelector('#atm-star').hidden);
-await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
+await zh.evaluate(() => window.ATM_STAR.openIntent('R', 'going'));
 await zh.waitForSelector('#asg-go');
 await zh.evaluate(() => {
   document.querySelector('[data-intent="going"]').click();
@@ -125,7 +123,7 @@ await zh.evaluate(() => {
   sessionStorage.setItem('atm_mail_hold_v1', JSON.stringify(raw));
 });
 await zh.click('[data-x]');
-await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
+await zh.evaluate(() => window.ATM_STAR.openIntent('R', 'going'));
 await zh.waitForSelector('#asg-go');
 await zh.evaluate(() => {
   document.querySelector('[data-intent="going"]').click();
@@ -143,7 +141,7 @@ await zh.click('#asg-go');
 await zh.waitForFunction(() => window.__posts.length === 2);
 check('the resend locks the button again', await zh.evaluate(() => document.querySelector('#asg-go').disabled === true && document.querySelector('#asg-go').textContent === '已发送邮件，请到邮箱确认'));
 await zh.click('[data-x]');
-await zh.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
+await zh.evaluate(() => window.ATM_STAR.openIntent('R', 'going'));
 await zh.waitForSelector('#asg-go');
 await zh.evaluate(() => {
   document.querySelector('[data-intent="going"]').click();

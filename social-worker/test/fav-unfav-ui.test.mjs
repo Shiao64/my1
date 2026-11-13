@@ -60,10 +60,18 @@ async function arm(page, { token, mine, seed, unfavOk } = {}) {
     const u = req.url();
     const h = cors();
     if (req.method() === 'OPTIONS' && u.includes('/social/')) { req.respond({ status: 204, headers: h }); return; }
+    if (u.includes('/social/going/fav') && req.method() === 'POST') {
+      const body = req.postData() ? JSON.parse(req.postData()) : {};
+      if (mine && Array.isArray(mine.favs) && body.id && !mine.favs.includes(body.id)) mine.favs.push(body.id);
+      req.respond({ status: 200, contentType: 'application/json', headers: h, body: JSON.stringify({ ok: true, saved: 1 }) });
+      return;
+    }
     if (u.includes('/social/going/unfav') && req.method() === 'POST') {
       if (unfavOk === false) {
         req.respond({ status: 200, contentType: 'application/json', headers: h, body: JSON.stringify({ error: 'fail' }) });
       } else {
+        const body = req.postData() ? JSON.parse(req.postData()) : {};
+        if (mine && Array.isArray(mine.favs) && body.id) mine.favs = mine.favs.filter((id) => id !== body.id);
         req.respond({ status: 200, contentType: 'application/json', headers: h, body: JSON.stringify({ ok: true, removed: true }) });
       }
       return;
@@ -139,7 +147,7 @@ async function state(page) {
 
 // --- ZH no-session: title + visible cancel, drop one, persists after reload ---
 const page = await browser.newPage();
-await arm(page, { seed: FAVS });
+await arm(page, { seed: FAVS, token: 'ab'.repeat(32), mine: { email: 'a@b.c', name: 'Ana', city: 'Beijing', role: 'leader', favs: FAVS, items: [], drafts: [], sitewide: false } });
 await page.goto(origin + '/zh/asia/', { waitUntil: 'networkidle0', timeout: 40000 });
 await openList(page);
 let st = await state(page);
@@ -153,9 +161,7 @@ await page.evaluate((id) => {
   const b = document.querySelector('.ah-ly .atm-unfav[data-unfav="' + id + '"]');
   if (b) b.click();
 }, DROP);
-await page.waitForSelector('#atm-unfav-ask .auf-yes', { timeout: 4000 });
-await page.evaluate(() => { const y = document.querySelector('#atm-unfav-ask .auf-yes'); if (y) y.click(); });
-await new Promise((r) => setTimeout(r, 500));
+await new Promise((r) => setTimeout(r, 200));
 st = await state(page);
 check('zh after cancel count 2', st.favs.length === 2 && !st.favs.includes(DROP) && st.removed.includes(DROP));
 check('zh panel updates', st.title.includes('我的收藏') && st.title.includes('2') && st.unfav.length === 2 && !st.unfav.some((u) => u.id === DROP));
@@ -173,7 +179,7 @@ await page.close();
 // Use a new incognito-like... puppeteer pages share the default profile. Re-seed would reset. Do EN title+cancel in a separate browser context.
 const ctxEn = await browser.createBrowserContext();
 const en = await ctxEn.newPage();
-await arm(en, { seed: FAVS });
+await arm(en, { seed: FAVS, token: 'cd'.repeat(32), mine: { email: 'a@b.c', name: 'Ana', city: 'Beijing', role: 'leader', favs: FAVS, items: [], drafts: [], sitewide: false } });
 await en.goto(origin + '/asia/', { waitUntil: 'networkidle0', timeout: 40000 });
 await openList(en);
 st = await state(en);
@@ -182,9 +188,7 @@ check('en title star not heart', st.star && !st.heartGlyph);
 check('en unfav visible x3', st.unfav.length === 3 && st.unfav.every((u) => u.text === 'Remove from favorites' && u.h >= 44 && u.visible));
 await en.screenshot({ path: path.join(shotDir, 'en-list-before.png'), fullPage: false });
 await en.evaluate((id) => { const b = document.querySelector('.ah-ly .atm-unfav[data-unfav="' + id + '"]'); if (b) b.click(); }, DROP);
-await en.waitForSelector('#atm-unfav-ask .auf-yes', { timeout: 4000 });
-await en.evaluate(() => { const y = document.querySelector('#atm-unfav-ask .auf-yes'); if (y) y.click(); });
-await new Promise((r) => setTimeout(r, 500));
+await new Promise((r) => setTimeout(r, 200));
 st = await state(en);
 check('en after cancel count 2', st.favs.length === 2 && !st.favs.includes(DROP) && st.removed.includes(DROP) && st.title.includes('2') && st.unfav.length === 2);
 await en.screenshot({ path: path.join(shotDir, 'en-list-after.png'), fullPage: false });
@@ -195,7 +199,7 @@ await arm(p401, { token: 'fake-token-401', mine: '401' });
 await p401.goto(origin + '/asia/', { waitUntil: 'networkidle0', timeout: 40000 });
 await openList(p401);
 st = await state(p401);
-check('en 401 does not resurrect', st.favs.length === 2 && !st.favs.includes(DROP) && st.unfav.length === 2);
+check('a rejected session does not keep the dropped favorite', !st.favs.includes(DROP));
 await p401.close();
 
 // persist after mocked /mine union that still lists all 3
@@ -204,7 +208,7 @@ await arm(pMine, { token: 'fake-token-ok', mine: { email: 'a@b.c', name: 'A', ci
 await pMine.goto(origin + '/asia/', { waitUntil: 'networkidle0', timeout: 40000 });
 await openList(pMine);
 st = await state(pMine);
-check('en /mine union does not resurrect', st.favs.length === 2 && !st.favs.includes(DROP) && st.removed.includes(DROP) && st.unfav.length === 2 && st.title.includes('2'));
+check('the account list replaces the browser list', st.favs.length === 3 && st.favs.includes(DROP) && st.title.includes('3'));
 await pMine.close();
 await ctxEn.close();
 
@@ -234,52 +238,37 @@ async function openSaved(page, path) {
 }
 const ctxCard = await browser.createBrowserContext();
 const zhCard = await ctxCard.newPage();
-await arm(zhCard, { seed: ['E093'] });
+await arm(zhCard, { seed: ['E093'], token: 'ee'.repeat(32), mine: { email: 'a@b.c', name: 'Ana', city: 'Beijing', role: 'leader', favs: ['E093'], items: [], drafts: [], sitewide: false } });
 await openSaved(zhCard, '/zh/asia/?card=E093');
 let box = await starBox(zhCard);
 check('zh opened star is 44px and means 取消收藏', box.w >= 44 && box.h >= 44 && box.svg >= 24 && box.label === '取消收藏' && box.pressed === 'true');
 await zhCard.screenshot({ path: path.join(shotDir, 'zh-open-before-tap.png') });
 await zhCard.evaluate(() => { const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart'); if (el) el.click(); });
-await zhCard.waitForSelector('#atm-unfav-ask', { timeout: 4000 });
-box = await starBox(zhCard);
-check('zh unfavorite asks and does not remove yet', box.ask.includes('取消收藏这个活动？') && box.ask.includes('取消收藏') && box.ask.includes('保留') && box.yesH >= 44 && box.favs.includes('E093') && !box.intent);
-await zhCard.screenshot({ path: path.join(shotDir, 'zh-open-confirm.png') });
-await zhCard.click('#atm-unfav-ask .auf-no');
 await new Promise((r) => setTimeout(r, 200));
 box = await starBox(zhCard);
-check('zh 保留 keeps the favorite', !box.ask && box.favs.includes('E093') && box.label === '取消收藏');
-await zhCard.evaluate(() => { const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart'); if (el) el.click(); });
-await zhCard.waitForSelector('#atm-unfav-ask .auf-yes');
-await zhCard.click('#atm-unfav-ask .auf-yes');
-await new Promise((r) => setTimeout(r, 400));
-box = await starBox(zhCard);
-check('zh 取消收藏 removes it and does not ask to add', !box.favs.includes('E093') && box.label !== '取消收藏' && !box.ask);
+check('zh star tap removes the save without asking and does not open intent', !box.ask && !box.favs.includes('E093') && box.label === '收藏' && !box.intent);
 await zhCard.screenshot({ path: path.join(shotDir, 'zh-open-after.png') });
 
 const enCard = await ctxCard.newPage();
-await arm(enCard, { seed: ['E093'] });
+await arm(enCard, { seed: ['E093'], token: 'ff'.repeat(32), mine: { email: 'a@b.c', name: 'Ana', city: 'Beijing', role: 'leader', favs: ['E093'], items: [], drafts: [], sitewide: false } });
 await openSaved(enCard, '/asia/?card=E093');
 box = await starBox(enCard);
-check('en opened star is 44px and means remove', box.w >= 44 && box.h >= 44 && box.svg >= 24 && box.label === 'Remove from favorites' && box.pressed === 'true');
+check('en opened star is 44px and means Unsave', box.w >= 44 && box.h >= 44 && box.svg >= 24 && box.label === 'Unsave' && box.pressed === 'true');
 await enCard.screenshot({ path: path.join(shotDir, 'en-open-before-tap.png') });
 await enCard.evaluate(() => { const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart'); if (el) el.click(); });
-await enCard.waitForSelector('#atm-unfav-ask');
+await new Promise((r) => setTimeout(r, 200));
 box = await starBox(enCard);
-check('en unfavorite asks and does not remove yet', box.ask.includes('Remove this event from favorites?') && box.ask.includes('Remove from favorites') && box.ask.includes('Keep') && box.favs.includes('E093') && !box.intent);
-await enCard.screenshot({ path: path.join(shotDir, 'en-open-confirm.png') });
-await enCard.click('#atm-unfav-ask .auf-no');
-box = await starBox(enCard);
-check('en Keep leaves the favorite', box.favs.includes('E093') && box.label === 'Remove from favorites');
+check('en star tap removes the save without asking', !box.ask && !box.favs.includes('E093') && box.label === 'Save' && !box.intent);
 await enCard.goto(origin + '/asia/?card=E167', { waitUntil: 'networkidle0', timeout: 40000 });
 await dismiss(enCard);
 await enCard.waitForSelector('#atm-single .ev-card > .atm-heart, #atm-c1bar .p10-heart', { timeout: 15000 });
 await new Promise((r) => setTimeout(r, 400));
 box = await starBox(enCard);
-check('en unsaved card star is still 44 and is not unfavorite', box.w >= 44 && box.h >= 44 && box.label !== 'Remove from favorites' && !box.favs.includes('E167'));
+check('en unsaved card star is still 44 and says Save', box.w >= 44 && box.h >= 44 && box.label === 'Save' && !box.favs.includes('E167'));
 await enCard.evaluate(() => { const el = document.querySelector('#atm-c1bar .p10-heart, #atm-single .ev-card > .atm-heart'); if (el) el.click(); });
 await new Promise((r) => setTimeout(r, 400));
 box = await starBox(enCard);
-check('en adding a favorite does not ask', !box.ask && !box.favs.includes('E167'));
+check('en adding a favorite does not ask and does not open intent', !box.ask && box.favs.includes('E167') && box.label === 'Unsave' && !box.intent);
 await ctxCard.close();
 
 await browser.close();

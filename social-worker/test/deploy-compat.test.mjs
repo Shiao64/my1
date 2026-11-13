@@ -29,9 +29,9 @@ check('gmail user is not hardcoded over production', !/^GMAIL_USER\s*=/m.test(to
 check('no secret material in wrangler', !/API_KEY|APP_PASSWORD|BEGIN PRIVATE/i.test(toml));
 
 for (const html of [en, zh]) {
-  check('r10 data and r14 map loads i18n first', html.includes('atm-data.js?v=r10') && html.includes('atm-i18n.js?v=i1') && html.includes('asia-map.js?v=r14') && html.indexOf('atm-i18n.js?v=i1') < html.indexOf('asia-map.js?v=r14') && !html.includes('atm-data.js?v=r9'));
-  check('merged card script is newer than cb145', html.includes('/asia/cardB.js?v=cb146'));
-  check('star script', html.includes('/asia/atm-star.js?v=st31'));
+  check('r10 data and r15 map loads i18n first', html.includes('atm-data.js?v=r10') && html.includes('atm-i18n.js?v=i1') && html.includes('asia-map.js?v=r15') && html.indexOf('atm-i18n.js?v=i1') < html.indexOf('asia-map.js?v=r15') && !html.includes('atm-data.js?v=r9'));
+  check('merged card script is cb148', html.includes('/asia/cardB.js?v=cb148'));
+  check('star script', html.includes('/asia/atm-star.js?v=st32'));
   check('E163 leaves the map', html.includes("cid==='E163'") && html.includes('/event/chengdu-2027-ich-tango-festival/'));
   check('no merge markers', !html.includes('<<<<<<<'));
 }

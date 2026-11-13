@@ -118,7 +118,7 @@ await page.waitForSelector('#atm-single', { timeout: 15000 });
 try {
   await page.waitForFunction(() => {
     const box = document.getElementById('atm-star');
-    return box && box.hidden === false && document.querySelector('#asg-name') && document.querySelector('[data-intent="interested"][aria-pressed="true"]');
+    return box && box.hidden === false && document.querySelector('#asg-name') && document.querySelector('[data-intent="going"][aria-pressed="true"]');
   }, { timeout: 15000 });
 } catch (e) {
   console.error('STATE', await page.evaluate(() => ({
@@ -142,12 +142,12 @@ const resumed = await page.evaluate(() => ({
   pressed: document.querySelector('[data-intent][aria-pressed="true"]').textContent,
   asked: !document.querySelector('#asg-email')
 }));
-check('after the disclaimer the card and the filled intent dialog open', resumed.card && resumed.query && resumed.name === '魏' && resumed.city === '上海' && resumed.role === 'leader' && resumed.locked && resumed.pressed === '感兴趣' && resumed.asked);
+check('after the disclaimer the card and the filled intent dialog open', resumed.card && resumed.query && resumed.name === '魏' && resumed.city === '上海' && resumed.role === 'leader' && resumed.locked && resumed.pressed === '我要去' && resumed.asked);
 await page.evaluate(() => document.querySelectorAll('.atm-toast').forEach(t => t.remove()));
 await shot(page, '11-9-9-resume-dialog-zh');
 await page.evaluate(() => document.querySelector('#asg-go').click());
 await page.waitForFunction(() => document.getElementById('atm-star').hidden, { timeout: 8000 });
-check('confirm records the preselected intent without asking for the profile again', Array.isArray(page.__posts) && page.__posts.length === 1 && page.__posts[0].intent === 'interested' && !page.__posts[0].email);
+check('confirm records I am going without asking for the profile again', Array.isArray(page.__posts) && page.__posts.length === 1 && page.__posts[0].intent === 'going' && !page.__posts[0].email);
 
 await page.evaluate(() => document.querySelector('.atm-burger').click());
 await page.waitForSelector('#atm-menu:not([hidden]) [data-a="mine"]');
@@ -204,12 +204,13 @@ await arm(starPage);
 await starPage.goto('http://127.0.0.1:' + port + '/zh/asia/?card=' + CARD, { waitUntil: 'domcontentloaded', timeout: 20000 });
 await starPage.waitForSelector('#atm-notice-go');
 await starPage.click('#atm-notice-go');
-await starPage.waitForSelector('#atm-single .atm-heart', { timeout: 15000 });
-await starPage.evaluate(() => document.querySelector('#atm-single .atm-heart').click());
+await starPage.waitForSelector('#atm-single [data-open-intent="going"]', { timeout: 15000 });
+await starPage.click('#atm-single [data-open-intent="going"]');
 await starPage.waitForSelector('#asg-last4');
 const starForm = await starPage.evaluate(() => ({
   pressed: document.querySelector('[data-intent][aria-pressed="true"]').textContent,
-  absent: document.querySelector('[data-intent="absent"]').textContent,
+  absent: !!document.querySelector('[data-intent="absent"]'),
+  mean: (document.querySelector('#asg-mean') || {}).textContent || '',
   email: !!document.querySelector('#asg-email'),
   last4: document.querySelector('#asg-last4').maxLength,
   name: !!document.querySelector('#asg-name'),
@@ -217,7 +218,7 @@ const starForm = await starPage.evaluate(() => ({
   help: (document.querySelector('.asg-need') || {}).innerHTML || '',
   widget: document.querySelectorAll('.asg-ts').length
 }));
-check('the star form starts with email and the last 4 digits', starForm.pressed === '要参加' && starForm.absent === '去不了' && starForm.email && starForm.last4 === 4 && !starForm.name && starForm.gate === '注册／登录' && starForm.help.indexOf('<em>必填</em>') >= 0 && starForm.widget === 0);
+check('the going form starts with email and the last 4 digits', starForm.pressed === '我要去' && starForm.absent === false && starForm.mean.indexOf('我要去：我们会把你的意向告诉主办') === 0 && !starForm.name && starForm.widget === 0);
 await shot(starPage, '11-9-9-star-form-zh');
 
 async function htmlShot(file, name) {

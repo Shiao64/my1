@@ -51,13 +51,13 @@ async function open(lang) {
 }
 async function confirm(p, mode) {
   await p.evaluate((m) => { window.__mode = m; }, mode);
-  await p.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
+  await p.evaluate(() => window.ATM_STAR.openIntent('R', 'going'));
   await p.waitForSelector('#asg-go');
   const before = await p.evaluate(() => document.querySelector('#asg-go').disabled);
   await p.click('#asg-go');
   await p.waitForFunction(() => document.querySelector('#atm-star').hidden && document.getElementById('atm-savebar'));
   const toast = await p.evaluate(() => document.getElementById('atm-savebar').textContent);
-  await p.evaluate(() => window.ATM_STAR.take(document.querySelector('[data-fid="R"]')));
+  await p.evaluate(() => window.ATM_STAR.openIntent('R', 'going'));
   await p.waitForSelector('#asg-go');
   const again = await p.evaluate(() => ({ disabled: document.querySelector('#asg-go').disabled, busy: document.querySelector('#asg-go').getAttribute('aria-busy') }));
   return { before, toast, again };

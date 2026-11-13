@@ -104,7 +104,7 @@ env.GOING_NOW = '2026-11-09T06:00:00.000Z';
 const featured = await runGoingDigests(env, kit);
 const fest = mails.filter(m => m.includes('to=fest@example.com'));
 check('featured week sends one summary', featured.sent === 1 && fest.length === 1 && fest[0].includes('cc=selecttango@gmail.com') && fest[0].includes('from=探戈助理') && fest[0].includes('subject=Intent summary:'));
-check('summary lists new people with city and role, not the unverified row', fest[0].includes('Ana <ana@example.com>') && fest[0].includes('Bea <bea@example.com>') && fest[0].includes('Going / 要参加') && fest[0].includes('Interested / 感兴趣') && fest[0].includes('Seoul') && fest[0].includes('leader') && fest[0].includes('Osaka') && !fest[0].includes('Cy') && !fest[0].includes('Old') && !fest[0].includes('Nix') && fest[0].includes('要删除资料'));
+check('summary lists new Going people and leaves Interested out', fest[0].includes('Ana <ana@example.com>') && !fest[0].includes('Bea <bea@example.com>') && fest[0].includes('Going / 要参加') && !fest[0].includes('Interested / 感兴趣') && fest[0].includes('Seoul') && fest[0].includes('leader') && !fest[0].includes('Osaka') && !fest[0].includes('Cy') && !fest[0].includes('Old') && !fest[0].includes('Nix') && fest[0].includes('要删除资料'));
 check('notify off is still forwarded', fest[0].includes('ana@example.com') && db.prepare("SELECT notify n FROM going_intents WHERE email=? AND card_id='F1' AND status='active'").get('ana@example.com').n === 0);
 check('sent rows are marked once', db.prepare("SELECT mail_status s, mail_fp f FROM going_intents WHERE email=? AND card_id='F1' AND status='active'").get('ana@example.com').s === 'sent');
 const againF = await runGoingDigests(env, kit);
@@ -143,7 +143,7 @@ delete env.GOING_DIGEST_AFTER_CLAIM;
 let boom = true;
 const flaky = { ...kit, deliver: async (...a) => { if (boom) { boom = false; throw new Error('temporary'); } return kit.deliver(...a); } };
 user('fay@example.com', 'Fay', 'Manila', 'leader', true);
-intent('fay@example.com', 'W1', 'interested', '2026-11-27', 0, 1, 'active', 'queued', '2026-11-08T02:00:00.000Z');
+intent('fay@example.com', 'W1', 'going', '2026-11-27', 0, 1, 'active', 'queued', '2026-11-08T02:00:00.000Z');
 env.GOING_NOW = '2026-11-27T09:30:00.000Z';
 const failed = await runGoingDigests(env, flaky);
 check('a failed send stays retryable and does not mark sent', failed.failed >= 1 && db.prepare("SELECT status s FROM going_digests WHERE digest_key=?").get('regular:W1:2026-11-27').s === 'failed' && db.prepare("SELECT mail_status s FROM going_intents WHERE email=? AND card_id='W1' AND occurrence_date='2026-11-27'").get('fay@example.com').s === 'queued');
@@ -167,7 +167,7 @@ intent('hoa@example.com', 'W2', 'interested', '2026-12-04', 0, 1, 'active', 'que
 env.GOING_NOW = '2026-12-04T11:30:00.000Z';
 const inside = await runGoingDigests(env, kit);
 const lateFirst = mails.filter(m => m.includes('to=org2@example.com'));
-check('a first summary inside the last three hours is still one mail', lateFirst.length === 1 && lateFirst[0].includes('Gia <gia@example.com>') && lateFirst[0].includes('Hoa <hoa@example.com>') && lateFirst[0].includes('Hanoi'));
+check('a first summary inside the last three hours is still one mail and skips Interested', lateFirst.length === 1 && lateFirst[0].includes('Gia <gia@example.com>') && !lateFirst[0].includes('Hoa <hoa@example.com>') && lateFirst[0].includes('Hanoi'));
 
 if (fail.length) { console.error('FAIL', fail.join(' | ')); process.exit(1); }
 console.log('going digest ok', { mails: mails.length });

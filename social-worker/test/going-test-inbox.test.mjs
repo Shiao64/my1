@@ -129,13 +129,13 @@ const again = await going(visitorToken, 'DIR', 'going');
 check('the same facts are not copied again', again.notice === 'off' && again.mailed === false && again.mail === 'unchanged' && toInbox().length === 1 && rowOf(VISITOR, 'DIR').s === 'test_redirected');
 
 const interest = await going(visitorToken, 'DIR', 'interested');
-check('a changed intent copies the new letter only', interest.notice === 'off' && interest.mail === 'test_redirected' && toInbox().length === 2 && toInbox()[1].includes('subject=「[测试]」[TEST] ATM 网站 · 活动兴趣通知') && toInbox()[1].includes('勾选了对你的以下活动感兴趣') && !toInbox()[1].includes('勾选了要参加') && rowOf(VISITOR, 'DIR').fp.startsWith('interested|'));
+check('interested is refused and is not copied', interest._s === 400 && interest.error === 'interested_closed' && interest.stored === false && toInbox().length === 1 && rowOf(VISITOR, 'DIR').i === 'going');
 
 const ride = await going(visitorToken, 'DIR', 'going', { transport: 1 });
-check('a directions change copies again', ride.mail === 'test_redirected' && toInbox().length === 3 && toInbox()[2].includes('希望收到交通指引') && rowOf(VISITOR, 'DIR').fp.endsWith('|1'));
+check('a directions change copies again', ride.mail === 'test_redirected' && toInbox().length === 2 && toInbox()[1].includes('希望收到交通指引') && rowOf(VISITOR, 'DIR').fp.endsWith('|1'));
 
 const away = await going(visitorToken, 'DIR', 'absent');
-check('not going saves and does not copy', away.notice === 'off' && away.mail === 'withheld' && away.mailed === false && toInbox().length === 3);
+check('a new not-going is refused and does not copy', away._s === 400 && away.error === 'absent_closed' && away.stored === false && toInbox().length === 2 && rowOf(VISITOR, 'DIR').i === 'going');
 
 const ownerMailBefore = mails.filter(m => head(m).includes('to=dir-other@example.com')).length;
 const owner = await going(dancerToken, 'OTH', 'going');
@@ -152,19 +152,19 @@ check('an inbox that is the organizer does not send', orgTry.notice === 'off' &&
 env.GOING_TEST_INBOX = 'self-copy@example.com';
 const selfToken = user('self-copy@example.com', 'Self');
 const selfTry = await going(selfToken, 'OTH', 'interested');
-check('an inbox that is the dancer does not send', selfTry.notice === 'off' && selfTry.mail === 'queued' && !mails.some(m => head(m).includes('to=self-copy@example.com')));
+check('interested is refused when the inbox is the dancer', selfTry._s === 400 && selfTry.error === 'interested_closed' && !mails.some(m => head(m).includes('to=self-copy@example.com')));
 
 env.GOING_TEST_INBOX = INBOX;
 env.GOING_NOTICE_SEND = 'on';
 const heldToken = user('held@example.com', 'Held');
 const held = await going(heldToken, 'PUB', 'going');
-check('global send on does not copy', held.notice === 'off' && held.mail === 'queued' && held.mailed === false && !mails.some(m => head(m).includes('to=public-org@example.com')) && toInbox().length === 3);
+check('global send on does not copy', held.notice === 'off' && held.mail === 'queued' && held.mailed === false && !mails.some(m => head(m).includes('to=public-org@example.com')) && toInbox().length === 2);
 env.GOING_NOTICE_SEND = '';
 const heldCopy = await going(heldToken, 'PUB', 'going');
-check('turning global send off copies on the next confirm', heldCopy.mail === 'test_redirected' && heldCopy.notice === 'off' && toInbox().length === 4 && rowOf('held@example.com', 'PUB', '').s === 'test_redirected');
+check('turning global send off copies on the next confirm', heldCopy.mail === 'test_redirected' && heldCopy.notice === 'off' && toInbox().length === 3 && rowOf('held@example.com', 'PUB', '').s === 'test_redirected');
 env.GOING_NOTICE_SEND = 'on';
 const heldSame = await going(heldToken, 'PUB', 'going');
-check('global send on keeps the copy and does not queue it', heldSame.mail === 'unchanged' && heldSame.notice === 'off' && rowOf('held@example.com', 'PUB', '').s === 'test_redirected' && toInbox().length === 4);
+check('global send on keeps the copy and does not queue it', heldSame.mail === 'unchanged' && heldSame.notice === 'off' && rowOf('held@example.com', 'PUB', '').s === 'test_redirected' && toInbox().length === 3);
 env.GOING_NOTICE_SEND = '';
 
 const english = await going(visitorToken, 'EN', 'going');
@@ -182,7 +182,7 @@ const iph = sha(ip + 'atm').slice(0, 16);
 for (let i = 0; i < 12; i++) db.prepare('INSERT INTO going_sends(email,card_id,ip_hash,created_at) VALUES(?,?,?,?)').run('cap' + i + '@example.com', 'PUB', iph, new Date().toISOString());
 const cappedToken = user('capped@example.com', 'Capped');
 const capped = await going(cappedToken, 'PUB', 'interested', {}, { 'CF-Connecting-IP': ip });
-check('the ip cap does not block or surface the copy', capped.ok && capped.notice === 'off' && capped.mail === 'test_redirected' && capped.mailed === false && rowOf('capped@example.com', 'PUB', '').s === 'test_redirected');
+check('interested is refused even when an ip cap is full', capped._s === 400 && capped.error === 'interested_closed' && capped.stored === false);
 
 const realFetch = globalThis.fetch;
 const resendCalls = [];
@@ -217,7 +217,7 @@ flipDuringSend = { intent: 'interested', email: 'race@example.com', card: 'FCTL'
 const raced = await going(raceToken, 'FCTL', 'going');
 check('an in-flight change does not lock the old facts', raced.mail === 'saved' && raced.notice === 'off' && rowOf('race@example.com', 'FCTL', '').i === 'interested' && rowOf('race@example.com', 'FCTL', '').s === 'pending');
 const racedFinal = await going(raceToken, 'FCTL', 'interested');
-check('the last state is the one recorded', racedFinal.mail === 'test_redirected' && rowOf('race@example.com', 'FCTL', '').s === 'test_redirected' && rowOf('race@example.com', 'FCTL', '').fp === 'interested||0' && resendCalls.length === 4 && resendCalls[3].includes('感兴趣') && !resendCalls[2].includes('test_redirected'));
+check('a later interested submission is refused', racedFinal._s === 400 && racedFinal.error === 'interested_closed' && racedFinal.stored === false && resendCalls.length === 3);
 globalThis.fetch = realFetch;
 env.SOCIAL_MAIL = 'log';
 
