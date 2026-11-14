@@ -1,4 +1,4 @@
-/* v8e 2026-10-28: 常规活动 city picker — no city box; tapping 常规 opens a custom list (iOS-safe, not a native select).
+/* v8e 2026-10-28: 日常活动 city picker — no city box; tapping 常规 opens a custom list (iOS-safe, not a native select).
    The hidden #china-city select stays the data model: picking sets its value and fires 'change' (asia-map.js switches to 常规 + searches). */
 (function () {
   var sel = document.getElementById('china-city');
@@ -6,7 +6,7 @@
   var evR = document.querySelector('input[name="etype"][value="event"]');
   if (!sel || !rg) return;
   var lab = rg.closest('label'), zh = /^zh/i.test(document.documentElement.lang || '');
-  var BASE = zh ? '常规活动' : 'Regular';
+  var BASE = zh ? '日常活动' : 'Regular';
   var txt = null;
   for (var i = 0; i < lab.childNodes.length; i++) { var n = lab.childNodes[i]; if (n.nodeType === 3 && n.textContent.trim()) { txt = n; break; } }
   var tspan = document.createElement('span'); tspan.className = 'atm-reg-txt'; tspan.textContent = BASE;

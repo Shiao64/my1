@@ -103,8 +103,8 @@
     var t = baseDate();
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((r.weekday - t.getDay() + 7) % 7));
     var k = Math.floor((n.getDate() - 1) / 7) + 1;
-    if (r.nth === -1) return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth();
-    return k === r.nth;
+    var last = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth();
+    return [].concat(r.nth).some(function(x){ return x === -1 ? last : k === x; }); /* nth may be a list, e.g. [1,3] */
   }
   function weekdayHead(d){
     var t = baseDate();
@@ -129,9 +129,9 @@
     return one(t);
   }
   function nthLabel(n, d){
-    if (isZh) return '每月' + (n === -1 ? '最后一个' : '第' + ['','一','二','三','四','五'][n] + '个') + '周' + ['日','一','二','三','四','五','六'][d];
+    if (isZh) return '每月' + (n === -1 ? '最后一个' : '第' + [].concat(n).map(function(x){ return x === -1 ? '最后一' : ['','一','二','三','四','五'][x]; }).join('、') + '个') + '周' + ['日','一','二','三','四','五','六'][d];
     var dn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d];
-    return (n === -1 ? 'Last' : ['','1st','2nd','3rd','4th','5th'][n]) + ' ' + dn + ' monthly';
+    return (n === -1 ? 'Last' : [].concat(n).map(function(x){ return x === -1 ? 'last' : ['','1st','2nd','3rd','4th','5th'][x]; }).join(' & ')) + ' ' + dn + ' monthly';
   }
   function organizersText(list){
     if (!list || !list.length) return '';
@@ -404,7 +404,7 @@
     });
     var allDated = data.filter(function(r){ return r.kind === 'event' && r.start && !r.regular_oneoff; }).sort(function(a,b){ return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
     var allTba = data.filter(function(r){ return r.kind === 'event' && !r.start && !r.regular_oneoff; });
-    html.push('<div class="china-chrono" hidden><h2 class="china-city-head">' + (UI.allCitiesChrono || 'All cities · Featured events by start date') + ' <span class="china-count"></span></h2><ul class="china-list ev-list">' + allDated.concat(allTba).map(function(r){ return card(r); }).join('') + '</ul></div>');
+    html.push('<div class="china-chrono" hidden><h2 class="china-city-head">' + (UI.allCitiesChrono || 'All cities · Special events by start date') + ' <span class="china-count"></span></h2><ul class="china-list ev-list">' + allDated.concat(allTba).map(function(r){ return card(r); }).join('') + '</ul></div>');
     root.innerHTML = html.join('');
   }
   function activeRange(){
@@ -532,7 +532,7 @@
       var cname = (h2.firstChild && h2.firstChild.nodeType === 3 ? h2.firstChild.textContent : h2.textContent).trim().split(' · ')[0];
       var zh = !!UI.countWord, txt, reg = vis.length > 0;
       vis.forEach(function(li){ if (li.getAttribute('data-kind') !== 'weekly' && li.getAttribute('data-oneoff') !== '1') reg = false; });
-      var zw = reg ? '项常规活动' : '项特色活动', ew = (reg ? ' regular event' : ' featured event') + (n === 1 ? '' : 's');
+      var zw = reg ? '项日常活动' : '项大型活动', ew = (reg ? ' regular event' : ' special event') + (n === 1 ? '' : 's');
       if (!reg && !tv) { n = vis.length; txt = zh ? '从' + zhD(w0, true) + '起，共' + n + zw : 'from ' + enD(w0) + ' onward, ' + n + ew; }
       else if (tv) txt = zh ? zhD(w0, true) + '到' + zhD(w1, w1.slice(0,4) !== w0.slice(0,4)) + '，共' + n + zw
                        : 'from ' + enD(w0) + ' to ' + enD(w1) + ', ' + n + ew;
@@ -877,7 +877,7 @@
         var detEnded = eventPageHref(r), detH = detEnded ? '<a class="atm-det" href="' + esc(detEnded) + '">' + (isZh ? '活动详情' : 'Event details') + '</a>' : '';
         box.innerHTML = '<ul class="china-list ev-list atm-exp">' + card(r, true).replace('loading="lazy"', 'loading="eager"') + '</ul>' + nextH + detH + recapH +
           '<a class="atm-all" href="' + esc(allH2) + '">' + esc(cn2 ? (isZh ? '查看' + cn2 + '近期活动' : 'See upcoming events in ' + cn2) : allTxt) + ' <span aria-hidden="true">→</span></a>' +
-          '<a class="atm-det atm-featbtn" href="' + esc(base2 + '?mode=featured' + kr2 + '&via=card') + '">' + (isZh ? '★ 特色活动' : '★ Featured events') + '</a>';
+          '<a class="atm-det atm-featbtn" href="' + esc(base2 + '?mode=featured' + kr2 + '&via=card') + '">' + (isZh ? '★ 大型活动' : '★ Special events') + '</a>';
         armCardPosters(box);
         Array.prototype.forEach.call(box.querySelectorAll('.atm-recap-a'), function(a){ a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); var v = document.createElement('div'); v.className = 'atm-rv'; var i = ph.indexOf(a.getAttribute('href')); v.innerHTML = '<button type="button" aria-label="close">×</button><div class="atm-rv-s">' + ph.map(function(u){ return '<img src="' + esc(u) + '" alt="" loading="lazy" decoding="async">'; }).join('') + '</div>'; document.body.appendChild(v); var sc = v.querySelector('.atm-rv-s'); sc.scrollLeft = i * sc.clientWidth; v.addEventListener('click', function(ev){ if (ev.target.tagName !== 'IMG') v.remove(); }); }); });
         try { document.title = evName(r) + ' · ' + (isZh ? '已结束 · ' : 'Ended · ') + document.title; } catch(e){}
@@ -886,7 +886,7 @@
         var missH = location.pathname + '?card=' + encodeURIComponent(cid);
         var missIco = '<svg class="atm-nf-ico" viewBox="0 0 96 96" aria-hidden="true"><rect x="10" y="10" width="68" height="68" rx="16" fill="#0e6e78"/><circle cx="44" cy="42" r="14" fill="none" stroke="#fbf5e9" stroke-width="4"/><path d="M54 52l12 12" stroke="#fbf5e9" stroke-width="4" stroke-linecap="round"/></svg>';
         box.innerHTML = '<div class="atm-nf-card">' + missIco + '<h2>' + (isZh ? '暂时没有这张活动卡' : 'This card is not on the map') + '</h2><p>' + (isZh ? '地图没有载入这张卡。这不表示活动已结束。' : 'The map could not load this card. That does not mean the event has ended.') + '</p>' +
-          '<a class="atm-all" href="' + esc(missH) + '">' + (isZh ? '再试一次' : 'Try again') + '</a><a class="atm-nf-feat" href="' + esc(location.pathname + '?mode=featured&via=card') + '">' + (isZh ? '★ 特色活动' : '★ Featured events') + '</a></div>';
+          '<a class="atm-all" href="' + esc(missH) + '">' + (isZh ? '再试一次' : 'Try again') + '</a><a class="atm-nf-feat" href="' + esc(location.pathname + '?mode=featured&via=card') + '">' + (isZh ? '★ 大型活动' : '★ Special events') + '</a></div>';
         try { document.title = (isZh ? '未找到活动卡 · ' : 'Card not found · ') + document.title; } catch(e){}
         keepLang(); setTimeout(keepLang, 1500); return; }
       if (ended(r)) { /* a card that was found and is actually over */
@@ -900,7 +900,7 @@
         var allH = base + (r && r.city ? '?mode=regular' + cy + kr + '&via=card' : '?via=card');
         var allT = cn ? (isZh ? '查看' + cn + '近期活动' : 'See upcoming events in ' + cn) : allTxt;
         box.innerHTML = '<div class="atm-nf-card">' + ico + '<h2>' + (isZh ? '活动已结束' : 'This event has ended') + '</h2>' + (isZh ? '<p>这个活动已经结束或下架，看看近期其他活动吧</p>' : '') +
-          '<a class="atm-all" href="' + esc(allH) + '">' + esc(allT) + ' <span aria-hidden="true">→</span></a><a class="atm-nf-feat" href="' + esc(base + '?mode=featured' + kr + '&via=card') + '">' + (isZh ? '★ 特色活动' : '★ Featured events') + '</a></div>' + mini;
+          '<a class="atm-all" href="' + esc(allH) + '">' + esc(allT) + ' <span aria-hidden="true">→</span></a><a class="atm-nf-feat" href="' + esc(base + '?mode=featured' + kr + '&via=card') + '">' + (isZh ? '★ 大型活动' : '★ Special events') + '</a></div>' + mini;
         try { document.title = (isZh ? '活动已结束 · ' : 'Event ended · ') + document.title; } catch(e){}
         keepLang(); setTimeout(keepLang, 1500); return; }
       var feat = r.kind === 'event' && !r.regular_oneoff;
