@@ -228,7 +228,9 @@
   /* v11.16 v2 compact filters: header 72→52, city chips 32px, tabs 40px, type chips one scrolling row (was 2–3 wrapped rows of 40px). */
   if (V2) { D.documentElement.classList.add('atm-v2');
     /* v11.26 (2026-11-15): the fileteado 「Asia Tango Map」 sign replaces the title text in the header (text kept for screen readers) */
-    (function () { var a = D.querySelector('.china-map-hero h1 a'); if (!a || a.querySelector('.atm-sign')) return;
+    /* preview gate until approved: ?sign=1 turns the sign header on for this device (remembered), ?sign=0 off */
+    (function () { var on = false; try { if (/[?&]sign=1/.test(location.search)) localStorage.setItem('atm_sign', '1'); if (/[?&]sign=0/.test(location.search)) localStorage.removeItem('atm_sign'); on = localStorage.getItem('atm_sign') === '1'; } catch (e) {} if (!on) return;
+      var a = D.querySelector('.china-map-hero h1 a'); if (!a || a.querySelector('.atm-sign')) return;
       var tw = D.createTreeWalker(a, NodeFilter.SHOW_TEXT, null), n, list = [];
       while ((n = tw.nextNode())) if (n.nodeValue.trim() && !(n.parentNode.closest && n.parentNode.closest('.atm-beta'))) list.push(n);
       list.forEach(function (t) { var w = D.createElement('span'); w.className = 'atm-vh'; t.parentNode.insertBefore(w, t); w.appendChild(t); });
