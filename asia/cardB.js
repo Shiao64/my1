@@ -60,7 +60,7 @@ function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in
  if(e.start&&e.end&&e.start!==e.end) tm=f(e.start)+' – '+f(e.end); else if(e.start) tm=f(e.start)+(e.time?' '+e.time:''); else if(e.time) tm=e.time;
  row(zh?'时间':'Time', H(tm));
  row('DJ', H(djName(e)||''));
- var nt=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||'', ss=nt.split(/(?<=[。；;！!])\s*|(?<=\.)\s+/).filter(function(x){return x.trim()}), fee=[], keep=[];
+ var nt=(zh?(e.note_zh||e.note):((i18nLang()==='ko'&&e.note_ko)||e.note||e.note_zh))||'', ss=nt.split(/(?<=[。；;！!])\s*|(?<=\.)\s+/).filter(function(x){return x.trim()}), fee=[], keep=[];
  ss.forEach(function(x){ if(bad(x)) return; if(/门票|票价|费用|入场费|收费|免费|¥|￥|\d+\s*元|RMB|CNY|KRW|₩|NT\$|HK\$|\bEntry\b|\bFee\b|\bTicket|\bFree\b|\bAdmission/i.test(x)&&x.length<120) fee.push(x); else keep.push(x); });
  row(zh?'费用':'Fee', fee.map(H).join(' '));
  row(zh?'说明':'Notes', H(keep.join(zh?'':' ')), 'b-note');
@@ -172,7 +172,7 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   if(C.phone) ct.push((zh?'电话：':'Phone: ')+tel(C.phone)); }
   if(C.email) ct.push((zh?'邮箱：':'Email: ')+'<a href="mailto:'+H(C.email)+'">'+H(C.email)+'</a>');
   if(C.facebook&&!/^https?:\/\//i.test(C.facebook)) ct.push((zh?'脸书：':'Facebook: ')+H(C.facebook));
-  var nt=(zh?(e.note_zh||e.note):(e.note||e.note_zh))||'', fee=[], keep=[]; nt=String(nt).trim(); /* v12: fee sentences get their own 费用 row */
+  var nt=(zh?(e.note_zh||e.note):((i18nLang()==='ko'&&e.note_ko)||e.note||e.note_zh))||'', fee=[], keep=[]; nt=String(nt).trim(); /* v12: fee sentences get their own 费用 row */
   if(e.fee||e.fee_zh) fee.push(zh?(e.fee_zh||e.fee):(e.fee||e.fee_zh));
   nt.split(/(?<=[。；;！!])\s*|(?<=\.)\s+/).forEach(function(x){ x=x.trim(); if(!x||bad(x)) return; if(!(e.fee||e.fee_zh)&&/门票|票价|费用|入场费|收费|免费|¥|￥|\d+\s*元|RMB|CNY|KRW|₩|NT\$|HK\$|\bEntry\b|\bFee\b|\bTicket|\bFree\b|\bAdmission/i.test(x)&&x.length<120){ var m=x.match(/^([^，,；;]*?(?:\d+\s*元|[¥￥]\s*\d+|\d+\s*(?:RMB|CNY|KRW|NT\$|HK\$))[^，,；;]*)[，,；;]\s*(.+)$/); if(m&&!/元|¥|￥|RMB|CNY|KRW|NT\$|HK\$|fee|ticket|entry/i.test(m[2])){ fee.push(m[1].replace(/[。.；;，,\s]+$/,'')); keep.push(m[2]); } else fee.push(x.replace(/[。.；;，,\s]+$/,'')); } else keep.push(x); });
   row(zh?'费用':'Fee', fee.map(H).join(zh?'；':'; '));

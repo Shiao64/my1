@@ -237,7 +237,12 @@
     } finally { mo.takeRecords(); busy = false; }
   });
   mo.observe(R, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTR });
-  D.addEventListener('DOMContentLoaded', function () { busy = true; walk(D.body); try { D.title = '아시아 탱고 지도 · Select Tango Weekend'; } catch (e) {} mo.takeRecords(); busy = false; });
+  /* 2026-11-15 test version: the 한국어 menu link stays hidden; on a Korean page show English (and 中文) as the ways out. */
+  function langMenu() {
+    [].forEach.call(D.querySelectorAll('.top-lang a[data-asia-lang-set="en"][aria-current]'), function (a) { a.removeAttribute('aria-current'); a.setAttribute('href', a.getAttribute('href').replace(/[?&]lang=ko\b/, '') ); });
+    [].forEach.call(D.querySelectorAll('.top-lang a[data-asia-lang-set="en"]'), function (a) { var h = a.getAttribute('href') || './'; if (!/[?&]lang=en\b/.test(h)) a.setAttribute('href', h + (h.indexOf('?') < 0 ? '?' : '&') + 'lang=en'); });
+  }
+  D.addEventListener('DOMContentLoaded', function () { busy = true; langMenu(); walk(D.body); try { D.title = '아시아 탱고 지도 · Select Tango Weekend'; } catch (e) {} mo.takeRecords(); busy = false; });
 
   /* native dialogs */
   var oc = window.confirm; window.confirm = function (m) { return oc.call(window, tr(String(m)) || m); };
