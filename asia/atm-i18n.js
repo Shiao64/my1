@@ -4,7 +4,7 @@
    Placeholders such as "Address not found" are skipped. */
 (function (root) {
   var HAN = /[\u3400-\u9fff\uf900-\ufaff]/;
-  var BAD = /^\s*(address not found|not found|没找到|未找到|unknown|未知|tba|待定)\s*$/i;
+  var BAD = /^\s*(address not found|not found|(?:中文)?(?:地点|地址|场地)?(?:没找到|未找到|待定)|unknown|未知|tba)\s*$/i;
 
   function langOf(opts) {
     var doc = (opts && opts.document) || (typeof document !== 'undefined' ? document : null);
