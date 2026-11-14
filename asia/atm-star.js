@@ -34,7 +34,7 @@
     again: '这次没有提交成功，请再试一次。',
     title: '活动意向',
     explain: '不是购票或正式报名。',
-    going: '要参加', interested: '想参加', absent: '去不了',
+    going: '要参加', interested: '感兴趣', absent: '去不了',
     promo: '加入 ATM 全站订阅',
     needName: '请填写姓名。', needEmail: '请填写邮箱。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     returnHint: '已经订阅过？请输入邮箱和手机末 4 码，不必再等确认信。',
