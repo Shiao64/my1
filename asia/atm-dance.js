@@ -1,10 +1,13 @@
-/* atm-dance.js — a small cute tango couple (original drawing).
+/* atm-dance.js — a tango couple (original drawing), v2 (2026-11-14).
+   Look: classic milonga-poster silhouette. Leader in ink black with a gold hat band; follower in a tango-red
+   dress with a slit. In the embrace the follower does a boleo: her lower leg whips back and up, then returns.
    When it dances:
-   1. While the event data is loading: it dances on top of the grey skeleton cards (#atm-skel),
-      and goes away together with the skeleton when html gets .atm-data. No extra wait is added.
-   2. When the visitor saves an event (heart turns on): it dances once across the middle of the
-      header bar (about 5 s), then fades out. Un-saving does nothing.
-   Nothing else triggers it: no random dancing, no dancing on filter / city switches. */
+   1. While the event data is loading: on top of the grey skeleton cards (#atm-skel), with 「正在找舞会…」.
+      It goes away with the skeleton when html gets .atm-data. No extra wait is added.
+   2. When the visitor saves an event (star turns on): a small cream bubble pops up right next to the star
+      that was tapped (so it is visible wherever the page is scrolled), the couple does one boleo, and the
+      bubble fades out (about 2.4 s). Un-saving does nothing.
+   prefers-reduced-motion: the loader couple stands still and the save bubble is not shown. */
 (function () {
   var D = document, R = D.documentElement;
   var zh = /^zh/i.test(R.lang || R.getAttribute('data-asia-lang') || '');
@@ -13,43 +16,57 @@
   css.id = 'atm-dance-css';
   css.textContent =
     '.atm-cp{display:block;overflow:visible}' +
-    '.atm-cp .hb,.atm-cp .lg{transform-box:view-box}' +
-    '.atm-cp .hb{transform-origin:20px 46px}' +
-    '.atm-cp .lg{transform-origin:23px 39px}' +
-    '.atm-go .atm-cp{animation:atmGiro 4s ease-in-out infinite}' +
-    '.atm-go .atm-cp .hb{animation:atmHop 1s ease-in-out infinite}' +
-    '.atm-go .atm-cp .lg{animation:atmBoleo 2s ease-in-out infinite}' +
-    '@keyframes atmGiro{0%,38%{transform:scaleX(1)}50%{transform:scaleX(-1)}62%,100%{transform:scaleX(1)}}' +
-    '@keyframes atmHop{0%,100%{transform:translateY(0) rotate(-9deg)}50%{transform:translateY(-3px) rotate(9deg)}}' +
-    '@keyframes atmBoleo{0%,30%,100%{transform:rotate(0)}45%{transform:rotate(-110deg)}60%{transform:rotate(15deg)}}' +
-    /* loading: on top of the skeleton */
-    '#atm-dance-ld{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 0 2px;color:#5a3e2b;font:600 14px/1.4 system-ui,sans-serif}' +
-    '#atm-dance-ld .atm-cp{width:64px;height:83px}' +
+    '.atm-cp .em,.atm-cp .shin{transform-box:view-box}' +
+    '.atm-cp .em{transform-origin:30px 76px}' +            /* embrace sways from the floor */
+    '.atm-cp .shin{transform-origin:43px 61px}' +          /* follower's knee */
+    /* loader: endless gentle sway + a boleo every 2.4 s */
+    '.atm-loop .atm-cp .em{animation:atmSway 2.4s ease-in-out infinite}' +
+    '.atm-loop .atm-cp .shin{animation:atmBoleo 2.4s cubic-bezier(.3,.1,.3,1) infinite}' +
+    '@keyframes atmSway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}' +
+    '@keyframes atmBoleo{0%,35%{transform:rotate(0)}52%{transform:rotate(-125deg)}62%{transform:rotate(-112deg)}80%,100%{transform:rotate(0)}}' +
+    '#atm-dance-ld{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 4px;color:#6B5E52;font:600 14px/1.4 system-ui,sans-serif}' +
+    '#atm-dance-ld .atm-cp{width:60px;height:80px}' +
     'html.atm-data #atm-dance-ld{display:none}' +
-    /* header: crosses the middle of the bar */
-    /* the bar is already position:relative (atm-map-page.css); no overflow:hidden so menus / badges are never clipped */
-    '#atm-dance-hd{position:absolute;top:50%;left:var(--atm-da,40%);width:30px;height:39px;margin-top:-20px;pointer-events:none;opacity:0;z-index:3}' +
-    '#atm-dance-hd.atm-go{animation:atmCross 5s ease-in-out forwards}' +
-    '#atm-dance-hd .atm-cp{width:100%;height:100%}' +
-    '@keyframes atmCross{0%{left:var(--atm-da,40%);opacity:0}15%{opacity:1}85%{opacity:1}100%{left:var(--atm-db,52%);opacity:0}}' +
-    /* reduced motion: still couple while loading, no header dance */
-    '@media (prefers-reduced-motion:reduce){.atm-go .atm-cp,.atm-go .atm-cp .hb,.atm-go .atm-cp .lg{animation:none!important}#atm-dance-hd{display:none!important}}';
+    /* save bubble: fixed next to the tapped star */
+    '#atm-dance-pop{position:fixed;z-index:10060;width:64px;height:64px;border-radius:50%;background:#FFFCF6;border:1.5px solid #C9A24E;box-shadow:0 4px 14px rgba(30,26,23,.22);display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.4)}' +
+    '#atm-dance-pop .atm-cp{width:42px;height:56px;margin-top:2px}' +
+    '#atm-dance-pop.atm-on{animation:atmPopIn 2.4s ease-out forwards}' +
+    '#atm-dance-pop.atm-on .atm-cp .em{animation:atmSway 1.2s ease-in-out 2}' +
+    '#atm-dance-pop.atm-on .atm-cp .shin{animation:atmBoleo 1.2s cubic-bezier(.3,.1,.3,1) .15s 2}' +
+    '@keyframes atmPopIn{0%{opacity:0;transform:scale(.4)}10%{opacity:1;transform:scale(1.08)}16%{transform:scale(1)}82%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.9) translateY(-6px)}}' +
+    '@media (prefers-reduced-motion:reduce){.atm-cp .em,.atm-cp .shin{animation:none!important}#atm-dance-pop{display:none!important}}';
   (D.head || R).appendChild(css);
 
-  /* body = face/legs colour, lead = leader's arms and legs, face = face fill */
-  function couple(body, lead, face) {
-    return '<svg class="atm-cp" viewBox="0 0 40 52" aria-hidden="true" focusable="false">' +
-      '<ellipse cx="20" cy="48.5" rx="13" ry="2" fill="' + body + '" opacity=".15"/>' +
-      '<g class="hb"><g fill="none" stroke="' + lead + '" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path d="M14 16L15 30M15 30L12 45M15 30L18 45"/><path d="M15 20L8 17L7 12"/><path d="M15 21L23 20"/></g>' +
-      '<path d="M24 17L23.5 28M24 39L25 46" stroke="' + body + '" stroke-width="3.4" stroke-linecap="round" fill="none"/>' +
-      '<circle cx="14" cy="10" r="6.5" fill="' + face + '" stroke="' + body + '" stroke-width="1.3"/>' +
-      '<circle cx="30" cy="7" r="2.8" fill="' + body + '"/>' +
-      '<circle cx="25" cy="11" r="6" fill="' + face + '" stroke="' + body + '" stroke-width="1.3"/>' +
-      '<circle cx="31.5" cy="5" r="1.9" fill="#E0475E"/>' +
-      '<circle cx="17" cy="12.5" r="1.1" fill="#E0475E"/><circle cx="22" cy="13.5" r="1.1" fill="#E0475E"/>' +
-      '<path d="M23 26L17 40Q24 43 31 38Z" fill="#C8102E"/>' +
-      '<g class="lg"><path d="M23 39L31 46" fill="none" stroke="' + body + '" stroke-width="3.4" stroke-linecap="round"/></g>' +
+  /* viewBox 60 x 80, floor at y = 76. Leader on the left facing right, follower on the right facing left. */
+  function couple() {
+    var ink = '#1E1A17', red = '#9E1B32', gold = '#C9A24E';
+    return '<svg class="atm-cp" viewBox="0 0 60 80" aria-hidden="true" focusable="false">' +
+      '<ellipse cx="30" cy="77" rx="20" ry="2" fill="' + ink + '" opacity=".12"/>' +
+      '<g class="em">' +
+        /* leader, leaning in a little (close embrace): legs, suit, head, fedora with a gold band */
+        '<g transform="rotate(5 22 76)">' +
+          '<path d="M20 46L17 75M24 46L27 75" stroke="' + ink + '" stroke-width="3.6" stroke-linecap="round" fill="none"/>' +
+          '<path d="M15 20Q20 17 26 19L28 30L26 47L17 47L15 32Z" fill="' + ink + '"/>' +
+          '<circle cx="21" cy="13" r="4.6" fill="' + ink + '"/>' +
+          '<path d="M14.5 9.6H27.5" stroke="' + ink + '" stroke-width="1.8" stroke-linecap="round"/>' +
+          '<path d="M16.8 9.6L17.6 4.6Q21 3.2 24.4 4.6L25.2 9.6Z" fill="' + ink + '"/>' +
+          '<path d="M17.2 8.2H24.8" stroke="' + gold + '" stroke-width="1.3"/>' +
+          /* his right arm round her back */
+          '<path d="M26 22Q32 25 37 29" stroke="' + ink + '" stroke-width="2.6" stroke-linecap="round" fill="none"/>' +
+        '</g>' +
+        /* follower, leaning in: standing leg, red dress with a slit, head, bun, gold flower */
+        '<g transform="rotate(-5 37 76)">' +
+          '<path d="M37 56L36 75" stroke="' + ink + '" stroke-width="3" stroke-linecap="round" fill="none"/>' +
+          '<path d="M33 20Q37 18 41 20L40 33L45 56Q39 59 32 57L35 33Z" fill="' + red + '"/>' +
+          '<circle cx="38" cy="13.5" r="4.2" fill="' + ink + '"/>' +
+          '<circle cx="41.8" cy="11.2" r="2.3" fill="' + ink + '"/>' +
+          '<circle cx="40.6" cy="9.4" r="1.3" fill="' + gold + '"/>' +
+          /* her left arm resting on his shoulder */
+          '<path d="M34 21Q30 18 26 19" stroke="' + ink + '" stroke-width="2.3" stroke-linecap="round" fill="none"/>' +
+          /* boleo leg: thigh from the slit to the knee; the shin whips back round the knee */
+          '<path d="M41 52L43 61" stroke="' + ink + '" stroke-width="3" stroke-linecap="round" fill="none"/>' +
+          '<g class="shin"><path d="M43 61L42 74" stroke="' + ink + '" stroke-width="2.8" stroke-linecap="round" fill="none"/><path d="M42 74L45 75" stroke="' + red + '" stroke-width="2" stroke-linecap="round"/></g>' +
+        '</g>' +
       '</g></svg>';
   }
 
@@ -61,73 +78,61 @@
     if (D.getElementById('atm-dance-ld')) return true;
     var d = D.createElement('div');
     d.id = 'atm-dance-ld';
-    d.className = 'atm-go';
+    d.className = 'atm-loop';
     d.setAttribute('role', 'status');
-    d.innerHTML = couple('#5a3e2b', '#B8892E', '#FBF3E1') + '<span>' + (zh ? '正在找舞会…' : 'Finding milongas…') + '</span>';
+    d.innerHTML = couple() + '<span>' + (zh ? '正在找舞会…' : 'Finding milongas…') + '</span>';
     sk.insertBefore(d, sk.firstChild);
     return true;
   }
   (function wait(n) { if (!addLoader() && n < 60) setTimeout(function () { wait(n + 1); }, 50); })(0);
 
-  /* 2. Header dance when an event is saved */
-  function dance() {
+  /* 2. Save: bubble next to the star that was tapped */
+  var pop = null, popTimer = 0;
+  function dance(star) {
     try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (x) {}
-    var bar = D.querySelector('.china-hero-bar');
-    if (!bar) return;
-    var h = D.getElementById('atm-dance-hd');
-    if (!h) {
-      h = D.createElement('div');
-      h.id = 'atm-dance-hd';
-      h.setAttribute('aria-hidden', 'true');
-      h.innerHTML = couple('#FFF6E0', '#E9C46A', '#FFF6E0');
-      h.addEventListener('animationend', function (e) { if (e.animationName === 'atmCross') h.classList.remove('atm-go'); });
-      bar.appendChild(h);
+    if (!pop) {
+      pop = D.createElement('div');
+      pop.id = 'atm-dance-pop';
+      pop.setAttribute('aria-hidden', 'true');
+      pop.innerHTML = couple();
+      D.body.appendChild(pop);
     }
-    if (h.classList.contains('atm-go')) return; /* already dancing: let it finish */
-    /* light bar (inner pages) -> dark couple; dark bar (home) -> light couple */
-    var bg = getComputedStyle(bar).backgroundColor.match(/\d+(\.\d+)?/g) || [0, 0, 0], lum = (0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2]) / 255;
-    if (bg.length > 3 && +bg[3] === 0) lum = 1;
-    h.innerHTML = lum > 0.6 ? couple('#5a3e2b', '#B8892E', '#FBF3E1') : couple('#FFF6E0', '#E9C46A', '#FFF6E0');
-    /* dance in the widest empty gap of the bar (works for the home bar and the inner ‹ title bar) */
-    var br = bar.getBoundingClientRect(), xs = [];
-    [].forEach.call(bar.children, function (el) {
-      if (el === h || !el.offsetWidth) return;
-      if (getComputedStyle(el).visibility === 'hidden') return;
-      /* use the drawn content, not the box: a title span may stretch across the bar */
-      var r = drawn(el);
-      if (!r || r.width < 1) return;
-      xs.push([r.left - br.left, r.right - br.left]);
-    });
-    xs.sort(function (p, q) { return p[0] - q[0]; });
-    var best = [0, 0], prev = 0;
-    xs.concat([[br.width, br.width]]).forEach(function (r) { if (r[0] - prev > best[1] - best[0]) best = [prev, r[0]]; prev = Math.max(prev, r[1]); });
-    var a = best[0] + 8, z = best[1] - 8 - 30, m = (a + z) / 2;
-    if (z < a) { if (best[1] - best[0] < 34) return; a = z = Math.max(0, m); } /* no room at all: skip */
-    else { a = Math.max(a, m - 60); z = Math.min(z, m + 60); } /* a short walk, at most 120px */
-    h.style.setProperty('--atm-da', a + 'px');
-    h.style.setProperty('--atm-db', z + 'px');
-    h.classList.add('atm-go');
+    place(star);
+    pop.classList.remove('atm-on'); void pop.offsetWidth; pop.classList.add('atm-on');
+    clearTimeout(popTimer); popTimer = setTimeout(function () { pop.classList.remove('atm-on'); }, 2500);
+    /* the list may redraw or the page may jump right after saving: follow the star for a moment */
+    var t0 = Date.now(); (function follow() { if (Date.now() - t0 > 900) return; place(null); requestAnimationFrame(follow); })();
   }
-  /* union of what is actually drawn inside el: text runs, images, svg icons (block boxes can span the whole bar) */
-  function drawn(el) {
-    var L = Infinity, Rr = -Infinity, w = D.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, null), n, rg = D.createRange();
-    function add(r) { if (r && r.width > 0 && r.height > 0) { if (r.left < L) L = r.left; if (r.right > Rr) Rr = r.right; } }
-    if (/^(IMG|SVG|BUTTON|INPUT|SELECT)$/i.test(el.tagName)) add(el.getBoundingClientRect());
-    while ((n = w.nextNode())) {
-      if (n.nodeType === 3) { if (!/\S/.test(n.nodeValue)) continue; rg.selectNodeContents(n); add(rg.getBoundingClientRect()); }
-      else if (/^(IMG|SVG|BUTTON|INPUT|SELECT)$/i.test(n.tagName) || n.namespaceURI === 'http://www.w3.org/2000/svg' && n.tagName.toLowerCase() === 'svg') add(n.getBoundingClientRect());
+  var findStar = null;
+  function place(star) {
+    if (findStar) { var cur = findStar(); if (cur) star = cur; }
+    if (!star && pop.style.left) return; /* nothing better found: stay where it is */
+    var vw = R.clientWidth || innerWidth, vh = innerHeight, x = vw / 2 - 32, y = vh / 2 - 32;
+    if (star) {
+      var r = star.getBoundingClientRect ? star.getBoundingClientRect() : star;
+      if (r && r.width) {
+        x = r.left + r.width / 2 - 32 - 40;           /* a little left of the star, so it stays on the card */
+        y = r.top - 64 - 6;                            /* above the star … */
+        if (y < 8) y = r.bottom + 6;                   /* … or below it near the top of the screen */
+      }
     }
-    if (L === Infinity) return el.getBoundingClientRect();
-    return { left: L, right: Rr, width: Rr - L };
+    x = Math.max(8, Math.min(vw - 72, x)); y = Math.max(8, Math.min(vh - 72, y));
+    pop.style.left = x + 'px'; pop.style.top = y + 'px';
+  }
+  /* the star as it is now: the list may have been redrawn or the page may have moved after saving */
+  function where(b, at) {
+    var id = b.getAttribute('data-fid') || b.getAttribute('data-sid') || '', list = id ? D.querySelectorAll('.atm-heart[data-fid="' + id.replace(/"/g, '') + '"], .atm-heart[data-sid="' + id.replace(/"/g, '') + '"]') : [];
+    for (var i = 0; i < list.length; i++) { var r = list[i].getBoundingClientRect(); if (r.width && r.bottom > 0 && r.top < innerHeight) return list[i]; }
+    return b.isConnected ? b : at;
   }
   function favCount() { try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); return Array.isArray(a) ? a.length : 0; } catch (x) { return 0; } }
   function onHeart(e) {
     var b = e.target && e.target.closest && e.target.closest('.atm-heart');
     if (!b) return;
     if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
-    var was = b.getAttribute('aria-pressed') === 'true', n0 = favCount();
-    /* the heart may be re-rendered, so also check whether the saved list grew */
-    setTimeout(function () { if ((!was && b.isConnected && b.getAttribute('aria-pressed') === 'true') || favCount() > n0) dance(); }, 60);
+    var was = b.getAttribute('aria-pressed') === 'true', n0 = favCount(), at = b.getBoundingClientRect(); /* the star may be redrawn: keep where it was tapped */
+    /* the star may be re-rendered, so also check whether the saved list grew */
+    setTimeout(function () { if ((!was && b.isConnected && b.getAttribute('aria-pressed') === 'true') || favCount() > n0) findStar = function () { return where(b, null); }; dance(where(b, at)); }, 60);
   }
   /* window capture runs before the star / favorite handlers on document, so the 'before' state is read correctly */
   window.addEventListener('click', onHeart, true);
