@@ -28,8 +28,8 @@
     '#atm-dance-ld .atm-cp{width:60px;height:80px}' +
     'html.atm-data #atm-dance-ld{display:none}' +
     /* save bubble: fixed next to the tapped star */
-    '#atm-dance-pop{position:fixed;z-index:10060;width:64px;height:64px;border-radius:50%;background:#FFFCF6;border:1.5px solid #C9A24E;box-shadow:0 4px 14px rgba(30,26,23,.22);display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.4)}' +
-    '#atm-dance-pop .atm-cp{width:42px;height:56px;margin-top:2px}' +
+    '#atm-dance-pop{position:fixed;z-index:10060;width:84px;height:84px;border-radius:50%;background:#FFFCF6;box-shadow:0 3px 12px rgba(30,26,23,.18);display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transform:scale(.4)}' +
+    '#atm-dance-pop .atm-cp{width:56px;height:75px;margin-top:2px}' +
     '#atm-dance-pop.atm-on{animation:atmPopIn 2.4s ease-out forwards}' +
     '#atm-dance-pop.atm-on .atm-cp .em{animation:atmSway 1.2s ease-in-out 2}' +
     '#atm-dance-pop.atm-on .atm-cp .shin{animation:atmBoleo 1.2s cubic-bezier(.3,.1,.3,1) .15s 2}' +
@@ -107,16 +107,16 @@
   function place(star) {
     if (findStar) { var cur = findStar(); if (cur) star = cur; }
     if (!star && pop.style.left) return; /* nothing better found: stay where it is */
-    var vw = R.clientWidth || innerWidth, vh = innerHeight, x = vw / 2 - 32, y = vh / 2 - 32;
+    var vw = R.clientWidth || innerWidth, vh = innerHeight, x = vw / 2 - 42, y = vh / 2 - 42;
     if (star) {
       var r = star.getBoundingClientRect ? star.getBoundingClientRect() : star;
       if (r && r.width) {
-        x = r.left + r.width / 2 - 32 - 40;           /* a little left of the star, so it stays on the card */
-        y = r.top - 64 - 6;                            /* above the star … */
+        x = r.left + r.width / 2 - 42 - 44;           /* a little left of the star, so it stays on the card */
+        y = r.top - 84 - 6;                            /* above the star … */
         if (y < 8) y = r.bottom + 6;                   /* … or below it near the top of the screen */
       }
     }
-    x = Math.max(8, Math.min(vw - 72, x)); y = Math.max(8, Math.min(vh - 72, y));
+    x = Math.max(8, Math.min(vw - 92, x)); y = Math.max(8, Math.min(vh - 92, y));
     pop.style.left = x + 'px'; pop.style.top = y + 'px';
   }
   /* the star as it is now: the list may have been redrawn or the page may have moved after saving */
