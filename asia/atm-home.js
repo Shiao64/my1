@@ -225,6 +225,13 @@
     '#atm-home .ah-wd{scroll-margin-top:calc(var(--ah-hh,72px) + 60px)}#atm-home .ah-wd-on{color:#fff;background:#0E6E78;border-radius:8px;padding:3px 8px;width:fit-content}#atm-home .ah-noev{font:500 13px system-ui;color:#9aa7a2;margin:0 0 4px 2px}#atm-home .ah-proj{margin:6px 0}';
   css.textContent += '#atm-home .v2-cities{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:8px 2px 4px}#atm-home .v2-cities::-webkit-scrollbar{display:none}#atm-home .v2-c{flex:0 0 auto;height:36px;font-size:14px}#atm-home .v2-c[aria-pressed=true]{background:#0E6E78;color:#fff;border-color:#0E6E78}' +
     '#atm-home .v2-tabs{display:flex;margin:8px 0 6px;border-bottom:1px solid #EAD7A4}#atm-home .v2-tabs button{flex:1;min-height:44px;border:0;background:none;font:700 16px system-ui;color:#5f6f66;border-bottom:3px solid transparent;margin-bottom:-1px;cursor:pointer}#atm-home .v2-tabs button[aria-selected=true]{color:#0A4F57;border-bottom-color:#C0392B}#atm-home .v2-oth{margin-top:18px}';
+  /* v11.16 v2 compact filters: header 72→52, city chips 32px, tabs 40px, type chips one scrolling row (was 2–3 wrapped rows of 40px). */
+  if (V2) { D.documentElement.classList.add('atm-v2');
+    css.textContent += '@media(max-width:600px){html.atm-v2 body.china-page section.china-map-hero{padding-top:0!important;padding-bottom:0!important}html.atm-v2 body.china-page .china-map-hero .china-hero-bar{min-height:52px!important;height:52px!important;padding-top:4px!important;padding-bottom:4px!important}html.atm-v2 body.china-page .china-map-hero h1,html.atm-v2 body.china-page .china-map-hero h1 a{font-size:18px!important}html.atm-v2 .china-hero-bar .atm-burger,html.atm-v2 .china-hero-bar .atm-langbtn,html.atm-v2 .china-hero-bar .top-lang a{min-height:38px!important;height:38px!important;min-width:38px!important}}' +
+      '#atm-home .v2-cities{padding:6px 2px 2px;gap:6px}#atm-home .v2-c{height:32px;padding:0 13px;font-size:14px}' +
+      '#atm-home .v2-tabs{margin:4px 0 6px}#atm-home .v2-tabs button{min-height:40px;font-size:15px}' +
+      '#atm-home .v2-tabs button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}#atm-home .v2-caret{font-style:normal;font-size:11px;margin-left:4px;opacity:.75}#atm-home .v2-menu{background:#fff;border:1px solid #EAD7A4;border-radius:12px;padding:10px;margin:2px 0 10px;box-shadow:0 4px 14px rgba(6,51,58,.10)}#atm-home .v2-menu .ah-chips{margin:0;gap:6px}#atm-home .v2-menu .ah-chip{height:34px;padding:0 12px;font-size:14px;font-weight:600;border-radius:8px}#atm-home .v2-menu .ah-chip small{font-size:12px}';
+  }
   D.head.appendChild(css);
   var S = { a: -1, c: '', open: false };
   function route() { var h = location.hash; if (/^#v-/.test(h)) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} h = ''; } /* old #v-<id> card anchors (shared links, back from detail) -> new home, not the old list */ if (!h || h === '#') return 'home'; if (h === '#h-feat') return 'feat'; if (h === '#h-fav') return V2 ? 'fav' : 'home'; if (h === '#h-search') return 'search'; if (h === '#h-reg') return 'reg'; if (h.indexOf('#h-city-') === 0) return 'city'; return null; }
@@ -323,7 +330,7 @@
   }
   function top(t) { return '<div class="ah-top"><button type="button" class="ah-back" data-go="" aria-label="' + T.back + '">‹</button><span class="ah-title">' + t + '</span></div>'; }
   function inCity(e, c) { var tl = null; for (var i = 0; i < TAIL.length; i++) if (TAIL[i].k === c) tl = TAIL[i]; return tl ? e.region === tl.region : e.city === c; }
-  function fch(on, attr, val, t, k) { return '<button type="button" class="ah-chip" ' + attr + '="' + esc(val) + '" aria-pressed="' + on + '">' + (on ? '✓ ' : '') + esc(t) + '<small>' + k + '</small></button>'; }
+  function fch(on, attr, val, t, k) { return '<button type="button" class="ah-chip" ' + attr + '="' + esc(val) + '" aria-pressed="' + on + '">' + (on && !V2 ? '✓ ' : '') + esc(t) + '<small>' + k + '</small></button>'; } /* v2: no ✓, the filled chip already shows the pick */
   function feat() {
     var fc = S.fc == null ? -1 : S.fc, base = S.fcity ? FEAT.filter(function (e) { return inCity(e, S.fcity); }) : FEAT;
     var L = base.filter(function (e) { return fc < 0 || cat(e) === fc; });
@@ -387,7 +394,7 @@
     var tchips = '<div class="ah-chips ah-tchips">' + fch(!tc, 'data-tc', '', T.allReg, allN) + REGK.map(function (k) { return cnt[k] ? fch(tc === k, 'data-tc', k, T.tc[k], cnt[k]) : ''; }).join('') + '</div>';
     SHELL_T = esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + total + '</i> ' + T.items : enUnit(total, T.weekly));
     var proj = st + 6 >= 14 ? '<div class="ah-note ah-proj">' + T.proj + '</div>' : '';
-    if (bodyOnly) return upBlock(c) + nav + rail + tchips + proj + '<div class="ah-list" style="margin-top:6px">' + out + '</div>';
+    if (bodyOnly) { V2MENU = tchips; return upBlock(c) + nav + rail + proj + '<div class="ah-list" style="margin-top:6px">' + out + '</div>'; }
     return top(esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + total + '</i> ' + T.items : enUnit(total, T.weekly))) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + upBlock(c) + nav + rail + tchips + proj + '<div class="ah-list" style="margin-top:6px">' + out + '</div>';
   }
   function srchSet(a) { if (a === 5) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
@@ -411,7 +418,10 @@
   /* ---- v2 layout ---- */
   function v2Guess() { var v = visits(), best = '', n = 0; Object.keys(v).forEach(function (c) { if (REG[c] && v[c] > n) { n = v[c]; best = c; } }); return best || (REG.Beijing ? 'Beijing' : CITIES[0]); }
   function v2Chips(cur) { return '<div class="v2-cities">' + ordered(CITIES).concat(TAILS.map(function (t) { return t.k; })).map(function (c) { return '<button type="button" class="ah-chip v2-c" data-v2c="' + esc(c) + '" aria-pressed="' + (c === cur) + '">' + esc(fl(c)) + '</button>'; }).join('') + '</div>'; }
-  function v2Tabs(t) { return '<div class="v2-tabs" role="tablist">' + [['fav', '★ ' + T2.fav], ['reg', T2.reg], ['big', T2.big]].map(function (x) { return '<button type="button" role="tab" data-v2t="' + x[0] + '" aria-selected="' + (x[0] === t) + '">' + x[1] + '</button>'; }).join('') + '</div>'; }
+  function v2Tabs(t) { /* v11.17: tap a tab = all of it; tap the open tab again (▾) = type menu; a picked type replaces the tab label */
+    var lb = { fav: '★ ' + T2.fav, reg: t === 'reg' && S.tc ? T.tc[S.tc] : T2.reg, big: t === 'big' && S.fc != null && S.fc >= 0 ? T.cat1[S.fc] : T2.big };
+    return '<div class="v2-tabs" role="tablist">' + ['fav', 'reg', 'big'].map(function (k) { var on = k === t, menu = on && k !== 'fav', fx = menu && (S.v2m === k || (k === 'big' ? S.fc != null && S.fc >= 0 : !!S.tc)); /* v11.19: no ▾ by default; it shows only while the menu is open or a type is picked */ return '<button type="button" role="tab" data-v2t="' + k + '" aria-selected="' + on + '"' + (menu ? ' aria-haspopup="true" aria-expanded="' + (S.v2m === k) + '"' : '') + '>' + esc(lb[k]) + (fx ? '<i class="v2-caret">' + (S.v2m === k ? '▴' : '▾') + '</i>' : '') + '</button>'; }).join('') + '</div>'; }
+  var V2MENU = '';
   function v2Group(list, c, dateOf, big) {
     var away = function (e) { return inCity(e, c) ? 0 : 1; };
     list = list.slice().sort(function (a, b) { var x = dateOf(a), y = dateOf(b); return away(a) - away(b) || (x < y ? -1 : x > y ? 1 : 0); });
@@ -422,15 +432,18 @@
   function v2Fav(c) { var L = favLive(); if (!L.length) return '<div class="ah-favhint">' + T2.hint + '</div>'; return '<div class="ah-list">' + v2Group(L, c, occDate, false) + '</div>'; }
   function v2Big(c) {
     var fc = S.fc == null ? -1 : S.fc, L = FEAT.filter(function (e) { return fc < 0 || cat(e) === fc; });
-    var chips = '<div class="ah-chips ah-fchips">' + fch(fc < 0, 'data-fc', -1, T.allBig, FEAT.length) + BIG.map(function (k, i) { return fch(fc === i, 'data-fc', i, T.cat1[i], FEAT.filter(function (e) { return cat(e) === i; }).length); }).join('') + '</div>';
-    return chips + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + (v2Group(L, c, function (e) { return e.start || '9'; }, true) || '<p>' + T.none + '</p>') + '</div>';
+    var chips = '<div class="ah-chips ah-fchips">' + fch(fc < 0, 'data-fc', -1, T.allBig, FEAT.length) + BIG.map(function (k, i) { var n0 = FEAT.filter(function (e) { return cat(e) === i; }).length; return n0 || fc === i ? fch(fc === i, 'data-fc', i, T.cat1[i], n0) : ''; }).join('') + '</div>';
+    V2MENU = chips;
+    return '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + (v2Group(L, c, function (e) { return e.start || '9'; }, true) || '<p>' + T.none + '</p>') + '</div>';
   }
   function v2View(r, c) {
     if (r === 'city' && c) S.v2c = c;
     if (!S.v2c || !REG[S.v2c]) S.v2c = v2Guess();
     var t = r === 'fav' ? 'fav' : r === 'feat' ? 'big' : 'reg', cur = S.v2c;
     var body = t === 'fav' ? v2Fav(cur) : t === 'big' ? v2Big(cur) : cityView(cur, true);
-    return v2Chips(cur) + v2Tabs(t) + body;
+    S.v2t = t; if (S.v2m !== t) S.v2m = null;
+    var menu = S.v2m && V2MENU ? '<div class="v2-menu">' + V2MENU + '</div>' : ''; V2MENU = '';
+    return v2Chips(cur) + v2Tabs(t) + menu + body;
   }
   var lastR = null, lastC = '';
   function hh() { var h = D.querySelector('.china-sticky-top'); if (h) R.style.setProperty('--ah-hh', Math.max(0, Math.round(h.getBoundingClientRect().bottom)) + 'px'); } /* T row pinned under H */
@@ -524,15 +537,23 @@
     if (ly) refreshFavPanel();
   } finally { rendering = false; }
   }
+  /* v11.18: long-press 日常/大型 (≈0.45s) opens its type menu straight away, also from another tab. Tap-again still works. */
+  var lpT = null, lpFired = false;
+  root.addEventListener('touchstart', function (e) { var b = e.target.closest && e.target.closest('[data-v2t]'); lpFired = false; if (!b) return; var t2 = b.getAttribute('data-v2t'); if (t2 === 'fav') return;
+    clearTimeout(lpT); lpT = setTimeout(function () { lpFired = true; try { navigator.vibrate && navigator.vibrate(10); } catch (x) {}
+      if (t2 === S.v2t) { S.v2m = t2; render(); } else { if (t2 === 'big') S.fc = -1; else S.tc = ''; S.v2m = t2; S.v2t = t2; go(t2 === 'big' ? '#h-feat' : '#h-city-' + encodeURIComponent(S.v2c || v2Guess())); } }, 450); }, { passive: true });
+  ['touchend', 'touchmove', 'touchcancel'].forEach(function (ev) { root.addEventListener(ev, function () { clearTimeout(lpT); }, { passive: true }); });
+  root.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('[data-v2t]')) e.preventDefault(); });
   root.addEventListener('click', function (e) {
+    if (lpFired) { lpFired = false; if (e.target.closest && e.target.closest('[data-v2t]')) { e.preventDefault(); return; } }
     if (e.target.closest && e.target.closest('a.ah-pt')) return; /* poster link opens P10; do not treat it as the section button */
     var b = e.target.closest('button'); if (!b) return;
-    if (b.hasAttribute('data-v2t')) { var t2 = b.getAttribute('data-v2t'); go(t2 === 'fav' ? '#h-fav' : t2 === 'big' ? '#h-feat' : '#h-city-' + encodeURIComponent(S.v2c || v2Guess())); return; }
+    if (b.hasAttribute('data-v2t')) { var t2 = b.getAttribute('data-v2t'); if (t2 === S.v2t) { if (t2 !== 'fav') { S.v2m = S.v2m === t2 ? null : t2; render(); } return; } S.v2m = null; if (t2 === 'big') S.fc = -1; if (t2 === 'reg') S.tc = ''; go(t2 === 'fav' ? '#h-fav' : t2 === 'big' ? '#h-feat' : '#h-city-' + encodeURIComponent(S.v2c || v2Guess())); return; }
     if (b.hasAttribute('data-v2c')) { var c2 = b.getAttribute('data-v2c'); S.v2c = c2; pick(c2); if (/^#h-(fav|feat)$/.test(location.hash)) { visit(c2); render(); } else go('#h-city-' + encodeURIComponent(c2)); return; }
     if (b.hasAttribute('data-upall')) { S.fcity = b.getAttribute('data-upall'); S.fc = -1; go('#h-feat'); return; }
     if (b.hasAttribute('data-fcity')) { S.fcity = ''; render(); return; }
-    if (b.hasAttribute('data-fc')) { S.fc = +b.getAttribute('data-fc'); render(); return; }
-    if (b.hasAttribute('data-tc')) { S.tc = b.getAttribute('data-tc'); render(); return; }
+    if (b.hasAttribute('data-fc')) { S.fc = +b.getAttribute('data-fc'); S.v2m = null; render(); return; }
+    if (b.hasAttribute('data-tc')) { S.tc = b.getAttribute('data-tc'); S.v2m = null; render(); return; }
     if (b.hasAttribute('data-wk')) { S.st = Math.max(0, Math.min(MAXD - 6, (S.st || 0) + 7 * +b.getAttribute('data-wk'))); S.jd = ''; render(); return; }
     if (b.hasAttribute('data-mv')) { S.mv = !S.mv; if (S.mv) { var d0 = dayAt(S.st || 0); S.mo = (d0.getFullYear() - now.getFullYear()) * 12 + d0.getMonth() - now.getMonth(); } render(); return; }
     if (b.hasAttribute('data-mo')) { S.mo = Math.max(0, Math.min(3, (S.mo || 0) + +b.getAttribute('data-mo'))); render(); return; }
