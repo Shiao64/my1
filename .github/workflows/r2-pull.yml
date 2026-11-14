@@ -1,0 +1,44 @@
+name: R2 pull (public data -> repo PR branch)
+
+# Manual only. When R2 has cards the repo does not (someone uploaded straight to
+# R2), the R2 sync refuses to upload. This pulls the public JSON into a new
+# branch, keeps the repo version of the card ids listed in `keep` (repo edits
+# not uploaded yet), and pushes the branch. Open a PR from it, review, merge;
+# the merge then triggers R2 sync. Nothing is uploaded here.
+
+on:
+  workflow_dispatch:
+    inputs:
+      keep:
+        description: 'Card ids whose repo version wins (comma-separated, e.g. R250)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pull public JSON
+        env:
+          KEEP: ${{ github.event.inputs.keep }}
+        run: python3 tools/r2_sync_cards.py --pull-fallback --keep "$KEEP"
+      - name: Push branch
+        run: |
+          if git diff --quiet; then echo "public JSON matches main; nothing to push"; exit 0; fi
+          b="r2-pull-${GITHUB_RUN_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$b"
+          git add -A asia/ zh/asia/
+          git commit -m "Data: pull public R2 cards into the repo (keep: ${{ github.event.inputs.keep }})"
+          git push origin "$b"
+          echo "::notice::Pushed branch $b — open a PR from it."
