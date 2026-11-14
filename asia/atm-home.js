@@ -1,4 +1,4 @@
-/* v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
+/* v11.14 (2026-11-14): CAT_FIX per-event overrides (E123 → workshop). v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
    search page / favorites layer. Hash routes: '' home, #h-feat, #h-city-<City>, #h-search. Query-string views
    (?card, ?mode, ?city, ?via ...) keep the old list untouched. Cards open the single-card layer (?card=ID). */
 (function () {
@@ -61,8 +61,11 @@
   var BIG = ['festival', 'marathon', 'weekend', 'anniversary', 'workshop'], REGK = ['milonga', 'practilonga', 'practica'];
   function nmAll(e) { return ((e.name || '') + ' ' + (e.name_zh || '') + ' ' + (e.name_en || '')).toLowerCase(); }
   function regCat(e, s) { if (/practilonga|pr[aá]ctica[ -]milonga|练习舞会|練習舞會/.test(s)) return 'practilonga'; return e.type === 'practica' ? 'practica' : 'milonga'; }
+  /* Per-event decisions made in code (no R2 upload needed). Prefer e.cat in the data when the data is next published. */
+  var CAT_FIX = { E123: 'workshop' }; /* Lorena & Gianpiero 台北新年探戈活动 (user, 2026-11-14) */
   function catOf(e) {
     if (e.cat && (BIG.indexOf(e.cat) >= 0 || REGK.indexOf(e.cat) >= 0)) return e.cat;
+    if (CAT_FIX[e.id]) return CAT_FIX[e.id];
     var s = nmAll(e);
     if (e.kind === 'weekly') return regCat(e, s);
     if (/周年|週年|aniversario|anniversary/.test(s)) return 'anniversary';
