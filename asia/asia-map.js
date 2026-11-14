@@ -775,7 +775,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china468';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china469';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
