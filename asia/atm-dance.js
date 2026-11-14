@@ -27,11 +27,13 @@
     '#atm-dance-ld .atm-cp{width:64px;height:83px}' +
     'html.atm-data #atm-dance-ld{display:none}' +
     /* header: crosses the middle of the bar */
-    '.china-hero-bar{position:relative;overflow:hidden}' +
+    /* the bar is already position:relative (atm-map-page.css); no overflow:hidden so menus / badges are never clipped */
     '#atm-dance-hd{position:absolute;top:50%;left:var(--atm-da,40%);width:30px;height:39px;margin-top:-20px;pointer-events:none;opacity:0;z-index:3}' +
     '#atm-dance-hd.atm-go{animation:atmCross 5s ease-in-out forwards}' +
     '#atm-dance-hd .atm-cp{width:100%;height:100%}' +
-    '@keyframes atmCross{0%{left:var(--atm-da,40%);opacity:0}15%{opacity:1}85%{opacity:1}100%{left:var(--atm-db,52%);opacity:0}}';
+    '@keyframes atmCross{0%{left:var(--atm-da,40%);opacity:0}15%{opacity:1}85%{opacity:1}100%{left:var(--atm-db,52%);opacity:0}}' +
+    /* reduced motion: still couple while loading, no header dance */
+    '@media (prefers-reduced-motion:reduce){.atm-go .atm-cp,.atm-go .atm-cp .hb,.atm-go .atm-cp .lg{animation:none!important}#atm-dance-hd{display:none!important}}';
   (D.head || R).appendChild(css);
 
   /* body = face/legs colour, lead = leader's arms and legs, face = face fill */
@@ -69,6 +71,7 @@
 
   /* 2. Header dance when an event is saved */
   function dance() {
+    try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (x) {}
     var bar = D.querySelector('.china-hero-bar');
     if (!bar) return;
     var h = D.getElementById('atm-dance-hd');
@@ -81,22 +84,28 @@
       bar.appendChild(h);
     }
     if (h.classList.contains('atm-go')) return; /* already dancing: let it finish */
-    /* dance only in the empty space between the title and the language / menu buttons */
-    var t = bar.querySelector('h1 a') || bar.querySelector('h1'), br = bar.getBoundingClientRect(), z = Infinity;
-    if (t) {
-      var a = t.getBoundingClientRect().right - br.left + 8;
-      [].forEach.call(bar.children, function (el) {
-        if (el === h || el.contains(t) || !el.offsetWidth) return;
-        var l = el.getBoundingClientRect().left - br.left;
-        if (l > a && l < z) z = l;
-      });
-      z = (z === Infinity ? br.width : z) - 8 - 30;
-      var m = (a + z) / 2;
-      if (z < a) a = z = Math.max(0, m); /* no room to travel: dance in place */
-      else { a = Math.max(a, m - 60); z = Math.min(z, m + 60); } /* a short walk, at most 120px, in the middle of the gap */
-      h.style.setProperty('--atm-da', a + 'px');
-      h.style.setProperty('--atm-db', z + 'px');
-    }
+    /* light bar (inner pages) -> dark couple; dark bar (home) -> light couple */
+    var bg = getComputedStyle(bar).backgroundColor.match(/\d+(\.\d+)?/g) || [0, 0, 0], lum = (0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2]) / 255;
+    if (bg.length > 3 && +bg[3] === 0) lum = 1;
+    h.innerHTML = lum > 0.6 ? couple('#5a3e2b', '#B8892E', '#FBF3E1') : couple('#FFF6E0', '#E9C46A', '#FFF6E0');
+    /* dance in the widest empty gap of the bar (works for the home bar and the inner ‹ title bar) */
+    var br = bar.getBoundingClientRect(), xs = [];
+    [].forEach.call(bar.children, function (el) {
+      if (el === h || !el.offsetWidth) return;
+      if (getComputedStyle(el).visibility === 'hidden') return;
+      /* use the drawn content, not the box: a title span may stretch across the bar */
+      var r = el.getBoundingClientRect(); try { var rg = D.createRange(); rg.selectNodeContents(el); var c = rg.getBoundingClientRect(); if (c.width > 0) r = c; } catch (x) {}
+      if (r.width < 1) return;
+      xs.push([r.left - br.left, r.right - br.left]);
+    });
+    xs.sort(function (p, q) { return p[0] - q[0]; });
+    var best = [0, 0], prev = 0;
+    xs.concat([[br.width, br.width]]).forEach(function (r) { if (r[0] - prev > best[1] - best[0]) best = [prev, r[0]]; prev = Math.max(prev, r[1]); });
+    var a = best[0] + 8, z = best[1] - 8 - 30, m = (a + z) / 2;
+    if (z < a) { if (best[1] - best[0] < 34) return; a = z = Math.max(0, m); } /* no room at all: skip */
+    else { a = Math.max(a, m - 60); z = Math.min(z, m + 60); } /* a short walk, at most 120px */
+    h.style.setProperty('--atm-da', a + 'px');
+    h.style.setProperty('--atm-db', z + 'px');
     h.classList.add('atm-go');
   }
   function favCount() { try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); return Array.isArray(a) ? a.length : 0; } catch (x) { return 0; } }
@@ -108,7 +117,8 @@
     /* the heart may be re-rendered, so also check whether the saved list grew */
     setTimeout(function () { if ((!was && b.isConnected && b.getAttribute('aria-pressed') === 'true') || favCount() > n0) dance(); }, 60);
   }
-  D.addEventListener('click', onHeart, true);
-  D.addEventListener('keydown', onHeart, true);
+  /* window capture runs before the star / favorite handlers on document, so the 'before' state is read correctly */
+  window.addEventListener('click', onHeart, true);
+  window.addEventListener('keydown', onHeart, true);
   window.atmDance = dance;
 })();
