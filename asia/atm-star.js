@@ -45,7 +45,7 @@
     later: '请稍后再试。',
     limited: '确认邮件已达上限，请稍后再试。',
     withheld: '已记下。这一场不会交给主办。',
-    unfav: '取消收藏',
+    unfav: '取消收藏', saveStar: '收藏', firstSave: '已收藏。在「收藏」里可以找到。', barNote: '主办方会收到你的名字，不是报名或购票', withdraw: '取消',
     unfavAsk: '取消收藏这个活动？',
     unfavKeep: '保留',
     notify: '接收主办方信息',
@@ -113,7 +113,7 @@
     later: 'Please try again later.',
     limited: 'Too many confirmation emails. Please try again later.',
     withheld: 'Saved. This one is not sent to the organizer.',
-    unfav: 'Remove from favorites',
+    unfav: 'Remove from favorites', saveStar: 'Save', firstSave: 'Saved. Find it under Saved.', barNote: 'The organizer gets your name. This is not a booking or ticket.', withdraw: 'Withdraw',
     unfavAsk: 'Remove this event from favorites?',
     unfavKeep: 'Keep',
     notify: 'Receive organizer updates',
@@ -160,7 +160,9 @@
     notTicket: 'Going is not a ticket or a formal registration.'
   };
   var css = document.createElement('style');
-  css.textContent = '.atm-heart svg path{d:path("' + STAR + '")}.atm-heart path{fill:none;stroke:#b8913a;stroke-width:1.6;stroke-linejoin:round}.atm-heart[aria-pressed="true"] path{fill:#b8913a;stroke:#b8913a}' +
+  css.textContent = '@keyframes atmPop{40%{transform:scale(1.35)}100%{transform:scale(1)}}.atm-heart.atm-pop svg{animation:atmPop .32s ease-out}' +
+    '#atm-intentbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#FFFCF6;border-top:1px solid #E5D6BC;box-shadow:0 -2px 10px rgba(0,0,0,.08);padding:10px 12px calc(8px + env(safe-area-inset-bottom,0px))}#atm-intentbar .aib-row{display:flex;gap:8px;max-width:560px;margin:0 auto}#atm-intentbar button{flex:1;min-height:44px;border-radius:22px;border:1.5px solid #9E1B32;background:#fff;color:#9E1B32;font:700 15px system-ui,-apple-system,sans-serif;cursor:pointer}#atm-intentbar button[aria-pressed=true]{background:#9E1B32;color:#fff}#atm-intentbar .aib-x{flex:0 0 auto;padding:0 14px;border-color:#c9bfae;color:#6B5E52}#atm-intentbar .aib-n{margin:6px auto 0;max-width:560px;text-align:center;font:500 12px system-ui,sans-serif;color:#6B5E52}html.atm-ibar-on body{padding-bottom:96px}' +
+    '.atm-heart svg path{d:path("' + STAR + '")}.atm-heart path{fill:none;stroke:#b8913a;stroke-width:1.6;stroke-linejoin:round}.atm-heart[aria-pressed="true"] path{fill:#b8913a;stroke:#b8913a}' +
     '.atm-heart.atm-star-off{opacity:1;cursor:pointer}.atm-heart.atm-star-off path{stroke:#b8913a;stroke-width:1.15;fill:none;opacity:.25}' +
     '.atm-heart.atm-star-wait{cursor:pointer;background:transparent}.atm-heart.atm-star-wait path{stroke:#0e6e78;fill:none;stroke-dasharray:2.2 1.4}' +
     'html.atm-p10 #atm-c1bar .p10-heart.atm-star-off{cursor:pointer!important;background:transparent!important;opacity:1!important}html.atm-p10 #atm-c1bar .p10-heart.atm-star-off path{fill:none!important;stroke:#b8913a!important;stroke-width:1.15!important;opacity:.25!important}' +
@@ -643,7 +645,7 @@
     var html = '';
     if (phase === 'start' || phase === 'register' || phase === 'saved' || needProfile) html += '<p class="asg-note">' + L.explain + '</p>';
     html += '<div class="asg-opt">';
-    ['going', 'interested', 'absent'].forEach(function (k) { html += '<button type="button" data-intent="' + k + '" aria-pressed="' + (draft.intent === k) + '">' + L[k] + '</button>'; });
+    ['going', 'interested'].forEach(function (k) { /* 2026-11-14: 去不了 removed; withdraw = 取消 in the card-page bar */ html += '<button type="button" data-intent="' + k + '" aria-pressed="' + (draft.intent === k) + '">' + L[k] + '</button>'; });
     html += '</div><div id="asg-rest"' + (draft.intent ? '' : ' hidden') + '>';
     if (reg && dates.length) {
       html += '<label class="asg-l" for="asg-date">' + L.date + '</label><select id="asg-date"' + (draft.intent === 'going' ? '' : ' disabled') + '>';
@@ -954,7 +956,7 @@
   function paint() {
     if (painting) return;
     painting = true;
-    try { paintHearts(); placeBar(); } finally { painting = false; }
+    try { paintHearts(); placeBar(); paintIntentBar(); } finally { painting = false; }
   }
   function paintHearts() {
     document.querySelectorAll('.atm-heart').forEach(function (b) {
@@ -970,16 +972,11 @@
         b.setAttribute('aria-label', L.unfav);
         return;
       }
-      var e = eventOf(id);
-      var state = canIntent(e, id);
-      var off = state === false;
-      var waiting = state === null && !!(e || ready) && !(e && hasEmail(e));
-      b.classList.toggle('atm-star-off', off);
-      b.classList.toggle('atm-star-wait', waiting);
-      if (off) { b.setAttribute('aria-disabled', 'true'); b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'false'); b.title = L.grey; b.setAttribute('aria-label', L.grey); }
-      else if (waiting) { b.setAttribute('aria-disabled', 'false'); b.setAttribute('aria-busy', 'true'); b.setAttribute('aria-pressed', 'false'); b.title = L.checking; b.setAttribute('aria-label', L.checking); }
-      else if (showSolid(id, e)) { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', 'true'); b.setAttribute('aria-disabled', 'false'); var st = occNow(id, e); var lab = L.manage + ' ' + (st && st.intent === 'going' ? L.going : L.interested); b.title = lab; b.setAttribute('aria-label', lab); }
-      else { b.setAttribute('aria-busy', 'false'); b.setAttribute('aria-pressed', favs[id] ? 'true' : 'false'); b.setAttribute('aria-disabled', 'false'); b.title = favs[id] ? L.unfav : L.title; b.setAttribute('aria-label', favs[id] ? L.unfav : L.title); }
+      /* 2026-11-14: star = 收藏 only — always enabled; solid when saved. */
+      b.classList.remove('atm-star-off', 'atm-star-wait');
+      b.setAttribute('aria-disabled', 'false'); b.setAttribute('aria-busy', 'false');
+      b.setAttribute('aria-pressed', favs[id] ? 'true' : 'false');
+      b.title = favs[id] ? L.unfav : L.saveStar; b.setAttribute('aria-label', b.title);
     });
     document.querySelectorAll('.atm-star-n').forEach(function (n) { n.remove(); });
     queueReach();
@@ -1169,18 +1166,43 @@
     if (!b) { b = document.createElement('button'); b.setAttribute('data-fid', id); }
     open(b, opt);
   }
+  function firstSaveHint(b) {
+    var k = 'atm_first_save_v1'; try { if (localStorage.getItem(k)) return; localStorage.setItem(k, '1'); } catch (e) { return; }
+    toast(L.firstSave, 'ok', b);
+  }
+  /* Card page (?card=) bottom bar: [✓ 要参加] [想参加] (+ 取消 once chosen). Only when the organizer can be reached. */
+  function cardId() { try { return new URLSearchParams(location.search).get('card') || ''; } catch (e) { return ''; } }
+  function paintIntentBar() {
+    var id = cardId(), bar = document.getElementById('atm-intentbar');
+    if (!id || !/^[A-Za-z0-9_-]{1,64}$/.test(id)) { if (bar) bar.remove(); return; }
+    var e = eventOf(id), ok = canIntent(e, id);
+    if (ok === null) queueReach();
+    if (ok !== true) { if (bar) bar.remove(); document.documentElement.classList.remove('atm-ibar-on'); return; }
+    var st = occNow(id, e), cur = st && (st.intent === 'going' || st.intent === 'interested') ? st.intent : '';
+    var html = '<div class="aib-row"><button type="button" data-ib="going" aria-pressed="' + (cur === 'going') + '">✓ ' + esc(L.going) + '</button><button type="button" data-ib="interested" aria-pressed="' + (cur === 'interested') + '">' + esc(L.interested) + '</button>' + (cur ? '<button type="button" class="aib-x" data-ib="withdraw">' + esc(L.withdraw) + '</button>' : '') + '</div><p class="aib-n">' + esc(L.barNote) + '</p>';
+    if (!bar) { bar = document.createElement('div'); bar.id = 'atm-intentbar'; document.body.appendChild(bar); }
+    if (bar.getAttribute('data-sig') !== id + '|' + cur) { bar.innerHTML = html; bar.setAttribute('data-sig', id + '|' + cur); }
+    document.documentElement.classList.add('atm-ibar-on');
+  }
+  document.addEventListener('click', function (ev) {
+    var t = ev.target.closest && ev.target.closest('#atm-intentbar [data-ib]'); if (!t) return;
+    ev.preventDefault();
+    var id = cardId(), e = eventOf(id), k = t.getAttribute('data-ib'), anchor = nextAnchor(e);
+    var b = document.createElement('button'); b.setAttribute('data-fid', id);
+    if (k === 'withdraw') { open(b, { draft: { id: id, anchor: anchor, intent: 'absent', date: '', notify: false, transport: false } }); return; }
+    open(b, { draft: { id: id, anchor: anchor, intent: k, date: k === 'going' ? anchor : '', notify: true, transport: false } });
+  });
   window.ATM_STAR = {
     refresh: function () { return refreshMine(); },
     take: function (b) {
+      /* 2026-11-14 (ATM-收藏与订阅设计): the star is only 收藏 (save). No sign-in, no organizer mail.
+         要参加 / 想参加 live in the card page's bottom bar (paintIntentBar). */
       if (b.closest && b.closest('[data-unfav]')) return false;
-      if (b.closest && b.closest('.ah-ly')) { var uid = idOf(b); if (uid) confirmUnfav(uid); return true; }
-      if (openedFavStar(b, idOf(b))) { confirmUnfav(idOf(b)); return true; }
-      if (b.classList.contains('atm-star-off')) { toast(L.noRsvp, 'off', b); return true; }
-      if (b.getAttribute('aria-disabled') === 'true') return true;
-      var id = idOf(b), e = id ? eventOf(id) : null;
-      if (!id || (e && hasEmail(e)) || reach[id] === true) { open(b); return true; }
-      if (reach[id] === false) { toast(L.noRsvp, 'off', b); return true; }
-      awaitReach(id).then(function (v) { if (v === true) open(b); else if (v === false) toast(L.noRsvp, 'off', b); else paint(); });
+      var id = idOf(b); if (!id) return true;
+      if (favs[id]) dropLocalFav(id);
+      else { addLocalFav(id); firstSaveHint(b); }
+      b.classList.remove('atm-pop'); void b.offsetWidth; b.classList.add('atm-pop');
+      paint();
       return true;
     },
     paintBar: paintBar, paint: paint, listed: function () { return Object.keys(favs).length; }
