@@ -1,4 +1,4 @@
-/* v11.15 (2026-11-14): v2 layout test page behind ?v2=1. v11.14 (2026-11-14): CAT_FIX per-event overrides (E123 → workshop). v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
+/* v11.20 (2026-11-14): v2 「筛选 ▾」 button instead of long-press / tap-again; tabs + menu stick under the header. v11.15 (2026-11-14): v2 layout test page behind ?v2=1. v11.14 (2026-11-14): CAT_FIX per-event overrides (E123 → workshop). v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
    search page / favorites layer. Hash routes: '' home, #h-feat, #h-city-<City>, #h-search. Query-string views
    (?card, ?mode, ?city, ?via ...) keep the old list untouched. Cards open the single-card layer (?card=ID). */
 (function () {
@@ -43,8 +43,8 @@
      Turn on with ?v2=1 (remembered on this device), off with ?v2=0. Without the flag nothing changes. */
   var V2 = false;
   try { if (/[?&]v2=1/.test(location.search)) localStorage.setItem('atm_v2', '1'); if (/[?&]v2=0/.test(location.search)) localStorage.removeItem('atm_v2'); V2 = localStorage.getItem('atm_v2') === '1'; } catch (e) {}
-  var T2 = zh ? { fav: '收藏', reg: '日常', big: '大型', other: '其他城市', hint: '点活动上的 ☆ 收藏，会显示在这里' }
-    : { fav: 'Saved', reg: 'Regular', big: 'Special', other: 'Other cities', hint: 'Tap ☆ on an event to save it here' };
+  var T2 = zh ? { fav: '收藏', reg: '日常', big: '大型', other: '其他城市', hint: '点活动上的 ☆ 收藏，会显示在这里', filt: '筛选' }
+    : { fav: 'Saved', reg: 'Regular', big: 'Special', other: 'Other cities', hint: 'Tap ☆ on an event to save it here', filt: 'Filter' };
   var CZ = { 'Seoul': '首尔', 'Busan': '釜山', 'Daejeon': '大田', 'Kuala Lumpur': '吉隆坡', 'Beijing': '北京', 'Hong Kong': '香港', 'Changwon': '昌原', 'Daegu': '大邱', 'Shanghai': '上海', 'Taipei': '台北', 'New Taipei': '新北', 'Zhubei': '竹北', 'Chengdu': '成都', 'Hangzhou': '杭州', 'Chongqing': '重庆', 'Tokyo': '东京', 'Osaka': '大阪', 'Guangzhou': '广州', 'Tianjin': '天津', 'Taichung': '台中', 'Tainan': '台南', 'Nanjing': '南京', 'Suzhou': '苏州', 'Bandar Seri Begawan': '斯里巴加湾', 'Penang': '槟城', 'Da Nang': '岘港', 'Miaoli': '苗栗', 'Wuhan': '武汉', 'Gunsan': '群山', 'Shenzhen': '深圳', 'Qingdao': '青岛', 'Haikou': '海口', 'Zhengzhou': '郑州', "Xi'an": '西安', 'Singapore': '新加坡', 'Bangkok': '曼谷', 'Hanoi': '河内', 'Ho Chi Minh City': '胡志明市', 'Manila': '马尼拉', 'Jakarta': '雅加达', 'Bali': '巴厘岛', 'Macau': '澳门', 'Incheon': '仁川', 'Gwangju': '光州', 'Jeju': '济州', 'Ulsan': '蔚山', 'Suwon': '水原', 'Ilsan': '一山', 'Goyang': '高阳', 'Seongnam': '城南', 'Cheongju': '清州', 'Jeonju': '全州', 'Pohang': '浦项', 'Gyeongju': '庆州', 'Kaohsiung': '高雄', 'Hsinchu': '新竹', 'Taoyuan': '桃园', 'Ulaanbaatar': '乌兰巴托', 'Phnom Penh': '金边', 'Yokohama': '横滨', 'Kyoto': '京都', 'Nagoya': '名古屋', 'Fukuoka': '福冈', 'Sapporo': '札幌', 'Kobe': '神户' };
   function fl(c) { return (zh && c === 'Taiwan') ? '台湾地区' : cn(c); }
   function cn(c) { if (c === 'Taiwan') return zh ? '台湾' : 'Taiwan'; return zh ? (CZ[c] || c) : c; }
@@ -230,7 +230,7 @@
     css.textContent += '@media(max-width:600px){html.atm-v2 body.china-page section.china-map-hero{padding-top:0!important;padding-bottom:0!important}html.atm-v2 body.china-page .china-map-hero .china-hero-bar{min-height:52px!important;height:52px!important;padding-top:4px!important;padding-bottom:4px!important}html.atm-v2 body.china-page .china-map-hero h1,html.atm-v2 body.china-page .china-map-hero h1 a{font-size:18px!important}html.atm-v2 .china-hero-bar .atm-burger,html.atm-v2 .china-hero-bar .atm-langbtn,html.atm-v2 .china-hero-bar .top-lang a{min-height:38px!important;height:38px!important;min-width:38px!important}}' +
       '#atm-home .v2-cities{padding:6px 2px 2px;gap:6px}#atm-home .v2-c{height:32px;padding:0 13px;font-size:14px}' +
       '#atm-home .v2-tabs{margin:4px 0 6px}#atm-home .v2-tabs button{min-height:40px;font-size:15px}' +
-      '#atm-home .v2-tabs button{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}#atm-home .v2-caret{font-style:normal;font-size:11px;margin-left:4px;opacity:.75}#atm-home .v2-menu{background:#fff;border:1px solid #EAD7A4;border-radius:12px;padding:10px;margin:2px 0 10px;box-shadow:0 4px 14px rgba(6,51,58,.10)}#atm-home .v2-menu .ah-chips{margin:0;gap:6px}#atm-home .v2-menu .ah-chip{height:34px;padding:0 12px;font-size:14px;font-weight:600;border-radius:8px}#atm-home .v2-menu .ah-chip small{font-size:12px}';
+      '#atm-home .v2-bar{position:sticky;top:var(--ah-hh,52px);z-index:35;background:#FBF5E9;box-shadow:0 0 0 100vmax #FBF5E9;clip-path:inset(0 -100vmax)}#atm-home .v2-tabs{align-items:center}#atm-home .v2-tabs button[data-v2t]{flex:1 1 0}#atm-home .v2-filt{flex:0 0 auto!important;min-height:30px!important;height:30px;margin:0 0 0 6px;padding:0 10px;border:1px solid #EAD7A4!important;border-radius:15px;background:#fff!important;color:#5f6f66!important;font:600 13px system-ui!important;white-space:nowrap}#atm-home .v2-filt.v2-on{background:#9E1B32!important;border-color:#9E1B32!important;color:#fff!important}#atm-home .v2-caret{font-style:normal;font-size:11px;margin-left:4px;opacity:.75}#atm-home .v2-menu{background:#fff;border:1px solid #EAD7A4;border-radius:12px;padding:10px;margin:2px 0 10px;box-shadow:0 4px 14px rgba(6,51,58,.10)}#atm-home .v2-menu .ah-chips{margin:0;gap:6px}#atm-home .v2-menu .ah-chip{height:34px;padding:0 12px;font-size:14px;font-weight:600;border-radius:8px}#atm-home .v2-menu .ah-chip small{font-size:12px}';
   }
   D.head.appendChild(css);
   var S = { a: -1, c: '', open: false };
@@ -418,9 +418,11 @@
   /* ---- v2 layout ---- */
   function v2Guess() { var v = visits(), best = '', n = 0; Object.keys(v).forEach(function (c) { if (REG[c] && v[c] > n) { n = v[c]; best = c; } }); return best || (REG.Beijing ? 'Beijing' : CITIES[0]); }
   function v2Chips(cur) { return '<div class="v2-cities">' + ordered(CITIES).concat(TAILS.map(function (t) { return t.k; })).map(function (c) { return '<button type="button" class="ah-chip v2-c" data-v2c="' + esc(c) + '" aria-pressed="' + (c === cur) + '">' + esc(fl(c)) + '</button>'; }).join('') + '</div>'; }
-  function v2Tabs(t) { /* v11.17: tap a tab = all of it; tap the open tab again (▾) = type menu; a picked type replaces the tab label */
-    var lb = { fav: '★ ' + T2.fav, reg: t === 'reg' && S.tc ? T.tc[S.tc] : T2.reg, big: t === 'big' && S.fc != null && S.fc >= 0 ? T.cat1[S.fc] : T2.big };
-    return '<div class="v2-tabs" role="tablist">' + ['fav', 'reg', 'big'].map(function (k) { var on = k === t, menu = on && k !== 'fav', fx = menu && (S.v2m === k || (k === 'big' ? S.fc != null && S.fc >= 0 : !!S.tc)); /* v11.19: no ▾ by default; it shows only while the menu is open or a type is picked */ return '<button type="button" role="tab" data-v2t="' + k + '" aria-selected="' + on + '"' + (menu ? ' aria-haspopup="true" aria-expanded="' + (S.v2m === k) + '"' : '') + '>' + esc(lb[k]) + (fx ? '<i class="v2-caret">' + (S.v2m === k ? '▴' : '▾') + '</i>' : '') + '</button>'; }).join('') + '</div>'; }
+  function v2Tabs(t) { /* v11.20: plain tabs; a small 「筛选 ▾」 button on the right opens the type menu (日常 / 大型 only) */
+    var tabs = ['fav', 'reg', 'big'].map(function (k) { var lb = { fav: '★ ' + T2.fav, reg: T2.reg, big: T2.big }[k]; return '<button type="button" role="tab" data-v2t="' + k + '" aria-selected="' + (k === t) + '">' + esc(lb) + '</button>'; }).join('');
+    var pick = t === 'big' && S.fc != null && S.fc >= 0 ? T.cat1[S.fc] : t === 'reg' && S.tc ? T.tc[S.tc] : '';
+    var f = t === 'fav' ? '' : '<button type="button" class="v2-filt' + (pick ? ' v2-on' : '') + '" data-v2f="1" aria-haspopup="true" aria-expanded="' + (S.v2m === t) + '">' + esc(pick || T2.filt) + ' ' + (S.v2m === t ? '▴' : '▾') + '</button>';
+    return '<div class="v2-tabs" role="tablist">' + tabs + f + '</div>'; }
   var V2MENU = '';
   function v2Group(list, c, dateOf, big) {
     var away = function (e) { return inCity(e, c) ? 0 : 1; };
@@ -443,7 +445,7 @@
     var body = t === 'fav' ? v2Fav(cur) : t === 'big' ? v2Big(cur) : cityView(cur, true);
     S.v2t = t; if (S.v2m !== t) S.v2m = null;
     var menu = S.v2m && V2MENU ? '<div class="v2-menu">' + V2MENU + '</div>' : ''; V2MENU = '';
-    return v2Chips(cur) + v2Tabs(t) + menu + body;
+    return v2Chips(cur) + '<div class="v2-bar">' + v2Tabs(t) + menu + '</div>' + body;
   }
   var lastR = null, lastC = '';
   function hh() { var h = D.querySelector('.china-sticky-top'); if (h) R.style.setProperty('--ah-hh', Math.max(0, Math.round(h.getBoundingClientRect().bottom)) + 'px'); } /* T row pinned under H */
@@ -537,18 +539,11 @@
     if (ly) refreshFavPanel();
   } finally { rendering = false; }
   }
-  /* v11.18: long-press 日常/大型 (≈0.45s) opens its type menu straight away, also from another tab. Tap-again still works. */
-  var lpT = null, lpFired = false;
-  root.addEventListener('touchstart', function (e) { var b = e.target.closest && e.target.closest('[data-v2t]'); lpFired = false; if (!b) return; var t2 = b.getAttribute('data-v2t'); if (t2 === 'fav') return;
-    clearTimeout(lpT); lpT = setTimeout(function () { lpFired = true; try { navigator.vibrate && navigator.vibrate(10); } catch (x) {}
-      if (t2 === S.v2t) { S.v2m = t2; render(); } else { if (t2 === 'big') S.fc = -1; else S.tc = ''; S.v2m = t2; S.v2t = t2; go(t2 === 'big' ? '#h-feat' : '#h-city-' + encodeURIComponent(S.v2c || v2Guess())); } }, 450); }, { passive: true });
-  ['touchend', 'touchmove', 'touchcancel'].forEach(function (ev) { root.addEventListener(ev, function () { clearTimeout(lpT); }, { passive: true }); });
-  root.addEventListener('contextmenu', function (e) { if (e.target.closest && e.target.closest('[data-v2t]')) e.preventDefault(); });
   root.addEventListener('click', function (e) {
-    if (lpFired) { lpFired = false; if (e.target.closest && e.target.closest('[data-v2t]')) { e.preventDefault(); return; } }
     if (e.target.closest && e.target.closest('a.ah-pt')) return; /* poster link opens P10; do not treat it as the section button */
     var b = e.target.closest('button'); if (!b) return;
-    if (b.hasAttribute('data-v2t')) { var t2 = b.getAttribute('data-v2t'); if (t2 === S.v2t) { if (t2 !== 'fav') { S.v2m = S.v2m === t2 ? null : t2; render(); } return; } S.v2m = null; if (t2 === 'big') S.fc = -1; if (t2 === 'reg') S.tc = ''; go(t2 === 'fav' ? '#h-fav' : t2 === 'big' ? '#h-feat' : '#h-city-' + encodeURIComponent(S.v2c || v2Guess())); return; }
+    if (b.hasAttribute('data-v2f')) { S.v2m = S.v2m === S.v2t ? null : S.v2t; render(); return; }
+    if (b.hasAttribute('data-v2t')) { var t2 = b.getAttribute('data-v2t'); if (t2 === S.v2t) return; S.v2m = null; if (t2 === 'big') S.fc = -1; if (t2 === 'reg') S.tc = ''; go(t2 === 'fav' ? '#h-fav' : t2 === 'big' ? '#h-feat' : '#h-city-' + encodeURIComponent(S.v2c || v2Guess())); return; }
     if (b.hasAttribute('data-v2c')) { var c2 = b.getAttribute('data-v2c'); S.v2c = c2; pick(c2); if (/^#h-(fav|feat)$/.test(location.hash)) { visit(c2); render(); } else go('#h-city-' + encodeURIComponent(c2)); return; }
     if (b.hasAttribute('data-upall')) { S.fcity = b.getAttribute('data-upall'); S.fc = -1; go('#h-feat'); return; }
     if (b.hasAttribute('data-fcity')) { S.fcity = ''; render(); return; }
