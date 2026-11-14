@@ -1,0 +1,55 @@
+name: R2 sync (event data)
+
+# Publishes asia/events*.json and their posters to R2 (data.tangoweekend.org)
+# whenever that data changes on main, so no person or agent needs the
+# Cloudflare token locally. Needs the repo secret CLOUDFLARE_API_TOKEN.
+# Manual run: Actions -> "R2 sync (event data)" -> Run workflow.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'asia/events.json'
+      - 'asia/events-core.json'
+      - 'asia/events-more.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: r2-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check secret
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Repo secret CLOUDFLARE_API_TOKEN is not set. Nothing was uploaded."
+            exit 1
+          fi
+      - name: Upload to R2 (refuses if R2 has cards the repo does not)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: python3 tools/r2_sync_cards.py
+      - name: Commit the events-core cache-key bump
+        run: |
+          if git diff --quiet; then echo "no cache-key change"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git add asia/index.html zh/asia/index.html asia/asia-map.js asia/atm-home.js
+          git commit -m "R2 sync: bump events-core cache key"
+          git push
+      - name: Public check
+        run: python3 tools/r2_sync_cards.py --check
