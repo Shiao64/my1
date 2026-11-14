@@ -333,11 +333,34 @@ def bump_china_cache(root):
     return nxt
 
 
-def pull_fallback(root):
+def keep_local_rows(public_rows, local_rows, keep):
+    """Return public_rows with the rows whose id is in keep taken from local_rows.
+
+    A kept id that the local file has but public lacks is appended; one the local file
+    lacks is left as public has it.
+    """
+    local = {row.get('id'): row for row in local_rows if isinstance(row, dict)}
+    out, seen = [], set()
+    for row in public_rows:
+        rid = row.get('id') if isinstance(row, dict) else None
+        if rid in keep and rid in local:
+            out.append(local[rid])
+            seen.add(rid)
+        else:
+            out.append(row)
+    for rid in keep:
+        if rid in local and rid not in seen and rid not in card_ids(public_rows):
+            out.append(local[rid])
+    return out
+
+
+def pull_fallback(root, keep=()):
     """Replace the three git JSON files with the public bytes, then bump the cache key if they changed.
 
+    keep: card ids whose repo version wins over public (repo edits not uploaded yet).
     No upload. Poster files are left as they are.
     """
+    keep = set(keep or ())
     changed = []
     counts = {}
     for name in JSON_FILES:
@@ -345,12 +368,20 @@ def pull_fallback(root):
         data = json.loads(body.decode('utf-8'))
         if not isinstance(data, list):
             raise SystemExit('%s is not a list; fallback not written' % name)
-        counts[name] = len(data)
         path = os.path.join(root, name)
         old = b''
         if os.path.isfile(path):
             with open(path, 'rb') as fh:
                 old = fh.read()
+        if keep and old:
+            local_rows = json.loads(old.decode('utf-8'))
+            merged = keep_local_rows(data, local_rows, keep)
+            if merged != data:
+                kept = sorted(keep & card_ids(local_rows))
+                print(name, 'keeps repo rows', ', '.join(kept))
+                data = merged
+                body = json.dumps(data, ensure_ascii=False, separators=(',', ':')).encode('utf-8')
+        counts[name] = len(data)
         if old != body:
             tmp = path + '.pull-tmp'
             with open(tmp, 'wb') as fh:
@@ -457,6 +488,7 @@ def main(argv=None):
     parser.add_argument('--event-id', help='Still uploads all three JSON files; limits images to this id')
     parser.add_argument('--check', action='store_true', help='GET the public events-core.json and exit')
     parser.add_argument('--pull-fallback', action='store_true', help='Download public card JSON into the repo and bump ?v=china. Does not upload.')
+    parser.add_argument('--keep', default='', help='With --pull-fallback: comma-separated card ids whose repo version wins over public')
     parser.add_argument('--root', default=ROOT)
     args = parser.parse_args(argv)
     root = os.path.abspath(args.root)
@@ -467,7 +499,7 @@ def main(argv=None):
         if args.dry_run:
             print('pull-fallback would download', ', '.join(JSON_FILES), 'and bump the events-core cache key. No request was sent.')
             return 0
-        pull_fallback(root)
+        pull_fallback(root, keep=[k.strip() for k in args.keep.split(',') if k.strip()])
         return 0
     publish(root, event_id=args.event_id, dry_run=args.dry_run)
     return 0
