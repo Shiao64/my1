@@ -22,9 +22,9 @@
     'Vietnam': '베트남', 'Brunei': '브루나이', 'Others': '기타', 'Mainland China': '중국 본토'
   };
   var TYPE = {
-    'Milonga': '밀롱가', 'Práctica': '쁘락띠까', 'Practica': '쁘락띠까', 'Práctilonga': '쁘락띨롱가', 'Practilonga': '쁘락띨롱가',
-    'Festival': '페스티벌', 'Marathon': '마라톤', 'Encuentro': '엔꾸엔뜨로', 'Weekend': '위켄드',
-    'Encuentro / Weekend': '엔꾸엔뜨로 / 위켄드', 'Anniversary': '주년 기념', 'Workshop': '워크숍',
+    'Milonga': '밀롱가', 'Práctica': '쁘락띠까', 'Practica': '쁘락띠까', 'Práctilonga': '쁘락띠롱가', 'Practilonga': '쁘락띠롱가',
+    'Festival': '페스티벌', 'Marathon': '마라톤', 'Encuentro': '엔쿠엔트로', 'Weekend': '위켄드',
+    'Encuentro / Weekend': '엔쿠엔트로 / 위켄드', 'Anniversary': '애니버서리 밀롱가', 'Workshop': '워크숍',
     'Championship': '챔피언십', 'Event': '이벤트', 'Class': '클래스', 'One-off': '단발',
     'Weekly': '매주', 'Monthly': '매월', 'Biweekly': '격주'
   };
@@ -34,12 +34,12 @@
 
   var S = {
     /* header, tabs, home */
-    'Asia Tango Map': '아시아 탱고 지도', 'Add event': '이벤트 추가', 'Saved': '저장', 'Regular': '정기', 'Special': '대형',
+    'Asia Tango Map': '아시아 탱고 지도', 'Add event': '이벤트 추가', 'Saved': '저장', 'Regular': '정기', 'Special': '스페셜',
     'Filter': '필터', 'See all ›': '전체 보기 ›', 'Month': '월', 'Week': '주', 'Today': '오늘', 'From today': '오늘부터',
-    'by date': '날짜순', 'From today · by date': '오늘부터 · 날짜순', 'Upcoming special': '다가오는 대형 이벤트',
-    'Other cities': '다른 도시', 'All regular': '정기 전체', 'All special': '대형 전체', 'Special events': '대형 이벤트',
+    'by date': '날짜순', 'From today · by date': '오늘부터 · 날짜순', 'Upcoming special': '다가오는 스페셜 이벤트',
+    'Other cities': '다른 도시', 'All regular': '정기 전체', 'All special': '스페셜 전체', 'Special events': '스페셜 이벤트',
     'Regular events': '정기 이벤트', 'regular events': '정기 이벤트', 'regular event': '정기 이벤트',
-    'special event': '대형 이벤트', 'Mainland China · weekly · pick a city': '중국 본토 · 매주 · 도시 선택',
+    'special event': '스페셜 이벤트', 'Mainland China · weekly · pick a city': '중국 본토 · 매주 · 도시 선택',
     'Choose events': '이벤트 선택', 'All events': '모든 이벤트', 'All cities': '모든 도시', 'All events · All cities': '모든 이벤트 · 모든 도시',
     'events': '이벤트', 'Events': '이벤트', 'Collapse': '접기', 'Expand': '펼치기', 'No events': '이벤트 없음',
     'No events found': '이벤트를 찾지 못했습니다', 'Clear filters': '필터 지우기', 'Finding milongas…': '밀롱가 찾는 중…',
@@ -47,7 +47,7 @@
     'Tap the star on an event to save it.': '이벤트의 별을 눌러 저장하세요.',
     'Tap ☆ on an event to save it here': '이벤트의 ☆를 누르면 여기에 저장됩니다',
     'After you verify your email, this list restores on your other devices': '이메일 인증 후에는 다른 기기에서도 이 목록이 복원됩니다',
-    'Festivals': '페스티벌', 'Marathons': '마라톤', 'Encuentros / Weekends': '엔꾸엔뜨로 / 위켄드', 'Anniversaries': '주년 기념',
+    'Festivals': '페스티벌', 'Marathons': '마라톤', 'Encuentros / Weekends': '엔쿠엔트로 / 위켄드', 'Anniversaries': '애니버서리 밀롱가',
     'Workshops': '워크숍', 'Last': '마지막', 'Cancelled': '취소됨', 'Paused this week': '이번 주 휴무',
     'Remove from favorites': '저장 취소', 'Add to favorites': '저장', 'Save': '저장', 'Next': '다음',
     'Saved events': '저장한 이벤트', 'Choose city': '도시 선택', 'Choose a city': '도시 선택', 'Select a city': '도시 선택',
@@ -55,7 +55,7 @@
     'Favorites': '저장', 'FAVORITES': '저장', 'My saved events': '내가 저장한 이벤트', 'Recommended': '추천', 'RECOMMENDED': '추천',
     'Weekly milongas & practicas': '매주 열리는 밀롱가 · 쁘락띠까', '— Weekly milongas & practicas': '— 매주 열리는 밀롱가 · 쁘락띠까',
     'No events match these filters in this city.': '이 도시에 조건에 맞는 이벤트가 없습니다.',
-    'No listings match these filters.': '조건에 맞는 이벤트가 없습니다.', 'All cities · Special events by start date': '모든 도시 · 대형 이벤트 (시작일순)',
+    'No listings match these filters.': '조건에 맞는 이벤트가 없습니다.', 'All cities · Special events by start date': '모든 도시 · 스페셜 이벤트 (시작일순)',
     'Weekly milonga · This week\'s theme': '매주 밀롱가 · 이번 주 테마', 'TBA': '미정',
     /* card */
     'Venue': '장소', 'ORG': '주최', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
@@ -66,7 +66,7 @@
     'WeChat Article': '위챗 글', 'WeChat article': '위챗 글', 'Temporarily changed': '임시 변경',
     'Newer poster': '최신 포스터', 'Older poster': '이전 포스터', 'Past poster': '지난 포스터', 'Previous poster': '이전 포스터', 'Next poster': '다음 포스터',
     'ENDED': '종료', 'This event has ended': '종료된 이벤트입니다', 'View all events': '모든 이벤트 보기', 'Next edition:': '다음 회차:',
-    '📷 Recap': '📷 후기', 'Photos:': '사진:', '★ Special events': '★ 대형 이벤트', 'This card is not on the map': '지도에 없는 카드입니다',
+    '📷 Recap': '📷 후기', 'Photos:': '사진:', '★ Special events': '★ 스페셜 이벤트', 'This card is not on the map': '지도에 없는 카드입니다',
     'The map could not load this card. That does not mean the event has ended.': '이 카드를 불러오지 못했습니다. 이벤트가 끝났다는 뜻은 아닙니다.',
     'Try again': '다시 시도', 'Back': '뒤로', 'Back to list': '목록으로', 'Search': '검색', 'Menu': '메뉴', 'Close': '닫기',
     'No · Not confirmed, please contact the organizer': '아니요 · 미확인, 주최자에게 문의하세요',
@@ -181,7 +181,7 @@
       return '매월 ' + m[1].split(/ & |, | and /).map(function (x) { return NTH[x]; }).join('·') + ' ' + WDL[m[2]] + (m[3] ? ' ' + type(m[3].trim()) : ''); }],
     [/^(Weekly|Monthly|Biweekly|One-off) · (.+)$/, function (m) { return TYPE[m[1]] + ' · ' + type(m[2]); }],
     [/^([\d/–:\- ]+) · (.+)$/, function (m) { return m[1] + ' · ' + tail(m[2]).split(' · ').map(type).join(' · '); }],
-    [/^Upcoming special · (.+)$/, function (m) { return '다가오는 대형 이벤트 · ' + city(m[1]); }],
+    [/^Upcoming special · (.+)$/, function (m) { return '다가오는 스페셜 이벤트 · ' + city(m[1]); }],
     [/^(.+) ▾$/, function (m) { return CITY[m[1]] ? CITY[m[1]] + ' ▾' : null; }],
     [/^(.+) \((\d+)\)$/, function (m) { return CITY[m[1]] ? CITY[m[1]] + ' (' + m[2] + ')' : null; }],
     [/^(.+) ·$/, function (m) { return CITY[m[1]] ? CITY[m[1]] + ' ·' : null; }],
