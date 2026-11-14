@@ -103,8 +103,8 @@
     var t = baseDate();
     var n = new Date(t.getFullYear(), t.getMonth(), t.getDate() + ((r.weekday - t.getDay() + 7) % 7));
     var k = Math.floor((n.getDate() - 1) / 7) + 1;
-    if (r.nth === -1) return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth();
-    return k === r.nth;
+    var last = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth();
+    return [].concat(r.nth).some(function(x){ return x === -1 ? last : k === x; }); /* nth may be a list, e.g. [1,3] */
   }
   function weekdayHead(d){
     var t = baseDate();
@@ -129,9 +129,9 @@
     return one(t);
   }
   function nthLabel(n, d){
-    if (isZh) return '每月' + (n === -1 ? '最后一个' : '第' + ['','一','二','三','四','五'][n] + '个') + '周' + ['日','一','二','三','四','五','六'][d];
+    if (isZh) return '每月' + (n === -1 ? '最后一个' : '第' + [].concat(n).map(function(x){ return x === -1 ? '最后一' : ['','一','二','三','四','五'][x]; }).join('、') + '个') + '周' + ['日','一','二','三','四','五','六'][d];
     var dn = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][d];
-    return (n === -1 ? 'Last' : ['','1st','2nd','3rd','4th','5th'][n]) + ' ' + dn + ' monthly';
+    return (n === -1 ? 'Last' : [].concat(n).map(function(x){ return x === -1 ? 'last' : ['','1st','2nd','3rd','4th','5th'][x]; }).join(' & ')) + ' ' + dn + ' monthly';
   }
   function organizersText(list){
     if (!list || !list.length) return '';

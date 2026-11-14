@@ -1,4 +1,4 @@
-/* v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
+/* v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
    search page / favorites layer. Hash routes: '' home, #h-feat, #h-city-<City>, #h-search. Query-string views
    (?card, ?mode, ?city, ?via ...) keep the old list untouched. Cards open the single-card layer (?card=ID). */
 (function () {
@@ -96,7 +96,8 @@
     TAILS = TAIL.filter(function (t) { return REG[t.k] && REG[t.k].length; });
     CITIES = Object.keys(REG).filter(function (c) { return !tailOf(REG[c][0].region); }).sort(function (a, b) { return REG[b].length - REG[a].length || (a < b ? -1 : 1); });
   }
-  /* v11.8: monthly nth weekday (e.nth, -1 = last) */ function nthAdj(e, n) { if (!e.nth) return n; for (var g = 0; g < 8; g++) { var k = Math.floor((n.getDate() - 1) / 7) + 1, last = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth(); if (e.nth === -1 ? last : k === e.nth) break; n = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7); } return n; }
+  /* v11.8: monthly nth weekday (e.nth, -1 = last). v11.13: e.nth may be a list, e.g. [1,3] or [2,4] = twice a month; a 5th week is skipped. */ function nthHit(nth, k, last) { var a = Array.isArray(nth) ? nth : [nth]; for (var i = 0; i < a.length; i++) if (a[i] === -1 ? last : k === a[i]) return true; return false; }
+  function nthAdj(e, n) { if (!e.nth) return n; for (var g = 0; g < 8; g++) { var k = Math.floor((n.getDate() - 1) / 7) + 1, last = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7).getMonth() !== n.getMonth(); if (nthHit(e.nth, k, last)) break; n = new Date(n.getFullYear(), n.getMonth(), n.getDate() + 7); } return n; }
   function occOf(e) { var d = nthAdj(e, new Date(now.getFullYear(), now.getMonth(), now.getDate() + rel(wdOf(e)))); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
   function wdOf(e) { if (e.kind === 'weekly') return (e.weekdays && e.weekdays.length ? e.weekdays[0] : e.weekday) % 7; return new Date(e.start + 'T12:00:00').getDay(); }
   function rel(w) { return (w - TWD + 7) % 7; }
@@ -105,7 +106,8 @@
   function oneTag(e) { if (!(e.kind === 'event' && e.regular_oneoff)) return ''; return e.oneoff_kind === 'monthly' ? (zh ? '月度活动' : 'Monthly') : (zh ? '单次' : 'One-off'); }
   function fd(s) { return s ? s.slice(5).replace('-', '/') + (s.slice(0, 4) !== TODAY.slice(0, 4) ? '' : '') : ''; }
   function dt(e) {
-    if (e.kind === 'weekly' && e.nth) return (zh ? '每月' + (e.nth === -1 ? '最后一个' : '第' + e.nth + '个') : (e.nth === -1 ? 'Last ' : ['', '1st ', '2nd ', '3rd ', '4th ', '5th '][e.nth])) + T.WD[wdOf(e)] + (zh ? '' : ' monthly') + (e.time ? ' ' + e.time : '');
+    if (e.kind === 'weekly' && !e.nth && e.every === 2) return (zh ? '隔周' : 'Every other ') + T.WD[wdOf(e)] + (e.time ? ' ' + e.time : '');
+    if (e.kind === 'weekly' && e.nth) return (zh ? '每月' + (e.nth === -1 ? '最后一个' : '第' + [].concat(e.nth).join('、') + '个') : (e.nth === -1 ? 'Last ' : [].concat(e.nth).map(function (x) { return x === -1 ? 'last' : ['', '1st', '2nd', '3rd', '4th', '5th'][x]; }).join(' & ') + ' ')) + T.WD[wdOf(e)] + (zh ? '' : ' monthly') + (e.time ? ' ' + e.time : '');
     if (e.kind === 'weekly') return T.every + (e.weekdays || [e.weekday]).map(function (i) { return T.WD[i % 7]; }).join('/') + (e.time ? ' ' + e.time : '');
     var s = fd(e.start) + (e.end && e.end !== e.start ? '–' + fd(e.end) : ''); if (e.start && e.start.slice(0, 4) !== TODAY.slice(0, 4)) s = e.start.slice(0, 4) + '/' + s; if (e.theme_of) s += ' ' + T.WD[new Date(e.start + 'T12:00:00').getDay()] + (e.time ? ' ' + e.time : ''); return s;
   }
@@ -330,7 +332,7 @@
   var MAXD = 90, SHELL_T = '';
   function isoOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
   function dayAt(off) { return new Date(now.getFullYear(), now.getMonth(), now.getDate() + off); }
-  function nthOk(e, d) { if (!e.nth) return true; var k = Math.floor((d.getDate() - 1) / 7) + 1, last = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7).getMonth() !== d.getMonth(); return e.nth === -1 ? last : k === e.nth; }
+  function nthOk(e, d) { if (!e.nth) return true; var k = Math.floor((d.getDate() - 1) / 7) + 1, last = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7).getMonth() !== d.getMonth(); return nthHit(e.nth, k, last); }
   function cityPool(c) { return DATA.filter(function (e) { if (!inCity(e, c) || (e.region !== 'China' && !tailOf(e.region))) return false; return e.kind === 'weekly' || (e.kind === 'event' && (e.regular_oneoff || !isBig(e) || catOf(e) === 'anniversary')); }); }
   function onDay(e, d, iso, th) {
     if (e.kind === 'weekly') { var w = (e.weekdays && e.weekdays.length ? e.weekdays : [e.weekday]).map(function (x) { return x % 7; }); return w.indexOf(d.getDay()) >= 0 && nthOk(e, d) && !th[e.id + '|' + iso]; }

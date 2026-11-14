@@ -126,7 +126,7 @@ var P10TN=zh?{milonga:'舞会',practica:'练习场',festival:'探戈节',maratho
 var P10DZ=['日','一','二','三','四','五','六'], P10DE=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], P10DS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 function p10type(e){ return P10TN[e.type]||e.type||(zh?'活动':'Event'); }
 function p10freq(e){ var ty=p10type(e); if(e.kind!=='weekly') return ty; var ds=e.weekdays||(e.weekday!=null?[e.weekday]:[]); if(!ds.length) return (zh?'每周':'Weekly ')+ty;
-  if(e.nth&&ds.length===1){ var d=ds[0]%7; if(zh) return '每月'+(e.nth===-1?'最后一个':'第'+['','一','二','三','四','五'][e.nth]+'个')+'周'+P10DZ[d]+ty; return (e.nth===-1?'Last':['','1st','2nd','3rd','4th','5th'][e.nth])+' '+P10DE[d]+' '+ty; }
+  if(e.nth&&ds.length===1){ var d=ds[0]%7; if(zh) return '每月'+(e.nth===-1?'最后一个':'第'+[].concat(e.nth).map(function(x){return x===-1?'最后一':['','一','二','三','四','五'][x];}).join('、')+'个')+'周'+P10DZ[d]+ty; return (e.nth===-1?'Last':[].concat(e.nth).map(function(x){return x===-1?'last':['','1st','2nd','3rd','4th','5th'][x];}).join(' & '))+' '+P10DE[d]+' '+ty; }
   if(e.every===2&&ds.length===1) return zh?('隔周周'+P10DZ[ds[0]%7]+ty):('Every other '+P10DE[ds[0]%7]+' '+ty);
   if(zh) return '每周'+ds.map(function(i){return P10DZ[i%7]}).join('、')+ty;
   return 'Every '+ds.map(function(i){return ds.length>1?P10DS[i%7]:P10DE[i%7]}).join(' & ')+' '+ty; }
@@ -136,7 +136,7 @@ function p10normDate(s){ var m=String(s||'').trim().match(/^(\d{4})[-/](\d{1,2})
 function p10nextDate(e){ var today=p10shToday(), p=today.split('-'), now=new Date(+p[0], +p[1]-1, +p[2], 12,0,0,0);
   if(e.kind!=='weekly') return p10normDate(e.start);
   var ds=e.weekdays||(e.weekday!=null?[e.weekday]:[]); if(!ds.length) return ''; var best=null;
-  ds.forEach(function(wd){ wd=wd%7; var n=new Date(now.getFullYear(),now.getMonth(),now.getDate()+((wd-now.getDay()+7)%7)); if(e.nth){ var g=0; while(g++<8){ var k=Math.floor((n.getDate()-1)/7)+1, last=new Date(n.getFullYear(),n.getMonth(),n.getDate()+7).getMonth()!==n.getMonth(); if(e.nth===-1?last:k===e.nth) break; n=new Date(n.getFullYear(),n.getMonth(),n.getDate()+7); } } if(!best||n<best) best=n; });
+  ds.forEach(function(wd){ wd=wd%7; var n=new Date(now.getFullYear(),now.getMonth(),now.getDate()+((wd-now.getDay()+7)%7)); if(e.nth){ var g=0; while(g++<8){ var k=Math.floor((n.getDate()-1)/7)+1, last=new Date(n.getFullYear(),n.getMonth(),n.getDate()+7).getMonth()!==n.getMonth(); if([].concat(e.nth).some(function(x){return x===-1?last:k===x;})) break; n=new Date(n.getFullYear(),n.getMonth(),n.getDate()+7); } } if(!best||n<best) best=n; });
   return best?best.getFullYear()+'-'+p10pad(best.getMonth()+1)+'-'+p10pad(best.getDate()):''; }
 /* temp_notices: visible while Asia/Shanghai today is within date, or start–end. Hidden after the end date. */
 function p10noticeSpan(o){ var date=p10normDate(o.date), start=p10normDate(o.start)||date, end=p10normDate(o.end)||date||start; if(!start) start=end; if(!end) end=start; if(!start||!end) return null; if(end<start){ var t=start; start=end; end=t; } return {start:start, end:end}; }
