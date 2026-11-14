@@ -1,4 +1,4 @@
-/* v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
+/* v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
    search page / favorites layer. Hash routes: '' home, #h-feat, #h-city-<City>, #h-search. Query-string views
    (?card, ?mode, ?city, ?via ...) keep the old list untouched. Cards open the single-card layer (?card=ID). */
 (function () {
@@ -37,8 +37,8 @@
   if (/[?&](card|mode|city|via|date|q|type)=/.test(location.search)) return;
   try { if (sessionStorage.getItem('atm_legacy_list') === '1') return; } catch (e) {} /* regression hook: old full list for the pre-v11.6 test suite */
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
-  var T = zh ? { feat: '大型活动', reg: '日常活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '日常活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。点活动上的星星即可收藏。', favnote: '验证邮箱后可在其他设备恢复', back: '返回', theme: '每周舞会 · 本周专题', cats: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '日常活动'], cat1: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊'], allBig: '全部大型', allReg: '全部日常', tc: { milonga: '舞会', practilonga: '练习舞会', practica: '练习场' }, up: '近期大型', seeall: '全部大型 ›', allCity: '全部城市', WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
-    : { feat: 'Special events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'regular event', fav: 'My saved events', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No saved events yet. Tap the star on an event to save it.', favnote: 'After you verify your email, this list restores on your other devices', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Festivals', 'Marathons', 'Encuentros / Weekends', 'Anniversaries', 'Workshops', 'Regular events'], cat1: ['Festival', 'Marathon', 'Encuentro / Weekend', 'Anniversary', 'Workshop'], allBig: 'All special', allReg: 'All regular', tc: { milonga: 'Milonga', practilonga: 'Práctilonga', practica: 'Práctica' }, up: 'Upcoming special', seeall: 'See all ›', allCity: 'All cities', WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
+  var T = zh ? { feat: '大型活动', reg: '日常活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '日常活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。点活动上的星星即可收藏。', favnote: '验证邮箱后可在其他设备恢复', back: '返回', theme: '每周舞会 · 本周专题', cats: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '日常活动'], cat1: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊'], allBig: '全部大型', allReg: '全部日常', tc: { milonga: '舞会', practilonga: '练习舞会', practica: '练习场' }, up: '近期大型', seeall: '全部大型 ›', allCity: '全部城市', today: '今天', mview: '月历', wview: '周视图', noev: '没有活动', proj: '较远的日期按每周固定时间推算，可能有变动，请向主办方确认。', WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
+    : { feat: 'Special events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'regular event', fav: 'My saved events', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No saved events yet. Tap the star on an event to save it.', favnote: 'After you verify your email, this list restores on your other devices', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Festivals', 'Marathons', 'Encuentros / Weekends', 'Anniversaries', 'Workshops', 'Regular events'], cat1: ['Festival', 'Marathon', 'Encuentro / Weekend', 'Anniversary', 'Workshop'], allBig: 'All special', allReg: 'All regular', tc: { milonga: 'Milonga', practilonga: 'Práctilonga', practica: 'Práctica' }, up: 'Upcoming special', seeall: 'See all ›', allCity: 'All cities', today: 'Today', mview: 'Month', wview: 'Week', noev: 'No events', proj: 'Later dates are projected from the weekly schedule and may change. Please confirm with the organizer.', WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
   var CZ = { 'Seoul': '首尔', 'Busan': '釜山', 'Daejeon': '大田', 'Kuala Lumpur': '吉隆坡', 'Beijing': '北京', 'Hong Kong': '香港', 'Changwon': '昌原', 'Daegu': '大邱', 'Shanghai': '上海', 'Taipei': '台北', 'New Taipei': '新北', 'Zhubei': '竹北', 'Chengdu': '成都', 'Hangzhou': '杭州', 'Chongqing': '重庆', 'Tokyo': '东京', 'Osaka': '大阪', 'Guangzhou': '广州', 'Tianjin': '天津', 'Taichung': '台中', 'Tainan': '台南', 'Nanjing': '南京', 'Suzhou': '苏州', 'Bandar Seri Begawan': '斯里巴加湾', 'Penang': '槟城', 'Da Nang': '岘港', 'Miaoli': '苗栗', 'Wuhan': '武汉', 'Gunsan': '群山', 'Shenzhen': '深圳', 'Qingdao': '青岛', 'Haikou': '海口', 'Zhengzhou': '郑州', "Xi'an": '西安', 'Singapore': '新加坡', 'Bangkok': '曼谷', 'Hanoi': '河内', 'Ho Chi Minh City': '胡志明市', 'Manila': '马尼拉', 'Jakarta': '雅加达', 'Bali': '巴厘岛', 'Macau': '澳门', 'Incheon': '仁川', 'Gwangju': '光州', 'Jeju': '济州', 'Ulsan': '蔚山', 'Suwon': '水原', 'Ilsan': '一山', 'Goyang': '高阳', 'Seongnam': '城南', 'Cheongju': '清州', 'Jeonju': '全州', 'Pohang': '浦项', 'Gyeongju': '庆州', 'Kaohsiung': '高雄', 'Hsinchu': '新竹', 'Taoyuan': '桃园', 'Ulaanbaatar': '乌兰巴托', 'Phnom Penh': '金边', 'Yokohama': '横滨', 'Kyoto': '京都', 'Nagoya': '名古屋', 'Fukuoka': '福冈', 'Sapporo': '札幌', 'Kobe': '神户' };
   function fl(c) { return (zh && c === 'Taiwan') ? '台湾地区' : cn(c); }
   function cn(c) { if (c === 'Taiwan') return zh ? '台湾' : 'Taiwan'; return zh ? (CZ[c] || c) : c; }
@@ -146,9 +146,10 @@
     return !until || SHT <= until;
   }
   /* Red list bar: permanent status, cancelled_dates for this occurrence, or a cancelled notice for that same date. */
+  var CX_ISO = null; /* city date rail: the day being drawn, so cancelled_dates/notices match that day */
   function weekCx(e) {
     if (e.status === 'cancelled') return 'perm';
-    var iso = e.kind === 'weekly' ? occOf(e) : (e.start || '');
+    var iso = CX_ISO || (e.kind === 'weekly' ? occOf(e) : (e.start || ''));
     if (!iso) return '';
     if (e.cancelled_dates && e.cancelled_dates.indexOf(iso) !== -1) return 'week';
     var list = e.temp_notices;
@@ -206,6 +207,10 @@
     '#atm-home .ah-ctag{align-self:flex-start;font:700 11px system-ui;font-style:normal;color:#8a6500;background:#FBEFC9;border-radius:6px;padding:1px 7px}#atm-home .ah-rtag{color:#0E6E78;background:#E9F2F2}#atm-home .ah-anniv{background:#8a6500}' +
     '#atm-home .ah-up{margin:10px 0 4px;padding:10px 12px;border-radius:14px;background:#FBEFC9;border:1px solid #EAD7A4}#atm-home .ah-uph{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}#atm-home .ah-uph b{font:700 15px "Noto Serif SC",serif;color:#8a6500}#atm-home .ah-upall{border:0;background:none;color:#0E6E78;font:700 13px system-ui;cursor:pointer;min-height:36px;padding:0 4px}' +
     '#atm-home .ah-upl{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}#atm-home .ah-upl::-webkit-scrollbar{display:none}#atm-home .ah-uc{flex:0 0 auto;width:210px;box-sizing:border-box;background:#fff;border-radius:10px;padding:8px 10px;text-decoration:none!important;box-shadow:0 1px 3px rgba(0,0,0,.08)}#atm-home .ah-ucd{display:block;font:600 12px system-ui;color:#8a6500}#atm-home .ah-uc b{font:700 14px/1.3 system-ui;color:#06333A;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}';
+  css.textContent += '#atm-home .ah-rh,#atm-home .ah-mh{display:flex;align-items:center;gap:6px;margin:12px 0 6px}#atm-home .ah-rh b,#atm-home .ah-mh b{flex:1;text-align:center;font:700 15px system-ui;color:#0A4F57}#atm-home .ah-rn{width:40px;height:36px;border:1px solid #EAD7A4;border-radius:18px;background:#fff;color:#0E6E78;font:700 20px system-ui;cursor:pointer}#atm-home .ah-rn[disabled]{opacity:.3;cursor:default}#atm-home .ah-mv{height:36px;padding:0 12px;border:1px solid #0E6E78;border-radius:18px;background:#fff;color:#0E6E78;font:700 13px system-ui;cursor:pointer}' +
+    '#atm-home .ah-rail{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:4px 0 6px}#atm-home .ah-day{border:1px solid #EAD7A4;border-radius:10px;background:#fff;padding:5px 0 4px;cursor:pointer;line-height:1.2;color:#0A4F57}#atm-home .ah-day span{display:block;font:600 11px system-ui;color:#5f6f66}#atm-home .ah-day b{display:block;font:700 18px Georgia,serif}#atm-home .ah-day i{display:block;font:600 11px system-ui;font-style:normal;color:#C0392B;min-height:14px}#atm-home .ah-day[aria-pressed=true]{background:#0E6E78;border-color:#0E6E78;color:#fff}#atm-home .ah-day[aria-pressed=true] span,#atm-home .ah-day[aria-pressed=true] i{color:#F6D58E}' +
+    '#atm-home .ah-mg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px}#atm-home .ah-mw{text-align:center;font:600 11px system-ui;color:#5f6f66}#atm-home .ah-md{border:1px solid #EAD7A4;border-radius:8px;background:#fff;padding:3px 0;cursor:pointer;line-height:1.15;color:#0A4F57;text-align:center}#atm-home .ah-md b{display:block;font:700 15px Georgia,serif}#atm-home .ah-md i{display:block;font:600 10px system-ui;font-style:normal;color:#C0392B;min-height:12px}#atm-home .ah-md[aria-pressed=true]{background:#E9F2F2;border-color:#0E6E78}#atm-home .ah-off{opacity:.3;border-style:dashed}' +
+    '#atm-home .ah-wd{scroll-margin-top:calc(var(--ah-hh,72px) + 60px)}#atm-home .ah-wd-on{color:#fff;background:#0E6E78;border-radius:8px;padding:3px 8px;width:fit-content}#atm-home .ah-noev{font:500 13px system-ui;color:#9aa7a2;margin:0 0 4px 2px}#atm-home .ah-proj{margin:6px 0}';
   D.head.appendChild(css);
   var S = { a: -1, c: '', open: false };
   function route() { var h = location.hash; if (/^#v-/.test(h)) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} h = ''; } /* old #v-<id> card anchors (shared links, back from detail) -> new home, not the old list */ if (!h || h === '#') return 'home'; if (h === '#h-feat') return 'feat'; if (h === '#h-search') return 'search'; if (h === '#h-reg') return 'reg'; if (h.indexOf('#h-city-') === 0) return 'city'; return null; }
@@ -311,6 +316,7 @@
     var chips = '<div class="ah-chips ah-fchips">' + fch(fc < 0, 'data-fc', -1, T.allBig, base.length) + BIG.map(function (k, i) { return fch(fc === i, 'data-fc', i, T.cat1[i], base.filter(function (e) { return cat(e) === i; }).length); }).join('') + '</div>';
     var cityRow = S.fcity ? '<div class="ah-sels"><button type="button" class="ah-sel" data-fcity="1">' + esc(cn(S.fcity)) + ' <i>✕</i></button></div>' : '';
     var ttl = (S.fcity ? esc(cn(S.fcity)) + ' · ' : '') + (zh ? T.feat + ' <i>' + L.length + '</i> ' + T.items : enUnit(L.length, 'special event'));
+    SHELL_T = ttl;
     return top(ttl) + cityRow + chips + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + (L.map(function (e, i) { return card(e, null, null, i < 2, true); }).join('') || '<p>' + T.none + '</p>') + '</div>';
   }
   function upBlock(c) {
@@ -319,15 +325,55 @@
     return '<div class="ah-up"><div class="ah-uph"><b>' + T.up + ' · ' + esc(cn(c)) + '</b><button type="button" class="ah-upall" data-upall="' + esc(c) + '">' + T.seeall + '</button></div><div class="ah-upl">' +
       ups.map(function (e) { return '<a class="ah-uc" href="' + esc(openHref(e)) + '" data-card="' + esc(e.id) + '"><span class="ah-ucd">' + esc(dt(e)) + ' · ' + esc(T.cat1[cat(e)]) + '</span><b>' + esc(evName(e)) + '</b></a>'; }).join('') + '</div></div>';
   }
+  /* v11.12 city date rail: 7 days from S.st (days after today, 0..MAXD), ‹ › = ±7, month grid picks a start day,
+     tapping a day in the rail scrolls to it. Weekly events are projected (weekdays, nth); one-offs by start..end. */
+  var MAXD = 90, SHELL_T = '';
+  function isoOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function dayAt(off) { return new Date(now.getFullYear(), now.getMonth(), now.getDate() + off); }
+  function nthOk(e, d) { if (!e.nth) return true; var k = Math.floor((d.getDate() - 1) / 7) + 1, last = new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7).getMonth() !== d.getMonth(); return e.nth === -1 ? last : k === e.nth; }
+  function cityPool(c) { return DATA.filter(function (e) { if (!inCity(e, c) || (e.region !== 'China' && !tailOf(e.region))) return false; return e.kind === 'weekly' || (e.kind === 'event' && (e.regular_oneoff || !isBig(e) || catOf(e) === 'anniversary')); }); }
+  function onDay(e, d, iso, th) {
+    if (e.kind === 'weekly') { var w = (e.weekdays && e.weekdays.length ? e.weekdays : [e.weekday]).map(function (x) { return x % 7; }); return w.indexOf(d.getDay()) >= 0 && nthOk(e, d) && !th[e.id + '|' + iso]; }
+    return !!e.start && e.start <= iso && iso <= (e.end || e.start);
+  }
+  function dayList(pool, th, d, tc) { var iso = isoOf(d); return pool.filter(function (e) { return onDay(e, d, iso, th) && (!tc || regKey(e) === tc); }).sort(function (a, b) { return (a.time || '') < (b.time || '') ? -1 : 1; }); }
+  function monthLabel(d) { return zh ? d.getFullYear() + '年' + (d.getMonth() + 1) + '月' : (d.getMonth() + 1) + '/' + d.getFullYear(); }
   function cityView(c) {
-    var all = regSorted(c), tc = S.tc || '', cnt = { milonga: 0, practilonga: 0, practica: 0 };
-    all.forEach(function (e) { cnt[regKey(e)]++; });
+    var st = Math.max(0, Math.min(MAXD - 6, S.st || 0)), pool = cityPool(c), th = {}, tc = S.tc || '', days = [];
+    pool.forEach(function (e) { if (e.kind === 'event' && e.theme_of) th[e.theme_of + '|' + e.start] = 1; });
+    for (var i = 0; i < 7; i++) days.push(dayAt(st + i));
+    var cnt = { milonga: 0, practilonga: 0, practica: 0 }, allN = 0;
+    days.forEach(function (d) { dayList(pool, th, d, '').forEach(function (e) { cnt[regKey(e)]++; allN++; }); });
     if (tc && !cnt[tc]) tc = '';
-    var L = all.filter(function (e) { return !tc || regKey(e) === tc; }), out = '', last = -1;
-    L.forEach(function (e) { var d = occDate(e); if (d !== last) { out += '<div class="ah-wd">' + T.WD[wdOf(e)] + (d ? ' ' + d.slice(5).replace('-', '/') : '') + '</div>'; last = d; } out += card(e); });
+    var per = days.map(function (d) { return dayList(pool, th, d, tc); }), total = 0, out = '';
+    per.forEach(function (L, i) {
+      var d = days[i], iso = isoOf(d); total += L.length;
+      out += '<div class="ah-wd' + (S.jd === iso ? ' ah-wd-on' : '') + '" id="ahd-' + iso + '">' + (iso === TODAY ? T.today + ' · ' : '') + T.WD[d.getDay()] + ' ' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + '</div>';
+      if (!L.length) out += '<div class="ah-noev">' + T.noev + '</div>';
+      L.forEach(function (e) { CX_ISO = iso; out += card(e); CX_ISO = null; });
+    });
+    var nav = S.mv ? '' : '<div class="ah-rh"><button type="button" class="ah-rn" data-wk="-1" aria-label="prev"' + (st <= 0 ? ' disabled' : '') + '>‹</button><b>' + monthLabel(days[0]) + '</b><button type="button" class="ah-rn" data-wk="1" aria-label="next"' + (st >= MAXD - 6 ? ' disabled' : '') + '>›</button><button type="button" class="ah-mv" data-mv="1">' + (S.mv ? T.wview : T.mview) + '</button></div>';
+    var rail;
+    if (S.mv) {
+      var base = new Date(now.getFullYear(), now.getMonth() + (S.mo || 0), 1), y = base.getFullYear(), m = base.getMonth(), dim = new Date(y, m + 1, 0).getDate(), t0 = dayAt(0);
+      rail = '<div class="ah-mh"><button type="button" class="ah-rn" data-mo="-1"' + ((S.mo || 0) <= 0 ? ' disabled' : '') + '>‹</button><b>' + monthLabel(base) + '</b><button type="button" class="ah-rn" data-mo="1"' + ((S.mo || 0) >= 3 ? ' disabled' : '') + '>›</button><button type="button" class="ah-mv" data-mv="1">' + T.wview + '</button></div><div class="ah-mg">';
+      for (var w = 0; w < 7; w++) rail += '<span class="ah-mw">' + (zh ? T.WD[w].slice(-1) : T.WD[w].slice(0, 2)) + '</span>';
+      for (var q = 0; q < base.getDay(); q++) rail += '<span></span>';
+      for (var dd = 1; dd <= dim; dd++) {
+        var dt0 = new Date(y, m, dd), off = Math.round((dt0 - t0) / 864e5);
+        if (off < 0 || off > MAXD) { rail += '<span class="ah-md ah-off"><b>' + dd + '</b></span>'; continue; }
+        var k = dayList(pool, th, dt0, tc).length;
+        rail += '<button type="button" class="ah-md" data-st="' + off + '" aria-pressed="' + (off >= st && off < st + 7) + '"><b>' + dd + '</b><i>' + (k || '') + '</i></button>';
+      }
+      rail += '</div>';
+    } else {
+      rail = '<div class="ah-rail">' + days.map(function (d, i) { var iso = isoOf(d); return '<button type="button" class="ah-day" data-jump="' + iso + '" aria-pressed="' + (S.jd === iso) + '"><span>' + (iso === TODAY ? T.today : T.WD[d.getDay()].replace('周', '')) + '</span><b>' + d.getDate() + '</b><i>' + (per[i].length || '') + '</i></button>'; }).join('') + '</div>';
+    }
     var chips = S.open ? '<div class="ah-chips" style="margin-top:10px">' + CITIES.map(function (x) { return '<button type="button" class="ah-chip" data-city="' + esc(x) + '" aria-pressed="' + (x === c) + '">' + (x === c ? '✓ ' : '') + esc(fl(x)) + '<small>' + REG[x].length + '</small></button>'; }).join('') + '</div><button type="button" class="ah-fold" data-tog="1">' + T.fold + ' ▴</button>' : '';
-    var tchips = '<div class="ah-chips ah-tchips">' + fch(!tc, 'data-tc', '', T.allReg, all.length) + REGK.map(function (k) { return cnt[k] ? fch(tc === k, 'data-tc', k, T.tc[k], cnt[k]) : ''; }).join('') + '</div>';
-    return top(esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + L.length + '</i> ' + T.items : enUnit(L.length, T.weekly))) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + upBlock(c) + tchips + '<div class="ah-list" style="margin-top:6px">' + (out || '<p>' + T.none + '</p>') + '</div>';
+    var tchips = '<div class="ah-chips ah-tchips">' + fch(!tc, 'data-tc', '', T.allReg, allN) + REGK.map(function (k) { return cnt[k] ? fch(tc === k, 'data-tc', k, T.tc[k], cnt[k]) : ''; }).join('') + '</div>';
+    SHELL_T = esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + total + '</i> ' + T.items : enUnit(total, T.weekly));
+    var proj = st + 6 >= 14 ? '<div class="ah-note ah-proj">' + T.proj + '</div>' : '';
+    return top(esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + total + '</i> ' + T.items : enUnit(total, T.weekly))) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + upBlock(c) + nav + rail + tchips + proj + '<div class="ah-list" style="margin-top:6px">' + out + '</div>';
   }
   function srchSet(a) { if (a === 5) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
   function search() {
@@ -387,7 +433,8 @@
     }
     if (!title) { title = D.createElement('span'); title.id = 'atm-p2-title'; title.className = 'atm-p2-title'; back.insertAdjacentElement('afterend', title); }
     var html = '';
-    if (r === 'feat') html = zh ? T.feat + ' <i>' + FEAT.length + '</i> ' + T.items : enUnit(FEAT.length, 'featured event');
+    if ((r === 'feat' || r === 'city') && SHELL_T) html = SHELL_T;
+    else if (r === 'feat') html = zh ? T.feat + ' <i>' + FEAT.length + '</i> ' + T.items : enUnit(FEAT.length, 'featured event');
     else if (r === 'reg') html = T.reg + ' <i>' + CITIES.length + '</i>' + (zh ? ' 城' : (CITIES.length === 1 ? ' city' : ' cities'));
     else if (r === 'city' && c) { var L = REG[c] ? regSorted(c) : []; html = esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + L.length + '</i> ' + T.items : enUnit(L.length, T.weekly)); }
     title.innerHTML = html;
@@ -421,7 +468,7 @@
   function render() { if (rendering) return; rendering = true; try { hh();
     var r = route(); R.classList.toggle('atm-h-on', !!r && !!DATA); R.classList.toggle('atm-h-home', !!r && r !== 'search'); R.classList.toggle('atm-h-search', r === 'search' && !!DATA); R.classList.toggle('atm-h-inner', r === 'feat' || r === 'reg' || r === 'city'); hhLater(); /* P2: cream 56px bar keeps menu */
     if (!r || !DATA) return;
-    if (r !== lastR) S.open = false;
+    if (r !== lastR) { S.open = false; S.st = 0; S.mv = false; S.jd = ''; S.mo = 0; }
     var c = r === 'city' ? decodeURIComponent(location.hash.slice(8)) : '';
     root.innerHTML = r === 'home' ? home() : r === 'feat' ? feat() : r === 'search' ? search() : r === 'reg' ? regView() : cityView(c);
     if (r === 'home' || r === 'feat') preloadLcpPoster();
@@ -443,6 +490,11 @@
     if (b.hasAttribute('data-fcity')) { S.fcity = ''; render(); return; }
     if (b.hasAttribute('data-fc')) { S.fc = +b.getAttribute('data-fc'); render(); return; }
     if (b.hasAttribute('data-tc')) { S.tc = b.getAttribute('data-tc'); render(); return; }
+    if (b.hasAttribute('data-wk')) { S.st = Math.max(0, Math.min(MAXD - 6, (S.st || 0) + 7 * +b.getAttribute('data-wk'))); S.jd = ''; render(); return; }
+    if (b.hasAttribute('data-mv')) { S.mv = !S.mv; if (S.mv) { var d0 = dayAt(S.st || 0); S.mo = (d0.getFullYear() - now.getFullYear()) * 12 + d0.getMonth() - now.getMonth(); } render(); return; }
+    if (b.hasAttribute('data-mo')) { S.mo = Math.max(0, Math.min(3, (S.mo || 0) + +b.getAttribute('data-mo'))); render(); return; }
+    if (b.hasAttribute('data-st')) { S.st = +b.getAttribute('data-st'); S.mv = false; S.jd = isoOf(dayAt(S.st)); render(); return; }
+    if (b.hasAttribute('data-jump')) { S.jd = b.getAttribute('data-jump'); render(); var el = D.getElementById('ahd-' + S.jd); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     if (b.hasAttribute('data-go')) { var g = b.getAttribute('data-go'); if (g === '#h-feat') { S.fcity = ''; S.fc = -1; } if (g) go(g); else if ((location.hash === '#h-feat' || /^#h-city-/.test(location.hash)) && !((prevHash === '' || prevHash === '#') && history.length > 1)) { history.pushState(null, '', location.pathname); render(); } /* P2/P4 ‹ always home */ else if (history.length > 1 && lastFromHome) history.back(); else { history.pushState(null, '', location.pathname); render(); } return; }
     if (b.hasAttribute('data-dd')) { S.dd = !S.dd; render(); return; }
     if (b.hasAttribute('data-city')) { if (b.hasAttribute('data-pick')) { pick(b.getAttribute('data-city')); S.dd = false; } S.open = false; go('#h-city-' + encodeURIComponent(b.getAttribute('data-city'))); return; }
