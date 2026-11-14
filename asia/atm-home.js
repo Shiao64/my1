@@ -67,6 +67,8 @@
     if (e.kind === 'weekly') return regCat(e, s);
     if (/周年|週年|aniversario|anniversary/.test(s)) return 'anniversary';
     if (e.regular_oneoff) return regCat(e, s);
+    /* Organizer's own name decides marathon vs weekend; a name with both Marathon and Festival counts as a festival (user, 2026-11-14). */
+    if (/marathon|马拉松|馬拉松/.test(s) && /festival|探戈节|探戈節/.test(s)) return 'festival';
     if (/marathon|马拉松|馬拉松/.test(s)) return 'marathon';
     if (/weekend|encuentro|周末|週末/.test(s)) return 'weekend';
     if (/workshop|intensivo|masterclass|seminar|工作坊|大师课|大師課/.test(s)) return 'workshop';
