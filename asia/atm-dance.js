@@ -94,8 +94,8 @@
       if (el === h || !el.offsetWidth) return;
       if (getComputedStyle(el).visibility === 'hidden') return;
       /* use the drawn content, not the box: a title span may stretch across the bar */
-      var r = el.getBoundingClientRect(); try { var rg = D.createRange(); rg.selectNodeContents(el); var c = rg.getBoundingClientRect(); if (c.width > 0) r = c; } catch (x) {}
-      if (r.width < 1) return;
+      var r = drawn(el);
+      if (!r || r.width < 1) return;
       xs.push([r.left - br.left, r.right - br.left]);
     });
     xs.sort(function (p, q) { return p[0] - q[0]; });
@@ -107,6 +107,18 @@
     h.style.setProperty('--atm-da', a + 'px');
     h.style.setProperty('--atm-db', z + 'px');
     h.classList.add('atm-go');
+  }
+  /* union of what is actually drawn inside el: text runs, images, svg icons (block boxes can span the whole bar) */
+  function drawn(el) {
+    var L = Infinity, Rr = -Infinity, w = D.createTreeWalker(el, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT, null), n, rg = D.createRange();
+    function add(r) { if (r && r.width > 0 && r.height > 0) { if (r.left < L) L = r.left; if (r.right > Rr) Rr = r.right; } }
+    if (/^(IMG|SVG|BUTTON|INPUT|SELECT)$/i.test(el.tagName)) add(el.getBoundingClientRect());
+    while ((n = w.nextNode())) {
+      if (n.nodeType === 3) { if (!/\S/.test(n.nodeValue)) continue; rg.selectNodeContents(n); add(rg.getBoundingClientRect()); }
+      else if (/^(IMG|SVG|BUTTON|INPUT|SELECT)$/i.test(n.tagName) || n.namespaceURI === 'http://www.w3.org/2000/svg' && n.tagName.toLowerCase() === 'svg') add(n.getBoundingClientRect());
+    }
+    if (L === Infinity) return el.getBoundingClientRect();
+    return { left: L, right: Rr, width: Rr - L };
   }
   function favCount() { try { var a = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); return Array.isArray(a) ? a.length : 0; } catch (x) { return 0; } }
   function onHeart(e) {
