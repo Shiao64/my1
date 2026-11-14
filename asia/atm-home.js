@@ -1,4 +1,4 @@
-/* v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
+/* v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
    search page / favorites layer. Hash routes: '' home, #h-feat, #h-city-<City>, #h-search. Query-string views
    (?card, ?mode, ?city, ?via ...) keep the old list untouched. Cards open the single-card layer (?card=ID). */
 (function () {
@@ -37,8 +37,8 @@
   if (/[?&](card|mode|city|via|date|q|type)=/.test(location.search)) return;
   try { if (sessionStorage.getItem('atm_legacy_list') === '1') return; } catch (e) {} /* regression hook: old full list for the pre-v11.6 test suite */
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
-  var T = zh ? { feat: '特色活动', reg: '常规活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '每周常规活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。点活动上的星星即可收藏。', favnote: '验证邮箱后可在其他设备恢复', back: '返回', theme: '每周舞会 · 本周专题', cats: ['大师课/工作坊', '马拉松', '探戈节', '特色舞会', '常规活动'], WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
-    : { feat: 'Featured events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'weekly event', fav: 'My saved events', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No saved events yet. Tap the star on an event to save it.', favnote: 'After you verify your email, this list restores on your other devices', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Classes / workshops', 'Marathons', 'Festivals', 'Special milongas', 'Regular events'], WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
+  var T = zh ? { feat: '大型活动', reg: '日常活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '日常活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。点活动上的星星即可收藏。', favnote: '验证邮箱后可在其他设备恢复', back: '返回', theme: '每周舞会 · 本周专题', cats: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '日常活动'], cat1: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊'], allBig: '全部大型', allReg: '全部日常', tc: { milonga: '舞会', practilonga: '练习舞会', practica: '练习场' }, up: '近期大型', seeall: '全部大型 ›', allCity: '全部城市', WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
+    : { feat: 'Special events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'regular event', fav: 'My saved events', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No saved events yet. Tap the star on an event to save it.', favnote: 'After you verify your email, this list restores on your other devices', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Festivals', 'Marathons', 'Encuentros / Weekends', 'Anniversaries', 'Workshops', 'Regular events'], cat1: ['Festival', 'Marathon', 'Encuentro / Weekend', 'Anniversary', 'Workshop'], allBig: 'All special', allReg: 'All regular', tc: { milonga: 'Milonga', practilonga: 'Práctilonga', practica: 'Práctica' }, up: 'Upcoming special', seeall: 'See all ›', allCity: 'All cities', WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
   var CZ = { 'Seoul': '首尔', 'Busan': '釜山', 'Daejeon': '大田', 'Kuala Lumpur': '吉隆坡', 'Beijing': '北京', 'Hong Kong': '香港', 'Changwon': '昌原', 'Daegu': '大邱', 'Shanghai': '上海', 'Taipei': '台北', 'New Taipei': '新北', 'Zhubei': '竹北', 'Chengdu': '成都', 'Hangzhou': '杭州', 'Chongqing': '重庆', 'Tokyo': '东京', 'Osaka': '大阪', 'Guangzhou': '广州', 'Tianjin': '天津', 'Taichung': '台中', 'Tainan': '台南', 'Nanjing': '南京', 'Suzhou': '苏州', 'Bandar Seri Begawan': '斯里巴加湾', 'Penang': '槟城', 'Da Nang': '岘港', 'Miaoli': '苗栗', 'Wuhan': '武汉', 'Gunsan': '群山', 'Shenzhen': '深圳', 'Qingdao': '青岛', 'Haikou': '海口', 'Zhengzhou': '郑州', "Xi'an": '西安', 'Singapore': '新加坡', 'Bangkok': '曼谷', 'Hanoi': '河内', 'Ho Chi Minh City': '胡志明市', 'Manila': '马尼拉', 'Jakarta': '雅加达', 'Bali': '巴厘岛', 'Macau': '澳门', 'Incheon': '仁川', 'Gwangju': '光州', 'Jeju': '济州', 'Ulsan': '蔚山', 'Suwon': '水原', 'Ilsan': '一山', 'Goyang': '高阳', 'Seongnam': '城南', 'Cheongju': '清州', 'Jeonju': '全州', 'Pohang': '浦项', 'Gyeongju': '庆州', 'Kaohsiung': '高雄', 'Hsinchu': '新竹', 'Taoyuan': '桃园', 'Ulaanbaatar': '乌兰巴托', 'Phnom Penh': '金边', 'Yokohama': '横滨', 'Kyoto': '京都', 'Nagoya': '名古屋', 'Fukuoka': '福冈', 'Sapporo': '札幌', 'Kobe': '神户' };
   function fl(c) { return (zh && c === 'Taiwan') ? '台湾地区' : cn(c); }
   function cn(c) { if (c === 'Taiwan') return zh ? '台湾' : 'Taiwan'; return zh ? (CZ[c] || c) : c; }
@@ -53,15 +53,41 @@
      Add Korea/Japan later the same way, e.g. { k: 'Korea', zh: '韩国', en: 'Korea', region: 'South Korea' }. */
   var TAIL = [{ k: 'Hong Kong', zh: '香港', en: 'Hong Kong', region: 'Hong Kong' }, { k: 'Taiwan', zh: '台湾', en: 'Taiwan', region: 'Taiwan' }], MRUK = 'atm_city_mru_v1', TAILS = [];
   function tailOf(reg) { for (var i = 0; i < TAIL.length; i++) if (TAIL[i].region === reg) return TAIL[i]; return null; }
-  function isFeat(e) { return e.kind === 'event' && !e.hidden && !e.regular_oneoff && (e.end || e.start || '9') >= TODAY; }
-  function cat(e) { return e.kind === 'weekly' ? 4 : e.type === 'event' ? 0 : e.type === 'marathon' ? 1 : e.type === 'festival' ? 2 : 3; }
+  /* 2026-11-14 ATM categories (see claude/ATM-活动分类规则.md in the ATM project):
+     日常 regular = milonga | practilonga | practica; 大型 special = festival | marathon | weekend | anniversary | workshop.
+     An explicit e.cat in the data wins; otherwise catOf() derives it from type + name keywords.
+     Workshops: only multi-day visiting-teacher workshops are listed (local single classes are not collected).
+     Anniversary: one record, shown under 大型 (tag 周年庆) AND in its city's 日常 list as a milonga with a 周年庆 badge. */
+  var BIG = ['festival', 'marathon', 'weekend', 'anniversary', 'workshop'], REGK = ['milonga', 'practilonga', 'practica'];
+  function nmAll(e) { return ((e.name || '') + ' ' + (e.name_zh || '') + ' ' + (e.name_en || '')).toLowerCase(); }
+  function regCat(e, s) { if (/practilonga|pr[aá]ctica[ -]milonga|练习舞会|練習舞會/.test(s)) return 'practilonga'; return e.type === 'practica' ? 'practica' : 'milonga'; }
+  function catOf(e) {
+    if (e.cat && (BIG.indexOf(e.cat) >= 0 || REGK.indexOf(e.cat) >= 0)) return e.cat;
+    var s = nmAll(e);
+    if (e.kind === 'weekly') return regCat(e, s);
+    if (/周年|週年|aniversario|anniversary/.test(s)) return 'anniversary';
+    if (e.regular_oneoff) return regCat(e, s);
+    /* Organizer's own name decides marathon vs weekend; a name with both Marathon and Festival counts as a festival (user, 2026-11-14). */
+    if (/marathon|马拉松|馬拉松/.test(s) && /festival|探戈节|探戈節/.test(s)) return 'festival';
+    if (/marathon|马拉松|馬拉松/.test(s)) return 'marathon';
+    if (/weekend|encuentro|周末|週末/.test(s)) return 'weekend';
+    if (/workshop|intensivo|masterclass|seminar|工作坊|大师课|大師課/.test(s)) return 'workshop';
+    if (/festival|探戈节|探戈節|嘉年华|嘉年華/.test(s)) return 'festival';
+    if (e.type === 'marathon' || e.type === 'festival') return e.type;
+    if (e.type === 'event') return 'workshop';
+    return regCat(e, s);
+  }
+  function isBig(e) { return BIG.indexOf(catOf(e)) >= 0; }
+  function regKey(e) { var k = catOf(e); return REGK.indexOf(k) >= 0 ? k : 'milonga'; }
+  function isFeat(e) { return e.kind === 'event' && !e.hidden && isBig(e) && (!e.regular_oneoff || catOf(e) === 'anniversary') && (e.end || e.start || '9') >= TODAY; }
+  function cat(e) { var b = BIG.indexOf(catOf(e)); return b >= 0 ? b : 5; }
   function prep(d) {
     DATA = d.filter(function (e) { return !e.hidden; });
     FEAT = DATA.filter(isFeat).sort(function (a, b) { return (a.start || '9') < (b.start || '9') ? -1 : (a.start || '9') > (b.start || '9') ? 1 : 0; });
     REG = {};
     DATA.forEach(function (e) {
       var tl = tailOf(e.region); if (e.region !== 'China' && !tl) return;
-      var w = e.kind === 'weekly', o = e.kind === 'event' && e.regular_oneoff && e.start >= TODAY && e.start <= HORIZON;
+      var w = e.kind === 'weekly', o = e.kind === 'event' && (e.regular_oneoff || !isBig(e) || catOf(e) === 'anniversary') && e.start >= TODAY && e.start <= HORIZON;
       var key = tl ? tl.k : e.city; if (w || o) (REG[key] = REG[key] || []).push(e);
     });
     /* v11.7 theme merge: a regular_oneoff with theme_of=<weekly id> on that weekly's date this week replaces the weekly card for that date only */
@@ -135,10 +161,11 @@
     var t = k === 'perm' ? (ui.cancelled || (zh ? '已取消' : 'Cancelled')) : (ui.cancelledWeek || (zh ? '本周暂停' : 'Paused this week'));
     return '<em class="china-cancelled-bar">' + esc(t) + '</em>';
   }
-  function card(e, sub, tag, eager) {
+  function card(e, sub, tag, eager, big) {
     var v = (e.kind === 'weekly' || e.theme_of) ? (evVenue(e) || '') : '';
-    var kt = oneTag(e), bar = cxBar(e);
-    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
+    var kt = oneTag(e), bar = cxBar(e), ck = catOf(e);
+    var ct = big && isBig(e) ? '<em class="ah-ctag">' + esc(T.cat1[cat(e)]) + '</em>' : (!big && ck === 'anniversary' ? '<em class="ah-kind ah-anniv">' + esc(T.cat1[3]) + '</em>' : (!big && ck !== 'milonga' && REGK.indexOf(ck) >= 0 ? '<em class="ah-ctag ah-rtag">' + esc(T.tc[ck]) + '</em>' : ''));
+    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + ct + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (v ? '<span>' + esc(v) + '</span>' : '') + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
@@ -175,6 +202,10 @@
     '.ah-card{position:relative}.ah-card>.ah-tx{padding-right:34px}.ah-card>.ah-heart{top:6px;right:6px}' +
     'html.atm-h-on #china-listings .ev-card>.atm-heart{display:none!important}' +
     '#atm-home a.ah-card.ah-cx{flex-wrap:wrap;padding-top:0}#atm-home a.ah-card>.china-cancelled-bar{flex:1 0 100%;box-sizing:border-box;margin:0 -8px 0;padding:5px 28px;border-radius:12px 12px 0 0;background:#b3261e;color:#fff;font:800 13px/1.35 system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif;font-style:normal;letter-spacing:.03em;text-align:center}#atm-home a.ah-card.ah-cx>.ah-heart{top:34px}#atm-home .ah-rows{gap:12px;margin-top:0}#atm-home .ah-ban,#atm-home .ah-rb,#atm-home .ah-fb{display:block;box-sizing:border-box;margin:0;padding:14px 8px 16px 16px;border:0;border-radius:16px;background:linear-gradient(160deg,#0E6E78,#06333A);box-shadow:0 2px 8px rgba(6,51,58,.18);color:#F2CF7F;width:100%;text-align:left;cursor:default}#atm-home .ah-ban-h,#atm-home .ah-rb-h{display:flex;align-items:center;min-height:32px;gap:4px;padding-right:0}#atm-home .ah-ban-copy{flex:1;min-width:0;display:flex;align-items:center;gap:6px;border:0;background:none;padding:0;margin:0;color:inherit;font:inherit;text-align:left;cursor:pointer;min-height:44px}#atm-home .ah-ban-t,#atm-home .ah-rb-t{display:flex;align-items:center;flex-wrap:wrap;gap:0 6px;font-family:var(--serif);font-size:18px;line-height:24px;font-weight:700;color:#F2CF7F;white-space:normal;overflow-wrap:break-word}#atm-home .ah-ban-t i,#atm-home .ah-rb-t i{font-style:normal;color:#fff;font-variant-numeric:tabular-nums lining-nums}#atm-home .ah-suf{font-family:var(--sans);font-size:13px;line-height:18px;font-weight:500;color:#D6E6E4;margin-left:2px}#atm-home .ah-star{width:18px;height:18px;flex:none;fill:#B3261E;stroke:none}#atm-home .ah-chev{width:44px;height:44px;flex:0 0 44px;border:0;background:none;padding:0;color:#F2CF7F;cursor:pointer;display:grid;place-items:center}#atm-home .ah-chev-i{width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,.12);display:grid;place-items:center}#atm-home .ah-chev-i svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}#atm-home .ah-strip,#atm-home .ah-cts{display:flex;gap:10px;margin-top:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-right:16px;scrollbar-width:none}#atm-home .ah-strip::-webkit-scrollbar,#atm-home .ah-cts::-webkit-scrollbar{display:none}@media(min-width:700px){#atm-home .ah-strip.ah-rowfit{overflow-x:hidden;padding-right:0;width:100%;max-width:none}}#atm-home .ah-pt,#atm-home button.ah-ct{flex:0 0 auto;width:84px;padding:0;border:0;background:none;cursor:pointer;color:inherit;font:inherit;text-align:left}#atm-home a.ah-pt{text-decoration:none;color:inherit;touch-action:manipulation}#atm-home .ah-pt img,#atm-home .ah-ct img,#atm-home .ah-pt-n,#atm-home .ah-ct-n,#atm-home .ah-noimg{width:84px!important;height:112px!important;object-fit:cover;border-radius:8px;border:1px solid rgba(242,207,127,.45)!important;display:block;background:#0B5C64;box-sizing:border-box}#atm-home .ah-pt-cap,#atm-home .ah-ct-cap{display:block;margin-top:6px;font-size:12.5px;line-height:16px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#atm-home .ah-pt-cap .num,#atm-home .ah-ct-cap .num{color:#F2CF7F;margin-left:4px;font-weight:600;font-variant-numeric:tabular-nums}#atm-home .ah-pt-cap2{display:block;font-size:12px;line-height:16px;color:#D6E6E4;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#atm-home .ah-prev{font-size:11px!important;line-height:14px!important;font-weight:600;background:rgba(6,51,58,.8);padding:2px 6px;border-radius:4px}#atm-home .ah-note{margin:10px 0 8px;color:#4A6B70;font:500 13px/18px var(--sans)}#atm-home .ah-title{font-family:var(--serif);font-size:19px;line-height:26px;font-weight:700;color:#0A4F57}#atm-home .ah-title i{color:#B3261E;font-style:normal;font-variant-numeric:tabular-nums}#atm-home .ah-wd{font:700 13px/18px var(--sans);color:#0E6E78;letter-spacing:.02em;margin:14px 0 6px;font-variant-numeric:tabular-nums}#atm-home .ah-list{gap:10px}#atm-home .ah-card{gap:12px;border:1px solid #EFE6D3;border-radius:12px;padding:10px;box-shadow:0 1px 2px rgba(6,51,58,.06)}#atm-home .ah-th,#atm-home .ah-card>.ah-noimg{width:64px;height:85px;border-radius:6px}#atm-home .ah-tx b{font:600 15px/22px var(--sans);color:#06333A}#atm-home .ah-tx,#atm-home .ah-tx span,#atm-home .ah-dj{font:400 13px/19px var(--sans);color:#4A6B70}#atm-home .ah-heart{width:44px;height:44px;top:6px;right:6px;display:grid;place-items:center}#atm-home .ah-heart[aria-pressed="true"] path{fill:#B3261E;stroke:#B3261E}#atm-home .ah-heart path{fill:none;stroke:#0E6E78}#atm-home .ah-heart[aria-pressed="true"] path{fill:#B3261E!important;stroke:#B3261E!important}#atm-home button.ah-ct,.ah-ct{height:auto!important;overflow:visible}#atm-home .ah-hint{margin:8px 0 0;padding:0;font:500 13px/18px var(--sans);color:#D6E6E4}.ah-favrow{display:flex;flex-direction:column;margin:0 0 12px}.ah-ly .ah-favrow>.ah-card{margin:0}.ah-ly .atm-unfav{display:block;box-sizing:border-box;width:100%;min-height:44px;margin:8px 0 0;padding:0 12px;border:1px solid #ead9b8;border-radius:12px;background:#fff;color:#0A4F57;font:700 14px/44px var(--sans);cursor:pointer}.ah-ly .ah-heart path{fill:none;stroke:#0E6E78}.ah-ly .ah-heart[aria-pressed="true"] path{fill:#B3261E!important;stroke:#B3261E!important}';
+  css.textContent += '#atm-home .ah-fchips,#atm-home .ah-tchips{margin:8px 0 4px}#atm-home .ah-tchips .ah-chip{border-radius:10px;height:36px;font-size:14px}#atm-home .ah-tchips .ah-chip[aria-pressed=true]{background:#0E6E78;color:#fff;border-color:#0E6E78}' +
+    '#atm-home .ah-ctag{align-self:flex-start;font:700 11px system-ui;font-style:normal;color:#8a6500;background:#FBEFC9;border-radius:6px;padding:1px 7px}#atm-home .ah-rtag{color:#0E6E78;background:#E9F2F2}#atm-home .ah-anniv{background:#8a6500}' +
+    '#atm-home .ah-up{margin:10px 0 4px;padding:10px 12px;border-radius:14px;background:#FBEFC9;border:1px solid #EAD7A4}#atm-home .ah-uph{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}#atm-home .ah-uph b{font:700 15px "Noto Serif SC",serif;color:#8a6500}#atm-home .ah-upall{border:0;background:none;color:#0E6E78;font:700 13px system-ui;cursor:pointer;min-height:36px;padding:0 4px}' +
+    '#atm-home .ah-upl{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}#atm-home .ah-upl::-webkit-scrollbar{display:none}#atm-home .ah-uc{flex:0 0 auto;width:210px;box-sizing:border-box;background:#fff;border-radius:10px;padding:8px 10px;text-decoration:none!important;box-shadow:0 1px 3px rgba(0,0,0,.08)}#atm-home .ah-ucd{display:block;font:600 12px system-ui;color:#8a6500}#atm-home .ah-uc b{font:700 14px/1.3 system-ui;color:#06333A;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}';
   D.head.appendChild(css);
   var S = { a: -1, c: '', open: false };
   function route() { var h = location.hash; if (/^#v-/.test(h)) { try { history.replaceState(history.state, '', location.pathname + location.search); } catch (e) {} h = ''; } /* old #v-<id> card anchors (shared links, back from detail) -> new home, not the old list */ if (!h || h === '#') return 'home'; if (h === '#h-feat') return 'feat'; if (h === '#h-search') return 'search'; if (h === '#h-reg') return 'reg'; if (h.indexOf('#h-city-') === 0) return 'city'; return null; }
@@ -235,16 +266,16 @@
   function home() {
     var tileN = CITIES.length + TAILS.length;
     var featHd = zh
-      ? '特色活动 <i>' + FEAT.length + '</i> 个<span class="ah-suf">· 按日期</span>'
-      : enUnit(FEAT.length, 'featured event') + '<span class="ah-suf">· by date</span>';
+      ? '大型活动 <i>' + FEAT.length + '</i> 个<span class="ah-suf">· 按日期</span>'
+      : enUnit(FEAT.length, 'special event') + '<span class="ah-suf">· by date</span>';
     var regHd = zh
-      ? '<i>' + tileN + '</i> 个城市每周活动'
-      : 'Weekly events in <i>' + tileN + '</i> ' + (tileN === 1 ? 'city' : 'cities');
+      ? '<i>' + tileN + '</i> 个城市日常活动'
+      : 'Regular events in <i>' + tileN + '</i> ' + (tileN === 1 ? 'city' : 'cities');
     var tiles = '<div class="ah-cts">' + ordered(CITIES).concat(TAILS.map(function (t) { return t.k; })).map(function (c, i) { return cthumb(c, i < 4); }).join('') + '</div>';
     var featStrip = '<div class="ah-strip">' + FEAT.filter(function (e) { return e.poster; }).map(function (e, i) { return evThumb(e, i < 2); }).join('') + '</div>';
     return '<div class="ah-rows">' +
       favBlock() +
-      '<div class="ah-ban"><div class="ah-ban-h"><button type="button" class="ah-ban-copy" data-go="#h-feat"><span class="ah-ban-t">' + featHd + '</span></button>' + chev('data-go="#h-feat"', zh ? T.feat : 'Featured events') + '</div>' + featStrip + '</div>' +
+      '<div class="ah-ban"><div class="ah-ban-h"><button type="button" class="ah-ban-copy" data-go="#h-feat"><span class="ah-ban-t">' + featHd + '</span></button>' + chev('data-go="#h-feat"', T.feat) + '</div>' + featStrip + '</div>' +
       '<div class="ah-rb"><div class="ah-rb-h"><span class="ah-ban-copy" style="cursor:default"><span class="ah-rb-t">' + regHd + '</span></span>' + chev('data-go="#h-reg"', T.allC) + '</div>' + tiles + '</div></div>';
   }
   function mru() { try { var a = JSON.parse(localStorage.getItem(MRUK) || '[]'); return Array.isArray(a) ? a.filter(function (c) { return REG[c]; }) : []; } catch (e) { return []; } }
@@ -272,21 +303,40 @@
     return top(T.reg + ' <i>' + CITIES.length + '</i>' + (zh ? ' 城' : (CITIES.length === 1 ? ' city' : ' cities'))) + '<div class="ah-note">' + T.regsub + '</div><div class="ah-grid">' + g + '</div>';
   }
   function top(t) { return '<div class="ah-top"><button type="button" class="ah-back" data-go="" aria-label="' + T.back + '">‹</button><span class="ah-title">' + t + '</span></div>'; }
-  function feat() { return top(zh ? T.feat + ' <i>' + FEAT.length + '</i> ' + T.items : enUnit(FEAT.length, 'featured event')) + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + FEAT.map(function (e, i) { return card(e, null, null, i < 2); }).join('') + '</div>'; }
+  function inCity(e, c) { var tl = null; for (var i = 0; i < TAIL.length; i++) if (TAIL[i].k === c) tl = TAIL[i]; return tl ? e.region === tl.region : e.city === c; }
+  function fch(on, attr, val, t, k) { return '<button type="button" class="ah-chip" ' + attr + '="' + esc(val) + '" aria-pressed="' + on + '">' + (on ? '✓ ' : '') + esc(t) + '<small>' + k + '</small></button>'; }
+  function feat() {
+    var fc = S.fc == null ? -1 : S.fc, base = S.fcity ? FEAT.filter(function (e) { return inCity(e, S.fcity); }) : FEAT;
+    var L = base.filter(function (e) { return fc < 0 || cat(e) === fc; });
+    var chips = '<div class="ah-chips ah-fchips">' + fch(fc < 0, 'data-fc', -1, T.allBig, base.length) + BIG.map(function (k, i) { return fch(fc === i, 'data-fc', i, T.cat1[i], base.filter(function (e) { return cat(e) === i; }).length); }).join('') + '</div>';
+    var cityRow = S.fcity ? '<div class="ah-sels"><button type="button" class="ah-sel" data-fcity="1">' + esc(cn(S.fcity)) + ' <i>✕</i></button></div>' : '';
+    var ttl = (S.fcity ? esc(cn(S.fcity)) + ' · ' : '') + (zh ? T.feat + ' <i>' + L.length + '</i> ' + T.items : enUnit(L.length, 'special event'));
+    return top(ttl) + cityRow + chips + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + (L.map(function (e, i) { return card(e, null, null, i < 2, true); }).join('') || '<p>' + T.none + '</p>') + '</div>';
+  }
+  function upBlock(c) {
+    var ups = FEAT.filter(function (e) { return inCity(e, c); }).slice(0, 3);
+    if (!ups.length) return '';
+    return '<div class="ah-up"><div class="ah-uph"><b>' + T.up + ' · ' + esc(cn(c)) + '</b><button type="button" class="ah-upall" data-upall="' + esc(c) + '">' + T.seeall + '</button></div><div class="ah-upl">' +
+      ups.map(function (e) { return '<a class="ah-uc" href="' + esc(openHref(e)) + '" data-card="' + esc(e.id) + '"><span class="ah-ucd">' + esc(dt(e)) + ' · ' + esc(T.cat1[cat(e)]) + '</span><b>' + esc(evName(e)) + '</b></a>'; }).join('') + '</div></div>';
+  }
   function cityView(c) {
-    var L = regSorted(c), out = '', last = -1;
+    var all = regSorted(c), tc = S.tc || '', cnt = { milonga: 0, practilonga: 0, practica: 0 };
+    all.forEach(function (e) { cnt[regKey(e)]++; });
+    if (tc && !cnt[tc]) tc = '';
+    var L = all.filter(function (e) { return !tc || regKey(e) === tc; }), out = '', last = -1;
     L.forEach(function (e) { var d = occDate(e); if (d !== last) { out += '<div class="ah-wd">' + T.WD[wdOf(e)] + (d ? ' ' + d.slice(5).replace('-', '/') : '') + '</div>'; last = d; } out += card(e); });
     var chips = S.open ? '<div class="ah-chips" style="margin-top:10px">' + CITIES.map(function (x) { return '<button type="button" class="ah-chip" data-city="' + esc(x) + '" aria-pressed="' + (x === c) + '">' + (x === c ? '✓ ' : '') + esc(fl(x)) + '<small>' + REG[x].length + '</small></button>'; }).join('') + '</div><button type="button" class="ah-fold" data-tog="1">' + T.fold + ' ▴</button>' : '';
-    return top(esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + L.length + '</i> ' + T.items : enUnit(L.length, T.weekly))) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + '<div class="ah-list" style="margin-top:6px">' + (out || '<p>' + T.none + '</p>') + '</div>';
+    var tchips = '<div class="ah-chips ah-tchips">' + fch(!tc, 'data-tc', '', T.allReg, all.length) + REGK.map(function (k) { return cnt[k] ? fch(tc === k, 'data-tc', k, T.tc[k], cnt[k]) : ''; }).join('') + '</div>';
+    return top(esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + L.length + '</i> ' + T.items : enUnit(L.length, T.weekly))) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + upBlock(c) + tchips + '<div class="ah-list" style="margin-top:6px">' + (out || '<p>' + T.none + '</p>') + '</div>';
   }
-  function srchSet(a) { if (a === 4) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
+  function srchSet(a) { if (a === 5) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
   function search() {
     var base = srchSet(S.a), cc = {}, cl = [];
     base.forEach(function (e) { if (!cc[e.city]) { cc[e.city] = 0; cl.push(e.city); } cc[e.city]++; });
     cl.sort(function (a, b) { return cc[b] - cc[a] || (a < b ? -1 : 1); });
     if (S.c && !cc[S.c]) S.c = '';
     var res = base.filter(function (e) { return !S.c || e.city === S.c; });
-    if (S.a === 4) res.sort(function (a, b) { return rel(wdOf(a)) - rel(wdOf(b)); });
+    if (S.a === 5) res.sort(function (a, b) { return rel(wdOf(a)) - rel(wdOf(b)); });
     var an = S.a < 0 ? T.allA : T.cats[S.a], ctn = S.c ? cn(S.c) : T.allC;
     var h = top(T.search) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(an) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(ctn) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>';
     if (S.open) {
@@ -389,7 +439,11 @@
   root.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('a.ah-pt')) return; /* poster link opens P10; do not treat it as the section button */
     var b = e.target.closest('button'); if (!b) return;
-    if (b.hasAttribute('data-go')) { var g = b.getAttribute('data-go'); if (g) go(g); else if ((location.hash === '#h-feat' || /^#h-city-/.test(location.hash)) && !((prevHash === '' || prevHash === '#') && history.length > 1)) { history.pushState(null, '', location.pathname); render(); } /* P2/P4 ‹ always home */ else if (history.length > 1 && lastFromHome) history.back(); else { history.pushState(null, '', location.pathname); render(); } return; }
+    if (b.hasAttribute('data-upall')) { S.fcity = b.getAttribute('data-upall'); S.fc = -1; go('#h-feat'); return; }
+    if (b.hasAttribute('data-fcity')) { S.fcity = ''; render(); return; }
+    if (b.hasAttribute('data-fc')) { S.fc = +b.getAttribute('data-fc'); render(); return; }
+    if (b.hasAttribute('data-tc')) { S.tc = b.getAttribute('data-tc'); render(); return; }
+    if (b.hasAttribute('data-go')) { var g = b.getAttribute('data-go'); if (g === '#h-feat') { S.fcity = ''; S.fc = -1; } if (g) go(g); else if ((location.hash === '#h-feat' || /^#h-city-/.test(location.hash)) && !((prevHash === '' || prevHash === '#') && history.length > 1)) { history.pushState(null, '', location.pathname); render(); } /* P2/P4 ‹ always home */ else if (history.length > 1 && lastFromHome) history.back(); else { history.pushState(null, '', location.pathname); render(); } return; }
     if (b.hasAttribute('data-dd')) { S.dd = !S.dd; render(); return; }
     if (b.hasAttribute('data-city')) { if (b.hasAttribute('data-pick')) { pick(b.getAttribute('data-city')); S.dd = false; } S.open = false; go('#h-city-' + encodeURIComponent(b.getAttribute('data-city'))); return; }
     if (b.hasAttribute('data-fav')) { openFav(); return; }
@@ -422,7 +476,7 @@
     var t = e.target;
     if (!t || !t.closest) return;
     if (t.closest('.atm-heart, .ah-heart, .atm-unfav, button')) return;
-    var a = t.closest('a.ah-pt, a.ah-card');
+    var a = t.closest('a.ah-pt, a.ah-card, a.ah-uc');
     if (!a) return;
     var href = a.getAttribute('href') || '';
     if (href.indexOf('card=') < 0) return;
