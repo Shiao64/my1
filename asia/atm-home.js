@@ -70,8 +70,9 @@
     /* Organizer's own name decides marathon vs weekend; a name with both Marathon and Festival counts as a festival (user, 2026-11-14). */
     if (/marathon|马拉松|馬拉松/.test(s) && /festival|探戈节|探戈節/.test(s)) return 'festival';
     if (/marathon|马拉松|馬拉松/.test(s)) return 'marathon';
-    if (/weekend|encuentro|周末|週末/.test(s)) return 'weekend';
+    /* Workshop before weekend: "X Workshop & Tango Weekend" is a workshop (user, 2026-11-14). */
     if (/workshop|intensivo|masterclass|seminar|工作坊|大师课|大師課/.test(s)) return 'workshop';
+    if (/weekend|encuentro|周末|週末/.test(s)) return 'weekend';
     if (/festival|探戈节|探戈節|嘉年华|嘉年華/.test(s)) return 'festival';
     if (e.type === 'marathon' || e.type === 'festival') return e.type;
     if (e.type === 'event') return 'workshop';
