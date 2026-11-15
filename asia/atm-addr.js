@@ -76,12 +76,17 @@
   }
   var store = {}, seq = 0;
   /* lines: the address lines already chosen for this page (user language first, local second). */
-  function html(e, lines, q) {
+  /* 2026-11-15 (3): the row label "地址 ↗" is the map link; the address text opens the enlarged card. */
+  function label(e, q, text) {
+    var u = href(e, q);
+    return '<a class="atm-adr-lbl" href="' + esc(u) + '"' + target(u) + ' aria-label="' + esc(text + ' · ' + T.open) + '">' + esc(text) + ' <span aria-hidden="true">↗</span></a>';
+  }
+  function html(e, lines, q, noMap) {
     if (!lines || !lines.length) return '';
     var id = 'a' + (++seq); store[id] = e;
     var u = href(e, q);
     return '<span class="atm-adr"><button type="button" class="atm-adr-t" data-adr="' + id + '" aria-label="' + esc(T.big) + '">' + lines.map(esc).join('<br>') + '<span class="atm-adr-zoom" aria-hidden="true">⤢</span></button>' +
-      '<a class="atm-adr-map" href="' + esc(u) + '"' + target(u) + '>' + esc(T.map) + ' ↗</a></span>';
+      (noMap ? '</span>' : '') + (noMap ? '' : '<a class="atm-adr-map" href="' + esc(u) + '"' + target(u) + '>' + esc(T.map) + ' ↗</a></span>');
   }
 
   /* 2026-11-15 (2): directions and route pictures get their own row under the address. */
@@ -91,7 +96,7 @@
     var id = 'a' + (++seq); store[id] = e;
     return '<span class="atm-dirrow">' + (d ? '<span class="atm-adr-dir">' + esc(d) + '</span>' : '') + thumbs(id, pics, 'atm-adr-pics') + '</span>';
   }
-  var css = '.atm-adr{display:block}.atm-dirrow{display:block}.p10-row.atm-row-top,.b-row.atm-row-top{align-items:start!important}.atm-row-top>b{padding-top:2px}.atm-adr-t{all:unset;cursor:pointer;display:inline;color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}' +
+  var css = '.atm-adr-lbl{color:#2A6FA8!important;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}.atm-adr-lbl span{font-size:.9em}.atm-adr{display:block}.atm-dirrow{display:block}.p10-row.atm-row-top,.b-row.atm-row-top{align-items:start!important}.atm-row-top>b{padding-top:2px}.atm-adr-t{all:unset;cursor:pointer;display:inline;color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}' +
     '.atm-adr-t:focus-visible{outline:2px solid #2A6FA8;outline-offset:2px}.atm-adr-zoom{display:inline-block;margin-left:6px;font-size:.85em;opacity:.65;text-decoration:none}' +
     '.atm-adr-dir{display:block;color:inherit}.atm-adr-dir:before{content:"\\1F687  "}' +
     '.atm-adr-map{display:inline-block;margin-top:4px;font-size:.9em;font-weight:600}' +
@@ -185,5 +190,5 @@
     ev.preventDefault(); ev.stopPropagation(); lastFocus = t; open(e);
   }, true);
 
-  window.ATM_ADDR = { href: href, html: html, dirHtml: dirHtml, dirLabel: T.dirLabel, open: open, dir: dirOf };
+  window.ATM_ADDR = { href: href, html: html, label: label, dirHtml: dirHtml, dirLabel: T.dirLabel, open: open, dir: dirOf };
 })();
