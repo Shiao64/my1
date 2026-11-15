@@ -55,7 +55,8 @@ function bad(x){return !x||/not found|没找到|未找到|unknown|未知|^tba$|�
 function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in'); if(!inn||!li||inn.dataset.r) return; var e=EV&&EV[li.dataset.id]; if(!e){ if(!dt._atmWait){ dt._atmWait=1; ensureEvent(li.dataset.id).then(function(){ dt._atmWait=0; rebuild(dt); }); } return; } inn.dataset.r='1';
  var R=[], row=function(l,v,c){ if(v) R.push('<div class="b-row'+(c?' '+c:'')+'"><b>'+l+'</b><span>'+v+'</span></div>'); };
  var al=addrLines(e), ad=al.lines.slice(), mu=mapHref(e, al.mapQuery);
- row(zh?'地址':'Address', ad.length?(window.ATM_ADDR?window.ATM_ADDR.html(e, ad, al.mapQuery):'<a class="b-map" href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>'):''); /* 2026-11-15: tap to enlarge, directions, own map app */
+ row(zh?'地址':'Address', ad.length?(window.ATM_ADDR?window.ATM_ADDR.html(e, ad, al.mapQuery):'<a class="b-map" href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>'):'', 'atm-row-top'); /* 2026-11-15: tap to enlarge, own map app */
+ if(window.ATM_ADDR) row(window.ATM_ADDR.dirLabel, window.ATM_ADDR.dirHtml(e), 'atm-row-top'); /* directions + route pictures */
  var f=function(x){return x.replace(/-/g,'/')}, tm='';
  if(e.start&&e.end&&e.start!==e.end) tm=f(e.start)+' – '+f(e.end); else if(e.start) tm=f(e.start)+(e.time?' '+e.time:''); else if(e.time) tm=e.time;
  row(zh?'时间':'Time', H(tm));
@@ -164,7 +165,8 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   var dj=djName(e)||''; if(dj&&!faceDj) row('DJ', H(dj));
   var al=addrLines(e), ad=al.lines.slice(), a1=al.mapQuery, a2=al.display;
   var vns=[evVenue(e),e.venue,e.venue_en].filter(Boolean).map(String); ad=ad.map(function(x){ x=String(x).trim(); vns.forEach(function(v){ v=v.trim(); if(!v||x.length<=v.length+2) return; var lx=x.toLowerCase(), lv=v.toLowerCase(); if(lx.slice(-lv.length)===lv) x=x.slice(0,-v.length).replace(/[\s,，、·\-–]+$/,''); else if(lx.indexOf(lv)===0) x=x.slice(v.length).replace(/^[\s,，、·\-–]+/,''); }); return x; }).filter(Boolean); /* v12.1: no venue name repeated in address */
-  if(ad.length){ var mu=mapHref(e, al.mapQuery); row(zh?'地址':'Address', window.ATM_ADDR?window.ATM_ADDR.html(e, ad, al.mapQuery):'<a href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>'); }
+  if(ad.length){ var mu=mapHref(e, al.mapQuery); row(zh?'地址':'Address', window.ATM_ADDR?window.ATM_ADDR.html(e, ad, al.mapQuery):'<a href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>', 'atm-row-top'); }
+  if(window.ATM_ADDR) row(window.ATM_ADDR.dirLabel, window.ATM_ADDR.dirHtml(e), 'atm-row-top');
   var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, ct=[]; var wl=C.wechat_label&&!org.some(function(o){ o=String(o).toLowerCase(); var l=String(C.wechat_label).toLowerCase().trim(); return o===l||o.split(/[\s&、,，()（）]+/).indexOf(l)>=0; })?C.wechat_label:''; /* v12.1: drop label repeating organizer */
   var tel=function(p){ return '<a href="tel:'+H(String(p).replace(/[^\d+]/g,''))+'">'+H(p)+'</a>'; }, same=C.wechat_id&&C.phone&&String(C.wechat_id).replace(/\D/g,'')===String(C.phone).replace(/\D/g,'')&&/^\+?[\d\s\-]+$/.test(String(C.wechat_id)); /* v12: WeChat==phone -> one line */
   if(same) ct.push((zh?'手机/微信同号：':'Phone/WeChat: ')+tel(C.phone)+(wl?' ('+H(wl)+')':''));

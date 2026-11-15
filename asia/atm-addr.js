@@ -16,8 +16,8 @@
   function esc(x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function good(x) { return x && typeof x === 'string' && !/not found|没找到|未找到|unknown|未知|^tba$|待定/i.test(x) ? x.trim() : ''; }
   var T = zh()
-    ? { pics: '路线图', map: '地图', big: '放大', title: '给司机或路人看', open: '打开地图', copy: '复制地址', copied: '已复制', close: '关闭', dir: '交通' }
-    : { pics: 'Route pictures', map: 'Map', big: 'Enlarge', title: 'Show this to a driver', open: 'Open map', copy: 'Copy address', copied: 'Copied', close: 'Close', dir: 'Getting there' };
+    ? { dirLabel: '交通', pics: '路线图', map: '地图', big: '放大', title: '给司机或路人看', open: '打开地图', copy: '复制地址', copied: '已复制', close: '关闭', dir: '交通' }
+    : { dirLabel: 'Directions', pics: 'Route pictures', map: 'Map', big: 'Enlarge', title: 'Show this to a driver', open: 'Open map', copy: 'Copy address', copied: 'Copied', close: 'Close', dir: 'Getting there' };
 
   function inApp(ua) { return /MicroMessenger|QQ\/|MQQBrowser.*QQ|Weibo|AlipayClient|DingTalk|Lark|baiduboxapp|Instagram|FBAN|FBAV|Line\//i.test(ua); }
   function ios(ua) { return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1); }
@@ -70,20 +70,25 @@
   function html(e, lines, q) {
     if (!lines || !lines.length) return '';
     var id = 'a' + (++seq); store[id] = e;
-    var u = href(e, q), d = dirOf(e);
+    var u = href(e, q);
     return '<span class="atm-adr"><button type="button" class="atm-adr-t" data-adr="' + id + '" aria-label="' + esc(T.big) + '">' + lines.map(esc).join('<br>') + '<span class="atm-adr-zoom" aria-hidden="true">⤢</span></button>' +
-      (d ? '<span class="atm-adr-dir">' + esc(d) + '</span>' : '') +
-      thumbs(id, picsOf(e), 'atm-adr-pics') +
       '<a class="atm-adr-map" href="' + esc(u) + '"' + target(u) + '>' + esc(T.map) + ' ↗</a></span>';
   }
 
-  var css = '.atm-adr{display:block}.atm-adr-t{all:unset;cursor:pointer;display:inline;color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}' +
+  /* 2026-11-15 (2): directions and route pictures get their own row under the address. */
+  function dirHtml(e) {
+    var d = dirOf(e), pics = picsOf(e);
+    if (!d && !pics.length) return '';
+    var id = 'a' + (++seq); store[id] = e;
+    return '<span class="atm-dirrow">' + (d ? '<span class="atm-adr-dir">' + esc(d) + '</span>' : '') + thumbs(id, pics, 'atm-adr-pics') + '</span>';
+  }
+  var css = '.atm-adr{display:block}.atm-dirrow{display:block}.p10-row.atm-row-top,.b-row.atm-row-top{align-items:start!important}.atm-row-top>b{padding-top:2px}.atm-adr-t{all:unset;cursor:pointer;display:inline;color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;-webkit-tap-highlight-color:transparent}' +
     '.atm-adr-t:focus-visible{outline:2px solid #2A6FA8;outline-offset:2px}.atm-adr-zoom{display:inline-block;margin-left:6px;font-size:.85em;opacity:.65;text-decoration:none}' +
-    '.atm-adr-dir{display:block;margin-top:4px;font-size:.92em;color:#4A5D73}.atm-adr-dir:before{content:"\\1F687  "}' +
+    '.atm-adr-dir{display:block;color:inherit}.atm-adr-dir:before{content:"\\1F687  "}' +
     '.atm-adr-map{display:inline-block;margin-top:4px;font-size:.9em;font-weight:600}' +
-    '.atm-adr-pics,.ab-pics{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}.atm-adr-pic{all:unset;cursor:pointer;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid #BCD8EF;background:#EAF3FB}.atm-adr-pic img{width:100%;height:100%;object-fit:cover;display:block}' +
-    '#atm-adr-big .ab-pics .atm-adr-pic{width:96px;height:96px}' +
-    '#atm-adr-pv{position:fixed;inset:0;z-index:2147483001;background:rgba(11,36,64,.94);display:flex;flex-direction:column;color:#fff}#atm-adr-pv .pv-top{display:flex;justify-content:space-between;align-items:center;padding:max(8px,env(safe-area-inset-top)) 10px 4px 16px;font:600 15px/1.3 system-ui,sans-serif}' +
+    '.atm-adr-pics,.ab-pics{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 2px}.atm-adr-pic{all:unset;cursor:pointer;width:88px;height:66px;border-radius:8px;overflow:hidden;border:1px solid #BCD8EF;background:#EAF3FB}.atm-adr-pic img{width:100%;height:100%;object-fit:cover;display:block}' +
+    '#atm-adr-big .ab-pics .atm-adr-pic{width:128px;height:96px}' +
+    '#atm-adr-pv{position:fixed;inset:0;z-index:2147483001;background:#0B2440;display:flex;flex-direction:column;color:#fff}#atm-adr-pv .pv-top{display:flex;justify-content:space-between;align-items:center;padding:max(8px,env(safe-area-inset-top)) 10px 4px 16px;font:600 15px/1.3 system-ui,sans-serif}' +
     '#atm-adr-pv .pv-x,#atm-adr-pv .pv-nav{all:unset;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff}#atm-adr-pv .pv-main{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;position:relative}' +
     '#atm-adr-pv img{max-width:100%;max-height:100%;object-fit:contain}#atm-adr-pv .pv-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.35);border-radius:50%}#atm-adr-pv .pv-prev{left:8px}#atm-adr-pv .pv-next{right:8px}' +
     '#atm-adr-pv .pv-cap{padding:10px 18px max(14px,env(safe-area-inset-bottom));font:15px/1.45 system-ui,sans-serif;text-align:center;min-height:1em}' +
@@ -171,5 +176,5 @@
     ev.preventDefault(); ev.stopPropagation(); lastFocus = t; open(e);
   }, true);
 
-  window.ATM_ADDR = { href: href, html: html, open: open, dir: dirOf };
+  window.ATM_ADDR = { href: href, html: html, dirHtml: dirHtml, dirLabel: T.dirLabel, open: open, dir: dirOf };
 })();
