@@ -2,7 +2,7 @@
  {
   "id": "G001",
   "name_en": "ATer Club",
-  "name_local": "",
+  "name_local": "ATer Club",
   "cities": [
    "Beijing"
   ],
@@ -14,7 +14,7 @@
  {
   "id": "G002",
   "name_en": "Amigo",
-  "name_local": "",
+  "name_local": "Amigo",
   "cities": [
    "Busan"
   ],
@@ -42,7 +42,7 @@
  {
   "id": "G004",
   "name_en": "Ideal Tango Cafe",
-  "name_local": "",
+  "name_local": "Ideal Tango Cafe",
   "cities": [
    "Busan"
   ],
@@ -63,7 +63,7 @@
  {
   "id": "G005",
   "name_en": "Studio 242",
-  "name_local": "",
+  "name_local": "Studio 242",
   "cities": [
    "Busan"
   ],
@@ -78,7 +78,7 @@
  {
   "id": "G006",
   "name_en": "Tango Mio",
-  "name_local": "",
+  "name_local": "Tango Mio",
   "cities": [
    "Busan"
   ],
@@ -90,7 +90,7 @@
  {
   "id": "G007",
   "name_en": "Marine Tango",
-  "name_local": "",
+  "name_local": "Marine Tango",
   "cities": [
    "Changwon"
   ],
@@ -114,7 +114,7 @@
  {
   "id": "G009",
   "name_en": "Tango club Mi Noche",
-  "name_local": "",
+  "name_local": "Tango club Mi Noche",
   "cities": [
    "Changwon"
   ],
@@ -155,7 +155,7 @@
  {
   "id": "G012",
   "name_en": "Cheongju Tango Urquiza",
-  "name_local": "",
+  "name_local": "Cheongju Tango Urquiza",
   "cities": [
    "Cheongju"
   ],
@@ -167,7 +167,7 @@
  {
   "id": "G013",
   "name_en": "StudioAura",
-  "name_local": "",
+  "name_local": "StudioAura",
   "cities": [
    "Cheongju"
   ],
@@ -180,7 +180,7 @@
  {
   "id": "G014",
   "name_en": "BA Tango",
-  "name_local": "",
+  "name_local": "BA Tango",
   "cities": [
    "Chongqing"
   ],
@@ -205,7 +205,7 @@
  {
   "id": "G016",
   "name_en": "Mariposa",
-  "name_local": "",
+  "name_local": "Mariposa",
   "cities": [
    "Daegu"
   ],
@@ -217,7 +217,7 @@
  {
   "id": "G017",
   "name_en": "Tango Cafe Dia",
-  "name_local": "",
+  "name_local": "Tango Cafe Dia",
   "cities": [
    "Daegu"
   ],
@@ -230,7 +230,7 @@
  {
   "id": "G018",
   "name_en": "Azucar",
-  "name_local": "",
+  "name_local": "Azucar",
   "cities": [
    "Daejeon"
   ],
@@ -259,7 +259,7 @@
  {
   "id": "G020",
   "name_en": "Daejeon Tango Academy Caminito",
-  "name_local": "",
+  "name_local": "Daejeon Tango Academy Caminito",
   "cities": [
    "Daejeon"
   ],
@@ -283,7 +283,7 @@
  {
   "id": "G022",
   "name_en": "LaBoom",
-  "name_local": "",
+  "name_local": "LaBoom",
   "cities": [
    "Daejeon"
   ],
@@ -315,7 +315,7 @@
  {
   "id": "G024",
   "name_en": "Tango Pig",
-  "name_local": "",
+  "name_local": "Tango Pig",
   "cities": [
    "Guangzhou"
   ],
@@ -327,7 +327,7 @@
  {
   "id": "G025",
   "name_en": "CON TANGO",
-  "name_local": "",
+  "name_local": "CON TANGO",
   "cities": [
    "Gwangju"
   ],
@@ -341,7 +341,7 @@
  {
   "id": "G026",
   "name_en": "Mi Vida tango studio",
-  "name_local": "",
+  "name_local": "Mi Vida tango studio",
   "cities": [
    "Gwangju"
   ],
@@ -354,7 +354,7 @@
  {
   "id": "G027",
   "name_en": "Vamos tango",
-  "name_local": "",
+  "name_local": "Vamos tango",
   "cities": [
    "Hangzhou"
   ],
@@ -374,7 +374,7 @@
    "E045"
   ],
   "organizers": [
-   "O047"
+   "O045"
   ]
  },
  {
@@ -390,14 +390,13 @@
    "E180"
   ],
   "organizers": [
-   "O040",
-   "O041"
+   "O039"
   ]
  },
  {
   "id": "G030",
   "name_en": "The Hong Kong Tango Orquesta",
-  "name_local": "",
+  "name_local": "The Hong Kong Tango Orquesta",
   "cities": [
    "Hong Kong"
   ],
@@ -409,7 +408,7 @@
  {
   "id": "G031",
   "name_en": "Jinju Tango People",
-  "name_local": "",
+  "name_local": "Jinju Tango People",
   "cities": [
    "Jinju"
   ],
@@ -422,7 +421,7 @@
  {
   "id": "G032",
   "name_en": "EL PISO Dance Academy",
-  "name_local": "",
+  "name_local": "EL PISO Dance Academy",
   "cities": [
    "Kuala Lumpur"
   ],
@@ -434,7 +433,7 @@
  {
   "id": "G033",
   "name_en": "KL Tango by Swango",
-  "name_local": "",
+  "name_local": "KL Tango by Swango",
   "cities": [
    "Kuala Lumpur"
   ],
@@ -473,7 +472,7 @@
  {
   "id": "G036",
   "name_en": "posTango",
-  "name_local": "",
+  "name_local": "posTango",
   "cities": [
    "Pohang"
   ],
@@ -495,13 +494,13 @@
    "R253"
   ],
   "organizers": [
-   "O057"
+   "O055"
   ]
  },
  {
   "id": "G038",
   "name_en": "Andante",
-  "name_local": "",
+  "name_local": "Andante",
   "cities": [
    "Seoul"
   ],
@@ -521,7 +520,7 @@
  {
   "id": "G039",
   "name_en": "Bailamos Tango",
-  "name_local": "",
+  "name_local": "Bailamos Tango",
   "cities": [
    "Seoul"
   ],
@@ -545,7 +544,7 @@
  {
   "id": "G041",
   "name_en": "Club Troilo",
-  "name_local": "",
+  "name_local": "Club Troilo",
   "cities": [
    "Seoul"
   ],
@@ -558,7 +557,7 @@
  {
   "id": "G042",
   "name_en": "EL TANGO",
-  "name_local": "",
+  "name_local": "EL TANGO",
   "cities": [
    "Seoul"
   ],
@@ -574,7 +573,7 @@
  {
   "id": "G043",
   "name_en": "En Paz Studio",
-  "name_local": "",
+  "name_local": "En Paz Studio",
   "cities": [
    "Seoul"
   ],
@@ -604,7 +603,7 @@
  {
   "id": "G045",
   "name_en": "La Ventana",
-  "name_local": "",
+  "name_local": "La Ventana",
   "cities": [
    "Seoul"
   ],
@@ -620,7 +619,7 @@
  {
   "id": "G046",
   "name_en": "La Vida Studio",
-  "name_local": "",
+  "name_local": "La Vida Studio",
   "cities": [
    "Seoul"
   ],
@@ -640,14 +639,22 @@
   "events": [
    "E056",
    "E064",
+   "R086",
    "R088",
    "R091",
+   "R095",
    "R096",
+   "R100",
    "R104",
+   "R108",
    "R110",
+   "R114",
    "R117",
+   "R151",
    "R154",
+   "R159",
    "R165",
+   "R172",
    "R174"
   ],
   "organizers": []
@@ -655,7 +662,7 @@
  {
   "id": "G048",
   "name_en": "OTRA",
-  "name_local": "",
+  "name_local": "OTRA",
   "cities": [
    "Seoul"
   ],
@@ -668,7 +675,7 @@
  {
   "id": "G049",
   "name_en": "PISTA",
-  "name_local": "",
+  "name_local": "PISTA",
   "cities": [
    "Seoul"
   ],
@@ -696,7 +703,7 @@
  {
   "id": "G050",
   "name_en": "SOLO TANGO",
-  "name_local": "",
+  "name_local": "SOLO TANGO",
   "cities": [
    "Seoul"
   ],
@@ -709,27 +716,8 @@
  },
  {
   "id": "G051",
-  "name_en": "Studio Ocho",
-  "name_local": "",
-  "cities": [
-   "Seoul"
-  ],
-  "events": [
-   "R086",
-   "R095",
-   "R100",
-   "R108",
-   "R114",
-   "R151",
-   "R159",
-   "R172"
-  ],
-  "organizers": []
- },
- {
-  "id": "G052",
   "name_en": "TANGO o nada",
-  "name_local": "",
+  "name_local": "TANGO o nada",
   "cities": [
    "Seoul"
   ],
@@ -746,9 +734,9 @@
   "organizers": []
  },
  {
-  "id": "G053",
+  "id": "G052",
   "name_en": "Tango Passion",
-  "name_local": "",
+  "name_local": "Tango Passion",
   "cities": [
    "Seoul"
   ],
@@ -761,9 +749,9 @@
   "organizers": []
  },
  {
-  "id": "G054",
+  "id": "G053",
   "name_en": "todotango",
-  "name_local": "",
+  "name_local": "todotango",
   "cities": [
    "Seoul"
   ],
@@ -774,7 +762,7 @@
   "organizers": []
  },
  {
-  "id": "G055",
+  "id": "G054",
   "name_en": "A.F.Mike",
   "name_local": "麦克的探戈世界",
   "cities": [
@@ -786,9 +774,9 @@
   "organizers": []
  },
  {
-  "id": "G056",
+  "id": "G055",
   "name_en": "Infinity Tango",
-  "name_local": "",
+  "name_local": "Infinity Tango",
   "cities": [
    "Shanghai"
   ],
@@ -799,9 +787,9 @@
   "organizers": []
  },
  {
-  "id": "G057",
+  "id": "G056",
   "name_en": "iTango",
-  "name_local": "",
+  "name_local": "iTango",
   "cities": [
    "Shanghai"
   ],
@@ -811,9 +799,9 @@
   "organizers": []
  },
  {
-  "id": "G058",
+  "id": "G057",
   "name_en": "Milonga 1758",
-  "name_local": "",
+  "name_local": "Milonga 1758",
   "cities": [
    "Shanghai"
   ],
@@ -824,9 +812,9 @@
   "organizers": []
  },
  {
-  "id": "G059",
+  "id": "G058",
   "name_en": "Tango Palace",
-  "name_local": "",
+  "name_local": "Tango Palace",
   "cities": [
    "Shanghai"
   ],
@@ -836,9 +824,9 @@
   "organizers": []
  },
  {
-  "id": "G060",
+  "id": "G059",
   "name_en": "Tangocool",
-  "name_local": "",
+  "name_local": "Tangocool",
   "cities": [
    "Shanghai"
   ],
@@ -849,9 +837,9 @@
   "organizers": []
  },
  {
-  "id": "G061",
+  "id": "G060",
   "name_en": "La Mirada Singapura Tango Club",
-  "name_local": "",
+  "name_local": "La Mirada Singapura Tango Club",
   "cities": [
    "Singapore"
   ],
@@ -861,7 +849,7 @@
   "organizers": []
  },
  {
-  "id": "G062",
+  "id": "G061",
   "name_en": "Tango.FelipeH",
   "name_local": "Tango.FelipeH 菲利佩探戈教室",
   "cities": [
@@ -874,7 +862,7 @@
   "organizers": []
  },
  {
-  "id": "G063",
+  "id": "G062",
   "name_en": "Tango.two",
   "name_local": "Tango.two 兩兩阿根廷探戈",
   "cities": [
@@ -888,7 +876,7 @@
   "organizers": []
  },
  {
-  "id": "G064",
+  "id": "G063",
   "name_en": "TTA Taichung Tango Academy",
   "name_local": "台中探戈學院",
   "cities": [
@@ -901,7 +889,7 @@
   "organizers": []
  },
  {
-  "id": "G065",
+  "id": "G064",
   "name_en": "Tainan Tango Gang",
   "name_local": "台南探戈幫",
   "cities": [
@@ -914,7 +902,7 @@
   "organizers": []
  },
  {
-  "id": "G066",
+  "id": "G065",
   "name_en": "TangoFriendly",
   "name_local": "友善的探戈",
   "cities": [
@@ -926,9 +914,9 @@
   "organizers": []
  },
  {
-  "id": "G067",
+  "id": "G066",
   "name_en": "A Practilonga",
-  "name_local": "",
+  "name_local": "A Practilonga",
   "cities": [
    "Taipei"
   ],
@@ -938,9 +926,9 @@
   "organizers": []
  },
  {
-  "id": "G068",
+  "id": "G067",
   "name_en": "Bailemos",
-  "name_local": "",
+  "name_local": "Bailemos",
   "cities": [
    "Taipei"
   ],
@@ -950,9 +938,9 @@
   "organizers": []
  },
  {
-  "id": "G069",
+  "id": "G068",
   "name_en": "Bailemos tango school",
-  "name_local": "",
+  "name_local": "Bailemos tango school",
   "cities": [
    "Taipei"
   ],
@@ -962,9 +950,9 @@
   "organizers": []
  },
  {
-  "id": "G070",
+  "id": "G069",
   "name_en": "Corazon Tango School",
-  "name_local": "",
+  "name_local": "Corazon Tango School",
   "cities": [
    "Taipei"
   ],
@@ -974,9 +962,9 @@
   "organizers": []
  },
  {
-  "id": "G071",
+  "id": "G070",
   "name_en": "Corazon Tango Studio",
-  "name_local": "",
+  "name_local": "Corazon Tango Studio",
   "cities": [
    "Taipei"
   ],
@@ -986,9 +974,9 @@
   "organizers": []
  },
  {
-  "id": "G072",
+  "id": "G071",
   "name_en": "Taichung Tango Academy",
-  "name_local": "",
+  "name_local": "Taichung Tango Academy",
   "cities": [
    "Taipei"
   ],
@@ -998,9 +986,9 @@
   "organizers": []
  },
  {
-  "id": "G073",
+  "id": "G072",
   "name_en": "Tanguisimo Tango Space",
-  "name_local": "",
+  "name_local": "Tanguisimo Tango Space",
   "cities": [
    "Taipei"
   ],
@@ -1010,9 +998,9 @@
   "organizers": []
  },
  {
-  "id": "G074",
+  "id": "G073",
   "name_en": "Tanguísimo",
-  "name_local": "",
+  "name_local": "Tanguísimo",
   "cities": [
    "Taipei"
   ],
@@ -1024,7 +1012,7 @@
   "organizers": []
  },
  {
-  "id": "G075",
+  "id": "G074",
   "name_en": "D'Arienzo Cup Executive Committee",
   "name_local": "ダリエンソカップ実行委員会",
   "cities": [
@@ -1036,9 +1024,9 @@
   "organizers": []
  },
  {
-  "id": "G076",
+  "id": "G075",
   "name_en": "Nippon Tango Festival",
-  "name_local": "",
+  "name_local": "Nippon Tango Festival",
   "cities": [
    "Tokyo"
   ],
@@ -1048,9 +1036,9 @@
   "organizers": []
  },
  {
-  "id": "G077",
+  "id": "G076",
   "name_en": "Rada",
-  "name_local": "",
+  "name_local": "Rada",
   "cities": [
    "Tokyo"
   ],
@@ -1060,9 +1048,9 @@
   "organizers": []
  },
  {
-  "id": "G078",
+  "id": "G077",
   "name_en": "Ulsan Tango Sociedad",
-  "name_local": "",
+  "name_local": "Ulsan Tango Sociedad",
   "cities": [
    "Ulsan"
   ],
@@ -1072,7 +1060,7 @@
   "organizers": []
  },
  {
-  "id": "G079",
+  "id": "G078",
   "name_en": "One Last Tango Wuhan",
   "name_local": "One Last Tango 武汉 (静先生)",
   "cities": [
@@ -1082,11 +1070,11 @@
    "E132"
   ],
   "organizers": [
-   "O112"
+   "O110"
   ]
  },
  {
-  "id": "G080",
+  "id": "G079",
   "name_en": "Vstar Tango",
   "name_local": "",
   "cities": [
@@ -1096,7 +1084,7 @@
    "E183"
   ],
   "organizers": [
-   "O117"
+   "O115"
   ]
  }
 ]

@@ -1,0 +1,84 @@
+{
+ "_note": "Answers to review.md, applied by tools/draft_entities.py. Entries without 'by' are Shiao's answers (2026-11-15); 'by: claude' are obvious cases Claude settled, which Shiao can overrule.",
+ "venue_same": [
+  {
+   "city": "Beijing",
+   "names": [
+    "Vida Mia Club",
+    "Vida Mia Tango Club"
+   ],
+   "use": "Vida Mia Tango Club"
+  },
+  {
+   "city": "Beijing",
+   "names": [
+    "Beijing Hong Wu Xin Milonga el Torito",
+    "Beijing Hong Wu Xin Milonga el Torito · Opening Double Milonga"
+   ],
+   "use": "Beijing Hong Wu Xin Milonga el Torito",
+   "by": "claude: the suffix is the event name"
+  },
+  {
+   "city": "Shanghai",
+   "names": [
+    "Tango Palace",
+    "Tango Palace (The Argentina Culture Space)",
+    "Tango Palace, Shanghai"
+   ],
+   "use": "Tango Palace",
+   "by": "claude: same address 中山北路3175号2楼"
+  },
+  {
+   "city": "Tianjin",
+   "names": [
+    "Shidai Aocheng C5-401",
+    "Shidai Aocheng Office C5-401"
+   ],
+   "use": "Shidai Aocheng Office C5-401",
+   "by": "claude: same room C5-401"
+  },
+  {
+   "city": "Guangzhou",
+   "names": [
+    "Mingmen Building 5F",
+    "Red House, Mingmen Building 5F"
+   ],
+   "use": "Red House, Mingmen Building 5F",
+   "by": "claude: fuller name"
+  },
+  {
+   "city": "Shanghai",
+   "names": [
+    "Te Amo",
+    "Te Amo Tango Lounge"
+   ],
+   "use": "Te Amo Tango Lounge",
+   "by": "claude: fuller name"
+  }
+ ],
+ "host_same": [
+  {
+   "names": [
+    "carly",
+    "Carly Chiu"
+   ],
+   "name_en": "Carly Chiu"
+  },
+  {
+   "names": [
+    "Studio Ocho",
+    "OCHO"
+   ],
+   "name_en": "OCHO"
+  },
+  {
+   "names": [
+    "Daisy Tsang",
+    "Daisy 曾"
+   ],
+   "name_en": "Daisy Tsang",
+   "name_local": "Daisy 曾"
+  }
+ ],
+ "scope_first": "China mainland and Hong Kong first; other regions later"
+}
