@@ -36,8 +36,13 @@
     'html.atm-sug-on #china-suggest-modal:not([hidden]){display:flex!important}';
   document.head.appendChild(css);
   var nav = document.querySelector('nav.top-lang'); if (!nav) return;
-  var other = nav.querySelector('a:not([aria-current])');
-  if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', zh ? 'English' : '中文'); other.title = zh ? 'English' : '中文'; other.textContent = zh ? 'EN' : '中文'; }
+  /* 2026-11-15 ko: three languages (ported from the hand-edited bundle); header button = English on zh/ko, 中文 on en.
+     Hidden links (Korean while it is a test version) are left out of the header button and the menu switch. */
+  var LG = (document.documentElement.getAttribute('data-asia-lang') || 'en').slice(0, 2), LA = nav.querySelectorAll('a[data-asia-lang-set]:not([hidden])');
+  [].forEach.call(LA, function (a) { if (a.getAttribute('data-asia-lang-set') === LG) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  var KS = document.createElement('style'); KS.textContent = 'html body.china-page nav.top-lang.china-map-lang a:not(.atm-langbtn){display:none!important}'; document.head.appendChild(KS);
+  var other = nav.querySelector('a[data-asia-lang-set="' + (LG === 'en' ? 'zh' : 'en') + '"]') || nav.querySelector('a:not([aria-current])'), oz = other && other.getAttribute('data-asia-lang-set') === 'zh';
+  if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', oz ? '中文' : 'English'); other.title = oz ? '中文' : 'English'; other.textContent = oz ? '中文' : 'EN'; }
   var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-burger'; b.setAttribute('aria-label', L.menu); b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
   nav.parentNode.insertBefore(b, nav.nextSibling);
@@ -47,10 +52,9 @@
   var href = other ? (other.getAttribute('href') || '') : '';
   var hl = other ? (other.getAttribute('hreflang') || '') : '';
   var set = other ? (other.getAttribute('data-asia-lang-set') || '') : '';
-  var seg = '<div class="atm-seg" role="group" aria-label="Language">' +
-    (zh ? '<span class="on">中文</span><a href="' + href + '" hreflang="' + hl + '" data-asia-lang-set="' + set + '" lang="en">English</a>'
-        : '<a href="' + href + '" hreflang="' + hl + '" data-asia-lang-set="' + set + '" lang="zh-CN">中文</a><span class="on">English</span>') +
-    '</div>';
+  void href; void hl; void set;
+  var seg = '<div class="atm-seg" role="group" aria-label="Language">' + [].map.call(LA, function (a) { var t = a.getAttribute('data-asia-lang-set'), nm = { zh: '中文', en: 'English', ko: '한국어' }[t] || a.textContent;
+    return t === LG ? '<span class="on">' + nm + '</span>' : '<a href="' + a.getAttribute('href') + '" hreflang="' + (a.getAttribute('hreflang') || t) + '" data-asia-lang-set="' + t + '" lang="' + (a.getAttribute('lang') || t) + '">' + nm + '</a>'; }).join('') + '</div>';
   m.innerHTML = '<div class="atm-mbg" data-x></div><div class="atm-mp" role="dialog" aria-modal="true" aria-label="' + L.menu + '"><div class="atm-mhd"><b>' + L.site + '</b><button type="button" class="atm-mx" data-x aria-label="' + L.close + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
     (other ? seg : '') +
     '<div class="atm-mg">' + L.gAct + '</div>' +

@@ -94,12 +94,12 @@
     'Not a ticket or a formal registration.': '티켓이나 정식 등록이 아닙니다.',
     'The organizer gets your name. This is not a booking or ticket.': '주최자에게 이름이 전달됩니다. 예약이나 티켓이 아닙니다.',
     'Going is not a ticket or a formal registration.': '참석은 티켓이나 정식 등록이 아닙니다.',
-    'Receive organizer updates': '주최자 소식 받기',
-    'Let the organizer send me early-bird, deadline and change notices': '주최자의 얼리버드·마감·변경 안내 받기',
+    'Get early-bird, deadline and organizer notices for this event': '이 이벤트의 얼리버드·마감·주최자 소식 받기',
     'First time: enter your email and the last 4 digits of your mobile, then tap the link in the confirmation email. After that, the same two fields sign you in.': '처음: 이메일과 휴대폰 끝 4자리를 입력하고 확인 메일의 링크를 누르세요. 이후에는 같은 두 항목으로 바로 로그인됩니다.',
     'Complete your details and send the confirmation email. Tap the link in it and you\u2019re done.': '정보를 입력하고 확인 메일을 보내 주세요. 메일의 링크를 누르면 완료됩니다.',
-    'Special-event news': '스페셜 이벤트 소식',
-    'Mostly special events: new festivals, marathons, weekends and workshops, with registration news. Sent now and then; unsubscribe any time.': '스페셜 이벤트 위주: 새 페스티벌·마라톤·위켄드·워크숍과 등록 소식. 가끔 보내 드리며 언제든 구독 해지할 수 있습니다.',
+    'Event news': '이벤트 소식',
+    'The confirmation link may open in another browser. After confirming, come back here (e.g. WeChat) and sign in with the same email and last 4 digits.': '확인 링크는 다른 브라우저에서 열릴 수 있습니다. 확인 후 이곳(예: 위챗)으로 돌아와 같은 이메일과 휴대폰 끝 4자리로 로그인하세요.',
+    'Event news now and then, mostly special events. Unsubscribe any time.': '이벤트 소식을 가끔 보내 드립니다. 스페셜 이벤트 위주이며 언제든 구독 해지할 수 있습니다.',
     'Going to an event? On its page choose Going or Interested, and the organizer can tell you about early-bird prices, deadlines and directions.': '가고 싶은 이벤트가 있나요? 이벤트 페이지에서 \'참석\' 또는 \'관심\'을 선택하면 주최자가 얼리버드 가격, 등록 마감, 오시는 길을 알려 줄 수 있습니다.', 'Directions (optional)': '오시는 길 (선택)',
     'Get early-bird deadlines, directions and updates from the organizer.': '주최자로부터 얼리버드 마감, 오시는 길, 변경 소식을 받습니다.',
     'Choose Going, Interested, or Not Going.': '참석, 관심, 불참 중에서 고르세요.',
@@ -109,7 +109,6 @@
     'Confirmation email sent. Your intent is saved when you confirm.': '인증 메일을 보냈습니다. 인증하면 선택이 저장됩니다.',
     'Email sent — please confirm in your inbox': '메일을 보냈습니다 — 받은편지함에서 인증해 주세요',
     'Didn\'t get the email? Check your spam or junk folder.': '메일이 오지 않았나요? 스팸함을 확인해 주세요.',
-    'The confirmation link may open in your browser. After confirming, just come back here.': '인증 링크는 브라우저에서 열릴 수 있습니다. 인증 후 이 페이지로 돌아오세요.',
     'Check your spam folder first. You can resend once after 1 minute.': '먼저 스팸함을 확인하세요. 1분 후 한 번 다시 보낼 수 있습니다.',
     'Already resent. Please check your inbox, or try again later.': '이미 다시 보냈습니다. 받은편지함을 확인하거나 잠시 후 다시 시도하세요.',
     'Resend verification email': '인증 메일 다시 보내기', 'Email confirmed. Your intent is saved.': '이메일이 인증되었습니다. 선택이 저장되었습니다.',
@@ -133,7 +132,7 @@
     'Event intent': '이벤트 선택', 'Manage intent': '선택 관리', 'Intent saved': '선택 저장됨',
     'Tap the star to choose Going or Interested. It shows here after you verify your email.': '별을 눌러 참석 또는 관심을 고르세요. 이메일 인증 후 여기에 표시됩니다.',
     /* subscribe / sign in */
-    'Event updates, sent as needed.': '필요할 때 이벤트 소식을 보내 드립니다.', 'Name': '이름', 'Your name': '이름', 'Your city': '도시',
+    'Name': '이름', 'Your name': '이름', 'Your city': '도시',
     'Role': '역할', 'Choose': '선택', 'Leader': '리더', 'Follower': '팔로워', 'Both': '둘 다',
     'Please enter your name.': '이름을 입력하세요.', 'Please enter your city.': '도시를 입력하세요.',
     'Please choose Leader, follower, or both.': '리더, 팔로워, 둘 다 중에서 고르세요.', 'Join ATM site-wide subscription': 'ATM 전체 소식 구독하기',
@@ -164,10 +163,6 @@
   };
   /* whole elements whose text is split by inline tags (<em>, <b>): matched on textContent, replaced as HTML */
   var SE = {
-    'Email and the mobile last 4 digits are required. The form tells registration from sign-in. The first registration still sends a confirmation email. The mobile last 4 digits work only after you tap the link in that email. If you already confirmed, enter your email and the mobile last 4 digits to sign in. You don\u2019t need another confirmation email.':
-      '이메일과 휴대폰 번호 끝 4자리는 <em>필수</em>입니다. 가입인지 로그인인지는 자동으로 구분합니다. 처음 가입할 때는 인증 메일을 보내며, 메일의 링크를 누른 뒤부터 휴대폰 끝 4자리로 로그인할 수 있습니다. 이미 인증했다면 이메일과 휴대폰 끝 4자리를 입력해 로그인하세요. 인증 메일을 다시 받을 필요가 없습니다.',
-    'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.':
-      '아시아 탱고 이벤트 소식을 구독하세요. 얼리버드 가격, 마감, 오시는 길 등의 소식을 먼저 받아 볼 수 있습니다.'
   };
   var k; for (k in CITY) if (!S[k]) S[k] = CITY[k];
   for (k in TYPE) if (!S[k]) S[k] = TYPE[k];
