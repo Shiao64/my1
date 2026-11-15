@@ -1,7 +1,6 @@
 name: Poster guard
+# 2026-11-15: PRs only. On main, "R2 sync" fills missing posters itself before uploading.
 on:
-  push:
-    paths: ['asia/events*.json']
   pull_request:
     paths: ['asia/events*.json']
 jobs:
