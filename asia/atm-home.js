@@ -559,9 +559,17 @@
   /* v11.21: when the tab row reaches the top it lays over the white scrolled header: one 52px frozen bar
      ([城市 ▾] ★收藏 | 日常 | 大型 [筛选 ▾] ≡) instead of header + tabs. */
   if (V2) { var stuckF = 0; addEventListener('scroll', function () { if (stuckF) return; stuckF = requestAnimationFrame(function () { stuckF = 0; v2Stuck(); }); }, { passive: true }); }
-  function v2Stuck() { var bar = root.querySelector('.v2-bar'), on = false;
-    if (bar && bar.offsetParent && R.classList.contains('atm-h-on') && (scrollY || 0) > 4) { var hd = D.querySelector('.china-sticky-top'), hb = hd && !R.classList.contains('v2-stuck') ? hd.getBoundingClientRect().bottom : 0; on = bar.getBoundingClientRect().top <= Math.max(1, hb) + 1; }
-    R.classList.toggle('v2-stuck', on); }
+  /* v11.29: no jitter at the switch (scrolling up just before the city chips). Same test in both states: the bar's natural place
+     (bottom of the block before it) against the header bottom. The frozen bar is taller, so a negative margin keeps its in-flow
+     height unchanged: the page under it does not move and scroll anchoring cannot flip the state back and forth. */
+  function v2Stuck() { var bar = root.querySelector('.v2-bar'), on = false, was = R.classList.contains('v2-stuck');
+    if (bar && bar.offsetParent && R.classList.contains('atm-h-on') && (scrollY || 0) > 4) { var hd = D.querySelector('.china-sticky-top'), hb = hd ? hd.getBoundingClientRect().bottom : 0, prev = bar.previousElementSibling, nat = prev ? prev.getBoundingClientRect().bottom : bar.getBoundingClientRect().top; on = nat <= Math.max(1, hb) + 1; }
+    if (on === was) return;
+    if (!bar) { R.classList.toggle('v2-stuck', on); return; }
+    /* page positions (rect + scrollY), so the browser's own scroll anchoring during the switch does not hide the shift */
+    bar.style.marginBottom = ''; var nx = bar.nextElementSibling, pos = function () { return nx ? nx.getBoundingClientRect().top + (scrollY || 0) : 0; }, n0 = pos();
+    R.classList.toggle('v2-stuck', on);
+    if (on && nx) { var dn = n0 - pos(); if (Math.abs(dn) > .5) bar.style.marginBottom = ((parseFloat(getComputedStyle(bar).marginBottom) || 0) + dn) + 'px'; } }
   root.addEventListener('click', function (e) {
     if (e.target.closest && e.target.closest('a.ah-pt')) return; /* poster link opens P10; do not treat it as the section button */
     var b = e.target.closest('button'); if (!b) return;
