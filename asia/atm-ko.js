@@ -68,7 +68,7 @@
     'ENDED': '종료', 'This event has ended': '종료된 이벤트입니다', 'View all events': '모든 이벤트 보기', 'Next edition:': '다음 회차:',
     '📷 Recap': '📷 후기', 'Photos:': '사진:', '★ Special events': '★ 스페셜 이벤트', 'This card is not on the map': '지도에 없는 카드입니다',
     'The map could not load this card. That does not mean the event has ended.': '이 카드를 불러오지 못했습니다. 이벤트가 끝났다는 뜻은 아닙니다.',
-    'Try again': '다시 시도', 'Back': '뒤로', 'Back to list': '목록으로', 'Search': '검색', 'Menu': '메뉴', 'Close': '닫기',
+    'Try again': '다시 시도', 'Back': '뒤로', 'Back to list': '목록으로', 'Search': '검색', 'Menu': '메뉴', 'Close': '닫기', 'Map ↗': '지도 ↗', 'Enlarge': '크게 보기', 'Show this to a driver': '기사님께 보여 주세요', 'Open map': '지도 열기', 'Copy address': '주소 복사', 'Copied': '복사됨', 'Route pictures': '찾아오는 길 사진',
     'No · Not confirmed, please contact the organizer': '아니요 · 미확인, 주최자에게 문의하세요',
     'Viewed': '본 이벤트', 'Recently viewed': '최근 본 이벤트', 'Hide': '숨기기', 'Show': '보기', 'Clear': '지우기',
     /* menu */
@@ -205,6 +205,7 @@
     [/^See upcoming events in (.+)$/, function (m) { return city(m[1]) + '의 다가오는 이벤트 보기'; }],
     [/^Coming up in (.+)$/, function (m) { return city(m[1]) + ' 다가오는 이벤트'; }],
     [/^(\d+)s until you can send again$/, function (m) { return m[1] + '초 후 다시 보낼 수 있습니다'; }],
+    [/^Route pictures (\d+) \/ (\d+)$/, function (m) { return '찾아오는 길 사진 ' + m[1] + ' / ' + m[2]; }],
     [/^beta (\S+)$/, function (m) { return '베타 ' + m[1]; }],
     [/^(Ended|Event ended) · (.+)$/, function (m) { return '종료 · ' + m[2]; }]
   ];

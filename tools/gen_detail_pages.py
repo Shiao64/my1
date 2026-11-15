@@ -53,11 +53,12 @@ def page(e, slug, zh):
     vn = '' if bad(e.get('venue')) else ((e.get('venue_zh') if zh else None) or e['venue'])
     a1 = '' if bad(e.get('venue_address')) else e['venue_address']
     a2 = '' if bad(e.get('venue_address_en')) else e['venue_address_en']
+    dr = ('' if bad(e.get('directions')) else e.get('directions')) if zh else ('' if bad(e.get('directions_en')) else e.get('directions_en')) or ('' if bad(e.get('directions')) else e.get('directions') or '')
     ad = ([x for x in [a1] if x] + ([a2] if a2 and a2 != a1 and (e.get('country') != 'China' or not a1) else [])) if zh else ([a2 or a1] if (a2 or a1) else [])
     if vn or ad:
         nav.append(('venue', '场地' if zh else 'Venue'))
         secs.append('<section class="alt cw-venue-sec"><div class="wrap"><h2 id="venue" class="sec-title">%s</h2><p class="venue-block">%s</p></div></section>' % (
-            '场地' if zh else 'Venue', '<br>'.join(([f'<b class="venue-name">{E(vn)}</b>'] if vn else []) + [E(x) for x in ad if x])))
+            '场地' if zh else 'Venue', '<br>'.join(([f'<b class="venue-name">{E(vn)}</b>'] if vn else []) + [E(x) for x in ad if x] + ([('交通：' if zh else 'Getting there: ') + E(dr)] if dr else []))))
     sch = e.get('schedule') or []
     if sch:
         WD = ['周一','周二','周三','周四','周五','周六','周日'] if zh else ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']

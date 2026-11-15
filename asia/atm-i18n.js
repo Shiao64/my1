@@ -64,6 +64,7 @@
     return asText(pick(e, field, lang));
   }
 
+  var LOCAL = /[\u3040-\u30ff\u3400-\u9fff\uf900-\ufaff\uac00-\ud7af]/;
   function addressLines(e, lang) {
     lang = lang || 'en';
     var orig = usable(e && e.venue_address) ? String(e.venue_address).trim() : '';
@@ -76,7 +77,7 @@
       if (en && en !== orig && (!mainland || e.addr_en_zh || !orig)) lines.push(en);
     } else {
       if (chosen) lines.push(chosen);
-      if (orig && HAN.test(orig) && orig !== chosen) lines.push(orig);
+      if (orig && LOCAL.test(orig) && orig !== chosen) lines.push(orig); /* 2026-11-15: keep the local-language address (Chinese, Japanese, Korean) */
     }
     return {
       lines: lines,
