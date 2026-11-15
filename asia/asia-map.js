@@ -284,7 +284,8 @@
         addr = ' <span class="china-addr">· ' + esc(al.lines[0]) + '</span>';
         if (al.lines[1]) addrEn = '<div class="' + (isZh ? 'china-addr-en' : 'china-addr-orig') + '">' + esc(al.lines[1]) + '</div>';
       }
-      body.push(line(UI.venue || 'Venue', esc(vName) + addr + addrEn));
+      var dir = window.ATM_ADDR ? window.ATM_ADDR.dir(r) : ''; /* 2026-11-15: directions kept apart from the address */
+      body.push(line(UI.venue || 'Venue', esc(vName) + addr + addrEn + (dir ? '<div class="china-addr-dir">\uD83D\uDE87 ' + esc(dir) + '</div>' : '')));
     }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
     if (r.organizers && r.organizers.length) { var oe = (!UI.keepOrganizerZh && r.organizers_en && r.organizers_en.length) ? r.organizers_en.join(', ') : organizersText(r.organizers); /* v11.4+: optional organizers_en */ if (oe) body.push(line(UI.organizer || 'Organizer', esc(oe))); }

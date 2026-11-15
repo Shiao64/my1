@@ -5,7 +5,7 @@ function i18nLang(){ return (window.atmI18n && window.atmI18n.langOf({ zhHint: z
 function evName(e){ return (window.atmI18n && window.atmI18n.fieldText(e, 'name', i18nLang())) || ((zh && e.name_zh) || e.name || ''); }
 function evVenue(e){ return (window.atmI18n && window.atmI18n.fieldText(e, 'venue', i18nLang())) || ((!zh && e.venue_en) || e.venue || ''); }
 function addrLines(e){ return (window.atmI18n && window.atmI18n.addressLines(e, i18nLang())) || { lines: [], display: '', original: '', mapQuery: e.venue_address || e.venue_address_en || '' }; }
-function mapHref(e, q){ var cn=e.country==='China'; return (cn?'https://uri.amap.com/search?keyword=':'https://www.google.com/maps/search/?api=1&query=')+encodeURIComponent(q||''); }
+function mapHref(e, q){ if(window.ATM_ADDR) return window.ATM_ADDR.href(e, q); var cn=e.country==='China'; return (cn?'https://uri.amap.com/search?keyword=':'https://www.google.com/maps/search/?api=1&query=')+encodeURIComponent(q||''); }
 var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
 /* First view reads events-core (window._chinaData). events-more / events.json and the DJ/organizer profiles wait until scroll, search, expand, or a card that is not in core. */
 var EV=null, REG=zh?{}:null, DJPROF=[], ORGPROF=[], profP=null, fullP=null;
@@ -55,7 +55,7 @@ function bad(x){return !x||/not found|没找到|未找到|unknown|未知|^tba$|�
 function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in'); if(!inn||!li||inn.dataset.r) return; var e=EV&&EV[li.dataset.id]; if(!e){ if(!dt._atmWait){ dt._atmWait=1; ensureEvent(li.dataset.id).then(function(){ dt._atmWait=0; rebuild(dt); }); } return; } inn.dataset.r='1';
  var R=[], row=function(l,v,c){ if(v) R.push('<div class="b-row'+(c?' '+c:'')+'"><b>'+l+'</b><span>'+v+'</span></div>'); };
  var al=addrLines(e), ad=al.lines.slice(), mu=mapHref(e, al.mapQuery);
- row(zh?'地址':'Address', ad.length?'<a class="b-map" href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>':'');
+ row(zh?'地址':'Address', ad.length?(window.ATM_ADDR?window.ATM_ADDR.html(e, ad, al.mapQuery):'<a class="b-map" href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>'):''); /* 2026-11-15: tap to enlarge, directions, own map app */
  var f=function(x){return x.replace(/-/g,'/')}, tm='';
  if(e.start&&e.end&&e.start!==e.end) tm=f(e.start)+' – '+f(e.end); else if(e.start) tm=f(e.start)+(e.time?' '+e.time:''); else if(e.time) tm=e.time;
  row(zh?'时间':'Time', H(tm));
@@ -164,7 +164,7 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   var dj=djName(e)||''; if(dj&&!faceDj) row('DJ', H(dj));
   var al=addrLines(e), ad=al.lines.slice(), a1=al.mapQuery, a2=al.display;
   var vns=[evVenue(e),e.venue,e.venue_en].filter(Boolean).map(String); ad=ad.map(function(x){ x=String(x).trim(); vns.forEach(function(v){ v=v.trim(); if(!v||x.length<=v.length+2) return; var lx=x.toLowerCase(), lv=v.toLowerCase(); if(lx.slice(-lv.length)===lv) x=x.slice(0,-v.length).replace(/[\s,，、·\-–]+$/,''); else if(lx.indexOf(lv)===0) x=x.slice(v.length).replace(/^[\s,，、·\-–]+/,''); }); return x; }).filter(Boolean); /* v12.1: no venue name repeated in address */
-  if(ad.length){ var mu=mapHref(e, al.mapQuery); row(zh?'地址':'Address', '<a href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>'); }
+  if(ad.length){ var mu=mapHref(e, al.mapQuery); row(zh?'地址':'Address', window.ATM_ADDR?window.ATM_ADDR.html(e, ad, al.mapQuery):'<a href="'+mu+'" target="_blank" rel="noopener">'+ad.map(H).join('<br>')+'</a>'); }
   var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, ct=[]; var wl=C.wechat_label&&!org.some(function(o){ o=String(o).toLowerCase(); var l=String(C.wechat_label).toLowerCase().trim(); return o===l||o.split(/[\s&、,，()（）]+/).indexOf(l)>=0; })?C.wechat_label:''; /* v12.1: drop label repeating organizer */
   var tel=function(p){ return '<a href="tel:'+H(String(p).replace(/[^\d+]/g,''))+'">'+H(p)+'</a>'; }, same=C.wechat_id&&C.phone&&String(C.wechat_id).replace(/\D/g,'')===String(C.phone).replace(/\D/g,'')&&/^\+?[\d\s\-]+$/.test(String(C.wechat_id)); /* v12: WeChat==phone -> one line */
   if(same) ct.push((zh?'手机/微信同号：':'Phone/WeChat: ')+tel(C.phone)+(wl?' ('+H(wl)+')':''));
@@ -196,7 +196,7 @@ function p10noticeUI(e, notices){ if(!notices||!notices.length) return null; var
     var vn=evVenue({venue:o.venue,venue_en:o.venue_en})||'';
     var nal=addrLines({venue_address:o.address,venue_address_en:o.address_en,country:e.country,region:e.region,addr_en_zh:e.addr_en_zh});
     if(vn&&!bad(vn)){ var v=document.createElement('div'); v.className='p10-nven'; v.textContent=vn; block.appendChild(v); }
-    if(nal.lines.length){ var a=document.createElement('a'); a.className='p10-ndir'; a.href=mapHref(e, nal.mapQuery); a.target='_blank'; a.rel='noopener'; a.innerHTML=nal.lines.map(H).join('<br>'); block.appendChild(a); }
+    if(nal.lines.length){ var a=document.createElement('a'); a.className='p10-ndir'; a.href=mapHref(e, nal.mapQuery); if(/^https?:/.test(a.href)){ a.target='_blank'; a.rel='noopener'; } a.innerHTML=nal.lines.map(H).join('<br>'); block.appendChild(a); }
     var img=p10safeImg(o.image); if(img){ var pic=document.createElement('div'); pic.className='p10-ovpic'; var im=document.createElement('img'); im.src=img; im.alt=zh?'临时通知':'Notice'; pic.appendChild(im); block.appendChild(pic); }
     if(block.childNodes.length) panel.appendChild(block); });
   if(!panel.childNodes.length) return null;
