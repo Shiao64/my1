@@ -76,9 +76,9 @@
     'Share': '공유', 'Copy link': '링크 복사', 'Refresh': '새로고침', 'My ATM': '나의 ATM', 'About': '정보', 'My profile': '내 정보',
     'Cancel': '취소', 'Copied': '복사됨', 'More actions': '더 보기', 'Language': '언어',
     /* notice */
-    'Beta Notice & Disclaimer': '베타 안내 및 면책 고지',
-    'Asia Tango Map (ATM) is still in beta. Event information may be inaccurate or out of date.': '아시아 탱고 지도(ATM)는 아직 베타 버전입니다. 이벤트 정보가 부정확하거나 오래되었을 수 있습니다.',
-    'Before attending, please confirm the date, time, venue, itinerary and registration arrangements directly with the organizer before making travel plans or payments. The organizer’s latest confirmation takes precedence. This site provides information for reference only; saving an event or selecting Going / Interested is not a formal registration.': '참석 전, 여행 계획이나 결제를 하기 전에 날짜·시간·장소·일정·등록 방법을 주최자에게 직접 확인해 주세요. 주최자의 최신 안내가 우선합니다. 이 사이트의 정보는 참고용이며, 이벤트를 저장하거나 참석 / 관심을 선택해도 정식 등록이 아닙니다.',
+    'Beta Notice & Disclaimer': '베타 서비스 안내 및 면책 고지',
+    'Asia Tango Map (ATM) is still in beta. Event information may be inaccurate or out of date.': '아시아 탱고 지도(ATM)는 현재 베타 버전으로 운영되고 있으며, 일부 이벤트 정보가 부정확하거나 최신 정보와 다를 수 있습니다.',
+    'Before attending, please confirm the date, time, venue, itinerary and registration arrangements directly with the organizer before making travel plans or payments. The organizer’s latest confirmation takes precedence. This site provides information for reference only; saving an event or selecting Going / Interested is not a formal registration.': '이벤트 참석이나 여행 계획, 결제 전 반드시 주최자에게 날짜, 시간, 장소, 일정 및 등록 방법을 직접 확인해 주시기 바랍니다. 최신 정보는 주최자의 공식 안내를 우선으로 합니다.\n\n본 사이트의 정보는 참고용이며, 이벤트를 저장하거나 \'참석\' 또는 \'관심\'을 선택하더라도 정식 참가 신청이나 등록이 완료되는 것은 아닙니다.',
     'I understand, enter the site': '확인했습니다, 사이트로 들어가기',
     /* submit-event form */
     'Event name': '이벤트 이름', 'Date': '날짜', 'Your email': '이메일', '(Required)': '(필수)', 'required': '필수',
@@ -237,12 +237,14 @@
     } finally { mo.takeRecords(); busy = false; }
   });
   mo.observe(R, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTR });
+  /* 2026-11-15: Shiao's Korean notice has 3 paragraphs; a translation with a blank line becomes separate <p> */
+  function splitNotice() { [].forEach.call(D.querySelectorAll('#atm-notice .atm-notice-body p'), function (p) { var t = p.textContent; if (t.indexOf('\n\n') < 0) return; var parts = t.split('\n\n'); p.textContent = parts[0]; for (var i = parts.length - 1; i > 0; i--) { var q = D.createElement('p'); q.textContent = parts[i]; p.parentNode.insertBefore(q, p.nextSibling); } }); }
   /* 2026-11-15 test version: the 한국어 menu link stays hidden; on a Korean page show English (and 中文) as the ways out. */
   function langMenu() {
     [].forEach.call(D.querySelectorAll('.top-lang a[data-asia-lang-set="en"][aria-current]'), function (a) { a.removeAttribute('aria-current'); a.setAttribute('href', a.getAttribute('href').replace(/[?&]lang=ko\b/, '') ); });
     [].forEach.call(D.querySelectorAll('.top-lang a[data-asia-lang-set="en"]'), function (a) { var h = a.getAttribute('href') || './'; if (!/[?&]lang=en\b/.test(h)) a.setAttribute('href', h + (h.indexOf('?') < 0 ? '?' : '&') + 'lang=en'); });
   }
-  D.addEventListener('DOMContentLoaded', function () { busy = true; langMenu(); walk(D.body); try { D.title = '아시아 탱고 지도 · Select Tango Weekend'; } catch (e) {} mo.takeRecords(); busy = false; });
+  D.addEventListener('DOMContentLoaded', function () { busy = true; langMenu(); walk(D.body); splitNotice(); try { D.title = '아시아 탱고 지도 · Select Tango Weekend'; } catch (e) {} mo.takeRecords(); busy = false; });
 
   /* native dialogs */
   var oc = window.confirm; window.confirm = function (m) { return oc.call(window, tr(String(m)) || m); };
