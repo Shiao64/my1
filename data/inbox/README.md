@@ -30,7 +30,7 @@ GitHub 仓库 Shiao64/my1 的 data/inbox/ 文件夹，一件事一个文件。
 文件名：日期-城市-简短说明.md，例如 2026-11-16-shanghai-newyear-venues.md
 
 怎么送进来：
-1. 新开一个分支，名字以 inbox/ 开头，例如 inbox/2026-11-16-shanghai-newyear。
+1. 新开一个分支，名字以 answer/ 开头，例如 answer/2026-11-16-shanghai-newyear。
 2. 只在 data/inbox/ 里加文件（附件也放这里），然后开 PR 到 main。
 3. 自动检查会确认这个 PR 只改了 data/inbox/：
    - 通过：自动合并，接着自动处理的 Claude 会读答复、改资料，开一个「探戈助理答复：…」的 PR，等 Shiao 或 Claude 看过再上线。
