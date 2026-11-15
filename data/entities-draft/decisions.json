@@ -80,5 +80,16 @@
    "name_local": "Daisy 曾"
   }
  ],
- "scope_first": "China mainland and Hong Kong first; other regions later"
+ "scope_first": "China mainland and Hong Kong first; other regions later",
+ "host_kind": {
+  "person": [
+   "雷雷",
+   "Lei Lei",
+   "LeileiTango",
+   "LMC",
+   "POP",
+   "Nam",
+   "Wing"
+  ]
+ }
 }

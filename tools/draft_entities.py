@@ -194,8 +194,13 @@ for e in EV:
             h['members'].add(ph['name_en'])
 
 # uncertain kinds: single Latin word, no group word, not a venue name → could be a nickname or a group brand
+FORCE_PERSON = {norm(x) for x in DEC.get('host_kind', {}).get('person', [])}
+for h in hosts.values():
+    if norm(h['name_en']) in FORCE_PERSON or norm(h.get('name_local')) in FORCE_PERSON:
+        h['kind'] = 'person'; h['answered'] = True
 member_names = {m for h in hosts.values() for m in h['members']}
 for h in hosts.values():
+    if h.get('answered'): continue
     if h['kind'] == 'person' and h['name_en'] not in member_names and re.fullmatch(r"[A-Za-z][A-Za-z'.]*", h['name_en'] or '') and (h['name_en'].isupper() or len(h['events']) >= 3):
         h['flags'].append('kind?')
         review['host_kind'].append(h)
