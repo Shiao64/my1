@@ -43,9 +43,9 @@
      v11.25 (2026-11-15): v2 is the default for everyone. ?v2=0 switches this device back to the old home (remembered), ?v2=1 clears that. */
   var V2 = true;
   try { if (/[?&]v2=0/.test(location.search)) localStorage.setItem('atm_v2', '0'); if (/[?&]v2=1/.test(location.search)) localStorage.removeItem('atm_v2'); V2 = localStorage.getItem('atm_v2') !== '0'; } catch (e) {}
-  /* v11.31 TEST (2026-11-15, ?t3=1 remembered per device, ?t3=0 off): Shiao's mockup 1 - categories shown under the tabs (no 筛选 button),
+  /* v11.31 (2026-11-15, on for everyone since Shiao approved; ?t3=0 turns it off on a device, ?t3=1 back on): Shiao's mockup 1 - categories shown under the tabs (no 筛选 button),
      a 收纳盒 drawer at the end of the city row to put cities away, menu left / big sign / EN right, Argentine light-blue colours. */
-  var T3 = false; try { if (/[?&]t3=1/.test(location.search)) localStorage.setItem('atm_t3', '1'); if (/[?&]t3=0/.test(location.search)) localStorage.removeItem('atm_t3'); T3 = V2 && localStorage.getItem('atm_t3') === '1'; } catch (e) {}
+  var T3 = V2; try { if (/[?&]t3=0/.test(location.search)) localStorage.setItem('atm_t3', '0'); if (/[?&]t3=1/.test(location.search)) localStorage.removeItem('atm_t3'); T3 = V2 && localStorage.getItem('atm_t3') !== '0'; } catch (e) {}
   if (T3) D.documentElement.classList.add('atm-t3');
   var T3T = zh ? { drw: '收纳盒', box: '收纳盒里的城市', done: '完成', empty: '还没有收起的城市', hint: '点城市上的 ✕ 收进收纳盒；点「＋」放回去。收藏的活动照常显示。', clr: '清除分类', hidA: '收起' }
     : { drw: 'Drawer', box: 'Cities in the drawer', done: 'Done', empty: 'No cities put away yet', hint: 'Tap ✕ on a city to put it in the drawer; tap + to bring it back. Saved events still show.', clr: 'Clear category', hidA: 'Put away' };
