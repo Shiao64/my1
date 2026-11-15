@@ -59,6 +59,11 @@ jobs:
           git add asia/index.html zh/asia/index.html asia/asia-map.js asia/atm-home.js asia/events.json asia/events-core.json asia/events-more.json
           git add images/asia/posters/generated images/thumb/images/asia/posters/generated images/thumb800/images/asia/posters/generated 2>/dev/null || true
           git commit -m "R2 sync: fill missing posters / bump events-core cache key"
-          git push
+          # main may have moved while uploading (another PR merged): rebase and retry.
+          for i in 1 2 3 4 5; do
+            git pull --rebase -q origin main && git push && exit 0
+            sleep $((i * 10))
+          done
+          echo "::error::Could not push the cache-key bump after 5 tries."; exit 1
       - name: Public check
         run: python3 tools/r2_sync_cards.py --check
