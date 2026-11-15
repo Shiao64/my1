@@ -73,7 +73,7 @@
     'Viewed': '본 이벤트', 'Recently viewed': '최근 본 이벤트', 'Hide': '숨기기', 'Show': '보기', 'Clear': '지우기',
     /* menu */
     'Sources': '자료 출처', 'Contact': '연락', 'Email us': '이메일 보내기', 'Subscribe': '구독', 'Submit event': '이벤트 제보',
-    'Share': '공유', 'Copy link': '링크 복사', 'Refresh': '새로고침', 'My ATM': '나의 ATM', 'About': '정보', 'My profile': '내 정보',
+    'Share': '공유', 'Copy link': '링크 복사', 'Refresh': '새로고침', 'My ATM': '나의 ATM', 'About': '정보', 'My profile': '내 정보', 'Subscription & account': '구독 및 계정',
     'Cancel': '취소', 'Copied': '복사됨', 'More actions': '더 보기', 'Language': '언어',
     /* notice */
     'Beta Notice & Disclaimer': '베타 서비스 안내 및 면책 고지',
@@ -89,6 +89,7 @@
     /* star / going */
     'Going': '참석', 'Interested': '관심', 'Not Going': '불참', 'Withdraw': '취소', 'Keep': '유지', 'Confirm': '확인',
     'Saved. Find it under Saved.': '저장했습니다. ‘저장’ 탭에서 볼 수 있습니다.',
+    'Want a note when these events change or registration closes?': '이 이벤트들의 신청 마감이나 변경이 있을 때 알려 드릴까요?', 'No thanks': '괜찮아요', 'Get special-event news': '대형 이벤트 소식 받기', 'New festivals, marathons and registration deadlines, sent now and then': '새 페스티벌, 마라톤, 신청 마감 소식을 가끔 보내 드립니다',
     'Saved. This one is not sent to the organizer.': '저장했습니다. 주최자에게는 알리지 않습니다.',
     'Remove this event from favorites?': '이 이벤트를 저장 목록에서 뺄까요?',
     'Not a ticket or a formal registration.': '티켓이나 정식 등록이 아닙니다.',

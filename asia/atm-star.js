@@ -45,7 +45,7 @@
     later: '请稍后再试。',
     limited: '确认邮件已达上限，请稍后再试。',
     withheld: '已记下。这一场不会交给主办。',
-    unfav: '取消收藏', saveStar: '收藏', firstSave: '已收藏。在「收藏」里可以找到。', barNote: '主办方会收到你的名字，不是报名或购票', withdraw: '取消',
+    unfav: '取消收藏', saveStar: '收藏', firstSave: '已收藏。在「收藏」里可以找到。', subAsk: '这些活动有报名截止或变动时，要通知你吗？', subYes: '订阅', subNo: '不用', barNote: '主办方会收到你的名字，不是报名或购票', withdraw: '取消',
     unfavAsk: '取消收藏这个活动？',
     unfavKeep: '保留',
     notify: '接收本活动的早鸟、截止和主办方消息',
@@ -114,7 +114,7 @@
     later: 'Please try again later.',
     limited: 'Too many confirmation emails. Please try again later.',
     withheld: 'Saved. This one is not sent to the organizer.',
-    unfav: 'Remove from favorites', saveStar: 'Save', firstSave: 'Saved. Find it under Saved.', barNote: 'The organizer gets your name. This is not a booking or ticket.', withdraw: 'Withdraw',
+    unfav: 'Remove from favorites', saveStar: 'Save', firstSave: 'Saved. Find it under Saved.', subAsk: 'Want a note when these events change or registration closes?', subYes: 'Subscribe', subNo: 'No thanks', barNote: 'The organizer gets your name. This is not a booking or ticket.', withdraw: 'Withdraw',
     unfavAsk: 'Remove this event from favorites?',
     unfavKeep: 'Keep',
     notify: 'Get early-bird, deadline and organizer notices for this event',
@@ -1194,6 +1194,24 @@
     if (!b) { b = document.createElement('button'); b.setAttribute('data-fid', id); }
     open(b, opt);
   }
+  /* 2026-11-15 A4: on the 3rd saved event, ask once whether to subscribe. 不用 / 订阅 both close it for good. Not shown when signed in. */
+  function subAsk() {
+    var k = 'atm_sub_ask_v1';
+    try { if (localStorage.getItem(k)) return; if (/^[0-9a-f]{64}$/.test(localStorage.getItem('atm_session') || '')) return; } catch (e) { return; }
+    if (Object.keys(favs).length < 3 || document.getElementById('atm-subask')) return;
+    if (!document.getElementById('atm-subask-css')) { var st = document.createElement('style'); st.id = 'atm-subask-css';
+      st.textContent = '#atm-subask{position:fixed;left:12px;right:12px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:1500;max-width:440px;margin:0 auto;box-sizing:border-box;padding:14px 14px 12px 16px;border-radius:14px;background:#06333A;color:#FFF6E0;box-shadow:0 10px 28px rgba(6,51,58,.35);font:500 15px/22px var(--sans,system-ui)}#atm-subask p{margin:0 0 10px}#atm-subask .sa-r{display:flex;gap:8px;justify-content:flex-end}#atm-subask button{min-height:44px;padding:0 18px;border-radius:10px;font:700 15px/44px var(--sans,system-ui);cursor:pointer;border:1px solid rgba(242,207,127,.55);background:transparent;color:#F2CF7F}#atm-subask button.sa-y{background:#F2CF7F;color:#06333A;border-color:#F2CF7F}';
+      document.head.appendChild(st); }
+    var box = document.createElement('div'); box.id = 'atm-subask'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', L.subYes);
+    box.innerHTML = '<p>' + esc(L.subAsk) + '</p><div class="sa-r"><button type="button" class="sa-n">' + esc(L.subNo) + '</button><button type="button" class="sa-y"><span aria-hidden="true">🔔 </span><span>' + esc(L.subYes) + '</span></button></div>';
+    box.addEventListener('click', function (ev) {
+      var y = ev.target.closest('.sa-y'), n = ev.target.closest('.sa-n'); if (!y && !n) return;
+      try { localStorage.setItem(k, y ? 'yes' : 'no'); } catch (e) {}
+      box.remove();
+      if (y) { var t = document.getElementById('tsub-open'); if (t) t.click(); }
+    });
+    setTimeout(function () { document.body.appendChild(box); }, 900); /* after the 收藏 pop */
+  }
   function firstSaveHint(b) {
     var k = 'atm_first_save_v1'; try { if (localStorage.getItem(k)) return; localStorage.setItem(k, '1'); } catch (e) { return; }
     toast(L.firstSave, 'ok', b);
@@ -1228,7 +1246,7 @@
       if (b.closest && b.closest('[data-unfav]')) return false;
       var id = idOf(b); if (!id) return true;
       if (favs[id]) dropLocalFav(id);
-      else { addLocalFav(id); firstSaveHint(b); }
+      else { addLocalFav(id); firstSaveHint(b); subAsk(); }
       b.classList.remove('atm-pop'); void b.offsetWidth; b.classList.add('atm-pop');
       paint();
       return true;
