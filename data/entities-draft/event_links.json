@@ -11,7 +11,7 @@
   "host": []
  },
  "vhYvwRzo": {
-  "venue_id": "V009",
+  "venue_id": "V008",
   "host": [
    "O010"
   ]
@@ -24,26 +24,26 @@
   ]
  },
  "NmkWjMxo": {
-  "venue_id": "V011",
+  "venue_id": "V010",
   "host": [
    "O007"
   ]
  },
  "GxMrByRQ": {
-  "venue_id": "V010",
+  "venue_id": "V009",
   "host": [
    "O008",
    "O020"
   ]
  },
  "GqufXmMX": {
-  "venue_id": "V011",
+  "venue_id": "V010",
   "host": [
    "O011"
   ]
  },
  "R202": {
-  "venue_id": "V016",
+  "venue_id": "V014",
   "host": [
    "O011",
    "O018"
@@ -57,13 +57,13 @@
   ]
  },
  "AymclBjD": {
-  "venue_id": "V014",
+  "venue_id": "V012",
   "host": [
    "O011"
   ]
  },
  "ttLxDoyZ": {
-  "venue_id": "V012",
+  "venue_id": "V011",
   "host": [
    "O013"
   ]
@@ -75,31 +75,31 @@
   ]
  },
  "jtzZIdAx": {
-  "venue_id": "V121",
+  "venue_id": "V117",
   "host": [
-   "O054"
+   "O052"
   ]
  },
  "ONKkPuWH": {
-  "venue_id": "V025",
+  "venue_id": "V023",
   "host": [
    "G024"
   ]
  },
  "manual-hz-jinsha": {
-  "venue_id": "V030",
+  "venue_id": "V028",
   "host": [
    "O036"
   ]
  },
  "manual-cq-spicy-2026": {
-  "venue_id": "V021",
+  "venue_id": "V019",
   "host": [
    "O023"
   ]
  },
  "R186": {
-  "venue_id": "V110",
+  "venue_id": "V106",
   "host": [
    "G045"
   ]
@@ -107,266 +107,266 @@
  "RDrwgcit": {
   "venue_id": null,
   "host": [
-   "O045"
+   "O043"
   ]
  },
  "Q0Dhqqdr": {
-  "venue_id": "V034",
+  "venue_id": "V032",
   "host": [
    "O038",
-   "O044"
-  ]
- },
- "4nJKuVTB": {
-  "venue_id": "V034",
-  "host": []
- },
- "kOcru3n3": {
-  "venue_id": "V035",
-  "host": []
- },
- "yhBU2qgt": {
-  "venue_id": "V033",
-  "host": [
    "O042"
   ]
  },
- "WExJslMr": {
-  "venue_id": "V044",
+ "4nJKuVTB": {
+  "venue_id": "V032",
+  "host": []
+ },
+ "kOcru3n3": {
+  "venue_id": "V033",
+  "host": []
+ },
+ "yhBU2qgt": {
+  "venue_id": "V031",
   "host": [
-   "O078",
-   "O074"
+   "O040"
+  ]
+ },
+ "WExJslMr": {
+  "venue_id": "V042",
+  "host": [
+   "O076",
+   "O072"
   ]
  },
  "nTUlADFZ": {
-  "venue_id": "V060",
+  "venue_id": "V057",
   "host": [
-   "O091"
+   "O089"
   ]
  },
  "aanirocB": {
-  "venue_id": "V136",
+  "venue_id": "V132",
   "host": [
-   "O095",
-   "G072"
+   "O093",
+   "G071"
   ]
  },
  "m0A3Rbyv": {
-  "venue_id": "V010",
+  "venue_id": "V009",
   "host": [
    "O008"
   ]
  },
  "1hCBcWaP": {
-  "venue_id": "V009",
+  "venue_id": "V008",
   "host": [
    "O006"
   ]
  },
  "DFBKYdPX": {
-  "venue_id": "V050",
+  "venue_id": "V047",
   "host": [
-   "O068"
+   "O066"
   ]
  },
  "bQFvmIuY": {
-  "venue_id": "V041",
+  "venue_id": "V039",
   "host": [
-   "O076",
-   "O083"
+   "O074",
+   "O081"
   ]
  },
  "JKQfiwMf": {
-  "venue_id": "V043",
+  "venue_id": "V041",
   "host": [
-   "O065",
-   "G060"
+   "O063",
+   "G059"
   ]
  },
  "eEHzQBzu": {
-  "venue_id": "V045",
+  "venue_id": "V043",
   "host": [
-   "O080"
+   "O078"
   ]
  },
  "KmgJxDKM": {
-  "venue_id": "V045",
+  "venue_id": "V043",
   "host": [
-   "O080"
+   "O078"
   ]
  },
  "2tbfzeS7": {
-  "venue_id": "V050",
+  "venue_id": "V047",
   "host": [
-   "O068"
+   "O066"
   ]
  },
  "6Pcl1YgL": {
-  "venue_id": "V045",
+  "venue_id": "V043",
+  "host": [
+   "O078"
+  ]
+ },
+ "DIVjezcE": {
+  "venue_id": "V050",
   "host": [
    "O080"
   ]
  },
- "DIVjezcE": {
-  "venue_id": "V053",
-  "host": [
-   "O082"
-  ]
- },
  "rccbKIYP": {
-  "venue_id": "V047",
+  "venue_id": "V045",
   "host": [
+   "O065",
    "O067",
-   "O069",
-   "O064"
+   "O062"
   ]
  },
  "R0E9XeyL": {
-  "venue_id": "V052",
+  "venue_id": "V049",
   "host": [
-   "O075"
-  ]
- },
- "xXxB330r": {
-  "venue_id": "V046",
-  "host": [
-   "O079"
-  ]
- },
- "ecyMAjFj": {
-  "venue_id": "V048",
-  "host": [
-   "O072",
-   "O071",
    "O073"
   ]
  },
- "izAYSxss": {
-  "venue_id": "V048",
+ "xXxB330r": {
+  "venue_id": "V044",
   "host": [
-   "O085",
    "O077"
   ]
  },
+ "ecyMAjFj": {
+  "venue_id": "V046",
+  "host": [
+   "O070",
+   "O069",
+   "O071"
+  ]
+ },
+ "izAYSxss": {
+  "venue_id": "V046",
+  "host": [
+   "O083",
+   "O075"
+  ]
+ },
  "juGlRrW2": {
-  "venue_id": "V048",
-  "host": [
-   "G057"
-  ]
- },
- "LxcvweaE": {
-  "venue_id": "V048",
-  "host": [
-   "O085"
-  ]
- },
- "QWdKPmum": {
-  "venue_id": "V047",
+  "venue_id": "V046",
   "host": [
    "G056"
   ]
  },
- "vhkQ2Ltw": {
-  "venue_id": "V039",
+ "LxcvweaE": {
+  "venue_id": "V046",
   "host": [
-   "O070"
+   "O083"
+  ]
+ },
+ "QWdKPmum": {
+  "venue_id": "V045",
+  "host": [
+   "G055"
+  ]
+ },
+ "vhkQ2Ltw": {
+  "venue_id": "V037",
+  "host": [
+   "O068"
   ]
  },
  "WPYNvSAB": {
-  "venue_id": "V061",
+  "venue_id": "V058",
+  "host": [
+   "O094"
+  ]
+ },
+ "mBDeAKKW": {
+  "venue_id": "V062",
+  "host": [
+   "O097",
+   "O095"
+  ]
+ },
+ "ZwJVD64Z": {
+  "venue_id": "V060",
+  "host": [
+   "O100",
+   "O098"
+  ]
+ },
+ "TqqsVj5K": {
+  "venue_id": "V060",
   "host": [
    "O096"
   ]
  },
- "mBDeAKKW": {
-  "venue_id": "V066",
-  "host": [
-   "O099",
-   "O097"
-  ]
- },
- "ZwJVD64Z": {
-  "venue_id": "V063",
-  "host": [
-   "O102",
-   "O100"
-  ]
- },
- "TqqsVj5K": {
-  "venue_id": "V063",
-  "host": [
-   "O098"
-  ]
- },
  "3UUmjMJZ": {
-  "venue_id": "V065",
+  "venue_id": "V062",
   "host": []
  },
  "R059": {
-  "venue_id": "V064",
+  "venue_id": "V061",
   "host": [
-   "O103"
+   "O101"
   ]
  },
  "QbUzonBt": {
-  "venue_id": "V026",
+  "venue_id": "V024",
   "host": [
    "O030"
   ]
  },
  "EDPSh1eZ": {
-  "venue_id": "V027",
+  "venue_id": "V025",
   "host": [
    "O027"
   ]
  },
  "9Nf1QY8C": {
-  "venue_id": "V026",
+  "venue_id": "V024",
   "host": [
    "O030"
   ]
  },
  "n3ENukGH": {
-  "venue_id": "V024",
+  "venue_id": "V022",
   "host": [
    "O029"
   ]
  },
  "tSTMn9NF": {
-  "venue_id": "V059",
+  "venue_id": "V056",
   "host": [
-   "O087"
+   "O085"
   ]
  },
  "SGk39A4O": {
-  "venue_id": "V055",
+  "venue_id": "V052",
   "host": []
  },
  "dLub3zK9": {
-  "venue_id": "V028",
+  "venue_id": "V026",
   "host": [
    "O033",
    "O034"
   ]
  },
  "w1RSOcni": {
-  "venue_id": "V037",
+  "venue_id": "V035",
   "host": [
-   "O056"
+   "O054"
   ]
  },
  "cwCbtm27": {
-  "venue_id": "V087",
+  "venue_id": "V083",
   "host": []
  },
  "E004": {
-  "venue_id": "V047",
+  "venue_id": "V045",
   "host": [
-   "G056"
+   "G055"
   ]
  },
  "E005": {
-  "venue_id": "V013",
+  "venue_id": "V011",
   "host": [
    "O017"
   ]
@@ -378,1129 +378,1129 @@
   ]
  },
  "E042": {
-  "venue_id": "V078",
+  "venue_id": "V074",
   "host": [
-   "O050",
-   "O051",
+   "O048",
+   "O049",
    "G032"
   ]
  },
  "E043": {
-  "venue_id": "V070",
+  "venue_id": "V066",
   "host": [
    "G029"
   ]
  },
  "E044": {
-  "venue_id": "V072",
+  "venue_id": "V068",
   "host": [
    "G029"
   ]
  },
  "E045": {
-  "venue_id": "V071",
+  "venue_id": "V067",
   "host": [
    "G028"
   ]
  },
  "U06": {
-  "venue_id": "V031",
+  "venue_id": "V029",
   "host": [
    "G027"
   ]
  },
  "R030": {
-  "venue_id": "V040",
+  "venue_id": "V038",
   "host": [
-   "G055"
+   "G054"
   ]
  },
  "R045": {
-  "venue_id": "V023",
+  "venue_id": "V021",
   "host": [
    "G023"
   ]
  },
  "rSFJaHtm": {
-  "venue_id": "V023",
+  "venue_id": "V021",
   "host": [
    "G023"
   ]
  },
  "R034": {
-  "venue_id": "V050",
+  "venue_id": "V047",
   "host": [
-   "O084"
+   "O082"
   ]
  },
  "R073": {
-  "venue_id": "V007",
+  "venue_id": "V006",
   "host": [
    "O016"
   ]
  },
  "R075": {
-  "venue_id": "V075",
+  "venue_id": "V071",
   "host": [
-   "G077"
+   "G076"
   ]
  },
  "R076": {
-  "venue_id": "V074",
+  "venue_id": "V070",
   "host": [
-   "O105",
-   "O104"
+   "O103",
+   "O102"
   ]
  },
  "R077": {
-  "venue_id": "V074",
+  "venue_id": "V070",
   "host": [
-   "O106",
-   "O107"
+   "O104",
+   "O105"
   ]
  },
  "R078": {
-  "venue_id": "V077",
+  "venue_id": "V073",
   "host": [
-   "O108"
+   "O106"
   ]
  },
  "R079": {
-  "venue_id": "V135",
+  "venue_id": "V131",
   "host": [
-   "G073"
+   "G072"
   ]
  },
  "R080": {
-  "venue_id": "V124",
-  "host": [
-   "G064"
-  ]
- },
- "R081": {
-  "venue_id": "V135",
-  "host": [
-   "G074"
-  ]
- },
- "R082": {
-  "venue_id": "V133",
-  "host": [
-   "G071"
-  ]
- },
- "R083": {
-  "venue_id": "V132",
-  "host": [
-   "G069"
-  ]
- },
- "E046": {
-  "venue_id": "V126",
+  "venue_id": "V120",
   "host": [
    "G063"
   ]
  },
+ "R081": {
+  "venue_id": "V131",
+  "host": [
+   "G073"
+  ]
+ },
+ "R082": {
+  "venue_id": "V129",
+  "host": [
+   "G070"
+  ]
+ },
+ "R083": {
+  "venue_id": "V128",
+  "host": [
+   "G068"
+  ]
+ },
+ "E046": {
+  "venue_id": "V122",
+  "host": [
+   "G062"
+  ]
+ },
  "R084": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R085": {
-  "venue_id": "V117",
+  "venue_id": "V113",
   "host": [
-   "G053"
+   "G052"
   ]
  },
  "R086": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
-   "G051"
+   "G047"
   ]
  },
  "R087": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038"
   ]
  },
  "R088": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R089": {
-  "venue_id": "V116",
+  "venue_id": "V112",
   "host": [
-   "G052",
-   "O060"
+   "G051",
+   "O058"
   ]
  },
  "R090": {
-  "venue_id": "V117",
+  "venue_id": "V113",
   "host": [
-   "G053"
+   "G052"
   ]
  },
  "R091": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R092": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038"
   ]
  },
  "R093": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R094": {
-  "venue_id": "V116",
+  "venue_id": "V112",
   "host": [
-   "G052",
-   "O061"
+   "G051",
+   "O059"
   ]
  },
  "R095": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
-   "G051"
+   "G047"
   ]
  },
  "R096": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R097": {
-  "venue_id": "V117",
+  "venue_id": "V113",
   "host": [
-   "G053"
+   "G052"
   ]
  },
  "R098": {
-  "venue_id": "V116",
+  "venue_id": "V112",
   "host": [
-   "G052",
-   "O059"
+   "G051",
+   "O057"
   ]
  },
  "R099": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038"
   ]
  },
  "R100": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
-   "G051"
+   "G047"
   ]
  },
  "E047": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G044"
   ]
  },
  "R101": {
-  "venue_id": "V117",
+  "venue_id": "V113",
   "host": [
-   "G053"
+   "G052"
   ]
  },
  "R102": {
-  "venue_id": "V106",
+  "venue_id": "V102",
   "host": [
    "G041"
   ]
  },
  "R103": {
-  "venue_id": "V112",
+  "venue_id": "V108",
   "host": [
    "G048"
   ]
  },
  "R104": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R105": {
-  "venue_id": "V114",
+  "venue_id": "V110",
   "host": [
    "G050"
   ]
  },
  "R106": {
-  "venue_id": "V116",
+  "venue_id": "V112",
   "host": [
-   "G052"
+   "G051"
   ]
  },
  "R107": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R108": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
-   "G051"
+   "G047"
   ]
  },
  "R109": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038"
   ]
  },
  "R110": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R111": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R112": {
-  "venue_id": "V104",
+  "venue_id": "V100",
   "host": [
    "G039"
   ]
  },
  "R113": {
-  "venue_id": "V105",
+  "venue_id": "V101",
   "host": [
    "G040"
   ]
  },
  "R114": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
-   "G051"
+   "G047"
   ]
  },
  "R115": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038"
   ]
  },
  "R116": {
-  "venue_id": "V116",
+  "venue_id": "V112",
   "host": [
-   "G052",
-   "O062"
+   "G051",
+   "O060"
   ]
  },
  "R117": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R118": {
-  "venue_id": "V108",
+  "venue_id": "V104",
   "host": [
    "G043"
   ]
  },
  "R119": {
-  "venue_id": "V108",
+  "venue_id": "V104",
   "host": [
    "G043"
   ]
  },
  "R120": {
-  "venue_id": "V111",
+  "venue_id": "V107",
   "host": [
    "G046"
   ]
  },
  "R121": {
-  "venue_id": "V118",
+  "venue_id": "V114",
   "host": [
-   "G054"
+   "G053"
   ]
  },
  "R122": {
-  "venue_id": "V111",
+  "venue_id": "V107",
   "host": [
    "G046"
   ]
  },
  "R123": {
-  "venue_id": "V107",
+  "venue_id": "V103",
   "host": [
    "G042"
   ]
  },
  "R124": {
-  "venue_id": "V107",
+  "venue_id": "V103",
   "host": [
    "G042"
   ]
  },
  "R125": {
-  "venue_id": "V107",
+  "venue_id": "V103",
   "host": [
    "G042"
   ]
  },
  "R126": {
-  "venue_id": "V108",
+  "venue_id": "V104",
   "host": [
    "G043"
   ]
  },
  "R127": {
-  "venue_id": "V082",
+  "venue_id": "V078",
   "host": [
    "G002"
   ]
  },
  "R128": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "R129": {
-  "venue_id": "V085",
+  "venue_id": "V081",
   "host": [
    "G005"
   ]
  },
  "R130": {
-  "venue_id": "V083",
+  "venue_id": "V079",
   "host": [
    "G003"
   ]
  },
  "R131": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "R132": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "R133": {
-  "venue_id": "V082",
+  "venue_id": "V078",
   "host": [
    "G002"
   ]
  },
  "R134": {
-  "venue_id": "V085",
+  "venue_id": "V081",
   "host": [
    "G005"
   ]
  },
  "R135": {
-  "venue_id": "V086",
+  "venue_id": "V082",
   "host": [
    "G006"
   ]
  },
  "R136": {
-  "venue_id": "V083",
+  "venue_id": "V079",
   "host": [
    "G003"
   ]
  },
  "R137": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "R138": {
-  "venue_id": "V097",
+  "venue_id": "V093",
   "host": [
    "G022"
   ]
  },
  "R139": {
-  "venue_id": "V095",
+  "venue_id": "V091",
   "host": [
    "G019"
   ]
  },
  "R140": {
-  "venue_id": "V095",
+  "venue_id": "V091",
   "host": [
    "G021"
   ]
  },
  "R141": {
-  "venue_id": "V094",
+  "venue_id": "V090",
   "host": [
    "G018"
   ]
  },
  "R142": {
-  "venue_id": "V100",
+  "venue_id": "V096",
   "host": [
    "G026"
   ]
  },
  "R143": {
-  "venue_id": "V099",
+  "venue_id": "V095",
   "host": [
    "G025"
   ]
  },
  "R144": {
-  "venue_id": "V099",
+  "venue_id": "V095",
   "host": [
    "G025"
   ]
  },
  "R145": {
-  "venue_id": "V092",
+  "venue_id": "V088",
   "host": [
    "G015"
   ]
  },
  "R146": {
-  "venue_id": "V088",
+  "venue_id": "V084",
   "host": [
    "G009"
   ]
  },
  "R147": {
-  "venue_id": "V091",
+  "venue_id": "V087",
   "host": [
    "G013"
   ]
  },
  "R148": {
-  "venue_id": "V101",
+  "venue_id": "V097",
   "host": [
    "G031"
   ]
  },
  "R149": {
-  "venue_id": "V102",
+  "venue_id": "V098",
   "host": [
    "G036"
   ]
  },
  "R151": {
+  "venue_id": "V111",
+  "host": [
+   "G047"
+  ]
+ },
+ "R152": {
   "venue_id": "V115",
+  "host": [
+   "G077",
+   "O108"
+  ]
+ },
+ "R153": {
+  "venue_id": "V112",
   "host": [
    "G051"
   ]
  },
- "R152": {
-  "venue_id": "V119",
-  "host": [
-   "G078",
-   "O110"
-  ]
- },
- "R153": {
-  "venue_id": "V116",
-  "host": [
-   "G052"
-  ]
- },
  "R154": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R155": {
-  "venue_id": "V092",
+  "venue_id": "V088",
   "host": [
    "G015"
   ]
  },
  "R156": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R157": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R158": {
-  "venue_id": "V112",
+  "venue_id": "V108",
   "host": [
    "G048"
   ]
  },
  "R159": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
-   "G051"
+   "G047"
   ]
  },
  "R160": {
-  "venue_id": "V102",
+  "venue_id": "V098",
   "host": [
    "G036"
   ]
  },
  "R161": {
-  "venue_id": "V085",
+  "venue_id": "V081",
   "host": [
    "G005"
   ]
  },
  "R162": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "R163": {
-  "venue_id": "V094",
+  "venue_id": "V090",
   "host": [
    "G018"
   ]
  },
  "R164": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038",
-   "O058"
+   "O056"
   ]
  },
  "R165": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R166": {
-  "venue_id": "V116",
+  "venue_id": "V112",
   "host": [
-   "G052",
+   "G051",
    "G050"
   ]
  },
  "R167": {
-  "venue_id": "V109",
+  "venue_id": "V105",
   "host": [
    "G045"
   ]
  },
  "R168": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "R169": {
-  "venue_id": "V097",
+  "venue_id": "V093",
   "host": [
    "G022"
   ]
  },
  "R170": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R171": {
-  "venue_id": "V106",
+  "venue_id": "V102",
   "host": [
    "G041"
   ]
  },
  "R172": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
-   "G051"
+   "G047"
   ]
  },
  "R173": {
-  "venue_id": "V100",
+  "venue_id": "V096",
   "host": [
    "G026"
   ]
  },
  "R174": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "R175": {
-  "venue_id": "V116",
+  "venue_id": "V112",
   "host": [
-   "G052",
-   "O063"
+   "G051",
+   "O061"
   ]
  },
  "R176": {
-  "venue_id": "V118",
+  "venue_id": "V114",
   "host": [
-   "G054"
+   "G053"
   ]
  },
  "R177": {
-  "venue_id": "V108",
+  "venue_id": "V104",
   "host": [
    "G043"
   ]
  },
  "R178": {
-  "venue_id": "V082",
+  "venue_id": "V078",
   "host": [
    "G002"
   ]
  },
  "R179": {
-  "venue_id": "V094",
+  "venue_id": "V090",
   "host": [
    "G018"
   ]
  },
  "R180": {
-  "venue_id": "V090",
+  "venue_id": "V086",
   "host": [
    "G012"
   ]
  },
  "R181": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R182": {
-  "venue_id": "V114",
+  "venue_id": "V110",
   "host": [
    "G050"
   ]
  },
  "R183": {
-  "venue_id": "V101",
+  "venue_id": "V097",
   "host": [
    "G031"
   ]
  },
  "R184": {
-  "venue_id": "V099",
+  "venue_id": "V095",
   "host": [
    "G025"
   ]
  },
  "R185": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "R187": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "E048": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038"
   ]
  },
  "E049": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "E050": {
-  "venue_id": "V107",
+  "venue_id": "V103",
   "host": [
    "G042"
   ]
  },
  "E051": {
-  "venue_id": "V108",
+  "venue_id": "V104",
   "host": [
    "G043"
   ]
  },
  "E052": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "E053": {
-  "venue_id": "V085",
+  "venue_id": "V081",
   "host": [
    "G005"
   ]
  },
  "E054": {
-  "venue_id": "V096",
+  "venue_id": "V092",
   "host": [
    "G020"
   ]
  },
  "E055": {
-  "venue_id": "V095",
+  "venue_id": "V091",
   "host": [
    "G019"
   ]
  },
  "E056": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "E057": {
-  "venue_id": "V082",
+  "venue_id": "V078",
   "host": [
    "G002"
   ]
  },
  "E058": {
-  "venue_id": "V097",
+  "venue_id": "V093",
   "host": [
    "G022"
   ]
  },
  "E059": {
-  "venue_id": "V089",
+  "venue_id": "V085",
   "host": [
    "G007"
   ]
  },
  "E060": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "E061": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "E062": {
-  "venue_id": "V109",
+  "venue_id": "V105",
   "host": [
    "G045"
   ]
  },
  "E063": {
-  "venue_id": "V094",
+  "venue_id": "V090",
   "host": [
    "G018"
   ]
  },
  "E064": {
-  "venue_id": "V115",
+  "venue_id": "V111",
   "host": [
    "G047"
   ]
  },
  "E065": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "E067": {
-  "venue_id": "V108",
+  "venue_id": "V104",
   "host": [
    "G043"
   ]
  },
  "E068": {
-  "venue_id": "V091",
+  "venue_id": "V087",
   "host": [
    "G013"
   ]
  },
  "E069": {
-  "venue_id": "V093",
+  "venue_id": "V089",
   "host": [
    "G017"
   ]
  },
  "E070": {
-  "venue_id": "V093",
+  "venue_id": "V089",
   "host": [
    "G016"
   ]
  },
  "E071": {
-  "venue_id": "V109",
+  "venue_id": "V105",
   "host": [
    "G045"
   ]
  },
  "E072": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "E073": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038"
   ]
  },
  "E074": {
-  "venue_id": "V095",
+  "venue_id": "V091",
   "host": [
    "G019"
   ]
  },
  "E075": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "E076": {
-  "venue_id": "V089",
+  "venue_id": "V085",
   "host": [
    "G008"
   ]
  },
  "E077": {
-  "venue_id": "V093",
+  "venue_id": "V089",
   "host": [
    "G017"
   ]
  },
  "E078": {
-  "venue_id": "V107",
+  "venue_id": "V103",
   "host": [
    "G042"
   ]
  },
  "E079": {
-  "venue_id": "V109",
+  "venue_id": "V105",
   "host": [
    "G045"
   ]
  },
  "E080": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "E081": {
-  "venue_id": "V103",
+  "venue_id": "V099",
   "host": [
    "G038"
   ]
  },
  "E082": {
-  "venue_id": "V108",
+  "venue_id": "V104",
   "host": [
    "G043"
   ]
  },
  "E083": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "E084": {
-  "venue_id": "V084",
+  "venue_id": "V080",
   "host": [
    "G004"
   ]
  },
  "E085": {
-  "venue_id": "V097",
+  "venue_id": "V093",
   "host": [
    "G022"
   ]
  },
  "E086": {
-  "venue_id": "V138",
+  "venue_id": "V134",
   "host": [
    "O025"
   ]
  },
  "R188": {
-  "venue_id": "V134",
-  "host": [
-   "G067"
-  ]
- },
- "R189": {
-  "venue_id": "V135",
-  "host": [
-   "G074"
-  ]
- },
- "R190": {
-  "venue_id": "V135",
-  "host": [
-   "G074"
-  ]
- },
- "R191": {
   "venue_id": "V130",
-  "host": [
-   "G065"
-  ]
- },
- "R192": {
-  "venue_id": "V131",
-  "host": [
-   "G068"
-  ]
- },
- "R193": {
-  "venue_id": "V129",
   "host": [
    "G066"
   ]
  },
- "R194": {
+ "R189": {
+  "venue_id": "V131",
+  "host": [
+   "G073"
+  ]
+ },
+ "R190": {
+  "venue_id": "V131",
+  "host": [
+   "G073"
+  ]
+ },
+ "R191": {
   "venue_id": "V126",
+  "host": [
+   "G064"
+  ]
+ },
+ "R192": {
+  "venue_id": "V127",
+  "host": [
+   "G067"
+  ]
+ },
+ "R193": {
+  "venue_id": "V125",
+  "host": [
+   "G065"
+  ]
+ },
+ "R194": {
+  "venue_id": "V122",
+  "host": [
+   "G062"
+  ]
+ },
+ "R195": {
+  "venue_id": "V120",
   "host": [
    "G063"
   ]
  },
- "R195": {
+ "R196": {
+  "venue_id": "V119",
+  "host": [
+   "O090"
+  ]
+ },
+ "R197": {
+  "venue_id": "V129",
+  "host": [
+   "G069"
+  ]
+ },
+ "R198": {
+  "venue_id": "V118",
+  "host": [
+   "O053"
+  ]
+ },
+ "R199": {
+  "venue_id": "V121",
+  "host": [
+   "G061"
+  ]
+ },
+ "R200": {
+  "venue_id": "V122",
+  "host": [
+   "G062"
+  ]
+ },
+ "R201": {
+  "venue_id": "V121",
+  "host": [
+   "G061"
+  ]
+ },
+ "R250": {
+  "venue_id": "V123",
+  "host": [
+   "O090"
+  ]
+ },
+ "E090": {
+  "venue_id": "V133",
+  "host": [
+   "O114"
+  ]
+ },
+ "E091": {
+  "venue_id": "V133",
+  "host": [
+   "O114"
+  ]
+ },
+ "E092": {
   "venue_id": "V124",
   "host": [
    "G064"
   ]
  },
- "R196": {
-  "venue_id": "V123",
-  "host": [
-   "O092"
-  ]
- },
- "R197": {
-  "venue_id": "V133",
-  "host": [
-   "G070"
-  ]
- },
- "R198": {
-  "venue_id": "V122",
-  "host": [
-   "O055"
-  ]
- },
- "R199": {
-  "venue_id": "V125",
-  "host": [
-   "G062"
-  ]
- },
- "R200": {
-  "venue_id": "V126",
-  "host": [
-   "G063"
-  ]
- },
- "R201": {
-  "venue_id": "V125",
-  "host": [
-   "G062"
-  ]
- },
- "R250": {
-  "venue_id": "V127",
-  "host": [
-   "O092"
-  ]
- },
- "E090": {
-  "venue_id": "V137",
-  "host": [
-   "O116"
-  ]
- },
- "E091": {
-  "venue_id": "V137",
-  "host": [
-   "O116"
-  ]
- },
- "E092": {
-  "venue_id": "V128",
-  "host": [
-   "G065"
-  ]
- },
  "E116": {
-  "venue_id": "V098",
+  "venue_id": "V094",
   "host": [
    "O032"
   ]
  },
  "9oJFdQ64": {
-  "venue_id": "V068",
+  "venue_id": "V064",
   "host": [
-   "O114",
-   "O115"
+   "O112",
+   "O113"
   ]
  },
  "manual-cd-ezequiel-2026": {
-  "venue_id": "V017",
+  "venue_id": "V015",
   "host": [
    "G010"
   ]
  },
  "manual-cd-spitel-2027": {
-  "venue_id": "V019",
+  "venue_id": "V017",
   "host": [
    "G011"
   ]
  },
  "E118": {
-  "venue_id": "V113",
+  "venue_id": "V109",
   "host": [
    "G049"
   ]
  },
  "E121": {
-  "venue_id": "V049",
+  "venue_id": "V046",
   "host": [
-   "O072",
+   "O070",
+   "O069",
    "O071",
-   "O073",
-   "G059"
+   "G058"
   ]
  },
  "E122": {
@@ -1510,11 +1510,11 @@
   ]
  },
  "E123": {
-  "venue_id": "V135",
+  "venue_id": "V131",
   "host": [
-   "O094",
-   "O062",
-   "O093"
+   "O092",
+   "O060",
+   "O091"
   ]
  },
  "AtrSun01": {
@@ -1530,19 +1530,19 @@
   ]
  },
  "E125": {
-  "venue_id": "V080",
+  "venue_id": "V076",
   "host": [
    "G033"
   ]
  },
  "E126": {
-  "venue_id": "V080",
+  "venue_id": "V076",
   "host": [
-   "O049"
+   "O047"
   ]
  },
  "E127": {
-  "venue_id": "V080",
+  "venue_id": "V076",
   "host": [
    "G033"
   ]
@@ -1574,100 +1574,100 @@
  "E132": {
   "venue_id": null,
   "host": [
-   "G079"
+   "G078"
   ]
  },
  "R251": {
-  "venue_id": "V067",
+  "venue_id": "V063",
   "host": [
-   "O113"
+   "O111"
   ]
  },
  "R252": {
-  "venue_id": "V038",
+  "venue_id": "V036",
   "host": [
    "G037"
   ]
  },
  "JHeguuQb": {
-  "venue_id": "V042",
+  "venue_id": "V040",
   "host": [
-   "G058",
+   "G057",
+   "O079",
    "O081",
-   "O083",
-   "O076"
+   "O074"
   ]
  },
  "E133": {
-  "venue_id": "V050",
-  "host": [
-   "O068"
-  ]
- },
- "E134": {
-  "venue_id": "V050",
+  "venue_id": "V047",
   "host": [
    "O066"
   ]
  },
- "E150": {
-  "venue_id": "V035",
+ "E134": {
+  "venue_id": "V047",
   "host": [
-   "O044"
+   "O064"
+  ]
+ },
+ "E150": {
+  "venue_id": "V033",
+  "host": [
+   "O042"
   ]
  },
  "E151": {
-  "venue_id": "V071",
+  "venue_id": "V067",
   "host": [
    "O037"
   ]
  },
  "E152": {
-  "venue_id": "V071",
+  "venue_id": "V067",
   "host": [
    "O037"
   ]
  },
  "E153": {
-  "venue_id": "V032",
+  "venue_id": "V030",
   "host": [
    "G030"
   ]
  },
  "E154": {
-  "venue_id": "V036",
+  "venue_id": "V034",
   "host": [
    "O038",
-   "O044"
+   "O042"
   ]
  },
  "E155": {
-  "venue_id": "V071",
+  "venue_id": "V067",
+  "host": [
+   "O044"
+  ]
+ },
+ "E156": {
+  "venue_id": "V116",
   "host": [
    "O046"
   ]
  },
- "E156": {
-  "venue_id": "V120",
-  "host": [
-   "O048"
-  ]
- },
  "E157": {
-  "venue_id": "V056",
+  "venue_id": "V053",
   "host": [
-   "O086",
-   "O090"
+   "O084",
+   "O088"
   ]
  },
  "E158": {
-  "venue_id": "V006",
+  "venue_id": "V005",
   "host": [
    "O019"
   ]
  },
  "YgirJagn": {
-  "venue_id": "V022",
+  "venue_id": "V020",
   "host": [
    "O024"
   ]
@@ -1675,22 +1675,22 @@
  "XsFs5wm8": {
   "venue_id": null,
   "host": [
-   "G058",
+   "G057",
+   "O079",
    "O081",
-   "O083",
-   "O076"
+   "O074"
   ]
  },
  "E159": {
-  "venue_id": "V058",
+  "venue_id": "V055",
   "host": [
-   "O088"
+   "O086"
   ]
  },
  "E160": {
   "venue_id": null,
   "host": [
-   "O111"
+   "O109"
   ]
  },
  "E161": {
@@ -1700,13 +1700,13 @@
   ]
  },
  "E164": {
-  "venue_id": "V051",
+  "venue_id": "V048",
   "host": [
-   "O068"
+   "O066"
   ]
  },
  "E162": {
-  "venue_id": "V018",
+  "venue_id": "V016",
   "host": [
    "O021"
   ]
@@ -1718,7 +1718,7 @@
   ]
  },
  "E165": {
-  "venue_id": "V015",
+  "venue_id": "V013",
   "host": []
  },
  "E166": {
@@ -1728,38 +1728,38 @@
   ]
  },
  "E167": {
-  "venue_id": "V023",
+  "venue_id": "V021",
   "host": [
    "G023"
   ]
  },
  "E168": {
-  "venue_id": "V020",
+  "venue_id": "V018",
   "host": [
    "G014",
    "O022"
   ]
  },
  "E169": {
-  "venue_id": "V057",
+  "venue_id": "V054",
   "host": []
  },
  "E170": {
-  "venue_id": "V071",
+  "venue_id": "V067",
   "host": [
-   "O046"
+   "O044"
   ]
  },
  "E171": {
-  "venue_id": "V062",
+  "venue_id": "V059",
   "host": [
-   "O101"
+   "O099"
   ]
  },
  "E172": {
-  "venue_id": "V036",
+  "venue_id": "V034",
   "host": [
-   "O039"
+   "O038"
   ]
  },
  "E039": {
@@ -1769,21 +1769,21 @@
   ]
  },
  "E173": {
-  "venue_id": "V071",
+  "venue_id": "V067",
   "host": [
-   "O043"
+   "O041"
   ]
  },
  "R253": {
-  "venue_id": "V038",
+  "venue_id": "V036",
   "host": [
    "G037"
   ]
  },
  "E174": {
-  "venue_id": "V081",
+  "venue_id": "V077",
   "host": [
-   "G061"
+   "G060"
   ]
  },
  "E175": {
@@ -1791,77 +1791,77 @@
   "host": []
  },
  "E176": {
-  "venue_id": "V008",
+  "venue_id": "V007",
   "host": [
    "O004",
    "O003"
   ]
  },
  "E177": {
-  "venue_id": "V139",
+  "venue_id": "V135",
   "host": []
  },
  "E178": {
-  "venue_id": "V054",
+  "venue_id": "V051",
   "host": [
-   "O089"
+   "O087"
   ]
  },
  "E179": {
-  "venue_id": "V029",
+  "venue_id": "V027",
   "host": [
    "O035"
   ]
  },
  "E180": {
-  "venue_id": "V072",
+  "venue_id": "V068",
   "host": [
    "G029"
   ]
  },
  "R270": {
-  "venue_id": "V017",
+  "venue_id": "V015",
   "host": [
    "G010"
   ]
  },
  "R271": {
-  "venue_id": "V017",
+  "venue_id": "V015",
   "host": [
    "G010"
   ]
  },
  "E181": {
-  "venue_id": "V079",
+  "venue_id": "V075",
   "host": [
-   "O053",
-   "O052"
+   "O051",
+   "O050"
   ]
  },
  "E182": {
-  "venue_id": "V076",
+  "venue_id": "V072",
   "host": [
-   "G075"
+   "G074"
   ]
  },
  "E183": {
-  "venue_id": "V069",
+  "venue_id": "V065",
   "host": [
-   "G080"
+   "G079"
   ]
  },
  "E184": {
-  "venue_id": "V049",
+  "venue_id": "V046",
   "host": [
-   "G060",
-   "O065"
+   "G059",
+   "O063"
   ]
  },
  "E185": {
-  "venue_id": "V073",
+  "venue_id": "V069",
   "host": [
-   "G076",
-   "O109"
+   "G075",
+   "O107"
   ]
  }
 }

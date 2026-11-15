@@ -65,7 +65,7 @@ function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in
  ss.forEach(function(x){ if(bad(x)) return; if(/门票|票价|费用|入场费|收费|免费|¥|￥|\d+\s*元|RMB|CNY|KRW|₩|NT\$|HK\$|\bEntry\b|\bFee\b|\bTicket|\bFree\b|\bAdmission/i.test(x)&&x.length<120) fee.push(x); else keep.push(x); });
  row(zh?'费用':'Fee', fee.map(H).join(' '));
  row(zh?'说明':'Notes', H(keep.join(zh?'':' ')), 'b-note');
- var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, org=(!zh&&e.organizers_en)||e.organizers||[], ct=[];
+ var C=(e.contacts&&!Array.isArray(e.contacts))?e.contacts:{}, org=(!zh&&e.organizers_en)||e.organizers||[], ct=[]; var wl=C.wechat_label&&!org.some(function(o){ o=String(o).toLowerCase(); var l=String(C.wechat_label).toLowerCase().trim(); return o===l||o.split(/[\s&、,，()（）]+/).indexOf(l)>=0; })?C.wechat_label:'';
  if(org.length) ct.push(H(org.join(zh?'、':', ')));
  if(C.wechat_id) ct.push((zh?'微信号：':'WeChat ID: ')+H(C.wechat_id)+(wl?' ('+H(wl)+')':''));
  if(C.phone) ct.push((zh?'电话：':'Phone: ')+'<a href="tel:'+H(C.phone.replace(/[^\d+]/g,''))+'">'+H(C.phone)+'</a>');

@@ -47,6 +47,9 @@ def sim(a, b, contain=True):
 
 
 review = collections.defaultdict(list)
+DEC = json.load(open(os.path.join(OUT, 'decisions.json'), encoding='utf-8')) if os.path.exists(os.path.join(OUT, 'decisions.json')) else {}
+CN = lambda city_or_e: (city_or_e if isinstance(city_or_e, dict) else CITY_EV.get(city_or_e, {})).get('country') == 'China' or (city_or_e if isinstance(city_or_e, dict) else CITY_EV.get(city_or_e, {})).get('region') == 'Hong Kong'
+CITY_EV = {e['city']: e for e in EV}
 
 # ---------- venues ----------
 uf = UF()
@@ -65,6 +68,14 @@ for e in withv:
     if nk[1]:
         if nk in by_name: uf.u(e['id'], by_name[nk])
         else: by_name[nk] = e['id']
+for d in DEC.get('venue_same', []):
+    ids = [e['id'] for e in withv if e['city'] == d['city'] and (e.get('venue_en') or e.get('venue')) in d['names']]
+    for x in ids[1:]: uf.u(x, ids[0])
+VENUE_USE = {(d['city'], n): d['use'] for d in DEC.get('venue_same', []) for n in d['names']}
+for d in DEC.get('host_same', []):  # the same answer names the venue when a venue goes by those names
+    for e in withv:
+        if (e.get('venue_en') or e.get('venue')) in d['names']:
+            for n in d['names']: VENUE_USE[(e['city'], n)] = d['name_en']
 clusters = collections.defaultdict(list)
 for e in withv: clusters[uf.f(e['id'])].append(e)
 
@@ -76,14 +87,17 @@ for n, (root, es) in enumerate(sorted(clusters.items(), key=lambda kv: (kv[1][0]
     addrs_en = collections.Counter(e.get('venue_address_en') for e in es if e.get('venue_address_en') and 'not found' not in e['venue_address_en'].lower())
     vid = 'V%03d' % (n + 1)
     v = {'id': vid, 'city': es[0]['city'], 'country': es[0]['country'],
-         'name_en': names.most_common(1)[0][0], 'name_local': names_local.most_common(1)[0][0] if names_local else '',
-         'address_local': addrs.most_common(1)[0][0] if addrs else '',
-         'address_en': addrs_en.most_common(1)[0][0] if addrs_en else '',
+         'name_en': VENUE_USE.get((es[0]['city'], names.most_common(1)[0][0]), names.most_common(1)[0][0]),
+         'name_local': VENUE_USE.get((es[0]['city'], names_local.most_common(1)[0][0]), names_local.most_common(1)[0][0]) if names_local else '',
+         'address_local': max(addrs, key=lambda a: (bool(re.search(r'\d', a)), len(a))) if addrs else '',  # the fullest spelling that has a street number
+         'address_en': max(addrs_en, key=len) if addrs_en else '',
          'rooms': [], 'events': sorted(e['id'] for e in es)}
-    if len(names) > 1:
+    if len(names) > 1 and (es[0]['city'], names.most_common(1)[0][0]) not in VENUE_USE:
         v['name_variants'] = sorted(names)
         review['venue_names'].append((vid, v['city'], sorted(names)))
     if len(addrs) > 1 or len(addrs_en) > 1:
+        v['address_variants'] = sorted(addrs) + sorted(addrs_en)  # fullest one picked; not asked
+    if False:
         review['venue_addrs'].append((vid, v['city'], sorted(addrs) + sorted(addrs_en)))
     if not v['address_local'] and not v['address_en']:
         review['venue_noaddr'].append((vid, v['city'], v['name_en']))
@@ -96,7 +110,8 @@ for i, a in enumerate(venues):
         if a['city'] != b['city']: continue
         s = max(sim(a['name_en'], b['name_en']), sim(a['name_local'], b['name_local']) if a['name_local'] and b['name_local'] else 0)
         sa = sim(a['address_local'] or a['address_en'], b['address_local'] or b['address_en'])
-        if s >= 0.8 or sa >= 0.85:
+        done = any(a['name_en'] == VENUE_USE.get((a['city'], x)) for x in (a['name_en'],)) and a['name_en'] == b['name_en']
+        if (s >= 0.8 or sa >= 0.85) and not done:
             review['venue_maybe_same'].append((a['id'], a['name_en'], b['id'], b['name_en'], a['city'], round(max(s, sa), 2)))
 
 # ---------- hosts (groups / organizers) ----------
@@ -149,6 +164,13 @@ def get_host(kind, en, local, city):
     return h
 
 
+HOST_USE = {}
+for d in DEC.get('host_same', []):
+    for nm in d['names']: HOST_USE[norm(nm)] = d
+def canon(en, local):
+    d = HOST_USE.get(norm(en)) or HOST_USE.get(norm(local))
+    return (d['name_en'], d.get('name_local', local if norm(local) != norm(en) else '')) if d else (en, local)
+
 for e in EV:
     zhs, ens = e.get('organizers') or [], e.get('organizers_en') or []
     for i, zh in enumerate(zhs):
@@ -156,14 +178,19 @@ for e in EV:
         kind, base, local, people = split_host(zh, en)
         if kind == 'people':
             for p in people:
+                p = canon(p, '')[0]
                 h = get_host('person', p, '', e['city']); h['events'].add(e['id']); ev_hosts[e['id']].append(h)
             continue
         if kind == 'person' and norm(base) in venue_names[e['city']]:
             kind = 'group'
+        base, local = canon(base, local)
         h = get_host(kind, base, local, e['city'])
+        if local and not h['name_local']: h['name_local'] = local
         h['events'].add(e['id']); ev_hosts[e['id']].append(h)
         for p in people:
-            ph = get_host('person', p, '', e['city']); ph['events'].add(e['id'])
+            p, pl = canon(p, '')
+            ph = get_host('person', p, pl, e['city'])
+            if pl and not ph['name_local']: ph['name_local'] = pl; ph['events'].add(e['id'])
             h['members'].add(ph['name_en'])
 
 # uncertain kinds: single Latin word, no group word, not a venue name → could be a nickname or a group brand
@@ -177,6 +204,7 @@ for h in hosts.values():
         review['host_kind'].append(h)
 
 hl = list(hosts.values())
+EV_C = {e['id']: e['country'] for e in EV}
 for i, a in enumerate(hl):
     for b in hl[i + 1:]:
         same_city = bool(a['cities'] & b['cities'])
@@ -184,6 +212,7 @@ for i, a in enumerate(hl):
         c = same_city
         s = max(sim(a['name_en'], b['name_en'], c), sim(a['name_local'], b['name_local'], c) if a['name_local'] and b['name_local'] else 0,
                 sim(a['name_local'], b['name_en'], c) if a['name_local'] else 0, sim(a['name_en'], b['name_local'], c) if b['name_local'] else 0)
+        if not same_city and not (a['events'] and b['events'] and {EV_C[i] for i in a['events']} & {EV_C[i] for i in b['events']}): continue
         if s >= (0.75 if same_city else 0.85) and min(len(norm(a['name_en'])), len(norm(b['name_en']))) >= 3:
             review['host_maybe_same'].append((a, b, round(s, 2)))
 
@@ -202,9 +231,11 @@ name_to_id = {h['name_en']: h['id'] for h in hl}
 
 
 def dump(h):
+    pf = profile_of(h['name_en'], h.get('name_local'))
     r = {'id': h['id'], 'name_en': h['name_en'], 'name_local': h['name_local'], 'cities': sorted(h['cities']), 'events': sorted(h['events'])}
     if h['kind'] == 'group': r['organizers'] = sorted(name_to_id.get(m, m) for m in h['members'])
     if h['flags']: r['flags'] = h['flags']
+    if pf: r['profile'] = pf
     return r
 
 
@@ -212,29 +243,122 @@ links = {}
 for e in EV:
     links[e['id']] = {'venue_id': e.get('_vid'), 'host': [h['id'] for h in ev_hosts.get(e['id'], [])]}
 
+# ---------- DJs, and the profiles already reserved on the site ----------
+PROF = []
+for f, role in (('organizers.json', 'organizer'), ('djs.json', 'dj')):
+    fp = os.path.join(ROOT, 'asia', f)
+    if os.path.exists(fp):
+        for pr in json.load(open(fp, encoding='utf-8')):
+            PROF.append((role, pr['id'], {norm(x) for x in [pr.get('name'), pr.get('name_zh')] + (pr.get('match') or []) if x}))
+def profile_of(*names):
+    ks = {norm(n) for n in names if n}
+    return sorted({'%s:%s' % (r, i) for r, i, m in PROF if ks & m})
+
+djs = {}; dj_alias = {}
+def strip_paren(x):
+    m = re.match(r'^(.*?)\s*[（(]\s*(.+?)\s*[)）]\s*$', x or '')
+    return (m.group(1).strip(), m.group(2).strip()) if m else ((x or '').strip(), '')
+for e in EV:
+    loc = e.get('dj'); en = e.get('dj_en')
+    loc = loc if isinstance(loc, list) else ([loc] if loc else [])
+    en = en if isinstance(en, list) else ([en] if en else [])
+    pairs = [(loc[i], en[i] if i < len(en) else '') for i in range(len(loc))]
+    pairs += [(v, '') for v in (e.get('poster_djs') or {}).values() if v]
+    for l, n in pairs:
+        lb, lp = strip_paren(l); nb, np_ = strip_paren(n)
+        if re.fullmatch(r'[\u4e00-\u9fff]+', lb) and np_ == lb: nb, np_ = nb, ''
+        name_en = nb if nb and not re.search(r'[\u4e00-\u9fff]', nb) else (np_ if np_ and not re.search(r'[\u4e00-\u9fff]', np_) else '')
+        name_local = lb if re.search(r'[\u4e00-\u9fff\uac00-\ud7af]', lb) else ''
+        key = None
+        for k in (norm(name_en), norm(name_local), norm(lb)):
+            if k and k in dj_alias: key = dj_alias[k]; break
+        if not key:
+            key = norm(name_en) or norm(name_local) or norm(lb)
+            djs[key] = {'name_en': name_en or lb, 'name_local': name_local, 'from': (lp if lp != name_local else ''), 'cities': set(), 'events': set()}
+        for k in (norm(name_en), norm(name_local), norm(lb)):
+            if k: dj_alias.setdefault(k, key)
+        d = djs[key]; d['cities'].add(e['city']); d['events'].add(e['id'])
+        if name_local and not d['name_local']: d['name_local'] = name_local
+        if name_en and (not d['name_en'] or re.search(r'[\u4e00-\u9fff]', d['name_en'])): d['name_en'] = name_en
+dj_list = []
+for d in sorted(djs.values(), key=lambda d: (sorted(d['cities'])[0], d['name_en'].lower())):
+    r = {'id': 'D%03d' % (len(dj_list) + 1), 'name_en': d['name_en'], 'name_local': d['name_local'], 'cities': sorted(d['cities']), 'events': sorted(d['events'])}
+    if d['from']: r['from'] = d['from']
+    pf = profile_of(d['name_en'], d['name_local'])
+    if pf: r['profile'] = pf
+    org = [h['id'] for h in organizers if norm(h['name_en']) in (norm(d['name_en']), norm(d['name_local'])) or (h['name_local'] and norm(h['name_local']) in (norm(d['name_en']), norm(d['name_local'])))]
+    if org: r['also_organizer'] = org
+    dj_list.append(r)
+
 os.makedirs(OUT, exist_ok=True)
 w = lambda n, o: json.dump(o, open(os.path.join(OUT, n), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-w('venues.json', venues); w('groups.json', [dump(h) for h in groups]); w('organizers.json', [dump(h) for h in organizers]); w('event_links.json', links)
+w('venues.json', venues); w('groups.json', [dump(h) for h in groups]); w('organizers.json', [dump(h) for h in organizers]); w('event_links.json', links); w('djs.json', dj_list)
 
 # ---------- review.md (the 待确认清单) ----------
+EVBY = {e['id']: e for e in EV}
+VBY = {v['id']: v for v in venues}
+TODAY = __import__('datetime').date.today().isoformat()
+def evs(ids, k=3):
+    ids = sorted(ids)
+    t = '、'.join((EVBY[i].get('name_zh') or EVBY[i]['name']) for i in ids[:k])
+    return t + ('等 %d 个' % len(ids) if len(ids) > k else '')
+def vdesc(vid):
+    v = VBY[vid]
+    nm = v['name_en'] if not v['name_local'] or v['name_local'] == v['name_en'] else v['name_en'] + ' / ' + v['name_local']
+    ad = v['address_local'] or v['address_en']
+    return '%s（%s%s）' % (nm, ad + '；' if ad and ad != v['name_local'] else '', evs(v['events']))
+def hdesc(h):
+    nm = h['name_en'] + (' / ' + h['name_local'] if h.get('name_local') else '')
+    return nm + ('（%s）' % evs(h['events']) if h.get('events') else '')
+
+S = collections.OrderedDict((k, {'cn': [], 'other': []}) for k in 'ABCDEF')
+def put(sec, city, text): S[sec]['cn' if CN(city) else 'other'].append('%s：%s' % (city, text))
+for a, an, b, bn, c, sc in review['venue_maybe_same']: put('A', c, '%s ↔ %s' % (vdesc(a), vdesc(b)))
+for vid, c, names in review['venue_names']: put('B', c, '%s 名称：%s' % (vid, ' ／ '.join(names)))
+for vid, c, ad in review['venue_addrs']: put('B', c, '%s 地址写法不一：%s' % (vid, ' ／ '.join(ad)))
+for a, b, sc in review['host_maybe_same']:
+    city = sorted(a['cities'] | b['cities'])[0]
+    put('C', city, '%s ↔ %s' % (hdesc(a), hdesc(b)))
+for h in review['host_kind']: put('D', sorted(h['cities'])[0], '%s（目前先当作%s）' % (hdesc(h), '团体' if h['kind'] == 'group' else '个人'))
+for eid, c, nm in review['venue_tba']: put('E', c, '%s（%s）场地写“待定”' % (EVBY[eid].get('name_zh') or nm, eid))
+for vid, c, nm in review['venue_noaddr']: put('E', c, '%s 没有地址' % vdesc(vid))
+# F: data and posters on live cards
+for e in EV:
+    if e.get('hidden'): continue
+    if e['kind'] == 'event' and (e.get('end') or e.get('start') or '9999') < TODAY: continue
+    nm = '%s（%s）' % (e.get('name_zh') or e['name'], e['id'])
+    probs = []
+    if (e.get('venue') or e.get('venue_en')) and not e.get('venue_address') and not PLACEHOLDER.match((e.get('venue_en') or '').strip()): probs.append('缺本地语言地址')
+    pz = e.get('poster') or ''
+    if '/generated/' in pz: probs.append('没有真实海报（目前是自动生成的图）')
+    elif e['kind'] == 'weekly' and e.get('poster_dates'):
+        last = max(e['poster_dates'].values())
+        if last < (__import__('datetime').date.today() - __import__('datetime').timedelta(days=28)).isoformat(): probs.append('海报最新一期是 %s，超过 4 周' % last)
+    if probs: put('F', e['city'], nm + '：' + '；'.join(probs))
+
+TITLES = {'A': '这两个场地是不是同一个地方？', 'B': '同一个场地有几种写法，用哪个？（也可能是同一栋楼里不同的小场地）',
+          'C': '这两个主办是不是同一个？', 'D': '这是团体还是个人？', 'E': '场地待定或没有地址（以后补）', 'F': '资料和海报要补的（只列还在进行的活动）'}
 L = ['# 待确认清单（自动生成草稿）', '',
-     '统计：活动卡 %d 张；场地 %d 个；团体 %d 个；组织者 %d 位。' % (len(EV), len(venues), len(groups), len(organizers)), '']
+     '统计：活动卡 %d 张；场地 %d 个；团体 %d 个；组织者 %d 位。' % (len(EV), len(venues), len(groups), len(organizers)),
+     '已回答的题目记在 data/entities-draft/decisions.json，不会再出现。', '',
+     '# 第一部分：中国大陆和香港（先做）', '']
 n = 0
 def item(t):
     global n; n += 1; L.append('%d. %s' % (n, t))
-L += ['## A. 这两个场地是不是同一个地方？', '']
-for a, an, b, bn, c, s in review['venue_maybe_same']: item('%s：%s（%s） ↔ %s（%s）' % (c, an, a, bn, b))
-L += ['', '## B. 同一个场地有几种写法，用哪个？（也可能是同一栋楼里不同的小场地）', '']
-for vid, c, names in review['venue_names']: item('%s %s：%s' % (c, vid, ' ／ '.join(names)))
-for vid, c, ad in review['venue_addrs']: item('%s %s 地址不一致：%s' % (c, vid, ' ／ '.join(ad)))
-L += ['', '## C. 这两个主办是不是同一个？', '']
-for a, b, s in review['host_maybe_same']:
-    item('%s：%s ↔ %s' % ('、'.join(sorted(a['cities'] | b['cities'])), a['name_en'] + (' / ' + a['name_local'] if a['name_local'] else ''), b['name_en'] + (' / ' + b['name_local'] if b['name_local'] else '')))
-L += ['', '## D. 这是团体还是个人？', '']
-for h in review['host_kind']: item('%s：%s%s（%d 个活动，目前先当作%s）' % ('、'.join(sorted(h['cities'])), h['name_en'], ' / ' + h['name_local'] if h['name_local'] else '', len(h['events']), '团体' if h['kind'] == 'group' else '个人'))
-L += ['', '## E. 没有地址的场地（以后补，不用现在回答）', '']
-for eid, c, nm in review['venue_tba']: item('%s：%s（%s）场地写的是“待定”' % (c, nm, eid))
-for vid, c, nm in review['venue_noaddr']: item('%s %s：%s' % (c, vid, nm))
+for k, t in TITLES.items():
+    if not S[k]['cn']: continue
+    L += ['## %s. %s' % (k, t), '']
+    for x in sorted(S[k]['cn']): item(x)
+    L.append('')
+L += ['# 第二部分：其他地区（暂缓）', '']
+for k, t in TITLES.items():
+    if S[k]['other']: L.append('- %s. %s：%d 项' % (k, t, len(S[k]['other'])))
+L += ['', '明细在 review-other.md。', '']
+O = ['# 其他地区待确认（暂缓）', '']
+for k, t in TITLES.items():
+    if S[k]['other']:
+        O += ['## %s. %s' % (k, t), ''] + ['- ' + x for x in sorted(S[k]['other'])] + ['']
 open(os.path.join(OUT, 'review.md'), 'w', encoding='utf-8').write('\n'.join(L) + '\n')
-print('venues', len(venues), 'groups', len(groups), 'organizers', len(organizers), 'review items', n)
-print({k: len(v) for k, v in review.items()})
+open(os.path.join(OUT, 'review-other.md'), 'w', encoding='utf-8').write('\n'.join(O) + '\n')
+print('djs', len(dj_list), [d for d in dj_list if d.get('profile') or d.get('also_organizer')][:6])
+print('venues', len(venues), 'groups', len(groups), 'organizers', len(organizers), 'China items', n, {k: (len(v['cn']), len(v['other'])) for k, v in S.items()})
