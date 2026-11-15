@@ -6,7 +6,8 @@
  * 3. Tapping the address opens a full-screen card in the local language, large enough to show a
  *    taxi driver or a passer-by. Close with ×, the back button or Esc.
  * 4. Route pictures from the organizer: e.directions_images = ["/images/asia/directions/x.jpg", ...]
- *    or [{src, caption, caption_en}]. Shown as small thumbnails; tap to view full screen.
+ *    or [{src, caption, caption_en, caption_ko, caption_es}]. Shown as small thumbnails; tap to view full screen.
+ *    Text in the page language (directions_xx / caption_xx), else English, else the Chinese base field.
  */
 (function () {
   'use strict';
@@ -45,10 +46,18 @@
       venue: [e && e.venue, e && e.venue_zh, e && e.venue_ko].map(good).filter(function (v) { return v && LOCAL.test(v); })[0] || '',
       dir: good(e && e.directions) && LOCAL.test(e.directions) ? good(e.directions) : (good(e && e.directions_en) || good(e && e.directions)) };
   }
-  function dirOf(e) {
-    var ko = !zh() && !!(window.atmI18n && window.atmI18n.langOf && window.atmI18n.langOf({ zhHint: false }) === 'ko');
-    return zh() ? (good(e.directions) || good(e.directions_en)) : ((ko && good(e.directions_ko)) || good(e.directions_en) || good(e.directions));
+  /* Page language: zh, en, ko now; es and others later. Text fields fall back to English, then the base (Chinese) field. */
+  function lang() {
+    if (zh()) return 'zh';
+    var l = ''; try { l = window.atmI18n && window.atmI18n.langOf ? window.atmI18n.langOf({ zhHint: false }) : ''; } catch (x) {}
+    return /^[a-z]{2}$/.test(l || '') ? l : 'en';
   }
+  function pickLang(o, base) {
+    var l = lang();
+    if (l === 'zh') return good(o[base]) || good(o[base + '_en']);
+    return (l !== 'en' && good(o[base + '_' + l])) || good(o[base + '_en']) || good(o[base]);
+  }
+  function dirOf(e) { return e ? pickLang(e, 'directions') : ''; }
 
   function picsOf(e) {
     var a = e && e.directions_images; if (!Array.isArray(a)) return [];
@@ -56,7 +65,7 @@
       var o = typeof x === 'string' ? { src: x } : (x || {});
       var src = String(o.src || '');
       if (!/^(\/images\/|https:\/\/)/.test(src)) return null;
-      return { src: src, cap: zh() ? (o.caption || o.caption_en || '') : (o.caption_en || o.caption || '') };
+      return { src: src, cap: pickLang(o, 'caption') };
     }).filter(Boolean).slice(0, 8);
   }
   function thumbs(id, pics, cls) {
