@@ -335,14 +335,14 @@ for e in EV:
     probs = []
     if (e.get('venue') or e.get('venue_en')) and not e.get('venue_address') and not PLACEHOLDER.match((e.get('venue_en') or '').strip()): probs.append('缺本地语言地址')
     pz = e.get('poster') or ''
-    if '/generated/' in pz: probs.append('没有真实海报（目前是自动生成的图）')
-    elif e['kind'] == 'weekly' and e.get('poster_dates'):
+    # 2026-11-15 Shiao: a poster is not required for every event, so a generated image is not a gap.
+    if e['kind'] == 'weekly' and e.get('poster_dates'):
         last = max(e['poster_dates'].values())
         if last < (__import__('datetime').date.today() - __import__('datetime').timedelta(days=28)).isoformat(): probs.append('海报最新一期是 %s，超过 4 周' % last)
     if probs: put('F', e['city'], nm + '：' + '；'.join(probs))
 
 TITLES = {'A': '这两个场地是不是同一个地方？', 'B': '同一个场地有几种写法，用哪个？（也可能是同一栋楼里不同的小场地）',
-          'C': '这两个主办是不是同一个？', 'D': '这是团体还是个人？', 'E': '场地待定或没有地址（以后补）', 'F': '资料和海报要补的（只列还在进行的活动）'}
+          'C': '这两个主办是不是同一个？', 'D': '这是团体还是个人？', 'E': '场地待定或没有地址（以后补）', 'F': '资料要补的（只列还在进行的活动）'}
 L = ['# 待确认清单（自动生成草稿）', '',
      '统计：活动卡 %d 张；场地 %d 个；团体 %d 个；组织者 %d 位。' % (len(EV), len(venues), len(groups), len(organizers)),
      '已回答的题目记在 data/entities-draft/decisions.json，不会再出现。', '',
