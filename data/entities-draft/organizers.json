@@ -1,0 +1,1344 @@
+[
+ {
+  "id": "O001",
+  "name_en": "Jayrick Molo Tuazon",
+  "name_local": "",
+  "cities": [
+   "Bandar Seri Begawan"
+  ],
+  "events": [
+   "E122"
+  ]
+ },
+ {
+  "id": "O002",
+  "name_en": "Allen Ma",
+  "name_local": "大马",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "eRpBxkDC",
+   "wSeFVkSa"
+  ]
+ },
+ {
+  "id": "O003",
+  "name_en": "Boyang Hu",
+  "name_local": "",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "E176"
+  ]
+ },
+ {
+  "id": "O004",
+  "name_en": "Cici Chen",
+  "name_local": "",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "E176"
+  ]
+ },
+ {
+  "id": "O005",
+  "name_en": "Daidai",
+  "name_local": "呆呆",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "AtrSun01"
+  ]
+ },
+ {
+  "id": "O006",
+  "name_en": "Fanfan",
+  "name_local": "凡凡",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "1hCBcWaP"
+  ]
+ },
+ {
+  "id": "O007",
+  "name_en": "Fuguier",
+  "name_local": "富贵",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "NmkWjMxo"
+  ]
+ },
+ {
+  "id": "O008",
+  "name_en": "Gou Chen",
+  "name_local": "勾陳",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "GxMrByRQ",
+   "m0A3Rbyv"
+  ]
+ },
+ {
+  "id": "O009",
+  "name_en": "Jackie",
+  "name_local": "",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "UiQphCjS"
+  ]
+ },
+ {
+  "id": "O010",
+  "name_en": "Li Songyan",
+  "name_local": "李松岩",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "vhYvwRzo"
+  ]
+ },
+ {
+  "id": "O011",
+  "name_en": "Liu Zheng",
+  "name_local": "刘峥",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "AymclBjD",
+   "E093",
+   "GqufXmMX",
+   "R202"
+  ]
+ },
+ {
+  "id": "O012",
+  "name_en": "Meng Wang",
+  "name_local": "王萌",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "E131"
+  ]
+ },
+ {
+  "id": "O013",
+  "name_en": "Nico Zhang",
+  "name_local": "张研",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "ttLxDoyZ"
+  ]
+ },
+ {
+  "id": "O014",
+  "name_en": "Shiao Chang",
+  "name_local": "张孝",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "E093"
+  ]
+ },
+ {
+  "id": "O015",
+  "name_en": "Simona Wu",
+  "name_local": "思萌",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "eRpBxkDC",
+   "wSeFVkSa"
+  ]
+ },
+ {
+  "id": "O016",
+  "name_en": "Tayfun",
+  "name_local": "台风",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "R073"
+  ]
+ },
+ {
+  "id": "O017",
+  "name_en": "VidaMia (NICO)",
+  "name_local": "VidaMia（NICO）",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "E005"
+  ]
+ },
+ {
+  "id": "O018",
+  "name_en": "Whisky Ge",
+  "name_local": "威士忌哥",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "R202"
+  ]
+ },
+ {
+  "id": "O019",
+  "name_en": "Xiao Wu",
+  "name_local": "小舞",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "E158",
+   "E161",
+   "E166"
+  ]
+ },
+ {
+  "id": "O020",
+  "name_en": "Yezi",
+  "name_local": "叶子",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "GxMrByRQ"
+  ]
+ },
+ {
+  "id": "O021",
+  "name_en": "Panda",
+  "name_local": "",
+  "cities": [
+   "Chengdu"
+  ],
+  "events": [
+   "E162",
+   "E163"
+  ]
+ },
+ {
+  "id": "O022",
+  "name_en": "Béatrice (YuYu)",
+  "name_local": "",
+  "cities": [
+   "Chongqing"
+  ],
+  "events": [
+   "E168"
+  ]
+ },
+ {
+  "id": "O023",
+  "name_en": "LMC",
+  "name_local": "",
+  "cities": [
+   "Chongqing"
+  ],
+  "events": [
+   "manual-cq-spicy-2026"
+  ],
+  "flags": [
+   "kind?"
+  ]
+ },
+ {
+  "id": "O024",
+  "name_en": "美辰 (Meichen)",
+  "name_local": "美辰",
+  "cities": [
+   "Chongqing"
+  ],
+  "events": [
+   "YgirJagn"
+  ]
+ },
+ {
+  "id": "O025",
+  "name_en": "Ms. Lala",
+  "name_local": "",
+  "cities": [
+   "Da Nang"
+  ],
+  "events": [
+   "E086"
+  ]
+ },
+ {
+  "id": "O026",
+  "name_en": "doya doya",
+  "name_local": "",
+  "cities": [
+   "Daegu"
+  ],
+  "events": [
+   "E039"
+  ]
+ },
+ {
+  "id": "O027",
+  "name_en": "Alice",
+  "name_local": "",
+  "cities": [
+   "Guangzhou"
+  ],
+  "events": [
+   "EDPSh1eZ"
+  ]
+ },
+ {
+  "id": "O028",
+  "name_en": "Antimo",
+  "name_local": "",
+  "cities": [
+   "Guangzhou"
+  ],
+  "events": [
+   "E167",
+   "R045",
+   "rSFJaHtm"
+  ]
+ },
+ {
+  "id": "O029",
+  "name_en": "Michelle",
+  "name_local": "",
+  "cities": [
+   "Guangzhou"
+  ],
+  "events": [
+   "n3ENukGH"
+  ]
+ },
+ {
+  "id": "O030",
+  "name_en": "POP",
+  "name_local": "",
+  "cities": [
+   "Guangzhou"
+  ],
+  "events": [
+   "9Nf1QY8C",
+   "QbUzonBt"
+  ],
+  "flags": [
+   "kind?"
+  ]
+ },
+ {
+  "id": "O031",
+  "name_en": "Sunny",
+  "name_local": "",
+  "cities": [
+   "Guangzhou"
+  ],
+  "events": [
+   "E167",
+   "R045",
+   "rSFJaHtm"
+  ]
+ },
+ {
+  "id": "O032",
+  "name_en": "IF",
+  "name_local": "",
+  "cities": [
+   "Gunsan"
+  ],
+  "events": [
+   "E116"
+  ],
+  "flags": [
+   "kind?"
+  ]
+ },
+ {
+  "id": "O033",
+  "name_en": "Calix",
+  "name_local": "",
+  "cities": [
+   "Haikou"
+  ],
+  "events": [
+   "dLub3zK9"
+  ]
+ },
+ {
+  "id": "O034",
+  "name_en": "Momo",
+  "name_local": "",
+  "cities": [
+   "Haikou"
+  ],
+  "events": [
+   "dLub3zK9"
+  ]
+ },
+ {
+  "id": "O035",
+  "name_en": "Emily",
+  "name_local": "",
+  "cities": [
+   "Hangzhou"
+  ],
+  "events": [
+   "E179"
+  ]
+ },
+ {
+  "id": "O036",
+  "name_en": "Lily Jiang",
+  "name_local": "蒋黎黎",
+  "cities": [
+   "Hangzhou"
+  ],
+  "events": [
+   "manual-hz-jinsha"
+  ]
+ },
+ {
+  "id": "O037",
+  "name_en": "Benny Leung",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E151",
+   "E152"
+  ]
+ },
+ {
+  "id": "O038",
+  "name_en": "carly",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E154",
+   "Q0Dhqqdr"
+  ]
+ },
+ {
+  "id": "O039",
+  "name_en": "Carly Chiu",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E172"
+  ]
+ },
+ {
+  "id": "O040",
+  "name_en": "Daisy Tsang",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E043"
+  ]
+ },
+ {
+  "id": "O041",
+  "name_en": "Daisy 曾",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E044",
+   "E180"
+  ]
+ },
+ {
+  "id": "O042",
+  "name_en": "Edith Ho",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "yhBU2qgt"
+  ]
+ },
+ {
+  "id": "O043",
+  "name_en": "Eric Tsang",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E173"
+  ]
+ },
+ {
+  "id": "O044",
+  "name_en": "Liang Yili",
+  "name_local": "梁毅力",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E150",
+   "E154",
+   "Q0Dhqqdr"
+  ]
+ },
+ {
+  "id": "O045",
+  "name_en": "Nathalie Cheng",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "RDrwgcit"
+  ]
+ },
+ {
+  "id": "O046",
+  "name_en": "Ray Rudowski",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E155",
+   "E170"
+  ]
+ },
+ {
+  "id": "O047",
+  "name_en": "Sandra Mok",
+  "name_local": "",
+  "cities": [
+   "Hong Kong"
+  ],
+  "events": [
+   "E045"
+  ]
+ },
+ {
+  "id": "O048",
+  "name_en": "洪世傑 (Hong Shijie)",
+  "name_local": "洪世傑",
+  "cities": [
+   "Hsinchu"
+  ],
+  "events": [
+   "E156"
+  ]
+ },
+ {
+  "id": "O049",
+  "name_en": "Azian",
+  "name_local": "",
+  "cities": [
+   "Kuala Lumpur"
+  ],
+  "events": [
+   "E126"
+  ]
+ },
+ {
+  "id": "O050",
+  "name_en": "Cristopher Wibowo",
+  "name_local": "",
+  "cities": [
+   "Kuala Lumpur"
+  ],
+  "events": [
+   "E042"
+  ]
+ },
+ {
+  "id": "O051",
+  "name_en": "Michelle Ng",
+  "name_local": "",
+  "cities": [
+   "Kuala Lumpur"
+  ],
+  "events": [
+   "E042"
+  ]
+ },
+ {
+  "id": "O052",
+  "name_en": "Susan Yap",
+  "name_local": "",
+  "cities": [
+   "Kuala Lumpur"
+  ],
+  "events": [
+   "E181"
+  ]
+ },
+ {
+  "id": "O053",
+  "name_en": "William Teng",
+  "name_local": "",
+  "cities": [
+   "Kuala Lumpur"
+  ],
+  "events": [
+   "E181"
+  ]
+ },
+ {
+  "id": "O054",
+  "name_en": "Yutan Lin",
+  "name_local": "林佑檀",
+  "cities": [
+   "Miaoli"
+  ],
+  "events": [
+   "jtzZIdAx"
+  ]
+ },
+ {
+  "id": "O055",
+  "name_en": "Weining Chen",
+  "name_local": "陳維寧",
+  "cities": [
+   "New Taipei"
+  ],
+  "events": [
+   "R198"
+  ]
+ },
+ {
+  "id": "O056",
+  "name_en": "Jenny",
+  "name_local": "",
+  "cities": [
+   "Qingdao"
+  ],
+  "events": [
+   "w1RSOcni"
+  ]
+ },
+ {
+  "id": "O057",
+  "name_en": "lily 文莉",
+  "name_local": "",
+  "cities": [
+   "Qingdao"
+  ],
+  "events": [
+   "R252",
+   "R253"
+  ]
+ },
+ {
+  "id": "O058",
+  "name_en": "GaEa Kim",
+  "name_local": "",
+  "cities": [
+   "Seoul"
+  ],
+  "events": [
+   "R164"
+  ]
+ },
+ {
+  "id": "O059",
+  "name_en": "Jjun Cine",
+  "name_local": "쭌 씨네",
+  "cities": [
+   "Seoul"
+  ],
+  "events": [
+   "R098"
+  ]
+ },
+ {
+  "id": "O060",
+  "name_en": "Mickey Elfin",
+  "name_local": "미키 엘핀",
+  "cities": [
+   "Seoul"
+  ],
+  "events": [
+   "R089"
+  ]
+ },
+ {
+  "id": "O061",
+  "name_en": "Sofia",
+  "name_local": "소피아",
+  "cities": [
+   "Seoul"
+  ],
+  "events": [
+   "R094"
+  ]
+ },
+ {
+  "id": "O062",
+  "name_en": "Stacy",
+  "name_local": "스테이시",
+  "cities": [
+   "Seoul",
+   "Taipei"
+  ],
+  "events": [
+   "E123",
+   "R116"
+  ]
+ },
+ {
+  "id": "O063",
+  "name_en": "Taeyang Silver",
+  "name_local": "태양 실버",
+  "cities": [
+   "Seoul"
+  ],
+  "events": [
+   "R175"
+  ]
+ },
+ {
+  "id": "O064",
+  "name_en": "Cindy",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "rccbKIYP"
+  ]
+ },
+ {
+  "id": "O065",
+  "name_en": "Gaby",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "E184",
+   "JKQfiwMf"
+  ]
+ },
+ {
+  "id": "O066",
+  "name_en": "Hanpa",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "E134"
+  ]
+ },
+ {
+  "id": "O067",
+  "name_en": "Irene",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "rccbKIYP"
+  ]
+ },
+ {
+  "id": "O068",
+  "name_en": "Kai Wang",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "2tbfzeS7",
+   "DFBKYdPX",
+   "E133",
+   "E164"
+  ]
+ },
+ {
+  "id": "O069",
+  "name_en": "Kaiser",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "rccbKIYP"
+  ]
+ },
+ {
+  "id": "O070",
+  "name_en": "Los Gatos",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "vhkQ2Ltw"
+  ]
+ },
+ {
+  "id": "O071",
+  "name_en": "Lydia",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "E121",
+   "ecyMAjFj"
+  ]
+ },
+ {
+  "id": "O072",
+  "name_en": "Maggie",
+  "name_local": "晓南",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "E121",
+   "ecyMAjFj"
+  ]
+ },
+ {
+  "id": "O073",
+  "name_en": "Marco",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "E121",
+   "ecyMAjFj"
+  ]
+ },
+ {
+  "id": "O074",
+  "name_en": "Maria Ines Bogado",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "WExJslMr"
+  ]
+ },
+ {
+  "id": "O075",
+  "name_en": "Monica",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "R0E9XeyL"
+  ]
+ },
+ {
+  "id": "O076",
+  "name_en": "Nam",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "JHeguuQb",
+   "XsFs5wm8",
+   "bQFvmIuY"
+  ],
+  "flags": [
+   "kind?"
+  ]
+ },
+ {
+  "id": "O077",
+  "name_en": "Pauline",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "izAYSxss"
+  ]
+ },
+ {
+  "id": "O078",
+  "name_en": "Perni Peng",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "WExJslMr"
+  ]
+ },
+ {
+  "id": "O079",
+  "name_en": "PIPO YANG",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "xXxB330r"
+  ]
+ },
+ {
+  "id": "O080",
+  "name_en": "Shelley Hou",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "6Pcl1YgL",
+   "KmgJxDKM",
+   "eEHzQBzu"
+  ]
+ },
+ {
+  "id": "O081",
+  "name_en": "Sissi Zheng",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "JHeguuQb",
+   "XsFs5wm8"
+  ]
+ },
+ {
+  "id": "O082",
+  "name_en": "Vivian Ye",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "DIVjezcE"
+  ]
+ },
+ {
+  "id": "O083",
+  "name_en": "Wing",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "JHeguuQb",
+   "XsFs5wm8",
+   "bQFvmIuY"
+  ],
+  "flags": [
+   "kind?"
+  ]
+ },
+ {
+  "id": "O084",
+  "name_en": "Zhang Zhenyi",
+  "name_local": "张真艺",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "R034"
+  ]
+ },
+ {
+  "id": "O085",
+  "name_en": "Zhengzhong",
+  "name_local": "正中",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "LxcvweaE",
+   "izAYSxss"
+  ]
+ },
+ {
+  "id": "O086",
+  "name_en": "Aykut",
+  "name_local": "",
+  "cities": [
+   "Shenzhen"
+  ],
+  "events": [
+   "E157"
+  ]
+ },
+ {
+  "id": "O087",
+  "name_en": "Bes",
+  "name_local": "",
+  "cities": [
+   "Shenzhen"
+  ],
+  "events": [
+   "tSTMn9NF"
+  ]
+ },
+ {
+  "id": "O088",
+  "name_en": "Jinrui Humphrey",
+  "name_local": "金睿 Humphrey",
+  "cities": [
+   "Shenzhen"
+  ],
+  "events": [
+   "E159"
+  ]
+ },
+ {
+  "id": "O089",
+  "name_en": "Ken Wong",
+  "name_local": "",
+  "cities": [
+   "Shenzhen"
+  ],
+  "events": [
+   "E178"
+  ]
+ },
+ {
+  "id": "O090",
+  "name_en": "Miranda",
+  "name_local": "",
+  "cities": [
+   "Shenzhen"
+  ],
+  "events": [
+   "E157"
+  ]
+ },
+ {
+  "id": "O091",
+  "name_en": "Sam",
+  "name_local": "",
+  "cities": [
+   "Suzhou"
+  ],
+  "events": [
+   "nTUlADFZ"
+  ]
+ },
+ {
+  "id": "O092",
+  "name_en": "Cheek to Cheek",
+  "name_local": "",
+  "cities": [
+   "Taichung"
+  ],
+  "events": [
+   "R196",
+   "R250"
+  ]
+ },
+ {
+  "id": "O093",
+  "name_en": "Brigette Yu",
+  "name_local": "",
+  "cities": [
+   "Taipei"
+  ],
+  "events": [
+   "E123"
+  ]
+ },
+ {
+  "id": "O094",
+  "name_en": "Daniel Liu",
+  "name_local": "",
+  "cities": [
+   "Taipei"
+  ],
+  "events": [
+   "E123"
+  ]
+ },
+ {
+  "id": "O095",
+  "name_en": "Rebecca Meow",
+  "name_local": "",
+  "cities": [
+   "Taipei"
+  ],
+  "events": [
+   "aanirocB"
+  ]
+ },
+ {
+  "id": "O096",
+  "name_en": "Angel",
+  "name_local": "安琪",
+  "cities": [
+   "Tianjin"
+  ],
+  "events": [
+   "WPYNvSAB"
+  ]
+ },
+ {
+  "id": "O097",
+  "name_en": "Chaoran",
+  "name_local": "超然",
+  "cities": [
+   "Tianjin"
+  ],
+  "events": [
+   "mBDeAKKW"
+  ]
+ },
+ {
+  "id": "O098",
+  "name_en": "Firebird",
+  "name_local": "",
+  "cities": [
+   "Tianjin"
+  ],
+  "events": [
+   "TqqsVj5K"
+  ]
+ },
+ {
+  "id": "O099",
+  "name_en": "Janisa",
+  "name_local": "佳慧",
+  "cities": [
+   "Tianjin"
+  ],
+  "events": [
+   "mBDeAKKW"
+  ]
+ },
+ {
+  "id": "O100",
+  "name_en": "Kevin",
+  "name_local": "Kevin小钲",
+  "cities": [
+   "Tianjin"
+  ],
+  "events": [
+   "ZwJVD64Z"
+  ]
+ },
+ {
+  "id": "O101",
+  "name_en": "Maria",
+  "name_local": "",
+  "cities": [
+   "Tianjin"
+  ],
+  "events": [
+   "E171"
+  ]
+ },
+ {
+  "id": "O102",
+  "name_en": "Summer",
+  "name_local": "Summer夏",
+  "cities": [
+   "Tianjin"
+  ],
+  "events": [
+   "ZwJVD64Z"
+  ]
+ },
+ {
+  "id": "O103",
+  "name_en": "修老师 (Teacher Xiu)",
+  "name_local": "修行",
+  "cities": [
+   "Tianjin"
+  ],
+  "events": [
+   "R059"
+  ]
+ },
+ {
+  "id": "O104",
+  "name_en": "Belén",
+  "name_local": "",
+  "cities": [
+   "Tokyo"
+  ],
+  "events": [
+   "R076"
+  ]
+ },
+ {
+  "id": "O105",
+  "name_en": "David",
+  "name_local": "",
+  "cities": [
+   "Tokyo"
+  ],
+  "events": [
+   "R076"
+  ]
+ },
+ {
+  "id": "O106",
+  "name_en": "Leonel",
+  "name_local": "",
+  "cities": [
+   "Tokyo"
+  ],
+  "events": [
+   "R077"
+  ]
+ },
+ {
+  "id": "O107",
+  "name_en": "Natalia",
+  "name_local": "",
+  "cities": [
+   "Tokyo"
+  ],
+  "events": [
+   "R077"
+  ]
+ },
+ {
+  "id": "O108",
+  "name_en": "Noriko",
+  "name_local": "",
+  "cities": [
+   "Tokyo"
+  ],
+  "events": [
+   "R078"
+  ]
+ },
+ {
+  "id": "O109",
+  "name_en": "Takeshi Nakayama",
+  "name_local": "",
+  "cities": [
+   "Tokyo"
+  ],
+  "events": [
+   "E185"
+  ]
+ },
+ {
+  "id": "O110",
+  "name_en": "Choi Ra-mi",
+  "name_local": "최라미",
+  "cities": [
+   "Ulsan"
+  ],
+  "events": [
+   "R152"
+  ]
+ },
+ {
+  "id": "O111",
+  "name_en": "Forward",
+  "name_local": "向前",
+  "cities": [
+   "Wuhan"
+  ],
+  "events": [
+   "E160"
+  ]
+ },
+ {
+  "id": "O112",
+  "name_en": "静先生 Mr. Jing",
+  "name_local": "",
+  "cities": [
+   "Wuhan"
+  ],
+  "events": [
+   "E132"
+  ]
+ },
+ {
+  "id": "O113",
+  "name_en": "Jezebel",
+  "name_local": "",
+  "cities": [
+   "Xi'an"
+  ],
+  "events": [
+   "R251"
+  ]
+ },
+ {
+  "id": "O114",
+  "name_en": "牛静 (Niu Jing)",
+  "name_local": "牛静",
+  "cities": [
+   "Zhengzhou"
+  ],
+  "events": [
+   "9oJFdQ64"
+  ]
+ },
+ {
+  "id": "O115",
+  "name_en": "王勇 (Wang Yong)",
+  "name_local": "王勇",
+  "cities": [
+   "Zhengzhou"
+  ],
+  "events": [
+   "9oJFdQ64"
+  ]
+ },
+ {
+  "id": "O116",
+  "name_en": "Curtis Tsai",
+  "name_local": "",
+  "cities": [
+   "Zhubei"
+  ],
+  "events": [
+   "E090",
+   "E091"
+  ]
+ },
+ {
+  "id": "O117",
+  "name_en": "Nahuel",
+  "name_local": "",
+  "cities": [
+   "Zhuhai"
+  ],
+  "events": [
+   "E183"
+  ]
+ }
+]
