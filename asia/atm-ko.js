@@ -68,7 +68,7 @@
     'ENDED': '종료', 'This event has ended': '종료된 이벤트입니다', 'View all events': '모든 이벤트 보기', 'Next edition:': '다음 회차:',
     '📷 Recap': '📷 후기', 'Photos:': '사진:', '★ Special events': '★ 스페셜 이벤트', 'This card is not on the map': '지도에 없는 카드입니다',
     'The map could not load this card. That does not mean the event has ended.': '이 카드를 불러오지 못했습니다. 이벤트가 끝났다는 뜻은 아닙니다.',
-    'Try again': '다시 시도', 'Back': '뒤로', 'Back to list': '목록으로', 'Search': '검색', 'Menu': '메뉴', 'Close': '닫기', 'Map ↗': '지도 ↗', 'Enlarge': '크게 보기', 'Show this to a driver': '기사님께 보여 주세요', 'Open map': '지도 열기', 'Copy address': '주소 복사', 'Copied': '복사됨', 'Route pictures': '찾아오는 길 사진',
+    'Try again': '다시 시도', 'Back': '뒤로', 'Back to list': '목록으로', 'Search': '검색', 'Menu': '메뉴', 'Close': '닫기', 'Map ↗': '지도 ↗', 'Enlarge': '크게 보기', 'Show this to a driver': '기사님께 보여 주세요', 'Open map': '지도 열기', 'Copy address': '주소 복사', 'Copied': '복사됨', 'Route pictures': '찾아오는 길 사진', 'Directions': '오시는 길',
     'No · Not confirmed, please contact the organizer': '아니요 · 미확인, 주최자에게 문의하세요',
     'Viewed': '본 이벤트', 'Recently viewed': '최근 본 이벤트', 'Hide': '숨기기', 'Show': '보기', 'Clear': '지우기',
     /* menu */
