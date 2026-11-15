@@ -51,7 +51,6 @@ jobs:
           # The guard starts this run with the workflow token, so its actor is github-actions[bot].
           # Add 探戈助理's GitHub account here too if it is a bot account.
           allowed_bots: "github-actions[bot]"
-          show_full_output: true  # TEMP 2026-11-15: see why the first test run failed; remove after
           claude_args: |
             --max-turns 40
             --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git:*),Bash(python3:*),Bash(node --check:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(mkdir:*),Bash(ls:*)"
