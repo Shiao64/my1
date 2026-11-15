@@ -1,6 +1,6 @@
 name: Inbox guard (探戈助理)
 
-# 探戈助理 (Grok bot) sends organizer answers as a PR from a branch named inbox/...
+# 探戈助理 (Grok bot) sends organizer answers as a PR from a branch named answer/...
 # This check lets that PR through only if it touches data/inbox/ and nothing else.
 # If it passes, the PR is merged and the "Inbox process" workflow is started.
 # If it fails, nothing is merged and a comment explains why.
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   guard:
-    if: startsWith(github.head_ref, 'inbox/')
+    if: startsWith(github.head_ref, 'answer/')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
