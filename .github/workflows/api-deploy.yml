@@ -58,7 +58,8 @@ jobs:
       - name: D1 bookmark (save this; it is the data rollback point)
         working-directory: subscribe-worker
         run: |
-          wrangler d1 time-travel info tango-subscribe --remote | tee bookmark.txt
+          set -o pipefail
+          wrangler d1 time-travel info tango-subscribe | tee bookmark.txt
           echo "::notice title=D1 bookmark::$(grep -o '[0-9a-f-]\{20,\}' bookmark.txt | head -1)"
       - name: Migration
         if: ${{ github.event.inputs.migration != '' }}
