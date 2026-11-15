@@ -78,10 +78,10 @@ DJ：id（D001 起）、name_en、name_local、cities、profile；也是组织�
 |---|---|
 | 活动卡 | 306 |
 | 场地 | 135（场地写“待定”的 9 张卡先不算） |
-| 团体 | 79 |
-| 组织者 | 115 |
+| 团体 | 78 |
+| 组织者 | 116 |
 | DJ | 99 |
-| 中国大陆和香港待处理 | 40 项，见待确认清单第一部分 |
+| 中国大陆和香港待处理 | 35 项，都是补地址和补海报，不用再回答 |
 
 程序：tools/draft_entities.py。草稿：data/entities-draft/（venues.json、groups.json、organizers.json、djs.json、event_links.json、review.md）。已回答的题目记在 decisions.json，重跑程序也不会再问。
 
@@ -93,7 +93,7 @@ DJ：id（D001 起）、name_en、name_local、cities、profile；也是组织�
 
 ## 六、接下来
 
-1. 第 2 步：你看待确认清单，告诉我哪些合并、哪些分开、哪个是团体（11/15 已回答 4 项）。
+1. 第 2 步：你看待确认清单，告诉我哪些合并、哪些分开、哪个是团体（中国大陆和香港 11/15 已全部回答：4 组合并，雷雷、LMC、POP、Nam、Wing 是个人）。
 2. 第 3 步：活动卡加上 venue_id、host，原来的文字字段保留；加撞场检查；更新 Grok bot 的填资料须知。
 3. 第 4 步：网站改从名单读地址和交通；可以加场地页、主办方页。
 4. 第 5 步：场次，先从探戈节日程开始。
