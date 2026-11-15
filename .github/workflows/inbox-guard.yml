@@ -1,0 +1,41 @@
+name: Inbox guard (探戈助理)
+
+# 探戈助理 (Grok bot) sends organizer answers as a PR from a branch named inbox/...
+# This check lets that PR through only if it touches data/inbox/ and nothing else.
+# If it passes, the PR is merged and the "Inbox process" workflow is started.
+# If it fails, nothing is merged and a comment explains why.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  guard:
+    if: startsWith(github.head_ref, 'inbox/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR: ${{ github.event.pull_request.number }}
+    steps:
+      - name: Only data/inbox/ may change
+        id: paths
+        run: |
+          files=$(gh api "repos/${{ github.repository }}/pulls/$PR/files" --paginate -q '.[].filename')
+          echo "$files"
+          bad=$(echo "$files" | grep -v '^data/inbox/' || true)
+          if [ -n "$bad" ]; then
+            printf '探戈助理的 PR 只能改 data/inbox/。这些文件不在里面，所以没有合并：\n\n%s\n' "$bad" > msg.txt
+            gh pr comment "$PR" -R "${{ github.repository }}" -F msg.txt
+            echo "::error::PR touches files outside data/inbox/"
+            exit 1
+          fi
+      - name: Merge and start processing
+        run: |
+          gh pr merge "$PR" -R "${{ github.repository }}" --merge --delete-branch
+          gh workflow run inbox.yml -R "${{ github.repository }}" --ref main

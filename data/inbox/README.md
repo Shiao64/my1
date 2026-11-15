@@ -15,7 +15,7 @@
 |---|---|
 | 写邮件、私信问主办 | 改网站资料和程序 |
 | 收海报、地址、时间、场地、简介照片 | 检查和现有资料有没有冲突（撞场、地址不一致） |
-| 把答复按下面的格式写进 data/inbox/ | 读 data/inbox/，改资料、测试、上线 |
+| 把答复按下面的格式写进 data/inbox/ | 读 data/inbox/，改资料、测试，开 PR 等确认后上线 |
 | | 处理完的答复移到 data/inbox/done/ |
 
 界线：
@@ -28,6 +28,13 @@
 GitHub 仓库 Shiao64/my1 的 data/inbox/ 文件夹，一件事一个文件。
 
 文件名：日期-城市-简短说明.md，例如 2026-11-16-shanghai-newyear-venues.md
+
+怎么送进来：
+1. 新开一个分支，名字以 inbox/ 开头，例如 inbox/2026-11-16-shanghai-newyear。
+2. 只在 data/inbox/ 里加文件（附件也放这里），然后开 PR 到 main。
+3. 自动检查会确认这个 PR 只改了 data/inbox/：
+   - 通过：自动合并，接着自动处理的 Claude 会读答复、改资料，开一个「探戈助理答复：…」的 PR，等 Shiao 或 Claude 看过再上线。
+   - 不通过：不会合并，PR 下面会留言说明哪些文件不该改。
 
 如果探戈助理没办法写进 GitHub，就把同样格式的内容交给 Shiao，Shiao 贴给 Claude。
 
