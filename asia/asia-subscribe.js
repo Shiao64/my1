@@ -34,6 +34,7 @@
     phoneSaved: '已保存末 4 码 ',
     submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。没收到邮件？请到垃圾邮件箱查看。确认链接可能会在别的浏览器里打开；确认后回到这里（例如微信），用同样的邮箱和手机末 4 码登录即可。', saved: '资料已保存。这个设备已经验证过，没有再发信。', confirmed: '已确认',
     fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '想去某个活动？在活动页选「要参加」或「感兴趣」，主办方能直接告诉你早鸟价、报名截止和场地交通。', close: '关闭',
+    opt: '（选填）', waitTitle: '请查看邮箱', waitTo: '确认信已寄到：', w1: '打开邮箱。没看到就查一下垃圾邮件。', w2: '点信里的「确认」按钮。', w2code: '点信里的「确认」按钮，或在下面输入信里的 6 位验证码。', w3: '回到这个页面，会自动登录。', codeLbl: '6 位验证码', codeGo: '用验证码登录', codeBad: '验证码不正确。', codeOld: '验证码已过期，请重新发送。', codeMany: '错误次数太多，请重新发送。', resend: '没收到？重新发送', resendIn: '秒后可重新发送', already: '已确认？直接登录', alreadyHint: '点过确认链接后，输入邮箱和手机末 4 码即可登录。', tsSlow: '人机验证没有出现？可能是网络问题。请关闭 VPN，或切换 Wi-Fi／4G 后重新打开本页。',
     passTitle: '我的订阅', passHint: '在微信、Safari、Chrome 或其他浏览器打开这个链接即可登录，不必再收确认邮件。', passCopy: '复制', passCopied: '已复制', passNew: '生成新链接', passNewWarn: '生成新链接后，旧链接会失效。继续？', passMissing: '这个浏览器没有保存订阅链接。生成新链接会使旧链接失效。', passStale: '这个浏览器保存的链接已失效。可生成新链接。', passFail: '暂时无法读取订阅链接，请稍后再试。'
   } : {
     btn: 'Subscribe', title: 'Event news', mine: 'My profile', desc: 'Event news now and then, mostly special events. Unsubscribe any time.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
@@ -47,6 +48,7 @@
     phoneSaved: 'Saved, last 4 digits ',
     submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish. Didn\'t get the email? Check your spam or junk folder. The confirmation link may open in another browser. After confirming, come back here (e.g. WeChat) and sign in with the same email and last 4 digits.', saved: 'Profile saved. This device is already verified, so no new email was sent.', confirmed: 'Confirmed',
     fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Going to an event? On its page choose Going or Interested, and the organizer can tell you about early-bird prices, deadlines and directions.', close: 'Close',
+    opt: ' (optional)', waitTitle: 'Check your email', waitTo: 'Confirmation email sent to:', w1: 'Open your email. Not there? Check spam or junk.', w2: 'Tap Confirm in the email.', w2code: 'Tap Confirm in the email, or enter its 6-digit code below.', w3: 'Come back to this page. You\u2019ll be signed in automatically.', codeLbl: '6-digit code', codeGo: 'Sign in with code', codeBad: 'That code is not right.', codeOld: 'The code has expired. Please send again.', codeMany: 'Too many wrong codes. Please send again.', resend: 'Didn\u2019t get it? Send again', resendIn: 's until you can send again', already: 'Confirmed? Sign in', alreadyHint: 'After you tap the confirmation link, your email and the last 4 digits sign you in.', tsSlow: 'No human check showing? It may be the network. Turn off VPN, or switch Wi-Fi / mobile data, then reopen this page.',
     passTitle: 'My subscription', passHint: 'Open this link in WeChat, Safari, Chrome, or another browser to sign in. No new confirmation email.', passCopy: 'Copy', passCopied: 'Copied', passNew: 'New link', passNewWarn: 'A new link stops the old one. Continue?', passMissing: 'This browser does not have the link saved. A new link stops the old one.', passStale: 'The link saved in this browser no longer works. You can make a new one.', passFail: 'The subscription link could not be loaded. Try again later.'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
@@ -87,6 +89,10 @@
     '#tsub-modal .tsub-pass-row{display:flex;gap:8px;align-items:center;margin:6px 0}#tsub-modal .tsub-pass-row input{flex:1;min-width:0}' +
     '#tsub-modal .tsub-pass-copy,#tsub-modal .tsub-pass-new{min-height:44px;border-radius:999px;border:1px solid #0e6e78;background:#fff;color:#0e6e78;font:600 .9rem/1.2 system-ui,sans-serif;padding:8px 14px;cursor:pointer}' +
     '#tsub-modal .tsub-pass-new{display:block;width:100%;margin-top:8px;background:#0e6e78;color:#f6e3b4}';
+  css += '#tsub-modal .tsub-wait[hidden]{display:none!important}#tsub-modal .tsub-wait ol{margin:8px 0 4px;padding-left:22px;font-size:.92rem;line-height:1.55;color:#2a1a14}#tsub-modal .tsub-wait li{margin:0 0 6px}' +
+    '#tsub-modal .tsub-wait-to{font-size:.85rem;color:#4a3a30;margin:4px 0 0;word-break:break-all}#tsub-modal .tsub-wait-to b{color:#0a4f57}' +
+    '#tsub-modal .tsub-coderow{display:flex;gap:8px;align-items:stretch;margin:6px 0 0}#tsub-modal .tsub-coderow input{flex:1;min-width:0;letter-spacing:.2em;font-size:18px}#tsub-modal .tsub-coderow button{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:10px;border:0;background:#0e6e78;color:#fff;font:600 .9rem/1.2 system-ui,sans-serif;cursor:pointer}#tsub-modal .tsub-coderow button:disabled{opacity:.5}' +
+    '#tsub-modal .tsub-opt{font-weight:400;color:#7a6255}#tsub-modal .tsub-tsslow{font-size:.8rem;color:#b5654a;margin:6px 0 0;line-height:1.45}#tsub-modal .tsub-tsslow[hidden]{display:none!important}';
   var st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
   // Sit beside the header "Add event" button (before the language switch) as a matching pill.
@@ -116,19 +122,36 @@
     '<div class="tsub-col"><label class="tsub-lbl" for="tsub-c">' + L.city + '</label><input type="text" class="tsub-in" id="tsub-c" autocomplete="address-level2" maxlength="40" required aria-required="true" placeholder="' + L.cityPh + '"></div></div>' +
     '<label class="tsub-check" for="tsub-site"><input type="checkbox" id="tsub-site" checked>' + L.site + '</label>' +
     '<div class="tsub-hp" aria-hidden="true"><label>Website<input type="text" id="tsub-hp" tabindex="-1" autocomplete="off"></label></div>' +
-    '<div class="tsub-ts"></div>' +
+    '<div class="tsub-ts"></div><p class="tsub-tsslow" id="tsub-tsslow" hidden>' + L.tsSlow + '</p>' +
     '<button type="submit" class="tsub-go" id="tsub-go">' + L.send + '</button>' +
     '<button type="submit" class="tsub-unsub" id="tsub-unsub" hidden>' + L.unsub + '</button>' +
     '<div class="tsub-pass" id="tsub-pass" hidden><p class="tsub-lbl">' + L.passTitle + '</p><p class="tsub-pass-note" id="tsub-pass-hint">' + L.passHint + '</p>' +
     '<div class="tsub-pass-row"><input class="tsub-in" id="tsub-pass-url" readonly autocomplete="off" spellcheck="false" aria-label="' + L.passTitle + '"><button type="button" class="tsub-pass-copy" id="tsub-pass-copy">' + L.passCopy + '</button></div>' +
     '<p class="tsub-pass-note" id="tsub-pass-note"></p><button type="button" class="tsub-pass-new" id="tsub-pass-new">' + L.passNew + '</button></div></div>' +
     '<p class="tsub-err" id="tsub-err" aria-live="polite"></p></form>' +
+    '<div class="tsub-wait" id="tsub-wait" hidden></div>' +
     '<p class="tsub-foot">' + L.foot + '</p></div></div>';
   document.body.appendChild(m);
   var $ = function (id) { return document.getElementById(id); };
   var tmr = null;
+  var cfgP = null;
+  function getConfig() {
+    if (!cfgP) cfgP = fetch(API + '/social/going/config').then(function (r) { return r.json(); }).catch(function () { return {}; });
+    return cfgP;
+  }
+  // A3 (2026-11-15): Turnstile is sometimes blocked (VPN, some mainland networks). Say so instead of a blank box.
+  function watchTs(el) {
+    var slow = $('tsub-tsslow'); if (!slow) return;
+    slow.hidden = true;
+    setTimeout(function () {
+      if (!el.isConnected || el.hidden) return;
+      var shown = el.querySelector('iframe') || el.querySelector('[name="cf-turnstile-response"]');
+      slow.hidden = !!shown;
+    }, 8000);
+  }
   function mountSubTs() {
     var el = document.querySelector('#tsub-f .tsub-ts');
+    if (el) watchTs(el);
     if (!el || el.dataset.ts) return;
     var key = window.ATM_TS_KEY || '';
     function render() {
@@ -136,15 +159,30 @@
       el.dataset.ts = '1';
       window.turnstile.render(el, { sitekey: key, action: 'profile' });
     }
-    function start(k) { key = k || key; if (!key) return; if (window.turnstile) render(); else { var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = render; document.head.appendChild(s); } }
+    function start(k) { key = k || key; if (!key) return; if (window.turnstile) render(); else { var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = render; s.onerror = function () { var slow = $('tsub-tsslow'); if (slow) slow.hidden = false; }; document.head.appendChild(s); } }
     if (key) start(key);
-    else fetch((window.TANGO_SUB_API || 'https://api.tangoweekend.org') + '/social/going/config').then(function (r) { return r.json(); }).then(function (d) { if (d && d.sitekey) { window.ATM_TS_KEY = d.sitekey; start(d.sitekey); } }).catch(function () {});
+    else getConfig().then(function (d) { if (d && d.sitekey) { window.ATM_TS_KEY = d.sitekey; start(d.sitekey); } });
   }
   function token() { try { return localStorage.getItem('atm_session') || ''; } catch (e) { return ''; } }
   function setToken(t) { try { if (t) localStorage.setItem('atm_session', t); } catch (e) {} }
-  function watchClaim(nonce, onOk) {
+  var CLAIM_KEY = 'atm_claim', CLAIM_MS = 30 * 60 * 1000;
+  function claimGet() {
+    try {
+      var c = JSON.parse(localStorage.getItem(CLAIM_KEY) || 'null');
+      if (c && /^[0-9a-f]{64}$/.test(c.n || '') && c.t + CLAIM_MS > Date.now()) return c;
+      if (c) localStorage.removeItem(CLAIM_KEY);
+    } catch (e) {}
+    return null;
+  }
+  function claimPut(nonce, email, code) { try { localStorage.setItem(CLAIM_KEY, JSON.stringify({ n: nonce, e: email || '', code: !!code, t: Date.now() })); } catch (e) {} }
+  function claimDrop(nonce) { try { var c = claimGet(); if (!nonce || !c || c.n === nonce) localStorage.removeItem(CLAIM_KEY); } catch (e) {} }
+  var watching = {};
+  function watchClaim(nonce, onOk, meta) {
     if (!/^[0-9a-f]{64}$/.test(nonce || '')) return function () {};
-    var stop = Date.now() + 30 * 60 * 1000;
+    if (meta) claimPut(nonce, meta.email, meta.code);
+    var held = claimGet();
+    var stop = (held && held.n === nonce ? held.t : Date.now()) + CLAIM_MS;
+    if (watching[nonce]) { watching[nonce].cbs.push(onOk); return watching[nonce].kick; }
     var timer = 0;
     var done = false;
     function finish(session) {
@@ -155,11 +193,14 @@
       window.removeEventListener('pageshow', kick);
       window.removeEventListener('focus', kick);
       setToken(session);
-      if (onOk) onOk(session);
+      claimDrop(nonce);
+      var cbs = (watching[nonce] && watching[nonce].cbs) || [onOk];
+      delete watching[nonce];
+      cbs.forEach(function (f) { try { if (f) f(session); } catch (e) {} });
     }
     function kick() {
       if (done) return;
-      if (Date.now() > stop) { if (timer) clearInterval(timer); return; }
+      if (Date.now() > stop) { if (timer) clearInterval(timer); claimDrop(nonce); delete watching[nonce]; return; }
       fetch(API + '/social/going/await', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nonce: nonce }) })
         .then(function (r) { return r.json(); })
         .then(function (d) { if (d && d.confirmed && /^[0-9a-f]{64}$/.test(d.session || '')) finish(d.session); })
@@ -170,10 +211,31 @@
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('pageshow', kick);
     window.addEventListener('focus', kick);
+    watching[nonce] = { cbs: [onOk], kick: kick };
     kick();
     return kick;
   }
-  window.ATM_CLAIM = { watch: watchClaim, kick: function (nonce) { return watchClaim(nonce, function () {}); } };
+  function claimed() {
+    if (window.ATM_STAR && window.ATM_STAR.refresh) window.ATM_STAR.refresh();
+    if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
+  }
+  window.ATM_CLAIM = { watch: watchClaim, kick: function (nonce) { return watchClaim(nonce, function () {}); }, code: codeLogin, pending: claimGet };
+  // B6: the 6-digit code from the letter, typed in the page the person started from.
+  function codeLogin(email, code) {
+    return fetch(API + '/social/going/code', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email, code: code }) })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.confirmed && /^[0-9a-f]{64}$/.test(d.session || '')) {
+          setToken(d.session);
+          var c = claimGet(); if (c && watching[c.n]) { watching[c.n].kick(); }
+          claimDrop('');
+          claimed();
+          return { ok: true };
+        }
+        return { ok: false, msg: d && d.error === 'expired' ? L.codeOld : d && d.error === 'too_many' ? L.codeMany : d && (d.error === 'wrong_code' || d.error === 'bad_code') ? L.codeBad : L.fail };
+      })
+      .catch(function () { return { ok: false, msg: L.fail }; });
+  }
   function paintPhone(tail) {
     var el = $('tsub-last4'); if (!el) return;
     el.value = '';
@@ -250,7 +312,21 @@
     var tail = $('tsub-last4'); if (tail) tail.classList.toggle('tsub-must', !on);
     if (!on && $('tsub-pass')) $('tsub-pass').hidden = true;
   }
+  var LITE = false;
+  function markLite() {
+    getConfig().then(function (d) {
+      LITE = !!(d && d.sub_lite);
+      if (!LITE) return;
+      ['tsub-n', 'tsub-r', 'tsub-c'].forEach(function (id) {
+        var el = $(id); if (!el) return;
+        el.required = false; el.removeAttribute('aria-required');
+        var lb = m.querySelector('label[for="' + id + '"]');
+        if (lb && !lb.querySelector('.tsub-opt')) { var o = document.createElement('span'); o.className = 'tsub-opt'; o.textContent = L.opt; lb.appendChild(o); }
+      });
+    });
+  }
   function showRegister() {
+    markLite();
     var need = $('tsub-need');
     if (need) { need.hidden = false; need.innerHTML = L.regHelp; }
     var gateBtn = $('tsub-phone-go'); if (gateBtn) gateBtn.hidden = true;
@@ -258,6 +334,66 @@
     var ts = document.querySelector('#tsub-f .tsub-ts'); if (ts) ts.hidden = false;
     var go = $('tsub-go'); if (go && go.dataset.busy !== '1') go.textContent = L.send;
     mountSubTs();
+  }
+  var waitTick = 0;
+  function hideWait() {
+    var w = $('tsub-wait'); if (w) { w.hidden = true; w.innerHTML = ''; }
+    if (waitTick) { clearInterval(waitTick); waitTick = 0; }
+    ['tsub-f', 'tsub-desc'].forEach(function (id) { if ($(id)) $(id).hidden = false; });
+  }
+  function onConfirmed() {
+    claimed();
+    open();
+    var hint = $('tsub-ok');
+    if (hint) { hint.textContent = L.confirmed; hint.hidden = false; }
+    scrollModalTop();
+  }
+  function showWait(c) {
+    var w = $('tsub-wait'); if (!w || !c) return;
+    ['tsub-f', 'tsub-desc', 'tsub-need'].forEach(function (id) { if ($(id)) $(id).hidden = true; });
+    $('tsub-t').textContent = L.waitTitle;
+    var h = '<p class="tsub-wait-to">' + L.waitTo + ' <b id="tsub-wait-e"></b></p><ol><li>' + L.w1 + '</li><li>' + (c.code ? L.w2code : L.w2) + '</li><li>' + L.w3 + '</li></ol>';
+    if (c.code) h += '<label class="tsub-lbl" for="tsub-code">' + L.codeLbl + '</label><div class="tsub-coderow"><input class="tsub-in" id="tsub-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*"><button type="button" id="tsub-code-go">' + L.codeGo + '</button></div>';
+    h += '<p class="tsub-err" id="tsub-wait-err" aria-live="polite"></p>';
+    h += '<button type="button" class="tsub-alt" id="tsub-already">' + L.already + '</button>';
+    h += '<button type="button" class="tsub-alt" id="tsub-resend" disabled></button>';
+    w.innerHTML = h; w.hidden = false;
+    $('tsub-wait-e').textContent = c.e || '';
+    var rs = $('tsub-resend');
+    function tick() {
+      var left = Math.ceil((c.t + 60000 - Date.now()) / 1000);
+      if (left > 0) { rs.disabled = true; rs.textContent = left + L.resendIn; }
+      else { rs.disabled = false; rs.textContent = L.resend; if (waitTick) { clearInterval(waitTick); waitTick = 0; } }
+    }
+    if (waitTick) clearInterval(waitTick);
+    tick(); waitTick = setInterval(tick, 1000);
+    rs.addEventListener('click', function () {
+      hideWait(); paintMode(false);
+      if ($('tsub-e')) $('tsub-e').value = c.e || '';
+      showRegister();
+      var el = document.querySelector('#tsub-f .tsub-ts');
+      try { if (el && el.dataset.ts && window.turnstile) window.turnstile.reset(el); } catch (e) {}
+      if ($('tsub-last4') && !$('tsub-last4').value) $('tsub-last4').focus();
+    });
+    $('tsub-already').addEventListener('click', function () {
+      if (watching[c.n]) watching[c.n].kick();
+      hideWait(); paintMode(false);
+      if ($('tsub-e')) $('tsub-e').value = c.e || '';
+      var need = $('tsub-need'); if (need) { need.hidden = false; need.textContent = L.alreadyHint; }
+      if ($('tsub-last4')) $('tsub-last4').focus();
+    });
+    var cg = $('tsub-code-go');
+    if (cg) cg.addEventListener('click', function () {
+      var v = String($('tsub-code').value || '').replace(/\D/g, ''), we = $('tsub-wait-err');
+      we.textContent = '';
+      if (!/^\d{6}$/.test(v)) { we.textContent = L.codeBad; $('tsub-code').focus(); return; }
+      cg.disabled = true;
+      codeLogin(c.e, v).then(function (res) {
+        cg.disabled = false;
+        if (res.ok) { hideWait(); onConfirmed(); return; }
+        we.textContent = res.msg;
+      });
+    });
   }
   function scrollModalTop() {
     var scroller = m.querySelector('.tsub-body');
@@ -270,7 +406,8 @@
     paintMode(!!tok);
     m.hidden = false;
     scrollModalTop();
-    if (!tok) { paintPhone(''); paintMode(false); return; }
+    hideWait();
+    if (!tok) { paintPhone(''); paintMode(false); var pend = claimGet(); if (pend) showWait(pend); return; }
     var headers = { Authorization: 'Bearer ' + tok };
     fetch(API + '/social/going/mine', { headers: headers }).then(function (r) { return r.json(); }).then(function (d) {
       if (!d || !d.email) { paintPhone(''); paintMode(false); return; }
@@ -284,11 +421,12 @@
       loadPass();
     }).catch(function () { paintMode(false); });
   }
-  function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; }
+  function close() { if (tmr) { clearTimeout(tmr); tmr = null; } m.hidden = true; if (waitTick) { clearInterval(waitTick); waitTick = 0; } }
   $('tsub-open').addEventListener('click', open);
   m.addEventListener('click', function (e) { if (e.target.hasAttribute && e.target.hasAttribute('data-x')) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !m.hidden) close(); });
   if (location.hash === '#subscribe') open();
+  (function resume() { var c = claimGet(); if (c && !token()) watchClaim(c.n, onConfirmed); })();
 
   $('tsub-f').addEventListener('submit', function (e) {
     e.preventDefault();
@@ -297,9 +435,11 @@
     var em = $('tsub-e') ? $('tsub-e').value.trim() : '', nm = $('tsub-n').value.trim(), cy = $('tsub-c') ? $('tsub-c').value.trim() : '', role = $('tsub-r') ? $('tsub-r').value : '', err = $('tsub-err'), ok = $('tsub-ok'), go = $('tsub-go');
     var site = unsubmitting ? 0 : ($('tsub-site') && $('tsub-site').checked ? 1 : 0);
     err.textContent = ''; ok.hidden = true;
-    if (!nm) { err.textContent = L.needName; $('tsub-n').focus(); return; }
-    if (!cy) { err.textContent = L.needCity; $('tsub-c').focus(); return; }
-    if (role !== 'leader' && role !== 'follower' && role !== 'both') { err.textContent = L.needRole; $('tsub-r').focus(); return; }
+    if (!LITE) {
+      if (!nm) { err.textContent = L.needName; $('tsub-n').focus(); return; }
+      if (!cy) { err.textContent = L.needCity; $('tsub-c').focus(); return; }
+      if (role !== 'leader' && role !== 'follower' && role !== 'both') { err.textContent = L.needRole; $('tsub-r').focus(); return; }
+    }
     if (!em) { err.textContent = L.need; if ($('tsub-e')) $('tsub-e').focus(); return; }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { err.textContent = L.bad; return; }
     var tail = $('tsub-last4') ? $('tsub-last4').value.replace(/\D/g, '') : '';
@@ -314,17 +454,19 @@
     if (!profile && !ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.dataset.busy = ''; go.textContent = L.send; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
     var body = { name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: site, ret: pageRet(), website: $('tsub-hp').value, ts: ts };
     if (tail) body.last4 = tail;
+    if (LITE) body.sub = 1;
     fetch(API + '/social/profile', { method: 'POST', credentials: 'include', headers: headers, body: JSON.stringify(body) })
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (d.ok) {
-          ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false; if (!d.session) $('tsub-f').reset();
-          if (!d.session && d.nonce) watchClaim(d.nonce, function () {
-            open();
-            var hint = $('tsub-ok');
-            if (hint) { hint.textContent = L.confirmed; hint.hidden = false; }
-            scrollModalTop();
-          });
+          ok.textContent = d.session ? L.saved : L.ok; ok.hidden = false;
+          if (!d.session && d.nonce) {
+            watchClaim(d.nonce, onConfirmed, { email: em, code: !!d.code });
+            ok.hidden = true;
+            showWait(claimGet() || { n: d.nonce, e: em, code: !!d.code, t: Date.now() });
+            if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
+            return;
+          }
           if (d.session && $('tsub-site')) $('tsub-site').checked = !!d.sitewide;
           if (d.session && d.phone_tail) paintPhone(d.phone_tail);
           if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
@@ -338,7 +480,8 @@
       .catch(function () { err.textContent = L.fail; })
       .then(function () {
         go.disabled = false; go.dataset.busy = '';
-        if ($('tsub-e') && $('tsub-e').disabled && token()) paintMode(true);
+        if ($('tsub-wait') && !$('tsub-wait').hidden) go.textContent = L.send;
+        else if ($('tsub-e') && $('tsub-e').disabled && token()) paintMode(true);
         else if ($('tsub-reg') && !$('tsub-reg').hidden) go.textContent = L.send;
         else paintMode(false);
       });

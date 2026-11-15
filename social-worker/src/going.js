@@ -256,6 +256,33 @@ async function upsertUser(env, kit, email, fields) {
   return env.SDB.prepare('SELECT id,email,name,city,role,lang,verified_at FROM users WHERE email=?').bind(email).first();
 }
 function missingColumn(e) { return /no such column/i.test(String(e && e.message || e)); }
+// 2026-11-15: a 6-digit code in the confirmation letter, so the person can finish in the page they started from
+// (WeChat) without opening the link in another browser. Needs migrations/0019_confirm_code.sql; without it, no code.
+function sixDigits() { const a = new Uint32Array(1); crypto.getRandomValues(a); return String(100000 + (a[0] % 900000)); }
+async function codeHash(kit, email, code) { return kit.sha('code:' + email + ':' + code); }
+async function saveCode(env, kit, email) {
+  const code = sixDigits();
+  try { await env.SDB.prepare('UPDATE profile_verify SET code_hash=?, code_tries=0 WHERE email=?').bind(await codeHash(kit, email, code), email).run(); }
+  catch (e) { if (missingColumn(e)) return ''; throw e; }
+  return code;
+}
+export async function goingCode(req, env, b, json, kit) {
+  const email = kit.clean(b && b.email, 254).toLowerCase();
+  const code = String(b && b.code || '').replace(/\D/g, '');
+  if (!kit.EMAIL_RE.test(email) || !/^\d{6}$/.test(code)) return json({ error: 'bad_code' }, 400);
+  let row = null;
+  try { row = await env.SDB.prepare('SELECT * FROM profile_verify WHERE email=?').bind(email).first(); }
+  catch (e) { if (missingColumn(e) || missingTable(e)) return json({ error: 'unavailable' }, 503); throw e; }
+  const sent = Date.parse(row && row.sent_at || '');
+  if (!row || !row.code_hash || !Number.isFinite(sent) || sent + PROFILE_MS < Date.now()) return json({ error: 'expired' }, 400);
+  if ((row.code_tries || 0) >= 5) return json({ error: 'too_many' }, 429);
+  if ((await codeHash(kit, email, code)) !== row.code_hash) {
+    await env.SDB.prepare('UPDATE profile_verify SET code_tries=COALESCE(code_tries,0)+1 WHERE email=?').bind(email).run();
+    return json({ error: 'wrong_code', left: Math.max(0, 4 - (row.code_tries || 0)) }, 400);
+  }
+  const applied = await applyConfirm(env, kit, row, email);
+  return json({ ok: true, confirmed: true, session: applied.session });
+}
 async function saveVerify(env, kit, row) {
   const mag = kit.rnd(32);
   const hash = await kit.sha(row.email + ':' + mag);
@@ -271,7 +298,7 @@ async function saveVerify(env, kit, row) {
     await env.SDB.prepare(`INSERT INTO profile_verify(email,token_hash,sent_at,tries,lang,name,city,role,alert_opt_in,ret,pending_intent,card_id,wants_sitewide,claim_hash,confirmed_at,claim_session) VALUES(?,?,?,0,?,?,?,?,?,?,?,?,?,?,NULL,NULL)
       ON CONFLICT(email) DO UPDATE SET token_hash=excluded.token_hash,sent_at=excluded.sent_at,tries=0,lang=excluded.lang,name=excluded.name,city=excluded.city,role=excluded.role,alert_opt_in=excluded.alert_opt_in,ret=excluded.ret,pending_intent=excluded.pending_intent,card_id=excluded.card_id,wants_sitewide=excluded.wants_sitewide,claim_hash=excluded.claim_hash,confirmed_at=NULL,claim_session=NULL`)
       .bind(row.email, hash, ts, row.lang, row.name || '', row.city || '', row.role || '', site, row.ret, intent || '', card, site, claim).run();
-    return { link, nonce };
+    return { link, nonce, code: await saveCode(env, kit, row.email) };
   } catch (e) {
     if (!missingColumn(e)) throw e;
   }
@@ -521,8 +548,10 @@ export function buildConfirmLetter(row, link, _pending, he) {
   const sign = zh ? ZH_SIGN : EN_SIGN;
   const button = zh ? '确认订阅' : 'Confirm subscription';
   const subject = zh ? '请确认订阅亚洲探戈地图' : 'Please confirm your Asia Tango Map subscription';
-  const text = `${hello}\n\n${body}\n\n${next}\n\n${back}\n\n${link}\n\n${note}\n\n${ignore}\n\n${sign}`;
-  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:28px 24px"><p style="margin:0 0 14px">${esc(hello)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(body)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(next)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(back)}</p><p style="margin:22px 0 8px"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${button}</a></p><p style="margin:0 0 14px;font-size:13px;line-height:1.5;color:#5b5148">${esc(note)}</p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(ignore)}</p><p style="margin:26px 0 0">${esc(sign)}</p></div></body></html>`;
+  const code = /^\d{6}$/.test(String(row.code || '')) ? String(row.code) : '';
+  const codeLine = code ? (zh ? '也可以回到原来的页面（例如微信），输入验证码 ' + code + '，30 分钟内有效。' : 'Or go back to the page you came from (e.g. WeChat) and enter the code ' + code + '. It works for 30 minutes.') : '';
+  const text = `${hello}\n\n${body}\n\n${next}\n\n${back}\n\n${link}\n\n${codeLine ? codeLine + '\n\n' : ''}${note}\n\n${ignore}\n\n${sign}`;
+  const html = `<!doctype html><html lang="${zh ? 'zh-CN' : 'en'}"><body style="margin:0;padding:24px;background:#f6efe4;font-family:Georgia,serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fffdf8;border:1px solid #e7d3b0;border-radius:16px;padding:28px 24px"><p style="margin:0 0 14px">${esc(hello)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(body)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(next)}</p><p style="margin:0 0 6px;line-height:1.55">${esc(back)}</p><p style="margin:22px 0 8px"><a href="${esc(link)}" style="display:inline-block;background:#0e6e78;color:#f6e3b4;padding:12px 22px;border-radius:999px;text-decoration:none;font-weight:700">${button}</a></p>${code ? `<p style="margin:0 0 14px;line-height:1.55">${esc(zh ? '也可以回到原来的页面（例如微信），输入验证码：' : 'Or go back to the page you came from (e.g. WeChat) and enter this code:')}<br><b style="font-size:24px;letter-spacing:4px">${code}</b><br><span style="font-size:13px;color:#5b5148">${esc(zh ? '30 分钟内有效。' : 'It works for 30 minutes.')}</span></p>` : ''}<p style="margin:0 0 14px;font-size:13px;line-height:1.5;color:#5b5148">${esc(note)}</p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(ignore)}</p><p style="margin:26px 0 0">${esc(sign)}</p></div></body></html>`;
   return { subject, text, html, fromName: sign };
 }
 async function sendVerify(env, kit, row, link, pending) {
@@ -1248,10 +1277,13 @@ async function sitewideOn(env, email) {
 export async function goingProfile(req, env, b, ip, iph, json, kit) {
   if (b.website) return json({ ok: true, confirm: true });
   const { name, email, city, role } = readProfile(b, kit);
-  if (!name) return json({ error: 'need_name' }, 400);
+  // 2026-11-15: subscribing only (sub:1) needs just the email and the mobile last 4 digits; name, city and role
+  // are asked later, when the person chooses Going / Interested (goingSubmit still needs a name).
+  const subOnly = flag(b.sub, 0) === 1;
+  if (!name && !subOnly) return json({ error: 'need_name' }, 400);
   if (!kit.EMAIL_RE.test(email)) return json({ error: 'need_email' }, 400);
-  if (!city) return json({ error: 'need_city' }, 400);
-  if (!role) return json({ error: 'need_role' }, 400);
+  if (!city && !subOnly) return json({ error: 'need_city' }, 400);
+  if (!role && !subOnly) return json({ error: 'need_role' }, 400);
   const session = await sessionUser(req, env);
   const same = !!(session && session.email === email);
   const phoneCheck = readTail(b, !same);
@@ -1265,7 +1297,7 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
     if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
   }
   if (same) {
-    await env.SDB.prepare('UPDATE users SET name=?,city=?,role=?,lang=? WHERE id=?').bind(name, city, role, lang, session.id).run();
+    await env.SDB.prepare("UPDATE users SET name=COALESCE(NULLIF(?,''),name),city=COALESCE(NULLIF(?,''),city),role=COALESCE(NULLIF(?,''),role),lang=? WHERE id=?").bind(name, city || '', role || '', lang, session.id).run();
     if (phoneCheck.phone) {
       try { await saveUserPhone(env, kit, session.id, phoneCheck.phone); }
       catch (e) {
@@ -1296,10 +1328,10 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
     }
   }
   let via;
-  try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1 }, link, null); }
+  try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1, code: saved.code }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(saved.code ? { code: true } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
 }
 
 export async function goingRestore(req, env, b, ip, json, kit) {
@@ -1316,10 +1348,10 @@ export async function goingRestore(req, env, b, ip, json, kit) {
   const saved = await saveVerify(env, kit, { email, name: u.name || email, city: u.city || '', role: roleOf(u.role), lang, alert: 0, ret });
   const link = saved.link;
   let via;
-  try { via = await sendVerify(env, kit, { email, name: u.name || email, lang, promo: false }, link, null); }
+  try { via = await sendVerify(env, kit, { email, name: u.name || email, lang, promo: false, code: saved.code }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(saved.code ? { code: true } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
 }
 
 export async function goingSubmit(req, env, b, ip, iph, json, kit) {
@@ -1407,13 +1439,13 @@ export async function goingSubmit(req, env, b, ip, iph, json, kit) {
     }
   }
   let via;
-  try { via = await sendVerify(env, kit, { email, name: name || (existing && existing.name) || '', lang, promo: promo === 1 }, link, { title: cardTitle(card, lang), intent }); }
+  try { via = await sendVerify(env, kit, { email, name: name || (existing && existing.name) || '', lang, promo: promo === 1, code: saved.code }, link, { title: cardTitle(card, lang), intent }); }
   catch (e) {
     await env.SDB.prepare('DELETE FROM going_pending WHERE email=? AND card_id=? AND anchor=? AND consumed_at IS NULL').bind(email, id, anchor).run();
     return json({ error: 'send_failed' }, 502);
   }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph, id, anchor);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(saved.code ? { code: true } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
 }
 
 export async function goingCancel(req, env, b, json, kit) {

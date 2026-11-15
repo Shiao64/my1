@@ -80,6 +80,7 @@
     fail: '已保存，通知邮件未能发出。',
     failWait: '已保存，通知邮件未能发出。请 {n}后再试。',
     queued: '已保存，主办方会收到通知',
+    codeLbl: '或输入信里的 6 位验证码', codeGo: '用验证码登录', codeBad: '验证码不正确。',
     fill: '请补全城市与角色等信息后继续。无需再次验证同一邮箱。',
     bar: '我的收藏', manage: '管理意向', cancel: '取消意向',
     cancelAsk: '取消意向？这不会再发邮件给组织者，也不会撤回已经发出的信。',
@@ -148,6 +149,7 @@
     fail: 'Saved. The notification failed to send.',
     failWait: 'Saved. The notification failed to send. Please try again in {n}.',
     queued: 'Saved. The organizer will be notified.',
+    codeLbl: 'Or enter the 6-digit code from the email', codeGo: 'Sign in with code', codeBad: 'That code is not right.',
     fill: 'Please complete city, role, and any missing fields. No need to re-verify the same email.',
     bar: 'My saved events', manage: 'Manage intent', cancel: 'Cancel intent',
     cancelAsk: 'Cancel this intent? We will not email the organizer again, and mail already sent is not recalled.',
@@ -604,6 +606,31 @@
     }
     if (note) note.textContent = L.spam + ' ' + L.backHint;
   }
+  // B6 (2026-11-15): finish with the 6-digit code from the letter, without leaving this page (WeChat).
+  function codeRow(go, email, done) {
+    if (!go.parentNode || go.parentNode.querySelector('#asg-coderow')) return;
+    var box = document.createElement('div');
+    box.id = 'asg-coderow';
+    box.style.cssText = 'margin:8px 0 0';
+    box.innerHTML = '<label for="asg-code" style="display:block;font-size:13px;font-weight:600;margin:0 0 4px">' + L.codeLbl + '</label>' +
+      '<div style="display:flex;gap:8px"><input id="asg-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" style="flex:1;min-width:0;min-height:44px;box-sizing:border-box;padding:6px 10px;border:1px solid #A98A4A;border-radius:8px;font-size:18px;letter-spacing:.2em">' +
+      '<button type="button" id="asg-code-go" style="flex:0 0 auto;min-height:44px;padding:0 14px;border:0;border-radius:10px;background:#0e6e78;color:#fff;font-weight:600;cursor:pointer">' + L.codeGo + '</button></div>' +
+      '<p id="asg-code-err" class="asg-err" aria-live="polite"></p>';
+    var after = go.parentNode.querySelector('#asg-spam') || go;
+    after.insertAdjacentElement('afterend', box);
+    var btn = box.querySelector('#asg-code-go'), inp = box.querySelector('#asg-code'), er = box.querySelector('#asg-code-err');
+    btn.addEventListener('click', function () {
+      var v = String(inp.value || '').replace(/\D/g, '');
+      er.textContent = '';
+      if (!/^\d{6}$/.test(v)) { er.textContent = L.codeBad; inp.focus(); return; }
+      btn.disabled = true;
+      window.ATM_CLAIM.code(email, v).then(function (res) {
+        btn.disabled = false;
+        if (res.ok) { box.remove(); done(); return; }
+        er.textContent = res.msg;
+      });
+    });
+  }
   function saveAbsent(ev, id, anchor) {
     rememberAbsent(id, anchor);
     addLocalFav(id);
@@ -921,7 +948,8 @@
         if (d.nonce && window.ATM_CLAIM) window.ATM_CLAIM.watch(d.nonce, function () {
           showConfirmed(go, recorded);
           refreshMine();
-        });
+        }, { email: payload.email || '', code: !!d.code });
+        if (d.code && payload.email && window.ATM_CLAIM && window.ATM_CLAIM.code) codeRow(go, payload.email, function () { showConfirmed(go, recorded); refreshMine(); });
         return;
       }
       if (d && (d.error === 'resend_wait' || d.error === 'resend_used')) {
