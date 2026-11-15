@@ -39,62 +39,23 @@
 - Penang：Halloween Milonga (Penang)（E129）场地写“待定”
 - Zhubei：Dahelian Community, Zhubei / 竹北大河戀社區（Tango al Rio Practica、Tango al Rio Practica） 没有地址
 
-## F. 资料和海报要补的（只列还在进行的活动）
+## F. 资料要补的（只列还在进行的活动）
 
-- Bandar Seri Begawan：文莱探戈周 2027 暨文莱探戈杯（E122）：缺本地语言地址；没有真实海报（目前是自动生成的图）
+- Bandar Seri Begawan：文莱探戈周 2027 暨文莱探戈杯（E122）：缺本地语言地址
 - Cheongju：Milonga Urquiza（R180）：缺本地语言地址
 - Kuala Lumpur：KL Tango Intensivo with Iara Duerte & Jesús Páez（E127）：缺本地语言地址
 - Kuala Lumpur：Swango Tango Weekend with Roxana Suárez & Sebastián Arrúa（E125）：缺本地语言地址
 - Kuala Lumpur：The Return 2026 · Javier Rodríguez in Kuala Lumpur（E042）：缺本地语言地址
 - Miaoli：台湾探戈马拉松（jtzZIdAx）：缺本地语言地址
-- New Taipei：Mi Rincón Del Tango Sunshine Practica（R198）：没有真实海报（目前是自动生成的图）
-- Penang：Bridgerton Christmas Milonga (Penang)（E130）：没有真实海报（目前是自动生成的图）
-- Seoul：Autonomous Afternoon Practica（R187）：没有真实海报（目前是自动生成的图）
-- Seoul：CASA Milonga（R165）：没有真实海报（目前是自动生成的图）
-- Seoul：Daytime Practica（R085）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Seoul：Juni&Eugene's Practica（R090）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Seoul：Late-night Milonga（R107）：没有真实海报（目前是自动生成的图）
-- Seoul：MILPASSO（R111）：没有真实海报（目前是自动生成的图）
-- Seoul：MUCHO Milonga（R154）：没有真实海报（目前是自动生成的图）
-- Seoul：Melo Open Practica（R170）：没有真实海报（目前是自动生成的图）
-- Seoul：Milonga Labios（E071）：没有真实海报（目前是自动生成的图）
-- Seoul：Milonga Labios（E079）：没有真实海报（目前是自动生成的图）
-- Seoul：Musemil（E080）：没有真实海报（目前是自动生成的图）
-- Seoul：PISTA Practica(no guide)（R156）：没有真实海报（目前是自动生成的图）
-- Seoul：PISTA Practica（R084）：没有真实海报（目前是自动生成的图）
-- Seoul：Pie Practica（R181）：没有真实海报（目前是自动生成的图）
-- Seoul：Practica 79（R101）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Seoul：Practica(no guide)（R157）：没有真实海报（目前是自动生成的图）
-- Seoul：THE BEST（E075）：没有真实海报（目前是自动生成的图）
-- Seoul：Tango Pasión Daytime Practica（R097）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Seoul：The PISTA（R185）：没有真实海报（目前是自动生成的图）
-- Seoul：The Return of the Sea Milonga（R093）：没有真实海报（目前是自动生成的图）
+- Seoul：Daytime Practica（R085）：缺本地语言地址
+- Seoul：Juni&Eugene's Practica（R090）：缺本地语言地址
+- Seoul：Practica 79（R101）：缺本地语言地址
+- Seoul：Tango Pasión Daytime Practica（R097）：缺本地语言地址
 - Seoul：Viva Practica（R113）：缺本地语言地址
-- Seoul：WEDNESDAY SWEET / WEDNESDAY! RUN!（R174）：没有真实海报（目前是自动生成的图）
-- Seoul：마제밀（E072）：没有真实海报（目前是自动生成的图）
-- Seoul：비비밀（E065）：没有真实海报（目前是自动生成的图）
-- Taichung：Abrazo Milonga（R200）：没有真实海报（目前是自动生成的图）
-- Taichung：Cheek to Cheek Práctica（R196）：没有真实海报（目前是自动生成的图）
-- Taichung：Cheek to Cheek guided practica（R250）：没有真实海报（目前是自动生成的图）
-- Taichung：Milonguita 微舞會（R199）：没有真实海报（目前是自动生成的图）
-- Taichung：TTA Milonga（R080）：没有真实海报（目前是自动生成的图）
-- Taichung：TTA Práctica（R195）：没有真实海报（目前是自动生成的图）
-- Taichung：公開練習會（R201）：没有真实海报（目前是自动生成的图）
-- Tainan：Práctica el Sur in Tainan（R191）：没有真实海报（目前是自动生成的图）
-- Tainan：Tainan Milonga（E092）：没有真实海报（目前是自动生成的图）
-- Tainan：友善練習會（R193）：没有真实海报（目前是自动生成的图）
-- Taipei：A Practilonga（R188）：没有真实海报（目前是自动生成的图）
-- Taipei：Baile del Domingo（R083）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Taipei：Bailemos Practica（R192）：没有真实海报（目前是自动生成的图）
-- Taipei：Práctica Tango y Alcohol（R190）：没有真实海报（目前是自动生成的图）
-- Taipei：Taipei_Corazon Milonga（R082）：没有真实海报（目前是自动生成的图）
-- Taipei：Taipei_Corazon Practica（R197）：没有真实海报（目前是自动生成的图）
-- Taipei：Tanguísimo Saturday Milonga（R081）：没有真实海报（目前是自动生成的图）
-- Taipei：Tanguísimo Sunday Práctica（R189）：没有真实海报（目前是自动生成的图）
-- Taipei：Viernes Milonga by Carol Lin（R079）：没有真实海报（目前是自动生成的图）
-- Tokyo：David & Belén's Milonga（R076）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Tokyo：Jueves Milonga by Leonel & Natalia（R077）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Tokyo：Parkside Milonga（R078）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Tokyo：RADA Studio Milonga（R075）：缺本地语言地址；没有真实海报（目前是自动生成的图）
-- Zhubei：Tango al Rio Practica（E091）：缺本地语言地址；没有真实海报（目前是自动生成的图）
+- Taipei：Baile del Domingo（R083）：缺本地语言地址
+- Tokyo：David & Belén's Milonga（R076）：缺本地语言地址
+- Tokyo：Jueves Milonga by Leonel & Natalia（R077）：缺本地语言地址
+- Tokyo：Parkside Milonga（R078）：缺本地语言地址
+- Tokyo：RADA Studio Milonga（R075）：缺本地语言地址
+- Zhubei：Tango al Rio Practica（E091）：缺本地语言地址
 

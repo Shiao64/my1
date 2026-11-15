@@ -52,6 +52,8 @@ DJ：id（D001 起）、name_en、name_local、cities、profile；也是组织�
 
 ## 四、介绍资料（图片和文字）
 
+海报不是每个活动都必须有。没有海报的活动，网站照常用自动生成的图，不算缺资料。
+
 组织者、DJ、场地、团体，都可以有一份介绍：照片、简介、链接。活动卡上点名字就能看到。
 
 | 字段 | 说明 |
@@ -81,7 +83,7 @@ DJ：id（D001 起）、name_en、name_local、cities、profile；也是组织�
 | 团体 | 78 |
 | 组织者 | 116 |
 | DJ | 99 |
-| 中国大陆和香港待处理 | 35 项，都是补地址和补海报，不用再回答 |
+| 中国大陆和香港待处理 | 只剩补地址，不用再回答 |
 
 程序：tools/draft_entities.py。草稿：data/entities-draft/（venues.json、groups.json、organizers.json、djs.json、event_links.json、review.md）。已回答的题目记在 decisions.json，重跑程序也不会再问。
 
