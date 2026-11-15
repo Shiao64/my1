@@ -152,10 +152,10 @@ check('confirm records the preselected intent without asking for the profile aga
 await page.evaluate(() => document.querySelector('.atm-burger').click());
 await page.waitForSelector('#atm-menu:not([hidden]) [data-a="mine"]');
 const menuLabels = await page.evaluate(() => ({
-  sub: document.querySelector('[data-a="sub"]') && document.querySelector('[data-a="sub"]').textContent.trim(),
+  sub: !!document.querySelector('[data-a="sub"]'),
   mine: document.querySelector('[data-a="mine"]') && document.querySelector('[data-a="mine"]').textContent.trim(),
 }));
-check('a confirmed session keeps Subscribe and shows My profile as its own item', menuLabels.sub === '订阅' && menuLabels.mine === '我的资料');
+check('the menu has one 订阅与账号 item (2026-11-15 A5)', !menuLabels.sub && menuLabels.mine === '订阅与账号');
 await page.evaluate(() => document.querySelectorAll('.atm-toast').forEach(t => t.remove()));
 await shot(page, '11-9-9-menu-profile-zh');
 await page.click('[data-a="mine"]');
@@ -184,9 +184,9 @@ await fresh.waitForSelector('#atm-notice-go');
 await fresh.click('#atm-notice-go');
 await fresh.waitForSelector('.atm-burger');
 await fresh.evaluate(() => document.querySelector('.atm-burger').click());
-await fresh.waitForSelector('[data-a="sub"]');
-check('a new visitor sees 订阅', await fresh.$eval('[data-a="sub"]', el => el.textContent.trim()) === '订阅');
-await fresh.click('[data-a="sub"]');
+await fresh.waitForSelector('[data-a="mine"]');
+check('a new visitor sees 订阅与账号', await fresh.$eval('[data-a="mine"]', el => el.textContent.trim()) === '订阅与账号');
+await fresh.click('[data-a="mine"]');
 await fresh.waitForSelector('#tsub-last4');
 const form = await fresh.evaluate(() => ({
   title: document.getElementById('tsub-t').textContent,

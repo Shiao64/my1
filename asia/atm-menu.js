@@ -1,8 +1,8 @@
-/* draft 2026-10-30: header hamburger menu (footer removed). Holds 分享/复制链接/刷新 (moved from ··· 10/31), 资料来源 (moved .china-disclaimer), 联系我们, 订阅, 提交活动, 语言. Only existing content. */
+/* draft 2026-10-30: header hamburger menu (footer removed). Holds 分享/复制链接/刷新 (moved from ··· 10/31), 资料来源 (moved .china-disclaimer), 联系我们, 订阅与账号 (11/15: one item), 提交活动, 语言. Only existing content. */
 (function () {
   var zh = /^zh/i.test(document.documentElement.lang || '');
-  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', emailUs: '发邮件给我们', sub: '订阅', mine: '我的资料', add: '提交活动', share: '分享', copy: '复制链接', reload: '刷新', site: '亚洲探戈地图', gAct: '活动', gMine: '我的', gAbout: '关于' }
-             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', emailUs: 'Email us', sub: 'Subscribe', mine: 'My profile', add: 'Submit event', share: 'Share', copy: 'Copy link', reload: 'Refresh', site: 'Asia Tango Map', gAct: 'Events', gMine: 'My ATM', gAbout: 'About' };
+  var L = zh ? { menu: '菜单', close: '关闭', src: '资料来源', contact: '联系', emailUs: '发邮件给我们', sub: '订阅', mine: '我的资料', acct: '订阅与账号', add: '提交活动', share: '分享', copy: '复制链接', reload: '刷新', site: '亚洲探戈地图', gAct: '活动', gMine: '我的', gAbout: '关于' }
+             : { menu: 'Menu', close: 'Close', src: 'Sources', contact: 'Contact', emailUs: 'Email us', sub: 'Subscribe', mine: 'My profile', acct: 'Subscription & account', add: 'Submit event', share: 'Share', copy: 'Copy link', reload: 'Refresh', site: 'Asia Tango Map', gAct: 'Events', gMine: 'My ATM', gAbout: 'About' };
   var css = document.createElement('style');
   css.textContent = 'html body footer#contact,html body #contact{display:none!important}' +
     '.atm-burger{width:44px;height:44px;margin:0 0 0 4px;padding:0;border:0;background:transparent;color:#F2CF7F;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;position:relative;z-index:5}' +
@@ -59,9 +59,8 @@
     (other ? seg : '') +
     '<div class="atm-mg">' + L.gAct + '</div>' +
     '<button type="button" class="atm-mi" data-a="add">' + ic(I.add) + L.add + '</button>' +
-    '<button type="button" class="atm-mi" data-a="sub" aria-label="' + L.sub + '">' + ic(I.sub) + L.sub + '</button>' +
     '<div class="atm-mg">' + L.gMine + '</div>' +
-    '<button type="button" class="atm-mi" data-a="mine" aria-label="' + L.mine + '">' + ic(I.mine) + L.mine + '</button>' +
+    '<button type="button" class="atm-mi" data-a="mine" aria-label="' + L.acct + '">' + ic(I.sub) + L.acct + '</button>' + /* 2026-11-15 A5: 订阅 + 我的资料 merged; logged out → subscribe/login, logged in → profile (asia-subscribe decides) */
     '<button type="button" class="atm-mi" data-a="wx-s">' + ic(I.share) + L.share + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-c">' + ic(I.copy) + L.copy + '</button>' +
     '<button type="button" class="atm-mi" data-a="wx-r">' + ic(I.reload) + L.reload + '</button>' +
@@ -74,9 +73,9 @@
   var last = null;
   function sessionOn() { try { return /^[0-9a-f]{64}$/.test(localStorage.getItem('atm_session') || ''); } catch (e) { return false; } }
   function paintSub() {
-    var btn = m.querySelector('[data-a="sub"]'); if (!btn) return;
-    btn.setAttribute('aria-label', L.sub);
-    btn.innerHTML = ic(I.sub) + L.sub;
+    var btn = m.querySelector('[data-a="mine"]'); if (!btn) return;
+    btn.setAttribute('aria-label', L.acct);
+    btn.innerHTML = ic(I.sub) + L.acct;
   }
   function open() { paintSub(); last = document.activeElement; m.hidden = false; b.setAttribute('aria-expanded', 'true'); document.documentElement.style.overflow = 'hidden'; m.querySelector('.atm-mx').focus(); }
   function close() { if (m.hidden) return; m.hidden = true; b.setAttribute('aria-expanded', 'false'); document.documentElement.style.overflow = ''; if (last && last.focus) last.focus(); }
