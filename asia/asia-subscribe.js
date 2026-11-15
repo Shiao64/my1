@@ -23,30 +23,30 @@
   }
   var API = apiBase();
   var L = zh ? {
-    btn: '订阅', title: '订阅', mine: '我的资料', desc: '按需发送活动信息', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
+    btn: '订阅', title: '订阅大型活动消息', mine: '我的资料', desc: '以大型活动为主：新的探戈节、马拉松、探戈周末、工作坊和报名信息。不定期发送，可随时退订。', name: '姓名', namePh: '您的姓名', city: '城市', cityPh: '所在城市', role: '角色', rolePh: '请选择', rl: '引带（Leader）', rf: '跟随（follower）', rb: '两者皆可（both）', needName: '请填写姓名。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     email: '邮箱', emailPh: 'name@example.com', site: '加入 ATM 全站订阅',
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '验证邮件发送失败，请检查邮箱或稍后再试。',
     returnHint: '已经订阅过？请输入邮箱和手机末 4 码，不必再等确认信。',
-    gateHelp: '邮箱和手机末 4 码<em>必填</em>。系统会识别是注册还是登录。第一次注册仍要发送确认邮件；在信里点确认以后，手机末 4 码才会生效。已确认过的，填邮箱和手机末 4 码即可登录，不必再等确认信。',
-    regHelp: '请完成注册。邮箱和手机末 4 码<em>必填</em>。请补全资料并发送确认邮件。在信里点确认以后，手机末 4 码才会生效。',
+    gateHelp: '第一次：填邮箱和手机末 4 码，再点确认信里的链接。以后：同样两项直接登录，不用再等信。',
+    regHelp: '请补全资料并发送确认邮件。点信里的链接就完成了。',
     phone: '手机', phonePh: '手机号', last4: '手机末 4 码', signIn: '登录', signing: '登录中…', gate: '注册／登录', send: '发送确认邮件',
     needPhone: '请填写手机。', badPhone: '手机号码不正确。', needLast4: '请输入手机末 4 码。', badLogin: '邮箱或手机末 4 码不正确。',
     phoneSaved: '已保存末 4 码 ',
     submit: '发送验证邮件', save: '保存', saving: '保存中…', unsub: '退订', sending: '发送中…', ok: '验证邮件已发出。请打开邮件里的链接完成验证。没收到邮件？请到垃圾邮件箱查看。确认链接可能会在浏览器里打开，确认后回到这里就行。', saved: '资料已保存。这个设备已经验证过，没有再发信。', confirmed: '已确认',
-    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '订阅即可收到亚洲各地的探戈活动信息。想去的活动点星星，我们通知组织者，你就能更早知道早鸟价、报名截止和场地指引。', close: '关闭',
+    fail: '提交失败，请稍后再试。', rate: '提交太频繁，请稍后再试。', foot: '想去某个活动？在活动页选「要参加」或「感兴趣」，主办方能直接告诉你早鸟价、报名截止和场地交通。', close: '关闭',
     passTitle: '我的订阅', passHint: '在微信、Safari、Chrome 或其他浏览器打开这个链接即可登录，不必再收确认邮件。', passCopy: '复制', passCopied: '已复制', passNew: '生成新链接', passNewWarn: '生成新链接后，旧链接会失效。继续？', passMissing: '这个浏览器没有保存订阅链接。生成新链接会使旧链接失效。', passStale: '这个浏览器保存的链接已失效。可生成新链接。', passFail: '暂时无法读取订阅链接，请稍后再试。'
   } : {
-    btn: 'Subscribe', title: 'Subscribe', mine: 'My profile', desc: 'Event updates, sent as needed.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
+    btn: 'Subscribe', title: 'Special-event news', mine: 'My profile', desc: 'Mostly special events: new festivals, marathons, weekends and workshops, with registration news. Sent now and then; unsubscribe any time.', name: 'Name', namePh: 'Your name', city: 'City', cityPh: 'Your city', role: 'Role', rolePh: 'Choose', rl: 'Leader', rf: 'follower', rb: 'both', needName: 'Please enter your name.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
     email: 'Email', emailPh: 'name@example.com', site: 'Join ATM site-wide subscription',
     need: 'Please enter your email.', sendfail: 'We couldn’t send the verification email. Check the address or try again.', bad: 'Please check your email address.',
     returnHint: 'Already subscribed? Enter your email and the last 4 digits of your mobile. You don\u2019t need another confirmation email.',
-    gateHelp: 'Email and the mobile last 4 digits are <em>required</em>. The form tells registration from sign-in. The first registration still sends a confirmation email. The mobile last 4 digits work only after you tap the link in that email. If you already confirmed, enter your email and the mobile last 4 digits to sign in. You don\u2019t need another confirmation email.',
-    regHelp: 'Finish registration. Email and the mobile last 4 digits are <em>required</em>. Complete your details and send the confirmation email. The mobile last 4 digits work only after you tap the link in that email.',
+    gateHelp: 'First time: enter your email and the last 4 digits of your mobile, then tap the link in the confirmation email. After that, the same two fields sign you in.',
+    regHelp: 'Complete your details and send the confirmation email. Tap the link in it and you\u2019re done.',
     phone: 'Phone', phonePh: 'Mobile number', last4: 'Mobile last 4 digits', signIn: 'Sign in', signing: 'Signing in…', gate: 'Register / sign in', send: 'Send confirmation email',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your mobile.', badLogin: 'The email or the mobile last 4 digits did not match.',
     phoneSaved: 'Saved, last 4 digits ',
     submit: 'Send verification email', save: 'Save', saving: 'Saving…', unsub: 'Unsubscribe', sending: 'Sending…', ok: 'Verification email sent. Open the link in that email to finish. Didn\'t get the email? Check your spam or junk folder. The confirmation link may open in your browser. After confirming, just come back here.', saved: 'Profile saved. This device is already verified, so no new email was sent.', confirmed: 'Confirmed',
-    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Subscribe for tango event news across Asia. Star an event and we\'ll tell the organizer, so you hear first about early-bird prices, deadlines and directions.', close: 'Close',
+    fail: 'Something went wrong. Please try again later.', rate: 'Too many tries. Please try again later.', foot: 'Going to an event? On its page choose Going or Interested, and the organizer can tell you about early-bird prices, deadlines and directions.', close: 'Close',
     passTitle: 'My subscription', passHint: 'Open this link in WeChat, Safari, Chrome, or another browser to sign in. No new confirmation email.', passCopy: 'Copy', passCopied: 'Copied', passNew: 'New link', passNewWarn: 'A new link stops the old one. Continue?', passMissing: 'This browser does not have the link saved. A new link stops the old one.', passStale: 'The link saved in this browser no longer works. You can make a new one.', passFail: 'The subscription link could not be loaded. Try again later.'
   };
   var css = '.tsub-pair{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 6px 0 auto}.tsub-pair .china-suggest-open{margin:0!important}' +
