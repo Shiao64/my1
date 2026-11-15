@@ -1,0 +1,87 @@
+name: API deploy (api.tangoweekend.org)
+
+# Deploys the tango-subscribe worker (api.tangoweekend.org) from main, so nobody
+# needs wrangler on their own computer. Manual only:
+#   Actions -> "API deploy (api.tangoweekend.org)" -> Run workflow -> type deploy.
+# Uses the repo secret CLOUDFLARE_API_TOKEN. That token needs, besides R2:
+#   Account / Workers Scripts: Edit, Account / D1: Edit, Account / Account Settings: Read,
+#   Zone (tangoweekend.org) / Workers Routes: Edit.
+# Steps: print a D1 bookmark (data rollback point), run the listed migration
+# (a column that already exists is fine), dry run, deploy with --keep-vars, check.
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type deploy to go ahead'
+        required: true
+        default: ''
+      migration:
+        description: 'Migration file in social-worker/migrations (blank for none)'
+        required: false
+        default: '0019_confirm_code.sql'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: api-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Check the request
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "deploy" ]; then
+            echo "::error::Type deploy in the confirm box. Nothing was changed."; exit 1
+          fi
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Repo secret CLOUDFLARE_API_TOKEN is not set. Nothing was changed."; exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Find the Cloudflare account
+        run: |
+          id=$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" https://api.cloudflare.com/client/v4/accounts | python3 -c 'import json,sys; r=json.load(sys.stdin)["result"]; print(r[0]["id"] if r else "")')
+          if [ -z "$id" ]; then echo "::error::The token cannot read the account. Add Account Settings: Read to the token."; exit 1; fi
+          echo "CLOUDFLARE_ACCOUNT_ID=$id" >> "$GITHUB_ENV"
+      - name: Install wrangler
+        run: npm i -g wrangler@3
+      - name: D1 bookmark (save this; it is the data rollback point)
+        working-directory: subscribe-worker
+        run: |
+          wrangler d1 time-travel info tango-subscribe --remote | tee bookmark.txt
+          echo "::notice title=D1 bookmark::$(grep -o '[0-9a-f-]\{20,\}' bookmark.txt | head -1)"
+      - name: Migration
+        if: ${{ github.event.inputs.migration != '' }}
+        working-directory: subscribe-worker
+        run: |
+          f="../social-worker/migrations/${{ github.event.inputs.migration }}"
+          [ -f "$f" ] || { echo "::error::$f not found"; exit 1; }
+          set +e
+          wrangler d1 execute tango-subscribe --remote --file="$f" > out.txt 2>&1
+          rc=$?; cat out.txt
+          if [ $rc -ne 0 ]; then
+            if grep -qi "duplicate column" out.txt; then echo "Columns already there. Going on."; else exit $rc; fi
+          fi
+      - name: Dry run
+        working-directory: subscribe-worker
+        run: wrangler deploy --dry-run --keep-vars
+      - name: Deploy
+        working-directory: subscribe-worker
+        run: wrangler deploy --keep-vars
+      - name: Check
+        run: |
+          sleep 10
+          body=$(curl -fsS https://api.tangoweekend.org/social/going/config)
+          echo "$body"
+          echo "$body" | grep -q '"sitekey":"0x' || { echo "::error::config has no sitekey: the old vars may be lost. Roll back in the Cloudflare dashboard."; exit 1; }
+          echo "$body" | grep -q '"sub_lite":1' || { echo "::warning::sub_lite missing: the new code may not be live yet."; }
