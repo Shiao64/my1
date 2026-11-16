@@ -205,3 +205,5 @@ t1022u 确认 E190 的城市字段就是 Jakarta。名称仍是 Jakarta Champion
 测试：`python3 tools/test_divjezc_route.py`。加第四张之前的 main 是 `a68ef98`（Merge pull request #170）。更早的整批回退点仍是 `backup/live-20261116-before-preview`（`68a136b`）。第四张本身的发布是 PR #171，合并 `27b0da7`。
 
 正式卡已核对。https://tangoweekend.org/zh/asia/?card=DIVjezcE 按外观、入口、大堂、1502室的顺序显示四张图，地址仍是西藏南路 765 号 1502 室，中文指引只显示中文。点开第四张，中文图注是「按 Tango Bang 招牌箭头向左，进入1502室。」英文页同一张只显示英文图注，`?lang=ko` 只显示韩文图注。西班牙文图注已保存在 `caption_es`，没有西班牙文页面，也没有新开入口。第四张图 `https://tangoweekend.org/images/asia/directions/DIVjezcE-04-room1502.jpg` 返回 200，大小与原图一致。
+
+t1031u：公开海报改为附件里的 Tango Bang / 探戈帮 / tangobang.cn 标志，文件是 `images/asia/posters/DIVjezcE-tangobang.jpg?v=tb1`，原图字节没有改。列表和打开用的缩略图按这张新图生成。旧的 `R018.jpg` 不再挂在这张卡上，也没有放进往期海报，文件仍留在仓库里作回退。日期、时间、地址和四张问路图不动。t1032u：这张卡的主办，以及只关联 DIVjezcE 的草稿记录 O081，拼写从 Vivian Ye 改为 Vivian Yeh。微信标签里的姓名一起改，微信号、电话和邮箱不动。页脚致谢本来就是 Vivian Yeh。杭州节目单上的 Vivian & Victor 是另一组人，没有改。这次改动之前的 main 是 `95047bd`。

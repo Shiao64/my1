@@ -57,6 +57,17 @@ def main():
     for k in LANG:
         if '1502' not in (room.get(k) or '') or 'Tango Bang' not in (room.get(k) or ''):
             bad.append('room caption missing the sign or room ' + k)
+    if cards[0].get('poster', '').split('?')[0] != '/images/asia/posters/DIVjezcE-tangobang.jpg':
+        bad.append('poster is not the Tango Bang logo')
+    if 'R018.jpg' in (cards[0].get('poster') or '') or cards[0].get('posters_past'):
+        bad.append('old poster still public')
+    if cards[0].get('organizers') != ['Vivian Yeh'] or cards[0].get('organizers_en') != ['Vivian Yeh']:
+        bad.append('organizer spelling')
+    label = ((cards[0].get('contacts') or {}).get('wechat_label') or '')
+    if label != 'TangoBang / Vivian Yeh':
+        bad.append('wechat label spelling')
+    if cards[0].get('time') != '21:00–01:00' or cards[0].get('weekday') != 5:
+        bad.append('time or weekday changed')
     if bad:
         print('\n'.join(bad))
         return 1
