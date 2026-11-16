@@ -43,6 +43,34 @@
   var KS = document.createElement('style'); KS.textContent = 'html body.china-page nav.top-lang.china-map-lang a:not(.atm-langbtn){display:none!important}'; document.head.appendChild(KS);
   var other = nav.querySelector('a[data-asia-lang-set="' + (LG === 'en' ? 'zh' : 'en') + '"]') || nav.querySelector('a:not([aria-current])'), oz = other && other.getAttribute('data-asia-lang-set') === 'zh';
   if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', oz ? '中文' : 'English'); other.title = oz ? '中文' : 'English'; other.textContent = oz ? '中文' : 'EN'; }
+  /* 2026-11-17 Shiao: Korean is open to everyone, but the header button only ever offered one other language, so 한국어 never showed.
+     With three languages the button now shows the CURRENT language (中 / EN / 한) and a tap opens a small list of all three.
+     The links keep data-asia-lang-set, so lang-keep.js remembers the choice exactly as with the menu switch. */
+  if (other && LA.length > 2) {
+    var NM = { zh: '中文', en: 'English', ko: '한국어' }, SH = { zh: '中', en: 'EN', ko: '한' };
+    other.textContent = SH[LG] || 'EN'; other.setAttribute('aria-label', 'Language · 语言 · 언어'); other.title = NM[LG] || 'English';
+    other.setAttribute('aria-haspopup', 'true'); other.setAttribute('aria-expanded', 'false');
+    var lp = document.createElement('div'); lp.className = 'atm-langpop'; lp.hidden = true; lp.setAttribute('role', 'menu');
+    lp.innerHTML = [].map.call(LA, function (a) { var t = a.getAttribute('data-asia-lang-set');
+      return '<a role="menuitem" href="' + a.getAttribute('href') + '" hreflang="' + (a.getAttribute('hreflang') || t) + '" lang="' + (a.getAttribute('lang') || t) + '" data-asia-lang-set="' + t + '"' + (t === LG ? ' aria-current="true"' : '') + '>' + (NM[t] || a.textContent) + '</a>'; }).join('');
+    document.body.appendChild(lp);
+    var lpCss = document.createElement('style');
+    lpCss.textContent = '.atm-langpop{position:fixed;z-index:2147483000;min-width:132px;background:#fff;border:1px solid #BCD8EF;border-radius:12px;box-shadow:0 8px 24px rgba(11,36,64,.18);padding:6px;font:600 15px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}' +
+      '.atm-langpop[hidden]{display:none!important}.atm-langpop a{display:block;padding:11px 14px;border-radius:8px;color:#0B2440;text-decoration:none}' +
+      '.atm-langpop a:hover{background:#EAF3FB}.atm-langpop a[aria-current]{background:#EAF3FB;color:#0B2440}.atm-langpop a[aria-current]:after{content:" ✓";color:#2a6fb0}';
+    document.head.appendChild(lpCss);
+    var lpClose = function () { if (lp.hidden) return; lp.hidden = true; other.setAttribute('aria-expanded', 'false'); };
+    other.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (!lp.hidden) { lpClose(); return; }
+      var r = other.getBoundingClientRect(); lp.hidden = false;
+      var w = lp.offsetWidth, x = Math.min(Math.max(8, r.right - w), window.innerWidth - w - 8);
+      lp.style.left = x + 'px'; lp.style.top = Math.round(r.bottom + 6) + 'px'; other.setAttribute('aria-expanded', 'true');
+    }, true);
+    document.addEventListener('click', function (e) { if (!lp.contains(e.target) && e.target !== other) lpClose(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lpClose(); });
+    window.addEventListener('scroll', lpClose, { passive: true });
+  }
   var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-burger'; b.setAttribute('aria-label', L.menu); b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
   nav.parentNode.insertBefore(b, nav.nextSibling);
