@@ -174,6 +174,8 @@ Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作
 
 代码：`asia/atm-home.js`（预告标签、大型列表、莫干山中文名，`?v=h186`）、`asia/cardB.js`（预告行和城市地图，`?v=cb160`）、`asia/atm-ko.js`（对应韩文，`?v=k10`）、`asia/asia-map.js` 的缩图尺寸表（`?v=r21`）。两个 `index.html` 的版本号已一起加。测试：`python3 tools/test_preview_cards.py`，以及 `python3 tools/ensure_posters.py --check`。
 
-回退点：上线前的 main 是 `68a136b`（Merge pull request #161）。部署走合并到 main 后的 GitHub Pages，活动 JSON 走既有「R2 sync」，不是整份覆盖 R2。正式站验证时间在部署完成后补记到本节。
+回退点：上线前的 main 是 `68a136b`（Merge pull request #161），分支 `backup/live-20261116-before-preview`。实现 PR 是 #162，合并提交 `01f613e`（北京时间 2026-11-16 17:54）。部署走 GitHub Pages 加既有「R2 sync」（run 43844020410），不是整份覆盖 R2。
+
+正式站核对（北京时间 2026-11-16 18:00）：`https://data.tangoweekend.org/asia/events.json` 已有 E188–E192，日期和姓名与上表一致，`preview` 为 true，没有场地地址和主办。E190 雅加达在 events-more。页面脚本已是 `atm-home.js?v=h186`、`cardB.js?v=cb160`。列表卡当时仍画出空的「场地」行；随后把空场地行改成预告句，并把 E190 放进 events-core，让大型列表第一次打开就能看见。这次补丁的版本号是 `cardB.js?v=cb161`。
 
 还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用、主办和联系方式。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。
