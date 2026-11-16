@@ -14,7 +14,7 @@ WANT = {
     'E191': dict(name='Alejandra martinan Workshop', city='Taipei', region='Taiwan', type='workshop', start='2027-03-24', end='2027-03-30'),
     'E192': dict(name='Lucas y Naima Workshop', city='Beijing', region='China', type='workshop', start='2027-05-10', end='2027-05-17'),
 }
-EMPTY = ('venue', 'venue_en', 'venue_address', 'venue_address_en', 'organizers', 'organizers_en', 'price', 'dj', 'contacts')
+EMPTY = ('venue', 'venue_en', 'venue_address', 'venue_address_en', 'price', 'dj', 'contacts')
 
 def load(rel):
     with open(os.path.join(ROOT, rel), encoding='utf-8') as fh:
@@ -49,6 +49,10 @@ def main():
         for k in EMPTY:
             if e.get(k):
                 bad.append(f'{i} filled {k}')
+        if i != 'E192' and e.get('organizers'):
+            bad.append(i + ' organizer was not given')
+        if e.get('organizers_en'):
+            bad.append(i + ' invented organizers_en')
         poster = e.get('poster') or ''
         if not poster.startswith('/images/asia/posters/generated/' + i):
             bad.append(i + ' poster ' + poster)
@@ -56,14 +60,25 @@ def main():
         if not os.path.isfile(path):
             bad.append(i + ' poster file missing')
     e188 = by.get('E188') or {}
-    if '北京 AS' not in (e188.get('note_zh') or '') or e188.get('organizers'):
-        bad.append('E188 AS note/organizer')
+    PUBLIC = '活动预告，详情待公布。'
+    PUBLIC_EN = 'Preview. Details to be announced.'
+    leak = ('北京 AS', 'R0E9XeyL', '未提供', '尚未', '不要套用', '不是主办海报', '原拼写', '未找到原卡')
+    for i, e in by.items():
+        if e.get('note_zh') != PUBLIC or e.get('note') != PUBLIC_EN:
+            bad.append(i + ' public note is not the short preview')
+        blob = (e.get('note_zh') or '') + (e.get('note') or '')
+        if any(s in blob for s in leak):
+            bad.append(i + ' leaked internal note')
     e191 = by.get('E191') or {}
-    if 'martinan' not in e191.get('name', '') or 'Mantinan' in e191.get('name', ''):
+    if e191.get('name') != 'Alejandra martinan Workshop':
         bad.append('E191 spelling')
     e192 = by.get('E192') or {}
-    if '北京 AS' in json.dumps({k: e192.get(k) for k in ('name', 'venue', 'organizers')}, ensure_ascii=False):
-        bad.append('E192 reused 北京 AS')
+    if e192.get('name') != 'Lucas y Naima Workshop' or e192.get('start') != '2027-05-10' or e192.get('end') != '2027-05-17':
+        bad.append('E192 name or dates')
+    if e192.get('organizers') != ['王萌'] or e192.get('organizers_en'):
+        bad.append('E192 organizer')
+    if e192.get('city') != 'Beijing':
+        bad.append('E192 city')
     road = next((e for e in load('asia/events.json') if e.get('id') == 'R0E9XeyL'), None)
     if not road or road.get('city') != 'Shanghai' or '莫干山路' not in (road.get('venue_address') or ''):
         bad.append('R0E9XeyL changed or missing')
