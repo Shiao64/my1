@@ -93,6 +93,8 @@
     if (/workshop|intensivo|masterclass|seminar|工作坊|大师课|大師課/.test(s)) return 'workshop';
     if (/weekend|encuentro|周末|週末/.test(s)) return 'weekend';
     if (/festival|探戈节|探戈節|嘉年华|嘉年華/.test(s)) return 'festival';
+    /* type encuentro counts as 探戈周末, same as the word in a name (E175 RoyBeDDong in Busan, user 2026-11-16). */
+    if (e.type === 'encuentro') return 'weekend';
     if (e.type === 'marathon' || e.type === 'festival') return e.type;
     if (e.type === 'event') return 'workshop';
     return regCat(e, s);
