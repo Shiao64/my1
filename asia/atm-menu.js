@@ -40,36 +40,28 @@
      Hidden links (Korean while it is a test version) are left out of the header button and the menu switch. */
   var LG = (document.documentElement.getAttribute('data-asia-lang') || 'en').slice(0, 2), LA = nav.querySelectorAll('a[data-asia-lang-set]:not([hidden])');
   [].forEach.call(LA, function (a) { if (a.getAttribute('data-asia-lang-set') === LG) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
-  var KS = document.createElement('style'); KS.textContent = 'html body.china-page nav.top-lang.china-map-lang a:not(.atm-langbtn){display:none!important}'; document.head.appendChild(KS);
+  var KS = document.createElement('style'); KS.textContent = 'html body.china-page nav.top-lang.china-map-lang > a:not(.atm-langbtn){display:none!important}'; document.head.appendChild(KS);
   var other = nav.querySelector('a[data-asia-lang-set="' + (LG === 'en' ? 'zh' : 'en') + '"]') || nav.querySelector('a:not([aria-current])'), oz = other && other.getAttribute('data-asia-lang-set') === 'zh';
   if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', oz ? '中文' : 'English'); other.title = oz ? '中文' : 'English'; other.textContent = oz ? '中文' : 'EN'; }
-  /* 2026-11-17 Shiao: Korean is open to everyone, but the header button only ever offered one other language, so 한국어 never showed.
-     With three languages the button now shows the CURRENT language (中 / EN / 한) and a tap opens a small list of all three.
-     The links keep data-asia-lang-set, so lang-keep.js remembers the choice exactly as with the menu switch. */
+  /* 2026-11-17 Shiao: language switch lives in the header's top-right corner as three segments, EN | 中 | 한
+     (each language named in its own script), current one highlighted; not in the ≡ menu any more.
+     Links keep data-asia-lang-set, so lang-pref.js / lang-keep.js remember the choice as before. */
+  var langSeg = null;
   if (other && LA.length > 2) {
-    var NM = { zh: '中文', en: 'English', ko: '한국어' }, SH = { zh: '中', en: 'EN', ko: '한' };
-    other.textContent = SH[LG] || 'EN'; other.setAttribute('aria-label', 'Language · 语言 · 언어'); other.title = NM[LG] || 'English';
-    other.setAttribute('aria-haspopup', 'true'); other.setAttribute('aria-expanded', 'false');
-    var lp = document.createElement('div'); lp.className = 'atm-langpop'; lp.hidden = true; lp.setAttribute('role', 'menu');
-    lp.innerHTML = [].map.call(LA, function (a) { var t = a.getAttribute('data-asia-lang-set');
-      return '<a role="menuitem" href="' + a.getAttribute('href') + '" hreflang="' + (a.getAttribute('hreflang') || t) + '" lang="' + (a.getAttribute('lang') || t) + '" data-asia-lang-set="' + t + '"' + (t === LG ? ' aria-current="true"' : '') + '>' + (NM[t] || a.textContent) + '</a>'; }).join('');
-    document.body.appendChild(lp);
-    var lpCss = document.createElement('style');
-    lpCss.textContent = '.atm-langpop{position:fixed;z-index:2147483000;min-width:132px;background:#fff;border:1px solid #BCD8EF;border-radius:12px;box-shadow:0 8px 24px rgba(11,36,64,.18);padding:6px;font:600 15px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}' +
-      '.atm-langpop[hidden]{display:none!important}.atm-langpop a{display:block;padding:11px 14px;border-radius:8px;color:#0B2440;text-decoration:none}' +
-      '.atm-langpop a:hover{background:#EAF3FB}.atm-langpop a[aria-current]{background:#EAF3FB;color:#0B2440}.atm-langpop a[aria-current]:after{content:" ✓";color:#2a6fb0}';
-    document.head.appendChild(lpCss);
-    var lpClose = function () { if (lp.hidden) return; lp.hidden = true; other.setAttribute('aria-expanded', 'false'); };
-    other.addEventListener('click', function (e) {
-      e.preventDefault(); e.stopPropagation();
-      if (!lp.hidden) { lpClose(); return; }
-      var r = other.getBoundingClientRect(); lp.hidden = false;
-      var w = lp.offsetWidth, x = Math.min(Math.max(8, r.right - w), window.innerWidth - w - 8);
-      lp.style.left = x + 'px'; lp.style.top = Math.round(r.bottom + 6) + 'px'; other.setAttribute('aria-expanded', 'true');
-    }, true);
-    document.addEventListener('click', function (e) { if (!lp.contains(e.target) && e.target !== other) lpClose(); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lpClose(); });
-    window.addEventListener('scroll', lpClose, { passive: true });
+    var SH = { en: 'EN', zh: '中', ko: '한' }, NM = { zh: '中文', en: 'English', ko: '한국어' }, ORD = ['en', 'zh', 'ko'];
+    langSeg = document.createElement('span'); langSeg.className = 'atm-langseg'; langSeg.setAttribute('role', 'group'); langSeg.setAttribute('aria-label', 'Language · 语言 · 언어');
+    langSeg.innerHTML = ORD.map(function (t) { var a = nav.querySelector('a[data-asia-lang-set="' + t + '"]:not([hidden])'); if (!a) return '';
+      return t === LG ? '<b aria-current="true" lang="' + t + '" title="' + NM[t] + '">' + SH[t] + '</b>'
+        : '<a href="' + a.getAttribute('href') + '" hreflang="' + (a.getAttribute('hreflang') || t) + '" lang="' + (a.getAttribute('lang') || t) + '" data-asia-lang-set="' + t + '" title="' + NM[t] + '" aria-label="' + NM[t] + '">' + SH[t] + '</a>'; }).join('');
+    other.style.setProperty('display', 'none', 'important'); other.setAttribute('aria-hidden', 'true'); other.tabIndex = -1;
+    nav.appendChild(langSeg);
+    var lsCss = document.createElement('style');
+    lsCss.textContent = 'html body.china-page nav.top-lang.china-map-lang .atm-langseg{display:inline-flex!important;align-items:center;height:32px;border:1px solid rgba(11,36,64,.35);border-radius:999px;background:rgba(255,255,255,.55);padding:2px;gap:0;box-sizing:border-box;flex:none}' +
+      'html body.china-page nav.top-lang.china-map-lang .atm-langseg>a,html body.china-page nav.top-lang.china-map-lang .atm-langseg>b{display:inline-flex!important;align-items:center;justify-content:center;min-width:28px;height:26px;padding:0 6px!important;margin:0!important;border:0!important;border-radius:999px;font:700 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Apple SD Gothic Neo","Malgun Gothic",sans-serif!important;letter-spacing:0;color:#0B2440!important;text-decoration:none!important;background:transparent!important;box-shadow:none!important;width:auto!important;min-height:0!important;position:static!important}' +
+      'html body.china-page nav.top-lang.china-map-lang .atm-langseg>a:before,html body.china-page nav.top-lang.china-map-lang .atm-langseg>a:after{display:none!important}' +
+      'html body.china-page nav.top-lang.china-map-lang .atm-langseg>b{background:#0B2440!important;color:#fff!important}' +
+      'html body.china-page nav.top-lang.china-map-lang .atm-langseg>a:hover{background:rgba(255,255,255,.8)!important}';
+    document.head.appendChild(lsCss);
   }
   var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-burger'; b.setAttribute('aria-label', L.menu); b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
@@ -84,7 +76,7 @@
   var seg = '<div class="atm-seg" role="group" aria-label="Language">' + [].map.call(LA, function (a) { var t = a.getAttribute('data-asia-lang-set'), nm = { zh: '中文', en: 'English', ko: '한국어' }[t] || a.textContent;
     return t === LG ? '<span class="on">' + nm + '</span>' : '<a href="' + a.getAttribute('href') + '" hreflang="' + (a.getAttribute('hreflang') || t) + '" data-asia-lang-set="' + t + '" lang="' + (a.getAttribute('lang') || t) + '">' + nm + '</a>'; }).join('') + '</div>';
   m.innerHTML = '<div class="atm-mbg" data-x></div><div class="atm-mp" role="dialog" aria-modal="true" aria-label="' + L.menu + '"><div class="atm-mhd"><b>' + L.site + '</b><button type="button" class="atm-mx" data-x aria-label="' + L.close + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
-    (other ? seg : '') +
+    (other && !langSeg ? seg : '') + /* 2026-11-17: with three languages the switch is in the header, not the menu */
     '<div class="atm-mg">' + L.gAct + '</div>' +
     '<button type="button" class="atm-mi" data-a="add">' + ic(I.add) + L.add + '</button>' +
     '<div class="atm-mg">' + L.gMine + '</div>' +
