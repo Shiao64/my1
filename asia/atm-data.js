@@ -36,11 +36,23 @@
   var inflight = {};
   var freshInflight = {};
   w.ATM_DATA_SOURCE = w.ATM_DATA_SOURCE || {};
+  /* Cards with no end time are stored as "20:30–late". Chinese pages show
+     「20:30–尽兴」 (Shiao 2026-11-16); English and Korean keep "late". */
+  function zhTime(data) {
+    try {
+      if (!/^zh/i.test((w.document && w.document.documentElement.lang) || '')) return data;
+      (Array.isArray(data) ? data : []).forEach(function (e) {
+        if (e && typeof e.time === 'string') e.time = e.time.replace(/([–-]\s*)late\b/i, '$1尽兴');
+      });
+    } catch (x) {}
+    return data;
+  }
+  w.atmZhTime = zhTime;
   function localFetch(localUrl) {
     return fetch(localUrl).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
-    });
+    }).then(zhTime);
   }
   /* Remote first. A failure (DNS, CORS, 404, timeout) uses the git copy. */
   w.atmDataJson = function (localUrl) {
@@ -59,7 +71,7 @@
       }).then(function (data) {
         w.ATM_DATA_OK = true;
         w.ATM_DATA_SOURCE[file] = 'r2';
-        return data;
+        return zhTime(data);
       }).catch(function () {
         w.ATM_DATA_SOURCE[file] = 'git';
         return localFetch(localUrl);
@@ -84,7 +96,7 @@
       return r.json();
     }).then(function (data) {
       w.ATM_DATA_OK = true;
-      return data;
+      return zhTime(data);
     });
   };
   /* Home and city lists paint the git fallback immediately, then one fresh

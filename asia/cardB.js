@@ -10,7 +10,7 @@ var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
 /* First view reads events-core (window._chinaData). events-more / events.json and the DJ/organizer profiles wait until scroll, search, expand, or a card that is not in core. */
 var EV=null, REG=zh?{}:null, DJPROF=[], ORGPROF=[], profP=null, fullP=null;
 var tradHold=zh&&!/[?&](card|mode|city|k)=/.test(location.search);
-var FULL='/asia/events.json?v=e221';
+var FULL='/asia/events.json?v=e222';
 function loadEv(u){ return (window.atmDataJson ? window.atmDataJson(u) : fetch(u).then(function(r){ return r.json(); })); }
 function indexList(list){ if(!list) return; if(!EV) EV={}; list.forEach(function(e){ if(!e||!e.id) return; EV[e.id]=e; if(REG) REG[e.id]=e.region; }); }
 function indexNow(){ indexList(window._chinaData); indexList(window._atmMore); if(!EV) return; document.querySelectorAll('.ev-card.b-card').forEach(dj); p10mount(); if(zh) trad(); }
@@ -123,7 +123,7 @@ var occL=0; function conv(k){ if(!window.OpenCC){ if(!occL){occL=1;var sc=docume
 function trad(){ if(tradHold||!REG) return; var root=document.getElementById('atm-single')||document; root.querySelectorAll('.ev-card.b-card[data-b]:not([data-t]), .ev-card.b-card[lang]').forEach(function(li){ var ev=EV&&EV[li.dataset.id]; if(!ev) return; var r=ev.region||REG[li.dataset.id]; li.dataset.t='1'; var k=r==='Taiwan'?'tw':r==='Hong Kong'?'hk':null; if(!k) return; var c=conv(k); if(!c){li.removeAttribute('data-t');return;} li.lang=k==='hk'?'zh-HK':'zh-TW';
   var w=document.createTreeWalker(li,NodeFilter.SHOW_TEXT),n; while(n=w.nextNode()){ if(!/[\u4e00-\u9fff]/.test(n.nodeValue)) continue; if(n.parentElement&&n.parentElement.closest('.b-row')&&/^(城市|国家)$/.test((n.parentElement.closest('.b-row').querySelector('b')||{}).textContent||'')) continue; if(n.parentElement&&n.parentElement.closest('.atm-pt,.b-l,.b-label,.atm-mk,.china-badge,.atm-more,.ev-type,summary,.b-row>b,.china-links,.b-note-tg,.atm-heart,.p10-more,.p10-less,.p10-k,.p10-npill,.p10-ncollapse,.atm-chg')) continue; /* quickfix: fixed UI labels stay Simplified */ var nv=n.nodeValue.split(/([台里])/).map(function(p){return /^[台里]$/.test(p)?p:c(p)}).join(''); if(nv!==n.nodeValue) n.nodeValue=nv; } }); }
 /* v11.8 P10: weekly / regular single card (?card=). Featured event cards stay on the existing shell. */
-var P10TN=zh?{milonga:'舞会',practica:'练习场',festival:'探戈节',marathon:'马拉松',event:'活动',weekend:'周末',encuentro:'聚会',championship:'锦标赛',class:'课程'}:{milonga:'Milonga',practica:'Práctica',festival:'Festival',marathon:'Marathon',event:'Event',weekend:'Weekend',encuentro:'Encuentro',championship:'Championship',class:'Class'};
+var P10TN=zh?{milonga:'舞会',practilonga:'练习舞会',practica:'练习场',festival:'探戈节',marathon:'马拉松',event:'活动',weekend:'周末',encuentro:'聚会',championship:'锦标赛',class:'课程'}:{milonga:'Milonga',practilonga:'Practilonga',practica:'Práctica',festival:'Festival',marathon:'Marathon',event:'Event',weekend:'Weekend',encuentro:'Encuentro',championship:'Championship',class:'Class'};
 var P10DZ=['日','一','二','三','四','五','六'], P10DE=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'], P10DS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 function p10type(e){ return P10TN[e.type]||e.type||(zh?'活动':'Event'); }
 function p10freq(e){ var ty=p10type(e); if(e.kind!=='weekly') return ty; var ds=e.weekdays||(e.weekday!=null?[e.weekday]:[]); if(!ds.length) return (zh?'每周':'Weekly ')+ty;
