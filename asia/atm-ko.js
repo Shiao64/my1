@@ -253,7 +253,7 @@
   mo.observe(R, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ATTR });
   /* 2026-11-15: Shiao's Korean notice has 3 paragraphs; a translation with a blank line becomes separate <p> */
   function splitNotice() { [].forEach.call(D.querySelectorAll('#atm-notice .atm-notice-body p'), function (p) { var t = p.textContent; if (t.indexOf('\n\n') < 0) return; var parts = t.split('\n\n'); p.textContent = parts[0]; for (var i = parts.length - 1; i > 0; i--) { var q = D.createElement('p'); q.textContent = parts[i]; p.parentNode.insertBefore(q, p.nextSibling); } }); }
-  /* 2026-11-15 test version: the 한국어 menu link stays hidden; on a Korean page show English (and 中文) as the ways out. */
+  /* On a Korean page the English link must say ?lang=en, or the saved choice (ko) would bring the visitor straight back to Korean. (Written for the 11-15 test version; still needed after Korean opened on 11-17.) */
   function langMenu() {
     [].forEach.call(D.querySelectorAll('.top-lang a[data-asia-lang-set="en"][aria-current]'), function (a) { a.removeAttribute('aria-current'); a.setAttribute('href', a.getAttribute('href').replace(/[?&]lang=ko\b/, '') ); });
     [].forEach.call(D.querySelectorAll('.top-lang a[data-asia-lang-set="en"]'), function (a) { var h = a.getAttribute('href') || './'; if (!/[?&]lang=en\b/.test(h)) a.setAttribute('href', h + (h.indexOf('?') < 0 ? '?' : '&') + 'lang=en'); });
