@@ -160,6 +160,7 @@ function p10prevCur(e, url){ var pd=e.poster_date, cur=String((zh&&e.poster_zh)|
 function prevBadges(){ if(!EV) return; document.querySelectorAll('.ev-card.b-card .b-poster').forEach(function(bp){ if(bp.querySelector('.b-prev')) return; var li=bp.closest('.ev-card'), e=li&&EV[li.dataset.id]; if(!e||e.kind!=='weekly'||!e.poster_date||!(e.poster_date<p10shToday())) return; var b=document.createElement('span'); b.className='b-prev'; b.textContent=zh?'上期海报':'Previous poster'; bp.appendChild(b); }); }
 function p10singlePast(e, url){ var today=p10shToday(); if(e.kind!=='weekly'){ var end=e.end||e.start||''; if(end) return end<today; } var d=p10dateOf(e, url); return !!(d&&d<today); }
 function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.push('<div class="b-row p10-row'+(c?' '+c:'')+'"><b class="p10-k">'+l+'</b><span>'+v+'</span></div>'); };
+  var previewCity={Beijing:'北京',Moganshan:'莫干山',Taipei:'台北',Jakarta:'雅加达'};
   var org=(!zh&&e.organizers_en&&e.organizers_en.length)?e.organizers_en:(e.organizers||[]); if(org.length) R.push('<div class="b-row p10-row"><b class="p10-k">'+(zh?'主办':'Organizer')+'</b><span class="p10-orgs" data-card="'+H(e.id)+'" data-orgs="'+H(org.join('||'))+'">'+orgNamesHtml(org, e.id)+'</span></div>');
   var ven=evVenue(e)||''; if(ven&&!faceVenue) row(zh?'场地':'Venue', H(ven));
   var dj=djName(e)||''; if(dj&&!faceDj) row('DJ', H(dj));
@@ -189,6 +190,15 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   var CH=L.wechat_channels; if(CH&&(CH.name||CH.id)) lk.push('<span>'+(zh?'微信视频号：':'WeChat Channels: ')+H([CH.name, CH.id?((zh?'视频号 ID ':'video account ID ')+CH.id):''].filter(Boolean).join(' · '))+'</span>'); /* v12.2 */
   row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links'); /* v11.8b: P10 links get the ↗ marker too */
   if(keep.length) row(zh?'备注':'Note', H(keep.join(zh?'':' ')));
+  if(e.preview){
+    if(!ad.length){
+      var pc=zh?(previewCity[e.city]||e.city):(e.city||'');
+      var pq=[e.city,e.country].filter(Boolean).join(', ');
+      var pu=(e.country==='China'?'https://uri.amap.com/search?keyword=':'https://www.google.com/maps/search/?api=1&query=')+encodeURIComponent(pq);
+      R.unshift('<div class="b-row p10-row atm-preview-venue"><b class="p10-k">'+(zh?'场地':'Venue')+'</b><span>'+H(zh?'场地待公布':'Venue to be announced')+'<br><a class="atm-citymap" href="'+H(pu)+'" target="_blank" rel="noopener">'+H(pc)+' · '+(zh?'城市地图（非场地）':'City map (not the venue)')+'</a></span></div>');
+    }
+    R.unshift('<div class="b-row p10-row atm-preview"><b class="p10-k">'+(zh?'预告':'Preview')+'</b><span>'+(zh?'活动预告 · 详情待公布':'Preview · Details to be announced')+'</span></div>');
+  }
   return R.join(''); }
 function p10noticeUI(e, notices){ if(!notices||!notices.length) return null; var wrap=document.createElement('div'); wrap.className='p10-npill-wrap';
   var btn=document.createElement('button'); btn.type='button'; btn.className='p10-npill'; btn.setAttribute('aria-expanded','false');

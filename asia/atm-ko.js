@@ -12,7 +12,7 @@
     'Shanghai': '상하이', 'Beijing': '베이징', 'Tianjin': '톈진', 'Guangzhou': '광저우', 'Qingdao': '칭다오',
     'Chengdu': '청두', 'Shenzhen': '선전', 'Chongqing': '충칭', 'Haikou': '하이커우', 'Hangzhou': '항저우',
     "Xi'an": '시안', 'Zhengzhou': '정저우', 'Zhuhai': '주하이', 'Nanjing': '난징', 'Suzhou': '쑤저우', 'Wuhan': '우한',
-    'Hong Kong': '홍콩', 'Macau': '마카오', 'Taiwan': '대만', 'Taipei': '타이베이', 'New Taipei': '신베이',
+    'Hong Kong': '홍콩', 'Macau': '마카오', 'Taiwan': '대만', 'Taipei': '타이베이', 'Moganshan': '모간산', 'New Taipei': '신베이',
     'Taichung': '타이중', 'Tainan': '타이난', 'Hsinchu': '신주', 'Zhubei': '주베이', 'Miaoli': '먀오리',
     'Seoul': '서울', 'Busan': '부산', 'Daegu': '대구', 'Daejeon': '대전', 'Gwangju': '광주', 'Ulsan': '울산',
     'Changwon': '창원', 'Cheongju': '청주', 'Gunsan': '군산', 'Jinju': '진주', 'Pohang': '포항',
@@ -58,7 +58,7 @@
     'No listings match these filters.': '조건에 맞는 이벤트가 없습니다.', 'All cities · Special events by start date': '모든 도시 · 스페셜 이벤트 (시작일순)',
     'Weekly milonga · This week\'s theme': '매주 밀롱가 · 이번 주 테마', 'TBA': '미정',
     /* card */
-    'Venue': '장소', 'ORG': '주최', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
+    'Preview': '예고', 'Preview · Details to be announced': '예고 · 자세한 내용은 추후 공개', 'Venue to be announced': '장소 추후 공개', 'City map (not the venue)': '도시 지도 (장소 아님)', 'Venue': '장소', 'ORG': '주최', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
     'Notes': '참고', 'Note': '참고', 'Notice': '공지', 'More': '더 보기', 'Less': '접기', 'Collapse ⌃': '접기 ⌃',
     'Links': '링크', 'Website': '웹사이트', 'Event website': '이벤트 웹사이트', 'Video': '영상', 'Register': '등록',
     'Details': '상세', 'Event details': '이벤트 상세', 'Phone': '전화', 'Email': '이메일', 'WeChat': '위챗',
