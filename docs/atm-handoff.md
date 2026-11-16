@@ -139,4 +139,41 @@
 - 活动 JSON 每个文件只有**一行**，两个同时改资料的 PR 一定会在 git 里冲突；一次合并一个，后一个重新从 main 开分支。
 - 探戈助理的附件多半是**手机截图**（带浏览器边框），当海报用之前要裁切；被截掉一半的海报宁可不用，让系统产文字海报。主办直接寄来的海报原图（例如第216场）可以直接用。
 - 新的 `type` 值（例如 encuentro）要确认 `atm-home.js` 的 `catOf()` 和 `cardB.js` 的 `P10TN` 都认得，否则会被当成日常舞会、标签显示英文。
-- 改 `data/inbox/README.md` 也会触发一次 `inbox.yml`（没答复时什么都不做，无害）。
+- 改 `data/inbox/README.md` 也会触发一次 `inbox.yml`。inbox 里如果还有未处理的 `.md`（目前是 E175），这次运行会把它们一起交给 Claude。所以这次预告卡没有改 README。
+
+## 8. 2026-11-16 五项预告卡（已由 ATM 直接实现）
+
+Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作：
+
+- t1005u：这五项可以上线。
+- t1006u：五项都是先把日期定下来的 placeholder。
+- t1007u：预告卡设计（见下）。
+- t1008u：不等 Claude，由 ATM 直接实现并上线。
+- t1009u：交接必须写清楚。
+
+原资料在分支 `answer/2026-11-16-preview-five` 提交 `bcf894f`，没有开 PR，因此没有触发 inbox 全量流程。六个文件都已按本批落实，Claude 不要再为它们新建卡：
+
+- `data/inbox/2026-11-16-preview-card-design.md`
+- `data/inbox/2026-11-16-beijing-alejandra-mantinan-workshop.md` → E188
+- `data/inbox/2026-11-16-moganshan-tango-caravan-date.md` → E189（新建；没有改 R0E9XeyL）
+- `data/inbox/2026-11-16-jakarta-championship-2027.md` → E190
+- `data/inbox/2026-11-16-taipei-alejandra-workshop.md` → E191
+- `data/inbox/2026-11-16-beijing-lucas-naima-workshop.md` → E192
+
+这些文件不在 main 的 `data/inbox/` 里。`data/inbox/2026-11-16-busan-e175-category.md` 仍未处理。雷达、邮件和例行任务仍暂停。没有删除或移动旧任务。
+
+预告卡字段：`preview: true`。有名称、城市、日期即可；类型只有用户写了才写（E189 没有类型）。中文界面显示「活动预告 · 详情待公布」，英文是 “Preview · Details to be announced”。没有主办海报，用 `images/asia/posters/generated/E18x.png` 简洁占位图。场地、地址、费用、联络方式留空，页面不显示这些空栏，也不显示到具体地址的导航。没有地址时只给城市级地图，并写「场地待公布」／“City map (not the venue)”。大型列表可见（`isFeat` 把 `preview` 算进去）。以后补资料改同一编号和 `?card=` 链接。
+
+| 编号 | 名称 | 日期 | 正式链接 |
+|---|---|---|---|
+| E188 | Alejandra Mantinan Beijing Workshop（原文「北京 AS」只记在备注，不是主办） | 2027-03-02 至 2027-03-09 | https://tangoweekend.org/zh/asia/?card=E188 |
+| E189 | 【Tango Caravan 大篷车】第3站 - 莫干山 | 2027-04-09 至 2027-04-11 | https://tangoweekend.org/zh/asia/?card=E189 |
+| E190 | Jakarta Championship（festival） | 2027-06-10 至 2027-06-12 | https://tangoweekend.org/zh/asia/?card=E190 |
+| E191 | Alejandra martinan Workshop（拼写未改成 Mantinan） | 2027-03-24 至 2027-03-30 | https://tangoweekend.org/zh/asia/?card=E191 |
+| E192 | Lucas y Naima Workshop | 2027-05-10 至 2027-05-17 | https://tangoweekend.org/zh/asia/?card=E192 |
+
+代码：`asia/atm-home.js`（预告标签、大型列表、莫干山中文名，`?v=h186`）、`asia/cardB.js`（预告行和城市地图，`?v=cb160`）、`asia/atm-ko.js`（对应韩文，`?v=k10`）、`asia/asia-map.js` 的缩图尺寸表（`?v=r21`）。两个 `index.html` 的版本号已一起加。测试：`python3 tools/test_preview_cards.py`，以及 `python3 tools/ensure_posters.py --check`。
+
+回退点：上线前的 main 是 `68a136b`（Merge pull request #161）。部署走合并到 main 后的 GitHub Pages，活动 JSON 走既有「R2 sync」，不是整份覆盖 R2。正式站验证时间在部署完成后补记到本节。
+
+还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用、主办和联系方式。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。
