@@ -46,6 +46,11 @@ def main():
             bad.append(rel + ' directions not separated')
     if json.dumps(cards[0].get('directions_images'), ensure_ascii=False) != json.dumps(cards[1].get('directions_images'), ensure_ascii=False):
         bad.append('json and core captions differ')
+    first = cards[0]['directions_images'][0]
+    if first.get('caption') != '沿方斜路向前；找到旁边小区入口':
+        bad.append('exterior caption')
+    if '永惠大厦' in (first.get('caption') or '') or 'Yonghui' in (first.get('caption_en') or ''):
+        bad.append('exterior caption still points at the building')
     gate = cards[0]['directions_images'][1]
     if gate.get('caption') != '1. 大门进入；2. A栋门口':
         bad.append('entrance caption')
@@ -61,6 +66,8 @@ def main():
     blob = (cards[0].get('directions') or '') + (cards[0].get('directions_en') or '')
     if '左侧通道' in blob or 'left passage' in blob or '没有标出' in blob or 'do not mark' in blob:
         bad.append('directions still say the floor or elevator was unmarked')
+    if '沿街走到永惠大厦' in (cards[0].get('directions') or '') or 'Walk to Yonghui' in (cards[0].get('directions_en') or ''):
+        bad.append('directions still send people straight to the building')
     room = cards[0]['directions_images'][3]
     if room.get('caption') != '按 Tango Bang 招牌箭头向左，进入1502室。':
         bad.append('room caption')
