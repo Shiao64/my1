@@ -6,6 +6,9 @@
 - 网页：https://github.com/Shiao64/my1/blob/main/data/inbox/README.md
 - 纯文字：https://raw.githubusercontent.com/Shiao64/my1/main/data/inbox/README.md
 
+想知道网站整体怎么运作、最近改了什么、还有哪些待办，读交接说明（给 Claude 的，探戈助理也可以读）：
+- 纯文字：https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md
+
 （2026-11-16 更新：分支名以 answer/ 开头，不是 inbox/；安全的改动、新一期海报会自动上线，见第三节第 4 点；没结束时间、没场地名的写法见第三节；第六节是目前要问主办的清单。）
 
 ## 一、谁听谁的
