@@ -49,7 +49,11 @@ def main():
         for k in EMPTY:
             if e.get(k):
                 bad.append(f'{i} filled {k}')
-        if i != 'E192' and e.get('organizers'):
+        given = {'E188': ['AS Tango阿根廷探戈学校'], 'E192': ['王萌']}
+        if i in given:
+            if e.get('organizers') != given[i]:
+                bad.append(i + ' organizer ' + repr(e.get('organizers')))
+        elif e.get('organizers'):
             bad.append(i + ' organizer was not given')
         if e.get('organizers_en'):
             bad.append(i + ' invented organizers_en')
@@ -62,9 +66,11 @@ def main():
     e188 = by.get('E188') or {}
     PUBLIC = '活动预告，详情待公布。'
     PUBLIC_EN = 'Preview. Details to be announced.'
+    PUBLIC_KO = '예고. 자세한 내용은 추후 공개.'
+    PUBLIC_ES = 'Anuncio. Los detalles se anunciarán más adelante.'
     leak = ('北京 AS', 'R0E9XeyL', '未提供', '尚未', '不要套用', '不是主办海报', '原拼写', '未找到原卡')
     for i, e in by.items():
-        if e.get('note_zh') != PUBLIC or e.get('note') != PUBLIC_EN:
+        if e.get('note_zh') != PUBLIC or e.get('note') != PUBLIC_EN or e.get('note_ko') != PUBLIC_KO or e.get('note_es') != PUBLIC_ES:
             bad.append(i + ' public note is not the short preview')
         blob = (e.get('note_zh') or '') + (e.get('note') or '')
         if any(s in blob for s in leak):
@@ -79,6 +85,8 @@ def main():
         bad.append('E192 organizer')
     if e192.get('city') != 'Beijing':
         bad.append('E192 city')
+    if e188.get('organizers') != ['AS Tango阿根廷探戈学校'] or e188.get('organizers_en') or e188.get('city') != 'Beijing':
+        bad.append('E188 organizer or city')
     road = next((e for e in load('asia/events.json') if e.get('id') == 'R0E9XeyL'), None)
     if not road or road.get('city') != 'Shanghai' or '莫干山路' not in (road.get('venue_address') or ''):
         bad.append('R0E9XeyL changed or missing')

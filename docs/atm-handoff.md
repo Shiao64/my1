@@ -150,6 +150,8 @@ Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作
 - t1007u：预告卡设计（见下）。
 - t1008u：不等 Claude，由 ATM 直接实现并上线。
 - t1009u：交接必须写清楚。
+- t1020u：E192 主办确认为「王萌」；五张卡的公开说明去掉内部交接话。
+- t1021u：E188 主办确认为「AS Tango阿根廷探戈学校」；预告卡公开说明的短句成为长期规则。
 
 原资料在分支 `answer/2026-11-16-preview-five` 提交 `bcf894f`，没有开 PR，因此没有触发 inbox 全量流程。六个文件都已按本批落实，Claude 不要再为它们新建卡：
 
@@ -162,15 +164,15 @@ Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作
 
 这些文件不在 main 的 `data/inbox/` 里。`data/inbox/2026-11-16-busan-e175-category.md` 仍未处理。雷达、邮件和例行任务仍暂停。没有删除或移动旧任务。
 
-预告卡字段：`preview: true`。有名称、城市、日期即可；类型只有用户写了才写（E189 没有类型）。中文界面显示「活动预告 · 详情待公布」，英文是 “Preview · Details to be announced”。没有主办海报，用 `images/asia/posters/generated/E18x.png` 简洁占位图。场地、地址、费用、联络方式留空，页面不显示这些空栏，也不显示到具体地址的导航。没有地址时卡片里只写纯文字「场地待公布」／“Venue to be announced”，不再附「城市地图（非场地）」链接（t1019u，覆盖先前的城市地图链接）。地图本身的城市级活动点保留。有真实地址的活动仍用原来的地图导航。大型列表可见（`isFeat` 把 `preview` 算进去）。以后补资料改同一编号和 `?card=` 链接。
+预告卡字段：`preview: true`。有名称、城市、日期即可；类型只有用户写了才写（E189 没有类型）。已确认的名称、日期、城市、主办保留在对应字段，不因说明改短而删掉，也不另编罗马字主办名。中文界面的预告行显示「活动预告 · 详情待公布」，英文是 “Preview · Details to be announced”。公开说明是另一处，今后所有 placeholder／预告卡一律只写这四句，不再公开内部备注、缺项、来源或待核实判断：`note_zh`「活动预告，详情待公布。」、`note` “Preview. Details to be announced.”、`note_ko` “예고. 자세한 내용은 추후 공개.”、`note_es` “Anuncio. Los detalles se anunciarán más adelante.” 缺了的场地、地址、时间、费用、联系方式留空，不猜。没有主办海报，用 `images/asia/posters/generated/E18x.png` 简洁占位图。页面不显示这些空栏，也不显示到具体地址的导航。没有地址时卡片里只写纯文字「场地待公布」／“Venue to be announced”，不再附「城市地图（非场地）」链接（t1019u，覆盖先前的城市地图链接）。地图本身的城市级活动点保留。有真实地址的活动仍用原来的地图导航。大型列表可见（`isFeat` 把 `preview` 算进去）。以后补资料改同一编号和 `?card=` 链接。
 
 | 编号 | 名称 | 日期 | 正式链接 |
 |---|---|---|---|
-| E188 | Alejandra Mantinan Beijing Workshop（原文「北京 AS」只记在备注，不是主办） | 2027-03-02 至 2027-03-09 | https://tangoweekend.org/zh/asia/?card=E188 |
+| E188 | Alejandra Mantinan Beijing Workshop，城市北京，主办 AS Tango阿根廷探戈学校 | 2027-03-02 至 2027-03-09 | https://tangoweekend.org/zh/asia/?card=E188 |
 | E189 | 【Tango Caravan 大篷车】第3站 - 莫干山 | 2027-04-09 至 2027-04-11 | https://tangoweekend.org/zh/asia/?card=E189 |
 | E190 | Jakarta Championship（festival） | 2027-06-10 至 2027-06-12 | https://tangoweekend.org/zh/asia/?card=E190 |
 | E191 | Alejandra martinan Workshop（拼写未改成 Mantinan） | 2027-03-24 至 2027-03-30 | https://tangoweekend.org/zh/asia/?card=E191 |
-| E192 | Lucas y Naima Workshop | 2027-05-10 至 2027-05-17 | https://tangoweekend.org/zh/asia/?card=E192 |
+| E192 | Lucas y Naima Workshop，城市北京，主办王萌 | 2027-05-10 至 2027-05-17 | https://tangoweekend.org/zh/asia/?card=E192 |
 
 代码：`asia/atm-home.js`（预告标签、大型列表、莫干山中文名，`?v=h186`）、`asia/cardB.js`（预告行和城市地图，`?v=cb160`）、`asia/atm-ko.js`（对应韩文，`?v=k10`）、`asia/asia-map.js` 的缩图尺寸表（`?v=r21`）。两个 `index.html` 的版本号已一起加。测试：`python3 tools/test_preview_cards.py`，以及 `python3 tools/ensure_posters.py --check`。
 
@@ -183,9 +185,9 @@ Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作
 - E190 的单卡页已能打开（探戈节，2027-06-10 至 06-12，城市地图是 Jakarta, Indonesia）。18:20 时公开 events-core 还没有它，所以当时的大型列表里看不到。随后公开 events-core 已是 168 张并含 E190。第二次 R2 sync [43845464828](https://github.com/Shiao64/my1/actions/runs/43845464828) 在写下本段时仍未标完成。
 - 卡片正面曾显示「场地待公布 · 城市地图（非场地）」并链到城市搜索。t1019u 改为只留纯文字「场地待公布」／“Venue to be announced”，五张预告卡共用这段渲染。版本 `cardB.js?v=cb163`。地图上的城市点不删。
 
-公开说明只留「活动预告，详情待公布。」英文 “Preview. Details to be announced.” 韩文和西班牙文也是同样短的预告句，分别在 `note_ko`、`note_es`。原先写进说明里的内部话（北京 AS 未定性、不要改 R0E9XeyL、拼写尚未确认、未提供海报、不要套用另一场）已从五张卡的公开字段删掉，只留在本节。E192 主办是用户确认的「王萌」，没有编罗马字，没有填联系方式。城市仍是北京，名称仍是 Lucas y Naima Workshop，日期仍是 2027-05-10 至 2027-05-17。
+t1020u 起，五张卡的公开说明只留上面那四句短预告。早先写进说明的内部话（不要改 R0E9XeyL、拼写尚未确认、未提供海报、不要套用另一场，以及把「北京 AS」当成身份不明）已从公开字段删掉。t1021u 已确认 E188 主办就是「AS Tango阿根廷探戈学校」，城市北京；那条身份不明的旧备注作废，不要再当成当前事实。E192 主办是用户确认的「王萌」，没有编罗马字，没有填联系方式。名称仍是 Lucas y Naima Workshop，日期仍是 2027-05-10 至 2027-05-17，城市北京。
 
-还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用。E188–E191 的主办仍未提供。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。t1019u 起，预告卡上不再放城市地图链接，只留纯文字「场地待公布」。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。公开 events-core 随后已有 168 张，含 E190。
+还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用。E189、E190、E191 的主办仍未提供。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。t1019u 起，预告卡上不再放城市地图链接，只留纯文字「场地待公布」。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。公开 events-core 随后已有 168 张，含 E190。
 
 ## 9. 探戈帮问路图（DIVjezcE，t1014u / t1015u）
 
