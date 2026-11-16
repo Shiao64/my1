@@ -162,7 +162,7 @@ Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作
 
 这些文件不在 main 的 `data/inbox/` 里。`data/inbox/2026-11-16-busan-e175-category.md` 仍未处理。雷达、邮件和例行任务仍暂停。没有删除或移动旧任务。
 
-预告卡字段：`preview: true`。有名称、城市、日期即可；类型只有用户写了才写（E189 没有类型）。中文界面显示「活动预告 · 详情待公布」，英文是 “Preview · Details to be announced”。没有主办海报，用 `images/asia/posters/generated/E18x.png` 简洁占位图。场地、地址、费用、联络方式留空，页面不显示这些空栏，也不显示到具体地址的导航。没有地址时只给城市级地图，并写「场地待公布」／“City map (not the venue)”。大型列表可见（`isFeat` 把 `preview` 算进去）。以后补资料改同一编号和 `?card=` 链接。
+预告卡字段：`preview: true`。有名称、城市、日期即可；类型只有用户写了才写（E189 没有类型）。中文界面显示「活动预告 · 详情待公布」，英文是 “Preview · Details to be announced”。没有主办海报，用 `images/asia/posters/generated/E18x.png` 简洁占位图。场地、地址、费用、联络方式留空，页面不显示这些空栏，也不显示到具体地址的导航。没有地址时卡片里只写纯文字「场地待公布」／“Venue to be announced”，不再附「城市地图（非场地）」链接（t1019u，覆盖先前的城市地图链接）。地图本身的城市级活动点保留。有真实地址的活动仍用原来的地图导航。大型列表可见（`isFeat` 把 `preview` 算进去）。以后补资料改同一编号和 `?card=` 链接。
 
 | 编号 | 名称 | 日期 | 正式链接 |
 |---|---|---|---|
@@ -181,7 +181,7 @@ Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作
 - 五个 id 和链接以公开 JSON 为准，不要对调：E188 北京 Alejandra Mantinan https://tangoweekend.org/zh/asia/?card=E188 ；E189 莫干山第3站 https://tangoweekend.org/zh/asia/?card=E189 ；E190 雅加达 https://tangoweekend.org/zh/asia/?card=E190 ；E191 台北 Alejandra martinan https://tangoweekend.org/zh/asia/?card=E191 ；E192 北京 Lucas y Naima https://tangoweekend.org/zh/asia/?card=E192 。
 - 大型列表 `#h-feat` 已显示 E188、E192、E191、E189，日期分别是 2027/03/02–03/09、2027/05/10–05/17、2027/03/24–03/30、2027/04/09–04/11。E189 没有类型标签，仍然在大型列表里，没有被改成别的类型。
 - E190 的单卡页已能打开（探戈节，2027-06-10 至 06-12，城市地图是 Jakarta, Indonesia）。18:20 时公开 events-core 还没有它，所以当时的大型列表里看不到。随后公开 events-core 已是 168 张并含 E190。第二次 R2 sync [43845464828](https://github.com/Shiao64/my1/actions/runs/43845464828) 在写下本段时仍未标完成。
-- 卡片正面（`asia-map.js?v=r22`、`cardB.js?v=cb162`）显示「活动预告 · 详情待公布」和「场地待公布 · 城市地图（非场地）」。E188 的地图是 Beijing, China；E189 是 Moganshan, China，不是莫干山路。没有具体地址导航。
+- 卡片正面曾显示「场地待公布 · 城市地图（非场地）」并链到城市搜索。t1019u 改为只留纯文字「场地待公布」／“Venue to be announced”，五张预告卡共用这段渲染。版本 `cardB.js?v=cb163`。地图上的城市点不删。
 
 还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用、主办和联系方式。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。公开 events-core 随后已有 168 张，含 E190。
 
