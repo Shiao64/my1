@@ -180,7 +180,17 @@ Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作
 
 - 五个 id 和链接以公开 JSON 为准，不要对调：E188 北京 Alejandra Mantinan https://tangoweekend.org/zh/asia/?card=E188 ；E189 莫干山第3站 https://tangoweekend.org/zh/asia/?card=E189 ；E190 雅加达 https://tangoweekend.org/zh/asia/?card=E190 ；E191 台北 Alejandra martinan https://tangoweekend.org/zh/asia/?card=E191 ；E192 北京 Lucas y Naima https://tangoweekend.org/zh/asia/?card=E192 。
 - 大型列表 `#h-feat` 已显示 E188、E192、E191、E189，日期分别是 2027/03/02–03/09、2027/05/10–05/17、2027/03/24–03/30、2027/04/09–04/11。E189 没有类型标签，仍然在大型列表里，没有被改成别的类型。
-- E190 的单卡页已能打开（探戈节，2027-06-10 至 06-12，城市地图是 Jakarta, Indonesia）。它还不在大型列表里，因为公开 events-core 仍是 167 张、没有 E190。仓库里 #163 已把它放进 events-core。第一次 R2 sync [43844020410](https://github.com/Shiao64/my1/actions/runs/43844020410) 已成功；第二次 [43845464828](https://github.com/Shiao64/my1/actions/runs/43845464828) 18:20 仍在上传。这一项要等这次同步结束才算完成。
+- E190 的单卡页已能打开（探戈节，2027-06-10 至 06-12，城市地图是 Jakarta, Indonesia）。18:20 时公开 events-core 还没有它，所以当时的大型列表里看不到。随后公开 events-core 已是 168 张并含 E190。第二次 R2 sync [43845464828](https://github.com/Shiao64/my1/actions/runs/43845464828) 在写下本段时仍未标完成。
 - 卡片正面（`asia-map.js?v=r22`、`cardB.js?v=cb162`）显示「活动预告 · 详情待公布」和「场地待公布 · 城市地图（非场地）」。E188 的地图是 Beijing, China；E189 是 Moganshan, China，不是莫干山路。没有具体地址导航。
 
-还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用、主办和联系方式。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。
+还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用、主办和联系方式。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。公开 events-core 随后已有 168 张，含 E190。
+
+## 9. 探戈帮问路图（DIVjezcE，t1014u / t1015u）
+
+用户授权只给这张卡加三张问路照片并正常发布。其他暂停任务不恢复，不触发 inbox。
+
+单语决定（t1015u）：中文、英文、韩文、西班牙文的指引和图注必须分字段保存。每个语言版本只显示自己的那一种，不能在一张卡上把四语叠在一起。沿用现有语言选择：中文页 `/zh/asia/`，英文页 `/asia/`，韩文不是独立页面，只在 `?lang=ko` 时由 `atm-ko.js` 测试。西班牙文没有页面，也不新开入口。`atm-addr.js` 的 `pickLang` 按当前语言只取 `directions` / `directions_en` / `directions_ko` / `directions_es`，图注同理取 `caption` 及 `_en` / `_ko` / `_es`。韩文和西班牙文译文已存好，供对应版本使用。
+
+照片按原图复制，箭头没有重画。顺序：外观 `DIVjezcE-01-exterior.jpg`，入口 `DIVjezcE-02-entrance.jpg`，大堂 `DIVjezcE-03-lobby.jpg`。外观能看见永惠大厦和方斜路路牌，与卡上「近方斜支路口」相符。已核实地址仍是西藏南路 765 号 1502 室，没有按照片改写。大堂图注写明那是左侧通道，不是场地门口。图中没有标电梯或楼层，文案也不猜。
+
+测试：`python3 tools/test_divjezc_route.py`。回退仍可用 `backup/live-20261116-before-preview`（`68a136b`）；这次只动了 DIVjezcE 的问路字段和三张图。发布状态写在合并之后。
