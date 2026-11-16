@@ -176,6 +176,11 @@ Shiao 在 ATM 聊天里批准的范围只有这一批，不是恢复其他工作
 
 回退点：上线前的 main 是 `68a136b`（Merge pull request #161），分支 `backup/live-20261116-before-preview`。实现 PR 是 #162，合并提交 `01f613e`（北京时间 2026-11-16 17:54）。部署走 GitHub Pages 加既有「R2 sync」（run 43844020410），不是整份覆盖 R2。
 
-正式站核对（北京时间 2026-11-16 18:08，大型列表 `#h-feat`）：E188、E189、E191、E192 已在列表里，带 Preview 标签，日期分别是 2027-03-02–03-09、2027-04-09–04-11、2027-03-24–03-30、2027-05-10–05-17。E189 没有类型，仍然出现在大型列表，没有被改成别的类型。E190 当时不在这个列表里：公开的 events-core 还是 167 张、没有 E190，因为 #163 的 R2 sync（43845464828）排在仍未结束的 43844020410 后面。五张卡的正式链接以数据里的 id 为准：E188、E189、E190、E191（台北 martinan）、E192（北京 Lucas y Naima）。单卡页当时仍有空的「场地」行，因为那一行在活动对象还没索引时就画好了。随后改为用卡片上的 `data-preview` 直接显示「活动预告 · 详情待公布」和「场地待公布 · 城市地图（非场地）」，版本 `asia-map.js?v=r22`、`cardB.js?v=cb162`。这一步合并后才算卡片页完成；E190 要等它进入公开 events-core 后才算出现在大型列表。
+正式站核对（北京时间 2026-11-16 18:20）：
+
+- 五个 id 和链接以公开 JSON 为准，不要对调：E188 北京 Alejandra Mantinan https://tangoweekend.org/zh/asia/?card=E188 ；E189 莫干山第3站 https://tangoweekend.org/zh/asia/?card=E189 ；E190 雅加达 https://tangoweekend.org/zh/asia/?card=E190 ；E191 台北 Alejandra martinan https://tangoweekend.org/zh/asia/?card=E191 ；E192 北京 Lucas y Naima https://tangoweekend.org/zh/asia/?card=E192 。
+- 大型列表 `#h-feat` 已显示 E188、E192、E191、E189，日期分别是 2027/03/02–03/09、2027/05/10–05/17、2027/03/24–03/30、2027/04/09–04/11。E189 没有类型标签，仍然在大型列表里，没有被改成别的类型。
+- E190 的单卡页已能打开（探戈节，2027-06-10 至 06-12，城市地图是 Jakarta, Indonesia）。它还不在大型列表里，因为公开 events-core 仍是 167 张、没有 E190。仓库里 #163 已把它放进 events-core。第一次 R2 sync [43844020410](https://github.com/Shiao64/my1/actions/runs/43844020410) 已成功；第二次 [43845464828](https://github.com/Shiao64/my1/actions/runs/43845464828) 18:20 仍在上传。这一项要等这次同步结束才算完成。
+- 卡片正面（`asia-map.js?v=r22`、`cardB.js?v=cb162`）显示「活动预告 · 详情待公布」和「场地待公布 · 城市地图（非场地）」。E188 的地图是 Beijing, China；E189 是 Moganshan, China，不是莫干山路。没有具体地址导航。
 
 还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用、主办和联系方式。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。
