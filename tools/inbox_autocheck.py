@@ -14,6 +14,9 @@ Auto only when ALL of these hold:
   * no card is removed, and the three JSON files stay compact and agree with each other;
   * an existing card only gets: updated / source; new temp_notices, cancelled_dates,
     contacts or links (old ones kept); an address or directions that used to be empty;
+    or a new poster put in by tools/radar_poster_update.py (Shiao 2026-11-16): poster
+    fields, dj / dj_en when they match the new poster's DJ, the poster + thumb + backup
+    files of that card, a radar-poster-log line, and cache-key-only edits to the pages;
   * a new card is in mainland China or Hong Kong, complete (name, city, time, venue,
     address, source; date not past or weekdays), sits in events.json + events-core.json,
     and does not look like a card that is already there (same city + day + venue or name);
@@ -23,6 +26,10 @@ import argparse, datetime, json, re, subprocess, sys, unicodedata
 
 FILES = ['asia/events.json', 'asia/events-core.json', 'asia/events-more.json']
 ALLOWED_PATHS = re.compile(r'^(asia/events(-core|-more)?\.json|data/inbox/.+|data/entities-draft/.+)$')
+POSTER_FIELDS = {'poster', 'poster_date', 'poster_dates', 'poster_djs', 'posters_past'}
+POSTER_LOG = 'tools/radar-poster-log.jsonl'
+IMG = re.compile(r'^images/(asia/posters/(_backup/|past/)?|thumb/images/asia/posters/|thumb800/images/asia/posters/)([^/]+)$')
+CACHE_FILES = {'asia/index.html', 'zh/asia/index.html', 'asia/asia-map.js', 'asia/atm-home.js', 'asia/cardB.js'}
 NEW_REGIONS = {'China', 'Hong Kong'}
 TYPES = {'milonga', 'practilonga', 'practica', 'festival', 'marathon', 'weekend',
          'anniversary', 'workshop', 'encuentro'}
@@ -113,12 +120,25 @@ def looks_duplicate(new, old, today):
 def check(base, head, body, today):
     reasons, changes = [], []
 
-    files = [l.split('\t')[-1] for l in git('diff', '--name-status', '-M', f'{base}...{head}').splitlines() if l.strip()]
-    olds = [l.split('\t')[1] for l in git('diff', '--name-status', '-M', f'{base}...{head}').splitlines()
-            if l.startswith('R')]
-    for f in files + olds:
-        if not ALLOWED_PATHS.match(f):
-            reasons.append(f'改了资料以外的文件：{f}')
+    status = [l.split('\t') for l in git('diff', '--name-status', '-M', f'{base}...{head}').splitlines() if l.strip()]
+    files = [x[-1] for x in status]
+    olds = [x[1] for x in status if x[0].startswith('R')]
+    img_files, cache_files = [], []
+    for st in status:
+        for f in st[1:]:
+            if ALLOWED_PATHS.match(f):
+                continue
+            if IMG.match(f) and not st[0].startswith('D'):
+                img_files.append(f)
+            elif f in CACHE_FILES and st[0] == 'M':
+                cache_files.append(f)
+            elif f == POSTER_LOG and st[0] == 'M':
+                pass
+            else:
+                reasons.append(f'改了资料以外的文件：{f}')
+    for f in cache_files:
+        if not cache_only(show(base, f) or '', show(head, f) or ''):
+            reasons.append(f'{f} 的改动不只是缓存版本号')
 
     if not MARK.search(body or ''):
         reasons.append('PR 说明里没有「需要确认：无」，表示有事要问你')
@@ -157,6 +177,7 @@ def check(base, head, body, today):
             reasons.append(f'卡 {i} 从 core/more 文件里拿掉了')
 
     touched = [i for i in new if old.get(i) != new[i]]
+    poster_ids = set()
     if len(touched) > MAX_CARDS:
         reasons.append(f'一次改了 {len(touched)} 张卡（超过 {MAX_CARDS} 张）')
 
@@ -172,9 +193,19 @@ def check(base, head, body, today):
         o = old[i]
         fields = sorted(k for k in set(o) | set(e) if o.get(k) != e.get(k))
         changes.append(f'{i} 改了：{"、".join(fields)}')
+        new_poster = o.get('poster') != e.get('poster')
+        if new_poster:
+            poster_ids.add(i)
+            if not logged(base, head, i):
+                reasons.append(f'卡 {i} 换了海报，但不是用换海报工具换的（tools/radar-poster-log.jsonl 没有记录）')
+        dj_now = (e.get('poster_djs') or {}).get(str(e.get('poster') or '').split('?')[0])
         for k in fields:
             a, b = o.get(k), e.get(k)
             if k in ALWAYS_OK:
+                continue
+            if new_poster and k in POSTER_FIELDS:
+                continue
+            if new_poster and k in ('dj', 'dj_en') and dj_now and str(b or '').startswith(str(dj_now)):
                 continue
             if k in ADD_ONLY_LIST and isinstance(b, list) and all(x in b for x in (a or [])):
                 continue
@@ -186,7 +217,37 @@ def check(base, head, body, today):
                 reasons.append(f'卡 {i} 改了显示／隐藏')
                 continue
             reasons.append(f'卡 {i} 改了「{k}」（不是补资料或单场提示）')
+    for f in img_files:
+        stem = IMG.match(f).group(3)
+        if not any(stem == pid or stem.startswith(pid + '.') or stem.startswith(pid + '-') for pid in poster_ids):
+            reasons.append(f'改了不属于换海报卡片的图片：{f}')
+    if cache_files and not poster_ids:
+        reasons.append('改了网页的缓存版本号，但没有换海报')
     return not reasons, reasons, changes
+
+
+CACHE_RE = [(re.compile(r'var ATM_TH = \{.*?\};'), 'var ATM_TH = {};'),
+            (re.compile(r'\b(china|e|h|cb|r|t)\d+\b'), r'\1N')]
+
+
+def cache_only(a, b):
+    """True when two versions of a page differ only in cache keys and the ATM_TH table."""
+    for rx, rep in CACHE_RE:
+        a, b = rx.sub(rep, a), rx.sub(rep, b)
+    return a == b
+
+
+def logged(base, head, card_id):
+    before = (show(base, POSTER_LOG) or '').splitlines()
+    after = (show(head, POSTER_LOG) or '').splitlines()
+    for line in after[len(before):]:
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        if isinstance(d, dict) and d.get('action') == 'replaced' and d.get('id') == card_id:
+            return True
+    return False
 
 
 def check_new(i, e, old, core, today, reasons):

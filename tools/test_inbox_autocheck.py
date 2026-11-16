@@ -34,6 +34,10 @@ class T(unittest.TestCase):
         self.git('config', 'user.email', 't@example.invalid')
         self.git('config', 'user.name', 't')
         os.makedirs('asia')
+        os.makedirs('tools')
+        os.makedirs('images/asia/posters/_backup')
+        open('tools/radar-poster-log.jsonl', 'w').write('{"action":"replaced","id":"OLD"}\n')
+        open('asia/index.html', 'w').write("<script src='/asia/cardB.js?v=cb1'></script><p>hello</p>")
         self.write(BASE_CARDS)
         self.git('add', '-A')
         self.git('commit', '-qm', 'base')
@@ -153,6 +157,40 @@ class T(unittest.TestCase):
                           venue='Te Amo / Hall A', name='Winter Festival')
         ok, why, _ = self.run_check(self.cards() + [n], core_extra={'E900'})
         self.assertTrue(ok, why)
+
+
+    def poster_cards(self):
+        c = self.cards()
+        c[0]['poster'] = '/images/asia/posters/R001.png'
+        c[0]['poster_djs'] = {'/images/asia/posters/R001.png': 'Dandi'}
+        c[0]['dj'] = 'Dandi'
+        return c
+
+    def add_poster_files(self, log=True, page_edit="<script src='/asia/cardB.js?v=cb2'></script><p>hello</p>"):
+        open('images/asia/posters/R001.png', 'w').write('png')
+        open('images/asia/posters/_backup/R001-20261116.jpg', 'w').write('jpg')
+        if log:
+            with open('tools/radar-poster-log.jsonl', 'a') as fh:
+                fh.write('{"action":"replaced","id":"R001"}\n')
+        open('asia/index.html', 'w').write(page_edit)
+
+    def test_poster_by_tool_goes_live(self):
+        self.add_poster_files()
+        ok, why, _ = self.run_check(self.poster_cards())
+        self.assertTrue(ok, why)
+
+    def test_poster_without_tool_log_waits(self):
+        self.add_poster_files(log=False)
+        self.assertFalse(self.run_check(self.poster_cards())[0])
+
+    def test_page_edit_beyond_cache_key_waits(self):
+        self.add_poster_files(page_edit="<script src='/asia/cardB.js?v=cb2'></script><p>changed</p>")
+        self.assertFalse(self.run_check(self.poster_cards())[0])
+
+    def test_image_of_other_card_waits(self):
+        self.add_poster_files()
+        open('images/asia/posters/E001.png', 'w').write('x')
+        self.assertFalse(self.run_check(self.poster_cards())[0])
 
 
 if __name__ == '__main__':
