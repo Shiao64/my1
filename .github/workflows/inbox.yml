@@ -4,6 +4,7 @@ name: Inbox process (Claude)
 # a pull request with the data changes. It never merges: Shiao or Claude reviews first.
 # Started by "Inbox guard" after an inbox PR is merged, by a direct push to data/inbox/,
 # or by hand: Actions -> "Inbox process (Claude)" -> Run workflow.
+# Only one answer PR at a time: while an inbox-run-* PR is open, a new run waits (see below).
 # Auth: repo secret CLAUDE_CODE_OAUTH_TOKEN (Shiao's Pro plan; no extra API billing).
 
 on:
@@ -34,10 +35,23 @@ jobs:
           fetch-depth: 1
       - name: Anything new?
         id: new
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           n=$(ls data/inbox/*.md 2>/dev/null | grep -v '/README.md$' | wc -l)
-          echo "count=$n" >> "$GITHUB_OUTPUT"
           echo "new answers: $n"
+          # One answer PR at a time. While an earlier 「探戈助理答复」 PR is still open, its answers are
+          # still in data/inbox/ on main, so a new run would process them twice (#144 / #146), and
+          # the one-line events JSON would make the two PRs conflict. Wait instead: merging the open
+          # PR moves its answers to done/, which pushes data/inbox/ and starts this workflow again.
+          open=$(gh pr list --state open --json number,headRefName \
+            --jq '[.[] | select(.headRefName | startswith("inbox-run-")) | .number] | first // empty')
+          if [ "$n" != "0" ] && [ -n "$open" ]; then
+            echo "PR #$open is still open; waiting for it to be merged or closed."
+            gh pr comment "$open" --body "又有新的探戈助理答复进来（data/inbox/ 里共 $n 份，含本 PR 已处理的）。这个 PR 合并或关闭后，会自动再处理一次。" || true
+            n=0
+          fi
+          echo "count=$n" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v5
         if: steps.new.outputs.count != '0'
         with:
