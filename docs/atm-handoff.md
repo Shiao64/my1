@@ -192,6 +192,8 @@ t1022u 确认 E190 的城市字段就是 Jakarta。名称仍是 Jakarta Champion
 
 还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用。E189、E190、E191 的主办仍未提供。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。t1019u 起，预告卡上不再放城市地图链接，只留纯文字「场地待公布」。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。公开 events-core 随后已有 168 张，含 E190。
 
+正式站再打开过这五张卡。E188 显示主办「AS Tango阿根廷探戈学校」、城市北京、2027-03-02 起，说明只有「活动预告，详情待公布。」，没有「北京 AS」那句内部话，也没有城市地图链接。E192 显示主办「王萌」，名称仍是 Lucas y Naima Workshop，日期仍是 2027-05-10 至 2027-05-17，说明同样只有短预告。E190 城市行是 Jakarta，类型是探戈节，日期是 2027-06-10 至 2027-06-12。五张卡的公开 JSON 说明里都没有内部备注。
+
 ## 9. 探戈帮问路图（DIVjezcE，t1014u / t1015u / t1023u）
 
 用户授权给这张卡加问路照片并正常发布。t1023u 在原三张之后再加第四张。t1024u 确认本批可以上线。其他暂停任务不恢复，不触发 inbox。
@@ -200,4 +202,6 @@ t1022u 确认 E190 的城市字段就是 Jakarta。名称仍是 Jakarta Champion
 
 照片按原图复制，箭头没有重画。顺序：外观 `DIVjezcE-01-exterior.jpg`，入口 `DIVjezcE-02-entrance.jpg`，大堂 `DIVjezcE-03-lobby.jpg`，房间 `DIVjezcE-04-room1502.jpg`。第四张接在末尾，前三张没有替换。外观能看见永惠大厦和方斜路路牌，与卡上「近方斜支路口」相符。已核实地址仍是西藏南路 765 号 1502 室，没有按照片改写。大堂图注写明那是左侧通道，不是场地门口。第四张能看见 Tango Bang 招牌的向左箭头和左侧门上的 1502，图注是「按 Tango Bang 招牌箭头向左，进入1502室。」英文、韩文、西班牙文是这句的译文，仍分字段，各语言版本只显示自己的一句。图中没有楼层或电梯路线，文案也不编。
 
-测试：`python3 tools/test_divjezc_route.py`。加第四张之前的 main 是 `a68ef98`（Merge pull request #170）。更早的整批回退点仍是 `backup/live-20261116-before-preview`（`68a136b`）。正式卡是否已显示四张图，以发布后的页面核对为准，未看到之前不算完成。
+测试：`python3 tools/test_divjezc_route.py`。加第四张之前的 main 是 `a68ef98`（Merge pull request #170）。更早的整批回退点仍是 `backup/live-20261116-before-preview`（`68a136b`）。第四张本身的发布是 PR #171，合并 `27b0da7`。
+
+正式卡已核对。https://tangoweekend.org/zh/asia/?card=DIVjezcE 按外观、入口、大堂、1502室的顺序显示四张图，地址仍是西藏南路 765 号 1502 室，中文指引只显示中文。点开第四张，中文图注是「按 Tango Bang 招牌箭头向左，进入1502室。」英文页同一张只显示英文图注，`?lang=ko` 只显示韩文图注。西班牙文图注已保存在 `caption_es`，没有西班牙文页面，也没有新开入口。第四张图 `https://tangoweekend.org/images/asia/directions/DIVjezcE-04-room1502.jpg` 返回 200，大小与原图一致。
