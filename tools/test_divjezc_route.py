@@ -46,9 +46,21 @@ def main():
             bad.append(rel + ' directions not separated')
     if json.dumps(cards[0].get('directions_images'), ensure_ascii=False) != json.dumps(cards[1].get('directions_images'), ensure_ascii=False):
         bad.append('json and core captions differ')
-    lobby = cards[0]['directions_images'][2]['caption']
-    if '场地门口' not in lobby or '大堂' not in lobby:
-        bad.append('lobby caption does not say it is not the venue door')
+    gate = cards[0]['directions_images'][1]
+    if gate.get('caption') != '1. 大门进入；2. A栋门口':
+        bad.append('entrance caption')
+    if gate.get('caption_en') != '1. Enter through the main gate; 2. Tower A entrance.':
+        bad.append('entrance caption_en')
+    lobby = cards[0]['directions_images'][2]
+    if lobby.get('caption') != '大堂电梯，乘电梯到15楼':
+        bad.append('lobby caption')
+    if lobby.get('caption_en') != 'Lobby elevator. Take the elevator to the 15th floor.':
+        bad.append('lobby caption_en')
+    if '15층' not in (lobby.get('caption_ko') or '') or 'piso 15' not in (lobby.get('caption_es') or ''):
+        bad.append('lobby floor translation')
+    blob = (cards[0].get('directions') or '') + (cards[0].get('directions_en') or '')
+    if '左侧通道' in blob or 'left passage' in blob or '没有标出' in blob or 'do not mark' in blob:
+        bad.append('directions still say the floor or elevator was unmarked')
     room = cards[0]['directions_images'][3]
     if room.get('caption') != '按 Tango Bang 招牌箭头向左，进入1502室。':
         bad.append('room caption')
