@@ -57,7 +57,7 @@ def main():
     for k in LANG:
         if '1502' not in (room.get(k) or '') or 'Tango Bang' not in (room.get(k) or ''):
             bad.append('room caption missing the sign or room ' + k)
-    if cards[0].get('poster', '').split('?')[0] != '/images/asia/posters/DIVjezcE-tangobang.jpg':
+    if cards[0].get('poster') != '/images/asia/posters/DIVjezcE-tangobang.jpg':
         bad.append('poster is not the Tango Bang logo')
     if 'R018.jpg' in (cards[0].get('poster') or '') or cards[0].get('posters_past'):
         bad.append('old poster still public')
