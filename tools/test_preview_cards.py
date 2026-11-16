@@ -87,6 +87,11 @@ def main():
         bad.append('E192 city')
     if e188.get('organizers') != ['AS Tango阿根廷探戈学校'] or e188.get('organizers_en') or e188.get('city') != 'Beijing':
         bad.append('E188 organizer or city')
+    e190 = by.get('E190') or {}
+    if e190.get('city') != 'Jakarta' or e190.get('type') != 'festival' or e190.get('start') != '2027-06-10' or e190.get('end') != '2027-06-12':
+        bad.append('E190 city, type, or dates were cleared')
+    if e190.get('name') != 'Jakarta Championship' or not str(e190.get('poster') or '').endswith('E190.png'):
+        bad.append('E190 name or placeholder')
     road = next((e for e in load('asia/events.json') if e.get('id') == 'R0E9XeyL'), None)
     if not road or road.get('city') != 'Shanghai' or '莫干山路' not in (road.get('venue_address') or ''):
         bad.append('R0E9XeyL changed or missing')
