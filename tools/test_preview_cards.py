@@ -4,8 +4,8 @@ import json, os, sys
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 FILES = {
     'asia/events.json': {'E188', 'E189', 'E190', 'E191', 'E192'},
-    'asia/events-core.json': {'E188', 'E189', 'E191', 'E192'},
-    'asia/events-more.json': {'E190'},
+    'asia/events-core.json': {'E188', 'E189', 'E190', 'E191', 'E192'},
+    'asia/events-more.json': set(),
 }
 WANT = {
     'E188': dict(name='Alejandra Mantinan Beijing Workshop', city='Beijing', region='China', type='workshop', start='2027-03-02', end='2027-03-09'),
