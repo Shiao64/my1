@@ -8,6 +8,7 @@ ORDER = [
     'DIVjezcE-01-exterior.jpg',
     'DIVjezcE-02-entrance.jpg',
     'DIVjezcE-03-lobby.jpg',
+    'DIVjezcE-04-room1502.jpg',
 ]
 LANG = ('caption', 'caption_en', 'caption_ko', 'caption_es')
 
@@ -48,6 +49,14 @@ def main():
     lobby = cards[0]['directions_images'][2]['caption']
     if '场地门口' not in lobby or '大堂' not in lobby:
         bad.append('lobby caption does not say it is not the venue door')
+    room = cards[0]['directions_images'][3]
+    if room.get('caption') != '按 Tango Bang 招牌箭头向左，进入1502室。':
+        bad.append('room caption')
+    if '楼层' in room.get('caption', '') or '电梯' in room.get('caption', ''):
+        bad.append('room caption invented a floor route')
+    for k in LANG:
+        if '1502' not in (room.get(k) or '') or 'Tango Bang' not in (room.get(k) or ''):
+            bad.append('room caption missing the sign or room ' + k)
     if bad:
         print('\n'.join(bad))
         return 1

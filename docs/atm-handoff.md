@@ -192,12 +192,12 @@ t1022u 确认 E190 的城市字段就是 Jakarta。名称仍是 Jakarta Champion
 
 还缺、没有编造的：五张卡的场地、具体地址、开始时间、费用。E189、E190、E191 的主办仍未提供。E191 的 martinan 与 E188 的 Mantinan 是否同一人，尚未核实。t1019u 起，预告卡上不再放城市地图链接，只留纯文字「场地待公布」。自动上线检查 `tools/inbox_autocheck.py` 仍按普通完整卡要求地址，没有为了这批关掉；这五项是经批准的实现 PR 上线，不是 inbox 自动合并。公开 events-core 随后已有 168 张，含 E190。
 
-## 9. 探戈帮问路图（DIVjezcE，t1014u / t1015u）
+## 9. 探戈帮问路图（DIVjezcE，t1014u / t1015u / t1023u）
 
-用户授权只给这张卡加三张问路照片并正常发布。其他暂停任务不恢复，不触发 inbox。
+用户授权给这张卡加问路照片并正常发布。t1023u 在原三张之后再加第四张。t1024u 确认本批可以上线。其他暂停任务不恢复，不触发 inbox。
 
 单语决定（t1015u）：中文、英文、韩文、西班牙文的指引和图注必须分字段保存。每个语言版本只显示自己的那一种，不能在一张卡上把四语叠在一起。沿用现有语言选择：中文页 `/zh/asia/`，英文页 `/asia/`，韩文不是独立页面，只在 `?lang=ko` 时由 `atm-ko.js` 测试。西班牙文没有页面，也不新开入口。`atm-addr.js` 的 `pickLang` 按当前语言只取 `directions` / `directions_en` / `directions_ko` / `directions_es`，图注同理取 `caption` 及 `_en` / `_ko` / `_es`。韩文和西班牙文译文已存好，供对应版本使用。
 
-照片按原图复制，箭头没有重画。顺序：外观 `DIVjezcE-01-exterior.jpg`，入口 `DIVjezcE-02-entrance.jpg`，大堂 `DIVjezcE-03-lobby.jpg`。外观能看见永惠大厦和方斜路路牌，与卡上「近方斜支路口」相符。已核实地址仍是西藏南路 765 号 1502 室，没有按照片改写。大堂图注写明那是左侧通道，不是场地门口。图中没有标电梯或楼层，文案也不猜。
+照片按原图复制，箭头没有重画。顺序：外观 `DIVjezcE-01-exterior.jpg`，入口 `DIVjezcE-02-entrance.jpg`，大堂 `DIVjezcE-03-lobby.jpg`，房间 `DIVjezcE-04-room1502.jpg`。第四张接在末尾，前三张没有替换。外观能看见永惠大厦和方斜路路牌，与卡上「近方斜支路口」相符。已核实地址仍是西藏南路 765 号 1502 室，没有按照片改写。大堂图注写明那是左侧通道，不是场地门口。第四张能看见 Tango Bang 招牌的向左箭头和左侧门上的 1502，图注是「按 Tango Bang 招牌箭头向左，进入1502室。」英文、韩文、西班牙文是这句的译文，仍分字段，各语言版本只显示自己的一句。图中没有楼层或电梯路线，文案也不编。
 
-测试：`python3 tools/test_divjezc_route.py`。回退仍可用 `backup/live-20261116-before-preview`（`68a136b`）；这次只动了 DIVjezcE 的问路字段和三张图。发布状态写在合并之后。
+测试：`python3 tools/test_divjezc_route.py`。加第四张之前的 main 是 `a68ef98`（Merge pull request #170）。更早的整批回退点仍是 `backup/live-20261116-before-preview`（`68a136b`）。正式卡是否已显示四张图，以发布后的页面核对为准，未看到之前不算完成。
