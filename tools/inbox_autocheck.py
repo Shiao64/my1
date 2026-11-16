@@ -1,0 +1,245 @@
+#!/usr/bin/env python3
+"""Decide whether a 「探戈助理答复」 PR may go live without a human look.
+
+Shiao's rule (2026-11-16): safe changes go live by themselves; anything doubtful waits.
+
+  python3 tools/inbox_autocheck.py --base origin/main --head HEAD --body pr-body.md [--today YYYY-MM-DD]
+
+Prints JSON {"auto": true|false, "reasons": [...], "changes": [...]} and always exits 0
+(exit 2 only when it could not run at all). "reasons" says why it must wait, in Chinese.
+
+Auto only when ALL of these hold:
+  * the PR touches only asia/events*.json, data/inbox/**, data/entities-draft/**;
+  * the PR description has the line 「需要确认：无」 (Claude found nothing to ask);
+  * no card is removed, and the three JSON files stay compact and agree with each other;
+  * an existing card only gets: updated / source; new temp_notices, cancelled_dates,
+    contacts or links (old ones kept); an address or directions that used to be empty;
+  * a new card is in mainland China or Hong Kong, complete (name, city, time, venue,
+    address, source; date not past or weekdays), sits in events.json + events-core.json,
+    and does not look like a card that is already there (same city + day + venue or name);
+  * at most MAX_CARDS cards change in one PR.
+"""
+import argparse, datetime, json, re, subprocess, sys, unicodedata
+
+FILES = ['asia/events.json', 'asia/events-core.json', 'asia/events-more.json']
+ALLOWED_PATHS = re.compile(r'^(asia/events(-core|-more)?\.json|data/inbox/.+|data/entities-draft/.+)$')
+NEW_REGIONS = {'China', 'Hong Kong'}
+TYPES = {'milonga', 'practilonga', 'practica', 'festival', 'marathon', 'weekend',
+         'anniversary', 'workshop', 'encuentro'}
+ALWAYS_OK = {'updated', 'source'}
+ADD_ONLY_LIST = {'temp_notices', 'cancelled_dates'}
+ADD_ONLY_DICT = {'contacts', 'links'}
+FILL_IF_EMPTY = {'venue_address', 'venue_address_en', 'directions', 'directions_en'}
+MAX_CARDS = 8
+MARK = re.compile(r'^\s*需要确认\s*[：:]\s*无\s*$', re.M)
+
+
+def git(*a):
+    return subprocess.check_output(['git', *a], text=True)
+
+
+def show(ref, path):
+    try:
+        return subprocess.check_output(['git', 'show', f'{ref}:{path}'], text=True, stderr=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        return None
+
+
+def compact(lst):
+    return json.dumps(lst, ensure_ascii=False, separators=(',', ':'))
+
+
+def norm(s):
+    s = unicodedata.normalize('NFKC', str(s or '')).lower()
+    return re.sub(r'[\s·・.,，、()（）\-–—_/|]+', '', s)
+
+
+def blank(v):
+    return v is None or v == '' or v == [] or v == {}
+
+
+def iso(s):
+    try:
+        return datetime.date.fromisoformat(str(s))
+    except ValueError:
+        return None
+
+
+def similar(a, b):
+    a, b = norm(a), norm(b)
+    return bool(a and b) and (a == b or (min(len(a), len(b)) >= 4 and (a in b or b in a)))
+
+
+def days_of(e):
+    if e.get('kind') == 'weekly':
+        w = e.get('weekdays')
+        if w is None and e.get('weekday') is not None:
+            w = [e['weekday']]
+        return {('w', x % 7) for x in (w or []) if isinstance(x, int)}
+    d1, d2 = iso(e.get('start')), iso(e.get('end') or e.get('start'))
+    if not d1:
+        return set()
+    out, d = set(), d1
+    while d2 and d <= d2 and len(out) < 40:
+        out.add(('d', d.isoformat()))
+        out.add(('w', (d.isoweekday()) % 7))
+        d += datetime.timedelta(days=1)
+    return out
+
+
+def multi_day(e):
+    return e.get('kind') != 'weekly' and (e.get('end') or e.get('start')) != e.get('start')
+
+
+def looks_duplicate(new, old, today):
+    if old.get('hidden') is True or old.get('city') != new.get('city'):
+        return False
+    end = iso(old.get('end') or old.get('start'))
+    if old.get('kind') != 'weekly' and end and end < today:
+        return False  # a past one-off is history, not a twin
+    a, b = days_of(new), days_of(old)
+    if new.get('kind') == 'weekly' or old.get('kind') == 'weekly':
+        overlap = {x for x in a if x[0] == 'w'} & {x for x in b if x[0] == 'w'}
+    else:
+        overlap = {x for x in a if x[0] == 'd'} & {x for x in b if x[0] == 'd'}
+    if not overlap:
+        return False
+    same_name = similar(new.get('name'), old.get('name')) or similar(new.get('name_zh'), old.get('name_zh'))
+    if multi_day(new) or multi_day(old):
+        return same_name  # festivals use several venues; a shared hall is not a twin
+    return same_name or similar(new.get('venue'), old.get('venue'))
+
+
+def check(base, head, body, today):
+    reasons, changes = [], []
+
+    files = [l.split('\t')[-1] for l in git('diff', '--name-status', '-M', f'{base}...{head}').splitlines() if l.strip()]
+    olds = [l.split('\t')[1] for l in git('diff', '--name-status', '-M', f'{base}...{head}').splitlines()
+            if l.startswith('R')]
+    for f in files + olds:
+        if not ALLOWED_PATHS.match(f):
+            reasons.append(f'改了资料以外的文件：{f}')
+
+    if not MARK.search(body or ''):
+        reasons.append('PR 说明里没有「需要确认：无」，表示有事要问你')
+
+    data = {}
+    for side, ref in (('base', base), ('head', head)):
+        for f in FILES:
+            raw = show(ref, f)
+            if raw is None:
+                reasons.append(f'{side} 缺 {f}')
+                continue
+            try:
+                data[(side, f)] = (raw, json.loads(raw))
+            except ValueError:
+                reasons.append(f'{f} 不是正确的 JSON')
+    if reasons and any('JSON' in r or '缺' in r for r in reasons):
+        return False, reasons, changes
+
+    for f in FILES:
+        raw, lst = data[('head', f)]
+        want = compact(lst) + ('\n' if f.endswith('more.json') else '')
+        if raw != want and raw.rstrip('\n') != compact(lst):
+            reasons.append(f'{f} 的写法变了（不是原来的紧凑格式）')
+
+    old = {e['id']: e for e in data[('base', FILES[0])][1]}
+    new = {e['id']: e for e in data[('head', FILES[0])][1]}
+    core = {e['id']: e for e in data[('head', FILES[1])][1]}
+    more = {e['id']: e for e in data[('head', FILES[2])][1]}
+    old_core = {e['id'] for e in data[('base', FILES[1])][1]}
+    old_more = {e['id'] for e in data[('base', FILES[2])][1]}
+
+    for i in sorted(set(old) - set(new)):
+        reasons.append(f'删除了卡 {i}')
+    for i in sorted((old_core - set(core)) | (old_more - set(more))):
+        if i in new:
+            reasons.append(f'卡 {i} 从 core/more 文件里拿掉了')
+
+    touched = [i for i in new if old.get(i) != new[i]]
+    if len(touched) > MAX_CARDS:
+        reasons.append(f'一次改了 {len(touched)} 张卡（超过 {MAX_CARDS} 张）')
+
+    for i in touched:
+        e = new[i]
+        for name, other in (('events-core', core), ('events-more', more)):
+            if i in other and other[i] != e:
+                reasons.append(f'卡 {i} 在 events.json 和 {name}.json 不一致')
+        if i not in old:
+            changes.append(f'新卡 {i} {e.get("name", "")}')
+            check_new(i, e, old, core, today, reasons)
+            continue
+        o = old[i]
+        fields = sorted(k for k in set(o) | set(e) if o.get(k) != e.get(k))
+        changes.append(f'{i} 改了：{"、".join(fields)}')
+        for k in fields:
+            a, b = o.get(k), e.get(k)
+            if k in ALWAYS_OK:
+                continue
+            if k in ADD_ONLY_LIST and isinstance(b, list) and all(x in b for x in (a or [])):
+                continue
+            if k in ADD_ONLY_DICT and isinstance(b, dict) and all(b.get(x) == y for x, y in (a or {}).items()):
+                continue
+            if k in FILL_IF_EMPTY and blank(a):
+                continue
+            if k == 'hidden' and b is not True:
+                reasons.append(f'卡 {i} 改了显示／隐藏')
+                continue
+            reasons.append(f'卡 {i} 改了「{k}」（不是补资料或单场提示）')
+    return not reasons, reasons, changes
+
+
+def check_new(i, e, old, core, today, reasons):
+    tag = f'新卡 {i}'
+    if e.get('region') not in NEW_REGIONS:
+        reasons.append(f'{tag} 不在中国大陆或香港（{e.get("region")}）')
+    if e.get('kind') not in ('event', 'weekly'):
+        reasons.append(f'{tag} 的 kind 不对')
+    if e.get('type') not in TYPES:
+        reasons.append(f'{tag} 的类型「{e.get("type")}」不在分类里')
+    if e.get('hidden') is True:
+        reasons.append(f'{tag} 是隐藏的')
+    need = ['name', 'city', 'venue', 'venue_address', 'source']
+    if not (multi_day(e) or e.get('schedule')):
+        need.append('time')  # a festival's times live in its schedule
+    for k in need:
+        if blank(e.get(k)):
+            reasons.append(f'{tag} 缺「{k}」')
+    if e.get('kind') == 'weekly':
+        w = e.get('weekdays') or ([e['weekday']] if e.get('weekday') is not None else [])
+        if not w or not all(isinstance(x, int) and 0 <= x <= 6 for x in w):
+            reasons.append(f'{tag} 缺每周几')
+    else:
+        d1, d2 = iso(e.get('start')), iso(e.get('end') or e.get('start'))
+        if not d1 or not d2 or d2 < d1:
+            reasons.append(f'{tag} 日期不对')
+        elif d2 < today:
+            reasons.append(f'{tag} 的日期已经过了')
+    if i not in core:
+        reasons.append(f'{tag} 没放进 events-core.json')
+    for oid, o in old.items():
+        if looks_duplicate(e, o, today):
+            reasons.append(f'{tag} 可能和现有的卡 {oid}「{o.get("name", "")}」重复')
+            break
+
+
+def main():
+    p = argparse.ArgumentParser()
+    p.add_argument('--base', required=True)
+    p.add_argument('--head', required=True)
+    p.add_argument('--body', required=True, help='file with the PR description')
+    p.add_argument('--today', default=None)
+    a = p.parse_args()
+    today = iso(a.today) if a.today else (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).date()
+    try:
+        body = open(a.body, encoding='utf-8').read()
+        ok, reasons, changes = check(a.base, a.head, body, today)
+    except Exception as exc:  # never auto-merge on a crash
+        print(json.dumps({'auto': False, 'reasons': [f'检查程序出错：{exc}'], 'changes': []}, ensure_ascii=False))
+        return 2
+    print(json.dumps({'auto': ok, 'reasons': reasons, 'changes': changes}, ensure_ascii=False, indent=1))
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+"""Tests for tools/inbox_autocheck.py.  Run: python3 tools/test_inbox_autocheck.py"""
+import datetime, json, os, subprocess, sys, tempfile, unittest
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import inbox_autocheck as A  # noqa: E402
+
+TODAY = datetime.date(2026, 11, 16)
+BASE_CARDS = [
+    {"id": "R001", "kind": "weekly", "type": "milonga", "name": "Milonga Uno", "city": "Beijing",
+     "region": "China", "weekday": 2, "weekdays": [2], "time": "20:00–24:00", "venue": "Hall A",
+     "venue_address": "", "source": "x"},
+    {"id": "E001", "kind": "event", "type": "milonga", "name": "Big Night", "city": "Shanghai",
+     "region": "China", "start": "2026-11-28", "end": "2026-11-28", "time": "20:00", "venue": "Te Amo",
+     "venue_address": "某路1号", "source": "x"},
+    {"id": "T001", "kind": "weekly", "type": "milonga", "name": "Tokyo One", "city": "Tokyo",
+     "region": "Japan", "weekday": 5, "weekdays": [5], "time": "19:00", "venue": "Zita",
+     "venue_address": "", "source": "x"},
+]
+CORE_IDS = {"R001", "E001"}
+
+
+def dump(lst, more=False):
+    return json.dumps(lst, ensure_ascii=False, separators=(',', ':')) + ('\n' if more else '')
+
+
+class T(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.cwd = os.getcwd()
+        os.chdir(self.tmp)
+        self.git('init', '-q', '-b', 'main')
+        self.git('config', 'user.email', 't@example.invalid')
+        self.git('config', 'user.name', 't')
+        os.makedirs('asia')
+        self.write(BASE_CARDS)
+        self.git('add', '-A')
+        self.git('commit', '-qm', 'base')
+        self.git('checkout', '-qb', 'run')
+
+    def tearDown(self):
+        os.chdir(self.cwd)
+
+    def git(self, *a):
+        subprocess.check_call(['git', *a], stdout=subprocess.DEVNULL)
+
+    def write(self, cards, core_extra=()):
+        core = [c for c in cards if c['id'] in CORE_IDS or c['id'] in core_extra]
+        more = [c for c in cards if c not in core]
+        open('asia/events.json', 'w').write(dump(cards))
+        open('asia/events-core.json', 'w').write(dump(core))
+        open('asia/events-more.json', 'w').write(dump(more, True))
+
+    def run_check(self, cards, core_extra=(), body='需要确认：无', extra_file=None):
+        self.write(cards, core_extra)
+        if extra_file:
+            open(extra_file, 'w').write('x')
+        self.git('add', '-A')
+        self.git('commit', '-qm', 'run')
+        return A.check('main', 'run', body, TODAY)
+
+    def cards(self):
+        return json.loads(json.dumps(BASE_CARDS))
+
+    def test_temp_notice_goes_live(self):
+        c = self.cards()
+        c[0]['temp_notices'] = [{"date": "2026-11-17", "text": "DJ 木木"}]
+        c[0]['updated'] = '2026-11-16'
+        ok, why, _ = self.run_check(c)
+        self.assertTrue(ok, why)
+
+    def test_fill_empty_address_goes_live(self):
+        c = self.cards()
+        c[0]['venue_address'] = '北京市某路2号'
+        self.assertTrue(self.run_check(c)[0])
+
+    def test_change_existing_address_waits(self):
+        c = self.cards()
+        c[1]['venue_address'] = '另一条路'
+        self.assertFalse(self.run_check(c)[0])
+
+    def test_dj_change_waits(self):
+        c = self.cards()
+        c[0]['dj'] = 'X'
+        self.assertFalse(self.run_check(c)[0])
+
+    def test_removed_notice_waits(self):
+        c = self.cards()
+        c[0]['temp_notices'] = [{"date": "2026-11-17", "text": "a"}]
+        self.run_check(c)
+        self.git('checkout', '-q', 'main')
+        self.git('merge', '-q', 'run')
+        self.git('checkout', '-qB', 'run2')
+        c[0]['temp_notices'] = []
+        self.write(c)
+        self.git('commit', '-qam', 'x')
+        self.assertFalse(A.check('main', 'run2', '需要确认：无', TODAY)[0])
+
+    def test_delete_card_waits(self):
+        self.assertFalse(self.run_check(self.cards()[1:])[0])
+
+    def test_needs_confirmation_waits(self):
+        c = self.cards()
+        c[0]['venue_address'] = '北京市某路2号'
+        self.assertFalse(self.run_check(c, body='## 要 Shiao 确认\n1. 泥人是谁\n需要确认：有')[0])
+
+    def test_other_file_waits(self):
+        c = self.cards()
+        c[0]['venue_address'] = '北京市某路2号'
+        self.assertFalse(self.run_check(c, extra_file='asia/cardB.js')[0])
+
+    def new_card(self, **kw):
+        n = {"id": "E900", "kind": "event", "type": "milonga", "name": "New Milonga", "city": "Shanghai",
+             "region": "China", "start": "2026-11-29", "end": "2026-11-29", "time": "20:00–24:00",
+             "venue": "Studio 9", "venue_address": "上海市某路9号", "source": "主办海报"}
+        n.update(kw)
+        return n
+
+    def test_new_china_card_goes_live(self):
+        ok, why, _ = self.run_check(self.cards() + [self.new_card()], core_extra={'E900'})
+        self.assertTrue(ok, why)
+
+    def test_new_card_not_in_core_waits(self):
+        self.assertFalse(self.run_check(self.cards() + [self.new_card()])[0])
+
+    def test_new_tokyo_card_waits(self):
+        n = self.new_card(city='Tokyo', region='Japan', venue_address='東京')
+        self.assertFalse(self.run_check(self.cards() + [n], core_extra={'E900'})[0])
+
+    def test_new_card_missing_address_waits(self):
+        n = self.new_card(venue_address='')
+        self.assertFalse(self.run_check(self.cards() + [n], core_extra={'E900'})[0])
+
+    def test_new_past_card_waits(self):
+        n = self.new_card(start='2026-11-10', end='2026-11-10')
+        self.assertFalse(self.run_check(self.cards() + [n], core_extra={'E900'})[0])
+
+    def test_new_card_same_day_same_venue_waits(self):
+        n = self.new_card(start='2026-11-28', end='2026-11-28', venue='TeAmo', name='Other')
+        ok, why, _ = self.run_check(self.cards() + [n], core_extra={'E900'})
+        self.assertFalse(ok)
+        self.assertTrue(any('重复' in r for r in why), why)
+
+    def test_new_weekly_same_weekday_same_name_waits(self):
+        n = self.new_card(id='R900', kind='weekly', weekday=2, weekdays=[2], name='Milonga Uno',
+                          city='Beijing', venue='Hall B', venue_address='北京')
+        n.pop('start'); n.pop('end')
+        self.assertFalse(self.run_check(self.cards() + [n], core_extra={'R900'})[0])
+
+    def test_festival_without_time_goes_live(self):
+        n = self.new_card(type='festival', start='2026-12-04', end='2026-12-06', time='',
+                          venue='Te Amo / Hall A', name='Winter Festival')
+        ok, why, _ = self.run_check(self.cards() + [n], core_extra={'E900'})
+        self.assertTrue(ok, why)
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=1)
