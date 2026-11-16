@@ -43,25 +43,44 @@
   var KS = document.createElement('style'); KS.textContent = 'html body.china-page nav.top-lang.china-map-lang > a:not(.atm-langbtn){display:none!important}'; document.head.appendChild(KS);
   var other = nav.querySelector('a[data-asia-lang-set="' + (LG === 'en' ? 'zh' : 'en') + '"]') || nav.querySelector('a:not([aria-current])'), oz = other && other.getAttribute('data-asia-lang-set') === 'zh';
   if (other) { other.classList.add('atm-langbtn'); other.setAttribute('aria-label', oz ? '中文' : 'English'); other.title = oz ? '中文' : 'English'; other.textContent = oz ? '中文' : 'EN'; }
-  /* 2026-11-17 Shiao: language switch lives in the header's top-right corner as three segments, EN | 中 | 한
-     (each language named in its own script), current one highlighted; not in the ≡ menu any more.
+  /* 2026-11-17 Shiao: one language button in the header's top-right corner (not in the ≡ menu): a globe + the current
+     language (中 / EN / 한), tap → a list of every language the page offers, each named in its own script.
+     The list is built from nav.top-lang links, so adding Español / Русский later = add their link + names below.
      Links keep data-asia-lang-set, so lang-pref.js / lang-keep.js remember the choice as before. */
   var langSeg = null;
   if (other && LA.length > 2) {
-    var SH = { en: 'EN', zh: '中', ko: '한' }, NM = { zh: '中文', en: 'English', ko: '한국어' }, ORD = ['en', 'zh', 'ko'];
-    langSeg = document.createElement('span'); langSeg.className = 'atm-langseg'; langSeg.setAttribute('role', 'group'); langSeg.setAttribute('aria-label', 'Language · 语言 · 언어');
-    langSeg.innerHTML = ORD.map(function (t) { var a = nav.querySelector('a[data-asia-lang-set="' + t + '"]:not([hidden])'); if (!a) return '';
-      return t === LG ? '<b aria-current="true" lang="' + t + '" title="' + NM[t] + '">' + SH[t] + '</b>'
-        : '<a href="' + a.getAttribute('href') + '" hreflang="' + (a.getAttribute('hreflang') || t) + '" lang="' + (a.getAttribute('lang') || t) + '" data-asia-lang-set="' + t + '" title="' + NM[t] + '" aria-label="' + NM[t] + '">' + SH[t] + '</a>'; }).join('');
+    var NM = { zh: '中文', en: 'English', ko: '한국어', es: 'Español', ru: 'Русский' },
+      SH = { zh: '中', en: 'EN', ko: '한', es: 'ES', ru: 'РУ' }, ORD = ['zh', 'en', 'ko', 'es', 'ru'];
+    var LS = [].slice.call(LA).sort(function (x, y) { return ORD.indexOf(x.getAttribute('data-asia-lang-set')) - ORD.indexOf(y.getAttribute('data-asia-lang-set')); });
+    langSeg = document.createElement('button'); langSeg.type = 'button'; langSeg.className = 'atm-langone';
+    langSeg.setAttribute('aria-haspopup', 'true'); langSeg.setAttribute('aria-expanded', 'false');
+    langSeg.setAttribute('aria-label', 'Language · 语言 · 언어'); langSeg.title = NM[LG] || 'English';
+    langSeg.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3z"/></svg><b>' + (SH[LG] || 'EN') + '</b>';
     other.style.setProperty('display', 'none', 'important'); other.setAttribute('aria-hidden', 'true'); other.tabIndex = -1;
     nav.appendChild(langSeg);
+    var lp = document.createElement('div'); lp.className = 'atm-langpop'; lp.hidden = true; lp.setAttribute('role', 'menu');
+    lp.innerHTML = LS.map(function (a) { var t = a.getAttribute('data-asia-lang-set');
+      return '<a role="menuitem" href="' + a.getAttribute('href') + '" hreflang="' + (a.getAttribute('hreflang') || t) + '" lang="' + (a.getAttribute('lang') || t) + '" data-asia-lang-set="' + t + '"' + (t === LG ? ' aria-current="true"' : '') + '>' + (NM[t] || a.textContent) + '</a>'; }).join('');
+    document.body.appendChild(lp);
     var lsCss = document.createElement('style');
-    lsCss.textContent = 'html body.china-page nav.top-lang.china-map-lang .atm-langseg{display:inline-flex!important;align-items:center;height:32px;border:1px solid rgba(11,36,64,.35);border-radius:999px;background:rgba(255,255,255,.55);padding:2px;gap:0;box-sizing:border-box;flex:none}' +
-      'html body.china-page nav.top-lang.china-map-lang .atm-langseg>a,html body.china-page nav.top-lang.china-map-lang .atm-langseg>b{display:inline-flex!important;align-items:center;justify-content:center;min-width:28px;height:26px;padding:0 6px!important;margin:0!important;border:0!important;border-radius:999px;font:700 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Apple SD Gothic Neo","Malgun Gothic",sans-serif!important;letter-spacing:0;color:#0B2440!important;text-decoration:none!important;background:transparent!important;box-shadow:none!important;width:auto!important;min-height:0!important;position:static!important}' +
-      'html body.china-page nav.top-lang.china-map-lang .atm-langseg>a:before,html body.china-page nav.top-lang.china-map-lang .atm-langseg>a:after{display:none!important}' +
-      'html body.china-page nav.top-lang.china-map-lang .atm-langseg>b{background:#0B2440!important;color:#fff!important}' +
-      'html body.china-page nav.top-lang.china-map-lang .atm-langseg>a:hover{background:rgba(255,255,255,.8)!important}';
+    lsCss.textContent = 'html body.china-page nav.top-lang.china-map-lang .atm-langone{display:inline-flex!important;align-items:center;gap:4px;height:34px;padding:0 10px 0 8px;margin:0;border:1px solid rgba(11,36,64,.35);border-radius:999px;background:rgba(255,255,255,.6);color:#0B2440;cursor:pointer;flex:none;font:700 14px/1 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Apple SD Gothic Neo","Malgun Gothic",sans-serif}' +
+      'html body.china-page nav.top-lang.china-map-lang .atm-langone svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7}' +
+      'html body.china-page nav.top-lang.china-map-lang .atm-langone:hover,html body.china-page nav.top-lang.china-map-lang .atm-langone[aria-expanded=true]{background:#fff}' +
+      '.atm-langpop{position:fixed;z-index:2147483000;min-width:140px;background:#fff;border:1px solid #BCD8EF;border-radius:12px;box-shadow:0 8px 24px rgba(11,36,64,.18);padding:6px;font:600 15px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Apple SD Gothic Neo","Malgun Gothic",sans-serif}' +
+      '.atm-langpop[hidden]{display:none!important}.atm-langpop a{display:block;padding:11px 14px;border-radius:8px;color:#0B2440;text-decoration:none}' +
+      '.atm-langpop a:hover{background:#EAF3FB}.atm-langpop a[aria-current]{background:#EAF3FB}.atm-langpop a[aria-current]:after{content:" ✓";color:#2a6fb0}';
     document.head.appendChild(lsCss);
+    var lpClose = function () { if (lp.hidden) return; lp.hidden = true; langSeg.setAttribute('aria-expanded', 'false'); };
+    langSeg.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      if (!lp.hidden) { lpClose(); return; }
+      var r = langSeg.getBoundingClientRect(); lp.hidden = false;
+      var w = lp.offsetWidth, x = Math.min(Math.max(8, r.right - w), window.innerWidth - w - 8);
+      lp.style.left = x + 'px'; lp.style.top = Math.round(r.bottom + 6) + 'px'; langSeg.setAttribute('aria-expanded', 'true');
+    });
+    document.addEventListener('click', function (e) { if (!lp.contains(e.target) && !langSeg.contains(e.target)) lpClose(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') lpClose(); });
+    window.addEventListener('scroll', lpClose, { passive: true });
   }
   var b = document.createElement('button'); b.type = 'button'; b.className = 'atm-burger'; b.setAttribute('aria-label', L.menu); b.setAttribute('aria-haspopup', 'dialog'); b.setAttribute('aria-expanded', 'false');
   b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
