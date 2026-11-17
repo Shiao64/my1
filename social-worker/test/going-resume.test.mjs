@@ -82,7 +82,7 @@ check('the link still opens after the first confirm', again.status === 200 && ag
 
 db.prepare("UPDATE profile_verify SET sent_at='2020-01-01T00:00:00.000Z' WHERE email=?").run('other@example.com');
 const late = await confirm(other.preview_link);
-check('an expired link is the bilingual star page', late.status === 400 && late.html.includes('链接已过期。请回到页面，再次点五角星，即可收到一封新邮件。') && late.html.includes('This link has expired. Go back and tap the star again to get a new email.') && !late.html.includes('intent=resume'));
+check('an expired link is the bilingual star page', late.status === 400 && late.html.includes('链接已过期。请回到活动页，再按一次「要参加」或「感兴趣」，即可收到一封新邮件。') && late.html.includes('This link has expired. Go back to the event page and tap Going or Interested again to get a new email.') && !late.html.includes('intent=resume'));
 
 const menu = await post('/profile', { name: 'Mei', email: 'mei@example.com', city: 'Osaka', role: 'follower', lang: 'zh', alert: 1, ret: zhRet, ts: 'x', last4: '8000' });
 const menuPage = await confirm(menu.preview_link, { Cookie: 'atm_verify=1' });

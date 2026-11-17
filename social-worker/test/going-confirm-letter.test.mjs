@@ -16,7 +16,7 @@ const body = {
   zh: '谢谢你订阅亚洲探戈地图（Asia Tango Map）。请在 30 分钟内点击下方按钮，确认你的邮箱。',
   en: 'Thanks for subscribing to Asia Tango Map. Please confirm your email within 30 minutes by tapping the button below.'
 };
-const expiredCopy = '链接已过期。请回到页面，再次点五角星，即可收到一封新邮件。 / This link has expired. Go back and tap the star again to get a new email.';
+const expiredCopy = '链接已过期。请回到活动页，再按一次「要参加」或「感兴趣」，即可收到一封新邮件。 / This link has expired. Go back to the event page and tap Going or Interested again to get a new email.';
 
 const dir = '/tmp/atm-confirm-letter';
 fs.mkdirSync(dir, { recursive: true });
@@ -122,7 +122,7 @@ const late = await openConfirm(menu.preview_link, 'GET');
 check('31 minutes is the expired page', late.status === 400 && late.html.includes(expiredCopy));
 db.prepare('UPDATE profile_verify SET sent_at=? WHERE email=?').run(new Date(Date.now() - 31 * 60e3).toISOString(), 'named@example.com');
 const lateZh = await openConfirm(star.preview_link, 'GET');
-check('the chinese expired page says the same thing', lateZh.status === 400 && lateZh.html.includes('链接已过期') && lateZh.html.includes('tap the star again') && lateZh.html.includes('lang="zh-CN"') && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('named@example.com').v);
+check('the chinese expired page says the same thing', lateZh.status === 400 && lateZh.html.includes('链接已过期') && lateZh.html.includes('tap Going or Interested again') && lateZh.html.includes('lang="zh-CN"') && !db.prepare('SELECT verified_at v FROM users WHERE email=?').get('named@example.com').v);
 
 const out = process.env.ATM_LETTER_OUT;
 if (out) {

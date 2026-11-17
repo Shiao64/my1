@@ -16,7 +16,7 @@ const IP_LETTER_CAP = 12;
 const ROLES = ['leader', 'follower', 'both'];
 const INTENTS = ['going', 'interested', 'absent'];
 const DELETE_NOTE = '\n要删除资料，请回信到 selecttango@gmail.com\nTo delete your information, reply to selecttango@gmail.com\n';
-const EXPIRED = '链接已过期。请回到页面，再次点五角星，即可收到一封新邮件。 / This link has expired. Go back and tap the star again to get a new email.';
+const EXPIRED = '链接已过期。请回到活动页，再按一次「要参加」或「感兴趣」，即可收到一封新邮件。 / This link has expired. Go back to the event page and tap Going or Interested again to get a new email.';
 const INVALID = '链接无效。请重新请求验证邮件。 / This link is invalid. Request a new verification email.';
 let cardCache = null;
 
