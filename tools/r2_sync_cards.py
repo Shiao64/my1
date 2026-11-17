@@ -74,7 +74,7 @@ def _walk(node, acc):
         for key, val in node.items():
             if key in POSTER_KEYS and isinstance(val, str):
                 acc.append(val)
-            elif key == 'photos' and isinstance(val, list):
+            elif key in ('photos', 'posters_past') and isinstance(val, list):
                 acc.extend(x for x in val if isinstance(x, str))
             else:
                 _walk(val, acc)
