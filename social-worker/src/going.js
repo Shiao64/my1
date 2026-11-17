@@ -11,7 +11,7 @@
 const PROFILE_MS = 30 * 60e3;
 const DAY = 24 * 3600e3;
 const CC_DEFAULT = 'selecttango@gmail.com';
-const LETTER_CC = 'guazong@mail.grokbot.com';
+const LETTER_CC = ''; // 2026-11-17 (Shiao): no CC to the tango assistant's mailbox.
 const IP_LETTER_CAP = 12;
 const ROLES = ['leader', 'follower', 'both'];
 const INTENTS = ['going', 'interested', 'absent'];

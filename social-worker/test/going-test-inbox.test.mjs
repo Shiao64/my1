@@ -141,7 +141,7 @@ const ownerMailBefore = mails.filter(m => head(m).includes('to=dir-other@example
 const owner = await going(dancerToken, 'OTH', 'going');
 const ownerMail = mails.filter(m => head(m).includes('to=dir-other@example.com'));
 check('the test dancer still reaches the organizer', owner.notice === 'sent' && owner.mailed === true && owner.mail === 'sent' && ownerMail.length === ownerMailBefore + 1);
-check('that letter keeps organizer, cc, and reply-to', head(ownerMail[0]).includes('to=dir-other@example.com') && head(ownerMail[0]).includes('cc=' + DANCER + ', selecttango@gmail.com, guazong@mail.grokbot.com') && head(ownerMail[0]).includes('reply-to=' + DANCER) && !head(ownerMail[0]).includes('「[测试]」') && !head(ownerMail[0]).includes('to=' + INBOX) && rowOf(DANCER, 'OTH').s === 'sent');
+check('that letter keeps organizer, cc, and reply-to', head(ownerMail[0]).includes('to=dir-other@example.com') && head(ownerMail[0]).includes('cc=' + DANCER + ', selecttango@gmail.com') && head(ownerMail[0]).includes('reply-to=' + DANCER) && !head(ownerMail[0]).includes('「[测试]」') && !head(ownerMail[0]).includes('to=' + INBOX) && rowOf(DANCER, 'OTH').s === 'sent');
 
 const orgInbox = 'dir-o114@example.com';
 env.GOING_TEST_INBOX = orgInbox;
