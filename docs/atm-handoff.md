@@ -59,7 +59,7 @@
 - **介绍资料**：`asia/organizers.json`（刘峥、王凯）、`asia/djs.json`（Yelyn Woo，空），介绍页 `/organizer/<id>/`。
 - **后端**：`social-worker/src/`，部署成 Cloudflare Worker `tango-subscribe`（api.tangoweekend.org），D1 `tango-subscribe`，迁移在 `social-worker/migrations/`（最新 0019）。
 - **后端部署**：GitHub Actions →「API deploy」→ Run workflow，输入 `deploy`。**部署前先问用户。**
-- **寄信**：通知信 `SOCIAL_MAIL=sub_mail`（Cloudflare Email Sending，已开通）；`MAIL_PROVIDER` 还是 gmail。QQ／163 送达测试（11/17 用户回报）：**进收件箱、很快收到**；寄件人名称、验证码登录还没回报。**用户不要用 Resend**（Cloudflare 是付费 Workers 方案）。
+- **寄信**：通知信 `SOCIAL_MAIL=sub_mail`（Cloudflare Email Sending，已开通）；**订阅信 `MAIL_PROVIDER=cloudflare`（11/17 晚用户在后台改的，已用 Chrome 核对）**，寄件人 `SENDER`=subscribe@tangoweekend.org、`SENDER_NAME`=Asia Tango Map。QQ／163 测试（11/17）：进收件箱、很快、寄件人显示 Asia Tango Map、6 位验证码能登录。有问题把 `MAIL_PROVIDER` 改回 `gmail` 即可。后台变量 `NOTIFY_TO` 里有探戈助理的邮箱（新订阅通知会寄给它）；程序里 `SUB_CC` 也会把每封订阅信抄送给它——要不要去掉，等用户决定。**用户不要用 Resend**（Cloudflare 是付费 Workers 方案）。
 
 ## 3. 工作方式
 
@@ -129,7 +129,7 @@
 ## 5. 待办
 
 0. **确认 #198 上线**：看合并后第一次「R2 sync」跑完（全部重传）、第二次是否只传几个文件；第二天北京时间 03:17 后看「Daily past-poster cleanup」有没有正常跑。
-1. **寄信测试**：QQ／163 进收件箱、很快（11/17）。还差：寄件人是否显示 Asia Tango Map、6 位验证码能否登录。确认后再问用户要不要把 `MAIL_PROVIDER` 也换成 Cloudflare（改 Cloudflare 设置，先问），并更新「收藏与订阅设计」第八节。
+1. **订阅信改用 Cloudflare 后**：再看一次真实订阅（QQ／163）确认信能收到；用户决定要不要去掉 `SUB_CC` 和 `NOTIFY_TO` 里探戈助理的邮箱（`SUB_CC` 要改程序并部署）。
 2. **要问主办的事**（已写进协作须知第六节，探戈助理开工时会读）：郑州 Tango Red 周日练习场、北京 Paraíso 的「泥人」、广州 Cadencia No.65 场地、香港 Mascarita 12/4 时间票价、北京 Milonga V 第215场的 DJ（海报已由 #193 放进 `posters_past`，等同步跑完才上线；第215场 DJ 还没有）、杭州 inTango 周三是否每周固定和票价（固定就改成周常卡）。
 3. （已取消：不再用邮件和探戈助理联络。）
 4. **东京 4 张暂缓**（用户说中国以外不急）：Tentación 11/24、12/1（四谷 Sin Rumbo）、12/4（奥沢），El Compás 11/21（麻布十番，缺店名）。答复原文和海报都在 `data/inbox/done/`。另外东京 NAMI 11/18（时区不清）、WE LOVE MONDAYS、香港 Monday Blues 资料不全，没建。
