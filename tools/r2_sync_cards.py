@@ -14,6 +14,13 @@ cache key both move.
   python3 tools/r2_sync_cards.py                  # refuse if R2 is ahead, bump ?v=china, then upload
   python3 tools/r2_sync_cards.py --event-id E158  # same upload; images limited to that id
   python3 tools/r2_sync_cards.py --check          # GET the public events-core.json
+  python3 tools/r2_sync_cards.py --full           # upload every file, ignore the hash list
+
+Only changed files are uploaded (2026-11-17, Shiao). R2 keeps a list of what it
+already has: asia/sync-hashes.json, {object key: sha256}. An image whose sha256
+matches is skipped; the three JSON files are always uploaded. If the list cannot
+be read (first run, or someone deleted it) everything is uploaded and the list is
+rebuilt. Use --full if R2 was edited by hand.
 
 --pull-fallback and the upload path only edit the working tree's cache key.
 Neither deploys Pages, writes Worker secrets, nor sends mail. A real upload
@@ -33,6 +40,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import hashlib
 import json
 import mimetypes
 import os
@@ -59,6 +67,7 @@ CACHE_SOURCES = (
 CACHE_RE = re.compile(r'events-core\.json\?v=china(\d+)')
 POSTER_KEYS = ('poster', 'poster_zh', 'poster_en')
 IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.webp', '.gif'}
+HASH_KEY = 'asia/sync-hashes.json'
 
 
 def account_id():
@@ -156,6 +165,8 @@ def collect(root, event_id=None):
 def cache_control(key):
     """JSON stays fresh when a card changes without a program version bump.
     Images are long-lived; a new ?v= on the poster field is a new cache key."""
+    if key == HASH_KEY:
+        return 'no-store'
     if key.endswith('.json'):
         return 'public, max-age=60, s-maxage=300, stale-while-revalidate=86400'
     return 'public, max-age=2592000'
@@ -282,6 +293,43 @@ def fetch_public(path):
     })
     with urllib.request.urlopen(req, timeout=60) as res:
         return res.read()
+
+
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def fetch_hashes():
+    """The {key: sha256} list R2 already has, or None (then upload everything)."""
+    try:
+        stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d%H%M%S')
+        data = json.loads(fetch_public(HASH_KEY + '?t=' + stamp).decode('utf-8'))
+    except (urllib.error.URLError, ValueError) as err:
+        print('no hash list on R2 (%s): uploading every file' % err)
+        return None
+    if not isinstance(data, dict) or not isinstance(data.get('files'), dict):
+        print('hash list on R2 is not usable: uploading every file')
+        return None
+    return {k: v for k, v in data['files'].items() if isinstance(k, str) and isinstance(v, str)}
+
+
+def plan_upload(keys, known):
+    """Split keys into (to_upload, skipped, new_hashes).
+
+    known None means upload all. JSON files always go up."""
+    to_upload, skipped, hashes = {}, [], {}
+    for key in sorted(keys):
+        digest = sha256_file(keys[key])
+        hashes[key] = digest
+        if known is not None and not key.endswith('.json') and known.get(key) == digest:
+            skipped.append(key)
+        else:
+            to_upload[key] = keys[key]
+    return to_upload, skipped, hashes
 
 
 def card_ids(rows):
@@ -418,7 +466,7 @@ def guard_not_behind(root):
     print('public events-core', len(remote), 'local', len(local), 'upload will not hide a public id')
 
 
-def publish(root, event_id=None, dry_run=False):
+def publish(root, event_id=None, dry_run=False, full=False):
     keys, missing, manifest = collect(root, event_id)
     total = sum(os.path.getsize(path) for path in keys.values())
     print('objects %d  bytes %d  missing originals %d' % (len(keys), total, len(missing)))
@@ -443,15 +491,30 @@ def publish(root, event_id=None, dry_run=False):
     try:
         with os.fdopen(fd, 'wb') as fh:
             fh.write(manifest_bytes)
-        keys = dict(keys)
-        keys['asia/manifest.json'] = manifest_path
+        known = None if full else fetch_hashes()
+        to_upload, skipped, hashes = plan_upload(keys, known)
+        print('to upload %d, unchanged and skipped %d%s' % (len(to_upload), len(skipped), ' (--full)' if full else ''))
+        to_upload['asia/manifest.json'] = manifest_path
         done = 0
-        for key in sorted(keys):
-            put_object(key, keys[key], cache_control(key))
+        for key in sorted(to_upload):
+            put_object(key, to_upload[key], cache_control(key))
             done += 1
             if done % 50 == 0:
-                print('uploaded', done, '/', len(keys))
+                print('uploaded', done, '/', len(to_upload))
         print('uploaded', done, 'objects')
+        # Written last: if an upload above failed, the old list stays and the
+        # next run uploads those files again.
+        merged = dict(known or {})
+        merged.update(hashes)
+        hash_bytes = json.dumps({'rev': manifest['rev'], 'files': merged}, separators=(',', ':')).encode('utf-8')
+        fd2, hash_path = tempfile.mkstemp(prefix='atm-r2-hashes-', suffix='.json')
+        try:
+            with os.fdopen(fd2, 'wb') as fh:
+                fh.write(hash_bytes)
+            put_object(HASH_KEY, hash_path, cache_control(HASH_KEY))
+        finally:
+            os.remove(hash_path)
+        print('hash list updated', HASH_KEY, len(merged), 'entries')
         print('public base', PUBLIC_BASE)
         print('check', PUBLIC_BASE + '/asia/events-core.json')
     finally:
@@ -486,6 +549,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Publish card JSON and posters to R2')
     parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--event-id', help='Still uploads all three JSON files; limits images to this id')
+    parser.add_argument('--full', action='store_true', help='Upload every file even if R2 already has the same bytes')
     parser.add_argument('--check', action='store_true', help='GET the public events-core.json and exit')
     parser.add_argument('--pull-fallback', action='store_true', help='Download public card JSON into the repo and bump ?v=china. Does not upload.')
     parser.add_argument('--keep', default='', help='With --pull-fallback: comma-separated card ids whose repo version wins over public')
@@ -501,7 +565,7 @@ def main(argv=None):
             return 0
         pull_fallback(root, keep=[k.strip() for k in args.keep.split(',') if k.strip()])
         return 0
-    publish(root, event_id=args.event_id, dry_run=args.dry_run)
+    publish(root, event_id=args.event_id, dry_run=args.dry_run, full=args.full)
     return 0
 
 

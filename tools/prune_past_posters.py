@@ -47,7 +47,9 @@ def main(argv):
         path = os.path.join(ROOT, rel)
         if not os.path.isfile(path):
             continue
-        rows = json.load(open(path, encoding='utf-8'))
+        with open(path, encoding='utf-8') as fh:
+            raw = fh.read()
+        rows = json.loads(raw)
         changed = False
         for card in rows:
             if not isinstance(card, dict):
@@ -59,7 +61,8 @@ def main(argv):
                     total.setdefault((card.get('id'), p), None)
         if changed and apply:
             with open(path, 'w', encoding='utf-8') as fh:
-                fh.write(json.dumps(rows, ensure_ascii=False, separators=(',', ':')))
+                # Keep the file's own ending (events-more.json ends with a newline).
+                fh.write(json.dumps(rows, ensure_ascii=False, separators=(',', ':')) + ('\n' if raw.endswith('\n') else ''))
     for (cid, p) in sorted(total):
         print(('drop ' if apply else 'would drop ') + '%s %s' % (cid, p))
         if apply:
