@@ -2,6 +2,7 @@
 import SUB from '../../subscribe-worker/src/index.js';
 import { social, wxExpireSweep, generateGoingStats, runGoingNotices } from './social.js';
 import { unsubscribe as unsub2 } from './unsub.js';
+import { monthlyRoster } from './roster.js';
 function previewOrigins(env) {
   if (!env || env.PREVIEW !== '1') return [];
   return String(env.PREVIEW_ORIGINS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
@@ -44,5 +45,7 @@ export default {
     if (env.GOING_NOTICE_SEND === 'on' && event.cron === noticeCron) jobs.push(runGoingNotices(env, null).catch(e => console.log('going notices', String(e && e.message || e).slice(0, 160))));
     if (jobs.length) { ctx.waitUntil(Promise.all(jobs)); return; }
     ctx.waitUntil(wxExpireSweep(env).then(r => console.log('wx sweep', JSON.stringify(r))));
+    // Monthly subscriber roster to the owner (first 10-minute run of each Beijing month). roster.js
+    ctx.waitUntil(monthlyRoster(env).then(r => { if (r !== 'already') console.log('roster', r); }).catch(e => console.log('roster', String(e && e.message || e).slice(0, 160))));
   }
 };
