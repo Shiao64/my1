@@ -1,8 +1,8 @@
 # ATM 交接说明（给下一个 Agent）
 
-写于 2026-11-15，**2026-11-17 晚更新**：main 到 #196（之后还会有 Cursor 和 R2 同步的自动提交）。接手 tangoweekend.org/asia（亚洲探戈地图，ATM）的工作前，先读这一份，再读同一项目里的其他文档。
+写于 2026-11-15，**2026-11-17 晚更新**：main 到 #198（之后还会有 Cursor 和 R2 同步的自动提交）。接手 tangoweekend.org/asia（亚洲探戈地图，ATM）的工作前，先读这一份，再读同一项目里的其他文档。
 
-这份有两个地方：claude.ai「ATM」项目里的 `claude/ATM-交接说明.md`（完整版），和仓库里的 `docs/atm-handoff.md`（公开版，给探戈助理也能读；探戈助理的邮箱等联络方式只写在项目版）。**两份要一起改。**
+这份有两个地方：claude.ai「ATM」项目里的 `claude/ATM-交接说明.md`（完整版），和仓库里的 `docs/atm-handoff.md`（公开版，给探戈助理也能读）。**两份要一起改。**
 - 公开版网址：https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md
 
 ## 0. 和 Shiao 合作
@@ -12,7 +12,7 @@
 - 用户是活动组织者，不是工程师。说明要白话，少用术语；必须用时顺便解释（例：部署 = 上线）。
 - 节奏：用户提需求 → 你给方案（简短，列选项和建议）→ 用户回「做」「1」「合并」之类 → 你做完、测完、开 PR、合并 → 用中文汇报结果和下一步。用户说「你设计，更改」时，直接选一个方案做完、截图检查后上线。
 - 会改正式网站或后端的动作（部署、改 Cloudflare 设置），**先问一句再做**。只改前端、合并 PR 后自动上线的，用户已授权直接合并。
-- **用用户的 Gmail 寄信**：先建草稿给用户看，用户回「发」才寄。
+- **用用户的 Gmail 寄信**（寄给别人时）：先建草稿给用户看，用户回「发」才寄。**不再写信给探戈助理**（11/17，见第 4 节「和探戈助理怎么联络」）。
 - 方案上线前，用户希望有人复查，并在不同手机浏览器上测过。
 - 不要让用户把密码、API token 贴在对话里。要登录网站时，请用户自己登录。
 - **地区优先顺序（11/16）**：先做中国大陆和香港；中国以外（东京、首尔等）现在不急，先放着。
@@ -45,21 +45,21 @@
   - `atm-addr.js`：地址、交通、地图链接、放大给司机看、路线图；
   - `atm-ui2.js`：`?ui=2` 视觉测试层；
   - `atm-later.js`：**打包文件**，由 `tools/build_asia_assets.mjs` 从 `atm-menu.js` 等源文件生成。改源文件后要重新打包，不要直接改打包文件（打包时 `atm-critical.css`、`atm-early.js` 也会被重写，若只是工具版本差异就还原）。`atm-critical.css` 也是打包产物（来源 `css/atm-map-page.css`、`css/style.css`、`asia/cardB.css`、`asia/atm-theme.css`）；只想盖掉旧样式时，在 `atm-home.js` 的新版 CSS 里加覆盖规则比较安全（#160 这样做）。
-- **活动数据**：`asia/events.json`、`events-core.json`、`events-more.json`，三个文件同一张卡要一致，格式是紧凑 JSON（`separators=(',',':')`, `ensure_ascii=False`；events-more 结尾有换行）。合并到 main 后，GitHub 任务「R2 sync」自动上传到 R2，约 15 分钟（排队时可能 30 分钟）。**不要直接改 R2。** 注意：用 GITHUB_TOKEN 合并的 PR 不会触发 R2 sync（自动上线流程已经自己补上启动）；本环境的 `gh api … /merge` 可以触发，11/16 验证过。
+- **活动数据**：`asia/events.json`、`events-core.json`、`events-more.json`，三个文件同一张卡要一致，格式是紧凑 JSON（`separators=(',',':')`, `ensure_ascii=False`；events-more 结尾有换行）。合并到 main 后，GitHub 任务「R2 sync」自动上传到 R2（#198 起只传改过的文件，通常几分钟）。**不要直接改 R2。** 注意：用 GITHUB_TOKEN 合并的 PR 不会触发 R2 sync（自动上线流程已经自己补上启动）；本环境的 `gh api … /merge` 可以触发，11/16 验证过。
   - **新卡放哪个文件**：中国大陆／台湾／香港的卡和 featured 卡放 `events.json` + `events-core.json`；其他地区一般卡放 `events.json` + `events-more.json`。
   - **编号**：活动 `E###`（11/16 用到 E187），每周 `R###`（用到 R272）。`weekday` 0＝周日，3＝周三。
   - **写法规则（用户 11/16）**：没有结束时间写 `"20:30–late"`（中文页面显示「20:30–尽兴」）；海报没印场地名、但地址和已知场地相同，用那个场地名（杭州凤起路75号303室 → `inTango HangZhou`）；练习舞会 `type` 用 `practilonga`。
   - **手动建新卡的步骤**（#147、#157 的做法）：写进 JSON → 有官方海报就用换海报工具上（见下一条，单次活动要有 `regular_oneoff: true`）；大型活动的海报工具会拒绝，就手动裁好存 `images/asia/posters/<id>.jpg`，用 `tools/radar_poster_update.py` 里的 `thumb_image()` 产缩图、`update_atm_th()` 写尺寸表、`bump_live_caches()` 加版本号 → 没海报的跑 `python3 tools/ensure_posters.py` 产文字海报 → 手机尺寸截图检查 → PR、合并。
   - **换新一期海报**（已有的舞会／练习／单次活动）：`python3 tools/radar_poster_update.py --event-id <id> --image <图> --city 北京 --organizer <主办> --weekday 周二 --date YYYY-MM-DD --note "<第几场、DJ、来源>" --bump-caches`（先加 `--dry-run` 看）。它会备份旧海报到 `_backup/` 和 `past/`、产缩图、改 poster 字段，并按海报把卡上的 `dj` 改成这一期的 DJ（`poster_djs` 一一对应）——这是网站惯例，和「单场变动用 temp_notices」不冲突。大型活动、工作坊会被工具拒绝。
 - **海报规则（用户 11/17 定）**：
-  - 不是每个活动都要有海报。R2 sync 上传前会自动补：有当前海报就不动；没有就用最新的历史海报；都没有就生成一张文字海报（活动名、日期、时间、场地、城市）。**自动生成的文字海报不加「暂无海报」之类的标识**（用户说不要）。目前约 91 张卡用文字海报。
-  - **历史海报 `posters_past`：每张卡最多 4 张，日期超过 30 天的不留，没有日期的照旧留着。**日期取 `poster_dates` 记录，没有就看文件名里的活动日期（`…-20261104T012604Z` 这种是换海报的时间戳，不算日期）。摘掉的文件挪到 `images/asia/posters/_backup/`，**不删**。换海报时 `radar_poster_update.py` 会自动照这个规则清；全站清一遍用 `python3 tools/prune_past_posters.py`（先看，加 `--apply` 才写；`--today=YYYY-MM-DD` 可模拟）。卡片没有当前海报时至少留最新一张历史海报。测试：`python3 tools/test_prune_past_posters.py`。#196 清过一次（摘掉 5 张）。**还没有每天自动清理**，要不要加由用户定。
+  - 不是每个活动都要有海报。R2 sync 上传前会自动补：有当前海报就不动；没有就用最新的历史海报；都没有就生成一张文字海报（活动名、日期、时间、场地、城市）。**自动生成的文字海报不加「暂无海报」之类的标识**（用户说不要）。目前约 91 张卡用文字海报。**用户 11/17 决定：没有海报的不去问主办，先用自动生成的文字海报**（主办自己寄来或探戈助理顺带收到时再换）。
+  - **历史海报 `posters_past`：每张卡最多 4 张，日期超过 30 天的不留，没有日期的照旧留着。**日期取 `poster_dates` 记录，没有就看文件名里的活动日期（`…-20261104T012604Z` 这种是换海报的时间戳，不算日期）。摘掉的文件挪到 `images/asia/posters/_backup/`，**不删**。换海报时 `radar_poster_update.py` 会自动照这个规则清；全站清一遍用 `python3 tools/prune_past_posters.py`（先看，加 `--apply` 才写；`--today=YYYY-MM-DD` 可模拟）。卡片没有当前海报时至少留最新一张历史海报。测试：`python3 tools/test_prune_past_posters.py`。#196 清过一次（摘掉 5 张）。**#198 起每天自动清理**：`.github/workflows/poster-prune.yml`，北京时间每天 03:17 跑 `prune_past_posters.py --apply`（按北京日期），有改动就直接提交到 main（`github-actions[bot]`，提交名「Daily cleanup: drop expired past posters」），再启动 R2 sync；推送失败会从最新 main 重跑，最多 5 次。可在 Actions 里手动跑。
   - **「上期海报」标识**：每周固定的卡，当前海报有日期（`poster_date`）且已过，网站会在海报上显示「上期海报 / Previous poster / 이전 포스터」；没有日期的不标。这是原本就有的（`cardB.js` 的 `prevBadges`、`atm-home.js` 的 `ah-pw`），用户 11/17 确认这个做法。
   - **数据站（R2）要有这些图才打得开**：`tools/r2_sync_cards.py` 现在会把 `posters_past` 里的图和缩图一起上传（#195；以前只传当期海报，历史海报在数据站上不存在）。
 - **介绍资料**：`asia/organizers.json`（刘峥、王凯）、`asia/djs.json`（Yelyn Woo，空），介绍页 `/organizer/<id>/`。
 - **后端**：`social-worker/src/`，部署成 Cloudflare Worker `tango-subscribe`（api.tangoweekend.org），D1 `tango-subscribe`，迁移在 `social-worker/migrations/`（最新 0019）。
 - **后端部署**：GitHub Actions →「API deploy」→ Run workflow，输入 `deploy`。**部署前先问用户。**
-- **寄信**：通知信 `SOCIAL_MAIL=sub_mail`（Cloudflare Email Sending，已开通）；`MAIL_PROVIDER` 还是 gmail。QQ／163 送达测试中。**用户不要用 Resend**（Cloudflare 是付费 Workers 方案）。
+- **寄信**：通知信 `SOCIAL_MAIL=sub_mail`（Cloudflare Email Sending，已开通）；`MAIL_PROVIDER` 还是 gmail。QQ／163 送达测试（11/17 用户回报）：**进收件箱、很快收到**；寄件人名称、验证码登录还没回报。**用户不要用 Resend**（Cloudflare 是付费 Workers 方案）。
 
 ## 3. 工作方式
 
@@ -86,9 +86,9 @@
 - **#160 平板竖屏白带**：`css/style.css` 在 700px 以下给 body 留 50px（给早已不存在的顶部广告条），601–700px 宽时标题栏上方出现白带；新版在这个宽度设为 0。
 - `atm-home.js` 版本号：11/16 是 `h185`，之后 Cursor 又加过（`h186`…），**以两个 index.html 里现在写的为准**。
 
-**和探戈助理怎么联络**：
-- 探戈助理在 Grok 里，Claude 没有直接管道。它会读仓库里公开的两份文件：协作须知原件 `https://raw.githubusercontent.com/Shiao64/my1/main/data/inbox/README.md`（#158 起开头就有网址）和本交接说明公开版 `https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md`（#161）。规则或待问清单变了，改原件（和项目里的副本）就好。
-- 要写信给它：邮箱写在项目版交接说明里；用用户的 Gmail 寄（Gmail 连接器；先草稿、用户说「发」才寄）。11/16 15:08 已寄出第一封「ATM 协作须知更新（2026-11-16）：请每次开工先读最新版」。它回信会到用户的 Gmail；用户说「看一下探戈助理的回信」时，用 `search_threads` 找它的邮箱读。
+**和探戈助理怎么联络**（11/17 用户定：**只走 GitHub，不用邮件**）：
+- 探戈助理在 Grok 里，Claude 没有直接管道。**两边只靠仓库里的文件联络**：探戈助理把答复写进 `data/inbox/`（开 `answer/…` PR）；Claude 要告诉它的事写进协作须知原件和本交接说明。不写信给它，也不用去 Gmail 找它的回信。它会读仓库里公开的两份文件：协作须知原件 `https://raw.githubusercontent.com/Shiao64/my1/main/data/inbox/README.md`（#158 起开头就有网址）和本交接说明公开版 `https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md`（#161）。规则或待问清单变了，改原件（和项目里的副本）就好。
+- 11/16 曾用用户的 Gmail 寄过一封「协作须知更新」给它，没有回信；11/17 起不再用邮件。
 
 **探戈助理自动处理已经在跑真实答复**：
 - 流程：探戈助理把答复放在 `answer/...` 分支开 PR → `inbox-guard.yml` 只准改 `data/inbox/`，通过就自动合并并启动 `inbox.yml` → Claude Code Action（秘密 `CLAUDE_CODE_OAUTH_TOKEN`，用户的 Pro 方案，约 2027-11 到期）处理答复，开「探戈助理答复：…」PR → `tools/inbox_autocheck.py` 判断能不能自动上线。
@@ -118,21 +118,26 @@
 - **Cursor 做的（#183–#192，都已合并）**：去掉吉隆坡 E042 公开的 `love2tango` 邮箱（见第 10 节）；手机上路线大图的版面（`tools/test_route_lightbox.py`）；Milonga V 第216场海报的缩图改用新文件名 `GqufXmMX-216.png`（数据站上旧名字的缩图还是第214场）；探戈助理答复：E175 归档、香港 E152 换官方海报、新建深圳 E193（11/20 Milongueando en El Luna）并换上官方海报。
 - **自动上线第一次真正跑通**：#192（E193 换海报）经 `inbox_autocheck.py` 检查通过后自动合并，PR 下有留言「检查通过，自动上线」，R2 同步也跟着跑了。
 - **#195**：R2 同步也上传历史海报；**#193**（Milonga V 第215场历史海报）、**#194**（MiLONGAGA 第45场历史海报，我解决了和 #193 的冲突）已合并；**#196**：历史海报最多 4 张、不留 30 天前的（见第 2 节）。
-- **R2 同步很慢**：现在一次要核对、上传 1200 多个文件，**20–40 分钟**。同步有排队规则（`concurrency`，不取消正在跑的；排队中的只留最新一个，被它取代的那次显示 cancelled，无害，因为最新那次包含了它的改动）。合并不会触发同步的情况（例如只改 `tools/`）要手动启动：`gh api -X POST repos/Shiao64/my1/actions/workflows/r2-sync.yml/dispatches -f ref=main`。**改了资料后，要等同步跑完，数据站上才有新的图和数据**；PR 里如果用到新的图，先确认同步能上传它再合并。以后可以改成只上传改过的文件，会快很多，**要用户同意再做**（动数据站）。
+- **R2 同步**（#198 前一次要上传 1200 多个文件，20–40 分钟；#198 起只传改过的，见下面「2026-11-17 晚更新」）。同步有排队规则（`concurrency`，不取消正在跑的；排队中的只留最新一个，被它取代的那次显示 cancelled，无害，因为最新那次包含了它的改动）。合并不会触发同步的情况（例如只改 `tools/`）要手动启动：`gh api -X POST repos/Shiao64/my1/actions/workflows/r2-sync.yml/dispatches -f ref=main`。**改了资料后，要等同步跑完，数据站上才有新的图和数据**；PR 里如果用到新的图，先确认同步能上传它再合并。
+
+**2026-11-17 晚更新（#198，用户回「2 加、3 改、4 不问」）**：
+- **只传改过的文件**：`tools/r2_sync_cards.py` 在数据站上存一份清单 `asia/sync-hashes.json`（每个文件的 sha256）。同步时图片 sha256 和清单相同就跳过；三个活动 JSON 每次都传；最后才写清单（中途失败，下次会重传）。读不到清单（第一次、或被删）就全部上传并重建清单，所以 **#198 合并后的第一次同步仍要 20–40 分钟**，之后通常几分钟。有人手动改过数据站时：Actions →「R2 sync」→ Run workflow，勾 **full** 全部重传（命令行 `--full`）。测试：`python3 tools/test_r2_incremental.py`。
+- **每天自动清理历史海报**：见第 2 节「海报规则」。
+- **没有海报的不问主办**，先用文字海报（见第 2 节）。
+- **和探戈助理只走 GitHub**，协作须知原件第一节已写明。
 
 ## 5. 待办
 
-0. **用户还没决定的新事**：①要不要加「每天自动清理过期历史海报」的定时任务；②要不要让同步只传改过的文件（提速）；③91 张文字海报里，哪些最想先补真海报（优先中国大陆和香港，可以列出来交给探戈助理问主办）。
-1. **寄信测试结果**：11/16 10:00 的提醒（`trig_01ReqmRtFgMsi5qFCabt4CJ1`）已经发出，但送到的是 11/15 那个对话，**结果还没回到这里**。下次见到用户先问 QQ／163 收信测试：进收件箱还是垃圾箱、多久收到、寄件人是否显示 Asia Tango Map、6 位验证码能否登录。没问题就决定 `MAIL_PROVIDER` 是否也换 Cloudflare，并更新「收藏与订阅设计」第八节。
-   - ⚠️ 那个提醒的文字有两处过时：「有问题可把 SOCIAL_MAIL 改回 resend」——用户不用 Resend，有问题先问用户（例如暂时改回 gmail）；「资料结构第 1 步」——早已完成。
-2. **要问主办的事**（已写进协作须知第六节，也已写信给探戈助理）：郑州 Tango Red 周日练习场、北京 Paraíso 的「泥人」、广州 Cadencia No.65 场地、香港 Mascarita 12/4 时间票价、北京 Milonga V 第215场的 DJ（海报已由 #193 放进 `posters_past`，等同步跑完才上线；第215场 DJ 还没有）、杭州 inTango 周三是否每周固定和票价（固定就改成周常卡）。
-3. **探戈助理的回信**：看用户 Gmail 里探戈助理有没有回信。
+0. **确认 #198 上线**：看合并后第一次「R2 sync」跑完（全部重传）、第二次是否只传几个文件；第二天北京时间 03:17 后看「Daily past-poster cleanup」有没有正常跑。
+1. **寄信测试**：QQ／163 进收件箱、很快（11/17）。还差：寄件人是否显示 Asia Tango Map、6 位验证码能否登录。确认后再问用户要不要把 `MAIL_PROVIDER` 也换成 Cloudflare（改 Cloudflare 设置，先问），并更新「收藏与订阅设计」第八节。
+2. **要问主办的事**（已写进协作须知第六节，探戈助理开工时会读）：郑州 Tango Red 周日练习场、北京 Paraíso 的「泥人」、广州 Cadencia No.65 场地、香港 Mascarita 12/4 时间票价、北京 Milonga V 第215场的 DJ（海报已由 #193 放进 `posters_past`，等同步跑完才上线；第215场 DJ 还没有）、杭州 inTango 周三是否每周固定和票价（固定就改成周常卡）。
+3. （已取消：不再用邮件和探戈助理联络。）
 4. **东京 4 张暂缓**（用户说中国以外不急）：Tentación 11/24、12/1（四谷 Sin Rumbo）、12/4（奥沢），El Compás 11/21（麻布十番，缺店名）。答复原文和海报都在 `data/inbox/done/`。另外东京 NAMI 11/18（时区不清）、WE LOVE MONDAYS、香港 Monday Blues 资料不全，没建。
 5. **资料结构第 3 步**：中国大陆和香港的活动卡加 `venue_id`、`host`，加撞场检查，更新探戈助理须知。用户还没说开始。（做了之后，`inbox_autocheck.py` 的「可能重复」判断可以改用 `venue_id`。）
 6. 探戈助理的答复 PR：自动上线不了的（PR 下有「这次没有自动上线」留言）才需要看；用户说「看一下探戈助理的 PR」时检查后合并。
 7. B9：确认信旧说法改掉（后端，要部署）。
 8. 东京 R075–R078 补门牌地址（暂缓）。
-9. 以后：正式寄信给主办方；订阅地区／频率；介绍资料补韩文 `bio_ko`；场地页、主办方页。Gmail 里给探戈助理往来设标签（用户还没决定要不要）。
+9. 以后：正式寄信给主办方；订阅地区／频率；介绍资料补韩文 `bio_ko`；场地页、主办方页。
 
 ## 6. 还在等用户决定的事
 
