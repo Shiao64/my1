@@ -209,3 +209,13 @@ t1033u：第二张入口图，箭头 1 是大门进入，箭头 2 是 A 栋门�
 正式卡已核对。https://tangoweekend.org/zh/asia/?card=DIVjezcE 按外观、入口、大堂、1502室的顺序显示四张图，地址仍是西藏南路 765 号 1502 室，中文指引只显示中文。点开第四张，中文图注是「按 Tango Bang 招牌箭头向左，进入1502室。」英文页同一张只显示英文图注，`?lang=ko` 只显示韩文图注。西班牙文图注已保存在 `caption_es`，没有西班牙文页面，也没有新开入口。第四张图 `https://tangoweekend.org/images/asia/directions/DIVjezcE-04-room1502.jpg` 返回 200，大小与原图一致。
 
 t1031u：公开海报改为附件里的 Tango Bang / 探戈帮 / tangobang.cn 标志，路径是 `/images/asia/posters/DIVjezcE-tangobang.jpg`，原图字节没有改。列表缩略图是 `images/thumb/.../DIVjezcE-tangobang.webp?v=t360`，打开用的是 `images/thumb800/.../DIVjezcE-tangobang.webp?v=t800`。第一次曾把 `?v=tb1` 写进海报字段，卡片因此去请求带 `tb1` 的缩略图；文件上传前这个地址被存成 404，文件上传后仍是 404。不带 `tb1` 的同一张缩略图，以及 `t360`、`t800` 都返回 200。海报字段已去掉 `tb1`，卡片改用这两条已经能打开的缩略图，不再靠退回大图掩盖。正式卡已再打开：海报地址是 `images/thumb800/images/asia/posters/DIVjezcE-tangobang.webp?v=t800`，没有退回大图，也没有 `R018`。四张问路图还在，主办显示 Vivian Yeh，地址仍是西藏南路 765 号。旧的 `R018.jpg` 不再挂在这张卡上，也没有放进往期海报，文件仍留在仓库里作回退。日期、时间、地址和四张问路图不动。t1032u：这张卡的主办，以及只关联 DIVjezcE 的草稿记录 O081，拼写从 Vivian Ye 改为 Vivian Yeh。微信标签里的姓名一起改，微信号、电话和邮箱不动。页脚致谢本来就是 Vivian Yeh。杭州节目单上的 Vivian & Victor 是另一组人，没有改。换海报之前的 main 是 `95047bd`。
+
+## 10. 去掉两枚公开邮箱（t1049u）
+
+只删邮箱和页面上的 mailto 链接。主办姓名、电话、网站、报名、海报都留着。不删整张活动或组织者，不动历史提交和旧交接。
+
+第一枚 `wibowoymichelle@love2tango.com` 在 E042（The Return 2026 · Javier Rodríguez in Kuala Lumpur）的 `contacts.email`，`asia/events.json` 和 `asia/events-core.json` 都有；`events-more.json` 没有。中英活动页 `event/kuala-lumpur-2026-the-return/` 各有一行邮箱链接，已删。电话仍是 +6012 333 5311，网站仍是 https://www.love2tango.com 。
+
+第二枚 `ctwibowo7777@gmail.com` 在现行公开活动 JSON、活动页、`asia/organizers.json` 和 `data/entities-draft/organizers.json` 里都没有，所以没有删任何东西来假装它已去掉。组织者草稿 O049 Cristopher Wibowo、O050 Michelle Ng 只有姓名和 E042，没有邮箱栏。
+
+这次之前的 main 是 `4039f26`。正式站核对写在发布之后。
