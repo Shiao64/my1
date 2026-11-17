@@ -1,6 +1,6 @@
 # ATM 交接说明（给下一个 Agent）
 
-写于 2026-11-15，**2026-11-17 晚更新**：main 到 #202（之后还会有 Cursor 和 R2 同步的自动提交）。接手 tangoweekend.org/asia（亚洲探戈地图，ATM）的工作前，先读这一份，再读同一项目里的其他文档。
+写于 2026-11-15，**2026-11-17 晚更新**：main 到 #204（之后还会有 Cursor 和 R2 同步的自动提交）。接手 tangoweekend.org/asia（亚洲探戈地图，ATM）的工作前，先读这一份，再读同一项目里的其他文档。
 
 这份有两个地方：claude.ai「ATM」项目里的 `claude/ATM-交接说明.md`（完整版），和仓库里的 `docs/atm-handoff.md`（公开版，给探戈助理也能读）。**两份要一起改。**
 - 公开版网址：https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md
@@ -59,7 +59,7 @@
 - **介绍资料**：`asia/organizers.json`（刘峥、王凯）、`asia/djs.json`（Yelyn Woo，空），介绍页 `/organizer/<id>/`。
 - **后端**：`social-worker/src/`，部署成 Cloudflare Worker `tango-subscribe`（api.tangoweekend.org），D1 `tango-subscribe`，迁移在 `social-worker/migrations/`（最新 0019）。
 - **后端部署**：GitHub Actions →「API deploy」→ Run workflow，输入 `deploy`。**部署前先问用户。**
-- **寄信**：通知信 `SOCIAL_MAIL=sub_mail`（Cloudflare Email Sending，已开通）；**订阅信 `MAIL_PROVIDER=cloudflare`（11/17 晚用户在后台改的，已用 Chrome 核对）**，寄件人 `SENDER`=subscribe@tangoweekend.org、`SENDER_NAME`=Asia Tango Map。QQ／163 测试（11/17）：进收件箱、很快、寄件人显示 Asia Tango Map、6 位验证码能登录。有问题把 `MAIL_PROVIDER` 改回 `gmail` 即可。**11/17 晚（用户定）**：后台 `NOTIFY_TO`、`WX_NOTIFY_TO` 都只留 selecttango@gmail.com（Chrome 里改）；程序里 `SUB_CC`、`LETTER_CC` 设为空，不再抄送探戈助理（#200）；微信「我已添加」通知改走 `deliver()`＝Cloudflare，不用 Resend（#201）。已跑「API deploy」上线（run 44087903753，成功）。订阅者名单在 D1 `tango-subscribe` 的 `subs` 表（后台 D1 → Console 查）。「要参加／感兴趣」信：测试阶段只寄到 `GOING_TEST_INBOX`=selecttango；**唯一例外**是 `GOING_TEST_DANCER`（shiaochang@icloud.com）点的会真的寄给主办方；`GOING_NOTICE_SEND=on` 后才正式寄给所有主办方（抄送 selecttango）。**用户不要用 Resend**（Cloudflare 是付费 Workers 方案）。
+- **寄信**：通知信 `SOCIAL_MAIL=sub_mail`（Cloudflare Email Sending，已开通）；**订阅信 `MAIL_PROVIDER=cloudflare`（11/17 晚用户在后台改的，已用 Chrome 核对）**，寄件人 `SENDER`=subscribe@tangoweekend.org、`SENDER_NAME`=Asia Tango Map。QQ／163 测试（11/17）：进收件箱、很快、寄件人显示 Asia Tango Map、6 位验证码能登录。有问题把 `MAIL_PROVIDER` 改回 `gmail` 即可。**11/17 晚（用户定）**：后台 `NOTIFY_TO`、`WX_NOTIFY_TO` 都只留 selecttango@gmail.com（Chrome 里改）；程序里 `SUB_CC`、`LETTER_CC` 设为空，不再抄送探戈助理（#200）；微信「我已添加」通知改走 `deliver()`＝Cloudflare，不用 Resend（#201）。已跑「API deploy」上线（run 44087903753，成功）。订阅者名单在 D1 `tango-subscribe` 的 `subs` 表（网站订阅）和 `users` 表（帐号）。**#203 每月名单**：`social-worker/src/roster.js`，每个北京月份第一次 10 分钟定时任务把两张表做成 CSV 文字寄到 shiao.li.chang@gmail.com（`ROSTER_TO` 可改，`ROSTER_SEND=off` 关掉；表 `roster_log` 记录，失败每 6 小时重试）；Claude 定时任务「ATM 每月订阅者名单存到 Google Drive」每月 1 号 12:23（北京）把信存成两张 Google 表格，放在 shiao.li.chang 的 Drive 资料夹「ATM 订阅者名单」。11/17 已存第一份（2026-11）。**名单只放用户自己的 Drive，不进仓库。**「要参加／感兴趣」信：测试阶段只寄到 `GOING_TEST_INBOX`=selecttango；**唯一例外**是 `GOING_TEST_DANCER`（shiaochang@icloud.com）点的会真的寄给主办方；`GOING_NOTICE_SEND=on` 后才正式寄给所有主办方（抄送 selecttango）。**用户不要用 Resend**（Cloudflare 是付费 Workers 方案）。
 
 ## 3. 工作方式
 
@@ -129,7 +129,7 @@
 ## 5. 待办
 
 0. **确认 #198 上线**：看合并后第一次「R2 sync」跑完（全部重传）、第二次是否只传几个文件；第二天北京时间 03:17 后看「Daily past-poster cleanup」有没有正常跑。
-1. **订阅信改用 Cloudflare 后**：再看一次真实订阅（QQ／163）和一次微信「我已添加」，确认 selecttango@gmail.com 收到通知。用户提过可做「只有他能开的订阅者名单页 + 下载 Excel」，还没说要做。
+1. **订阅信改用 Cloudflare 后**：再看一次真实订阅（QQ／163）和一次微信「我已添加」，确认 selecttango@gmail.com 收到通知。每月名单已改成自动存 Google Drive（#203）；名单页暂不做。
 2. **要问主办的事**（已写进协作须知第六节，探戈助理开工时会读）：郑州 Tango Red 周日练习场、北京 Paraíso 的「泥人」、广州 Cadencia No.65 场地、香港 Mascarita 12/4 时间票价、北京 Milonga V 第215场的 DJ（海报已由 #193 放进 `posters_past`，等同步跑完才上线；第215场 DJ 还没有）、杭州 inTango 周三是否每周固定和票价（固定就改成周常卡）。
 3. （已取消：不再用邮件和探戈助理联络。）
 4. **东京 4 张暂缓**（用户说中国以外不急）：Tentación 11/24、12/1（四谷 Sin Rumbo）、12/4（奥沢），El Compás 11/21（麻布十番，缺店名）。答复原文和海报都在 `data/inbox/done/`。另外东京 NAMI 11/18（时区不清）、WE LOVE MONDAYS、香港 Monday Blues 资料不全，没建。
