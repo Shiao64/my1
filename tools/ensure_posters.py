@@ -61,6 +61,8 @@ def generate(e):
 def past_guard(data):
     """Fail if any posters_past entry present in HEAD was dropped, or its file is missing (ALLOW_PAST_DROP=1 to override)."""
     import subprocess
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import radar_poster_update as rpu
     bad = []
     for rel, L in data.items():
         try: old = json.loads(subprocess.check_output(['git', '-C', ROOT, 'show', 'HEAD:' + rel], stderr=subprocess.DEVNULL))
@@ -71,7 +73,10 @@ def past_guard(data):
             if not c: continue
             have = set((c.get('posters_past') or []) + [c.get('poster')])
             for u in (e.get('posters_past') or []):
-                if u not in have: bad.append(f'PAST DROPPED: {rel} {e["id"]} {u}')
+                if u in have: continue
+                # 2026-11-17: a past poster dated more than 30 days ago may be dropped on purpose
+                if rpu.poster_expired(u, e.get('poster_dates') if isinstance(e.get('poster_dates'), dict) else None): continue
+                bad.append(f'PAST DROPPED: {rel} {e["id"]} {u}')
         for e in L:
             for u in (e.get('posters_past') or []):
                 if isinstance(u, str) and u.startswith('/') and not os.path.isfile(os.path.join(ROOT, u.split('?')[0].lstrip('/'))):
