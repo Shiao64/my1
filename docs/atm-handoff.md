@@ -218,4 +218,4 @@ t1031u：公开海报改为附件里的 Tango Bang / 探戈帮 / tangobang.cn �
 
 第二枚 `ctwibowo7777@gmail.com` 在现行公开活动 JSON、活动页、`asia/organizers.json` 和 `data/entities-draft/organizers.json` 里都没有，所以没有删任何东西来假装它已去掉。组织者草稿 O049 Cristopher Wibowo、O050 Michelle Ng 只有姓名和 E042，没有邮箱栏。
 
-这次之前的 main 是 `4039f26`。正式站核对写在发布之后。
+这次之前的 main 是 `4039f26`。正式站已核对：`events-core.json?v=china490` 和 `events.json` 里 E042 只剩电话 +6012 333 5311，网站仍是 https://www.love2tango.com 。中英活动页没有这个邮箱、没有 mailto，也没有 Cloudflare 邮箱保护标记。第二枚邮箱本来就不在这些公开来源里。
