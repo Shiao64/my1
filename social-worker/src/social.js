@@ -172,10 +172,9 @@ async function wxAddedNotify(env, u, wx, row) {   // 「我已添加」 pressed:
   const when = new Date(t).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + '（北京时间）';
   const dl = wxDeadline(row.wx_added_at || now()), dls = new Date(dl).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false });
   const text = `有人在亚洲探戈地图按了「我已添加」，请在探戈助理的「新的朋友」里核对验证码：\n\n微信号：${wx}\n验证码：${row.wx_code || ''}\n城市：${full.city || '（未填）'}\n身份：${role}\n时间：${when}\n点过赞：${nl ? '是（' + nl + '）' : '否'}\n\n核对通过后标记已验证（之后不限次数）：POST /social/admin/wx-verify {"wechat":"${wx}"}\n加不上：POST /social/admin/wx-reject {"wechat":"${wx}"}（删除点赞并禁用）\n期限：${dls}（三小时，夜里 23:00–09:00 不计；AUTO_EXPIRE=${env.AUTO_EXPIRE === 'on' ? 'on' : 'off'}）`;
-  const to = env.WX_NOTIFY_TO || 'shiao.li.chang@gmail.com';
-  const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: env.RESEND_FROM || 'Asia Tango Map <noreply@tangoweekend.org>', to: [to], subject: `ATM 待核对：${wx}，${row.wx_code || ''}`, text }) });
-  if (!r.ok) throw new Error('resend ' + r.status);
+  const to = env.WX_NOTIFY_TO || 'selecttango@gmail.com';
+  // 2026-11-17 (Shiao): no Resend. Same path as the rest of social mail (SOCIAL_MAIL=sub_mail = Cloudflare).
+  await deliver(env, to, `ATM 待核对：${wx}，${row.wx_code || ''}`, text);
   return 'sent';
 }
 async function wxClaim(env, u) { const r = await env.SDB.prepare('UPDATE users SET wx_used=1 WHERE id=? AND wx_used=0').bind(u.id).run(); return (r.meta?.changes ?? 0) > 0; }
