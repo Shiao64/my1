@@ -18,8 +18,8 @@ What it does, per item that passes the checks:
      the list size.
   5. Set that event's `poster` (and `updated`) in events.json and, when the
      same id is present, events-core.json / events-more.json.
-  6. Keep at most 4 past posters (5 with the current one). Drop the oldest
-     dated past poster. A poster with no date in its filename is kept.
+  6. Keep at most 4 past posters (5 with the current one), and none dated more
+     than 30 days ago. Drop the oldest dated past poster. A poster with no date in its filename is kept.
      Dropped public files are copied into _backup; files already there are
      not deleted.
   7. Append a line to tools/radar-poster-log.jsonl.
@@ -74,6 +74,7 @@ CARD_W = 800
 LIST_WEBP_Q = 64
 LIST_JPEG_Q = 72
 MAX_PAST = 4
+MAX_AGE_DAYS = 30   # 2026-11-17 Shiao: a past poster dated more than a month ago is not kept
 UA = 'AsiaTangoMap-radar/1.0'
 
 # Chinese labels operators paste from 雷达表. Not used to find an event — only
@@ -450,13 +451,34 @@ def known_poster_date(path, dates=None):
     return poster_event_date(path)
 
 
-def trim_past(past, max_past=MAX_PAST, dates=None):
-    """Drop oldest-dated past posters until max_past remain.
+def poster_expired(path, dates=None, today=None, max_age=MAX_AGE_DAYS):
+    """True when the poster has a known date and it is more than max_age days ago.
+
+    A poster with no recorded date and no date in its filename is never expired.
+    """
+    d = known_poster_date(path, dates)
+    if not d or max_age is None:
+        return False
+    try:
+        when = datetime.date.fromisoformat(d)
+    except ValueError:
+        return False
+    return ((today or datetime.date.today()) - when).days > max_age
+
+
+def trim_past(past, max_past=MAX_PAST, dates=None, today=None, max_age=None):
+    """Drop dated past posters older than max_age days (when given), then the oldest
+    dated ones until max_past remain.
 
     A poster with no recorded date and no filename date stays. Returns (kept, dropped).
     """
     kept = [p for p in (past or []) if p]
     dropped = []
+    if max_age is not None:
+        for p in list(kept):
+            if poster_expired(p, dates, today, max_age):
+                kept.remove(p)
+                dropped.append(p)
     while len(kept) > max_past:
         dated = [(known_poster_date(p, dates), i) for i, p in enumerate(kept) if known_poster_date(p, dates)]
         if not dated:
@@ -875,7 +897,7 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                 if djs:
                     event['poster_djs'] = djs
                 plan['dj'] = event.get('dj')
-                past, dropped = trim_past(past, MAX_PAST, dates)
+                past, dropped = trim_past(past, MAX_PAST, dates, max_age=MAX_AGE_DAYS)
                 archived = [archive_poster(root, event['id'], path, stamp) for path in dropped]
                 event['posters_past'] = past
                 plan['dropped'] = dropped
