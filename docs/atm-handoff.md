@@ -210,6 +210,8 @@ t1033u：第二张入口图，箭头 1 是大门进入，箭头 2 是 A 栋门�
 
 t1031u：公开海报改为附件里的 Tango Bang / 探戈帮 / tangobang.cn 标志，路径是 `/images/asia/posters/DIVjezcE-tangobang.jpg`，原图字节没有改。列表缩略图是 `images/thumb/.../DIVjezcE-tangobang.webp?v=t360`，打开用的是 `images/thumb800/.../DIVjezcE-tangobang.webp?v=t800`。第一次曾把 `?v=tb1` 写进海报字段，卡片因此去请求带 `tb1` 的缩略图；文件上传前这个地址被存成 404，文件上传后仍是 404。不带 `tb1` 的同一张缩略图，以及 `t360`、`t800` 都返回 200。海报字段已去掉 `tb1`，卡片改用这两条已经能打开的缩略图，不再靠退回大图掩盖。正式卡已再打开：海报地址是 `images/thumb800/images/asia/posters/DIVjezcE-tangobang.webp?v=t800`，没有退回大图，也没有 `R018`。四张问路图还在，主办显示 Vivian Yeh，地址仍是西藏南路 765 号。旧的 `R018.jpg` 不再挂在这张卡上，也没有放进往期海报，文件仍留在仓库里作回退。日期、时间、地址和四张问路图不动。t1032u：这张卡的主办，以及只关联 DIVjezcE 的草稿记录 O081，拼写从 Vivian Ye 改为 Vivian Yeh。微信标签里的姓名一起改，微信号、电话和邮箱不动。页脚致谢本来就是 Vivian Yeh。杭州节目单上的 Vivian & Victor 是另一组人，没有改。换海报之前的 main 是 `95047bd`。
 
+GqufXmMX（Milonga V 第216场）原图 `GqufXmMX.png` 已是 2026-11-17、No.216、Dandi 那张，和刘峥寄来的原图字节相同。数据站上卡片内嵌先请求的 `images/thumb/.../GqufXmMX.webp?v=t360` 和 `images/thumb800/.../GqufXmMX.webp?v=t800` 画面仍是 No.214、2026.11.03、Yelyn Woo 的绿甜点。点开后的原图才是第216场。网站仓库里的同名缩略图已经是新画。这次把原图按原字节另存为 `GqufXmMX-216.png`，缩略图按这张新图重新生成，卡片改指向这个新路径，避免继续用被旧画面占住的 `?v=t360`。长期周常时间、主办、场地没有改。这次之前的 main 是 `d2acfc8`。
+
 ## 10. 去掉两枚公开邮箱（t1049u）
 
 只删邮箱和页面上的 mailto 链接。主办姓名、电话、网站、报名、海报都留着。不删整张活动或组织者，不动历史提交和旧交接。
