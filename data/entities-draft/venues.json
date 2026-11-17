@@ -390,7 +390,12 @@
   "address_en": "Room 303, No. 75 Fengqi Road, Hangzhou",
   "rooms": [],
   "events": [
-   "E179"
+   "E179",
+   "E187"
+  ],
+  "name_variants": [
+   "INTANGO SALON",
+   "inTango HangZhou"
   ]
  },
  {
@@ -764,7 +769,8 @@
   "address_en": "18F Block B, Central Plaza, 7002 Hongli W Road, Futian, Shenzhen",
   "rooms": [],
   "events": [
-   "E157"
+   "E157",
+   "E193"
   ]
  },
  {
