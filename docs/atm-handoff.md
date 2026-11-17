@@ -1,6 +1,6 @@
 # ATM 交接说明（给下一个 Agent）
 
-写于 2026-11-15，**2026-11-16 傍晚更新**：main 到 #161。接手 tangoweekend.org/asia（亚洲探戈地图，ATM）的工作前，先读这一份，再读同一项目里的其他文档。
+写于 2026-11-15，**2026-11-17 晚更新**：main 到 #196（之后还会有 Cursor 和 R2 同步的自动提交）。接手 tangoweekend.org/asia（亚洲探戈地图，ATM）的工作前，先读这一份，再读同一项目里的其他文档。
 
 这份有两个地方：claude.ai「ATM」项目里的 `claude/ATM-交接说明.md`（完整版），和仓库里的 `docs/atm-handoff.md`（公开版，给探戈助理也能读；探戈助理的邮箱等联络方式只写在项目版）。**两份要一起改。**
 - 公开版网址：https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md
@@ -17,6 +17,7 @@
 - 不要让用户把密码、API token 贴在对话里。要登录网站时，请用户自己登录。
 - **地区优先顺序（11/16）**：先做中国大陆和香港；中国以外（东京、首尔等）现在不急，先放着。
 - 用户常直接贴一张卡的网址，接着说哪里不对；先打开看，再问或直接修。
+- **11/17 起，用户也用 Cursor 里的 Sonnet 5.5 改同一个仓库**（提交署名 `Cursor Agent`，分支名 `cursor/…`）。两边的对话互不相通，**只靠仓库和这份交接说明同步**：开工先 `git fetch`、看 `git log origin/main` 有没有新提交和还开着的 PR；改完用分支和 PR，不要直接推 main；重要的改动写进这份说明。分工建议：一边改活动数据，另一边改页面代码，不要同时改同一类文件。
 
 ## 1. 先读这些
 
@@ -50,7 +51,11 @@
   - **写法规则（用户 11/16）**：没有结束时间写 `"20:30–late"`（中文页面显示「20:30–尽兴」）；海报没印场地名、但地址和已知场地相同，用那个场地名（杭州凤起路75号303室 → `inTango HangZhou`）；练习舞会 `type` 用 `practilonga`。
   - **手动建新卡的步骤**（#147、#157 的做法）：写进 JSON → 有官方海报就用换海报工具上（见下一条，单次活动要有 `regular_oneoff: true`）；大型活动的海报工具会拒绝，就手动裁好存 `images/asia/posters/<id>.jpg`，用 `tools/radar_poster_update.py` 里的 `thumb_image()` 产缩图、`update_atm_th()` 写尺寸表、`bump_live_caches()` 加版本号 → 没海报的跑 `python3 tools/ensure_posters.py` 产文字海报 → 手机尺寸截图检查 → PR、合并。
   - **换新一期海报**（已有的舞会／练习／单次活动）：`python3 tools/radar_poster_update.py --event-id <id> --image <图> --city 北京 --organizer <主办> --weekday 周二 --date YYYY-MM-DD --note "<第几场、DJ、来源>" --bump-caches`（先加 `--dry-run` 看）。它会备份旧海报到 `_backup/` 和 `past/`、产缩图、改 poster 字段，并按海报把卡上的 `dj` 改成这一期的 DJ（`poster_djs` 一一对应）——这是网站惯例，和「单场变动用 temp_notices」不冲突。大型活动、工作坊会被工具拒绝。
-- **海报**：不是每个活动都要有海报。R2 sync 会自动补海报；没有新海报时保留上一期。
+- **海报规则（用户 11/17 定）**：
+  - 不是每个活动都要有海报。R2 sync 上传前会自动补：有当前海报就不动；没有就用最新的历史海报；都没有就生成一张文字海报（活动名、日期、时间、场地、城市）。**自动生成的文字海报不加「暂无海报」之类的标识**（用户说不要）。目前约 91 张卡用文字海报。
+  - **历史海报 `posters_past`：每张卡最多 4 张，日期超过 30 天的不留，没有日期的照旧留着。**日期取 `poster_dates` 记录，没有就看文件名里的活动日期（`…-20261104T012604Z` 这种是换海报的时间戳，不算日期）。摘掉的文件挪到 `images/asia/posters/_backup/`，**不删**。换海报时 `radar_poster_update.py` 会自动照这个规则清；全站清一遍用 `python3 tools/prune_past_posters.py`（先看，加 `--apply` 才写；`--today=YYYY-MM-DD` 可模拟）。卡片没有当前海报时至少留最新一张历史海报。测试：`python3 tools/test_prune_past_posters.py`。#196 清过一次（摘掉 5 张）。**还没有每天自动清理**，要不要加由用户定。
+  - **「上期海报」标识**：每周固定的卡，当前海报有日期（`poster_date`）且已过，网站会在海报上显示「上期海报 / Previous poster / 이전 포스터」；没有日期的不标。这是原本就有的（`cardB.js` 的 `prevBadges`、`atm-home.js` 的 `ah-pw`），用户 11/17 确认这个做法。
+  - **数据站（R2）要有这些图才打得开**：`tools/r2_sync_cards.py` 现在会把 `posters_past` 里的图和缩图一起上传（#195；以前只传当期海报，历史海报在数据站上不存在）。
 - **介绍资料**：`asia/organizers.json`（刘峥、王凯）、`asia/djs.json`（Yelyn Woo，空），介绍页 `/organizer/<id>/`。
 - **后端**：`social-worker/src/`，部署成 Cloudflare Worker `tango-subscribe`（api.tangoweekend.org），D1 `tango-subscribe`，迁移在 `social-worker/migrations/`（最新 0019）。
 - **后端部署**：GitHub Actions →「API deploy」→ Run workflow，输入 `deploy`。**部署前先问用户。**
@@ -72,14 +77,14 @@
   - 前端：本地 `python3 -m http.server 8765`，Python Playwright + `/usr/bin/google-chrome`，iPhone UA、390×844，测中文加 `locale='zh-CN'`。桌面版用 1440／1024／700 宽截图。把 `https://data.tangoweekend.org/**` 拦掉，页面就会用仓库里的 JSON。首次打开有免责声明：点 `#atm-notice-go`。测试脚本放在 `/home/claude/test`——**这个目录不会跨会话保留**，新会话里没有就照这个思路重写。
 - 文件里有邮箱时，终端输出会被隐私插件拦；打印前用 sed 遮掉。
 
-## 4. 目前状态（2026-11-16 傍晚）
+## 4. 目前状态（2026-11-17 晚；下面先写 11/16 的，11/17 的在「2026-11-17 更新」一段）
 
-已上线：新首页（页签 + fileteado 招牌，所有人默认）、韩文测试版（还没对外开放）、订阅验证码、后端部署按钮、中文城市名、地址与交通分开、路线图字段、A4 订阅入口（#131）、A5 菜单「订阅与账号」（#131）、香港／苏州地址补齐和微信号卡片详情打不开的修正（#130）。
+已上线：新首页（页签 + fileteado 招牌，所有人默认）、韩文（11/17 已对所有人开放）、订阅验证码、后端部署按钮、中文城市名、地址与交通分开、路线图字段、A4 订阅入口（#131）、A5 菜单「订阅与账号」（#131）、香港／苏州地址补齐和微信号卡片详情打不开的修正（#130）。
 
 **版面（11/16）**：
 - **#159 桌面版标题栏**：用户说菜单和语言切换各在视窗一边、太远、不好看。600px 以上把标题栏限制在 480px 宽、置中，≡ 和 EN 贴在招牌两侧（顺序同手机）。
 - **#160 平板竖屏白带**：`css/style.css` 在 700px 以下给 body 留 50px（给早已不存在的顶部广告条），601–700px 宽时标题栏上方出现白带；新版在这个宽度设为 0。
-- `atm-home.js` 目前 `?v=h185`。
+- `atm-home.js` 版本号：11/16 是 `h185`，之后 Cursor 又加过（`h186`…），**以两个 index.html 里现在写的为准**。
 
 **和探戈助理怎么联络**：
 - 探戈助理在 Grok 里，Claude 没有直接管道。它会读仓库里公开的两份文件：协作须知原件 `https://raw.githubusercontent.com/Shiao64/my1/main/data/inbox/README.md`（#158 起开头就有网址）和本交接说明公开版 `https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md`（#161）。规则或待问清单变了，改原件（和项目里的副本）就好。
@@ -107,11 +112,20 @@
 
 **资料结构**：第 1 步完成（`tools/draft_entities.py`、`data/entities-draft/`），用户的回答记在 `decisions.json`。中国大陆和香港的待确认题已全部答完；海报不是必须的，没有海报不算缺资料。剩下的是补地址（列在协作须知第六节，交给探戈助理去问）。
 
+**2026-11-17 更新（#162–#196）**：
+- **韩文对所有人开放（#179）**：手机语言是韩语的人，进 `/` 或 `/asia/` 会直接看到韩文；韩文链接可见，`hreflang ko` 恢复，不再 noindex。韩文仍由 `atm-ko.js` 提供。
+- **语言切换（#180–#182）**：语言切换不放在 ≡ 菜单里，放在右上角，是**一个按钮**：地球图标 + 目前语言（中／EN／한），点开列出全部语言，目前的打勾（`atm-menu.js`，`atm-later.js` 版本 `lt17`）。名称已备好中文、English、한국어、Español、Русский。**以后加西班牙文／俄文**：在两个首页的 `nav.top-lang` 里加 `<a data-asia-lang-set="es|ru" …>` 链接，再做翻译层（像 `atm-ko.js` 那样，注意 `lang-pref.js`、`lang-keep.js` 要认新语言、首页的语言判断脚本也要认）；清单会自动多出新语言。用户说过韩文有「闪一下」的感觉，我没能重现，当时判断是缓存；如果再说，要重新查。
+- **Cursor 做的（#183–#192，都已合并）**：去掉吉隆坡 E042 公开的 `love2tango` 邮箱（见第 10 节）；手机上路线大图的版面（`tools/test_route_lightbox.py`）；Milonga V 第216场海报的缩图改用新文件名 `GqufXmMX-216.png`（数据站上旧名字的缩图还是第214场）；探戈助理答复：E175 归档、香港 E152 换官方海报、新建深圳 E193（11/20 Milongueando en El Luna）并换上官方海报。
+- **自动上线第一次真正跑通**：#192（E193 换海报）经 `inbox_autocheck.py` 检查通过后自动合并，PR 下有留言「检查通过，自动上线」，R2 同步也跟着跑了。
+- **#195**：R2 同步也上传历史海报；**#193**（Milonga V 第215场历史海报）、**#194**（MiLONGAGA 第45场历史海报，我解决了和 #193 的冲突）已合并；**#196**：历史海报最多 4 张、不留 30 天前的（见第 2 节）。
+- **R2 同步很慢**：现在一次要核对、上传 1200 多个文件，**20–40 分钟**。同步有排队规则（`concurrency`，不取消正在跑的；排队中的只留最新一个，被它取代的那次显示 cancelled，无害，因为最新那次包含了它的改动）。合并不会触发同步的情况（例如只改 `tools/`）要手动启动：`gh api -X POST repos/Shiao64/my1/actions/workflows/r2-sync.yml/dispatches -f ref=main`。**改了资料后，要等同步跑完，数据站上才有新的图和数据**；PR 里如果用到新的图，先确认同步能上传它再合并。以后可以改成只上传改过的文件，会快很多，**要用户同意再做**（动数据站）。
+
 ## 5. 待办
 
+0. **用户还没决定的新事**：①要不要加「每天自动清理过期历史海报」的定时任务；②要不要让同步只传改过的文件（提速）；③91 张文字海报里，哪些最想先补真海报（优先中国大陆和香港，可以列出来交给探戈助理问主办）。
 1. **寄信测试结果**：11/16 10:00 的提醒（`trig_01ReqmRtFgMsi5qFCabt4CJ1`）已经发出，但送到的是 11/15 那个对话，**结果还没回到这里**。下次见到用户先问 QQ／163 收信测试：进收件箱还是垃圾箱、多久收到、寄件人是否显示 Asia Tango Map、6 位验证码能否登录。没问题就决定 `MAIL_PROVIDER` 是否也换 Cloudflare，并更新「收藏与订阅设计」第八节。
    - ⚠️ 那个提醒的文字有两处过时：「有问题可把 SOCIAL_MAIL 改回 resend」——用户不用 Resend，有问题先问用户（例如暂时改回 gmail）；「资料结构第 1 步」——早已完成。
-2. **要问主办的事**（已写进协作须知第六节，也已写信给探戈助理）：郑州 Tango Red 周日练习场、北京 Paraíso 的「泥人」、广州 Cadencia No.65 场地、香港 Mascarita 12/4 时间票价、北京 Milonga V 第215场（11/10）海报和 DJ（拿到后放进 `posters_past`，不要变成当前海报）、杭州 inTango 周三是否每周固定和票价（固定就改成周常卡）。
+2. **要问主办的事**（已写进协作须知第六节，也已写信给探戈助理）：郑州 Tango Red 周日练习场、北京 Paraíso 的「泥人」、广州 Cadencia No.65 场地、香港 Mascarita 12/4 时间票价、北京 Milonga V 第215场的 DJ（海报已由 #193 放进 `posters_past`，等同步跑完才上线；第215场 DJ 还没有）、杭州 inTango 周三是否每周固定和票价（固定就改成周常卡）。
 3. **探戈助理的回信**：看用户 Gmail 里探戈助理有没有回信。
 4. **东京 4 张暂缓**（用户说中国以外不急）：Tentación 11/24、12/1（四谷 Sin Rumbo）、12/4（奥沢），El Compás 11/21（麻布十番，缺店名）。答复原文和海报都在 `data/inbox/done/`。另外东京 NAMI 11/18（时区不清）、WE LOVE MONDAYS、香港 Monday Blues 资料不全，没建。
 5. **资料结构第 3 步**：中国大陆和香港的活动卡加 `venue_id`、`host`，加撞场检查，更新探戈助理须知。用户还没说开始。（做了之后，`inbox_autocheck.py` 的「可能重复」判断可以改用 `venue_id`。）
@@ -123,12 +137,15 @@
 ## 6. 还在等用户决定的事
 
 - **繁体中文**：港台用户要不要显示繁体，还是全站都用简体——还没定（现在是所有中文变体都显示简体）。
-- **韩文开放**：韩文先做测试版，用户在找人审稿，审完才对外开放语言选项。
-- **西班牙文、俄文**：以后要加，还没排时间。
+- **韩文**：已对所有人开放（#179）；用户还在找人审稿，审稿意见出来再改 `atm-ko.js`。
+- **西班牙文、俄文**：以后要加，还没排时间。语言按钮已经能放下（做法见第 4 节 11/17 更新）。
 - **推播通知**：用户问过推播到底有没有用，还没结论；目前订阅以大型活动推广和报名／截止信息为主。
 
 ## 7. 容易踩的坑
 
+- **两个 PR 都改同一张卡所在的 JSON（只有一行）一定冲突。**解决办法：取 main 的版本，用 Python 读出对方 PR 里那张卡（按 `id`），替换进 main 的版本，再用紧凑格式写回（`separators=(',',':')`, `ensure_ascii=False`），页面里缓存版本号用 main 的（同步会自己加）。#194 就是这样处理的。
+- 把用到「数据站上还没有的文件」的 PR 先合并，网站会去要一个不存在的文件（打不开）。先让同步能上传、跑完，再合并（#193／#194 的教训）。
+- 在 Cursor 里开工的人和 Claude 同时改同一类文件，会冲突；分工见第 0 节。
 - 改 JS 忘了在**两个** index.html 加版本号 → 用户手机还是旧版。
 - `zh/asia/index.html` 不在 `asia/` 目录下，`git add asia` 不会带上它。
 - 活动地址里**不要写交通**，放 `directions` / `directions_en`。
@@ -216,8 +233,8 @@ GqufXmMX（Milonga V 第216场）原图 `GqufXmMX.png` 已是 2026-11-17、No.21
 
 只删邮箱和页面上的 mailto 链接。主办姓名、电话、网站、报名、海报都留着。不删整张活动或组织者，不动历史提交和旧交接。
 
-第一枚 `wibowoymichelle@love2tango.com` 在 E042（The Return 2026 · Javier Rodríguez in Kuala Lumpur）的 `contacts.email`，`asia/events.json` 和 `asia/events-core.json` 都有；`events-more.json` 没有。中英活动页 `event/kuala-lumpur-2026-the-return/` 各有一行邮箱链接，已删。电话仍是 +6012 333 5311，网站仍是 https://www.love2tango.com 。
+第一枚（love2tango 域名的主办邮箱，地址不再写在这里）在 E042（The Return 2026 · Javier Rodríguez in Kuala Lumpur）的 `contacts.email`，`asia/events.json` 和 `asia/events-core.json` 都有；`events-more.json` 没有。中英活动页 `event/kuala-lumpur-2026-the-return/` 各有一行邮箱链接，已删。电话仍是 +6012 333 5311，网站仍是 https://www.love2tango.com 。
 
-第二枚 `ctwibowo7777@gmail.com` 在现行公开活动 JSON、活动页、`asia/organizers.json` 和 `data/entities-draft/organizers.json` 里都没有，所以没有删任何东西来假装它已去掉。组织者草稿 O049 Cristopher Wibowo、O050 Michelle Ng 只有姓名和 E042，没有邮箱栏。
+第二枚（一个 gmail 邮箱，地址同样不再写在这里）在现行公开活动 JSON、活动页、`asia/organizers.json` 和 `data/entities-draft/organizers.json` 里都没有，所以没有删任何东西来假装它已去掉。组织者草稿 O049 Cristopher Wibowo、O050 Michelle Ng 只有姓名和 E042，没有邮箱栏。
 
 这次之前的 main 是 `4039f26`。正式站已核对：`events-core.json?v=china490` 和 `events.json` 里 E042 只剩电话 +6012 333 5311，网站仍是 https://www.love2tango.com 。中英活动页没有这个邮箱、没有 mailto，也没有 Cloudflare 邮箱保护标记。第二枚邮箱本来就不在这些公开来源里。
