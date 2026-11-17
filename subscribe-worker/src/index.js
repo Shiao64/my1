@@ -10,7 +10,7 @@ import { pushSubscribe, pushUnsubscribe, pushSend } from './push.js';
 
 const ORIGINS = ['https://tangoweekend.org', 'https://www.tangoweekend.org'];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const SUB_CC = 'guazong@mail.grokbot.com'; // CC on every subscriber-facing email (confirm + welcome)
+const SUB_CC = ''; // 2026-11-17 (Shiao): no CC on subscriber mail. Was the tango assistant's mailbox.
 const RATE_MAX = 5, RATE_WIN_MIN = 60, PENDING_DAYS = 7, DAY = 86400000;
 
 const LINK_NOTE = {
