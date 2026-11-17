@@ -8,6 +8,10 @@
  * 4. Route pictures from the organizer: e.directions_images = ["/images/asia/directions/x.jpg", ...]
  *    or [{src, caption, caption_en, caption_ko, caption_es}]. Shown as small thumbnails; tap to view full screen.
  *    Text in the page language (directions_xx / caption_xx), else English, else the Chinese base field.
+ * 5. 2026-11-17 mobile route lightbox only: on a tall phone a wide photo used to sit in the middle
+ *    while 「路线图 n / n」 stayed at the top edge and the caption at the bottom edge. Narrow portrait
+ *    screens now keep the step, the whole photo (original ratio) and the caption together.
+ *    Desktop and short landscape windows keep the previous full-bleed layout.
  */
 (function () {
   'use strict';
@@ -17,8 +21,8 @@
   function esc(x) { return String(x == null ? '' : x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function good(x) { return x && typeof x === 'string' && !/not found|没找到|未找到|unknown|未知|^tba$|待定/i.test(x) ? x.trim() : ''; }
   var T = zh()
-    ? { dirLabel: '交通', pics: '路线图', map: '地图', big: '放大', title: '给司机或路人看', open: '打开地图', copy: '复制地址', copied: '已复制', close: '关闭', dir: '交通' }
-    : { dirLabel: 'Directions', pics: 'Route pictures', map: 'Map', big: 'Enlarge', title: 'Show this to a driver', open: 'Open map', copy: 'Copy address', copied: 'Copied', close: 'Close', dir: 'Getting there' };
+    ? { dirLabel: '交通', pics: '路线图', map: '地图', big: '放大', title: '给司机或路人看', open: '打开地图', copy: '复制地址', copied: '已复制', close: '关闭', dir: '交通', prev: '上一张', next: '下一张' }
+    : { dirLabel: 'Directions', pics: 'Route pictures', map: 'Map', big: 'Enlarge', title: 'Show this to a driver', open: 'Open map', copy: 'Copy address', copied: 'Copied', close: 'Close', dir: 'Getting there', prev: 'Previous', next: 'Next' };
 
   function inApp(ua) { return /MicroMessenger|QQ\/|MQQBrowser.*QQ|Weibo|AlipayClient|DingTalk|Lark|baiduboxapp|Instagram|FBAN|FBAV|Line\//i.test(ua); }
   function ios(ua) { return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1); }
@@ -106,6 +110,30 @@
     '#atm-adr-pv .pv-x,#atm-adr-pv .pv-nav{all:unset;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff}#atm-adr-pv .pv-main{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;position:relative}' +
     '#atm-adr-pv img{max-width:100%;max-height:100%;object-fit:contain}#atm-adr-pv .pv-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.35);border-radius:50%}#atm-adr-pv .pv-prev{left:8px}#atm-adr-pv .pv-next{right:8px}' +
     '#atm-adr-pv .pv-cap{padding:10px 18px max(14px,env(safe-area-inset-bottom));font:15px/1.45 system-ui,sans-serif;text-align:center;min-height:1em}' +
+    '#atm-adr-pv .pv-live{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}' +
+    '#atm-adr-pv .pv-nav[hidden]{display:none}' +
+    '#atm-adr-pv:focus{outline:none}' +
+    '@media (orientation:landscape) and (max-height:520px) and (min-width:541px) and (max-width:1000px){' +
+      '#atm-adr-pv{box-sizing:border-box;padding-top:max(6px,env(safe-area-inset-top));padding-right:max(8px,env(safe-area-inset-right));padding-bottom:0;padding-left:max(12px,env(safe-area-inset-left));height:100vh;height:100dvh;max-height:100dvh}' +
+      '#atm-adr-pv .pv-top{padding:0 max(4px,env(safe-area-inset-right)) 6px 4px;font:600 16px/1.35 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif}' +
+      '#atm-adr-pv .pv-cap{box-sizing:border-box;max-height:calc(16px + 3 * 1.55em);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px max(16px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));font:500 16px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;overflow-wrap:break-word}' +
+      '#atm-adr-pv .pv-cap.pv-more{-webkit-mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 14px),transparent);mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 14px),transparent)}' +
+      '#atm-adr-pv img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain}' +
+    '}' +
+    '@media (max-width:540px) and (min-height:480px){' +
+      '#atm-adr-pv{box-sizing:border-box;top:0;left:0;right:auto;bottom:auto;width:100%;height:100vh;height:100dvh;max-height:100vh;max-height:100dvh;overflow:hidden;overscroll-behavior:contain;' +
+        'padding:max(10px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}' +
+      '#atm-adr-pv::before,#atm-adr-pv::after{content:"";flex:1 1 0px;min-height:0;pointer-events:none}' +
+      '#atm-adr-pv .pv-x{position:absolute;top:max(4px,env(safe-area-inset-top));right:max(4px,env(safe-area-inset-right));z-index:3}' +
+      '#atm-adr-pv .pv-top{flex:0 0 auto;justify-content:center;width:100%;box-sizing:border-box;padding:0 52px 8px;text-align:center;' +
+        'font:600 17px/1.4 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;letter-spacing:.04em}' +
+      '#atm-adr-pv .pv-main{flex:0 1 auto;width:100%;min-height:0;max-height:min(72dvh,calc(100dvh - 15rem))}' +
+      '#atm-adr-pv img{display:block;max-width:100%;max-height:min(72dvh,calc(100dvh - 15rem));width:auto;height:auto;object-fit:contain}' +
+      '#atm-adr-pv .pv-cap{flex:0 1 auto;width:100%;box-sizing:border-box;margin:0;min-height:0;max-height:calc(12px + 4 * 1.65em);overflow-x:hidden;overflow-y:auto;-webkit-overflow-scrolling:touch;' +
+        'padding:12px 4px 0;font:500 18px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Noto Sans CJK SC","Microsoft YaHei",sans-serif;' +
+        'text-align:center;text-wrap:pretty;line-break:strict;overflow-wrap:break-word}' +
+      '#atm-adr-pv .pv-cap.pv-more{-webkit-mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 16px),transparent);mask-image:linear-gradient(180deg,#000 0,#000 calc(100% - 16px),transparent)}' +
+    '}' +
     '#atm-adr-big{position:fixed;inset:0;z-index:2147483000;background:#fff;color:#0B2440;display:flex;flex-direction:column;overflow:auto;-webkit-overflow-scrolling:touch}' +
     '#atm-adr-big .ab-top{display:flex;align-items:center;justify-content:space-between;padding:max(10px,env(safe-area-inset-top)) 12px 6px 18px;color:#4A5D73;font:600 15px/1.3 -apple-system,"PingFang SC","Noto Sans SC","Microsoft YaHei",system-ui,sans-serif}' +
     '#atm-adr-big .ab-x{all:unset;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#0B2440;border-radius:50%}' +
@@ -158,25 +186,93 @@
     var t = document.createElement('textarea'); t.value = text; t.setAttribute('readonly', ''); t.style.cssText = 'position:fixed;top:-100px;opacity:0';
     document.body.appendChild(t); t.select(); try { document.execCommand('copy'); } catch (x) {} t.remove();
   }
+  /* Same breakpoints as the mobile CSS. Inline geometry is applied only when the
+     visible viewport is smaller than the layout viewport (WeChat / iOS toolbar). */
+  var PV_MQ = '(max-width:540px) and (min-height:480px), (orientation:landscape) and (max-height:520px) and (min-width:541px) and (max-width:1000px)';
+  var pvFitOn = false;
+  function pvMobile() { try { return !!(window.matchMedia && window.matchMedia(PV_MQ).matches); } catch (x) { return false; } }
+  function fitPv() {
+    var v = document.getElementById('atm-adr-pv'); if (!v) return;
+    var vv = window.visualViewport;
+    var shrink = pvMobile() && vv && (vv.offsetTop > 1 || vv.offsetLeft > 1 || vv.height < window.innerHeight - 2 || vv.width < window.innerWidth - 2);
+    if (!shrink) { v.style.top = v.style.left = v.style.right = v.style.bottom = v.style.width = v.style.height = ''; return; }
+    v.style.top = vv.offsetTop + 'px';
+    v.style.left = vv.offsetLeft + 'px';
+    v.style.width = vv.width + 'px';
+    v.style.height = vv.height + 'px';
+    v.style.right = 'auto';
+    v.style.bottom = 'auto';
+  }
+  function armPvFit() {
+    if (pvFitOn) return;
+    pvFitOn = true;
+    fitPv();
+    window.addEventListener('resize', fitPv);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', fitPv);
+      window.visualViewport.addEventListener('scroll', fitPv);
+    }
+  }
+  function disarmPvFit() {
+    if (!pvFitOn) return;
+    pvFitOn = false;
+    window.removeEventListener('resize', fitPv);
+    if (window.visualViewport) {
+      window.visualViewport.removeEventListener('resize', fitPv);
+      window.visualViewport.removeEventListener('scroll', fitPv);
+    }
+  }
   function viewer(e, i) {
     var pics = picsOf(e); if (!pics.length) return;
     var old = document.getElementById('atm-adr-pv'); if (old) old.remove();
-    var v = document.createElement('div'); v.id = 'atm-adr-pv'; v.setAttribute('role', 'dialog'); v.setAttribute('aria-modal', 'true'); v.setAttribute('aria-label', T.pics);
-    v.innerHTML = '<div class="pv-top"><span class="pv-n"></span><button type="button" class="pv-x" aria-label="' + esc(T.close) + '">×</button></div>' +
-      '<div class="pv-main"><img alt=""><button type="button" class="pv-nav pv-prev" aria-label="‹">‹</button><button type="button" class="pv-nav pv-next" aria-label="›">›</button></div><div class="pv-cap"></div>';
+    var v = document.createElement('div'); v.id = 'atm-adr-pv'; v.tabIndex = -1; v.setAttribute('role', 'dialog'); v.setAttribute('aria-modal', 'true'); v.setAttribute('aria-labelledby', 'atm-adr-pv-n');
+    v.innerHTML = '<div class="pv-top"><span class="pv-n" id="atm-adr-pv-n"></span><button type="button" class="pv-x" aria-label="' + esc(T.close) + '">×</button></div>' +
+      '<div class="pv-main"><img alt=""><button type="button" class="pv-nav pv-prev" aria-label="' + esc(T.prev) + '">‹</button><button type="button" class="pv-nav pv-next" aria-label="' + esc(T.next) + '">›</button></div><div class="pv-cap" id="atm-adr-pv-cap"></div><div class="pv-live" aria-live="polite" aria-atomic="true"></div>';
     document.body.appendChild(v);
-    var img = v.querySelector('img'), n = v.querySelector('.pv-n'), cap = v.querySelector('.pv-cap'), pv = v.querySelector('.pv-prev'), nx = v.querySelector('.pv-next');
-    function show(k) { i = (k + pics.length) % pics.length; img.src = pics[i].src; cap.textContent = pics[i].cap || ''; n.textContent = T.pics + (pics.length > 1 ? ' ' + (i + 1) + ' / ' + pics.length : ''); pv.hidden = nx.hidden = pics.length < 2; }
+    var img = v.querySelector('img'), n = v.querySelector('.pv-n'), cap = v.querySelector('.pv-cap'), live = v.querySelector('.pv-live'), pv = v.querySelector('.pv-prev'), nx = v.querySelector('.pv-next');
+    function syncCap() {
+      var more = cap.scrollHeight > cap.clientHeight + 2 && cap.scrollTop + cap.clientHeight < cap.scrollHeight - 2;
+      cap.classList.toggle('pv-more', more);
+    }
+    function show(k) {
+      i = (k + pics.length) % pics.length;
+      var capText = pics[i].cap || '';
+      var label = T.pics + (pics.length > 1 ? ' ' + (i + 1) + ' / ' + pics.length : '');
+      img.src = pics[i].src;
+      img.alt = '';
+      cap.scrollTop = 0;
+      cap.textContent = capText;
+      n.textContent = label;
+      if (capText) v.setAttribute('aria-describedby', 'atm-adr-pv-cap'); else v.removeAttribute('aria-describedby');
+      live.textContent = capText ? (label + '。' + capText) : label;
+      pv.hidden = nx.hidden = pics.length < 2;
+      requestAnimationFrame(syncCap);
+    }
+    cap.addEventListener('scroll', syncCap, { passive: true });
     pv.addEventListener('click', function () { show(i - 1); }); nx.addEventListener('click', function () { show(i + 1); });
-    var x0 = null; v.addEventListener('touchstart', function (ev) { x0 = ev.touches[0].clientX; }, { passive: true });
-    v.addEventListener('touchend', function (ev) { if (x0 == null) return; var dx = ev.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 50) show(i + (dx < 0 ? 1 : -1)); });
+    var x0 = null, y0 = null;
+    v.addEventListener('touchstart', function (ev) { if (!ev.touches || !ev.touches[0]) return; x0 = ev.touches[0].clientX; y0 = ev.touches[0].clientY; }, { passive: true });
+    v.addEventListener('touchend', function (ev) {
+      if (x0 == null || !ev.changedTouches || !ev.changedTouches[0]) return;
+      var dx = ev.changedTouches[0].clientX - x0, dy = ev.changedTouches[0].clientY - (y0 || 0);
+      x0 = null; y0 = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) show(i + (dx < 0 ? 1 : -1));
+    }, { passive: true });
     v.querySelector('.pv-x').addEventListener('click', function () { closePv(); });
     try { history.pushState({ atmAdrPv: 1 }, ''); v.dataset.pushed = '1'; } catch (x) {}
-    show(i || 0); v.querySelector('.pv-x').focus();
+    show(i || 0); armPvFit(); try { v.focus(); } catch (x) {}
   }
-  function closePv(fromPop) { var v = document.getElementById('atm-adr-pv'); if (!v) return false; var p = v.dataset.pushed; v.remove(); if (p && !fromPop) { skipPop = true; try { history.back(); } catch (x) { skipPop = false; } } return true; }
+  function closePv(fromPop) { var v = document.getElementById('atm-adr-pv'); if (!v) return false; var p = v.dataset.pushed; disarmPvFit(); v.remove(); if (p && !fromPop) { skipPop = true; try { history.back(); } catch (x) { skipPop = false; } } return true; }
   window.addEventListener('popstate', function () { if (skipPop) { skipPop = false; return; } if (closePv(true)) return; if (document.getElementById('atm-adr-big')) close(true); });
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { if (!closePv()) close(); } });
+  document.addEventListener('keydown', function (ev) {
+    var v = document.getElementById('atm-adr-pv');
+    if (v && (ev.key === 'ArrowLeft' || ev.key === 'ArrowRight')) {
+      var b = v.querySelector(ev.key === 'ArrowLeft' ? '.pv-prev' : '.pv-next');
+      if (b && !b.hidden) { ev.preventDefault(); b.click(); }
+      return;
+    }
+    if (ev.key === 'Escape') { if (!closePv()) close(); }
+  });
   document.addEventListener('click', function (ev) {
     var t = ev.target && ev.target.closest && ev.target.closest('[data-adrimg]');
     if (!t) return;
