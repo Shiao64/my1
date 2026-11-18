@@ -764,13 +764,17 @@ def bump_live_caches(root):
     enum = current(r'events\.json\?v=e(\d+)')
     hnum = current(r'atm-home\.js\?v=h(\d+)')
     cbnum = current(r'cardB\.js\?v=cb(\d+)')
+    # 2026-11-18: asia-map.js carries ATM_TH (poster thumb sizes). Its ?v=rNN never moved,
+    # so browsers kept an old table and loaded full-size posters instead of thumbs.
+    rmatch = re.findall(r'asia-map\.js\?v=r(\d+)', blob)
+    rnum = max(int(n) for n in rmatch) if rmatch else None
     repls = (
         (re.compile(r'(events-core\.json\?v=china)\d+'), r'\g<1>' + str(china + 1)),
         (re.compile(r'(asia-map\.js\?v=china)\d+'), r'\g<1>' + str(china + 1)),
         (re.compile(r'(events\.json\?v=e)\d+'), r'\g<1>' + str(enum + 1)),
         (re.compile(r'(atm-home\.js\?v=h)\d+'), r'\g<1>' + str(hnum + 1)),
         (re.compile(r'(cardB\.js\?v=cb)\d+'), r'\g<1>' + str(cbnum + 1)),
-    )
+    ) + (((re.compile(r'(asia-map\.js\?v=r)\d+'), r'\g<1>' + str(rnum + 1)),) if rnum is not None else ())
     changed = []
     for rel, text in present.items():
         new = text
@@ -780,7 +784,7 @@ def bump_live_caches(root):
             with open(os.path.join(root, rel), 'w', encoding='utf-8') as fh:
                 fh.write(new)
             changed.append(rel)
-    return {'china': china + 1, 'e': enum + 1, 'h': hnum + 1, 'cb': cbnum + 1, 'files': changed}
+    return {'china': china + 1, 'e': enum + 1, 'h': hnum + 1, 'cb': cbnum + 1, 'r': (rnum + 1) if rnum is not None else None, 'files': changed}
 
 
 def append_log(root, row):
