@@ -35,4 +35,7 @@ keys['images/asia/posters/C.jpg'] = mk('C.jpg', b'c')
 up, _, _ = R.plan_upload(keys, dict(hashes))
 assert 'images/asia/posters/C.jpg' in up
 assert R.cache_control(R.HASH_KEY) == 'no-store'
-print('ok 5 checks')
+# Images before JSON, so live data never points at a picture not uploaded yet.
+order = R.upload_order(['asia/manifest.json', 'asia/events-core.json', 'images/thumb/x.webp', 'images/asia/posters/A.jpg'])
+assert order == ['images/asia/posters/A.jpg', 'images/thumb/x.webp', 'asia/events-core.json', 'asia/manifest.json'], order
+print('ok 6 checks')
