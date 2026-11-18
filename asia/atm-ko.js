@@ -87,7 +87,7 @@
     'Event info compiled from WeChat and Facebook, with reference to': '이벤트 정보는 위챗과 페이스북에서 모았으며, 다음 사이트를 참고했습니다:',
     '. Please check the organizer\'s latest announcement for times and details.': '. 시간과 상세 내용은 주최자의 최신 공지를 확인해 주세요.',
     /* star / going */
-    'Going': '참석', 'Interested': '관심', 'Not Going': '불참', 'Withdraw': '취소', 'Keep': '유지', 'Confirm': '확인',
+    'Going': '참석', '✓ Going': '✓ 참석', 'Interested': '관심', 'Not Going': '불참', 'Withdraw': '취소', 'Keep': '유지', 'Confirm': '확인',
     'Saved. Find it under Saved.': '저장했습니다. ‘저장’ 탭에서 볼 수 있습니다.',
     'Want a note when these events change or registration closes?': '이 이벤트들의 신청 마감이나 변경이 있을 때 알려 드릴까요?', 'No thanks': '괜찮아요', 'Get special-event news': '대형 이벤트 소식 받기', 'New festivals, marathons and registration deadlines, sent now and then': '새 페스티벌, 마라톤, 신청 마감 소식을 가끔 보내 드립니다',
     'Saved. This one is not sent to the organizer.': '저장했습니다. 주최자에게는 알리지 않습니다.',

@@ -63,7 +63,7 @@
     while (t && t !== document && !(t.getAttribute && t.getAttribute('data-asia-lang-set'))) t = t.parentNode;
     if (!t || t === document) return;
     var v = t.getAttribute('data-asia-lang-set');
-    if (v === 'en' || v === 'zh') save(v);
+    if (v === 'en' || v === 'zh' || v === 'ko' || v === 'es') save(v);
   }, true);
 
   void page; void enUrl; void zhUrl; void isZhBrowser;
