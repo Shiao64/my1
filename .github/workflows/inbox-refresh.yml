@@ -1,0 +1,62 @@
+name: Inbox PR refresh
+
+# Keeps 「探戈助理答复」 PRs that wait for Shiao mergeable when main moves on (Shiao 2026-11-18).
+# The event JSON files are one line each, so any other change to main makes a waiting PR conflict.
+# This merges main into each open inbox-run-* branch and solves the event JSON card by card
+# (tools/inbox_queue.py refresh). Anything else that conflicts gets a PR comment and is left alone.
+# Started by pushes to main that touch the event JSON, by inbox.yml after an automatic merge,
+# by poster-prune.yml, or by hand.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'asia/events.json'
+      - 'asia/events-core.json'
+      - 'asia/events-more.json'
+
+concurrency:
+  group: inbox-refresh
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Bring waiting answer PRs up to date
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          cp tools/inbox_queue.py /tmp/inbox_queue.py
+          for item in $(gh pr list --state open --limit 50 --json number,headRefName \
+              --jq '.[] | select(.headRefName | startswith("inbox-run-")) | "\(.number):\(.headRefName)"'); do
+            pr=${item%%:*}; br=${item#*:}
+            git fetch -q origin main "$br"
+            if git merge-base --is-ancestor origin/main "origin/$br"; then
+              echo "#$pr already up to date"; continue
+            fi
+            git checkout -q -B "$br" "origin/$br"
+            if python3 /tmp/inbox_queue.py refresh "$br"; then
+              git push -q origin "$br"
+              echo "#$pr refreshed"
+            else
+              git checkout -q main
+              gh pr comment "$pr" --body "main 有了新的改动，这个 PR 和它冲突的地方不只活动资料，没能自动接上，需要 Claude 手动处理。" || true
+            fi
+            git checkout -q main
+          done
