@@ -6,7 +6,10 @@ For each card's posters_past entry:
     file with the same bytes as one) are taken out of posters_past (file kept);
   - an undated entry whose bytes equal another poster of the same card that has a
     date takes that date (poster_dates) and DJ (poster_djs);
-  - missing list/card thumbs are made, and ATM_TH gets the size.
+  - missing list/card thumbs are made, and ATM_TH gets the size;
+  - an entry whose image file is gone is taken out (Shiao 2026-11-18: a past
+    poster that cannot be shown is deleted, not kept).
+Run daily by .github/workflows/poster-prune.yml after the expiry cleanup.
 
 Usage:
   python3 tools/fix_past_posters.py            # show what would change
@@ -77,6 +80,9 @@ def plan_card(e):
     for p in past:
         key = p.split('?', 1)[0]
         h = digest(key)
+        if not h:
+            notes.append('drop missing file %s' % key)
+            continue
         if rpu.is_generated_poster(key) or (h and h in gen_hashes):
             notes.append('drop text poster %s' % key)
             continue

@@ -2,8 +2,9 @@ name: Daily past-poster cleanup
 
 # 2026-11-17 (Shiao): every day, drop expired past posters from the cards.
 # Rule lives in tools/prune_past_posters.py: at most 4 per card, none dated more
-# than 30 days ago, undated ones stay. Dropped files are copied to
-# images/asia/posters/_backup (never deleted).
+# than 30 days ago, undated ones stay. Then tools/fix_past_posters.py: a past
+# poster that cannot be shown is fixed (thumbs) or dropped. Dropped posters are
+# not kept (Shiao 2026-11-18).
 # If anything changed it commits to main and starts "R2 sync" (a push made with
 # GITHUB_TOKEN does not trigger other workflows by itself).
 # Manual run: Actions -> "Daily past-poster cleanup" -> Run workflow.
@@ -42,11 +43,13 @@ jobs:
           # The event JSON files are one line each, so a rebase over another data
           # change always conflicts. On a failed push, start again from the new main.
           for i in 1 2 3 4 5; do
-            git fetch -q origin main && git reset -q --hard origin/main && git clean -fdq images/asia/posters/_backup
+            git fetch -q origin main && git reset -q --hard origin/main && git clean -fdq images/thumb images/thumb800
             python3 tools/prune_past_posters.py --apply --today=$TODAY
+            # 2026-11-18: past posters that cannot be shown: make missing thumbs, drop missing files / text posters
+            python3 tools/fix_past_posters.py --apply
             git checkout -- tools/__pycache__/ 2>/dev/null || true
             git clean -fdq tools/__pycache__/ 2>/dev/null || true
-            git add asia/events.json asia/events-core.json asia/events-more.json images/asia/posters/_backup
+            git add asia/events.json asia/events-core.json asia/events-more.json asia/asia-map.js images/thumb images/thumb800
             if git diff --cached --quiet; then echo "nothing expired today"; exit 0; fi
             git commit -qm "Daily cleanup: drop expired past posters"
             if git push origin HEAD:main; then

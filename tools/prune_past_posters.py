@@ -5,8 +5,9 @@ Rule (2026-11-17, Shiao): a card keeps at most 4 past posters, and none dated mo
 than 30 days ago. A past poster with no known date stays. A card that has no current
 poster keeps its newest past poster so it never turns blank.
 
-Dry run by default; --apply writes asia/events*.json. Dropped files are copied to
-images/asia/posters/_backup (never deleted). Run: python3 tools/prune_past_posters.py [--apply]
+Dry run by default; --apply writes asia/events*.json. 2026-11-18 (Shiao): dropped
+past posters are not kept anywhere (no more _backup copies).
+Run: python3 tools/prune_past_posters.py [--apply]
 """
 import datetime
 import json
@@ -65,8 +66,6 @@ def main(argv):
                 fh.write(json.dumps(rows, ensure_ascii=False, separators=(',', ':')) + ('\n' if raw.endswith('\n') else ''))
     for (cid, p) in sorted(total):
         print(('drop ' if apply else 'would drop ') + '%s %s' % (cid, p))
-        if apply:
-            rpu.archive_poster(ROOT, cid, p, stamp)
     print('%d past poster(s) %s' % (len(total), 'dropped' if apply else 'would be dropped (dry run)'))
     return 0
 

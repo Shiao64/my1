@@ -933,7 +933,7 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                     event['poster_djs'] = djs
                 plan['dj'] = event.get('dj')
                 past, dropped = trim_past(past, MAX_PAST, dates, max_age=MAX_AGE_DAYS)
-                archived = [archive_poster(root, event['id'], path, stamp) for path in dropped]
+                archived = []  # 2026-11-18 (Shiao): dropped past posters are not kept
                 event['posters_past'] = past
                 plan['dropped'] = dropped
                 plan['dropped_backups'] = archived
