@@ -102,6 +102,17 @@
  },
  {
   "id": "O010",
+  "name_en": "Laura",
+  "name_local": "叶子",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "GxMrByRQ"
+  ]
+ },
+ {
+  "id": "O011",
   "name_en": "Li Songyan",
   "name_local": "李松岩",
   "cities": [
@@ -112,7 +123,7 @@
   ]
  },
  {
-  "id": "O011",
+  "id": "O012",
   "name_en": "Liu Zheng",
   "name_local": "刘峥",
   "cities": [
@@ -129,7 +140,7 @@
   ]
  },
  {
-  "id": "O012",
+  "id": "O013",
   "name_en": "Meng Wang",
   "name_local": "王萌",
   "cities": [
@@ -141,7 +152,7 @@
   ]
  },
  {
-  "id": "O013",
+  "id": "O014",
   "name_en": "Nico Zhang",
   "name_local": "张研",
   "cities": [
@@ -152,7 +163,7 @@
   ]
  },
  {
-  "id": "O014",
+  "id": "O015",
   "name_en": "Shiao Chang",
   "name_local": "张孝",
   "cities": [
@@ -163,7 +174,7 @@
   ]
  },
  {
-  "id": "O015",
+  "id": "O016",
   "name_en": "Simona Wu",
   "name_local": "思萌",
   "cities": [
@@ -175,7 +186,7 @@
   ]
  },
  {
-  "id": "O016",
+  "id": "O017",
   "name_en": "Tayfun",
   "name_local": "台风",
   "cities": [
@@ -186,7 +197,7 @@
   ]
  },
  {
-  "id": "O017",
+  "id": "O018",
   "name_en": "VidaMia (NICO)",
   "name_local": "VidaMia（NICO）",
   "cities": [
@@ -197,9 +208,9 @@
   ]
  },
  {
-  "id": "O018",
-  "name_en": "Whisky Ge",
-  "name_local": "威士忌哥",
+  "id": "O019",
+  "name_en": "Whiski",
+  "name_local": "郭威",
   "cities": [
    "Beijing"
   ],
@@ -208,7 +219,7 @@
   ]
  },
  {
-  "id": "O019",
+  "id": "O020",
   "name_en": "Xiao Wu",
   "name_local": "小舞",
   "cities": [
@@ -218,17 +229,6 @@
    "E158",
    "E161",
    "E166"
-  ]
- },
- {
-  "id": "O020",
-  "name_en": "Yezi",
-  "name_local": "叶子",
-  "cities": [
-   "Beijing"
-  ],
-  "events": [
-   "GxMrByRQ"
   ]
  },
  {
