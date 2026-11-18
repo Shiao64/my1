@@ -92,7 +92,7 @@
   var hl = other ? (other.getAttribute('hreflang') || '') : '';
   var set = other ? (other.getAttribute('data-asia-lang-set') || '') : '';
   void href; void hl; void set;
-  var seg = '<div class="atm-seg" role="group" aria-label="Language">' + [].map.call(LA, function (a) { var t = a.getAttribute('data-asia-lang-set'), nm = { zh: '中文', en: 'English', ko: '한국어', es: 'Español' }[t] || a.textContent;
+  var seg = '<div class="atm-seg" role="group" aria-label="Language">' + [].map.call(LA, function (a) { var t = a.getAttribute('data-asia-lang-set'), nm = { zh: '中文', en: 'English', ko: '한국어', es: 'Español', ru: 'Русский' }[t] || a.textContent;
     return t === LG ? '<span class="on">' + nm + '</span>' : '<a href="' + a.getAttribute('href') + '" hreflang="' + (a.getAttribute('hreflang') || t) + '" data-asia-lang-set="' + t + '" lang="' + (a.getAttribute('lang') || t) + '">' + nm + '</a>'; }).join('') + '</div>';
   m.innerHTML = '<div class="atm-mbg" data-x></div><div class="atm-mp" role="dialog" aria-modal="true" aria-label="' + L.menu + '"><div class="atm-mhd"><b>' + L.site + '</b><button type="button" class="atm-mx" data-x aria-label="' + L.close + '"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
     (other && !langSeg ? seg : '') + /* 2026-11-17: with three languages the switch is in the header, not the menu */

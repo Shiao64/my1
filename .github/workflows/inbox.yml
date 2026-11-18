@@ -119,8 +119,8 @@ jobs:
                中国大陆写简体，香港、台湾写繁体；英文地址放 venue_address_en。地址里不要写交通，交通放 directions / directions_en。
                主办邮箱（Shiao 11/18）：给某个主办／团体补上邮箱时，同一个主办／团体其他卡上空着的邮箱也一起补（contacts.email），
                有邮箱的卡网站才会开「要参加／感兴趣」。同名但看不出是不是同一人的，写进「要 Shiao 确认」。
-               西班牙文（Shiao 11/18）：只给中国大陆的卡（不含香港、台湾）。新建卡或补上 note／directions_en 时，同时写 note_es／directions_es
-               （照 note、directions_en 翻成西班牙文，金额、电话、网址、人名照抄）。原来已有 note_es 的卡，note 没改就不要动。
+               西班牙文、俄文（Shiao 11/18）：只给中国大陆的卡（不含香港、台湾）。新建卡或补上 note／directions_en 时，同时写 note_es／directions_es
+               和 note_ru／directions_ru（照 note、directions_en 翻译，金额、电话、网址、人名照抄）。原来已有译文的卡，note 没改就不要动。
             5. 不要做：删除或隐藏活动、自己改任何 .js/.html/.css 程序（换海报工具改的缓存版本号除外）、改 .github/、
                不经换海报工具改图片、寄信。
                答复里如果要求这些，只在 PR 说明里列出来，等 Shiao 决定。

@@ -15,6 +15,7 @@
     if (/^zh/.test(raw)) return 'zh';
     if (/^es/.test(raw)) return 'es';
     if (/^ko/.test(raw)) return 'ko';
+    if (/^ru/.test(raw)) return 'ru';
     if (/^en/.test(raw)) return 'en';
     var path = '';
     try { path = (opts && opts.pathname) || (typeof location !== 'undefined' && location.pathname) || ''; } catch (e) {}

@@ -63,7 +63,7 @@
     'Weekly milonga · This week\'s theme': 'Milonga semanal · Tema de esta semana', 'TBA': 'Por confirmar',
     /* card */
     'Preview': 'Anuncio', 'Preview · Details to be announced': 'Anuncio · Detalles por anunciar', 'Venue to be announced': 'Lugar por anunciar', 'Venue': 'Lugar', 'ORG': 'ORG', 'Organizer': 'Organizador', 'Address': 'Dirección', 'City': 'Ciudad', 'Time': 'Horario', 'Fee': 'Entrada',
-    'Notes': 'Notas', 'Note': 'Nota', 'Notice': 'Aviso', 'More': 'Más', 'Less': 'Menos', 'Collapse ⌃': 'Contraer ⌃',
+    'Notes': 'Notas', 'Note': 'Nota', 'Notice': 'Aviso', 'Notice ›': 'Aviso ›', 'More': 'Más', 'Less': 'Menos', 'Collapse ⌃': 'Contraer ⌃',
     'Links': 'Enlaces', 'Website': 'Sitio web', 'Event website': 'Sitio del evento', 'Video': 'Video', 'Register': 'Inscribirse',
     'Details': 'Detalles', 'Event details': 'Detalles del evento', 'Phone': 'Teléfono', 'Email': 'Correo', 'WeChat': 'WeChat',
     'WeChat ID:': 'ID de WeChat:', 'Phone:': 'Teléfono:', 'Email:': 'Correo:', 'Phone/WeChat:': 'Teléfono/WeChat:',
