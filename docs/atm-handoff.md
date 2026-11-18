@@ -95,7 +95,7 @@
 - 流程：探戈助理把答复放在 `answer/...` 分支开 PR → `inbox-guard.yml` 只准改 `data/inbox/`，通过就自动合并并启动 `inbox.yml` → Claude Code Action（秘密 `CLAUDE_CODE_OAUTH_TOKEN`，用户的 Pro 方案，约 2027-11 到期）处理答复，开「探戈助理答复：…」PR → `tools/inbox_autocheck.py` 判断能不能自动上线。
 - **探戈助理用的是用户自己的 GitHub 帐号 `Shiao64`**（#143、#145、#150、#153 都是这个帐号开的），不用加 `allowed_bots`。
 - 11/15 深夜到 11/16 早上来了两批真实答复（#143、#145，共 15 份）。第一批的处理 PR #144 还没合并时，第二批来了，`inbox.yml` 把第一批的 3 份又处理了一次（#146）。11/16 用户决定：**合并 #146、关闭 #144**。单场的变动用 `temp_notices` 写在那一天，不改整张周常卡的固定字段——以后照这个做法（换海报时按海报改 `dj` 是例外，见第 2 节）。
-- **#148**：只要还有没合并的 `inbox-run-*` PR，新的处理就先等，并在那个 PR 下留言；那个 PR 合并后会自动再跑一次。
+- ~~**#148**：只要还有没合并的 `inbox-run-*` PR，新的处理就先等，并在那个 PR 下留言；那个 PR 合并后会自动再跑一次。~~ **11/18 改成不排队（用户要求）**：`tools/inbox_queue.py` 找出还没被开着的 `inbox-run-*` PR 处理过的答复，只处理那些；能自动上线的照样上线。改到同一张卡的，后来的 PR 不自动上线，留言等前一个。`inbox-refresh.yml`：main 的活动资料一变（或自动合并后、每日清理后），把还开着的答复 PR 和 main 接上，活动 JSON 按卡合并（PR 自己改的卡用 PR 的，其他用 main 的），草稿名单重新产生；有别的冲突就在 PR 下留言要 Claude 处理。测试：`python3 tools/test_inbox_queue.py`。
 - **#149 + #152 自动上线**（用户 11/16 决定）：`tools/inbox_autocheck.py` 比较 PR 和 main，决定能不能自动合并（不靠处理的 Claude 自己说）。可以自动：
   - PR 说明最后一行「需要确认：无」；只改 `asia/events*.json`、`data/inbox/`、`data/entities-draft/`，或换海报工具产生的文件；
   - 已有的卡：补空着的地址／交通／联系方式、加单场 `temp_notices`、`cancelled_dates`；
