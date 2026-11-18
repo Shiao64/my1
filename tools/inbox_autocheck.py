@@ -36,7 +36,7 @@ TYPES = {'milonga', 'practilonga', 'practica', 'festival', 'marathon', 'weekend'
 ALWAYS_OK = {'updated', 'source'}
 ADD_ONLY_LIST = {'temp_notices', 'cancelled_dates'}
 ADD_ONLY_DICT = {'contacts', 'links'}
-FILL_IF_EMPTY = {'venue_address', 'venue_address_en', 'directions', 'directions_en', 'note_es', 'directions_es'}  # *_es: Spanish for mainland cards (Shiao 11/18)
+FILL_IF_EMPTY = {'venue_address', 'venue_address_en', 'directions', 'directions_en', 'note_es', 'directions_es', 'note_ru', 'directions_ru'}  # *_es / *_ru: Spanish, Russian for mainland cards (Shiao 11/18)
 MAX_CARDS = 8
 MARK = re.compile(r'^\s*需要确认\s*[：:]\s*无\s*$', re.M)
 
