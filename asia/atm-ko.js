@@ -93,7 +93,7 @@
     'Saved. This one is not sent to the organizer.': '저장했습니다. 주최자에게는 알리지 않습니다.',
     'Remove this event from favorites?': '이 이벤트를 저장 목록에서 뺄까요?',
     'Not a ticket or a formal registration.': '티켓이나 정식 등록이 아닙니다.',
-    'The organizer gets your name. This is not a booking or ticket.': '주최자에게 이름이 전달됩니다. 예약이나 티켓이 아닙니다.',
+    'In testing. Later the organizer will get your name. This is not a booking or ticket.': '테스트 중입니다. 나중에 주최자에게 이름이 전달됩니다. 예약이나 티켓이 아닙니다.',
     'Going is not a ticket or a formal registration.': '참석은 티켓이나 정식 등록이 아닙니다.',
     'Get early-bird, deadline and organizer notices for this event': '이 이벤트의 얼리버드·마감·주최자 소식 받기',
     'First time: enter your email and the last 4 digits of your mobile, then tap the link in the confirmation email. After that, the same two fields sign you in.': '처음: 이메일과 휴대폰 끝 4자리를 입력하고 확인 메일의 링크를 누르세요. 이후에는 같은 두 항목으로 바로 로그인됩니다.',
