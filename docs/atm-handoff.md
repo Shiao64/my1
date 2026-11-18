@@ -17,7 +17,7 @@
 - 不要让用户把密码、API token 贴在对话里。要登录网站时，请用户自己登录。
 - **地区优先顺序（11/16）**：先做中国大陆和香港；中国以外（东京、首尔等）现在不急，先放着。
 - 用户常直接贴一张卡的网址，接着说哪里不对；先打开看，再问或直接修。
-- **11/17 起，用户也用 Cursor 里的 Sonnet 5.5 改同一个仓库**（提交署名 `Cursor Agent`，分支名 `cursor/…`）。两边的对话互不相通，**只靠仓库和这份交接说明同步**：开工先 `git fetch`、看 `git log origin/main` 有没有新提交和还开着的 PR；改完用分支和 PR，不要直接推 main；重要的改动写进这份说明。分工建议：一边改活动数据，另一边改页面代码，不要同时改同一类文件。
+- **11/17 起，用户也用 Cursor 改同一个仓库**（提交署名 `Cursor Agent`，分支名 `cursor/…`）。**11/18 用户说明：探戈助理＝Cursor 里跑的 Grok Bot**，`answer/…` 和 `cursor/…` 都是它开的。平常它一律交到 `data/inbox/`，只有用户明确说「你直接改」才用 `cursor/…` 直接改资料；同一件事只交一次（协作须知第二节）。两边的对话互不相通，**只靠仓库和这份交接说明同步**：开工先 `git fetch`、看 `git log origin/main` 有没有新提交和还开着的 PR；改完用分支和 PR，不要直接推 main；重要的改动写进这份说明。分工建议：一边改活动数据，另一边改页面代码，不要同时改同一类文件。
 
 ## 1. 先读这些
 
@@ -88,7 +88,7 @@
 - `atm-home.js` 版本号：11/16 是 `h185`，之后 Cursor 又加过（`h186`…），**以两个 index.html 里现在写的为准**。
 
 **和探戈助理怎么联络**（11/17 用户定：**只走 GitHub，不用邮件**）：
-- 探戈助理在 Grok 里，Claude 没有直接管道。**两边只靠仓库里的文件联络**：探戈助理把答复写进 `data/inbox/`（开 `answer/…` PR）；Claude 要告诉它的事写进协作须知原件和本交接说明。不写信给它，也不用去 Gmail 找它的回信。它会读仓库里公开的两份文件：协作须知原件 `https://raw.githubusercontent.com/Shiao64/my1/main/data/inbox/README.md`（#158 起开头就有网址）和本交接说明公开版 `https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md`（#161）。规则或待问清单变了，改原件（和项目里的副本）就好。
+- 探戈助理是 Cursor 里跑的 Grok Bot（11/18 用户说明），Claude 没有直接管道。**两边只靠仓库里的文件联络**：探戈助理把答复写进 `data/inbox/`（开 `answer/…` PR）；Claude 要告诉它的事写进协作须知原件和本交接说明。不写信给它，也不用去 Gmail 找它的回信。它会读仓库里公开的两份文件：协作须知原件 `https://raw.githubusercontent.com/Shiao64/my1/main/data/inbox/README.md`（#158 起开头就有网址）和本交接说明公开版 `https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md`（#161）。规则或待问清单变了，改原件（和项目里的副本）就好。
 - 11/16 曾用用户的 Gmail 寄过一封「协作须知更新」给它，没有回信；11/17 起不再用邮件。
 
 **探戈助理自动处理已经在跑真实答复**：
