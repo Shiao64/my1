@@ -115,11 +115,14 @@
     return freshInflight[file];
   };
   /* A poisoned CDN image (null bytes, or a 404 cached for 30 days) is skipped
-     once. A second call returns '' so a probe cannot loop. */
+     once. A second call returns '' so a probe cannot loop.
+     2026-11-18: the bust value changes every hour. A fixed atmbust=1 got its
+     own cached 404 when asked before the upload, so the retry never recovered. */
   w.atmPosterRetryUrl = function (url) {
     var s = String(url || '');
     if (!s || s.indexOf('atmbust=') >= 0) return '';
-    return s + (s.indexOf('?') >= 0 ? '&' : '?') + 'atmbust=1';
+    var hour = Math.floor(Date.now() / 3600000);
+    return s + (s.indexOf('?') >= 0 ? '&' : '?') + 'atmbust=' + hour;
   };
   function pickCard(groups, id) {
     if (!groups) return null;

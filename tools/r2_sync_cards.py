@@ -15,6 +15,7 @@ cache key both move.
   python3 tools/r2_sync_cards.py --event-id E158  # same upload; images limited to that id
   python3 tools/r2_sync_cards.py --check          # GET the public events-core.json
   python3 tools/r2_sync_cards.py --full           # upload every file, ignore the hash list
+  python3 tools/r2_sync_cards.py --purge-images   # clear edge-cached images (stuck 404s), no upload
 
 Only changed files are uploaded (2026-11-17, Shiao). R2 keeps a list of what it
 already has: asia/sync-hashes.json, {object key: sha256}. An image whose sha256
@@ -222,6 +223,41 @@ def api(method, path, payload=None, raw=None, content_type=None, extra_headers=N
     except urllib.error.HTTPError as err:
         body = err.read().decode('utf-8', 'replace')
         raise ApiError(method, path, err.code, body)
+
+
+PUBLIC_HOST = PUBLIC_BASE.split('://', 1)[-1]
+
+
+def purge_prefixes(prefixes):
+    """Drop Cloudflare's edge copies (any ?query) of these public paths.
+
+    2026-11-18: a phone asked for a past poster before it reached R2; the edge
+    kept that 404 for every ?v= / atmbust variant, so the poster stayed broken
+    after the upload. Purging after each upload stops that. Needs the token to
+    have Zone > Cache Purge on tangoweekend.org; without it this only warns.
+    Returns True when every batch was accepted."""
+    items = sorted(dict.fromkeys(PUBLIC_HOST + '/' + p.lstrip('/') for p in prefixes))
+    ok = True
+    for i in range(0, len(items), 30):
+        batch = items[i:i + 30]
+        try:
+            api('POST', '/zones/%s/purge_cache' % ZONE_ID, {'prefixes': batch})
+        except (ApiError, urllib.error.URLError) as err:
+            ok = False
+            print('::warning::edge cache purge failed (token may lack Cache Purge): %s' % str(err)[:300])
+            break
+    if ok and items:
+        print('edge cache purged for', len(items), 'path prefixes')
+    return ok
+
+
+def purge_keys_for(uploaded):
+    """Image stems (no extension) so .jpg/.webp and every ?v= variant go."""
+    out = []
+    for key in uploaded:
+        if key.startswith('images/'):
+            out.append(os.path.splitext(key)[0])
+    return out
 
 
 def ensure_bucket():
@@ -515,6 +551,7 @@ def publish(root, event_id=None, dry_run=False, full=False):
         finally:
             os.remove(hash_path)
         print('hash list updated', HASH_KEY, len(merged), 'entries')
+        purge_prefixes(purge_keys_for(to_upload))
         print('public base', PUBLIC_BASE)
         print('check', PUBLIC_BASE + '/asia/events-core.json')
     finally:
@@ -553,12 +590,15 @@ def main(argv=None):
     parser.add_argument('--check', action='store_true', help='GET the public events-core.json and exit')
     parser.add_argument('--pull-fallback', action='store_true', help='Download public card JSON into the repo and bump ?v=china. Does not upload.')
     parser.add_argument('--keep', default='', help='With --pull-fallback: comma-separated card ids whose repo version wins over public')
+    parser.add_argument('--purge-images', action='store_true', help='Only purge the edge cache for all images on the public host (clears stuck 404s). No upload.')
     parser.add_argument('--root', default=ROOT)
     args = parser.parse_args(argv)
     root = os.path.abspath(args.root)
     if args.check:
         ok = check_public()
         return 0 if ok else 1
+    if args.purge_images:
+        return 0 if purge_prefixes(['images/']) else 1
     if args.pull_fallback:
         if args.dry_run:
             print('pull-fallback would download', ', '.join(JSON_FILES), 'and bump the events-core cache key. No request was sent.')
