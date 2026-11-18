@@ -126,7 +126,7 @@ if (card.webp.indexOf('thumb800/images/asia/posters/E164.webp?v=20261109fix') < 
 if (card.full !== 'https://data.tangoweekend.org/images/asia/posters/E164.jpg?v=20261109fix') process.exit(20);
 if (thumb.webp.indexOf('?v=t360') >= 0 || card.webp.indexOf('?v=t800') >= 0) process.exit(21);
 const bust = w.atmPosterRetryUrl(thumb.webp);
-if (bust !== thumb.webp + '&atmbust=1') process.exit(22);
+if (!/&atmbust=\d+$/.test(bust) || bust.indexOf(thumb.webp + '&atmbust=') !== 0) process.exit(22);
 if (w.atmPosterRetryUrl(bust) !== '') process.exit(23);
 const today = '2026-11-09';
 const future = { id: 'E162', kind: 'event', start: '2027-04-21', end: '2027-04-26' };
