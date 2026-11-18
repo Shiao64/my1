@@ -2,7 +2,7 @@
 <html lang="en" data-asia-lang="en" data-asia-en="./" data-asia-zh="../zh/asia/" data-site-release="11.9.28" data-site-release-date="">
 <head>
 <meta charset="utf-8">
-<script id="atm-ko-gate">/* 2026-11-15: page language. ?lang= wins (remembered), then the visitor's saved choice (asiaMapLang), then the phone language: Chinese -> /zh/asia/, Korean -> this page with the Korean UI (atm-ko.js), Spanish -> this page with atm-es.js (2026-11-18), anything else -> English. Korean opened to everyone 2026-11-17 (was a test version since 11-15). */(function(){var q=location.search,m=/[?&]lang=(ko|es|en|zh)\b/.exec(q),p=null;try{if(m)localStorage.setItem('asiaMapLang',m[1]);p=localStorage.getItem('asiaMapLang');}catch(e){p=m&&m[1];}if(p!=='zh'&&p!=='en'&&p!=='ko'&&p!=='es'){p='en';try{var L=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];for(var i=0;i<L.length;i++){var x=String(L[i]||'');if(/^zh/i.test(x)){p='zh';break;}if(/^ko/i.test(x)){p='ko';break;}if(/^es/i.test(x)){p='es';break;}}}catch(e){}}var rest=q.replace(/^\?/,'').replace(/(^|&)lang=[^&]*/g,'').replace(/^&/,'');if(p==='zh'){location.replace('/zh/asia/'+(rest?'?'+rest:'')+location.hash);return;}if(p!=='ko'&&p!=='es')return;var R=document.documentElement;R.lang=p;R.setAttribute('data-asia-lang',p);document.write(p==='ko'?'<script src="/asia/atm-ko.js?v=k13"><\/script>':'<script src="/asia/atm-es.js?v=es1"><\/script>');})();</script>
+<script id="atm-ko-gate">/* 2026-11-15: page language. ?lang= wins (remembered), then the visitor's saved choice (asiaMapLang), then the phone language: Chinese -> /zh/asia/, Korean -> this page with the Korean UI (atm-ko.js), Spanish -> this page with atm-es.js (2026-11-18), anything else -> English. Korean opened to everyone 2026-11-17 (was a test version since 11-15). */(function(){var q=location.search,m=/[?&]lang=(ko|es|ru|en|zh)\b/.exec(q),p=null;try{if(m)localStorage.setItem('asiaMapLang',m[1]);p=localStorage.getItem('asiaMapLang');}catch(e){p=m&&m[1];}if(p!=='zh'&&p!=='en'&&p!=='ko'&&p!=='es'&&p!=='ru'){p='en';try{var L=navigator.languages&&navigator.languages.length?navigator.languages:[navigator.language||''];for(var i=0;i<L.length;i++){var x=String(L[i]||'');if(/^zh/i.test(x)){p='zh';break;}if(/^ko/i.test(x)){p='ko';break;}if(/^es/i.test(x)){p='es';break;}if(/^ru/i.test(x)){p='ru';break;}}}catch(e){}}var rest=q.replace(/^\?/,'').replace(/(^|&)lang=[^&]*/g,'').replace(/^&/,'');if(p==='zh'){location.replace('/zh/asia/'+(rest?'?'+rest:'')+location.hash);return;}if(p!=='ko'&&p!=='es'&&p!=='ru')return;var R=document.documentElement;R.lang=p;R.setAttribute('data-asia-lang',p);document.write(p==='ko'?'<script src="/asia/atm-ko.js?v=k13"><\/script>':p==='es'?'<script src="/asia/atm-es.js?v=es2"><\/script>':'<script src="/asia/atm-ru.js?v=ru1"><\/script>');})();</script>
 <script src="/asia/atm-ui2.js?v=u1"></script>
 <!-- Public release label 11.9.28 (2026-11-14): 大型/日常 categories with type filters, 近期大型 strip and date rail on city pages, twice-monthly nth lists, 特色/常规 renamed to 大型/日常, E123 counts as a workshop. Earlier notes: Candidate 11.9.27. The P7 ‹ uses the opener saved at the click (sessionStorage, never a from= on ?card=): the home featured strip returns to #h-feat; a card from the home saved row or the saved sheet returns to #h-feat when it is featured and to that card's own #h-city- week when it is regular, and does not return to the sheet; a card opened on #h-feat or #h-city- returns there and keeps the scroll; a mail or share link returns to this language's map (/asia/ or /zh/asia/), never / or /zh/, and never #v-. The rest stays 11.9.26. Nothing in this candidate is authorized to merge or go live. Candidate 11.9.26, while GOING_NOTICE_SEND is off, copies a non-test dancer's Going or Interested organizer letter only to the inbox named by GOING_TEST_INBOX. The copy keeps the real template, marks the subject with 「[测试]」 and [TEST], and adds a line naming the organizer (name or code, email masked) who would have received it. It is not addressed to the organizer, it has no CC, and Reply-To is not the dancer. The intent is stored as test_redirected so those facts are not sent again and are not backfilled when global sending is turned on. If GOING_TEST_INBOX is unset, other dancers only save. The GOING_TEST_DANCER letter is unchanged. Sign-in copy says 手机末 4 码. An opened saved card uses a 44px star and asks before 取消收藏. Event-article posters open in place. Home featured and saved strips list every poster and fit whole cards on a wide screen. It keeps the 11.9.25 behavior, which adds a line under the confirm link in the subscription confirmation email. The link opens in WeChat or any browser, and if a tap does nothing the full link starting with https://api.tangoweekend.org/ can be copied and opened there. After a confirmation email is sent, the subscribe success message and the star confirm-email state add a spam-folder line. Signing in with an email and the last 4 digits still sends no mail and does not show that line. It keeps the 11.9.24 behavior, which lets an unlogged visitor register or sign in with an email and the last 4 digits of the phone. A new address still sends one confirmation email, and those digits work only after the link in that email is opened. An address that is already confirmed signs in and saves the chosen intent with no second confirmation email. New registrations store only those 4 digits. It keeps the 11.9.23 homepage favorite or featured poster a same-tab link to that event's card (?card=ID on the current language path). The section title and › still open the saved-events list or featured list. City tiles still open that city's regular list. It keeps the 11.9.22 English regular-card fields (original Chinese address underneath; map links still use the Chinese address), the 11.9.21 sign-in (email and the last 4 digits of the phone, no extra confirmation email), the 11.9.20 long-lived personal subscription link, and the 11.9.14 event fallback (events-core includes E168, E169, and E170, cache ?v=china466). Going, Interested, Not Going, and unfavorite still save before any organizer mail. While that mail is off, the toast is only Saved. A single Going or Interested letter can go to the organizer only for the visitor in GOING_TEST_DANCER when GOING_TEST_SEND=on. The three-sends-per-day cap for one email and card is gone, and a mail problem does not lock Confirm. It is not published. This candidate is not authorized to merge, deploy, write R2, send mail, or set production Worker secrets or environment variables. Leave data-site-release-date empty. This number does not mean other unreleased work is live. -->
 <!-- first-load: dropped http-equiv Cache-Control no-cache; CDN/browser cache HTML --><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -61,8 +61,8 @@ window.atmNoticeGate=function(storage,perf){
   var pages=/\.pages\.dev$/i.test(host);
   var link=document.createElement('link');
   link.rel='preload'; link.as='fetch';
-  if(pages){ link.href='/asia/events-core.json?v=china519'; }
-  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china519'; link.crossOrigin='anonymous'; }
+  if(pages){ link.href='/asia/events-core.json?v=china520'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china520'; link.crossOrigin='anonymous'; }
   document.head.appendChild(link);
 })();
 </script>
@@ -82,7 +82,7 @@ window.atmNoticeGate=function(storage,perf){
   var host=''; try{ host=location.hostname||''; }catch(e){}
   var pages=/\.pages\.dev$/i.test(host);
   var R2='https://data.tangoweekend.org';
-  var core=pages?'/asia/events-core.json?v=china519':R2+'/asia/events-core.json?v=china519';
+  var core=pages?'/asia/events-core.json?v=china520':R2+'/asia/events-core.json?v=china520';
   var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json?v=china459';
   function preload(href, pri){
     if(!href) return;
@@ -228,6 +228,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
       <a href="./" hreflang="en" lang="en" aria-current="page" data-asia-lang-set="en">English</a>
       <a href="./?lang=ko" hreflang="ko" lang="ko" data-asia-lang-set="ko">한국어</a>
       <a href="./?lang=es" hreflang="es" lang="es" data-asia-lang-set="es">Español</a>
+      <a href="./?lang=ru" hreflang="ru" lang="ru" data-asia-lang-set="ru">Русский</a>
     </nav>
   </div>
 </section>
@@ -242,7 +243,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <section id="events" class="alt">
   <div class="wrap m-events-wrap">
 <div id="china-listings" aria-live="polite"><p class="note">Loading listings…</p></div>
-<script src="atm-early.js?v=ea6"></script><!-- first-load: lang pref + skeleton, one file -->
+<script src="atm-early.js?v=ea7"></script><!-- first-load: lang pref + skeleton, one file -->
 <noscript><p class="note">Listings need JavaScript. Raw data: <a href="events.json">events.json</a></p></noscript>
 <p class="china-empty note china-global-empty" hidden>No listings match these filters.</p>
 <p class="note china-disclaimer">Event info compiled from WeChat and Facebook, with reference to hongkongtango.com, milonga.tw, tangophilippines.com and tangomalaysia.wordpress.com. Please check the organizer's latest announcement for times and details.<br>Special thanks to Kai Wang (TeAmo, Shanghai), Liu Zheng (V Tango, Beijing) and Vivian Yeh (Tango Bang) for their help.</p>
@@ -331,7 +332,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <script>
 window.CHINA_UI = {
   lang: 'en',
-  eventsUrl: 'events-core.json?v=china519',
+  eventsUrl: 'events-core.json?v=china520',
   hideAddrEn: false,
   keepOrganizerZh: false,
   daysShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
@@ -410,10 +411,10 @@ window.CHINA_UI = {
 })(window);
 </script>
 <script defer src="atm-data.js?v=r12"></script>
-<script defer src="atm-i18n.js?v=i3"></script>
+<script defer src="atm-i18n.js?v=i4"></script>
 <script defer src="/asia/atm-addr.js?v=ad5"></script>
-<script defer src="asia-map.js?v=r27"></script>
-<script defer src="atm-later.js?v=lt18"></script>
+<script defer src="asia-map.js?v=r28"></script>
+<script defer src="atm-later.js?v=lt19"></script>
 <script defer src="/asia/atm-home.js?v=h193"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="asia-howto.js?v=china278"></script> -->
 <script defer src="asia-subscribe.js?v=sub76"></script>
@@ -479,7 +480,7 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<script defer src="/asia/cardB.js?v=cb171"></script>
+<script defer src="/asia/cardB.js?v=cb172"></script>
 <!-- atm-notice: replaces the E093 entry ad. This tab remembers a confirm in sessionStorage. A reload or a new tab asks again. bfcache return does not re-arm. -->
 <div id="atm-notice" role="dialog" aria-modal="true" aria-labelledby="atm-notice-title">
   <div class="atm-notice-card">

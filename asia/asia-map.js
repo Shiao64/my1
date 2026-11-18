@@ -289,7 +289,7 @@
     }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
     if (r.organizers && r.organizers.length) { var oe = (!UI.keepOrganizerZh && r.organizers_en && r.organizers_en.length) ? r.organizers_en.join(', ') : organizersText(r.organizers); /* v11.4+: optional organizers_en */ if (oe) body.push(line(UI.organizer || 'Organizer', esc(oe))); }
-    if (r.note) body.push('<div class="ev-line china-announce atm-note-c' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> <span class="atm-note-t">' + esc((isZh && r.note_zh) || (i18nLang() === 'ko' && r.note_ko) || (i18nLang() === 'es' && r.note_es) || r.note) + '</span><button type="button" class="atm-note-tg" hidden>' + (isZh ? '更多' : 'More') + '</button></div>');
+    if (r.note) body.push('<div class="ev-line china-announce atm-note-c' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> <span class="atm-note-t">' + esc((isZh && r.note_zh) || (i18nLang() === 'ko' && r.note_ko) || (i18nLang() === 'es' && r.note_es) || (i18nLang() === 'ru' && r.note_ru) || r.note) + '</span><button type="button" class="atm-note-tg" hidden>' + (isZh ? '更多' : 'More') + '</button></div>');
     var cb = contactBlock(r); if (cb) body.push(cb);
     var badges = '';
     if (hl) { var ou = (r.links && r.links.other) || '', own = /^https?:\/\/(www\.)?tangoweekend\.org\/event\/[^\/]+\/$/.test(ou);
@@ -776,7 +776,7 @@
       .then(function(){ if (sugThanks) sugThanks.hidden=false; sug.reset(); if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; } sugReady(); })
       .catch(function(){ if (sugBtn) { sugBtn.textContent=sugBtn.dataset.t; sugBtn.disabled=false; } window.location.href=href; });
   });
-  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china519';
+  var eventsUrl = UI.eventsUrl || 'events-core.json?v=china520';
   var unlockKr = /[?&]k=Seoul(&|$)/.test(location.search);
   var moreUrl = eventsUrl.replace('events-core.json', 'events-more.json');
   function atmJson(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }
