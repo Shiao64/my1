@@ -961,17 +961,6 @@
  },
  {
   "id": "D084",
-  "name_en": "Vuk",
-  "name_local": "",
-  "cities": [
-   "Shanghai"
-  ],
-  "events": [
-   "2tbfzeS7"
-  ]
- },
- {
-  "id": "D085",
   "name_en": "Xeniya",
   "name_local": "",
   "cities": [
@@ -983,7 +972,7 @@
   "from": "Kazakhstan"
  },
  {
-  "id": "D086",
+  "id": "D085",
   "name_en": "Xiaobei",
   "name_local": "小北",
   "cities": [
@@ -992,6 +981,18 @@
   "events": [
    "R034"
   ]
+ },
+ {
+  "id": "D086",
+  "name_en": "Yuan Long",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "2tbfzeS7"
+  ],
+  "from": "Shanghai"
  },
  {
   "id": "D087",
