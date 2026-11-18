@@ -681,6 +681,30 @@ def backup_poster(root, event_id, old_web, stamp):
     return '/' + os.path.relpath(dest, root).replace(os.sep, '/')
 
 
+def write_thumbs(root, web_path):
+    """List and card thumbs (webp + jpg) for a poster already on disk; returns list size.
+
+    2026-11-18: past/ copies had no thumbs, so swiping back to them showed a broken image."""
+    from PIL import Image
+    rel = web_path.split('?', 1)[0]
+    with Image.open(os.path.join(root, rel.lstrip('/'))) as im:
+        lw, lj, ls, cw, cj, cs = thumb_image(im)
+    base = os.path.splitext(rel)[0]
+    for folder, webp, jpg in (('images/thumb', lw, lj), ('images/thumb800', cw, cj)):
+        out = os.path.join(root, folder + base)
+        os.makedirs(os.path.dirname(out), exist_ok=True)
+        with open(out + '.webp', 'wb') as fh:
+            fh.write(webp)
+        with open(out + '.jpg', 'wb') as fh:
+            fh.write(jpg)
+    return ls
+
+
+def is_generated_poster(web_path):
+    """Text posters made by ensure_posters.py. Never kept as a past poster (Shiao 2026-11-18)."""
+    return '/posters/generated/' in (web_path or '')
+
+
 def poster_used_by_others(events, event_id, web_path):
     if not web_path:
         return False
@@ -862,14 +886,23 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                         shutil.copyfile(src_fs, pub_fs)
                     else:
                         pub = backup
-                if pub not in past:
+                old_key = old.split('?', 1)[0] if old else ''
+                keep_old = not is_generated_poster(old_key)
+                if keep_old and pub not in past:
                     past = [pub] + [p for p in past if p != pub and p != backup]
                 dates = event.get('poster_dates') if isinstance(event.get('poster_dates'), dict) else {}
-                old_key = old.split('?', 1)[0] if old else ''
+                old_d = None
                 if old_key:
                     old_d = event.get('poster_date') or dates.get(old_key) or poster_event_date(old_key)
                     if old_d:
                         dates[old_key] = old_d
+                if keep_old and pub != backup and os.path.isfile(os.path.join(root, pub.lstrip('/'))):
+                    # The past/ copy is what the card shows: give it the old date and its own thumbs.
+                    if old_d:
+                        dates[pub] = old_d
+                    psize = write_thumbs(root, pub)
+                    if os.path.isfile(os.path.join(root, MAP_JS)):
+                        update_atm_th(root, pub, psize)
                 new_d = None
                 if isinstance(item, dict):
                     new_d = text_iso_date(item.get('date') or item.get('start') or item.get('on') or '') or note_event_date(item.get('note') or '')
@@ -884,6 +917,8 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                 djs = event.get('poster_djs') if isinstance(event.get('poster_djs'), dict) else {}
                 if old_key and event.get('dj') and old_key not in djs:
                     djs[old_key] = event.get('dj')
+                if keep_old and old_key in djs and pub != old_key and pub not in djs:
+                    djs[pub] = djs[old_key]
                 new_dj = None
                 if isinstance(item, dict):
                     new_dj = dj_from_text(item.get('note') or '') or dj_from_text(item.get('poster_text') or '')
