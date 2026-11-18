@@ -1,6 +1,6 @@
 # ATM 交接说明（给下一个 Agent）
 
-写于 2026-11-15，**2026-11-17 晚更新**：main 到 #208（之后还会有 Cursor 和 R2 同步的自动提交）。接手 tangoweekend.org/asia（亚洲探戈地图，ATM）的工作前，先读这一份，再读同一项目里的其他文档。
+写于 2026-11-15，**2026-11-17 晚更新**：main 到 #210（之后还会有 Cursor 和 R2 同步的自动提交）。接手 tangoweekend.org/asia（亚洲探戈地图，ATM）的工作前，先读这一份，再读同一项目里的其他文档。
 
 这份有两个地方：claude.ai「ATM」项目里的 `claude/ATM-交接说明.md`（完整版），和仓库里的 `docs/atm-handoff.md`（公开版，给探戈助理也能读）。**两份要一起改。**
 - 公开版网址：https://raw.githubusercontent.com/Shiao64/my1/main/docs/atm-handoff.md
@@ -53,7 +53,7 @@
   - **换新一期海报**（已有的舞会／练习／单次活动）：`python3 tools/radar_poster_update.py --event-id <id> --image <图> --city 北京 --organizer <主办> --weekday 周二 --date YYYY-MM-DD --note "<第几场、DJ、来源>" --bump-caches`（先加 `--dry-run` 看）。它会备份旧海报到 `_backup/` 和 `past/`、产缩图、改 poster 字段，并按海报把卡上的 `dj` 改成这一期的 DJ（`poster_djs` 一一对应）——这是网站惯例，和「单场变动用 temp_notices」不冲突。大型活动、工作坊会被工具拒绝。
 - **海报规则（用户 11/17 定）**：
   - 不是每个活动都要有海报。R2 sync 上传前会自动补：有当前海报就不动；没有就用最新的历史海报；都没有就生成一张文字海报（活动名、日期、时间、场地、城市）。**自动生成的文字海报不加「暂无海报」之类的标识**（用户说不要）。目前约 91 张卡用文字海报。**用户 11/17 决定：没有海报的不去问主办，先用自动生成的文字海报**（主办自己寄来或探戈助理顺带收到时再换）。
-  - **历史海报 `posters_past`：每张卡最多 4 张，日期超过 30 天的不留，没有日期的照旧留着。**日期取 `poster_dates` 记录，没有就看文件名里的活动日期（`…-20261104T012604Z` 这种是换海报的时间戳，不算日期）。摘掉的文件挪到 `images/asia/posters/_backup/`，**不删**。换海报时 `radar_poster_update.py` 会自动照这个规则清；全站清一遍用 `python3 tools/prune_past_posters.py`（先看，加 `--apply` 才写；`--today=YYYY-MM-DD` 可模拟）。卡片没有当前海报时至少留最新一张历史海报。测试：`python3 tools/test_prune_past_posters.py`。#196 清过一次（摘掉 5 张）。**#198 起每天自动清理**：`.github/workflows/poster-prune.yml`，北京时间每天 03:17 跑 `prune_past_posters.py --apply`（按北京日期），有改动就直接提交到 main（`github-actions[bot]`，提交名「Daily cleanup: drop expired past posters」），再启动 R2 sync；推送失败会从最新 main 重跑，最多 5 次。可在 Actions 里手动跑。
+  - **历史海报 `posters_past`：每张卡最多 4 张，日期超过 30 天的不留，没有日期的照旧留着。**日期取 `poster_dates` 记录，没有就看文件名里的活动日期（`…-20261104T012604Z` 这种是换海报的时间戳，不算日期）。**11/18 起（用户）：摘掉的、显示不了的历史海报直接删，不再复制到 `_backup/`**（旧的 `_backup/` 文件还在仓库）。换海报时 `radar_poster_update.py` 会自动照这个规则清；全站清一遍用 `python3 tools/prune_past_posters.py`（先看，加 `--apply` 才写；`--today=YYYY-MM-DD` 可模拟）。卡片没有当前海报时至少留最新一张历史海报。测试：`python3 tools/test_prune_past_posters.py`。#196 清过一次（摘掉 5 张）。**#198 起每天自动清理**：`.github/workflows/poster-prune.yml`，北京时间每天 03:17 跑 `prune_past_posters.py --apply`（按北京日期），有改动就直接提交到 main（`github-actions[bot]`，提交名「Daily cleanup: drop expired past posters」），再启动 R2 sync；推送失败会从最新 main 重跑，最多 5 次。可在 Actions 里手动跑。 **#209/#210（11/18）**：之前换海报时复制到 `past/` 的旧海报没有缩图（数据站 404，Milonga V 第214场显示不出来），也没日期。`tools/fix_past_posters.py` 修：补缩图、从同一张已标日期的海报抄日期和 DJ、拿掉文件不在的和自动文字海报的拷贝；每日清理也会跑它。`radar_poster_update.py` 换海报时 `past/` 拷贝会有缩图、日期、DJ，自动文字海报（`/posters/generated/`）不当历史海报。
   - **「上期海报」标识**：每周固定的卡，当前海报有日期（`poster_date`）且已过，网站会在海报上显示「上期海报 / Previous poster / 이전 포스터」；没有日期的不标。这是原本就有的（`cardB.js` 的 `prevBadges`、`atm-home.js` 的 `ah-pw`），用户 11/17 确认这个做法。
   - **数据站（R2）要有这些图才打得开**：`tools/r2_sync_cards.py` 现在会把 `posters_past` 里的图和缩图一起上传（#195；以前只传当期海报，历史海报在数据站上不存在）。
 - **介绍资料**：`asia/organizers.json`（刘峥、王凯）、`asia/djs.json`（Yelyn Woo，空），介绍页 `/organizer/<id>/`。
