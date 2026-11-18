@@ -332,6 +332,15 @@ def plan_upload(keys, known):
     return to_upload, skipped, hashes
 
 
+def upload_order(keys):
+    """Images and other files first, JSON (event data, manifest) last.
+
+    2026-11-18: sorted() put asia/*.json before images/*, so for a few minutes
+    the live data pointed at posters not uploaded yet; anyone opening the card
+    then kept a cached 404 for that picture."""
+    return sorted(keys, key=lambda k: (k.endswith('.json'), k))
+
+
 def card_ids(rows):
     return {row.get('id') for row in rows if isinstance(row, dict) and row.get('id')}
 
@@ -496,7 +505,7 @@ def publish(root, event_id=None, dry_run=False, full=False):
         print('to upload %d, unchanged and skipped %d%s' % (len(to_upload), len(skipped), ' (--full)' if full else ''))
         to_upload['asia/manifest.json'] = manifest_path
         done = 0
-        for key in sorted(to_upload):
+        for key in upload_order(to_upload):
             put_object(key, to_upload[key], cache_control(key))
             done += 1
             if done % 50 == 0:
