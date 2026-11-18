@@ -58,6 +58,14 @@ def generate(e):
     rpu.update_atm_th(ROOT, web, ls)
     return web
 
+def _is_text_copy(u):
+    import hashlib
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from fix_past_posters import generated_hashes
+    p = os.path.join(ROOT, u.split('?')[0].lstrip('/'))
+    if not os.path.isfile(p): return False
+    return hashlib.sha256(open(p, 'rb').read()).hexdigest() in generated_hashes()
+
 def past_guard(data):
     """Fail if any posters_past entry present in HEAD was dropped, or its file is missing (ALLOW_PAST_DROP=1 to override)."""
     import subprocess
@@ -76,6 +84,8 @@ def past_guard(data):
                 if u in have: continue
                 # 2026-11-17: a past poster dated more than 30 days ago may be dropped on purpose
                 if rpu.poster_expired(u, e.get('poster_dates') if isinstance(e.get('poster_dates'), dict) else None): continue
+                # 2026-11-18: a copy of an auto text poster is never a real past poster
+                if rpu.is_generated_poster(u) or _is_text_copy(u): continue
                 bad.append(f'PAST DROPPED: {rel} {e["id"]} {u}')
         for e in L:
             for u in (e.get('posters_past') or []):
