@@ -24,11 +24,12 @@
   }
   function setLink(elId, url) {
     var el = document.getElementById(elId); if (!el) return; el.textContent = ''; if (!url) return;
+    if (!/^https?:\/\//i.test(url)) { el.textContent = url; return; }
     var a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = url; el.appendChild(a);
   }
   function matches(profile, e) {
-    var names = [profile.name, profile.name_zh].concat(profile.match || []).map(key).filter(Boolean), got = [];
-    if (kind === 'organizer') (e.organizers || []).concat(e.organizers_en || []).forEach(function (n) { if (n) got.push(n); });
+    var names = [profile.name, profile.name_zh].concat(profile.match || [], profile.members || []).map(key).filter(Boolean), got = [];
+    if (kind === 'organizer' || kind === 'group') (e.organizers || []).concat(e.organizers_en || []).forEach(function (n) { if (n) got.push(n); });
     else {
       if (e.dj) got.push(e.dj);
       var map = e.poster_djs || {};
@@ -38,7 +39,7 @@
   }
   function when(e) { return e.kind === 'weekly' ? (zh ? '每周' : 'Weekly') : (e.start || ''); }
   function isPast(e, day) { if (e.kind === 'weekly') return false; var end = e.end || e.start || ''; return !!(end && end < day); }
-  var file = kind === 'organizer' ? '/asia/organizers.json?v=o4' : '/asia/djs.json?v=d1';
+  var file = (kind === 'organizer' || kind === 'group') ? '/asia/organizers.json?v=o5' : '/asia/djs.json?v=d1';
   fetch(file).then(function (r) { return r.json(); }).then(function (list) {
     var profile = (list || []).filter(function (p) { return p.id === id; })[0];
     if (!profile) return;
@@ -48,7 +49,7 @@
     var h1 = document.querySelector('.dj-bar h1'); if (h1 && name) h1.textContent = name;
     setText('pf-aff', aff); setText('pf-bio', bio); setPhoto(profile.photo || '', name);
     var links = profile.links || {};
-    setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || '');
+    setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || ''); setLink('pf-web', links.website || '');
     return fetch('/asia/events.json?v=e153').then(function (r) { return r.json(); }).then(function (events) {
       var day = today(), up = [], past = [];
       (events || []).forEach(function (e) { if (!e || e.hidden || !matches(profile, e)) return; (isPast(e, day) ? past : up).push(e); });
@@ -58,7 +59,8 @@
         var home = zh ? '/zh/asia/' : '/asia/';
         node.innerHTML = rows.map(function (e) {
           var title = (zh && e.name_zh) || e.name || '';
-          var sub = [when(e), e.city || ''].filter(Boolean).join(' · ');
+          var cz = { Shanghai: '上海', Beijing: '北京', Shenzhen: '深圳', Guangzhou: '广州', Hangzhou: '杭州', Chengdu: '成都', Wuhan: '武汉', Nanjing: '南京', Suzhou: '苏州', Xiamen: '厦门', Tianjin: '天津', Chongqing: '重庆', "Xi'an": '西安', 'Hong Kong': '香港', Taipei: '台北', Macau: '澳门' }, city = (zh && cz[e.city]) || e.city || '';
+          var sub = [when(e), city].filter(Boolean).join(' · ');
           return '<a href="' + home + '?card=' + encodeURIComponent(e.id) + '"><b>' + title.replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }) + '</b><span>' + sub + '</span></a>';
         }).join('');
       }

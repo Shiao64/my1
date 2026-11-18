@@ -62,8 +62,8 @@ window.atmNoticeGate=function(storage,perf){
   var pages=/\.pages\.dev$/i.test(host);
   var link=document.createElement('link');
   link.rel='preload'; link.as='fetch';
-  if(pages){ link.href='/asia/events-core.json?v=china523'; }
-  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china523'; link.crossOrigin='anonymous'; }
+  if(pages){ link.href='/asia/events-core.json?v=china524'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china524'; link.crossOrigin='anonymous'; }
   document.head.appendChild(link);
 })();
 </script>
@@ -83,7 +83,7 @@ window.atmNoticeGate=function(storage,perf){
   var host=''; try{ host=location.hostname||''; }catch(e){}
   var pages=/\.pages\.dev$/i.test(host);
   var R2='https://data.tangoweekend.org';
-  var core=pages?'/asia/events-core.json?v=china523':R2+'/asia/events-core.json?v=china523';
+  var core=pages?'/asia/events-core.json?v=china524':R2+'/asia/events-core.json?v=china524';
   var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json?v=china459';
   function preload(href, pri){
     if(!href) return;
@@ -332,7 +332,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <script>
 window.CHINA_UI = {
   lang: 'zh',
-  eventsUrl: '../../asia/events-core.json?v=china523',
+  eventsUrl: '../../asia/events-core.json?v=china524',
   hideAddrEn: true,
   keepOrganizerZh: true,
   cityNames: {
@@ -498,7 +498,7 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<script defer src="/asia/cardB.js?v=cb173"></script>
+<script defer src="/asia/cardB.js?v=cb174"></script>
 <!-- atm-notice: replaces the E093 entry ad. This tab remembers a confirm in sessionStorage. A reload or a new tab asks again. bfcache return does not re-arm. -->
 <div id="atm-notice" role="dialog" aria-modal="true" aria-labelledby="atm-notice-title">
   <div class="atm-notice-card">
