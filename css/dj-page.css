@@ -9,7 +9,7 @@ html,body{margin:0;background:#FBF5E9;color:#0A4F57;font-family:system-ui,-apple
 .dj-photo{float:left;width:42%;margin:0 12px 8px 0}
 .dj-photo:empty{display:none}
 .dj-photo img{display:block;width:100%;height:auto;border-radius:12px;background:#fff}
-.dj-bio{margin:0;color:#0A4F57;font-size:16px;font-weight:600;line-height:1.55}
+.dj-bio{margin:0;white-space:pre-line;color:#0A4F57;font-size:16px;font-weight:600;line-height:1.55}
 .dj-bio:empty{display:none}
 .dj-fields{margin:14px 0 0;display:grid;gap:10px}
 .dj-fields div{display:grid;grid-template-columns:108px 1fr;gap:8px;align-items:start}
