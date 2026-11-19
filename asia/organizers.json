@@ -50,6 +50,32 @@
     ]
   },
   {
+    "id": "vivian-yeh",
+    "name": "Vivian Yeh",
+    "name_zh": "Vivian Yeh",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "affiliation": "Founder of TangoBang",
+    "affiliation_zh": "探戈帮创始人",
+    "photo": "",
+    "bio": "Founder of TangoBang and an early champion of Argentine tango in China\n\nVivian Yeh is one of the early pioneers of Argentine tango in China. Starting from Shanghai, she has spent many years bringing tango to more people through classes, milongas and international festivals, and creating chances for Chinese dancers to connect with tango communities around the world.\n\nOn 12 April 2008 she founded TangoBang in Shanghai. From basic training to the milonga floor, she stresses not only technique but also musicality, connection with one's partner and social etiquette. TangoBang has given more than 10,000 hours of classes, hosted over 1,000 milongas and trained nearly 3,000 dancers, and for many it has been where they first met tango and found their community.\n\nIn October 2011 Vivian founded the Shanghai International Tango Festival and the China Metropolitan Tango Championship, bringing Argentine maestros, world champions and fine orchestras to China. Over the years these events have drawn more than 5,000 dancers from China and abroad, giving Chinese dancers the chance to learn from international masters up close and bringing dancers from many places together in Shanghai.\n\nFrom the weekly class to the international festival, Vivian has always given equal weight to teaching and cultural exchange. Her long commitment has trained dancers, brought the community together, and made an important contribution to the growth of Argentine tango in China.",
+    "bio_zh": "探戈帮创始人、中国阿根廷探戈早期推动者\n\nVivian Yeh 是中国阿根廷探戈的早期开拓者之一。多年来，她以上海为起点，通过教学、舞会和国际艺术节，让更多人接触探戈，也为中国舞者与世界各地的探戈社群创造了交流的机会。\n\n2008年4月12日，她在上海创立探戈帮（TangoBang）。从基础训练到舞会实践，她不仅注重舞蹈技术，也重视音乐理解、舞伴交流与社交礼仪。探戈帮累计开设超过10,000小时的专业课程，举办逾1,000场舞会，培养近3,000名舞者，成为许多人认识探戈、融入社群的起点。\n\n2011年10月，Vivian 创办上海国际探戈节（Shanghai International Tango Festival）及中国大都会探戈冠军锦标赛，将阿根廷探戈大师、世界冠军与优秀乐团带到中国。历届活动累计吸引海内外超过5,000名舞者参与，让中国舞者有机会近距离向国际名家学习，也让各地舞者因探戈相聚上海。\n\n从日常课堂到国际盛会，Vivian 始终坚持教学与文化交流并重。她的长期投入，既培育了舞者，也凝聚了社群，为阿根廷探戈在中国的传播与发展作出了重要贡献。",
+    "links": {
+      "website": "https://www.tangobang.cn",
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Vivian Yeh",
+      "Vivian Ye"
+    ],
+    "sources": [
+      "Organizer intro supplied by Shiao 2026-11-19 (Chinese); English translated by Claude."
+    ]
+  },
+  {
     "id": "tangobang",
     "kind": "group",
     "name": "TangoBang",
