@@ -62,8 +62,8 @@ window.atmNoticeGate=function(storage,perf){
   var pages=/\.pages\.dev$/i.test(host);
   var link=document.createElement('link');
   link.rel='preload'; link.as='fetch';
-  if(pages){ link.href='/asia/events-core.json?v=china533'; }
-  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china533'; link.crossOrigin='anonymous'; }
+  if(pages){ link.href='/asia/events-core.json?v=china534'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china534'; link.crossOrigin='anonymous'; }
   document.head.appendChild(link);
 })();
 </script>
@@ -83,7 +83,7 @@ window.atmNoticeGate=function(storage,perf){
   var host=''; try{ host=location.hostname||''; }catch(e){}
   var pages=/\.pages\.dev$/i.test(host);
   var R2='https://data.tangoweekend.org';
-  var core=pages?'/asia/events-core.json?v=china533':R2+'/asia/events-core.json?v=china533';
+  var core=pages?'/asia/events-core.json?v=china534':R2+'/asia/events-core.json?v=china534';
   var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json?v=china459';
   function preload(href, pri){
     if(!href) return;
@@ -332,7 +332,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <script>
 window.CHINA_UI = {
   lang: 'zh',
-  eventsUrl: '../../asia/events-core.json?v=china533',
+  eventsUrl: '../../asia/events-core.json?v=china534',
   hideAddrEn: true,
   keepOrganizerZh: true,
   cityNames: {
