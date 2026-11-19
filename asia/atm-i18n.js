@@ -74,6 +74,8 @@
     var mainland = !!(e && e.country === 'China' && (e.region || 'China') === 'China');
     var lines = [];
     if (lang === 'zh') {
+      var zhA = usable(e && e.venue_address_zh) ? String(e.venue_address_zh).trim() : ''; /* 2026-11-20: Chinese translation of a foreign address (e.g. Seoul), shown above the local original for taxis */
+      if (zhA && zhA !== orig) { lines.push(zhA); if (orig) lines.push(orig); return { lines: lines, display: lines[0], original: '', mapQuery: orig || zhA }; }
       if (orig) lines.push(orig);
       if (en && en !== orig && (!mainland || e.addr_en_zh || !orig)) lines.push(en);
     } else {
