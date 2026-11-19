@@ -266,6 +266,12 @@ def check_new(i, e, old, core, today, reasons):
     for k in need:
         if blank(e.get(k)):
             reasons.append(f'{tag} 缺「{k}」')
+    # 2026-11-20 (Shiao): a new card needs at least one way to reach the organizer or check the source
+    c = e.get('contacts') or {}
+    has_c = bool(c) if isinstance(c, list) else any(not blank(v) for v in c.values())
+    has_l = any(not blank(v) for v in (e.get('links') or {}).values())
+    if not (has_c or has_l):
+        reasons.append(f'{tag} 没有联络方式也没有链接（至少要一种）')
     if e.get('kind') == 'weekly':
         w = e.get('weekdays') or ([e['weekday']] if e.get('weekday') is not None else [])
         if not w or not all(isinstance(x, int) and 0 <= x <= 6 for x in w):

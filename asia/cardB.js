@@ -91,7 +91,8 @@ document.addEventListener('toggle',function(ev){ var dt=ev.target; if(!dt.classL
 function k(l){return (l.querySelector('.ev-k')||{}).textContent||''}
 /* 2026-11-20 (Shiao, direction doc: data trust): how fresh the card is, on the card face.
    confirmed = organizer confirmed (later); else updated. <=30 days green ✓; 31–90 grey + "请再次向组织者确认"; >90 orange ⚠ "可能停办了". */
-function p10freshInfo(e){ var d=String(e.confirmed||e.updated||'').slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) return null; var t=new Date(), today=Date.UTC(t.getFullYear(),t.getMonth(),t.getDate()), dd=Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)), n=Math.round((today-dd)/864e5); if(n<0) n=0;
+function p10noReach(e){ var c=e.contacts; var hc=Array.isArray(c)?c.length>0:!!(c&&Object.keys(c).some(function(k){ return String(c[k]||'').trim(); })); var L=e.links||{}; var hl=Object.keys(L).some(function(k){ var v=L[k]; return v&&(typeof v!=='object'||Object.keys(v).length); }); return !hc&&!hl; }
+function p10freshInfo(e){ if(p10noReach(e)) return {t:3, main:zh?'资料不完整，没有联络方式，请勿专程前往':'Incomplete info, no contact; please don\u2019t make a special trip'}; /* 2026-11-20 Shiao */ var d=String(e.confirmed||e.updated||'').slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) return null; var t=new Date(), today=Date.UTC(t.getFullYear(),t.getMonth(),t.getDate()), dd=Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)), n=Math.round((today-dd)/864e5); if(n<0) n=0;
   var date=String(t.getFullYear())===d.slice(0,4)?d.slice(5).replace('-','/'):d.replace(/-/g,'/');
   var ago=n===0?(zh?'今天':'today'):n===1?(zh?'昨天':'yesterday'):(zh?n+' 天前':n+' days ago');
   if(n<=30) return {t:1, main:e.confirmed?(zh?'主办'+ago+'确认':'Confirmed by organizer '+ago):(zh?'资料 '+ago+'更新':'Updated '+ago)};

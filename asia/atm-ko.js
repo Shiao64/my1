@@ -58,7 +58,7 @@
     'No listings match these filters.': '조건에 맞는 이벤트가 없습니다.', 'All cities · Special events by start date': '모든 도시 · 스페셜 이벤트 (시작일순)',
     'Weekly milonga · This week\'s theme': '매주 밀롱가 · 이번 주 테마', 'TBA': '미정',
     /* card */
-    'Preview': '예고', 'Details to be announced': '자세한 내용은 추후 공개', 'Preview · Details to be announced': '예고 · 자세한 내용은 추후 공개', 'Venue to be announced': '장소 추후 공개', 'Venue': '장소', 'ORG': '주최', 'Info': '정보', 'please check with the organizer': '주최자에게 다시 확인해 주세요', 'Not updated for a long time; it may have stopped': '오랫동안 업데이트되지 않았습니다. 중단되었을 수 있습니다', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
+    'Preview': '예고', 'Details to be announced': '자세한 내용은 추후 공개', 'Preview · Details to be announced': '예고 · 자세한 내용은 추후 공개', 'Venue to be announced': '장소 추후 공개', 'Venue': '장소', 'ORG': '주최', 'Info': '정보', 'please check with the organizer': '주최자에게 다시 확인해 주세요', 'Not updated for a long time; it may have stopped': '오랫동안 업데이트되지 않았습니다. 중단되었을 수 있습니다', 'Incomplete info, no contact; please don\u2019t make a special trip': '정보가 불완전하고 연락처가 없습니다. 일부러 찾아가지 마세요', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
     'Notes': '참고', 'Note': '참고', 'Notice': '공지', 'More': '더 보기', 'Less': '접기', 'Collapse ⌃': '접기 ⌃',
     'Links': '링크', 'Website': '웹사이트', 'Event website': '이벤트 웹사이트', 'Video': '영상', 'Register': '등록',
     'Details': '상세', 'Event details': '이벤트 상세', 'Phone': '전화', 'Email': '이메일', 'WeChat': '위챗',
