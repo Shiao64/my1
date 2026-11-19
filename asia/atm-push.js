@@ -1,4 +1,4 @@
-/* Web push opt-in button (zh/en). Registers /sw.js (push only, no fetch caching). API: TANGO_SUB_API or api.tangoweekend.org.
+/* Web push opt-in button (zh/en). Registers /sw.js (push; since 2026-11-19 sw.js also caches ?v= files and atm-data.js registers it for everyone). API: TANGO_SUB_API or api.tangoweekend.org.
    The button stays unmounted unless window.ATM_PUSH_UI is 1. sw.js and the Worker push API are unchanged. */
 (function(){
   if (window.ATM_PUSH_UI !== 1 && window.ATM_PUSH_UI !== '1') return;
