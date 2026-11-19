@@ -1271,7 +1271,8 @@
   })();
   takeSession();
   readHash();
-  ensureEvents();
+  /* 2026-11-19 (speed on mobile data): do not download the full events.json (~480 KB) on every visit. Core/more already hold every card on the page; the full file is fetched only when a card is missing (open() → ensureEvents). */
+  (function waitCore(n) { if (window._chinaData || n > 80) { ready = true; paint(); return; } setTimeout(function () { waitCore(n + 1); }, 150); })(0);
   loadLocalFavs();
   refreshMine();
   var mo = new MutationObserver(function () { if (!painting) paint(); });

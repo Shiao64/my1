@@ -10,9 +10,19 @@
     "photo": "/images/asia/profiles/liu-zheng.webp?v=l1",
     "bio": "Liu Zheng (刘峥) has danced tango since 2006 and is one of China's first-generation tango organizers. In 2007 he founded VTango (探戈会) in Beijing, running classes, milongas and workshops with visiting teachers. In 2013 he co-founded the China Argentine Tango Association with Xu Xuanyi and launched the China qualifier of the Tango World Championship. He created Tango Holiday (2014), the Beijing Tango Open (2017) and the Beijing Tuye Tango Festival (2019). Also a long-time tango DJ, he builds on Golden Age tradition with balanced, dancer-focused energy. In 2018 he was honored by the Embassy of Argentina in China.",
     "bio_zh": "刘峥，2006 年开始跳探戈，中国第一代探戈人。2007 年创办「探戈会（VTango）」，长期在北京组织探戈课程、舞会与外教 Workshop。2013 年与许暄宜共同成立「中国阿根廷探戈协会」，发起世界探戈锦标赛中国区赛。先后创办 Tango Holiday（2014）、北京探戈公开赛（2017）和北京兔爷探戈节（2019）。他也是资深探戈 DJ，以黄金年代传统为本，均衡分配舞会能量。2018 年获阿根廷驻华大使馆表彰。",
-    "links": {"instagram": "", "facebook": "", "wechat": "", "soundcloud": ""},
-    "match": ["刘峥", "Liu Zheng"],
-    "sources": ["Organizer profile supplied for this preview. Also a DJ. Photo: DJ at ChunCheon Tango Festival 2025, credit ©Aiden in the image. City Beijing / 北京. Affiliation 探戈会 VTango / VTango."]
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "刘峥",
+      "Liu Zheng"
+    ],
+    "sources": [
+      "Organizer profile supplied for this preview. Also a DJ. Photo: DJ at ChunCheon Tango Festival 2025, credit ©Aiden in the image. City Beijing / 北京. Affiliation 探戈会 VTango / VTango."
+    ]
   },
   {
     "id": "kai",
@@ -24,8 +34,78 @@
     "photo": "/images/asia/profiles/kai.webp?v=k1",
     "bio": "Kai Wang (王凯) was born in Taiwan, graduated from National Taipei University and studied in the US. He discovered salsa in 2005 and later fell in love with tango in Shanghai. In 2017 he founded Te Amo Tango Lounge, called \"China's first tango bar\" and a filming location for B for Busy (爱情神话); it moved to 583 Yuyao Road, Jing'an, in 2023. He runs Kai's Milonga every Wednesday and Sunday, and its 900th edition was held at the Paramount Ballroom on 1 Jan 2026.",
     "bio_zh": "王凯（Kai），台湾出生，毕业于台北大学，曾赴美国留学。2005 年接触 Salsa，后在上海爱上探戈。2017 年创办 Te Amo Tango Lounge（舞爱探戈），被称为「中国第一家探戈酒吧」，也是电影《爱情神话》的取景地，2023 年迁到静安区余姚路 583 号。他长期主办 Kai's Milonga（每周三、周日），2026 年元旦在百乐门举办了第 900 场。",
-    "links": {"instagram": "", "facebook": "", "wechat": "", "soundcloud": ""},
-    "match": ["Kai", "王凯", "Kai Wang"],
-    "sources": ["Radar sheet 中文组织者: 王凯. English name: Kai. Photo and bios supplied for this profile. City Shanghai / 上海. Affiliation Te Amo Tango Lounge."]
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Kai",
+      "王凯",
+      "Kai Wang"
+    ],
+    "sources": [
+      "Radar sheet 中文组织者: 王凯. English name: Kai. Photo and bios supplied for this profile. City Shanghai / 上海. Affiliation Te Amo Tango Lounge."
+    ]
+  },
+  {
+    "id": "vivian-yeh",
+    "name": "Vivian Yeh",
+    "name_zh": "Vivian Yeh",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "affiliation": "Founder of TangoBang",
+    "affiliation_zh": "探戈帮创始人",
+    "photo": "/images/asia/profiles/vivian-yeh.webp?v=v1",
+    "bio": "Pioneer of Argentine tango in China · Founder of TangoBang · Dancer and international judge\n\nVivian Yeh has 21 years of experience in Argentine tango as a dancer, a competition judge and the founder of an international festival, and is one of the key pioneers of Argentine tango in China.\n\n• Dancer\nGrounded in the traditional salon style of Buenos Aires, she won the Milonga category of the Asia qualifier of the World Tango Championship and reached the official final. In the Tango de Pista final of the Mundial de Tango in Buenos Aires, she achieved the best result by a Chinese dancer to date. Known for an elegant, pure style and strong musicality, she is often invited to perform at tango festivals in China and abroad.\n\n• Judge\nShe has long served as an official judge at the China Tango Championship and at many major tango competitions across Asia, helping to raise the standard of tango competition in the region with rigorous and fair judging.\n\n• Teaching and festivals\nOn 12 April 2008 she founded TangoBang in Shanghai. Over 18 years, open all year round, TangoBang has given more than 10,000 hours of classes, hosted over 1,000 milongas and trained nearly 3,000 Chinese tango dancers. In October 2011 she founded the Shanghai International Tango Festival, the first international tango festival in China, which has since welcomed more than 5,000 dancers from China and abroad and brought world-class maestros, champions and orchestras to China.\n\nHaving danced on the world-final stage and helped lay the foundations of tango in China, Vivian has both witnessed and shaped the growth of Argentine tango in China.",
+    "bio_zh": "中国阿根廷探戈先锋推动者 · 探戈帮创始人 · 资深舞者及国际裁判\n\nVivian Yeh 拥有 21 年阿根廷探戈舞蹈与文化经历，集舞者、赛事裁判与国际探戈节创办人于一身，是中国阿根廷探戈发展史上的核心开拓者之一。\n\n• 舞者\n她拥有深厚的布宜诺斯艾利斯传统沙龙功底。曾获世界阿根廷探戈锦标赛亚洲区预选赛 Milonga 组冠军，并进入官方组决赛；在布宜诺斯艾利斯举行的世界探戈锦标赛（Mundial de Tango）沙龙组（Tango de Pista）决赛中，创下中国选手迄今最好的成绩。她的舞风优雅纯粹、音乐表现力强，常受邀在国内外探戈节担任表演嘉宾。\n\n• 裁判\n她长期担任中国探戈锦标赛及亚洲多项重要探戈赛事的官方裁判，以严谨、公正的标准，推动亚洲探戈比赛的规范化与国际化。\n\n• 教学与探戈节\n2008 年 4 月 12 日，她在上海创立探戈帮（TangoBang）。18 年来全年无休，累计开设超过 10,000 小时课程、举办逾 1,000 场舞会，培养近 3,000 名中国探戈舞者。2011 年 10 月，她创办上海国际探戈节（Shanghai International Tango Festival），这是中国第一个国际性探戈节，至今已吸引海内外超过 5,000 名舞者，把世界大师、冠军和一流乐团带到中国。\n\n既站上过世界决赛的舞台，也为中国探戈打下了基础，Vivian 见证并参与塑造了阿根廷探戈在中国的发展。",
+    "links": {
+      "website": "https://www.tangobang.cn",
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Vivian Yeh",
+      "Vivian Ye"
+    ],
+    "sources": [
+      "Organizer intro supplied by Shiao 2026-11-19 (Chinese); English translated by Claude.",
+      "Photo supplied by Shiao 2026-11-19, cropped to 3:4 (top), white background.",
+      "Bio v2 2026-11-19: Shiao supplied two Chinese versions; merged into one web version by Claude, English translated by Claude."
+    ]
+  },
+  {
+    "id": "tangobang",
+    "kind": "group",
+    "name": "TangoBang",
+    "name_zh": "探戈帮",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "affiliation": "Shanghai · since 2008",
+    "affiliation_zh": "上海 · 2008 年创立",
+    "photo": "/images/asia/profiles/tangobang.webp?v=t1",
+    "bio": "China’s Most Established and Dedicated Argentine Tango School\n\nFounded on April 12, 2008, TangoBang is China’s longest-running and most specialized institution dedicated exclusively to authentic Argentine Tango. Led by founder Vivian, who brings 21 years of tango experience, TangoBang has spent the past 18 years tirelessly championing the growth, authenticity, and international exchange of Argentine Tango in China.\n\n• 18 Years of Uninterrupted Dedication\nSince day one, TangoBang has operated year-round without interruption—offering structured, authentic Argentine tango classes 5 days a week alongside its signature weekly Friday Milonga. From pedagogy to floorcraft and social etiquette, every detail honors the true traditions of Buenos Aires.\n\n• Proven Legacy & Milestones\nOver the past 18 years, TangoBang has delivered more than 10,000 hours of instruction, hosted over 1,000 milongas, and nurtured nearly 3,000 dancers, serving as the foundational home for generations of tango enthusiasts across China.\n\n• Home of China’s First International Tango Festival\nIn October 2011, TangoBang founded the Shanghai International Tango Festival, the very first international tango festival in China. To date, the festival has welcomed over 5,000 participants from around the globe, bringing world-renowned maestros, live orchestras, and international standards to Shanghai and cementing its role as a vital hub on the global tango map.\n\nWhether you are taking your very first tango steps or are a seasoned international dancer seeking an authentic embrace in Shanghai, TangoBang’s doors—and dance floor—are always open to you.",
+    "bio_zh": "中国最资深、最专门的阿根廷探戈学校\n\n自 2008 年 4 月 12 日创立以来，探戈帮始终秉持对“原汁原味阿根廷探戈”的极致追求，是中国历史最悠久、专注度最高的阿根廷探戈专业机构。在拥有 21 年阿根廷探戈资历的主理人 Vivian 的带领下，探戈帮在过去 18 年间不遗余力地推动着阿根廷探戈在中国的生根、发展与国际化交流。\n\n• 18 年从未间断的纯粹坚守\n自成立第一天起，探戈帮便以近乎严苛的热爱全年无休、从未间断，坚持每周 5 天系统化专业教学，以及每周五晚固定舞会（Milonga）。无论是课程体系还是舞会礼仪，均严格还原地道的布宜诺斯艾利斯传统与社交文化。\n\n• 厚积薄发的硬核数据沉淀\n18 年来，探戈帮累计开设超过 10,000 小时专业课程，成功举办 1,000 余场高品质舞会，亲手培育了近 3,000 名探戈新生力量，成为无数中国舞者探戈之路的起点与精神家园。\n\n• 创办中国首个国际性探戈节\n除了日常深耕，探戈帮还于 2011 年 10 月创办了上海国际探戈节（Shanghai International Tango Festival）——这是中国第一个真正意义上的国际性探戈节。创办至今已累计吸引超过 5,000 名海内外舞者参与，持续将世界顶尖的阿根廷探戈大师、乐团与竞技标准引入中国，成为连接中国与世界探戈版图的核心枢纽。\n\n无论你是刚刚踏入探戈世界的零基础新人，还是寻求地道舞池体验的国内外资深舞者，探戈帮的灯光与音乐永远为你点亮。",
+    "links": {
+      "website": "https://www.tangobang.cn",
+      "instagram": "",
+      "facebook": "",
+      "wechat": "Tango_China",
+      "soundcloud": ""
+    },
+    "match": [
+      "探戈帮",
+      "TangoBang",
+      "Tango Bang"
+    ],
+    "members": [
+      "Vivian Yeh"
+    ],
+    "sources": [
+      "Group intro text supplied by Shiao 2026-11-19. Logo = TangoBang fixed poster (DIVjezcE)."
+    ]
   }
 ]

@@ -58,7 +58,7 @@
     'No listings match these filters.': '조건에 맞는 이벤트가 없습니다.', 'All cities · Special events by start date': '모든 도시 · 스페셜 이벤트 (시작일순)',
     'Weekly milonga · This week\'s theme': '매주 밀롱가 · 이번 주 테마', 'TBA': '미정',
     /* card */
-    'Preview': '예고', 'Preview · Details to be announced': '예고 · 자세한 내용은 추후 공개', 'Venue to be announced': '장소 추후 공개', 'Venue': '장소', 'ORG': '주최', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
+    'Preview': '예고', 'Details to be announced': '자세한 내용은 추후 공개', 'Preview · Details to be announced': '예고 · 자세한 내용은 추후 공개', 'Venue to be announced': '장소 추후 공개', 'Venue': '장소', 'ORG': '주최', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
     'Notes': '참고', 'Note': '참고', 'Notice': '공지', 'More': '더 보기', 'Less': '접기', 'Collapse ⌃': '접기 ⌃',
     'Links': '링크', 'Website': '웹사이트', 'Event website': '이벤트 웹사이트', 'Video': '영상', 'Register': '등록',
     'Details': '상세', 'Event details': '이벤트 상세', 'Phone': '전화', 'Email': '이메일', 'WeChat': '위챗',
@@ -200,7 +200,7 @@
     [/^(.+): back to top to change city$/, function (m) { return city(m[1]) + ': 위로 가서 도시 바꾸기'; }],
     [/^☆ (\d+) saved events?$/, function (m) { return '☆ 저장한 이벤트 ' + m[1] + '개'; }],
     [/^(\d+) saved events?$/, function (m) { return '저장한 이벤트 ' + m[1] + '개'; }],
-    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop) (\d{4}\/\d{2}\/\d{2})$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
+    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
     [/^WeChat Official Account: (.+)$/, function (m) { return '위챗 공식계정: ' + m[1]; }],
     [/^WeChat Channels: (.+)$/, function (m) { return '위챗 채널: ' + m[1]; }],
     [/^See upcoming events in (.+)$/, function (m) { return city(m[1]) + '의 다가오는 이벤트 보기'; }],

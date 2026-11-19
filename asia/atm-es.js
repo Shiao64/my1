@@ -62,7 +62,7 @@
     'No listings match these filters.': 'No hay eventos con estos filtros.', 'All cities · Special events by start date': 'Todas las ciudades · Eventos especiales por fecha de inicio',
     'Weekly milonga · This week\'s theme': 'Milonga semanal · Tema de esta semana', 'TBA': 'Por confirmar',
     /* card */
-    'Preview': 'Anuncio', 'Preview · Details to be announced': 'Anuncio · Detalles por anunciar', 'Venue to be announced': 'Lugar por anunciar', 'Venue': 'Lugar', 'ORG': 'ORG', 'Organizer': 'Organizador', 'Address': 'Dirección', 'City': 'Ciudad', 'Time': 'Horario', 'Fee': 'Entrada',
+    'Preview': 'Anuncio', 'Details to be announced': 'Detalles por anunciar', 'Preview · Details to be announced': 'Anuncio · Detalles por anunciar', 'Venue to be announced': 'Lugar por anunciar', 'Venue': 'Lugar', 'ORG': 'ORG', 'Organizer': 'Organizador', 'Address': 'Dirección', 'City': 'Ciudad', 'Time': 'Horario', 'Fee': 'Entrada',
     'Notes': 'Notas', 'Note': 'Nota', 'Notice': 'Aviso', 'Notice ›': 'Aviso ›', 'More': 'Más', 'Less': 'Menos', 'Collapse ⌃': 'Contraer ⌃',
     'Links': 'Enlaces', 'Website': 'Sitio web', 'Event website': 'Sitio del evento', 'Video': 'Video', 'Register': 'Inscribirse',
     'Details': 'Detalles', 'Event details': 'Detalles del evento', 'Phone': 'Teléfono', 'Email': 'Correo', 'WeChat': 'WeChat',
@@ -207,7 +207,7 @@
     [/^(.+): back to top to change city$/, function (m) { return city(m[1]) + ': vuelve arriba para cambiar de ciudad'; }],
     [/^☆ (\d+) saved events?$/, function (m) { return '☆ ' + m[1] + (m[1] === '1' ? ' evento guardado' : ' eventos guardados'); }],
     [/^(\d+) saved events?$/, function (m) { return m[1] + (m[1] === '1' ? ' evento guardado' : ' eventos guardados'); }],
-    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop) (\d{4}\/\d{2}\/\d{2})$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
+    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
     [/^WeChat ID: (.+)$/, function (m) { return 'ID de WeChat: ' + m[1]; }],
     [/^WeChat Official Account: (.+)$/, function (m) { return 'Cuenta oficial de WeChat: ' + m[1]; }],
     [/^WeChat Channels: (.+)$/, function (m) { return 'Canales de WeChat: ' + m[1]; }],
