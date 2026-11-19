@@ -117,9 +117,16 @@ class T(unittest.TestCase):
     def new_card(self, **kw):
         n = {"id": "E900", "kind": "event", "type": "milonga", "name": "New Milonga", "city": "Shanghai",
              "region": "China", "start": "2026-11-29", "end": "2026-11-29", "time": "20:00–24:00",
-             "venue": "Studio 9", "venue_address": "上海市某路9号", "source": "主办海报"}
+             "venue": "Studio 9", "venue_address": "上海市某路9号", "source": "主办海报",
+             "contacts": {"wechat_id": "studio9"}}
         n.update(kw)
         return n
+
+    def test_new_card_without_contact_or_link_waits(self):
+        n = self.new_card(contacts={})
+        ok, why, _ = self.run_check(self.cards() + [n], core_extra={'E900'})
+        self.assertFalse(ok)
+        self.assertTrue(any('联络方式' in w for w in why), why)
 
     def test_new_china_card_goes_live(self):
         ok, why, _ = self.run_check(self.cards() + [self.new_card()], core_extra={'E900'})

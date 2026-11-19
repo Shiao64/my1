@@ -37,9 +37,23 @@ def main():
         if n > limit:
             rows.append((n, e['id'], e.get('name_zh') or e.get('name') or '', e.get('city') or '', ', '.join(e.get('organizers') or []), d))
     rows.sort(reverse=True)
+    # 2026-11-20 (Shiao): cards with no contact and no link show an orange warning on the card; list them too
+    noreach = []
+    for e in ev:
+        if e.get('hidden') or e.get('preview'):
+            continue
+        if (e.get('country') or e.get('region')) not in CN and e.get('region') not in CN:
+            continue
+        if e.get('kind') == 'event' and (e.get('end') or e.get('start') or '9999') < today.isoformat():
+            continue
+        c = e.get('contacts') or {}
+        hc = bool(c) if isinstance(c, list) else any(str(v or '').strip() for v in c.values())
+        hl = any(v for v in (e.get('links') or {}).values())
+        if not hc and not hl:
+            noreach.append((e['id'], e.get('name_zh') or e.get('name') or '', e.get('city') or '', e.get('venue_address') or '（无地址）'))
     old = [r for r in rows if r[0] > 120]
     mid = [r for r in rows if r[0] <= 120]
-    out = [f'# 快过期的活动卡（{today.isoformat()} 生成）', '',
+    out = [f'# 快过期、资料不完整的活动卡（{today.isoformat()} 生成）', '',
            f'资料超过 {limit} 天没有确认或更新的卡。自动生成，每月 1 号更新，不要手改。', '',
            '**探戈助理**：去主办的公众号、朋友圈、微信群找最近的活动消息。确认还在办，就交一份答复（`data/inbox/`），写「<卡号> 仍在办，依据：……」，Claude 会把这张卡的 `updated` 改成当天；有新海报就一起附上。查不到就写「查不到」，不要猜。', '']
     def table(title, rs):
@@ -52,9 +66,18 @@ def main():
         out.append('')
     table('61–120 天：请探戈助理确认', mid)
     table('超过 120 天：可能已停办，请 Shiao 决定隐藏还是保留', old)
+    out.append(f'## 没有联络方式也没有链接（{len(noreach)} 张）'); out.append('')
+    out.append('卡上显示橙色「⚠ 资料不完整，没有联络方式，请勿专程前往」。**探戈助理**：找主办名字、微信／电话／邮箱，或公众号、网站链接，交答复补上；补齐后提示自动消失。地址不完整（没有路名门牌）的也一起补。'); out.append('')
+    if noreach:
+        out.append('| 卡号 | 名称 | 城市 | 地址 |'); out.append('|---|---|---|---|')
+        for i, nm, c, a in noreach:
+            out.append(f'| {i} | {nm} | {c} | {a} |')
+    else:
+        out.append('无。')
+    out.append('')
     p = os.path.join(ROOT, 'data', 'stale-cards.md')
     open(p, 'w', encoding='utf-8').write('\n'.join(out))
-    print(f'{len(rows)} stale cards ({len(old)} over 120 days) -> data/stale-cards.md')
+    print(f'{len(rows)} stale cards ({len(old)} over 120 days), {len(noreach)} without contact -> data/stale-cards.md')
 
 
 if __name__ == '__main__':

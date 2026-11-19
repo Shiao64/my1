@@ -102,7 +102,7 @@ jobs:
                  工具会备份旧海报、产缩图、改 poster 等字段，并按海报改卡上的 DJ。被工具拒绝（例如大型活动、工作坊、对不上）就不换，写进「要 Shiao 确认」。
                  用 git mv 移答复时，海报原图也一起移到 done/（工具已经复制了一份到 images/）。
             3. 线上没有这张卡：
-               - 中国大陆或香港的活动，资料齐全（名称、城市、日期或每周几、开始结束时间、场地名、地址、来源）就新建卡。
+               - 中国大陆或香港的活动，资料齐全（名称、城市、日期或每周几、开始结束时间、场地名、完整地址（路名门牌或查得到的场地）、来源，加上至少一种联络方式或链接，Shiao 11/20）就新建卡；缺联络方式和链接的不建卡，写进「要 Shiao 确认」。
                  照现有同类卡的写法：单次活动 id 用下一个 E 编号（kind "event"；日常类的舞会／练习加
                  "regular_oneoff":true,"oneoff_kind":"oneoff"），每周活动用下一个 R 编号（kind "weekly"，weekday/weekdays，0＝周日）。
                  type 只能用 milonga / practilonga / practica / festival / marathon / weekend / anniversary / workshop / encuentro。
