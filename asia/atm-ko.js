@@ -58,7 +58,7 @@
     'No listings match these filters.': '조건에 맞는 이벤트가 없습니다.', 'All cities · Special events by start date': '모든 도시 · 스페셜 이벤트 (시작일순)',
     'Weekly milonga · This week\'s theme': '매주 밀롱가 · 이번 주 테마', 'TBA': '미정',
     /* card */
-    'Preview': '예고', 'Details to be announced': '자세한 내용은 추후 공개', 'Preview · Details to be announced': '예고 · 자세한 내용은 추후 공개', 'Venue to be announced': '장소 추후 공개', 'Venue': '장소', 'ORG': '주최', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
+    'Preview': '예고', 'Details to be announced': '자세한 내용은 추후 공개', 'Preview · Details to be announced': '예고 · 자세한 내용은 추후 공개', 'Venue to be announced': '장소 추후 공개', 'Venue': '장소', 'ORG': '주최', 'Info': '정보', 'Organizer': '주최자', 'Address': '주소', 'City': '도시', 'Time': '시간', 'Fee': '요금',
     'Notes': '참고', 'Note': '참고', 'Notice': '공지', 'More': '더 보기', 'Less': '접기', 'Collapse ⌃': '접기 ⌃',
     'Links': '링크', 'Website': '웹사이트', 'Event website': '이벤트 웹사이트', 'Video': '영상', 'Register': '등록',
     'Details': '상세', 'Event details': '이벤트 상세', 'Phone': '전화', 'Email': '이메일', 'WeChat': '위챗',
@@ -185,6 +185,7 @@
   function tail(s) { return s.split(' · ').map(function (p, i) { return i ? (CITY[p] || TYPE[p] || S[p] || p) : p; }).join(' · '); }
 
   var P = [
+    [/^(Updated|Confirmed by organizer) (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { var w = m[2] === 'today' ? '오늘' : m[2] === 'yesterday' ? '어제' : m[3] ? m[3] + '일 전' : m[4]; return m[1] === 'Updated' ? w + ' 업데이트' : '주최자 확인 · ' + w; }],
     [new RegExp('^(Today · )?(' + WDK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return (m[1] ? '오늘 · ' : '') + m[3] + ' (' + WD[m[2]] + ')'; }],
     [new RegExp('^(' + WDLK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return m[2] + ' (' + WDL[m[1]] + ')'; }],
     [new RegExp('^Every other (' + WDK + '|' + WDLK + ')\\b(.*)$'), function (m) { return '격주 ' + (WD[m[1]] ? WD[m[1]] + '요일' : WDL[m[1]]) + tail(m[2]); }],

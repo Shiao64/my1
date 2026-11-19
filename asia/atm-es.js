@@ -62,7 +62,7 @@
     'No listings match these filters.': 'No hay eventos con estos filtros.', 'All cities · Special events by start date': 'Todas las ciudades · Eventos especiales por fecha de inicio',
     'Weekly milonga · This week\'s theme': 'Milonga semanal · Tema de esta semana', 'TBA': 'Por confirmar',
     /* card */
-    'Preview': 'Anuncio', 'Details to be announced': 'Detalles por anunciar', 'Preview · Details to be announced': 'Anuncio · Detalles por anunciar', 'Venue to be announced': 'Lugar por anunciar', 'Venue': 'Lugar', 'ORG': 'ORG', 'Organizer': 'Organizador', 'Address': 'Dirección', 'City': 'Ciudad', 'Time': 'Horario', 'Fee': 'Entrada',
+    'Preview': 'Anuncio', 'Details to be announced': 'Detalles por anunciar', 'Preview · Details to be announced': 'Anuncio · Detalles por anunciar', 'Venue to be announced': 'Lugar por anunciar', 'Venue': 'Lugar', 'ORG': 'ORG', 'Info': 'Información', 'Organizer': 'Organizador', 'Address': 'Dirección', 'City': 'Ciudad', 'Time': 'Horario', 'Fee': 'Entrada',
     'Notes': 'Notas', 'Note': 'Nota', 'Notice': 'Aviso', 'Notice ›': 'Aviso ›', 'More': 'Más', 'Less': 'Menos', 'Collapse ⌃': 'Contraer ⌃',
     'Links': 'Enlaces', 'Website': 'Sitio web', 'Event website': 'Sitio del evento', 'Video': 'Video', 'Register': 'Inscribirse',
     'Details': 'Detalles', 'Event details': 'Detalles del evento', 'Phone': 'Teléfono', 'Email': 'Correo', 'WeChat': 'WeChat',
@@ -192,6 +192,7 @@
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   var P = [
+    [/^(Updated|Confirmed by organizer) (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { var w = m[2] === 'today' ? 'hoy' : m[2] === 'yesterday' ? 'ayer' : m[3] ? 'hace ' + m[3] + ' días' : 'el ' + m[4]; return (m[1] === 'Updated' ? 'Actualizado ' : 'Confirmado por el organizador ') + w; }],
     [new RegExp('^(Today · )?(' + WDK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return (m[1] ? 'Hoy · ' : '') + WD[m[2]] + ' ' + dm(m[3]); }],
     [new RegExp('^(' + WDLK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return cap(WDL[m[1]]) + ' ' + dm(m[2]); }],
     [new RegExp('^Every other (' + WDK + '|' + WDLK + ')\\b(.*)$'), function (m) { return cap(WDP[m[1]]) + ' alternos' + tail(m[2]); }],
