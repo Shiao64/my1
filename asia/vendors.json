@@ -1,0 +1,52 @@
+[
+  {
+    "id": "sample-shoes",
+    "sample": true,
+    "kind": "shoes",
+    "name": "Sample Tango Shoes",
+    "name_zh": "示例鞋店",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "tags": ["Women's shoes", "Men's shoes", "Practice shoes"],
+    "tags_zh": ["女鞋", "男鞋", "练习鞋"],
+    "logo": "/images/shop/sample/shoe-logo.webp",
+    "bio": "Sample text. A short introduction to the brand goes here: when it started, who makes the shoes, what makes them special (handmade, suede soles, custom sizes), and who they are for.",
+    "bio_zh": "示例文字。这里放品牌简介：什么时候开始、谁在做鞋、有什么特色（手工、麂皮底、可定制尺码），适合什么样的舞者。",
+    "price": "¥680–1,280",
+    "sizes": "EU 34–42 (women), EU 38–46 (men). Custom sizes available.",
+    "sizes_zh": "女鞋 34–42 码，男鞋 38–46 码（欧码），可定制。",
+    "products": [
+      {"name": "Sample heel 7 cm", "name_zh": "示例高跟鞋 7 公分", "price": "¥880", "photo": "/images/shop/sample/shoe-1.webp"},
+      {"name": "Sample heel 9 cm", "name_zh": "示例高跟鞋 9 公分", "price": "¥980", "photo": "/images/shop/sample/shoe-2.webp"},
+      {"name": "Sample men's shoe", "name_zh": "示例男鞋", "price": "¥1,080", "photo": "/images/shop/sample/shoe-3.webp"},
+      {"name": "Sample practice shoe", "name_zh": "示例练习鞋", "price": "¥680", "photo": "/images/shop/sample/shoe-4.webp"}
+    ],
+    "buy": {"wechat": "sample_wechat", "taobao": "", "instagram": "", "website": "", "ships_abroad": "Ask the seller", "ships_abroad_zh": "请问卖家"},
+    "events": ["E164"]
+  },
+  {
+    "id": "sample-dress",
+    "sample": true,
+    "kind": "clothing",
+    "name": "Sample Tango Wear",
+    "name_zh": "示例服装",
+    "city": "Beijing",
+    "city_zh": "北京",
+    "tags": ["Dresses", "Skirts", "Men's wear"],
+    "tags_zh": ["连衣裙", "半身裙", "男装"],
+    "logo": "/images/shop/sample/dress-logo.webp",
+    "bio": "Sample text. A short introduction to the designer and the clothes goes here: fabrics, style, made-to-measure or ready-to-wear.",
+    "bio_zh": "示例文字。这里放设计师和衣服的简介：面料、风格、是量身定做还是现成款。",
+    "price": "¥480–1,680",
+    "sizes": "S–XL. Made-to-measure available.",
+    "sizes_zh": "S–XL，可量身定做。",
+    "products": [
+      {"name": "Sample dress", "name_zh": "示例连衣裙", "price": "¥1,280", "photo": "/images/shop/sample/dress-1.webp"},
+      {"name": "Sample skirt", "name_zh": "示例半身裙", "price": "¥680", "photo": "/images/shop/sample/dress-2.webp"},
+      {"name": "Sample top", "name_zh": "示例上衣", "price": "¥480", "photo": "/images/shop/sample/dress-3.webp"},
+      {"name": "Sample men's shirt", "name_zh": "示例男士衬衫", "price": "¥580", "photo": "/images/shop/sample/dress-4.webp"}
+    ],
+    "buy": {"wechat": "sample_wechat", "taobao": "", "instagram": "", "website": "", "ships_abroad": "Ask the seller", "ships_abroad_zh": "请问卖家"},
+    "events": ["E164"]
+  }
+]
