@@ -84,11 +84,17 @@ function rebuild(dt){ var li=dt.closest('.ev-card'), inn=dt.querySelector('.b-in
  if(L.video) A(L.video, zh?'视频':'Video');
  var CH=L.wechat_channels; if(CH&&(CH.name||CH.id)) lk.push('<span>'+(zh?'微信视频号：':'WeChat Channels: ')+H([CH.name, CH.id?((zh?'视频号 ID ':'video account ID ')+CH.id):''].filter(Boolean).join(' · '))+'</span>'); /* v12.2 */
  row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links');
+ R.push(p10fresh(e)); /* 2026-11-19 data trust */
  inn.innerHTML=R.join(''); }
 document.addEventListener('toggle',function(ev){ var dt=ev.target; if(!dt.classList||!dt.classList.contains('b-more')) return; var inn=dt.querySelector('.b-in')||dt;
  if(dt.open){ rebuild(dt); dt.querySelectorAll('.b-note>span').forEach(function(sp){ sp.classList.add('b-open'); }); if(!inn.querySelector(':scope>.b-less')){ var b=document.createElement('button'); b.type='button'; b.className='b-less'; b.textContent=zh?'收起':'Less'; b.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); dt.open=false; var c=dt.closest('.ev-card')||dt, r=c.getBoundingClientRect(); if(r.top<0) c.scrollIntoView({block:'start'}); }); inn.appendChild(b); var li=dt.closest('.ev-card'), e=EV&&li&&EV[li.dataset.id], raw=e&&((typeof e.detail==='string'&&e.detail)?(e.detail.charAt(0)==='/'?'https://tangoweekend.org'+e.detail:e.detail):(e.links&&e.links.other)||''), m=raw&&String(raw).match(/^https?:\/\/(?:www\.)?tangoweekend\.org\/event\/([^\/?#]+)\/?(?:[^?#]*)?(?:#([A-Za-z0-9_-]+))?$/); if(m){ var a=document.createElement('a'); a.className='b-det'; a.href='/event/'+m[1]+'/'+(zh?'zh/':'')+'?from='+encodeURIComponent(li.dataset.id)+(m[2]?'#'+m[2]:''); a.textContent=zh?'活动详情':'Event details'; inn.insertBefore(a,b); } } }
 },true);
 function k(l){return (l.querySelector('.ev-k')||{}).textContent||''}
+/* 2026-11-19 (direction doc: data trust): how fresh the card is. confirmed = organizer confirmed (weekly mail, later); else updated = ATM last edited it. */
+function p10fresh(e){ var d=String(e.confirmed||e.updated||'').slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(d)) return ''; var t=new Date(), today=Date.UTC(t.getFullYear(),t.getMonth(),t.getDate()), dd=Date.UTC(+d.slice(0,4),+d.slice(5,7)-1,+d.slice(8,10)), n=Math.round((today-dd)/864e5); if(n<0) n=0;
+  var ago=n===0?(zh?'今天':'today'):n===1?(zh?'昨天':'yesterday'):n<=30?(zh?n+' 天前':n+' days ago'):(String(t.getFullYear())===d.slice(0,4)?d.slice(5).replace('-','/'):d.replace(/-/g,'/'));
+  var v=e.confirmed?(zh?'主办'+ago+'确认':'Confirmed by organizer '+ago):(zh?ago+'更新':'Updated '+ago);
+  return '<div class="b-row p10-row atm-fresh"><b class="p10-k">'+(zh?'资料':'Info')+'</b><span>'+H(v)+'</span></div>'; }
 /* 2026-11-19 (Shiao): multi-day date range for the card label; category word for cards with no type (preview cards) */
 function p10range(a,b){ var f=function(x){return x.replace(/-/g,'/')}; if(!b||a===b) return f(a); return f(a)+'–'+(a.slice(0,4)===b.slice(0,4)?f(b.slice(5)):f(b)); }
 function p10catName(n){ n=String(n||''); if(/周年|週年|aniversario|anniversary/i.test(n)) return zh?'周年庆':'Anniversary'; if(/workshop|intensivo|masterclass|seminar|工作坊|大师课|大師課/i.test(n)) return zh?'工作坊':'Workshop'; if(/marathon|马拉松|馬拉松/i.test(n)) return zh?'马拉松':'Marathon'; if(/weekend|encuentro|周末|週末/i.test(n)) return zh?'周末':'Weekend'; if(/festival|探戈节|探戈節|嘉年华|嘉年華/i.test(n)) return zh?'探戈节':'Festival'; return ''; }
@@ -196,6 +202,7 @@ function p10rows(e, faceVenue, faceDj){ var R=[], row=function(l,v,c){ if(v) R.p
   var CH=L.wechat_channels; if(CH&&(CH.name||CH.id)) lk.push('<span>'+(zh?'微信视频号：':'WeChat Channels: ')+H([CH.name, CH.id?((zh?'视频号 ID ':'video account ID ')+CH.id):''].filter(Boolean).join(' · '))+'</span>'); /* v12.2 */
   row(zh?'链接':'Links', lk.join('<span class="b-lsep"> · </span>'), 'b-links'); /* v11.8b: P10 links get the ↗ marker too */
   if(keep.length) row(zh?'备注':'Note', H(keep.join(zh?'':' ')));
+  R.push(p10fresh(e)); /* 2026-11-19 data trust: 资料 X 天前更新 */
   if(e.preview){
     if(!ad.length){
       R.unshift('<div class="b-row p10-row atm-preview-venue"><b class="p10-k">'+(zh?'场地':'Venue')+'</b><span>'+H(zh?'场地待公布':'Venue to be announced')+'</span></div>');
