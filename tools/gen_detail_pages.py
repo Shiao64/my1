@@ -94,7 +94,7 @@ def page(e, slug, zh):
             ('<p class="meta">' + ('资料来源：' if zh else 'Source: ') + E(src) + (('，更新 ' if zh else ', updated ') + E(e['updated']) if e.get('updated') else '') + ('。详情请向主办方确认。' if zh else '. Please confirm details with the organizer.') + '</p>') if src else ''))
     poster = e.get('poster')
     banner = f'<div class="cw-topbanner" id="top" style="text-align:center"><img src="{pre}{E(poster.lstrip("/"))}" alt="{E(title)}" fetchpriority="high" style="max-width:min(100%,560px);height:auto"></div>' if poster and os.path.exists(os.path.join(ROOT, poster.lstrip('/'))) else ''
-    px = [x for x in (e.get('posters_extra') or []) if os.path.exists(os.path.join(ROOT, x['src'].lstrip('/')))]
+    px = [x for x in (e.get('posters_extra') or []) if os.path.exists(os.path.join(ROOT, x['src'].lstrip('/'))) and x.get('lang') in (None, 'zh' if zh else 'en')]  # lang: zh / en only (2026-11-19)
     if px:
         nav.append(('posters', '海报' if zh else 'Posters'))
         secs.append('<section class="alt"><div class="wrap"><h2 id="posters" class="sec-title">%s</h2><div class="gs-photos ev-posters">%s</div><style>.ev-posters{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0 6px}.ev-posters figure{margin:0}.ev-posters img{width:100%%;height:auto;border-radius:10px;display:block}.ev-posters figcaption{font-size:.82rem;opacity:.75;margin-top:6px;text-align:center}</style></div></section>' % ('海报' if zh else 'Posters', ''.join(('<h3 style="grid-column:1/-1;margin:14px 0 0">%s</h3>' % E((x.get('group_zh') if zh else None) or x['group']) if x.get('group') and (i==0 or px[i-1].get('group')!=x['group']) else '') + '<figure><a href="%s%s" target="_blank" rel="noopener"><img src="%s%s" alt="%s" loading="lazy"></a><figcaption>%s</figcaption></figure>' % (pre, E(x['src'].lstrip('/')), pre, E(x['src'].lstrip('/')), E(x.get('caption_zh') if zh else x.get('caption','')), E((x.get('caption_zh') if zh else None) or x.get('caption',''))) for i, x in enumerate(px))))
@@ -129,7 +129,7 @@ def page(e, slug, zh):
 <section class="alt"><div class="wrap"><p class="meta" style="text-align:center">{E(meta)}</p><h2 class="sec-title" style="text-align:center">{E(title)}</h2></div></section>{''.join(secs)}
 <footer><div class="wrap"></div></footer>
 <script>(function(){{var btn=document.querySelector('.nav-toggle'),header=document.querySelector('.site-header');if(!btn||!header)return;btn.addEventListener('click',function(){{var o=header.classList.toggle('is-open');btn.setAttribute('aria-expanded',o);}});header.querySelectorAll('.main-nav a').forEach(function(a){{a.addEventListener('click',function(){{header.classList.remove('is-open');btn.setAttribute('aria-expanded',false);}});}});}})();</script>
-<script src="{pre}asia/atm-detail.js?v=d10"></script>
+<script src="{pre}asia/atm-detail.js?v=d11"></script>
 </body>
 </html>
 '''
