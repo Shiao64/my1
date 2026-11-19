@@ -1,0 +1,47 @@
+name: Monthly stale-card list
+
+# 2026-11-20 (Shiao, direction doc: data trust): on the 1st of each month, list cards
+# whose info is over 60 days old in data/stale-cards.md (tools/stale_cards.py).
+# 探戈助理 reads it and checks the organizers' latest posts (data/inbox/README.md).
+# Only that one file changes; event data is not touched, so no R2 sync is needed.
+# Manual run: Actions -> "Monthly stale-card list" -> Run workflow.
+
+on:
+  schedule:
+    - cron: '13 1 1 * *'   # 09:13 Beijing time, 1st of the month
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stale-cards
+  cancel-in-progress: false
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Write list, commit to main
+        run: |
+          TODAY=$(TZ=Asia/Shanghai date +%F)
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            python3 tools/stale_cards.py --today=$TODAY
+            git checkout -- tools/__pycache__/ 2>/dev/null || true
+            git clean -fdq tools/__pycache__/ 2>/dev/null || true
+            git add data/stale-cards.md
+            if git diff --cached --quiet; then echo "no change"; exit 0; fi
+            git commit -qm "Monthly stale-card list ($TODAY)"
+            if git push origin HEAD:main; then exit 0; fi
+            sleep $((i * 15))
+          done
+          exit 1
