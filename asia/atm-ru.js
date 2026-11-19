@@ -70,7 +70,7 @@
     'No listings match these filters.': 'Нет событий по этим фильтрам.', 'All cities · Special events by start date': 'Все города · Особые события по дате начала',
     'Weekly milonga · This week\'s theme': 'Еженедельная милонга · Тема недели', 'TBA': 'Уточняется',
     /* card */
-    'Preview': 'Анонс', 'Preview · Details to be announced': 'Анонс · Подробности позже', 'Venue to be announced': 'Место уточняется', 'Venue': 'Место', 'ORG': 'ОРГ', 'Organizer': 'Организатор', 'Address': 'Адрес', 'City': 'Город', 'Time': 'Время', 'Fee': 'Вход',
+    'Preview': 'Анонс', 'Details to be announced': 'Подробности позже', 'Preview · Details to be announced': 'Анонс · Подробности позже', 'Venue to be announced': 'Место уточняется', 'Venue': 'Место', 'ORG': 'ОРГ', 'Organizer': 'Организатор', 'Address': 'Адрес', 'City': 'Город', 'Time': 'Время', 'Fee': 'Вход',
     'Notes': 'Примечания', 'Note': 'Примечание', 'Notice': 'Объявление', 'Notice ›': 'Объявление ›', 'More': 'Подробнее', 'Less': 'Свернуть', 'Collapse ⌃': 'Свернуть ⌃',
     'Links': 'Ссылки', 'Website': 'Сайт', 'Event website': 'Сайт события', 'Video': 'Видео', 'Register': 'Регистрация',
     'Details': 'Подробности', 'Event details': 'О событии', 'Phone': 'Телефон', 'Email': 'Почта', 'WeChat': 'WeChat',
@@ -218,7 +218,7 @@
     [/^(.+): back to top to change city$/, function (m) { return city(m[1]) + ': вернитесь наверх, чтобы сменить город'; }],
     [/^☆ (\d+) saved events?$/, function (m) { return '☆ ' + m[1] + ' ' + plural(m[1], 'событие', 'события', 'событий') + ' в избранном'; }],
     [/^(\d+) saved events?$/, function (m) { return m[1] + ' ' + plural(m[1], 'событие', 'события', 'событий') + ' в избранном'; }],
-    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop) (\d{4}\/\d{2}\/\d{2})$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
+    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
     [/^WeChat ID: (.+)$/, function (m) { return 'WeChat ID: ' + m[1]; }],
     [/^WeChat Official Account: (.+)$/, function (m) { return 'Официальный аккаунт WeChat: ' + m[1]; }],
     [/^WeChat Channels: (.+)$/, function (m) { return 'Каналы WeChat: ' + m[1]; }],
