@@ -22,7 +22,12 @@ button,input,select,textarea{font:inherit}
 .china-map-hero h1 a,.top-lang a{color:var(--gold-300);text-decoration:none}
 .atm-beta{font:600 11px/16px var(--sans);border:1px solid var(--line-gold);border-radius:999px;padding:0 6px;margin-left:6px;vertical-align:middle;display:inline-block}
 html.atm-notice-ack #atm-notice{display:none!important}
+/* 2026-11-19: until atm-critical.css has loaded, show only the cream page and a plain teal bar (no flash of half-styled links). Revealed by the stylesheet's onload, or after 4 s at the latest. */
+html:not(.atm-css) body.china-page>*{visibility:hidden!important}
+html:not(.atm-css) body.china-page::before{content:"";display:block;height:56px;background:linear-gradient(180deg,#0E6E78,#0B5C64)}
 </style>
+<noscript><style>html body.china-page>*{visibility:visible!important}html body.china-page::before{display:none!important}</style></noscript>
+<script>setTimeout(function(){document.documentElement.classList.add('atm-css')},4000);</script>
 <script id="atm-notice-gate">
 /* atm-notice-gate: true means show. sessionStorage is this tab only. */
 window.atmNoticeGate=function(storage,perf){
@@ -50,7 +55,7 @@ window.atmNoticeGate=function(storage,perf){
   }catch(e){}
 })();
 </script>
-<link rel="stylesheet" href="../../asia/atm-critical.css?v=ac7" media="print" onload="this.media='all';try{window.atmArmImages&&window.atmArmImages(document)}catch(e){}">
+<link rel="stylesheet" href="../../asia/atm-critical.css?v=ac7" media="print" onload="this.media='all';document.documentElement.classList.add('atm-css');try{window.atmArmImages&&window.atmArmImages(document)}catch(e){}">
 <noscript><link rel="stylesheet" href="../../asia/atm-critical.css?v=ac7"></noscript>
 <link rel="preconnect" href="https://data.tangoweekend.org" crossorigin>
 <script>
