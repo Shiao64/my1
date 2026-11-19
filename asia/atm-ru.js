@@ -70,7 +70,7 @@
     'No listings match these filters.': 'Нет событий по этим фильтрам.', 'All cities · Special events by start date': 'Все города · Особые события по дате начала',
     'Weekly milonga · This week\'s theme': 'Еженедельная милонга · Тема недели', 'TBA': 'Уточняется',
     /* card */
-    'Preview': 'Анонс', 'Details to be announced': 'Подробности позже', 'Preview · Details to be announced': 'Анонс · Подробности позже', 'Venue to be announced': 'Место уточняется', 'Venue': 'Место', 'ORG': 'ОРГ', 'Info': 'Информация', 'Organizer': 'Организатор', 'Address': 'Адрес', 'City': 'Город', 'Time': 'Время', 'Fee': 'Вход',
+    'Preview': 'Анонс', 'Details to be announced': 'Подробности позже', 'Preview · Details to be announced': 'Анонс · Подробности позже', 'Venue to be announced': 'Место уточняется', 'Venue': 'Место', 'ORG': 'ОРГ', 'Info': 'Информация', 'please check with the organizer': 'уточните у организатора', 'Not updated for a long time; it may have stopped': 'Давно не обновлялось — возможно, больше не проводится', 'Organizer': 'Организатор', 'Address': 'Адрес', 'City': 'Город', 'Time': 'Время', 'Fee': 'Вход',
     'Notes': 'Примечания', 'Note': 'Примечание', 'Notice': 'Объявление', 'Notice ›': 'Объявление ›', 'More': 'Подробнее', 'Less': 'Свернуть', 'Collapse ⌃': 'Свернуть ⌃',
     'Links': 'Ссылки', 'Website': 'Сайт', 'Event website': 'Сайт события', 'Video': 'Видео', 'Register': 'Регистрация',
     'Details': 'Подробности', 'Event details': 'О событии', 'Phone': 'Телефон', 'Email': 'Почта', 'WeChat': 'WeChat',
@@ -202,7 +202,8 @@
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   var P = [
-    [/^(Updated|Confirmed by organizer) (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { var w = m[2] === 'today' ? 'сегодня' : m[2] === 'yesterday' ? 'вчера' : m[3] ? m[3] + ' дн. назад' : m[4]; return (m[1] === 'Updated' ? 'Обновлено ' : 'Подтверждено организатором ') + w; }],
+    [/^Updated (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { return 'Обновлено ' + (m[1] === 'today' ? 'сегодня' : m[1] === 'yesterday' ? 'вчера' : m[2] ? m[2] + ' дн. назад' : m[3]); }],
+    [/^Confirmed by organizer (today|yesterday|(\d+) days ago)$/, function (m) { return 'Подтверждено организатором ' + (m[1] === 'today' ? 'сегодня' : m[1] === 'yesterday' ? 'вчера' : m[2] + ' дн. назад'); }],
     [new RegExp('^(Today · )?(' + WDK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return (m[1] ? 'Сегодня · ' : '') + WD[m[2]] + ' ' + dm(m[3]); }],
     [new RegExp('^(' + WDLK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return cap(WDL[m[1]]) + ' ' + dm(m[2]); }],
     [new RegExp('^Every other (' + WDK + '|' + WDLK + ')\\b(.*)$'), function (m) { return 'Раз в две недели ' + PO[m[1].slice(0, 3)] + rest(m[2]); }],
