@@ -335,3 +335,10 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootArm);
   else bootArm();
 })(window);
+/* 2026-11-19 (speed on mobile data): register /sw.js for every visitor (it was only registered for push opt-in), so files with ?v= are kept on the phone. Page HTML is not cached. */
+(function () {
+  if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+  function reg() { navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function () {}); }
+  if (document.readyState === 'complete') setTimeout(reg, 1500);
+  else window.addEventListener('load', function () { setTimeout(reg, 1500); });
+})();
