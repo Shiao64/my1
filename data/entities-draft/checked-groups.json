@@ -1,0 +1,434 @@
+{
+ "_note": "人工核对表（Google Drive「ATM 北京／上海 场地、团体、组织者 人工核对表」）里团体页的结果，2026-11-18 读入。北京由 Shiao 核对，上海由 Sam 核对（只核了团体页）。tools/draft_entities.py 不读这个文件，也不会盖掉它；联络方式以网站卡片为准，这里不重复写。",
+ "groups": [
+  {
+   "city": "Beijing",
+   "sheet_id": "G001",
+   "name_local": "AS Tango阿根廷探戈学校",
+   "name_en": "AS Tango Argentine Tango School",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "思萌",
+    "大马"
+   ],
+   "venues": [
+    "AS Tango阿根廷探戈学校"
+   ],
+   "events": [
+    "wSeFVkSa",
+    "eRpBxkDC",
+    "E188"
+   ]
+  },
+  {
+   "city": "Beijing",
+   "sheet_id": "G002",
+   "name_local": "ATer Club",
+   "name_en": "ATer Club",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "呆呆"
+   ],
+   "venues": [
+    "ATer Club（华杰大厦 C座 7C2）"
+   ],
+   "events": [
+    "AtrSun01"
+   ]
+  },
+  {
+   "city": "Beijing",
+   "sheet_id": "新01",
+   "name_local": "Milonga V",
+   "name_en": "Milonga V",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "刘峥"
+   ],
+   "venues": [
+    "Tango by Ala House",
+    "香河园街道市民活动中心"
+   ],
+   "events": [
+    "GqufXmMX",
+    "AymclBjD"
+   ],
+   "note": "Practica V（AymclBjD）属于 Milonga V（Shiao 删掉了待确认的说明）"
+  },
+  {
+   "city": "Beijing",
+   "sheet_id": "新02",
+   "name_local": "MILONGAGA",
+   "name_en": "MILONGAGA",
+   "status": "confirmed",
+   "members": [
+    "刘峥",
+    "郭威"
+   ],
+   "venues": [
+    "金尚源瑜伽舞蹈室"
+   ],
+   "events": [
+    "R202"
+   ],
+   "note": "郭威（原写威士忌哥）；团体微信只留 beijingtango，whiskyge 是郭威个人微信",
+   "checked_by": "Shiao"
+  },
+  {
+   "city": "Beijing",
+   "sheet_id": "新03",
+   "name_local": "Tango by Ala House",
+   "name_en": "Tango by Ala House",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "富贵"
+   ],
+   "venues": [
+    "Tango by Ala House"
+   ],
+   "events": [
+    "NmkWjMxo"
+   ]
+  },
+  {
+   "city": "Beijing",
+   "sheet_id": "新04",
+   "name_local": "Tango Union West",
+   "name_en": "Tango Union West",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "勾陳",
+    "叶子"
+   ],
+   "venues": [
+    "Tango Union West"
+   ],
+   "events": [
+    "GxMrByRQ",
+    "m0A3Rbyv"
+   ]
+  },
+  {
+   "city": "Beijing",
+   "sheet_id": "新05",
+   "name_local": "Vida Mia Tango Club",
+   "name_en": "Vida Mia Tango Club",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "张研"
+   ],
+   "venues": [
+    "Vida Mia Club"
+   ],
+   "events": [
+    "ttLxDoyZ"
+   ]
+  },
+  {
+   "city": "Beijing",
+   "sheet_id": "新06",
+   "name_local": "15空间",
+   "name_en": "15 Space",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "Jackie"
+   ],
+   "venues": [
+    "15空间舞蹈生活馆（金尚源B1）"
+   ],
+   "events": [
+    "UiQphCjS"
+   ]
+  },
+  {
+   "city": "Beijing",
+   "sheet_id": "新07",
+   "name_local": "TAIFENGO",
+   "name_en": "TAIFENGO",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "台风"
+   ],
+   "venues": [
+    "金尚首层"
+   ],
+   "events": [
+    "R073"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新08",
+   "name_local": "Shanghai ESSA",
+   "name_en": "Shanghai ESSA",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "晓南（Maggie）",
+    "Lydia",
+    "Marco"
+   ],
+   "venues": [
+    "Tango Palace"
+   ],
+   "events": [
+    "ecyMAjFj"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "G058",
+   "name_local": "Milonga 1758",
+   "name_en": "Milonga 1758",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "Nam",
+    "Wing",
+    "Sissi Zheng"
+   ],
+   "venues": [
+    "康铂酒店-上海静安店"
+   ],
+   "events": [
+    "bQFvmIuY",
+    "XsFs5wm8"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新09",
+   "name_local": "探戈帮",
+   "name_en": "Tango Bang",
+   "status": "confirmed",
+   "checked_by": "Shiao",
+   "members": [
+    "Vivian Yeh"
+   ],
+   "venues": [
+    "永惠大厦A栋 1502室"
+   ],
+   "events": [
+    "DIVjezcE"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新10",
+   "name_local": "MiTango",
+   "name_en": "MiTango",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "members": [
+    "Shelley Hou"
+   ],
+   "venues": [
+    "华林大楼6层"
+   ],
+   "events": [
+    "6Pcl1YgL",
+    "KmgJxDKM",
+    "eEHzQBzu"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "G060",
+   "name_local": "Tangocool",
+   "name_en": "Tangocool",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "members": [
+    "Gaby"
+   ],
+   "venues": [
+    "泛太大厦5号楼三楼"
+   ],
+   "events": [
+    "JKQfiwMf"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新11",
+   "name_local": "Kai's Milonga / Te Amo",
+   "name_en": "Kai's Milonga / Te Amo",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "members": [
+    "Kai Wang"
+   ],
+   "venues": [
+    "Te Amo Tango Lounge",
+    "TeAmo / Paramount / Pampamia"
+   ],
+   "events": [
+    "DFBKYdPX",
+    "2tbfzeS7",
+    "E164"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "G056",
+   "name_local": "Infinity Tango",
+   "name_en": "Infinity Tango",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "venues": [
+    "茂名大厦313"
+   ],
+   "events": [
+    "QWdKPmum"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新12",
+   "name_local": "Los Gatos",
+   "name_en": "Los Gatos",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "venues": [
+    "陕西北路1438号1309"
+   ],
+   "events": [
+    "vhkQ2Ltw"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "G055",
+   "name_local": "麦克的探戈世界",
+   "name_en": "A.F.Mike",
+   "status": "unconfirmed",
+   "venues": [
+    "余姚路583号"
+   ],
+   "events": [
+    "R030"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "G057",
+   "name_local": "iTango",
+   "name_en": "iTango",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "venues": [
+    "Tango Palace"
+   ],
+   "events": [
+    "juGlRrW2"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新13",
+   "name_local": "Tango Dreamers Club / TD House",
+   "name_en": "Tango Dreamers Club",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "members": [
+    "正中",
+    "Pauline"
+   ],
+   "venues": [
+    "Tango Palace"
+   ],
+   "events": [
+    "LxcvweaE",
+    "izAYSxss"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新14",
+   "name_local": "探戈极限",
+   "name_en": "Tango Extremo",
+   "status": "merged",
+   "checked_by": "Sam",
+   "members": [
+    "Irene",
+    "Kaiser",
+    "Cindy"
+   ],
+   "venues": [
+    "茂名大厦313"
+   ],
+   "events": [
+    "rccbKIYP"
+   ],
+   "merged_into": "G056",
+   "note": "Sam：与 Infinity Tango 是同一个团体"
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新15",
+   "name_local": "猫猫探戈",
+   "name_en": "Mao Mao Tango",
+   "status": "unconfirmed",
+   "members": [
+    "Monica"
+   ],
+   "venues": [
+    "W BAR"
+   ],
+   "events": [
+    "R0E9XeyL"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新16",
+   "name_local": "Pampa Mia",
+   "name_en": "Pampa Mia",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "members": [
+    "PIPO YANG"
+   ],
+   "venues": [
+    "今潮舞荟"
+   ],
+   "events": [
+    "xXxB330r"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "新17",
+   "name_local": "More than Tango",
+   "name_en": "More than Tango",
+   "status": "confirmed",
+   "checked_by": "Sam",
+   "members": [
+    "Perni Peng",
+    "Maria Ines Bogado"
+   ],
+   "venues": [
+    "上海虹桥雅高翰悦阁酒店 3楼"
+   ],
+   "events": [
+    "WExJslMr"
+   ]
+  },
+  {
+   "city": "Shanghai",
+   "sheet_id": "G059",
+   "name_local": "Tango Palace",
+   "name_en": "Tango Palace",
+   "status": "unconfirmed",
+   "note": "也是场地，未确认是不是团体"
+  }
+ ]
+}
