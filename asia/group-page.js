@@ -98,17 +98,15 @@
 
     var mineList = events.filter(function (e) { return e && !e.hidden && mine(profile, e); });
     /* 2026-11-20 (Shiao): save the whole group with the star at top right (star only: a group has no date, so no 要参加/感兴趣).
-       atm_fav_groups_v1 = [{id,name,name_zh,photo,seen,added}]. Saving adds the group's current events to atm_fav_v1 (added = the ones that were not saved yet);
-       the map adds later events once (seen). Un-saving removes only the ones the group added. */
+       atm_fav_groups_v1 = [{id,name,name_zh,photo}]. Shiao 2026-11-20 later: saving a group saves only the group (its card in 收藏), not its events.
+       Un-saving still removes events an older version added for this group (added). */
     var GK = 'atm_fav_groups_v1';
     function gList() { try { var a = JSON.parse(localStorage.getItem(GK) || '[]'); return Array.isArray(a) ? a : []; } catch (x) { return []; } }
     function gOn() { return gList().some(function (g) { return g && g.id === profile.id; }); }
     function gSet(on) {
       var G = gList().filter(function (g) { return g && g.id !== profile.id; });
       if (on) {
-        var live = mineList.filter(function (e) { return e.kind === 'weekly' || (e.end || e.start || '') >= DAY; }), added = [], f = favs();
-        live.forEach(function (e) { if (f.indexOf(e.id) < 0) { setFav(e.id, true); added.push(e.id); } });
-        G.unshift({ id: profile.id, name: profile.name || '', name_zh: profile.name_zh || '', photo: profile.photo || '', seen: live.map(function (e) { return e.id; }), added: added });
+        G.unshift({ id: profile.id, name: profile.name || '', name_zh: profile.name_zh || '', photo: profile.photo || '' });
       } else {
         var old = gList().filter(function (g) { return g && g.id === profile.id; })[0];
         ((old && old.added) || []).forEach(function (fid) { setFav(fid, false); });
