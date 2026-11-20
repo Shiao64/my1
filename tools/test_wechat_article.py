@@ -78,6 +78,35 @@ def test_failure_is_written_not_raised():
         assert '读取失败：连不上' in open(p, encoding='utf-8').read()
 
 
+PICTURE_POST = r"""<html><head><meta property="og:title" content="【北京 Practica V】2026/11/21 周六练习场" /></head><body>
+<div id="js_content" style="visibility:hidden"></div>
+<script>var item_show_type = "8";
+window.cgiDataNew = { nick_name: JsDecode('Tango\x20V'), content_noencode: JsDecode('11\u6708 21\u65e5\x0a\x26lt;p\x26gt;15:00\x26lt;/p\x26gt;\x0a\u7535\u8bdd 13812345678'),
+picture_page_info_list: [{ cdn_url: 'https://mmbiz.qpic.cn/sz_mmbiz_jpg/abc/0?wx_fmt=jpeg', width: '1080' }] };</script></body></html>"""
+
+
+def test_picture_post():
+    url = 'https://mp.weixin.qq.com/s/_ODrpf5UJinDDllqhPiuBw'
+    pages = {url: PICTURE_POST, 'https://mmbiz.qpic.cn/sz_mmbiz_jpg/abc/0?wx_fmt=jpeg': picture(1080, 1440)}
+    with tempfile.TemporaryDirectory() as d:
+        p = md_file(d, url)
+        files = wa.process(p, fake(pages))
+        md = open(p, encoding='utf-8').read()
+        assert len(files) == 2, files
+        for x in ('公众号：Tango V', '11月 21日', '15:00', '（电话已隐藏）', '-wx1-1.jpg'):
+            assert x in md, (x, md)
+        assert '<p>' not in md and '13812345678' not in md
+
+
+def test_empty_page_is_a_failure():
+    url = 'https://mp.weixin.qq.com/s/x'
+    page = '<html><div id="js_content"></div><script>var item_show_type = "10";</script></html>'
+    with tempfile.TemporaryDirectory() as d:
+        p = md_file(d, url)
+        wa.process(p, fake({url: page}))
+        assert '读取失败：打开了页面，但没找到正文和图片（版式 item_show_type=10）' in open(p, encoding='utf-8').read()
+
+
 def test_no_link_no_change():
     with tempfile.TemporaryDirectory() as d:
         p = md_file(d, '只是谢谢')

@@ -97,9 +97,57 @@ def js_var(page, name):
     return html.unescape(m.group(1)).strip() if m else ''
 
 
+def js_decode(s):
+    """Undo JsDecode('...') / JS string escapes: \\xNN, \\uNNNN, \\n, \\'."""
+    s = re.sub(r'\\x([0-9a-fA-F]{2})', lambda m: chr(int(m.group(1), 16)), s)
+    s = re.sub(r'\\u([0-9a-fA-F]{4})', lambda m: chr(int(m.group(1), 16)), s)
+    s = s.replace('\\n', '\n').replace("\\'", "'").replace('\\"', '"').replace('\\/', '/')
+    return html.unescape(html.unescape(s))
+
+
+def strip_tags(s):
+    s = re.sub(r'<br\s*/?>|</p>|</div>|</section>', '\n', s, flags=re.I)
+    return re.sub(r'<[^>]+>', '', s)
+
+
+def fallback_text(page):
+    """Text of picture posts and other layouts without a filled js_content."""
+    found = []
+    for pat in (r"content_noencode\s*:\s*JsDecode\('((?:[^'\\]|\\.)*)'\)",
+                r'content_noencode\s*:\s*"((?:[^"\\]|\\.)*)"',
+                r"desc\s*:\s*JsDecode\('((?:[^'\\]|\\.)*)'\)",
+                r'var msg_desc\s*=\s*(?:htmlDecode\()?\s*"((?:[^"\\]|\\.)*)"'):
+        for m in re.finditer(pat, page):
+            t = strip_tags(js_decode(m.group(1))).strip()
+            if t and t not in found:
+                found.append(t)
+        if found:
+            break
+    if not found:
+        d = meta(page, 'og:description', 'description')
+        if d:
+            found.append(d)
+    t = '\n'.join(found)
+    return '\n'.join(x.strip() for x in t.split('\n') if x.strip())
+
+
+def fallback_images(page):
+    """Pictures listed in the page data (picture posts), then any mmbiz picture URL."""
+    urls = []
+    for pat in (r"cdn_url\s*:\s*(?:JsDecode\()?\s*['\"]([^'\"]+)['\"]",
+                r'(https?:(?:\\?/){2}mmbiz\.qpic\.cn(?:\\?/)[^"\'\s<>)]+)'):
+        for m in re.finditer(pat, page):
+            u = js_decode(m.group(1)).replace('\\/', '/')
+            if 'mmbiz.qpic.cn' in u and 'mmbiz_gif' not in u and u not in urls:
+                urls.append(u)
+        if urls:
+            break
+    return urls
+
+
 def parse(page):
     """-> dict(title, account, published, text, images) or raise ValueError with a reason."""
-    if 'js_content' not in page:
+    if 'js_content' not in page and 'content_noencode' not in page and 'picture_page_info_list' not in page:
         if '环境异常' in page or '完成验证' in page:
             raise ValueError('微信要求验证（环境异常），读不到')
         if '已被发布者删除' in page or '此内容因违规无法查看' in page or '该内容已被发布者删除' in page:
@@ -111,12 +159,26 @@ def parse(page):
     m = re.search(r'var ct\s*=\s*"(\d{9,})"', page) or re.search(r'create_time\s*[:=]\s*["\']?(\d{9,})', page)
     if m:
         published = time.strftime('%Y-%m-%d %H:%M', time.gmtime(int(m.group(1)) + 8 * 3600))
+    text, images = p.text(), p.images
+    if not text.replace('[图片]', '').strip():
+        text = fallback_text(page) or text
+    if not images:
+        images = fallback_images(page)
+    if not text.replace('[图片]', '').strip() and not images:
+        st = re.search(r'item_show_type\s*[:=]\s*["\']?(\d+)', page)
+        raise ValueError('打开了页面，但没找到正文和图片' + (f'（版式 item_show_type={st.group(1)}）' if st else ''))
+    nick = js_var(page, 'nickname') or js_var(page, 'nick_name')
+    if not nick:
+        m = re.search(r"nick_name\s*:\s*JsDecode\('([^']*)'\)", page) or \
+            re.search(r'class="profile_nickname"[^>]*>([^<]+)<', page) or \
+            re.search(r'id="js_name"[^>]*>\s*([^<]+?)\s*<', page)
+        nick = js_decode(m.group(1)).strip() if m else ''
     return {
         'title': meta(page, 'og:title', 'twitter:title') or js_var(page, 'msg_title'),
-        'account': js_var(page, 'nickname') or meta(page, 'og:article:author'),
+        'account': nick or meta(page, 'og:article:author'),
         'published': published,
-        'text': p.text(),
-        'images': p.images,
+        'text': text,
+        'images': images,
     }
 
 
