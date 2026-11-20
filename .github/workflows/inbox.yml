@@ -63,6 +63,13 @@ jobs:
       - name: Poster tool needs Pillow
         if: steps.new.outputs.count != '0'
         run: pip install -q pillow
+      - name: Read WeChat article links (tools/wechat_article.py)
+        if: steps.new.outputs.count != '0'
+        # A mail that is only a mp.weixin.qq.com link (Shiao 11/21): put the article's text and
+        # pictures into the answer before Claude reads it. Never fails the run.
+        run: |
+          python3 tools/wechat_article.py $(sed 's#^#data/inbox/#' /tmp/todo.txt) || echo "wechat read failed (not fatal)"
+          git status --short data/inbox/
       - uses: anthropics/claude-code-action@v1
         if: steps.new.outputs.count != '0'
         env:
@@ -107,6 +114,11 @@ jobs:
                组织者来信只会自动上线他自己的卡；信里提到别人的卡照样整理，但自动检查会让它等 Shiao 确认（11/20 用户定），PR 说明里写清是哪张别人的卡。
                组织者来信要建新卡时，主办（organizers）写信里列的寄件人称呼。
                邮件里的转寄、签名、旧信引用不用理会；信里没有活动资料（例如只说谢谢）就只移到 done/，不改卡。
+               信里有微信公众号文章链接（Shiao 11/21）：上一步已经打开文章，把文字放在答复的「## 公众号文章（自动读取）」，
+               图片存成 data/inbox/<答复名>-wx<k>-<n>.jpg（已 git add，和附件一样用、处理完一起 git mv 到 done/）。照文章内容处理，
+               活动海报照样用换海报工具；source 写「公众号「<公众号名>」文章，<发布日期>」。
+               写着「读取失败」的，写进「要 Shiao 确认」（附链接），不要当成没资料。
+               文章里的二维码、群友照片、个人联络方式不要放进卡片。
             3. 线上没有这张卡：
                - 中国大陆或香港的活动，资料齐全（名称、城市、日期或每周几、开始结束时间、场地名、完整地址（路名门牌或查得到的场地）、来源，加上至少一种联络方式或链接，Shiao 11/20）就新建卡；缺联络方式和链接的不建卡，写进「要 Shiao 确认」。
                  照现有同类卡的写法：单次活动 id 用下一个 E 编号（kind "event"；日常类的舞会／练习加
