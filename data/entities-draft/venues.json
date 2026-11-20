@@ -1321,8 +1321,8 @@
   "country": "South Korea",
   "name_en": "Tango Café DIA (Wed–Fri, Mon) / The Grand Daegu Hotel ballroom (Sat–Sun)",
   "name_local": "Tango Café DIA（周三至周五、周一）／大邱格兰德酒店宴会厅（周六、周日）",
-  "address_local": "",
-  "address_en": "",
+  "address_local": "Tango Café DIA：대구광역시 북구 침산로 168 5층 507호；大邱格兰德酒店：대구 수성구 동대구로 305",
+  "address_en": "Tango Café DIA: 5F-507, 168 Chimsan-ro, Buk-gu, Daegu; The Grand Daegu Hotel: 305 Dongdaegu-ro, Suseong-gu, Daegu",
   "rooms": [],
   "events": [
    "E039"
