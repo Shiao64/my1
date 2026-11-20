@@ -5,7 +5,7 @@ Writes data/stale-cards.md: visible, not-yet-ended cards in mainland China / HK 
 `confirmed` (organizer confirmed) or else `updated` date is more than 60 days ago.
 The card face already warns dancers: 31–90 days grey "请再次向组织者确认", >90 days orange
 "资料已久未更新，可能停办了" (asia/cardB.js p10freshInfo).
-探戈助理 checks this list each month (data/inbox/README.md). Over 120 days: listed apart
+Claude checks this list each month on public web pages (.github/workflows/stale-cards.yml, job check; Shiao 11/20). Over 120 days: listed apart
 for Shiao to decide (hide or keep). Nothing is changed or deleted here.
 
     python3 tools/stale_cards.py [--today=YYYY-MM-DD] [--days=60]
@@ -55,7 +55,7 @@ def main():
     mid = [r for r in rows if r[0] <= 120]
     out = [f'# 快过期、资料不完整的活动卡（{today.isoformat()} 生成）', '',
            f'资料超过 {limit} 天没有确认或更新的卡。自动生成，每月 1 号更新，不要手改。', '',
-           '**探戈助理**：去主办的公众号、朋友圈、微信群找最近的活动消息。确认还在办，就交一份答复（`data/inbox/`），写「<卡号> 仍在办，依据：……」，Claude 会把这张卡的 `updated` 改成当天；有新海报就一起附上。查不到就写「查不到」，不要猜。', '']
+           '**Claude 每月核对**（Shiao 11/20）：名单产生后，Claude 在公开网页（官网、Facebook、Instagram、公众号文章）找最近的活动消息，结果写成一份答复 `data/inbox/<日期>-stale-check.md`，照一般答复处理：确认还在办的卡 `updated` 改成当天，找到的链接补上。查不到的列在答复的「还没问到的」，由 Shiao 决定。探戈助理在微信群看到这些活动的消息，照常交答复就好。', '']
     def table(title, rs):
         out.append(f'## {title}（{len(rs)} 张）'); out.append('')
         if not rs:
@@ -64,10 +64,10 @@ def main():
         for n, i, nm, c, o, d in rs:
             out.append(f'| {i} | {nm} | {c} | {o} | {d} | {n if n < 9999 else "—"} |')
         out.append('')
-    table('61–120 天：请探戈助理确认', mid)
+    table('61–120 天：Claude 每月核对', mid)
     table('超过 120 天：可能已停办，请 Shiao 决定隐藏还是保留', old)
     out.append(f'## 没有联络方式也没有链接（{len(noreach)} 张）'); out.append('')
-    out.append('卡上显示灰色「联络方式待补充，出发前建议先向当地舞友打听」。**探戈助理**：找主办名字、微信／电话／邮箱，或公众号、网站链接，交答复补上；补齐后提示自动消失。地址不完整（没有路名门牌）的也一起补。'); out.append('')
+    out.append('卡上显示灰色「联络方式待补充，出发前建议先向当地舞友打听」。Claude 每月在公开网页找主办的官网、Facebook、Instagram、公众号链接补上（不写个人电话、微信号）；补齐后提示自动消失。地址不完整（没有路名门牌）的也一起补。'); out.append('')
     if noreach:
         out.append('| 卡号 | 名称 | 城市 | 地址 |'); out.append('|---|---|---|---|')
         for i, nm, c, a in noreach:
