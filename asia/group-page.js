@@ -82,7 +82,7 @@
     return (e.organizers || []).concat(e.organizers_en || []).some(function (n) { return names.indexOf(key(n)) >= 0; });
   }
   Promise.all([
-    fetch('/asia/organizers.json?v=o9').then(function (r) { return r.json(); }),
+    fetch('/asia/organizers.json?v=o10').then(function (r) { return r.json(); }),
     fetch('/asia/events.json?v=e235').then(function (r) { return r.json(); })
   ]).then(function (res) {
     var people = res[0] || [], events = res[1] || [];
@@ -106,7 +106,6 @@
     var h = '';
     /* 1. top: logo, one-line intro, buttons */
     var btn = [];
-    if (links.wechat) btn.push('<button type="button" class="gp-btn" data-copy="' + esc(links.wechat) + '">' + T.wx + ' ' + esc(links.wechat) + '</button>');
     if (links.website) btn.push('<a class="gp-btn" href="' + esc(links.website) + '" target="_blank" rel="noopener">' + T.web + ' ↗</a>');
     if (bio) btn.push('<a class="gp-btn" href="#pf-about">' + T.intro + ' ↓</a>');
     h += '<section class="gp-top">' + (logo ? '<img class="gp-logo" src="' + esc(logo) + '" alt="">' : '') + '<div class="gp-tag">' + (tagline ? '<p>' + esc(tagline) + '</p>' : '') + '</div></section>' + (btn.length ? '<div class="gp-btns">' + btn.join('') + '</div>' : '');
@@ -126,7 +125,9 @@
     var ab = '';
     if (rest) ab += '<div class="gp-bio" id="gp-bio"><p class="dj-bio">' + esc(rest) + '</p></div><button type="button" class="gp-more" aria-expanded="false">' + T.more + ' ›</button>';
     var vseen = {}, vrows = [];
-    mineList.forEach(function (e) { var v = venueOf(e); if (!v || vseen[v]) return; vseen[v] = 1; var hasDir = Array.isArray(e.directions_images) && e.directions_images.length; vrows.push('<a href="' + HOME + '?card=' + encodeURIComponent(e.id) + '">' + esc(v) + (hasDir ? ' <span>· ' + T.dir + '</span>' : '') + '</a>'); });
+    /* profile.venues (names as on the cards) limits this list to the group's own places (user 11/20: TangoBang = 永惠大厦 only) */
+    var vonly = Array.isArray(profile.venues) && profile.venues.length ? profile.venues.map(key) : null;
+    mineList.forEach(function (e) { var v = venueOf(e); if (!v || vseen[v]) return; if (vonly && vonly.indexOf(key(e.venue)) < 0 && vonly.indexOf(key(e.venue_en)) < 0) return; vseen[v] = 1; vrows.push('<a href="' + HOME + '?card=' + encodeURIComponent(e.id) + '">' + esc(v) + '</a>'); });
     if (vrows.length) ab += '<div class="gp-kv"><b>' + T.venues + '</b><div>' + vrows.join('') + '</div></div>';
     var mem = (profile.members || []).map(function (m) { var p = people.filter(function (x) { return x.kind !== 'group' && [x.name, x.name_zh].concat(x.match || []).map(key).indexOf(key(m)) >= 0; })[0]; var label = p ? (zh ? (p.name_zh || p.name) : (p.name || p.name_zh)) || m : m; return p ? '<a href="' + (zh ? '/zh' : '') + '/organizer/' + encodeURIComponent(p.id) + '/">' + esc(label) + '</a>' : '<span>' + esc(label) + '</span>'; });
     if (mem.length) ab += '<div class="gp-kv"><b>' + T.people + '</b><div>' + mem.join('') + '</div></div>';
