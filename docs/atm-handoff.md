@@ -35,6 +35,19 @@
 - **清理**：截图保留 90 天，每张卡保留最新一份证据；已用上网站的海报不另留；每月 1 号第一次任务时清理。删 MBA 文件第一次要用户批准该资料夹。
 - **开始前还要**：MBA 装 Claude 桌面程序、打开 Computer use、插电不睡眠、微信和 Claude 保持开着；在 MBA 上打开这个对话发一条消息让对话连到 MBA；然后建定时任务、陪用户试跑一次。
 
+## 0.7 活动来信 huodong@tangoweekend.org（11/20 上线，替代 Grok Bot 的邮件入口）
+- 「活动来信名单」上的邮箱寄信到 huodong@tangoweekend.org，网站自动更新。主题不限；「新活动」「取消」「海报」只是提示。
+- 流程：Cloudflare 邮件路由（规则 huodong@ → Worker tango-subscribe）→ `social-worker/src/inmail.js`
+  → 名单 + SPF/DKIM/DMARC 都通过才收 → `data/inbox/<日期>-mail-<id>.md`（加图片/PDF，最多 8 个、每个 ≤10MB）
+  → 分支 `answer/mail-…` 开 PR → inbox-guard 合并 → inbox.yml 处理。寄件人会收到「ATM 收到」回信（SUB_MAIL，不用 Resend）。
+  实测 11/20：寄出到合并约 30 秒，处理完约 1.5 分钟。
+- 名单在 Cloudflare 后台 tango-subscribe 的变量 `ATM_MAIL_SENDERS`（格式 `邮箱=称呼,邮箱=称呼`），**不进仓库**。加人就在后台改这个变量。
+  可选变量 `ATM_MAIL_ORGANIZERS`（同格式）：名单里是主办本人的，来信算「主办确认」，卡片 confirmed 写收到日期。目前没设。
+- GitHub 授权码：Cloudflare secret `ATM_GITHUB_TOKEN`（GitHub 上叫 huodong-mail，只能动 my1 的 Contents / Pull requests，一年后过期，到期要换）。
+- 信里所有邮箱地址都隐藏，md 只写称呼；原始邮件不存。名单外、冒名、自动回复：不收、不回信。
+- 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
+- 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
+
 ## 1. 先读这些
 
 | 文档（本项目） | 内容 |
