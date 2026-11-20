@@ -98,6 +98,15 @@ def test_picture_post():
         assert '<p>' not in md and '13812345678' not in md
 
 
+def test_double_escaped_text_and_map_link():
+    raw = (r"\\u5468\\u516d\\x0a\\x26lt;a class=\\x26quot;js_poi_entry wx_poi_link\\x26quot; "
+           r"data-address=\\x26quot;%E5%8C%97%E4%BA%AC%E5%B8%82%E6%9C%9D%E9%98%B3%E5%8C%BA\\x26quot;\\x26gt;"
+           r"\\u6d3b\\u52a8\\u4e2d\\u5fc3\\x26lt;/a\\x26gt;")
+    page = "<html><div id='js_content'></div><script>content_noencode: JsDecode('" + raw + "'),</script></html>"
+    art = wa.parse(page)
+    assert art['text'] == '周六\n活动中心（地图地址：北京市朝阳区）', repr(art['text'])
+
+
 def test_empty_page_is_a_failure():
     url = 'https://mp.weixin.qq.com/s/x'
     page = '<html><div id="js_content"></div><script>var item_show_type = "10";</script></html>'
