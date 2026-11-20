@@ -232,6 +232,38 @@ def main():
         check('dj from poster', P.dj_from_text('DJ Yelyn Woo (Seoul 首尔)') == 'Yelyn Woo')
         check('dj from 乐师', P.dj_from_text('乐师：张羽') == '张羽')
         check('dj absent', P.dj_from_text('Milonga V 20:00') is None)
+        # 2026-11-21: <id>.jpg is a past poster of this card (rccbKIYP case): must not be overwritten
+        evs = P.load_events(tmp)
+        jpeg(os.path.join(tmp, 'images/asia/posters/RCC.jpg'), (50, 60, 70), (110, 110))
+        jpeg(os.path.join(tmp, 'images/asia/posters/RCC_2026-11-14.jpg'), (70, 60, 50), (110, 120))
+        evs.append({'id': 'RCC', 'kind': 'weekly', 'type': 'milonga', 'name': 'Infinity',
+                    'city': 'Shanghai', 'weekday': 6, 'organizers': ['Infinity Tango'], 'hidden': False,
+                    'poster': '/images/asia/posters/RCC_2026-11-14.jpg', 'poster_date': '2026-11-14',
+                    'posters_past': ['/images/asia/posters/RCC.jpg'],
+                    'poster_dates': {'/images/asia/posters/RCC.jpg': '2026-11-07',
+                                     '/images/asia/posters/RCC_2026-11-14.jpg': '2026-11-14'},
+                    'updated': '2026-11-14'})
+        raw_rcc = json.dumps(evs, ensure_ascii=False, separators=(',', ':'))
+        for name in ('events.json', 'events-core.json'):
+            with open(os.path.join(tmp, 'asia', name), 'w', encoding='utf-8') as fh:
+                fh.write(raw_rcc)
+        past_fs = os.path.join(tmp, 'images/asia/posters/RCC.jpg')
+        with open(past_fs, 'rb') as fh:
+            past_before = fh.read()
+        nimg = os.path.join(tmp, 'rcc-new.jpg')
+        jpeg(nimg, (5, 200, 90), (100, 160))
+        res4 = P.apply_items(tmp, [{'event_id': 'RCC', 'image': nimg, 'city': '上海', 'date': '2026-11-21', 'note': 'Sunset Milonga 11/21'}], today='2026-11-21', log=False)
+        rcc = [e for e in P.load_events(tmp) if e['id'] == 'RCC'][0]
+        with open(past_fs, 'rb') as fh:
+            check('name clash: past poster <id>.jpg not overwritten', fh.read() == past_before)
+        check('name clash: new poster gets <id>_<date>', res4['replaced'] and res4['replaced'][0]['new'] == '/images/asia/posters/RCC_2026-11-21.jpg' and rcc['poster'] == '/images/asia/posters/RCC_2026-11-21.jpg')
+        check('name clash: old past poster still listed with its date', '/images/asia/posters/RCC.jpg' in rcc.get('posters_past', []) and rcc['poster_dates'].get('/images/asia/posters/RCC.jpg') == '2026-11-07')
+        check('name clash: new poster dated', rcc.get('poster_date') == '2026-11-21')
+        # an orphan file on disk with the plain name is not overwritten either
+        jpeg(os.path.join(tmp, 'images/asia/posters/E004.jpg'), (1, 1, 1), (60, 60))
+        e004 = [e for e in P.load_events(tmp) if e['id'] == 'E004'][0]
+        check('name clash: orphan file kept', P.pick_poster_path(tmp, P.load_events(tmp), e004, 'jpg', '2026-10-31') == '/images/asia/posters/E004_2026-10-31.jpg')
+        check('name clash: free plain name used', P.pick_poster_path(tmp, P.load_events(tmp), dict(e004, id='NEW1'), 'jpg', '2026-10-31') == '/images/asia/posters/NEW1.jpg')
         bak = os.path.join(tmp, P.BACKUP_REL, 'keep-me.jpg')
         os.makedirs(os.path.dirname(bak), exist_ok=True)
         jpeg(bak, (9, 9, 9), (80, 80))

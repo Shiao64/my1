@@ -705,6 +705,54 @@ def is_generated_poster(web_path):
     return '/posters/generated/' in (web_path or '')
 
 
+def poster_refs(event):
+    """Every poster path a card points at: current, past, and the keys of its date / DJ records."""
+    out = set()
+    for key in ('poster', 'poster_zh', 'poster_en'):
+        if event.get(key):
+            out.add(event[key].split('?', 1)[0])
+    for p in event.get('posters_past') or []:
+        if isinstance(p, str):
+            out.add(p.split('?', 1)[0])
+    for key in ('poster_dates', 'poster_djs'):
+        if isinstance(event.get(key), dict):
+            out.update(k.split('?', 1)[0] for k in event[key])
+    return out
+
+
+def pick_poster_path(root, events, event, ext, date=None):
+    """Web path for a new poster of this card that overwrites nothing still in use.
+
+    2026-11-21 (Shiao): the tool always wrote <id>.<ext>. On rccbKIYP that name was the
+    11/07 poster kept in posters_past (the current one was rccbKIYP_2026-11-14.jpg), so it
+    was overwritten. <id>.<ext> is used only when no card refers to it and no file is there,
+    or when it is this card's own current poster (backed up before it is replaced).
+    Otherwise <id>_<date>.<ext> (date of the new poster), then -2, -3 ..."""
+    cur = (event.get('poster') or '').split('?', 1)[0]
+    taken = set()
+    for e in events:
+        refs = poster_refs(e)
+        if e.get('id') == event.get('id'):
+            refs.discard(cur)
+        taken |= refs
+
+    def free(web):
+        if web in taken:
+            return False
+        return web == cur or not os.path.exists(os.path.join(root, web.lstrip('/')))
+
+    first = '/%s/%s.%s' % (POSTER_DIR, event['id'], ext)
+    if free(first):
+        return first
+    tag = date or _stamp()
+    base = '/%s/%s_%s' % (POSTER_DIR, event['id'], tag)
+    web, n = base + '.' + ext, 2
+    while not free(web):
+        web = '%s-%d.%s' % (base, n, ext)
+        n += 1
+    return web
+
+
 def poster_used_by_others(events, event_id, web_path):
     if not web_path:
         return False
@@ -825,11 +873,11 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                     row2 = dict(row, ts=_stamp())
                     append_log(root, row2)
                 continue
-            dest_rel = '%s/%s.%s' % (POSTER_DIR, event['id'], ext)
-            dest_web = '/' + dest_rel
-            if poster_used_by_others(events, event['id'], dest_web):
-                dest_rel = '%s/%s-%s.%s' % (POSTER_DIR, event['id'], _stamp(), ext)
-                dest_web = '/' + dest_rel
+            name_d = None
+            if isinstance(item, dict):
+                name_d = text_iso_date(item.get('date') or item.get('start') or item.get('on') or '') or note_event_date(item.get('note') or '')
+            dest_web = pick_poster_path(root, events, event, ext, name_d)
+            dest_rel = dest_web.lstrip('/')
             shared_old = poster_used_by_others(events, event['id'], old)
             plan = {
                 'action': 'replaced', 'id': event['id'], 'name': event.get('name'),
