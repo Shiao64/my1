@@ -13,7 +13,8 @@ SLUGS = {
  'E128':'kuala-lumpur-2027-tango-marathon','E129':'penang-2026-halloween-milonga','E130':'penang-2026-bridgerton-christmas-milonga',
  'E131':'beijing-2026-diego-aldana','E132':'wuhan-2027-hsld-tango-weekend','E153':'hong-kong-2026-milonga-artistica-3','JHeguuQb':'shanghai-2026-wutong-tango-weekend','E134':'shanghai-2026-wanso-milonga',
  'E162':'chengdu-2027-ich-tango-festival',
- 'E167':'guangzhou-2027-legends-tango-festival'}
+ 'E167':'guangzhou-2027-legends-tango-festival',
+ 'E039':'daegu-2027-ditm-tango-marathon'}
 # Hand-written pages. Regenerating would replace them with the generic template.
 # JHeguuQb would put closed-form ticket prices back on the page.
 # E162 is the one Chengdu 2027 ICH page (festival, competition, and TangotoWorldCUP
@@ -23,7 +24,7 @@ SLUGS = {
 # E044 is the handwritten Hong Kong Tango Marathon page (9th recap + 10th edition #2027). Do not regenerate.
 HANDWRITTEN = {'JHeguuQb', 'E162', 'E167', 'E044'}
 CITY_ZH = {'Guangzhou':'广州','Hong Kong':'香港','Shanghai':'上海','Taipei':'台北','Beijing':'北京','Kuala Lumpur':'吉隆坡',
- 'Da Nang':'岘港','Bandar Seri Begawan':'斯里巴加湾','Penang':'槟城','Wuhan':'武汉','Chengdu':'成都'}
+ 'Da Nang':'岘港','Daegu':'大邱','Bandar Seri Begawan':'斯里巴加湾','Penang':'槟城','Wuhan':'武汉','Chengdu':'成都'}
 TYPE = {'festival':('探戈节','Festival'),'marathon':('马拉松','Marathon'),'milonga':('舞会','Milonga'),'event':('活动','Event')}
 MON = ['January','February','March','April','May','June','July','August','September','October','November','December']
 E = lambda s: html.escape(str(s), quote=True)
