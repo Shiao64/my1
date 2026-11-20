@@ -67,6 +67,34 @@ class T(unittest.TestCase):
     def cards(self):
         return json.loads(json.dumps(BASE_CARDS))
 
+    def mail(self, own, organizer=True):
+        os.makedirs('data/inbox/done', exist_ok=True)
+        who = '- 寄件人是主办本人：这封信可以算「主办确认」' if organizer else '- 寄件人是 ATM 这边的人（转寄或整理的资料），不算主办确认'
+        cards = f'\n- 这位主办在网站上的卡：{"、".join(own)}（主办确认只用在这些卡）' if own else ''
+        open('data/inbox/done/2026-11-20-mail-1120-1200-abcd.md', 'w').write(f'# 邮件：x\n\n{who}{cards}\n')
+
+    def test_organizer_mail_own_card_goes_live(self):
+        c = self.cards(); i = c[0]['id']
+        c[0]['temp_notices'] = [{"date": "2026-11-17", "text": "取消"}]
+        self.mail([i])
+        ok, why, _ = self.run_check(c)
+        self.assertTrue(ok, why)
+
+    def test_organizer_mail_other_card_waits(self):
+        c = self.cards()
+        c[0]['temp_notices'] = [{"date": "2026-11-17", "text": "取消"}]
+        self.mail(['SOMEONE_ELSE'])
+        ok, why, _ = self.run_check(c)
+        self.assertFalse(ok)
+        self.assertTrue(any('别人的卡' in r for r in why), why)
+
+    def test_staff_mail_other_card_goes_live(self):
+        c = self.cards()
+        c[0]['temp_notices'] = [{"date": "2026-11-17", "text": "取消"}]
+        self.mail([], organizer=False)
+        ok, why, _ = self.run_check(c)
+        self.assertTrue(ok, why)
+
     def test_temp_notice_goes_live(self):
         c = self.cards()
         c[0]['temp_notices'] = [{"date": "2026-11-17", "text": "DJ 木木"}]

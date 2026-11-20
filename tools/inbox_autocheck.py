@@ -177,6 +177,12 @@ def check(base, head, body, today):
             reasons.append(f'卡 {i} 从 core/more 文件里拿掉了')
 
     touched = [i for i in new if old.get(i) != new[i]]
+    # 2026-11-20 (Shiao): mail from an organizer (huodong@) may auto-change only that organizer's own cards.
+    own = mail_organizer_cards(head, files)
+    if own is not None:
+        for i in touched:
+            if i in old and i not in own:
+                reasons.append(f'组织者来信改到了别人的卡 {i}（他自己的卡：{"、".join(sorted(own)) or "无"}），要你确认')
     poster_ids = set()
     if len(touched) > MAX_CARDS:
         reasons.append(f'一次改了 {len(touched)} 张卡（超过 {MAX_CARDS} 张）')
@@ -224,6 +230,26 @@ def check(base, head, body, today):
     if cache_files and not poster_ids:
         reasons.append('改了网页的缓存版本号，但没有换海报')
     return not reasons, reasons, changes
+
+
+MAIL_MD = re.compile(r'^data/inbox/(done/)?\d{4}-\d\d-\d\d-mail-[^/]+\.md$')
+OWN_RE = re.compile(r'这位主办在网站上的卡：([^（\n]+)')
+
+
+def mail_organizer_cards(head, files):
+    """None when no organizer mail is in this PR; else the set of cards those organizers own."""
+    own, found = set(), False
+    for f in files:
+        if not MAIL_MD.match(f):
+            continue
+        txt = show(head, f) or ''
+        if '寄件人是主办本人' not in txt:
+            continue
+        found = True
+        m = OWN_RE.search(txt)
+        if m:
+            own.update(x.strip() for x in m.group(1).split('、') if x.strip())
+    return own if found else None
 
 
 CACHE_RE = [(re.compile(r'var ATM_TH = \{.*?\};'), 'var ATM_TH = {};'),

@@ -41,7 +41,7 @@
   → 名单 + SPF/DKIM/DMARC 都通过才收 → `data/inbox/<日期>-mail-<id>.md`（加图片/PDF，最多 8 个、每个 ≤10MB）
   → 分支 `answer/mail-…` 开 PR → inbox-guard 合并 → inbox.yml 处理。寄件人会收到「ATM 收到」回信（SUB_MAIL，不用 Resend）。
   实测 11/20：寄出到合并约 30 秒，处理完约 1.5 分钟。
-- **谁能寄（11/20 用户定）**：网站卡片上有邮箱、活动在中国大陆／香港／台湾／澳门的组织者，**自动**可以寄（程序读 data.tangoweekend.org 的 events-core.json，存 10 分钟；读不到改读 GitHub 上的同一份）。卡片加邮箱、换邮箱、隐藏卡，网站更新后自动生效。所以**加邮箱前要确认是主办本人的**。这些组织者来信算「主办确认」，只用在他自己的卡（md 里会列卡号）。
+- **谁能寄（11/20 用户定）**：网站卡片上有邮箱、活动在中国大陆／香港／台湾／澳门的组织者，**自动**可以寄（程序读 data.tangoweekend.org 的 events-core.json，存 10 分钟；读不到改读 GitHub 上的同一份）。卡片加邮箱、换邮箱、隐藏卡，网站更新后自动生效。所以**加邮箱前要确认是主办本人的**。这些组织者来信算「主办确认」，只用在他自己的卡（md 里会列卡号）。**组织者来信只能自动更新他自己的卡**：改到别人的卡，`tools/inbox_autocheck.py`（`mail_organizer_cards()`）不让自动上线，PR 留言等 Shiao 确认；新卡照一般新卡规矩；我们这边 4 个邮箱不受这条限制（11/20 用户定）。
   Cloudflare 后台 tango-subscribe 的变量（**不进仓库**）：`ATM_MAIL_SENDERS` 额外名单（我们这边 4 个，或主办的另一个邮箱、还没卡的新主办；格式 `邮箱=称呼,…`，不算主办确认）；`ATM_MAIL_ORGANIZERS` 额外但算主办确认的（目前空）；`ATM_MAIL_BLOCK` 不收名单（只写邮箱）；`ATM_MAIL_NAMES` 只管回信开头的称呼（例 王凯），不给寄信资格。11/20 卡上有 27 位（含深圳 Bes、香港 Eli Tango）；韩国、越南、日本的卡不在范围。和主办一律用中文沟通。
 - GitHub 授权码：Cloudflare secret `ATM_GITHUB_TOKEN`（GitHub 上叫 huodong-mail，只能动 my1 的 Contents / Pull requests，一年后过期，到期要换）。
 - 信里所有邮箱地址都隐藏，md 只写称呼；原始邮件不存。名单外、冒名、自动回复：不收、不回信。
