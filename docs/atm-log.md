@@ -152,3 +152,8 @@ GqufXmMX（Milonga V 第216场）原图 `GqufXmMX.png` 已是 2026-11-17、No.21
 ## source 字段去掉个人联络方式（2026-11-20，#316）
 
 仓库和网站的 JSON 都公开，`source` 还会显示在活动详情页的「资料来源」里。已把 8 张卡（E086、E116、E121、AtrSun01、E160、E164、E163、E167）`source` 里的邮箱、电话换成「（邮箱已删）」「（电话已删）」，`events.json`、`events-core.json` 都改了（`events-more.json` 没有这个字段的联络方式）。岘港活动页中英两页的「资料来源」同步改了。卡上 `contacts` 的公开联络方式没动。**以后写 `source` 只写来源和日期（如「主办邮件 2026-11-20」），不写邮箱、手机。** git 历史里的旧内容没有改写。
+
+## 2026-11-20 微信收集：试过 MBA 上的 Claude，改回 Grok Bot
+- 原计划：停掉 Grok Bot，MBA 上的 Claude 每天 9/13/17 点用 Computer use 只读 4 个群（Tango Ideal 理想探戈群、探戈会 VTango、ATAC 中阿探戈联盟、【可广告】BTMI北京理想探戈马拉松），截图存 MBA 本机 `~/ATM来源/`。
+- 结果：每次都要用户人工点一下才能跑，没法自动，用户决定交回 Grok Bot（见交接说明 0.6 节）。
+- 停用期间 Grok Bot 11/19 晚交的两份答复（北京 RedBox 11/20 预告、杭州 11/21 Milonga INTANGO）已由 Claude 处理（ttLxDoyZ 加 11/20 单场提示；新卡 E197，联络电话沿用同主办 E187）。
