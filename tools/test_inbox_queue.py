@@ -76,6 +76,14 @@ def main():
         sh('git', 'fetch', '-q', 'origin', cwd=w)
         assert q(w, 'todo', 'origin/inbox-run-1').stdout.split() == ['c.md'], 'todo after main moved'
 
+        # A new answer reaching main after PR 1 branched is still to do, not taken by PR 1.
+        open(os.path.join(w, 'data/inbox/d.md'), 'w').write('d')
+        commit(w, 'new answer')
+        sh('git', 'push', '-q', 'origin', 'main', cwd=w)
+        sh('git', 'fetch', '-q', 'origin', cwd=w)
+        assert q(w, 'claimed', 'origin/inbox-run-1').stdout.split() == ['a.md'], 'd.md not claimed by PR 1'
+        assert q(w, 'todo', 'origin/inbox-run-1').stdout.split() == ['c.md', 'd.md'], 'new answer is todo'
+
         # Refresh PR 1: keeps its own A and N, takes main's B, and C stays removed.
         sh('git', 'checkout', '-q', '-B', 'inbox-run-1', 'origin/inbox-run-1', cwd=w)
         r = q(w, 'refresh', 'inbox-run-1')
@@ -100,7 +108,7 @@ def main():
         assert r.returncode == 3 and 'note.txt' in r.stdout, r.stdout + r.stderr
         st = sh('git', 'status', '--porcelain', cwd=w).stdout
         assert st.strip() == '', 'merge aborted cleanly: ' + st
-        print('ok 12 checks')
+        print('ok 14 checks')
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
