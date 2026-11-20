@@ -37,11 +37,15 @@ def inbox_md(ref=None):
 
 
 def claimed(branches, main='origin/main'):
-    """An open PR has taken an answer when the answer is in main's inbox but gone from the PR's."""
+    """An open PR has taken an answer when the PR moved it out of data/inbox/ (it was there at the
+    PR's merge base and is gone on the PR). Answers that reached main after the PR branched are
+    not taken (2026-11-20: the monthly stale-check answer was skipped this way)."""
     on_main = set(inbox_md(main))
     taken = set()
     for br in branches:
-        taken |= on_main - set(inbox_md(br))
+        mb = git('merge-base', main, br, check=False).strip()
+        before = set(inbox_md(mb)) if mb else on_main
+        taken |= (before - set(inbox_md(br))) & on_main
     return sorted(taken)
 
 
