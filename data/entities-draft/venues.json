@@ -384,14 +384,15 @@
   "id": "V027",
   "city": "Hangzhou",
   "country": "China",
-  "name_en": "INTANGO SALON",
-  "name_local": "INTANGO SALON",
+  "name_en": "inTango HangZhou",
+  "name_local": "inTango HangZhou",
   "address_local": "杭州市凤起路75号303室",
   "address_en": "Room 303, No. 75 Fengqi Road, Hangzhou",
   "rooms": [],
   "events": [
    "E179",
-   "E187"
+   "E187",
+   "E197"
   ],
   "name_variants": [
    "INTANGO SALON",

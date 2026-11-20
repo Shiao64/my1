@@ -52,10 +52,8 @@
 - Seoul：Practica 79（R101）：缺本地语言地址
 - Seoul：Tango Pasión Daytime Practica（R097）：缺本地语言地址
 - Seoul：Viva Practica（R113）：缺本地语言地址
-- Taipei：Baile del Domingo（R083）：缺本地语言地址
 - Tokyo：David & Belén's Milonga（R076）：缺本地语言地址
 - Tokyo：Jueves Milonga by Leonel & Natalia（R077）：缺本地语言地址
 - Tokyo：Parkside Milonga（R078）：缺本地语言地址
 - Tokyo：RADA Studio Milonga（R075）：缺本地语言地址
-- Zhubei：Tango al Rio Practica（E091）：缺本地语言地址
 
