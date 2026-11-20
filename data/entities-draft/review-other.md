@@ -3,7 +3,7 @@
 ## A. 这两个场地是不是同一个地方？
 
 - Busan：Ideal Tango Cafe（부산광역시 부산진구 부전동 241-41, 3층；SUNSET MILONGA、Monthly Gato Milonga、Conmigo Milonga等 10 个） ↔ Studio 242（부산광역시 부산진구 부전동 242-32, 4층；Waggle Waggle MILONGA、Itumil、GERA MIL等 4 个）
-- Daegu：Tango Cafe Dia（地址没找到；Viento 休 Milonga、나일롱、D.D.D） ↔ Tango Café DIA (Wed–Fri, Mon) / The Grand Daegu Hotel ballroom (Sat–Sun) / Tango Café DIA（周三至周五、周一）／大邱格兰德酒店宴会厅（周六、周日）（DITM Daegu International Tango Marathon）
+- Daegu：Tango Cafe Dia（地址没找到；Viento 休 Milonga、나일롱、D.D.D） ↔ Tango Café DIA (Wed–Fri, Mon) / The Grand Daegu Hotel ballroom (Sat–Sun) / Tango Café DIA（周三至周五、周一）／大邱格兰德酒店宴会厅（周六、周日）（Tango Café DIA：대구광역시 북구 침산로 168 5층 507호；大邱格兰德酒店：대구 수성구 동대구로 305；DITM Daegu International Tango Marathon）
 - Seoul：La Ventana（서울시 마포구 잔다리로 48 2층；Milonga Labios、Milonga Labios、Milonga Labios等 4 个） ↔ La Ventana Studio / La Ventana Studio (라 벤따나)（마포구 잔다리로 48, 정원빌딩 2층；Sueño Dulce）
 - Taipei：Bailemos / Bailemos #起舞（台北市中正區羅斯福路二段41號8F-3；Bailemos Practica） ↔ Bailemos tango school（8F-3, No.41, Sec.2, Roosevelt Road, Taipei；Baile del Domingo）
 
@@ -33,7 +33,6 @@
 ## E. 场地待定或没有地址（以后补）
 
 - Busan：RoyBeDDong in Busan（E175）场地写“待定”
-- Daegu：Tango Café DIA (Wed–Fri, Mon) / The Grand Daegu Hotel ballroom (Sat–Sun) / Tango Café DIA（周三至周五、周一）／大邱格兰德酒店宴会厅（周六、周日）（DITM Daegu International Tango Marathon） 没有地址
 - Kuala Lumpur：KL Tango Marathon 2027（E128）场地写“待定”
 - Miaoli：Grand Royal Hotel, Toufen, Miaoli / 尚顺君乐饭店（苗栗头份市）（台湾探戈马拉松） 没有地址
 - Penang：Bridgerton Christmas Milonga (Penang)（E130）场地写“待定”
@@ -44,7 +43,6 @@
 
 - Bandar Seri Begawan：文莱探戈周 2027 暨文莱探戈杯（E122）：缺本地语言地址
 - Cheongju：Milonga Urquiza（R180）：缺本地语言地址
-- Daegu：DITM Daegu International Tango Marathon（E039）：缺本地语言地址
 - Kuala Lumpur：KL Tango Intensivo with Iara Duerte & Jesús Páez（E127）：缺本地语言地址
 - Kuala Lumpur：Swango Tango Weekend with Roxana Suárez & Sebastián Arrúa（E125）：缺本地语言地址
 - Kuala Lumpur：The Return 2026 · Javier Rodríguez in Kuala Lumpur（E042）：缺本地语言地址
