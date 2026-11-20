@@ -13,7 +13,7 @@
 - 不要把密码、token、订阅者名单、主办个人联络方式放进仓库（仓库是公开的）。
 
 ## 同时有几方在改这个仓库
-- claude.ai「ATM」项目里的 Claude（云端对话）、本机的 Claude Code、GitHub 上自动处理答复的 Claude（分支 `inbox-run-*`）。**探戈助理（Grok Bot）11/20 起已停用**，它的工作由 Claude 接手（见交接说明 0.6、0.7 节；邮件入口改为 huodong@tangoweekend.org）；旧的 `answer/…`、`cursor/…` 分支是它留下的。
+- claude.ai「ATM」项目里的 Claude（云端对话）、本机的 Claude Code、GitHub 上自动处理答复的 Claude（分支 `inbox-run-*`）。还有**探戈助理（Grok Bot，在 Cursor 里跑）**：11/20 一度停用，同天恢复，**微信资讯收集仍由它做**，交到 `data/inbox/`（分支 `answer/…`）；`cursor/…` 分支也是它开的。邮件入口改为 huodong@tangoweekend.org（见交接说明 0.6、0.7 节）。
 - 开工先 `git fetch`，看 `git log origin/main` 和开着的 PR；**不要直接推 main**，用分支 + PR。
 - 分支名不能以 `inbox/` 开头。
 - 重要改动写进 `docs/atm-handoff.md`（claude.ai 项目里有一份副本，由云端那边的 Claude 同步）。
