@@ -68,6 +68,7 @@
     'Details': 'Detalles', 'Event details': 'Detalles del evento', 'Phone': 'Teléfono', 'Email': 'Correo', 'WeChat': 'WeChat',
     'WeChat ID:': 'ID de WeChat:', 'Phone:': 'Teléfono:', 'Email:': 'Correo:', 'Phone/WeChat:': 'Teléfono/WeChat:',
     'WeChat Article': 'Artículo de WeChat', 'WeChat article': 'Artículo de WeChat', 'Temporarily changed': 'Cambio temporal',
+    'Same venue': 'Mismo lugar', 'Weekly classes too ›': 'También clases semanales ›',
     'Newer poster': 'Afiche más nuevo', 'Older poster': 'Afiche anterior', 'Past poster': 'Afiche pasado', 'Previous poster': 'Afiche anterior', 'Next poster': 'Afiche siguiente',
     'ENDED': 'TERMINADO', 'This event has ended': 'Este evento ya terminó', 'View all events': 'Ver todos los eventos', 'Next edition:': 'Próxima edición:',
     '📷 Recap': '📷 Resumen', 'Photos:': 'Fotos:', '★ Special events': '★ Eventos especiales', 'This card is not on the map': 'Esta ficha no está en el mapa',
@@ -192,6 +193,8 @@
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   var P = [
+    [/^More from (.+)$/, function (m) { return 'Más de ' + m[1]; }],
+    [/^All of (.+) ›$/, function (m) { return 'Todo de ' + m[1] + ' ›'; }],
     [/^Updated (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { return 'Actualizado ' + (m[1] === 'today' ? 'hoy' : m[1] === 'yesterday' ? 'ayer' : m[2] ? 'hace ' + m[2] + ' días' : 'el ' + m[3]); }],
     [/^Confirmed by organizer (today|yesterday|(\d+) days ago)$/, function (m) { return 'Confirmado por el organizador ' + (m[1] === 'today' ? 'hoy' : m[1] === 'yesterday' ? 'ayer' : 'hace ' + m[2] + ' días'); }],
     [new RegExp('^(Today · )?(' + WDK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return (m[1] ? 'Hoy · ' : '') + WD[m[2]] + ' ' + dm(m[3]); }],
