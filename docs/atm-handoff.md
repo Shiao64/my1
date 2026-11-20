@@ -78,6 +78,7 @@
   - **新卡放哪个文件**：中国大陆／台湾／香港的卡和 featured 卡放 `events.json` + `events-core.json`；其他地区一般卡放 `events.json` + `events-more.json`。
   - **编号**：活动 `E###`（11/16 用到 E187），每周 `R###`（用到 R272）。`weekday` 0＝周日，3＝周三。
   - **写法规则（用户 11/16）**：没有结束时间写 `"20:30–late"`（中文页面显示「20:30–尽兴」）；海报没印场地名、但地址和已知场地相同，用那个场地名（杭州凤起路75号303室 → `inTango HangZhou`）；练习舞会 `type` 用 `practilonga`。
+  - **DJ 只属于那一场（用户 11/20）**：周常卡的 `dj`（和 `poster_djs`）是 `poster_date` 那一场的 DJ。那一场结束后网站就不显示 DJ：结束时间取 `time` 的结束钟点（早于开始的算隔天），写 `late` 或没写结束的算隔天 03:00，按城市当地时间（韩国、日本 +9，越南、印尼 +7，其他 +8）。下一场还没公布 DJ 就留空，不要沿用上一场。没有 `poster_date` 的周常卡（驻场 DJ，例如 R059、R034、R073）照常显示。代码在 `cardB.js` 和 `atm-home.js` 的 `djSessionOver()`（两边同一段，要一起改；cb186、h199）。
   - **手动建新卡的步骤**（#147、#157 的做法）：写进 JSON → 有官方海报就用换海报工具上（见下一条，单次活动要有 `regular_oneoff: true`）；大型活动的海报工具会拒绝，就手动裁好存 `images/asia/posters/<id>.jpg`，用 `tools/radar_poster_update.py` 里的 `thumb_image()` 产缩图、`update_atm_th()` 写尺寸表、`bump_live_caches()` 加版本号 → 没海报的跑 `python3 tools/ensure_posters.py` 产文字海报 → 手机尺寸截图检查 → PR、合并。
   - **换新一期海报**（已有的舞会／练习／单次活动）：`python3 tools/radar_poster_update.py --event-id <id> --image <图> --city 北京 --organizer <主办> --weekday 周二 --date YYYY-MM-DD --note "<第几场、DJ、来源>" --bump-caches`（先加 `--dry-run` 看）。它会备份旧海报到 `_backup/` 和 `past/`、产缩图、改 poster 字段，并按海报把卡上的 `dj` 改成这一期的 DJ（`poster_djs` 一一对应）——这是网站惯例，和「单场变动用 temp_notices」不冲突。大型活动、工作坊会被工具拒绝。
 - **海报规则（用户 11/17 定）**：

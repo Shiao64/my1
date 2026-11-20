@@ -150,7 +150,9 @@
   function i18nLang() { return (window.atmI18n && window.atmI18n.langOf({ zhHint: zh })) || (zh ? 'zh' : 'en'); }
   function evName(e) { return (window.atmI18n && window.atmI18n.fieldText(e, 'name', i18nLang())) || ((zh && e.name_zh) || e.name || ''); }
   function evVenue(e) { return (window.atmI18n && window.atmI18n.fieldText(e, 'venue', i18nLang())) || (e.venue || ''); }
-  function djOf(e) { var d = (window.atmI18n && window.atmI18n.pick(e, 'dj', i18nLang())) || ((!zh && e.dj_en) ? e.dj_en : e.dj); if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || pd >= TODAY) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
+  function djOf(e) { var d = (e.kind === 'weekly' && e.poster_date && djSessionOver(e, e.poster_date)) ? '' : ((window.atmI18n && window.atmI18n.pick(e, 'dj', i18nLang())) || ((!zh && e.dj_en) ? e.dj_en : e.dj)); if (Array.isArray(d)) d = d.join(' / '); if (!d && e.poster && e.poster_djs) { var q = String(e.poster).split('?')[0], pd = e.poster_dates && e.poster_dates[q]; if (!pd || !djSessionOver(e, pd)) d = e.poster_djs[q]; } return d ? String(d).trim() : ''; }
+  /* DJ belongs to one session (the poster's date). Hide it once that session ends, in the city's own time: end of e.time; an end at/before the start is next day; "late" or no end = 03:00 next day. Next session's DJ not announced = blank. (user 2026-11-20; same function in cardB.js) */
+  function djSessionOver(e,day){ if(!day||!/^\d{4}-\d{2}-\d{2}$/.test(day)) return false; var tz={'South Korea':9,'Japan':9,'Vietnam':7,'Thailand':7,'Indonesia':7,'India':5.5}[e&&e.country]; if(tz==null) tz=8; var m=String(e&&e.time||'').match(/(\d{1,2}):(\d{2})\s*[–—-]\s*(\d{1,2}):(\d{2})\s*$/), mins=1440+180; if(m){ var a=+m[1]*60+ +m[2], b=+m[3]*60+ +m[4]; mins=b<=a?b+1440:b; } var p=day.split('-'); return Date.now()>=Date.UTC(+p[0],+p[1]-1,+p[2],0,mins)-tz*3600000; }
   /* A detail URL with a hash (edition landing) opens that anchor. Other cards stay on ?card=. */
   function openHref(e) {
     var raw = typeof e.detail === 'string' ? e.detail : '';
