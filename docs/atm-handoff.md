@@ -25,7 +25,7 @@
 
 ## 0.6 微信资讯收集由 Grok Bot（探戈助理）做（用户 11/20 定）
 
-- **11/20 改回**：当天原本计划停掉 Grok Bot、改由 MBA（MacBook Air）上的 Claude 用 Computer use 定时抓微信，但那边**每次都要用户人工点一下才能跑，没法自动**，所以交回给 Grok Bot。Grok Bot 照旧做：微信收集、交答复、每月快过期名单和资料不完整名单的核对。
+- **11/20 改回**：当天原本计划停掉 Grok Bot、改由 MBA（MacBook Air）上的 Claude 用 Computer use 定时抓微信，但那边**每次都要用户人工点一下才能跑，没法自动**，所以交回给 Grok Bot。**Grok Bot 只做微信群的探戈活动收集，交答复进 `data/inbox/`**（用户 11/20 定）：不写邮件、不私信主办，也不做每月名单核对。规则在协作须知第七节。
 - **交法不变**：按 `data/inbox/README.md` 的格式，一件事一个 md（海报同名 .jpg），分支 `answer/…` 开 PR，只改 `data/inbox/`，走自动检查和上线流程；不直接改网站资料（除非用户说「你直接改」）。11/20 的 #318（`answer/2026-11-20-wechat-poster-1945`）就是这样交的。
 - **帐号和机器**：探戈助理的微信号登录在 MBA 上；MBP（设备名 x-2-local）是用户日常用的。**Claude 不要在 MBP 上抓微信**（11/20 曾误开，用户纠正）。
 - **只读不发**：在微信不回复、不按赞、不转发；要问主办的事列给用户。
@@ -95,7 +95,7 @@
 - **卡片资料新旧（11/19–20，方向文件第 2 件，用户定）**：`cardB.js` 的 `p10freshInfo()`／`p10freshEl()`，放在**卡片正面**（每周卡在「更多」左边，单次活动在主办下面）。日期用 `confirmed`（主办确认日，以后每周确认信写入），没有就用 `updated`。≤30 天绿色「✓ 资料 X 天前更新」；31–90 天灰色「资料 MM/DD 更新 · 请再次向组织者确认」；超过 90 天橙色「⚠ 资料已久未更新，可能停办了」。韩西俄文在 `atm-ko/es/ru.js`。
   - **`updated` 的新规矩（用户 11/20）**：只有**确认活动还在办**（主办或探戈助理有依据、换了新一期海报、改了时间场地等实质资料）才把 `updated` 改成当天；补翻译、改格式、换缩图不改 `updated`。
   - **资料不完整（用户 11/20）**：卡上没有任何联络方式、也没有任何链接的，正面显示灰色「联络方式待补充，出发前建议先向当地舞友打听」（`p10noReach()`，优先于新旧提示；11/20 用户嫌原来橙色「⚠ 资料不完整，没有联络方式，请勿专程前往」语气太强，改软）；补了联络方式或链接就自动消失。当时约 28 张（大陆、港台，多是 10/27 雷达汇总表和台湾网上日历批量导入的）。连地址都没有的 3 张先隐藏：香港 La Milongaza（kOcru3n3）、台北 Baile del Domingo（R083）、竹北 Tango al Rio（E091），补到地址再放回。**新卡规矩**：要有完整地址（路名门牌或查得到的场地）＋至少一种联络方式或链接才上线；`inbox_autocheck.py` 已检查，`inbox.yml` 提示也写了。`data/stale-cards.md` 末尾列出这些卡给探戈助理补。
-  - **每月快过期名单**：`tools/stale_cards.py` 由 `.github/workflows/stale-cards.yml` 每月 1 号 09:13（北京）跑，写 `data/stale-cards.md`（超过 60 天的大陆、港台卡；超过 120 天的另列给 Shiao 决定隐藏还是保留，不自动删）。探戈助理每月看这份名单，去主办的公众号／朋友圈／群找最近消息，确认还在办就交答复「<卡号> 仍在办，依据：……」，Claude 改 `updated`；查不到写「查不到」。
+  - **每月快过期名单**：`tools/stale_cards.py` 由 `.github/workflows/stale-cards.yml` 每月 1 号 09:13（北京）跑，写 `data/stale-cards.md`（超过 60 天的大陆、港台卡；超过 120 天的另列给 Shiao 决定隐藏还是保留，不自动删）。原来由探戈助理每月去主办的公众号／朋友圈／群核对；**11/20 起探戈助理不做这件事，还没定由谁做**（问用户）。确认还在办的答复写「<卡号> 仍在办，依据：……」，Claude 改 `updated`。
 - **后端**：`social-worker/src/`，部署成 Cloudflare Worker `tango-subscribe`（api.tangoweekend.org），D1 `tango-subscribe`，迁移在 `social-worker/migrations/`（最新 0019）。
 - **后端部署**：GitHub Actions →「API deploy」→ Run workflow，输入 `deploy`。**部署前先问用户。**
 - **寄信**：通知信 `SOCIAL_MAIL=sub_mail`（Cloudflare Email Sending，已开通）；**订阅信 `MAIL_PROVIDER=cloudflare`（11/17 晚用户在后台改的，已用 Chrome 核对）**，寄件人 `SENDER`=subscribe@tangoweekend.org、`SENDER_NAME`=Asia Tango Map。QQ／163 测试（11/17）：进收件箱、很快、寄件人显示 Asia Tango Map、6 位验证码能登录。有问题把 `MAIL_PROVIDER` 改回 `gmail` 即可。**11/17 晚（用户定）**：后台 `NOTIFY_TO`、`WX_NOTIFY_TO` 都只留 selecttango@gmail.com（Chrome 里改）；程序里 `SUB_CC`、`LETTER_CC` 设为空，不再抄送探戈助理（#200）；微信「我已添加」通知改走 `deliver()`＝Cloudflare，不用 Resend（#201）。已跑「API deploy」上线（run 44087903753，成功）。订阅者名单在 D1 `tango-subscribe` 的 `subs` 表（网站订阅）和 `users` 表（帐号）。**#203 每月名单**：`social-worker/src/roster.js`，每个北京月份第一次 10 分钟定时任务把两张表做成 CSV 文字寄到 shiao.li.chang@gmail.com（`ROSTER_TO` 可改，`ROSTER_SEND=off` 关掉；表 `roster_log` 记录，失败每 6 小时重试）；Claude 定时任务「ATM 每月订阅者名单存到 Google Drive」每月 1 号 12:23（北京）把信存成两张 Google 表格，放在 shiao.li.chang 的 Drive 资料夹「ATM 订阅者名单」。11/17 已存第一份（2026-11）。**名单只放用户自己的 Drive，不进仓库。**「要参加／感兴趣」信：测试阶段只寄到 `GOING_TEST_INBOX`=selecttango；**唯一例外**是 `GOING_TEST_DANCER`（shiaochang@icloud.com）点的会真的寄给主办方；`GOING_NOTICE_SEND=on` 后才正式寄给所有主办方（抄送 selecttango）。**用户不要用 Resend**（Cloudflare 是付费 Workers 方案）。
@@ -139,7 +139,7 @@
 0. **用户 11/17 决定**：正式寄信给主办方（`GOING_NOTICE_SEND`）先不要开；繁体中文、推播先看工作量再定；西文俄文、东京卡不急。
 0. **确认 #198 上线**：看合并后第一次「R2 sync」跑完（全部重传）、第二次是否只传几个文件；第二天北京时间 03:17 后看「Daily past-poster cleanup」有没有正常跑。
 1. **订阅信改用 Cloudflare 后**：再看一次真实订阅（QQ／163）和一次微信「我已添加」，确认 selecttango@gmail.com 收到通知。每月名单已改成自动存 Google Drive（#203）；名单页暂不做。
-2. **要问主办的事**（已写进协作须知第六节，探戈助理开工时会读）：郑州 Tango Red 周日练习场、北京 Paraíso 的「泥人」、广州 Cadencia No.65 场地、香港 Mascarita 12/4 时间票价、北京 Milonga V 第215场的 DJ（海报已由 #193 放进 `posters_past`，等同步跑完才上线；第215场 DJ 还没有）、杭州 inTango 周三是否每周固定和票价（固定就改成周常卡）。
+2. **要问主办的事**（协作须知第六节；11/20 起由用户去问，探戈助理不私信主办，只在群里看到答案时交）：郑州 Tango Red 周日练习场、北京 Paraíso 的「泥人」、广州 Cadencia No.65 场地、香港 Mascarita 12/4 时间票价、北京 Milonga V 第215场的 DJ（海报已由 #193 放进 `posters_past`，等同步跑完才上线；第215场 DJ 还没有）、杭州 inTango 周三是否每周固定和票价（固定就改成周常卡）。
 3. （已取消：不再用邮件和探戈助理联络。）
 4. **东京 4 张暂缓**（用户说中国以外不急）：Tentación 11/24、12/1（四谷 Sin Rumbo）、12/4（奥沢），El Compás 11/21（麻布十番，缺店名）。答复原文和海报都在 `data/inbox/done/`。另外东京 NAMI 11/18（时区不清）、WE LOVE MONDAYS、香港 Monday Blues 资料不全，没建。
 5. **资料结构第 3 步**（用户 11/17 晚定）：**先北京、再上海，其他城市（含香港、台湾）先不做**。**先人工核对**团体、组织者、场地、名称、地址、联络方式，核对完才进资料库。人工核对表放在用户 Google Drive（shiao.li.chang）资料夹「ATM 资料核对」，**北京、上海各一份**「ATM 北京／上海 场地、团体、组织者 人工核对表」，各有五张表：说明、团体（成员＝组织者）、组织者（所属团体）、场地、活动卡（主办分「主办团体」「主办个人」）；联络方式分三栏：电话、邮箱、社交账号（微信、Line、Kakao、Instagram、Facebook、WhatsApp 等，可写几个）。**用户确认是团体的**：Shanghai ESSA、Milonga V、Milonga 1758、ATer Club、AS Tango阿根廷探戈学校、探戈帮；其他团体标「推测，请确认」，新团体暂用编号「新##」。同资料夹里标「（旧版，勿用）」的三份是早先版本。生成脚本不在仓库（表里有联络方式）。用户找人核对后交回 → 照改网站卡片 → 正式编号写进资料库（活动卡加 `venue_id`、`host`）→ 撞场检查、更新探戈助理须知。本对话没有 Google Sheets 连接器，只能读表、不能改原表。（做了之后，`inbox_autocheck.py` 的「可能重复」判断可以改用 `venue_id`。）
