@@ -1,0 +1,48 @@
+name: API tail (mail errors only)
+
+# Read-only: listens to the live tango-subscribe Worker for a few minutes and prints
+# only what the huodong@ mail handler logged or threw. Nothing about the sender,
+# the recipient, or any other request is printed (this repo and its logs are public).
+on:
+  workflow_dispatch:
+    inputs:
+      minutes:
+        description: 'How many minutes to listen (1-10)'
+        required: false
+        default: '4'
+
+permissions:
+  contents: read
+
+jobs:
+  tail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - name: Find the Cloudflare account
+        run: |
+          id=$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" https://api.cloudflare.com/client/v4/accounts | python3 -c 'import json,sys; r=json.load(sys.stdin)["result"]; print(r[0]["id"] if r else "")')
+          echo "CLOUDFLARE_ACCOUNT_ID=$id" >> "$GITHUB_ENV"
+      - name: Listen
+        run: |
+          npm i -g wrangler@3 >/dev/null 2>&1
+          m=$(echo "${{ github.event.inputs.minutes }}" | tr -cd 0-9); [ -z "$m" ] && m=4; [ "$m" -gt 10 ] && m=10
+          echo "Listening $m minutes. Send the test mail now."
+          timeout $((m*60)) wrangler tail tango-subscribe --format json > tail.jsonl 2>/dev/null || true
+          python3 - <<'PY'
+          import json, re
+          hide = lambda s: re.sub(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}', '(address)', str(s))
+          n = 0
+          for line in open('tail.jsonl', encoding='utf-8', errors='replace'):
+              try: e = json.loads(line)
+              except Exception: continue
+              ev = e.get('event') or {}
+              if not ('rcptTo' in ev or 'mailFrom' in ev or 'rawSize' in ev): continue
+              n += 1
+              print('--- mail event', n, 'outcome:', e.get('outcome'))
+              for x in e.get('exceptions') or []: print('EXCEPTION', hide(x.get('name')), hide(x.get('message'))[:500])
+              for l in e.get('logs') or []: print('log', hide(' '.join(map(str, l.get('message') or [])))[:300])
+          print('mail events seen:', n)
+          PY
