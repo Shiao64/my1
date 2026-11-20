@@ -292,3 +292,6 @@ GqufXmMX（Milonga V 第216场）原图 `GqufXmMX.png` 已是 2026-11-17、No.21
 ## 11. 指路图缩略图（2026-11-20）
 
 探戈帮指路图打开慢：第 4 张是 4032px、1.9MB 的原图，已缩到 1600px、239KB、去 EXIF；而且卡上的小按钮一直在下载原尺寸大图。现在小按钮改用 `images/asia/directions/thumb/<名字>.webp`（每张 10–35KB），点开放大才下载原图；缩略图缺了会自动退回原图。新加指路图后跑 `python3 tools/make_direction_thumbs.py`，换同名照片后加 `--force`。`atm-addr.js` 版本号 ad5→ad6。
+
+## 12. source 字段不放个人联络方式（2026-11-20）
+仓库和网站的 JSON 都公开，`source` 还会显示在活动详情页的「资料来源」里。已把 8 张卡（E086、E116、E121、AtrSun01、E160、E164、E163、E167）`source` 里的邮箱、电话换成「（邮箱已删）」「（电话已删）」，`events.json`、`events-core.json` 都改了（`events-more.json` 没有这个字段的联络方式）。岘港活动页中英两页的「资料来源」同步改了。卡上 `contacts` 的公开联络方式没动。**以后写 `source` 只写来源和日期（如「主办邮件 2026-11-20」），不写邮箱、手机。** git 历史里的旧内容没有改写。
