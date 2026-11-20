@@ -288,3 +288,7 @@ GqufXmMX（Milonga V 第216场）原图 `GqufXmMX.png` 已是 2026-11-17、No.21
 第二枚（一个 gmail 邮箱，地址同样不再写在这里）在现行公开活动 JSON、活动页、`asia/organizers.json` 和 `data/entities-draft/organizers.json` 里都没有，所以没有删任何东西来假装它已去掉。组织者草稿 O049 Cristopher Wibowo、O050 Michelle Ng 只有姓名和 E042，没有邮箱栏。
 
 这次之前的 main 是 `4039f26`。正式站已核对：`events-core.json?v=china490` 和 `events.json` 里 E042 只剩电话 +6012 333 5311，网站仍是 https://www.love2tango.com 。中英活动页没有这个邮箱、没有 mailto，也没有 Cloudflare 邮箱保护标记。第二枚邮箱本来就不在这些公开来源里。
+
+## 11. 指路图缩略图（2026-11-20）
+
+探戈帮指路图打开慢：第 4 张是 4032px、1.9MB 的原图，已缩到 1600px、239KB、去 EXIF；而且卡上的小按钮一直在下载原尺寸大图。现在小按钮改用 `images/asia/directions/thumb/<名字>.webp`（每张 10–35KB），点开放大才下载原图；缩略图缺了会自动退回原图。新加指路图后跑 `python3 tools/make_direction_thumbs.py`，换同名照片后加 `--force`。`atm-addr.js` 版本号 ad5→ad6。
