@@ -13,7 +13,7 @@ The repo is public: emails and phone numbers in the article text are hidden. An 
 already has the section is skipped, so running twice does nothing. A failed fetch is written
 into the answer too (the Claude step then lists it for Shiao) and never fails the run.
 """
-import html, io, os, re, subprocess, sys, time, urllib.request
+import html, io, os, re, subprocess, sys, time, urllib.parse, urllib.request
 from html.parser import HTMLParser
 
 LINK = re.compile(r'https?://mp\.weixin\.qq\.com/s(?:/[A-Za-z0-9_-]+|\?[^\s<>()\[\]"\'`，。）】]+)')
@@ -98,14 +98,35 @@ def js_var(page, name):
 
 
 def js_decode(s):
-    """Undo JsDecode('...') / JS string escapes: \\xNN, \\uNNNN, \\n, \\'."""
-    s = re.sub(r'\\x([0-9a-fA-F]{2})', lambda m: chr(int(m.group(1), 16)), s)
-    s = re.sub(r'\\u([0-9a-fA-F]{4})', lambda m: chr(int(m.group(1), 16)), s)
-    s = s.replace('\\n', '\n').replace("\\'", "'").replace('\\"', '"').replace('\\/', '/')
-    return html.unescape(html.unescape(s))
+    """Undo JsDecode('...') / JS string escapes, also when escaped twice (seen 11/21)."""
+    for _ in range(3):
+        t = _js_decode_once(s)
+        if t == s:
+            break
+        s = t
+    return s
+
+
+def _js_decode_once(s):
+    def one(m):
+        e = m.group(1)
+        if e[0] in 'xu':
+            return chr(int(e[1:], 16))
+        return {'n': '\n', 'r': '', 't': ' '}.get(e, e)
+    s = re.sub(r'\\(x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|[nrt\'"/\\])', one, s)
+    return html.unescape(s)
+
+
+def poi(m):
+    """WeChat map link -> 「name（地图地址：…）」."""
+    tag, name = m.group(1), m.group(2).strip()
+    a = re.search(r'data-address="([^"]*)"', tag)
+    addr = urllib.parse.unquote(a.group(1)).strip() if a else ''
+    return f'{name}（地图地址：{addr}）' if addr and addr != name else name
 
 
 def strip_tags(s):
+    s = re.sub(r'(<a\b[^>]*wx_poi_link[^>]*>)(.*?)</a>', poi, s, flags=re.I | re.S)
     s = re.sub(r'<br\s*/?>|</p>|</div>|</section>', '\n', s, flags=re.I)
     return re.sub(r'<[^>]+>', '', s)
 
