@@ -66,8 +66,8 @@ window.atmNoticeGate=function(storage,perf){
   var pages=/\.pages\.dev$/i.test(host);
   var link=document.createElement('link');
   link.rel='preload'; link.as='fetch';
-  if(pages){ link.href='/asia/events-core.json?v=china558'; }
-  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china558'; link.crossOrigin='anonymous'; }
+  if(pages){ link.href='/asia/events-core.json?v=china559'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china559'; link.crossOrigin='anonymous'; }
   document.head.appendChild(link);
 })();
 </script>
@@ -87,7 +87,7 @@ window.atmNoticeGate=function(storage,perf){
   var host=''; try{ host=location.hostname||''; }catch(e){}
   var pages=/\.pages\.dev$/i.test(host);
   var R2='https://data.tangoweekend.org';
-  var core=pages?'/asia/events-core.json?v=china558':R2+'/asia/events-core.json?v=china558';
+  var core=pages?'/asia/events-core.json?v=china559':R2+'/asia/events-core.json?v=china559';
   var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json?v=china459';
   function preload(href, pri){
     if(!href) return;
@@ -337,7 +337,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <script>
 window.CHINA_UI = {
   lang: 'en',
-  eventsUrl: 'events-core.json?v=china558',
+  eventsUrl: 'events-core.json?v=china559',
   hideAddrEn: false,
   keepOrganizerZh: false,
   daysShort: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
