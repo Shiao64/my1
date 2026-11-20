@@ -41,6 +41,7 @@
   Cloudflare 后台 tango-subscribe 的变量（**不进仓库**）：`ATM_MAIL_SENDERS` 额外名单（我们这边 4 个，或主办的另一个邮箱、还没卡的新主办；格式 `邮箱=称呼,…`，不算主办确认）；`ATM_MAIL_ORGANIZERS` 额外但算主办确认的（目前空）；`ATM_MAIL_BLOCK` 不收名单（只写邮箱）；`ATM_MAIL_NAMES` 只管回信开头的称呼（例 王凯），不给寄信资格。11/20 卡上有 27 位（含深圳 Bes、香港 Eli Tango）；韩国、越南、日本的卡不在范围。和主办一律用中文沟通。
 - GitHub 授权码：Cloudflare secret `ATM_GITHUB_TOKEN`（GitHub 上叫 huodong-mail，只能动 my1 的 Contents / Pull requests，一年后过期，到期要换）。
 - 信里所有邮箱地址都隐藏，md 只写称呼；原始邮件不存。名单外、冒名、自动回复：不收、不回信。
+- **公众号文章链接（11/21 用户定）**：答复（来信或探戈助理）里有 mp.weixin.qq.com 文章链接时，inbox.yml 在 Claude 处理前先跑 `tools/wechat_article.py`：打开文章，把正文加进答复的「## 公众号文章（自动读取）」（邮箱、电话隐藏），图片（最多 8 张、去掉小图标和 gif）存成 `<答复名>-wx<k>-<n>.jpg`，当附件用。读不到（微信要验证、文章删了）就在答复里写「读取失败」，PR 等 Shiao 看。测试 `python3 tools/test_wechat_article.py`。只寄链接也行，但微信偶尔挡 GitHub 的机器，重要的最好附海报。
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
