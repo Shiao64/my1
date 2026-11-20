@@ -17,7 +17,7 @@
   }
   var T = zh ? {
     reg: '日常活动', regSub: '舞会 · 练习', big: '大活动', bigSub: '工作坊 · 探戈节', cls: '课程', about: '关于', soon: '近期', wx: '微信', web: '网站', intro: '介绍', more: '展开', less: '收起',
-    copied: '微信号已复制', venues: '场地', people: '主理人', dir: '有问路图', next: '下次', every: '每', all: '在亚洲探戈地图看全部活动 ›', none: '暂无', save: '收藏', ask: '报名、时间请联络：微信 '
+    copied: '微信号已复制', venues: '场地', people: '主理人', dir: '有指路图', next: '下次', every: '每', all: '在亚洲探戈地图看全部活动 ›', none: '暂无', save: '收藏', ask: '报名、时间请联络：微信 '
   } : {
     reg: 'Regular events', regSub: 'Milongas · Prácticas', big: 'Big events', bigSub: 'Workshops · Festivals', cls: 'Classes', about: 'About', soon: 'Coming up', wx: 'WeChat', web: 'Website', intro: 'About', more: 'More', less: 'Less',
     copied: 'WeChat ID copied', venues: 'Venues', people: 'People', dir: 'photo directions', next: 'Next', every: 'Every ', all: 'See everything on Asia Tango Map ›', none: 'None yet', save: 'Save', ask: 'Times and sign-up: WeChat '
