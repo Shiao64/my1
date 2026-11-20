@@ -3,6 +3,12 @@ import SUB from '../../subscribe-worker/src/index.js';
 import { social, wxExpireSweep, generateGoingStats, runGoingNotices } from './social.js';
 import { unsubscribe as unsub2 } from './unsub.js';
 import { monthlyRoster } from './roster.js';
+import { inboundMail } from './inmail.js';
+// Ack for huodong@ mail: SUB_MAIL (send_email binding, sender subscribe@) only. Never Resend.
+async function ackMail(env, to, subject, text) {
+  if (!env.SUB_MAIL || typeof env.SUB_MAIL.send !== 'function') { console.log('[mail:log] ack to list member: ' + subject); return; }
+  await env.SUB_MAIL.send({ from: { email: env.SENDER || 'subscribe@tangoweekend.org', name: 'Asia Tango Map' }, to, subject, text });
+}
 function previewOrigins(env) {
   if (!env || env.PREVIEW !== '1') return [];
   return String(env.PREVIEW_ORIGINS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean);
@@ -33,6 +39,10 @@ export default {
       return SUB.fetch(new Request(req.url, { method: 'POST', headers: req.headers, body: raw }), e2, ctx);
     }
     return SUB.fetch(req, env, ctx);
+  },
+  // huodong@tangoweekend.org (Cloudflare Email Routing -> this Worker). inmail.js
+  async email(message, env, ctx) {
+    try { await inboundMail(message, env, ctx, ackMail); } catch (e) { console.log('inmail', String(e && e.message || e).slice(0, 160)); }
   },
   async scheduled(event, env, ctx) {
     if (event.cron === '17 3 * * *') return SUB.scheduled(event, env, ctx);
