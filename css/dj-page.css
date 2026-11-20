@@ -73,3 +73,7 @@ html,body{margin:0;background:#FBF5E9;color:#0A4F57;font-family:system-ui,-apple
 .gp-kv>div>span{color:#0A4F57}
 .gp-all{display:block;text-align:center;margin:26px 0 8px;padding:11px;border:1.5px solid #0E6E78;border-radius:999px;color:#0E6E78;font-weight:700;text-decoration:none}
 .gp-toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:99;padding:10px 16px;border-radius:999px;background:#0A4F57;color:#fff;font-size:14px;font-weight:700;white-space:nowrap}
+.gp-star{position:relative;z-index:1;margin-left:auto;width:44px;height:44px;padding:0;border:0;background:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.gp-star svg{width:26px;height:26px;display:block}
+.gp-star path{fill:none;stroke:#0A4F57;stroke-width:1.8;stroke-linejoin:round}
+.gp-star[aria-pressed="true"] path{fill:#F2CF7F}
