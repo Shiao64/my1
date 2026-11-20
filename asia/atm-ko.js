@@ -64,6 +64,7 @@
     'Details': '상세', 'Event details': '이벤트 상세', 'Phone': '전화', 'Email': '이메일', 'WeChat': '위챗',
     'WeChat ID:': '위챗 ID:', 'Phone:': '전화:', 'Email:': '이메일:', 'Phone/WeChat:': '전화/위챗:',
     'WeChat Article': '위챗 글', 'WeChat article': '위챗 글', 'Temporarily changed': '임시 변경',
+    'Same venue': '같은 장소', 'Weekly classes too ›': '매주 수업도 있어요 ›',
     'Newer poster': '최신 포스터', 'Older poster': '이전 포스터', 'Past poster': '지난 포스터', 'Previous poster': '이전 포스터', 'Next poster': '다음 포스터',
     'ENDED': '종료', 'This event has ended': '종료된 이벤트입니다', 'View all events': '모든 이벤트 보기', 'Next edition:': '다음 회차:',
     '📷 Recap': '📷 후기', 'Photos:': '사진:', '★ Special events': '★ 스페셜 이벤트', 'This card is not on the map': '지도에 없는 카드입니다',
@@ -185,6 +186,8 @@
   function tail(s) { return s.split(' · ').map(function (p, i) { return i ? (CITY[p] || TYPE[p] || S[p] || p) : p; }).join(' · '); }
 
   var P = [
+    [/^More from (.+)$/, function (m) { return m[1] + '의 다른 활동'; }],
+    [/^All of (.+) ›$/, function (m) { return m[1] + ' 전체 활동 ›'; }],
     [/^Updated (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { return (m[1] === 'today' ? '오늘' : m[1] === 'yesterday' ? '어제' : m[2] ? m[2] + '일 전' : m[3]) + ' 업데이트'; }],
     [/^Confirmed by organizer (today|yesterday|(\d+) days ago)$/, function (m) { return '주최자 확인 · ' + (m[1] === 'today' ? '오늘' : m[1] === 'yesterday' ? '어제' : m[2] + '일 전'); }],
     [new RegExp('^(Today · )?(' + WDK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return (m[1] ? '오늘 · ' : '') + m[3] + ' (' + WD[m[2]] + ')'; }],

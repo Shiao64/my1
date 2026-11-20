@@ -76,6 +76,7 @@
     'Details': 'Подробности', 'Event details': 'О событии', 'Phone': 'Телефон', 'Email': 'Почта', 'WeChat': 'WeChat',
     'WeChat ID:': 'WeChat ID:', 'Phone:': 'Телефон:', 'Email:': 'Почта:', 'Phone/WeChat:': 'Телефон/WeChat:',
     'WeChat Article': 'Статья в WeChat', 'WeChat article': 'Статья в WeChat', 'Temporarily changed': 'Временно изменено',
+    'Same venue': 'То же место', 'Weekly classes too ›': 'Есть и еженедельные занятия ›',
     'Newer poster': 'Новее', 'Older poster': 'Предыдущая афиша', 'Past poster': 'Прошлая афиша', 'Previous poster': 'Предыдущая афиша', 'Next poster': 'Следующая афиша',
     'ENDED': 'ЗАВЕРШЕНО', 'This event has ended': 'Это событие завершилось', 'View all events': 'Все события', 'Next edition:': 'Следующий раз:',
     '📷 Recap': '📷 Фотоотчёт', 'Photos:': 'Фото:', '★ Special events': '★ Особые события', 'This card is not on the map': 'Этой карточки нет на карте',
@@ -202,6 +203,8 @@
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   var P = [
+    [/^More from (.+)$/, function (m) { return 'Ещё от ' + m[1]; }],
+    [/^All of (.+) ›$/, function (m) { return 'Всё от ' + m[1] + ' ›'; }],
     [/^Updated (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { return 'Обновлено ' + (m[1] === 'today' ? 'сегодня' : m[1] === 'yesterday' ? 'вчера' : m[2] ? m[2] + ' дн. назад' : m[3]); }],
     [/^Confirmed by organizer (today|yesterday|(\d+) days ago)$/, function (m) { return 'Подтверждено организатором ' + (m[1] === 'today' ? 'сегодня' : m[1] === 'yesterday' ? 'вчера' : m[2] + ' дн. назад'); }],
     [new RegExp('^(Today · )?(' + WDK + ') (\\d{1,2}/\\d{1,2})$'), function (m) { return (m[1] ? 'Сегодня · ' : '') + WD[m[2]] + ' ' + dm(m[3]); }],

@@ -31,3 +31,45 @@ html,body{margin:0;background:#FBF5E9;color:#0A4F57;font-family:system-ui,-apple
 .dj-tw>*{pointer-events:auto}
 .dj-tw h1{font:700 22px/1 "Noto Serif SC","Songti SC",serif;flex:0 1 auto}
 .dj-tw .dj-aff{flex:0 1 auto}
+
+/* 2026-11-20 group page (asia/group-page.js) */
+.gp-top{display:flex;gap:12px;align-items:center;margin:4px 0 10px}
+.gp-logo{width:72px;height:72px;flex:none;border-radius:12px;object-fit:contain;background:#fff;border:1px solid #EFE6D3}
+.gp-tag p{margin:0;font-size:16px;font-weight:700;line-height:1.45;color:#0A4F57}
+.gp-tag .gp-aff{margin-top:2px;font-size:13px;font-weight:600;color:#5f6f66}
+.gp-btns{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.gp-btn{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border:1.5px solid #0E6E78;border-radius:999px;background:#fff;color:#0E6E78;font:700 14px/1 system-ui,-apple-system,"PingFang SC",sans-serif;text-decoration:none;cursor:pointer}
+.gp-soon{display:block;margin:0 0 14px;padding:10px 12px;border:1px solid #E7C66B;border-radius:12px;background:#FFF6DC;color:#7A5300;font-size:14px;font-weight:600;text-decoration:none}
+.gp-soon b{margin-right:4px}
+.dj-main .gp-sec h2{margin:20px 0 10px}
+.dj-main .gp-sec h2 small{margin-left:6px;font:600 13px/1 system-ui,-apple-system,"PingFang SC",sans-serif;color:#5f6f66}
+.dj-events .pf-ev{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px;background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.dj-events a.pf-ev-a{display:flex;align-items:center;gap:12px;flex:1;min-width:0;margin:0;padding:0;background:none;box-shadow:none;border-radius:0;text-decoration:none;color:#0A4F57}
+.dj-events .pf-ev-img{display:block;width:64px;height:64px;flex:none;object-fit:cover;border-radius:8px;background:#EFE6D3}
+.dj-events a.pf-ev-a .pf-ev-t{display:block;flex:1;min-width:0;margin:0;color:#0A4F57}
+.dj-events .pf-ev-t b{display:block;font-size:16px;color:#0A4F57}
+.dj-events a.pf-ev-a .pf-ev-w{display:block;margin-top:2px;font-size:13px;font-weight:600;color:#0E6E78}
+.dj-events a.pf-ev-a .pf-ev-v{display:block;margin-top:1px;font-size:13px;font-weight:600;color:#5f6f66;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pf-star{flex:none;width:44px;height:44px;border:1.5px solid #0E6E78;border-radius:50%;background:#fff;color:#0E6E78;font-size:20px;line-height:1;cursor:pointer}
+.pf-star[aria-pressed="true"]{background:#0E6E78;color:#F2CF7F}
+.gp-clist{background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:2px 12px}
+.gp-cls{display:grid;grid-template-columns:40px 92px 1fr;gap:6px;padding:9px 0;border-top:1px solid #F1EBDD;font-size:14px;font-weight:600}
+.gp-cls:first-child{border-top:0}
+.gp-cls-d{color:#0A4F57;font-weight:700}
+.gp-cls-t{color:#0E6E78}
+.gp-cls-l b{display:block;color:#0A4F57}
+.gp-cls-l span{display:block;font-size:13px;color:#5f6f66}
+.gp-note{margin:8px 0 0;font-size:15px;font-weight:600;line-height:1.55;color:#0A4F57}
+.gp-link{padding:0;border:0;background:none;color:#0E6E78;font:inherit;font-weight:700;text-decoration:underline;cursor:pointer}
+.gp-bio{max-height:9.3em;overflow:hidden;position:relative}
+.gp-bio:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2.4em;background:linear-gradient(rgba(251,245,233,0),#FBF5E9)}
+.gp-bio.open{max-height:none}
+.gp-bio .dj-bio{font-size:15px}
+.gp-more{display:block;margin:6px 0 0;padding:4px 0;border:0;background:none;color:#0E6E78;font:700 14px/1.2 system-ui,-apple-system,"PingFang SC",sans-serif;cursor:pointer}
+.gp-kv{display:grid;grid-template-columns:64px 1fr;gap:8px;margin-top:14px;font-size:15px}
+.gp-kv>b{color:#5f6f66;font-size:14px}
+.gp-kv a,.gp-kv span{display:block;color:#0E6E78;font-weight:700;text-decoration:none;margin-bottom:4px}
+.gp-kv a span{display:inline;color:#5f6f66;font-weight:600;font-size:13px}
+.gp-kv>div>span{color:#0A4F57}
+.gp-all{display:block;text-align:center;margin:26px 0 8px;padding:11px;border:1.5px solid #0E6E78;border-radius:999px;color:#0E6E78;font-weight:700;text-decoration:none}
+.gp-toast{position:fixed;left:50%;bottom:32px;transform:translateX(-50%);z-index:99;padding:10px 16px;border-radius:999px;background:#0A4F57;color:#fff;font-size:14px;font-weight:700;white-space:nowrap}
