@@ -72,10 +72,11 @@
       return { src: src, cap: pickLang(o, 'caption') };
     }).filter(Boolean).slice(0, 8);
   }
-  /* 2026-11-20: small webp next to each route photo (tools/make_direction_thumbs.py); full photo only in the viewer. */
-  function thumbOf(src) {
+  /* 2026-11-20: webp copies next to each route photo (tools/make_direction_thumbs.py):
+     thumb/ for the card buttons, w800/ for the viewer. The original is only a fallback. */
+  function thumbOf(src, kind) {
     var m = /^\/images\/asia\/directions\/([^\/?#]+)\.(?:jpe?g|png|webp)$/i.exec(src);
-    return m ? '/images/asia/directions/thumb/' + m[1] + '.webp' : src;
+    return m ? '/images/asia/directions/' + (kind || 'thumb') + '/' + m[1] + '.webp' : src;
   }
   function thumbs(id, pics, cls) {
     if (!pics.length) return '';
@@ -113,7 +114,7 @@
     '#atm-adr-big .ab-pics .atm-adr-pic{width:128px;height:96px}' +
     '#atm-adr-pv{position:fixed;inset:0;z-index:2147483001;background:#0B2440;display:flex;flex-direction:column;color:#fff}#atm-adr-pv .pv-top{display:flex;justify-content:space-between;align-items:center;padding:max(8px,env(safe-area-inset-top)) 10px 4px 16px;font:600 15px/1.3 system-ui,sans-serif}' +
     '#atm-adr-pv .pv-x,#atm-adr-pv .pv-nav{all:unset;cursor:pointer;width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:30px;color:#fff}#atm-adr-pv .pv-main{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;position:relative}' +
-    '#atm-adr-pv img{max-width:100%;max-height:100%;object-fit:contain}#atm-adr-pv .pv-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.35);border-radius:50%}#atm-adr-pv .pv-prev{left:8px}#atm-adr-pv .pv-next{right:8px}' +
+    '#atm-adr-pv img{max-width:100%;max-height:100%;object-fit:contain}#atm-adr-pv img.pv-lo{filter:blur(1.5px)}#atm-adr-pv .pv-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.35);border-radius:50%}#atm-adr-pv .pv-prev{left:8px}#atm-adr-pv .pv-next{right:8px}' +
     '#atm-adr-pv .pv-cap{padding:10px 18px max(14px,env(safe-area-inset-bottom));font:15px/1.45 system-ui,sans-serif;text-align:center;min-height:1em}' +
     '#atm-adr-pv .pv-live{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}' +
     '#atm-adr-pv .pv-nav[hidden]{display:none}' +
@@ -239,11 +240,37 @@
       var more = cap.scrollHeight > cap.clientHeight + 2 && cap.scrollTop + cap.clientHeight < cap.scrollHeight - 2;
       cap.classList.toggle('pv-more', more);
     }
+    /* Like posters: the card's thumb is already cached, so show it at once (sized as the
+       800 copy so nothing jumps), swap in the 800 copy when it arrives, then fetch the rest. */
+    var tok = 0, warmed = false;
+    function warm() {
+      if (warmed) return; warmed = true;
+      pics.forEach(function (p) { var w = thumbOf(p.src, 'w800'); if (w !== p.src) { var t = new Image(); t.decoding = 'async'; t.src = w; } });
+    }
+    function plain() { img.classList.remove('pv-lo'); img.style.width = img.style.height = ''; img.onload = img.onerror = null; }
+    function sizeLo() {
+      var w = img.naturalWidth, h = img.naturalHeight; if (!w || !h) return;
+      var s = 800 / Math.max(w, h);
+      img.style.width = Math.round(w * s) + 'px'; img.style.height = Math.round(h * s) + 'px';
+    }
+    function load(p) {
+      var my = ++tok, hi = thumbOf(p.src, 'w800'), lo = thumbOf(p.src, 'thumb');
+      plain();
+      if (hi === p.src) { img.src = p.src; return; }
+      img.classList.add('pv-lo');
+      img.onload = function () { if (my === tok && img.classList.contains('pv-lo')) sizeLo(); };
+      img.onerror = function () { if (my !== tok) return; plain(); img.src = p.src; };
+      img.src = lo; if (img.complete) sizeLo();
+      var t = new Image(); t.decoding = 'async';
+      t.onload = function () { if (my !== tok) return; plain(); img.src = hi; warm(); };
+      t.onerror = function () { if (my !== tok) return; plain(); img.src = p.src; warm(); };
+      t.src = hi;
+    }
     function show(k) {
       i = (k + pics.length) % pics.length;
       var capText = pics[i].cap || '';
       var label = T.pics + (pics.length > 1 ? ' ' + (i + 1) + ' / ' + pics.length : '');
-      img.src = pics[i].src;
+      load(pics[i]);
       img.alt = '';
       cap.scrollTop = 0;
       cap.textContent = capText;
