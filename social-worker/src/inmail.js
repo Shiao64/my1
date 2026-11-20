@@ -1,7 +1,7 @@
 // 2026-11-20 (Shiao): huodong@tangoweekend.org — mail in activity info, the site updates itself.
 // Cloudflare Email Routing sends mail for that address to this Worker (export `email` in live.js).
-// 1. Only senders on the list in var ATM_MAIL_SENDERS ("addr=label,addr=label"; kept in the dashboard,
-//    never in the public repo), and only when SPF/DKIM/DMARC passed. Anything else is dropped silently.
+// 1. Only organizers on the live cards (mainland/HK/TW, contacts.email) plus var ATM_MAIL_SENDERS ("addr=label,…",
+//    extra people, kept in the dashboard), minus ATM_MAIL_BLOCK, and only when SPF/DKIM/DMARC passed. Else dropped.
 // 2. The mail is turned into data/inbox/<date>-mail-<id>.md (+ images / PDF), with every e-mail address
 //    in the text hidden, and sent to GitHub as a PR from branch answer/mail-<id> (secret ATM_GITHUB_TOKEN).
 //    inbox-guard.yml merges it and starts inbox.yml, the same path the answers always took.
@@ -19,6 +19,51 @@ export function parseSenders(s) {
   }
   return out;
 }
+
+// ---------- organizers from the live cards (11/20, Shiao) ----------
+// Who may mail = organizers whose card in mainland China / Hong Kong / Taiwan / Macau has contacts.email
+// (read from the live events-core.json, cached 10 min) + ATM_MAIL_SENDERS (extra, by hand) - ATM_MAIL_BLOCK.
+// Card organizers count as organizer confirmation, only for their own cards. ATM_MAIL_NAMES ("addr=称呼") only sets the greeting.
+const CORE_URLS = ['https://data.tangoweekend.org/asia/events-core.json', 'https://raw.githubusercontent.com/Shiao64/my1/main/asia/events-core.json'];
+const ZH_COUNTRIES = new Set(['China', 'Hong Kong', 'Taiwan', 'Macau', 'Macao']);
+let cardCache = null, cardCacheAt = 0;
+export function cardOrganizers(events) {
+  const out = {};
+  for (const e of Array.isArray(events) ? events : (events && events.events) || []) {
+    if (!e || e.hidden || !ZH_COUNTRIES.has(e.country)) continue;
+    const raw = (e.contacts || {}).email; if (!raw) continue;
+    const org = Array.isArray(e.organizers) ? e.organizers.join('、') : String(e.organizers || '');
+    for (const a of (Array.isArray(raw) ? raw : String(raw).split(/[,;\s]+/))) {
+      const addr = String(a || '').trim().toLowerCase(); if (!/^[^@\s]+@[^@\s]+$/.test(addr)) continue;
+      const o = out[addr] || (out[addr] = { label: '', cards: [] });
+      if (!o.label && org) o.label = org;
+      if (e.id && !o.cards.includes(e.id)) o.cards.push(e.id);
+    }
+  }
+  for (const a in out) if (!out[a].label) out[a].label = a.split('@')[0];
+  return out;
+}
+async function loadCardOrganizers(env) {
+  if (cardCache && Date.now() - cardCacheAt < 600e3) return cardCache;
+  for (const u of (env.ATM_EVENTS_URL ? [env.ATM_EVENTS_URL] : CORE_URLS)) {
+    try {
+      const r = await fetch(u, { cf: { cacheTtl: 300 } });
+      if (!r.ok) continue;
+      cardCache = cardOrganizers(await r.json()); cardCacheAt = Date.now(); return cardCache;
+    } catch (e) { console.log('inmail: cards fetch failed', u.split('/')[2]); }
+  }
+  return cardCache || {};
+}
+export async function whoIs(env, from) {
+  const block = parseSenders(env.ATM_MAIL_BLOCK);
+  if (block[from]) return null;
+  const extra = parseSenders(env.ATM_MAIL_SENDERS), extraOrg = parseSenders(env.ATM_MAIL_ORGANIZERS);
+  const cards = await loadCardOrganizers(env), c = cards[from];
+  if (!c && !extra[from] && !extraOrg[from]) return null;
+  const names = parseSenders(env.ATM_MAIL_NAMES);   // greeting only; gives no right to mail
+  return { label: extra[from] || extraOrg[from] || names[from] || c.label, organizer: !!(c || extraOrg[from]), cards: c ? c.cards : [] };
+}
+export function _resetCardCache() { cardCache = null; cardCacheAt = 0; }
 
 // ---------- MIME ----------
 const td = (bytes, cs) => {
@@ -101,9 +146,10 @@ export function buildInbox(parsed, meta) {
     `- 主题：${hideEmails(meta.subject) || '（无主题）'}`,
     `- 附件：${files.length ? files.map(f => '`' + f.path.split('/').pop() + '`（原名 ' + f.orig + '）').join('、') : '无'}`,
     meta.organizer ? `- 寄件人是主办本人：这封信可以算「主办确认」（卡片 \`confirmed\` 写收到日期）` : `- 寄件人是 ATM 这边的人（转寄或整理的资料），不算主办确认`,
+    meta.cards && meta.cards.length ? `- 这位主办在网站上的卡：${meta.cards.join('、')}（主办确认只用在这些卡；信里提到别的卡，照一般资料处理）` : null,
     '', '## 内容', '', text || (files.length ? '（没有文字，只有附件）' : '（信里没有文字）'), '',
     '---', '邮件里的邮箱地址都已隐藏。原始邮件没有存下来。', ''
-  ].join('\n');
+  ].filter(x => x !== null).join('\n');
   return { md, files };
 }
 
@@ -132,9 +178,10 @@ export function isAuto(h, subject) {
   return (as && as !== 'no') || !!h.get('x-autoreply') || !!h.get('x-autorespond') || /^(自动回复|auto(matic)?[ -]?reply|out of office)/i.test(subject || '');
 }
 export async function inboundMail(message, env, ctx, deliverFn) {
-  const senders = parseSenders(env.ATM_MAIL_SENDERS), from = String(message.from || '').toLowerCase();
-  const label = senders[from];
-  if (!label) { console.log('inmail: not on list, dropped'); return; }
+  const from = String(message.from || '').toLowerCase();
+  const who = await whoIs(env, from);
+  if (!who) { console.log('inmail: not on list, dropped'); return; }
+  const label = who.label;
   if (!authPassed(message.headers)) { console.log('inmail: auth not passed, dropped'); return; }
   if (message.rawSize > MAX_RAW) { console.log('inmail: too big'); return; }
   const subject = decodeWords(message.headers.get('subject') || '').trim();
@@ -146,8 +193,8 @@ export async function inboundMail(message, env, ctx, deliverFn) {
   const now = new Date(Date.now() + 8 * 3600e3), iso = now.toISOString();
   const id = iso.slice(5, 10).replace('-', '') + '-' + iso.slice(11, 16).replace(':', '') + '-' + crypto.randomUUID().slice(0, 4);
   const base = iso.slice(0, 10) + '-mail-' + id;
-  const organizer = !!(env.ATM_MAIL_ORGANIZERS && parseSenders(env.ATM_MAIL_ORGANIZERS)[from]);
-  const { md, files } = buildInbox(parsed, { base, subject, label, when: iso.slice(0, 16).replace('T', ' '), organizer });
+  const organizer = who.organizer;
+  const { md, files } = buildInbox(parsed, { base, subject, label, when: iso.slice(0, 16).replace('T', ' '), organizer, cards: who.cards });
   const title = '邮件答复：' + (hideEmails(subject) || '（无主题）').slice(0, 60) + '（' + label + '）';
   let ok = true, err = '';
   try { await pushPR(env, 'answer/mail-' + iso.slice(0, 10) + '-' + id, md, 'data/inbox/' + base + '.md', files, title, label + ' 寄到 huodong@tangoweekend.org 的活动资料。自动处理中。'); }
