@@ -107,7 +107,6 @@
   function cat(e) { var b = BIG.indexOf(catOf(e)); return b >= 0 ? b : 5; }
   function prep(d) {
     DATA = d.filter(function (e) { return !e.hidden; });
-    grpSync();
     FEAT = DATA.filter(isFeat).sort(function (a, b) { return (a.start || '9') < (b.start || '9') ? -1 : (a.start || '9') > (b.start || '9') ? 1 : 0; });
     REG = {};
     DATA.forEach(function (e) {
@@ -199,17 +198,10 @@
   function grpGo(ev) { var x = ev.target && ev.target.closest && ev.target.closest('.ah-grp[data-g]'); if (!x) return; if (ev.type === 'keydown' && ev.key !== 'Enter') return; ev.preventDefault(); ev.stopPropagation(); var c = x.closest('[data-id]'); location.href = (zh ? '/zh' : '') + '/group/' + encodeURIComponent(x.getAttribute('data-g')) + '/' + (c ? '?card=' + encodeURIComponent(c.getAttribute('data-id')) : ''); }
   window.addEventListener('click', grpGo, true); window.addEventListener('keydown', grpGo, true);
   /* 2026-11-20 (Shiao): 收藏团体 (star only; no 要参加/感兴趣 for a group). atm_fav_groups_v1 = [{id,name,name_zh,photo,seen,added}], written by the group page star.
-     A saved group's new events join atm_fav_v1 once (seen), so un-saving one event sticks. The 收藏 tab shows the group card first. */
+     Saving a group saves only the group, not its events; the 收藏 tab shows the group card first. */
   var GK = 'atm_fav_groups_v1';
   function grpFavs() { try { var a = JSON.parse(localStorage.getItem(GK) || '[]'); return Array.isArray(a) ? a.filter(function (g) { return g && g.id; }) : []; } catch (e) { return []; } }
   function grpEvents(gid) { return (DATA || []).filter(function (e) { return Array.isArray(e.groups) && e.groups.indexOf(gid) >= 0 && live(e); }); }
-  function grpSync() {
-    var G = grpFavs(); if (!G.length || !DATA) return; var fav;
-    try { fav = JSON.parse(localStorage.getItem('atm_fav_v1') || '[]'); } catch (e) { return; } if (!Array.isArray(fav)) fav = [];
-    var ch = false;
-    G.forEach(function (g) { g.seen = g.seen || []; g.added = g.added || []; grpEvents(g.id).forEach(function (e) { if (g.seen.indexOf(e.id) >= 0) return; g.seen.push(e.id); ch = true; if (fav.indexOf(e.id) < 0) { fav.push(e.id); g.added.push(e.id); } }); });
-    if (ch) { try { localStorage.setItem('atm_fav_v1', JSON.stringify(fav)); localStorage.setItem(GK, JSON.stringify(G)); } catch (e) {} }
-  }
   function grpFavCards() {
     return grpFavs().map(function (g) {
       var n = grpEvents(g.id).length, nm = (zh ? (g.name_zh || g.name) : (g.name || g.name_zh)) || g.id;
