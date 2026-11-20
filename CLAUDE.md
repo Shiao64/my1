@@ -23,7 +23,7 @@
 - 改 JS 要在 **`asia/index.html` 和 `zh/asia/index.html` 两页**一起加 `?v=` 版本号；换海报后跑 `tools/radar_poster_update.py` 的 `bump_live_caches()`。
 - 新图片要先被 R2 sync 传上去，网站才打得开；同步现在是图片先、JSON 最后。
 - `tools/__pycache__/` 里的 .pyc 被 git 追踪：不要删，也不要提交新产生的。
-- 指路图：网站用缩小版（最长边 1600px、去 EXIF），原图留 `data/inbox/done/`。
+- 指路图：网站用缩小版（最长边 1600px、去 EXIF），原图留 `data/inbox/done/`；新加后跑 `python3 tools/make_direction_thumbs.py` 生成卡上用的缩略图（同名换图加 `--force`）。
 - 历史海报最多 4 张、超过 30 天不留，每天 03:17（北京）自动清理。
 
 ## 测试
