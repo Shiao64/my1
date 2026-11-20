@@ -74,3 +74,7 @@ A city's 常规 list (home city view, and the legacy regular filter) includes `r
 ## Poster guard — every visible card has a poster
 
 `tools/ensure_posters.py` fills any visible (`hidden != true`) card in `asia/events*.json` that has no `poster`: newest `posters_past[0]` first, else a generated text poster `images/asia/posters/generated/<id>.png` (1080×1350, same style) with thumbs + ATM_TH. `--check` exits 1 if any remain. It runs automatically after `radar_yidong.py`, at the end of `oti_weekly_update.sh`, in CI (`.github/workflows/poster-guard.yml`), and in the local pre-push hook.
+
+## Route photo thumbnails (指路图)
+
+Route photos live in `images/asia/directions/` (longest side ≤ 1600px, no EXIF). The small buttons on a card load `images/asia/directions/thumb/<name>.webp` instead (covers 384×288, ~10–35KB); the full photo loads only when someone taps to enlarge. `asia/atm-addr.js` falls back to the full photo if a thumb is missing. After adding a photo run `python3 tools/make_direction_thumbs.py`; after replacing a photo's bytes at the same path run it with `--force`. `--check` exits 1 if any photo has no thumb (also checked by `tools/test_route_lightbox.py`).

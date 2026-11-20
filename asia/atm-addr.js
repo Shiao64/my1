@@ -72,10 +72,15 @@
       return { src: src, cap: pickLang(o, 'caption') };
     }).filter(Boolean).slice(0, 8);
   }
+  /* 2026-11-20: small webp next to each route photo (tools/make_direction_thumbs.py); full photo only in the viewer. */
+  function thumbOf(src) {
+    var m = /^\/images\/asia\/directions\/([^\/?#]+)\.(?:jpe?g|png|webp)$/i.exec(src);
+    return m ? '/images/asia/directions/thumb/' + m[1] + '.webp' : src;
+  }
   function thumbs(id, pics, cls) {
     if (!pics.length) return '';
     return '<span class="' + cls + '" aria-label="' + esc(T.pics) + '">' + pics.map(function (p, i) {
-      return '<button type="button" class="atm-adr-pic" data-adrimg="' + id + ':' + i + '" aria-label="' + esc(T.pics + ' ' + (i + 1)) + '"><img src="' + esc(p.src) + '" alt="" loading="lazy"></button>';
+      return '<button type="button" class="atm-adr-pic" data-adrimg="' + id + ':' + i + '" aria-label="' + esc(T.pics + ' ' + (i + 1)) + '"><img src="' + esc(thumbOf(p.src)) + '" data-full="' + esc(p.src) + '" alt="" loading="lazy" onerror="if(this.src.indexOf(\'/thumb/\')>0){this.onerror=null;this.src=this.getAttribute(\'data-full\')}"></button>';
     }).join('') + '</span>';
   }
   var store = {}, seq = 0;
