@@ -132,7 +132,7 @@
     if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
     var was = b.getAttribute('aria-pressed') === 'true', n0 = favCount(), at = b.getBoundingClientRect(); /* the star may be redrawn: keep where it was tapped */
     /* the star may be re-rendered, so also check whether the saved list grew */
-    setTimeout(function () { if ((!was && b.isConnected && b.getAttribute('aria-pressed') === 'true') || favCount() > n0) findStar = function () { return where(b, null); }; dance(where(b, at)); }, 60);
+    setTimeout(function () { /* 2026-11-21 fix (Shiao): dance only when the star was turned on; un-saving does nothing */ if (!((!was && b.isConnected && b.getAttribute('aria-pressed') === 'true') || favCount() > n0)) return; findStar = function () { return where(b, null); }; dance(where(b, at)); }, 60);
   }
   /* window capture runs before the star / favorite handlers on document, so the 'before' state is read correctly */
   window.addEventListener('click', onHeart, true);
