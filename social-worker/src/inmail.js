@@ -101,7 +101,7 @@ export function buildInbox(parsed, meta) {
     `- 主题：${hideEmails(meta.subject) || '（无主题）'}`,
     `- 附件：${files.length ? files.map(f => '`' + f.path.split('/').pop() + '`（原名 ' + f.orig + '）').join('、') : '无'}`,
     meta.organizer ? `- 寄件人是主办本人：这封信可以算「主办确认」（卡片 \`confirmed\` 写收到日期）` : `- 寄件人是 ATM 这边的人（转寄或整理的资料），不算主办确认`,
-    '', '## 内容', '', text || '（没有文字，只有附件）', '',
+    '', '## 内容', '', text || (files.length ? '（没有文字，只有附件）' : '（信里没有文字）'), '',
     '---', '邮件里的邮箱地址都已隐藏。原始邮件没有存下来。', ''
   ].join('\n');
   return { md, files };
