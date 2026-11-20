@@ -42,7 +42,7 @@
   → 分支 `answer/mail-…` 开 PR → inbox-guard 合并 → inbox.yml 处理。寄件人会收到「ATM 收到」回信（SUB_MAIL，不用 Resend）。
   实测 11/20：寄出到合并约 30 秒，处理完约 1.5 分钟。
 - 名单在 Cloudflare 后台 tango-subscribe 的变量 `ATM_MAIL_SENDERS`（格式 `邮箱=称呼,邮箱=称呼`），**不进仓库**。加人就在后台改这个变量。
-  可选变量 `ATM_MAIL_ORGANIZERS`（同格式）：名单里是主办本人的，来信算「主办确认」，卡片 confirmed 写收到日期。目前没设。
+  变量 `ATM_MAIL_ORGANIZERS`（同格式）：名单里是主办本人的，来信算「主办确认」，卡片 confirmed 写收到日期。11/20 用户给了 28 位中文组织者（卡片上有邮箱的大陆、港台和几位海外主办），两个变量都已加入；我们这边 4 个（Shiao 两个、selecttango、探戈助理）只在 SENDERS。和主办一律用中文沟通（回信本来就是中文）。
 - GitHub 授权码：Cloudflare secret `ATM_GITHUB_TOKEN`（GitHub 上叫 huodong-mail，只能动 my1 的 Contents / Pull requests，一年后过期，到期要换）。
 - 信里所有邮箱地址都隐藏，md 只写称呼；原始邮件不存。名单外、冒名、自动回复：不收、不回信。
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
