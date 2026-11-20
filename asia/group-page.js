@@ -17,10 +17,10 @@
   }
   var T = zh ? {
     reg: '日常活动', regSub: '舞会 · 练习', big: '大活动', bigSub: '工作坊 · 探戈节', cls: '课程', about: '关于', soon: '近期', wx: '微信', web: '网站', intro: '介绍', more: '展开', less: '收起',
-    copied: '微信号已复制', venues: '场地', people: '主理人', dir: '有指路图', next: '下次', every: '每', all: '在亚洲探戈地图看全部活动 ›', none: '暂无', save: '收藏', ask: '报名、时间请联络：微信 '
+    copied: '微信号已复制', saveG: '收藏', unsaveG: '取消收藏', savedG: '已收藏', unsavedG: '已取消收藏', venues: '场地', people: '主理人', dir: '有指路图', next: '下次', every: '每', all: '在亚洲探戈地图看全部活动 ›', none: '暂无', save: '收藏', ask: '报名、时间请联络：微信 '
   } : {
     reg: 'Regular events', regSub: 'Milongas · Prácticas', big: 'Big events', bigSub: 'Workshops · Festivals', cls: 'Classes', about: 'About', soon: 'Coming up', wx: 'WeChat', web: 'Website', intro: 'About', more: 'More', less: 'Less',
-    copied: 'WeChat ID copied', venues: 'Venues', people: 'People', dir: 'photo directions', next: 'Next', every: 'Every ', all: 'See everything on Asia Tango Map ›', none: 'None yet', save: 'Save', ask: 'Times and sign-up: WeChat '
+    copied: 'WeChat ID copied', saveG: 'Save ', unsaveG: 'Unsave ', savedG: 'Saved ', unsavedG: 'Removed ', venues: 'Venues', people: 'People', dir: 'photo directions', next: 'Next', every: 'Every ', all: 'See everything on Asia Tango Map ›', none: 'None yet', save: 'Save', ask: 'Times and sign-up: WeChat '
   };
   var WD = zh ? ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   function esc(x) { return String(x == null ? '' : x).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -97,6 +97,35 @@
     var links = profile.links || {}, logo = profile.photo || '';
 
     var mineList = events.filter(function (e) { return e && !e.hidden && mine(profile, e); });
+    /* 2026-11-20 (Shiao): save the whole group with the star at top right (star only: a group has no date, so no 要参加/感兴趣).
+       atm_fav_groups_v1 = [{id,name,name_zh,photo,seen,added}]. Saving adds the group's current events to atm_fav_v1 (added = the ones that were not saved yet);
+       the map adds later events once (seen). Un-saving removes only the ones the group added. */
+    var GK = 'atm_fav_groups_v1';
+    function gList() { try { var a = JSON.parse(localStorage.getItem(GK) || '[]'); return Array.isArray(a) ? a : []; } catch (x) { return []; } }
+    function gOn() { return gList().some(function (g) { return g && g.id === profile.id; }); }
+    function gSet(on) {
+      var G = gList().filter(function (g) { return g && g.id !== profile.id; });
+      if (on) {
+        var live = mineList.filter(function (e) { return e.kind === 'weekly' || (e.end || e.start || '') >= DAY; }), added = [], f = favs();
+        live.forEach(function (e) { if (f.indexOf(e.id) < 0) { setFav(e.id, true); added.push(e.id); } });
+        G.unshift({ id: profile.id, name: profile.name || '', name_zh: profile.name_zh || '', photo: profile.photo || '', seen: live.map(function (e) { return e.id; }), added: added });
+      } else {
+        var old = gList().filter(function (g) { return g && g.id === profile.id; })[0];
+        ((old && old.added) || []).forEach(function (fid) { setFav(fid, false); });
+      }
+      try { localStorage.setItem(GK, JSON.stringify(G)); } catch (x) {}
+    }
+    var bar2 = document.querySelector('.dj-bar');
+    if (bar2 && !bar2.querySelector('.gp-star')) {
+      var gs = document.createElement('button'); gs.type = 'button'; gs.className = 'gp-star';
+      gs.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.1 6.8 18.6l1-5.8L3.6 8.7l5.8-.8z"/></svg>';
+      var paint = function () { var on = gOn(); gs.setAttribute('aria-pressed', on); gs.setAttribute('aria-label', (on ? T.unsaveG : T.saveG) + name); gs.title = gs.getAttribute('aria-label'); };
+      paint(); bar2.appendChild(gs);
+      gs.addEventListener('click', function () {
+        var on = !gOn(); gSet(on); paint(); toast(on ? T.savedG + name : T.unsavedG + name);
+        main.querySelectorAll('.pf-star').forEach(function (b) { var v = favs().indexOf(b.getAttribute('data-id')) >= 0; b.setAttribute('aria-pressed', v); b.textContent = v ? '★' : '☆'; });
+      });
+    }
     var reg = mineList.filter(function (e) { return e.kind === 'weekly'; });
     var big = mineList.filter(function (e) { return e.kind !== 'weekly' && (e.end || e.start || '') >= DAY; });
     var byNext = function (a, b) { var x = nextDate(a) || '9', y = nextDate(b) || '9'; return x < y ? -1 : x > y ? 1 : 0; };
