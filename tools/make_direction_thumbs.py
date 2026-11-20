@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""Small thumbnails for 指路图 (route photos under images/asia/directions/).
+"""Small copies of 指路图 (route photos under images/asia/directions/).
 
-The card shows each route photo as an 88x66 button (128x96 on the enlarged
-card). Those buttons used to load the full photo. This script writes
-images/asia/directions/thumb/<name>.webp, sized to cover 384x288 (3x the
-largest button), and asia/atm-addr.js loads that file first (falling back to
-the full photo if the thumb is missing).
+Two WebP copies per photo, same sizes as posters' thumb + thumb800:
+  thumb/<name>.webp  covers 384x288 (3x the card button), ~10-35KB.
+                     The card buttons load this.
+  w800/<name>.webp   longest side 800px, ~25-80KB.
+                     The enlarged viewer shows the cached thumb at once, then
+                     swaps to this; the original file is only a fallback.
 
-  python3 tools/make_direction_thumbs.py          # make missing thumbs
+  python3 tools/make_direction_thumbs.py          # make missing copies
   python3 tools/make_direction_thumbs.py --force  # remake all (after replacing a photo's bytes)
-  python3 tools/make_direction_thumbs.py --check  # exit 1 if any photo has no thumb
+  python3 tools/make_direction_thumbs.py --check  # exit 1 if any photo is missing a copy
 """
 import os
 import sys
@@ -18,13 +19,12 @@ from PIL import Image, ImageOps
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 SRC = os.path.join(ROOT, 'images', 'asia', 'directions')
-OUT = os.path.join(SRC, 'thumb')
 EXT = ('.jpg', '.jpeg', '.png', '.webp')
-BOX = (384, 288)
+KINDS = ('thumb', 'w800')
 
 
-def thumb_path(name):
-    return os.path.join(OUT, os.path.splitext(name)[0] + '.webp')
+def out_path(kind, name):
+    return os.path.join(SRC, kind, os.path.splitext(name)[0] + '.webp')
 
 
 def photos():
@@ -32,32 +32,38 @@ def photos():
                   if f.lower().endswith(EXT) and os.path.isfile(os.path.join(SRC, f)))
 
 
-def stale(name):
-    return '--force' in sys.argv or not os.path.isfile(thumb_path(name))
+def todo(name):
+    return [k for k in KINDS if '--force' in sys.argv or not os.path.isfile(out_path(k, name))]
 
 
-def make(name):
+def make(kind, name):
     im = ImageOps.exif_transpose(Image.open(os.path.join(SRC, name))).convert('RGB')
     w, h = im.size
-    s = max(BOX[0] / w, BOX[1] / h)
+    if kind == 'thumb':
+        s = max(384 / w, 288 / h)
+        q = 72
+    else:
+        s = 800 / max(w, h)
+        q = 60
     if s < 1:
         im = im.resize((max(1, round(w * s)), max(1, round(h * s))), Image.LANCZOS)
-    os.makedirs(OUT, exist_ok=True)
-    im.save(thumb_path(name), 'WEBP', quality=72, method=6)
-    return thumb_path(name)
+    p = out_path(kind, name)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    im.save(p, 'WEBP', quality=q, method=6)
+    return p
 
 
 def main():
-    todo = [n for n in photos() if stale(n)]
+    jobs = [(k, n) for n in photos() for k in todo(n)]
     if '--check' in sys.argv:
-        for n in todo:
-            print('missing thumb:', n)
-        return 1 if todo else 0
-    for n in todo:
-        p = make(n)
-        print('%-40s -> thumb/%s (%d KB)' % (n, os.path.basename(p), os.path.getsize(p) // 1024))
-    if not todo:
-        print('all thumbs up to date')
+        for k, n in jobs:
+            print('missing %s copy: %s' % (k, n))
+        return 1 if jobs else 0
+    for k, n in jobs:
+        p = make(k, n)
+        print('%-40s -> %s/%s (%d KB)' % (n, k, os.path.basename(p), os.path.getsize(p) // 1024))
+    if not jobs:
+        print('all copies up to date')
     return 0
 
 

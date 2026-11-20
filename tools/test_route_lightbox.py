@@ -26,10 +26,10 @@ need("prev: '上一张'" in JS and "next: '下一张'" in JS, 'Chinese control n
 need('visualViewport' in JS, 'WeChat/iOS visual viewport missing')
 for html in ('asia/index.html', 'zh/asia/index.html'):
     text = (ROOT / html).read_text(encoding='utf-8')
-    need('atm-addr.js?v=ad6' in text, html + ' still on old atm-addr cache key')
-    need('atm-addr.js?v=ad5' not in text, html + ' still references ad5')
-need("'/images/asia/directions/thumb/'" in JS and 'data-full' in JS, 'route thumbs should load the small webp with full-photo fallback')
-need(subprocess.run([sys.executable, str(ROOT / 'tools' / 'make_direction_thumbs.py'), '--check']).returncode == 0, 'route photo without thumb (run tools/make_direction_thumbs.py)')
+    need('atm-addr.js?v=ad7' in text, html + ' still on old atm-addr cache key')
+    need('atm-addr.js?v=ad6' not in text, html + ' still references ad6')
+need("thumbOf(p.src, 'w800')" in JS and 'data-full' in JS, 'route photos should use thumb/ on the card and w800/ in the viewer, original as fallback')
+need(subprocess.run([sys.executable, str(ROOT / 'tools' / 'make_direction_thumbs.py'), '--check']).returncode == 0, 'route photo missing thumb/w800 copy (run tools/make_direction_thumbs.py)')
 
 if bad:
     print('\n'.join(bad))
