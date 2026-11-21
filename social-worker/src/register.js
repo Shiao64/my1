@@ -74,7 +74,7 @@ export async function readPass(env, p) {
 const PAID = ['paid', 'cash'];
 async function passesOf(env, reg) { const d = typeof reg.data === 'string' ? JSON.parse(reg.data) : reg.data;
   if (!PAID.includes(reg.status)) return [];
-  return Promise.all(d.people.map(async (p, i) => ({ name: p.name, pass: await passFor(env, reg.code, i) }))).then(a => a.filter(x => x.pass)); }
+  return Promise.all(d.people.map(async (p, i) => ({ name: p.name, items: p.items || [], pass: await passFor(env, reg.code, i) }))).then(a => a.filter(x => x.pass)); }
 const passImg = (env, pass) => String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '') + '/social/reg/pass/' + encodeURIComponent(pass) + '.png';
 const checkinUrl = (env, pass) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/checkin/?p=' + encodeURIComponent(pass);
 const regPage = env => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/';
@@ -308,7 +308,7 @@ export async function regMe(req, env, url, json, kit) {
   const ev = EVENTS[url.searchParams.get('event') || 'bj2027']; if (!ev) return json({ error: 'bad_event' }, 400);
   const r = await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND email=? ORDER BY (status=\'cancelled\'), id DESC LIMIT 1').bind(ev.id, String(u.email).toLowerCase()).first();
   if (!r) return json({ email: u.email, name: u.name, reg: null });
-  const passes = (await passesOf(env, r)).map(x => ({ name: x.name, pass: x.pass, img: passImg(env, x.pass) }));
+  const passes = (await passesOf(env, r)).map(x => ({ name: x.name, items: x.items, pass: x.pass, img: passImg(env, x.pass) }));
   // Payment QR codes only for a confirmed, unpaid registration, and only those the organizer uploaded.
   let pay = [];
   if (r.status === 'confirmed' && env.REG_QR_KEY) {
