@@ -61,6 +61,7 @@
 
 - **仓库**：GitHub `Shiao64/my1`（公开）。前端是静态网站，GitHub Pages 自动上线。
 - **两个入口页**：`asia/index.html`（英文，韩文也用它，`?lang=ko`）和 `zh/asia/index.html`（中文）。**两页都要改**：script 的版本号 `?v=` 每次改 JS 都要在两页一起加一。页面语言跟手机语言走：`/zh/asia/` 在英文手机上也会显示英文（测试中文要把浏览器 locale 设成 zh-CN）。
+- **大活动专页 `/event/<slug>/`（11/20）**：多数由 `tools/gen_detail_pages.py` 从 `asia/events.json` 生成（`SLUGS` 表；`HANDWRITTEN` 里的和不在表里的是手写页，不要用工具覆盖）。只重做某几页：`python3 tools/gen_detail_pages.py E039`，跑完 `git checkout asia/` 把它顺手改的 JSON 还原（`detail` 早已写好）。模板 11/20 改过：日程按天分组成卡片（时间｜场次・DJ，不再用 5 栏表格，手机放得下），过夜场次中文写「次日结束」；场地有多处时（`venue` 用「／」分、地址用「；」分，数目一样）每处单独一块；有日程时说明段标题叫「说明」；英文页用 `venue_en`；`TBC` 场地写「场地待公布」；中文页不输出脸书链接（style.css 本来就隐藏）；主海报不在仓库时改用 data.tangoweekend.org，载不到就整块隐藏。
 - **打开某张卡**：网址加 `?card=<id>`（例 `/zh/asia/?card=E186`）。
 - **主要前端文件**（`asia/`）：
   - `atm-home.js`：首页（城市胶囊、日常／大型页签、分类、收纳盒、招牌；大型页签底部的订阅卡片）；分类由 `catOf()` 决定（名称优先，其次 type；`encuentro` 算探戈周末，#155）。新版（`html.atm-v2` / `atm-t3`）的标题栏、配色 CSS 也在这里用 `css.textContent +=` 注入；
