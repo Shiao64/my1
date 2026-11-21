@@ -23,7 +23,9 @@
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (d) {
       var r = d && d.reg; if (!r) return;
-      if (r.passes && r.passes.length) logoPass(r);
+      // The logo pass only on a day the person (or a companion) has an event; the registration page and the
+      // payment email always keep the QR as a backup.
+      if (r.passes && r.passes.length && r.passes.some(function (p) { return (p.items || []).some(function (c) { return SCHED[c] && SCHED[c][0] === bjToday(); }); })) logoPass(r);
       if (!T[r.status]) return;
       var kind = r.status, left = r.due ? (Date.parse(r.due) - Date.now()) / 864e5 : 99;
       if (kind === 'confirmed' && left <= 3) kind = 'soon';
@@ -56,6 +58,21 @@
     logo.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); open(r); }, true);
   }
   var lock = null;
+  // Event schedule (Beijing time). One pass covers every event the person chose; the door picks the event.
+  var SCHED = { MV: ['2027-06-18', '20:00', '周五 欢迎舞会', 'Fri Welcome Milonga'], T1: ['2027-06-18', '09:00', '周五 一日游', 'Fri Day Tour'],
+    M1: ['2027-06-19', '14:00', '周六 下午场', 'Sat afternoon milonga'], M2: ['2027-06-19', '20:00', '周六 晚场', 'Sat night milonga'],
+    M3: ['2027-06-20', '14:00', '周日 下午场', 'Sun afternoon milonga'], M4: ['2027-06-20', '20:00', '周日 晚场', 'Sun night milonga'],
+    S1: ['2027-06-21', '16:00', '周一 探戈小院', 'Mon Tango Courtyard'], T2: ['2027-06-22', '09:00', '周二 城市漫步', 'Tue City Walk'],
+    MF: ['2027-06-22', '21:00', '周二 告别舞会', 'Tue Farewell Milonga'] };
+  function bjToday() { return new Date(Date.now() + 8 * 36e5).toISOString().slice(0, 10); }
+  function scheduleLine(items) {
+    var list = (items || []).filter(function (c) { return SCHED[c]; }).sort(function (a, b) { return (SCHED[a][0] + SCHED[a][1]).localeCompare(SCHED[b][0] + SCHED[b][1]); });
+    if (!list.length) return '';
+    var today = bjToday(), todays = list.filter(function (c) { return SCHED[c][0] === today; });
+    var name = function (c) { return (zh ? SCHED[c][2] : SCHED[c][3]) + ' ' + SCHED[c][1]; };
+    if (todays.length) return (zh ? '今天：' : 'Today: ') + todays.map(name).join(' · ');
+    return zh ? '今天没有报名的场次' : 'Nothing booked for today';
+  }
   function open(r) {
     if (D.getElementById('atm-pass')) return;
     var ov = D.createElement('div'); ov.id = 'atm-pass'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
@@ -76,9 +93,11 @@
       var n = D.createElement('div'); n.textContent = p.name; n.style.cssText = 'font-size:22px;font-weight:800;margin-top:14px';
       var cd = D.createElement('div'); cd.textContent = p.pass.split('.')[0] + (r.passes.length > 1 ? '  ·  ' + (i + 1) + ' / ' + r.passes.length : '');
       cd.style.cssText = 'color:#7a6255;margin-top:4px';
-      // Name above, code below, so the QR itself sits in the middle of the screen.
+      // Name above, code and events below, so the QR itself sits in the middle of the screen.
       n.style.margin = '0 0 12px'; cd.style.margin = '10px 0 0';
-      c.append(n, im, cd); row.appendChild(c);
+      var ev = D.createElement('div'); ev.textContent = scheduleLine(p.items);
+      ev.style.cssText = 'margin-top:10px;max-width:420px;text-align:center;font-weight:700;color:#7a0a10;font-size:15px;line-height:1.5';
+      c.append(n, im, cd, ev); row.appendChild(c);
     });
     var foot = D.createElement('div');
     foot.style.cssText = 'padding:10px 16px max(14px,env(safe-area-inset-bottom));text-align:center;color:#7a6255;font-size:13px';

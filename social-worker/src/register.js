@@ -74,7 +74,7 @@ export async function readPass(env, p) {
 const PAID = ['paid', 'cash'];
 async function passesOf(env, reg) { const d = typeof reg.data === 'string' ? JSON.parse(reg.data) : reg.data;
   if (!PAID.includes(reg.status)) return [];
-  return Promise.all(d.people.map(async (p, i) => ({ name: p.name, pass: await passFor(env, reg.code, i) }))).then(a => a.filter(x => x.pass)); }
+  return Promise.all(d.people.map(async (p, i) => ({ name: p.name, items: p.items || [], pass: await passFor(env, reg.code, i) }))).then(a => a.filter(x => x.pass)); }
 const passImg = (env, pass) => String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '') + '/social/reg/pass/' + encodeURIComponent(pass) + '.png';
 const checkinUrl = (env, pass) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/checkin/?p=' + encodeURIComponent(pass);
 const regPage = env => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/';
@@ -163,7 +163,7 @@ async function nextCode(env, ev) {
 
 // ---------- letters ----------
 const T = {
-  en: { passT: 'Your entry QR codes (one per person) are below. Show them at the door. You can also see them on the registration page after signing in:', hi: 'Hi {n},', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'nights', details: 'Your registration',
+  en: { passT: 'Your entry QR codes (one per person) are below. Show them at the door. You can also see them on the registration page after signing in: Tip: take a screenshot of your QR code now, in case there is no internet at the door.', hi: 'Hi {n},', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'nights', details: 'Your registration',
     recvS: 'Registration received · {c}', recv: 'We have received your registration {c}. We will review it and reply within 10 days.',
     confS: 'Registration confirmed · {c}', conf: 'Your registration {c} is confirmed.',
     pay: 'Please pay {t} by {d} (within 2 weeks of this email) by WeChat Pay or Alipay, using the QR code below. Write your registration number {c} in the transfer note, then reply to this email with a screenshot of the payment.',
@@ -176,7 +176,7 @@ const T = {
     cashS: 'Pay at the event · {c}', cash: 'We have received your flight ticket for {c}. Please pay {t} in cash at the event.',
     cancS: 'Registration cancelled · {c}', canc: 'Your registration {c} has been cancelled.', refund: 'Refund: {r}.',
     updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.' },
-  zh: { passT: '下方是每个人的入场二维码，请在入场时出示。登入报名页也看得到：', hi: '{n}，你好：', sign: '张孝、刘峥\n北京精选探戈周末', total: '合计', hotel: '住宿', nights: '晚', details: '你的报名',
+  zh: { passT: '下方是每个人的入场二维码，请在入场时出示。登入报名页也看得到：建议先把入场码截图存在手机里，以免现场网络不好。', hi: '{n}，你好：', sign: '张孝、刘峥\n北京精选探戈周末', total: '合计', hotel: '住宿', nights: '晚', details: '你的报名',
     recvS: '已收到报名 · {c}', recv: '我们已收到你的报名 {c}，审核后会在 10 天内回复。',
     confS: '报名确认 · {c}', conf: '你的报名 {c} 已确认。',
     pay: '请在 {d} 前（收到本信后 2 周内）用微信或支付宝扫下方收款码支付 {t}，转账备注请写报名编号 {c}，付款后回复本邮件并附上付款截图。',
@@ -189,7 +189,7 @@ const T = {
     cashS: '到场付现 · {c}', cash: '已收到报名 {c} 的机票截图，请到场以现金支付 {t}。',
     cancS: '报名已取消 · {c}', canc: '你的报名 {c} 已取消。', refund: '退款：{r}。',
     updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新，合计已含手续费 ¥50。' },
-  ko: { passT: '아래는 1인당 하나씩인 입장 QR 코드입니다. 입장할 때 보여 주세요. 신청 페이지에 로그인해도 볼 수 있습니다:', hi: '{n} 님, 안녕하세요.', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: '합계', hotel: '호텔', nights: '박', details: '신청 내역',
+  ko: { passT: '아래는 1인당 하나씩인 입장 QR 코드입니다. 입장할 때 보여 주세요. 신청 페이지에 로그인해도 볼 수 있습니다: 현장에 인터넷이 약할 수 있으니 입장 QR 코드를 미리 캡처해 휴대폰에 저장해 두세요.', hi: '{n} 님, 안녕하세요.', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: '합계', hotel: '호텔', nights: '박', details: '신청 내역',
     recvS: '신청 접수 · {c}', recv: '신청 {c}이(가) 접수되었습니다. 검토 후 10일 이내에 답장드리겠습니다.',
     confS: '신청 확정 · {c}', conf: '신청 {c}이(가) 확정되었습니다.',
     pay: '{d}까지(이 메일을 받은 후 2주 이내) 아래 QR 코드로 위챗페이 또는 알리페이로 {t}을(를) 결제해 주세요. 송금 메모에 신청 번호 {c}를 적고, 결제 후 이 메일에 결제 캡처를 첨부해 회신해 주세요.',
@@ -202,7 +202,7 @@ const T = {
     cashS: '현장 결제 · {c}', cash: '신청 {c}의 항공권을 확인했습니다. 현장에서 현금으로 {t}을(를) 결제해 주세요.',
     cancS: '신청 취소 · {c}', canc: '신청 {c}이(가) 취소되었습니다.', refund: '환불: {r}.',
     updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.' },
-  es: { passT: 'Abajo están los códigos QR de entrada (uno por persona). Muéstralos en la puerta. También puedes verlos en la página de inscripción al iniciar sesión:', hi: 'Hola, {n}:', sign: 'Shiao Chang y Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'noches', details: 'Tu inscripción',
+  es: { passT: 'Abajo están los códigos QR de entrada (uno por persona). Muéstralos en la puerta. También puedes verlos en la página de inscripción al iniciar sesión: Consejo: haz ya una captura de tu código QR por si no hay internet en la puerta.', hi: 'Hola, {n}:', sign: 'Shiao Chang y Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'noches', details: 'Tu inscripción',
     recvS: 'Inscripción recibida · {c}', recv: 'Hemos recibido tu inscripción {c}. La revisaremos y te responderemos en 10 días.',
     confS: 'Inscripción confirmada · {c}', conf: 'Tu inscripción {c} está confirmada.',
     pay: 'Paga {t} antes del {d} (2 semanas desde este email) con WeChat Pay o Alipay usando el código QR de abajo. Escribe tu número {c} en la nota de la transferencia y responde a este email con una captura del pago.',
@@ -215,7 +215,7 @@ const T = {
     cashS: 'Pago en el evento · {c}', cash: 'Hemos recibido tu billete de avión para {c}. Paga {t} en efectivo en el evento.',
     cancS: 'Inscripción cancelada · {c}', canc: 'Tu inscripción {c} ha sido cancelada.', refund: 'Reembolso: {r}.',
     updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.' },
-  ru: { passT: 'Ниже входные QR-коды (по одному на человека). Покажите их на входе. Их также видно на странице регистрации после входа:', hi: 'Здравствуйте, {n}!', sign: 'Shiao Chang и Liu Zheng\nBeijing Select Tango Weekend', total: 'Итого', hotel: 'Отель', nights: 'ноч.', details: 'Ваша регистрация',
+  ru: { passT: 'Ниже входные QR-коды (по одному на человека). Покажите их на входе. Их также видно на странице регистрации после входа: Совет: сохраните скриншот QR-кода заранее — на входе может не быть интернета.', hi: 'Здравствуйте, {n}!', sign: 'Shiao Chang и Liu Zheng\nBeijing Select Tango Weekend', total: 'Итого', hotel: 'Отель', nights: 'ноч.', details: 'Ваша регистрация',
     recvS: 'Регистрация получена · {c}', recv: 'Мы получили вашу регистрацию {c}. Проверим её и ответим в течение 10 дней.',
     confS: 'Регистрация подтверждена · {c}', conf: 'Ваша регистрация {c} подтверждена.',
     pay: 'Оплатите {t} до {d} (в течение 2 недель после этого письма) через WeChat Pay или Alipay по QR-коду ниже. Укажите номер {c} в комментарии к переводу и ответьте на это письмо со скриншотом оплаты.',
@@ -308,7 +308,7 @@ export async function regMe(req, env, url, json, kit) {
   const ev = EVENTS[url.searchParams.get('event') || 'bj2027']; if (!ev) return json({ error: 'bad_event' }, 400);
   const r = await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND email=? ORDER BY (status=\'cancelled\'), id DESC LIMIT 1').bind(ev.id, String(u.email).toLowerCase()).first();
   if (!r) return json({ email: u.email, name: u.name, reg: null });
-  const passes = (await passesOf(env, r)).map(x => ({ name: x.name, pass: x.pass, img: passImg(env, x.pass) }));
+  const passes = (await passesOf(env, r)).map(x => ({ name: x.name, items: x.items, pass: x.pass, img: passImg(env, x.pass) }));
   // Payment QR codes only for a confirmed, unpaid registration, and only those the organizer uploaded.
   let pay = [];
   if (r.status === 'confirmed' && env.REG_QR_KEY) {
