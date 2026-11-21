@@ -23,7 +23,9 @@
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (d) {
       var r = d && d.reg; if (!r) return;
-      if (r.passes && r.passes.length) logoPass(r);
+      // The logo pass only on a day the person (or a companion) has an event; the registration page and the
+      // payment email always keep the QR as a backup.
+      if (r.passes && r.passes.length && r.passes.some(function (p) { return (p.items || []).some(function (c) { return SCHED[c] && SCHED[c][0] === bjToday(); }); })) logoPass(r);
       if (!T[r.status]) return;
       var kind = r.status, left = r.due ? (Date.parse(r.due) - Date.now()) / 864e5 : 99;
       if (kind === 'confirmed' && left <= 3) kind = 'soon';
@@ -69,8 +71,7 @@
     var today = bjToday(), todays = list.filter(function (c) { return SCHED[c][0] === today; });
     var name = function (c) { return (zh ? SCHED[c][2] : SCHED[c][3]) + ' ' + SCHED[c][1]; };
     if (todays.length) return (zh ? '今天：' : 'Today: ') + todays.map(name).join(' · ');
-    if (today >= '2027-06-18' && today <= '2027-06-22') return zh ? '今天没有你报名的场次' : 'Nothing booked for you today';
-    return (zh ? '你的场次：' : 'Your events: ') + list.map(function (c) { return SCHED[c][0].slice(5).replace('-', '/') + ' ' + name(c); }).join(' · ');
+    return zh ? '今天没有报名的场次' : 'Nothing booked for today';
   }
   function open(r) {
     if (D.getElementById('atm-pass')) return;
