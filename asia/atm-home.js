@@ -7,7 +7,21 @@
      The shareable URL stays ?card=id. document.referrer has no hash, and #v- is not a route. */
   var P7K = 'atm_p7_from';
   function p7read() { try { return JSON.parse(sessionStorage.getItem(P7K) || 'null'); } catch (e) { return null; } }
+  /* 2026-11-21 (Shiao): a card opened from a profile page (/organizer/, /dj/, /group/, /shop/) goes back there with ‹.
+     Those pages save {id, url, t} in sessionStorage atm_prof_from at the click (same 60 s rule as atm_p7_from).
+     Checked first; anything else falls through to the P7 logic below unchanged. */
+  function profBack(id) {
+    var r = null; try { r = JSON.parse(sessionStorage.getItem('atm_prof_from') || 'null'); } catch (e) {}
+    if (!r || r.id !== id || !r.url || !/^\/(zh\/)?(organizer|dj|group|shop)\//.test(r.url)) return false;
+    if (performance.timeOrigin && (performance.timeOrigin - r.t > 60000 || performance.timeOrigin < r.t - 5000)) return false;
+    try { sessionStorage.removeItem('atm_prof_from'); } catch (e) {}
+    var rf = null; try { rf = new URL(document.referrer); } catch (e) {}
+    if (rf && rf.origin === location.origin && rf.pathname + rf.search === r.url && history.length > 1) history.back();
+    else location.replace(r.url);
+    return true;
+  }
   window.atmP7Back = function (id) {
+    if (profBack(id)) return;
     var rec = p7read();
     if (rec && rec.t && performance.timeOrigin && performance.timeOrigin - rec.t > 60000) rec = null;
     if (!rec || rec.id !== id) rec = null;
