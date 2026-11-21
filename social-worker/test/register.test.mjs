@@ -9,7 +9,8 @@ import crypto from 'node:crypto';
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const dir = '/tmp/atm-register';
 fs.mkdirSync(dir, { recursive: true });
-for (const f of ['unsub.js', 'going.js', 'register.js']) fs.copyFileSync(path.join(root, 'social-worker/src', f), path.join(dir, f));
+fs.mkdirSync(path.join(dir, 'vendor'), { recursive: true });
+for (const f of ['unsub.js', 'going.js', 'register.js', 'qrpng.js', 'vendor/qrcode.js']) fs.copyFileSync(path.join(root, 'social-worker/src', f), path.join(dir, f));
 fs.writeFileSync(path.join(dir, 'social.js'), fs.readFileSync(path.join(root, 'social-worker/src/social.js'), 'utf8')
   .replace("import { gmailSend } from './smtp.js';\n", 'const gmailSend = async () => { throw new Error("no smtp"); };\n'));
 const { social, regCron } = await import(pathToFileURL(path.join(dir, 'social.js')).href);
@@ -19,7 +20,7 @@ const db = new DatabaseSync(':memory:');
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT, wx_used INTEGER DEFAULT 0);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);`);
-db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0020_registrations.sql'), 'utf8'));
+for (const f of ['0020_registrations.sql', '0021_reg_checkin.sql']) db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', f), 'utf8'));
 function D1(database) {
   return { prepare(sql) { const st = database.prepare(sql); let args = []; return {
     bind(...a) { args = a; return this; },
@@ -29,7 +30,7 @@ function D1(database) {
   }; } };
 }
 const ADMIN = 'a'.repeat(32);
-const env = { SDB: D1(db), DB: D1(db), API_BASE: 'https://api.tangoweekend.org', SOCIAL_MAIL: 'log', ADMIN_TOKEN: ADMIN, REG_QR_KEY: 'qrkey',
+const env = { SDB: D1(db), DB: D1(db), API_BASE: 'https://api.tangoweekend.org', SOCIAL_MAIL: 'log', ADMIN_TOKEN: ADMIN, REG_QR_KEY: 'qrkey', REG_PASS_SECRET: 'pass-secret-for-tests',
   REG_CODES: JSON.stringify({ Alpha618: 'Chris Han', Gamma618: 'Ajit', Delta618: 'Uno', Beta618: 'Kostas', Echo618: 'Robin' }) };
 const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s });
 const fail = []; let passed = 0;
@@ -132,6 +133,30 @@ d = await call('POST', '/admin/reg/act', { id: id2, action: 'waitlist' }, ADMIN)
 check('waitlist letter in Korean', mails.some(m => m.includes('대기자 명단 · BJ27-0002')));
 db.prepare("DELETE FROM reg WHERE code='X-1'").run();
 d = await call('POST', '/admin/reg/act', { id: id2, action: 'confirm' }, ADMIN); check('confirm from waitlist when seats free', d.status === 'confirmed');
+// --- entry passes and door check-in ---
+d = await call('GET', '/reg/me?event=bj2027', null, bob); check('no passes before payment', d.reg && d.reg.passes.length === 0, d);
+mails.length = 0;
+d = await call('POST', '/admin/reg/act', { id: id2, action: 'paid' }, ADMIN); check('bob paid', d.status === 'paid');
+check('paid letter carries one QR per person', mails.some(m => m.includes('결제 확인 · BJ27-0002') && (m.match(/\/social\/reg\/pass\/BJ27-0002-\d\.[0-9a-f]{20}\.png/g) || []).length === 2), mails);
+d = await call('GET', '/reg/me?event=bj2027', null, bob);
+check('me shows a pass for each person', d.reg.passes.length === 2 && d.reg.passes[1].name === 'Cat' && /^BJ27-0002-2\.[0-9a-f]{20}$/.test(d.reg.passes[1].pass), d);
+const [pBob, pCat] = d.reg.passes.map(x => x.pass);
+const png = await social(new Request('https://api.tangoweekend.org/social/reg/pass/' + pBob + '.png'), env, new URL('https://api.tangoweekend.org/social/reg/pass/' + pBob + '.png'), json);
+const pngBytes = new Uint8Array(await png.arrayBuffer());
+check('pass QR is a PNG', png.status === 200 && pngBytes[1] === 0x50 && pngBytes[2] === 0x4e && pngBytes[3] === 0x47);
+const forged = pBob.slice(0, -1) + (pBob.endsWith('0') ? '1' : '0');
+const bad = await social(new Request('https://api.tangoweekend.org/social/reg/pass/' + forged + '.png'), env, new URL('https://api.tangoweekend.org/social/reg/pass/' + forged + '.png'), json);
+check('forged pass gives no QR', bad.status === 404);
+d = await call('GET', '/admin/reg/pass?p=' + encodeURIComponent(pCat)); check('door lookup needs password', d._s === 401);
+d = await call('GET', '/admin/reg/pass?p=' + encodeURIComponent(pCat), null, ADMIN);
+check('door lookup shows the person', d.ok && d.person.name === 'Cat' && d.valid && d.person.items.includes('M2') && d.checkins.length === 0, d);
+d = await call('GET', '/admin/reg/pass?p=' + encodeURIComponent(forged), null, ADMIN); check('door lookup rejects forged pass', d._s === 404);
+d = await call('POST', '/admin/reg/checkin', { p: pCat, item: 'M2' }, ADMIN); check('check in Cat for M2', d.ok);
+d = await call('POST', '/admin/reg/checkin', { p: pCat, item: 'M2' }, ADMIN); check('second scan says already', d._s === 409 && d.error === 'already' && d.at, d);
+d = await call('POST', '/admin/reg/checkin', { p: pCat, item: 'T1' }, ADMIN); check('not registered for T1', d._s === 409 && d.error === 'not_registered');
+d = await call('POST', '/admin/reg/checkin', { p: pCat, item: 'M2', undo: 1 }, ADMIN); check('undo check-in', d.ok && d.undone);
+d = await call('POST', '/admin/reg/checkin', { p: pCat, item: 'M2' }, ADMIN); check('check in again after undo', d.ok);
+d = await call('GET', '/admin/reg?event=bj2027', null, ADMIN); check('admin counts check-ins per event', d.checked.M2 === 1 && d.rows.find(r => r.id === id2).checkins.length === 1, d.checked);
 // modify after confirm: +¥50 once
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'modify', data: form({ people: [person({ pkg: 'pass', items: ['tour'] })] }) }, ADMIN);
 check('modify adds ¥50 fee', d.ok && d.amount === 700 + 450 + 50, d);
@@ -157,8 +182,9 @@ d = await call('POST', '/admin/reg/act', { id: id2, action: 'note', note: '付�
 const csvRes = await social(new Request('https://api.tangoweekend.org/social/admin/reg?event=bj2027&format=csv', { headers: { Authorization: 'Bearer ' + ADMIN } }), env, new URL('https://api.tangoweekend.org/social/admin/reg?event=bj2027&format=csv'), json);
 const csv = await csvRes.text(); check('csv one line per person + passport cols', csv.includes('passport_surname') && csv.split('\n').filter(l => l.startsWith('BJ27-0002')).length === 2, csv.slice(0, 300));
 // reminder after 10 days
-db.prepare("UPDATE reg SET confirmed_at='2026-01-01T00:00:00Z' WHERE id=?").run(id2); mails.length = 0;
-let rr = await regCron(env); check('reminder sent once', rr.sent === 1 && mails.some(m => m.includes('BJ27-0002')), rr);
+db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at,due_at) VALUES('bj2027','BJ27-0900','late@x.com','en','confirmed',1,?,1450,'2026-01-01','2026-01-01','2026-01-01T00:00:00Z','2026-01-15T00:00:00Z')")
+  .run(JSON.stringify({ people: [person({ items: ['M1'] })], rooms: [], passports: [], hotel: false })); mails.length = 0;
+let rr = await regCron(env); check('reminder sent once', rr.sent === 1 && mails.some(m => m.includes('BJ27-0900')), rr);
 rr = await regCron(env); check('reminder not repeated', rr.sent === 0);
 // QR asset
 d = await call('POST', '/admin/reg/asset', { name: 'intl-wechat', mime: 'image/png', b64: Buffer.from('PNGDATA').toString('base64') }, ADMIN); check('upload QR', d.ok);

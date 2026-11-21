@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>入场签到 · 北京精选探戈周末</title>
+<style>
+:root{--red:#b3121b;--deep:#4a0609;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--ok:#1f7a3a;--warn:#b26b00}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif}
+header{background:var(--deep);color:#f6e3b4;padding:10px 14px;display:flex;align-items:center;gap:10px;justify-content:space-between;position:sticky;top:0}
+header b{font-size:1rem}
+select,input,button{font:inherit}
+select,input{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff}
+main{max-width:520px;margin:0 auto;padding:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.big{font-size:1.6rem;font-weight:800;line-height:1.2}
+.muted{color:var(--muted);font-size:.9rem}
+.res{border-radius:14px;padding:18px;text-align:center;font-size:1.3rem;font-weight:800;margin-bottom:12px;color:#fff}
+.res.ok{background:var(--ok)}.res.warn{background:var(--warn)}.res.no{background:var(--red)}
+.items{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.it{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.88rem;background:var(--cream)}
+.it.on{background:#d9f2df;border-color:var(--ok);color:var(--ok);font-weight:700}
+.it.cur{outline:2px solid var(--deep)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:1.15rem;font-weight:800;background:var(--red);color:#fff;cursor:pointer;margin-top:10px}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:1rem;padding:11px}
+.cash{background:#fff1cc;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-top:10px;font-weight:700}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><b>入场签到</b><select id="item" aria-label="现在这一场">
+  <option value="MV">周五 欢迎舞会</option><option value="T1">周五 一日游</option>
+  <option value="M1">周六 下午场</option><option value="M2">周六 晚场</option>
+  <option value="M3">周日 下午场</option><option value="M4">周日 晚场</option>
+  <option value="S1">周一 探戈小院</option><option value="T2">周二 城市漫步</option><option value="MF">周二 告别舞会</option>
+</select></header>
+<main>
+  <div class="card" id="login" hidden>
+    <p style="margin-top:0">第一次在这支手机上签到，请输入<b>报名管理密码</b>（只存在这支手机）。</p>
+    <input id="tok" type="password" style="width:100%" placeholder="报名管理密码">
+    <button class="btn" id="save">保存</button>
+  </div>
+  <div class="card" id="idle" hidden>
+    <p style="margin:0"><b>用手机相机扫舞者的入场二维码</b>，会自动打开这一页并显示他的资料。</p>
+    <p class="muted">先在右上角选好现在是哪一场。</p>
+  </div>
+  <div id="res" class="res" hidden></div>
+  <div class="card" id="who" hidden>
+    <div class="big" id="name"></div>
+    <div class="muted" id="meta"></div>
+    <div class="items" id="items"></div>
+    <div class="cash" id="cash" hidden></div>
+    <div class="muted" id="note" style="margin-top:8px"></div>
+    <button class="btn" id="go" hidden></button>
+    <button class="btn sec" id="undo" hidden>撤销这一场的签到</button>
+  </div>
+</main>
+<script>
+(function(){
+var API=(function(){try{var a=new URLSearchParams(location.search).get('api');if(a&&/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(a))return a}catch(e){}return 'https://api.tangoweekend.org'})();
+var $=function(i){return document.getElementById(i)};
+var NAME={MV:'周五 欢迎舞会',T1:'周五 一日游',M1:'周六 下午场',M2:'周六 晚场',M3:'周日 下午场',M4:'周日 晚场',S1:'周一 探戈小院',T2:'周二 城市漫步',MF:'周二 告别舞会'};
+var ROLE={leader:'Leader',follower:'Follower',both:'都可以'},ST={paid:'已付款',cash:'现场付现',confirmed:'已确认（未付款）',pending:'待审核',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
+function get(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
+function put(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+var pass=new URLSearchParams(location.search).get('p')||'',info=null;
+if(get('bstw_item'))$('item').value=get('bstw_item');
+$('item').addEventListener('change',function(){put('bstw_item',$('item').value);show()});
+function call(path,opt){opt=opt||{};return fetch(API+path,{method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+get('bstw_admin')},body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){return r.json().then(function(d){d._s=r.status;return d})})}
+function res(kind,text){var r=$('res');r.className='res '+kind;r.textContent=text;r.hidden=!text}
+function show(){
+  if(!info)return;var cur=$('item').value,p=info.person,did={};info.checkins.forEach(function(c){did[c.item]=c.at});
+  $('who').hidden=false;$('name').textContent=p.name+(p.nick?'（'+p.nick+'）':'');
+  $('meta').textContent=info.pass+' · '+ROLE[p.role]+' · '+p.city+' '+p.country+' · '+(ST[info.status]||info.status);
+  $('items').innerHTML='';p.items.forEach(function(c){var s=document.createElement('span');s.className='it'+(did[c]?' on':'')+(c===cur?' cur':'');s.textContent=(did[c]?'✓ ':'')+NAME[c];$('items').appendChild(s)});
+  $('cash').hidden=!info.cash_due;$('cash').textContent='现场付现：请收 ¥'+Number(info.cash_due).toLocaleString('en-US')+'（整份报名 '+info.people+' 人合计，收一次即可）';
+  $('note').textContent=info.note?'备注：'+info.note:'';
+  var go=$('go'),ok=info.valid&&p.items.indexOf(cur)>=0;
+  $('undo').hidden=!did[cur];
+  if(!info.valid){res('no','✕ 未完成付款，不能入场');go.hidden=true;return}
+  if(p.items.indexOf(cur)<0){res('no','✕ 没有报名「'+NAME[cur]+'」');go.hidden=true;return}
+  if(did[cur]){res('warn','⚠ 已经签到过：'+new Date(did[cur]).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'}));go.hidden=true;return}
+  res('','');go.hidden=!ok;go.textContent='签到 · '+NAME[cur];
+}
+function load(){if(!pass){$('idle').hidden=false;return}
+  call('/social/admin/reg/pass?p='+encodeURIComponent(pass)).then(function(d){
+    if(d._s===401){$('login').hidden=false;return}
+    if(!d.ok){res('no','✕ 无效的入场码');return}
+    info=d;show();
+  }).catch(function(){res('no','连不上后台，请检查网络')})}
+$('go').addEventListener('click',function(){var cur=$('item').value;$('go').disabled=true;
+  call('/social/admin/reg/checkin',{method:'POST',body:{p:pass,item:cur}}).then(function(d){$('go').disabled=false;
+    if(d.ok){info.checkins.push({item:cur,at:d.at});show();res('ok','✓ 签到成功 · '+NAME[cur]);return}
+    if(d.error==='already'){info.checkins.push({item:cur,at:d.at});show();return}
+    res('no','✕ '+(d.error==='not_registered'?'没有报名这一场':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
+$('undo').addEventListener('click',function(){var cur=$('item').value;if(!confirm('撤销「'+NAME[cur]+'」的签到？'))return;
+  call('/social/admin/reg/checkin',{method:'POST',body:{p:pass,item:cur,undo:1}}).then(function(d){if(d.ok){info.checkins=info.checkins.filter(function(c){return c.item!==cur});show()}})});
+$('save').addEventListener('click',function(){put('bstw_admin',$('tok').value.trim());$('login').hidden=true;load()});
+if(!get('bstw_admin')&&pass){$('login').hidden=false}else load();
+})();
+</script>
+</body>
+</html>

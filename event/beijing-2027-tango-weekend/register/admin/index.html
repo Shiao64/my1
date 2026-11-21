@@ -86,7 +86,7 @@ function fmt(n){return '¥'+Number(n||0).toLocaleString('en-US')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function render(){
   $('sum').hidden=$('list').hidden=$('qr').hidden=false;
-  $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c];return '<div class="cap'+(l<=20?' low':'')+'"><small>'+c+' '+NAME[c]+'</small><b>剩 '+l+'</b><small>上限 '+DATA.caps[c]+'</small></div>'}).join('');
+  $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c];return '<div class="cap'+(l<=20?' low':'')+'"><small>'+c+' '+NAME[c]+'</small><b>剩 '+l+'</b><small>上限 '+DATA.caps[c]+(DATA.checked&&DATA.checked[c]?' · 已签到 '+DATA.checked[c]:'')+'</small></div>'}).join('');
   var c=DATA.counts;$('pills').innerHTML=['pending','confirmed','paid','cash','waitlist'].map(function(k){return '<span class="pill">'+ST[k]+' '+(c[k]||0)+'</span>'}).join('')+
     '<span class="pill" style="border-color:#b3121b">逾期 '+DATA.overdue+'</span><span class="pill">已占名额：Leader '+DATA.roles.leader+' · Follower '+DATA.roles.follower+' · 都可以 '+DATA.roles.both+'</span>';
   rows();
@@ -100,8 +100,9 @@ function rows(){
     if(q&&(r.code+' '+r.email+' '+r.data.people.map(function(p){return p.name}).join(' ')).toLowerCase().indexOf(q)<0)return false;
     return true}).reverse();
   $('rows').innerHTML=list.length?list.map(function(r){var d=r.data;
-    var ppl=d.people.map(function(p){var what=(p.pkg&&p.pkg!=='single'?[PKG[p.pkg]].concat(p.extra.map(function(x){return NAME[x]})):p.items.map(function(x){return NAME[x]})).join(' + ');
-      return '<li><b>'+esc(p.name)+'</b> · '+ROLE[p.role]+' · '+esc(p.city)+' '+esc(p.country)+(p.country==='CN'?'<span class="tag">国内</span>':'')+' — '+esc(what)+' '+fmt(p.amount)+'</li>'}).join('');
+    var ppl=d.people.map(function(p,i){var what=(p.pkg&&p.pkg!=='single'?[PKG[p.pkg]].concat(p.extra.map(function(x){return NAME[x]})):p.items.map(function(x){return NAME[x]})).join(' + ');
+      var ck=(r.checkins||[]).filter(function(x){return x.person===i}).map(function(x){return x.item});
+      return '<li><b>'+esc(p.name)+'</b>'+(ck.length?' <span class="tag" style="background:#d9f2df;color:#2c7a3f">已签到 '+ck.join(' ')+'</span>':'')+' · '+ROLE[p.role]+' · '+esc(p.city)+' '+esc(p.country)+(p.country==='CN'?'<span class="tag">国内</span>':'')+' — '+esc(what)+' '+fmt(p.amount)+'</li>'}).join('');
     var rooms=d.hotel?d.rooms.map(function(x,i){return '<li>房间'+(i+1)+'：'+(x.type==='king'?'大床':'双床')+' '+x.ci+'→'+x.co+'（'+x.nights+'晚 '+fmt(x.amount)+'）'+x.guests.map(function(g){var pp=d.passports[g]||{};return esc(d.people[g].name)+' ['+esc(pp.s)+' / '+esc(pp.g)+']'}).join('、')+'</li>'}).join(''):'';
     var acts=(ACTS[r.status]||[]).map(function(a){return '<button data-a="'+a+'" data-id="'+r.id+'"'+(a==='confirm'?' class="p"':'')+'>'+ACT_NAME[a]+'</button>'}).join('');
     return '<div class="row'+(r.overdue?' overdue':'')+'"><div class="rh"><span><b>'+r.code+'</b> <span class="st '+r.status+'">'+ST[r.status]+(r.overdue?' · 逾期':'')+'</span> '+esc(r.email)+' · '+r.people+'人 · '+r.lang+'</span><span><b>'+fmt(r.amount)+'</b>'+(r.fee?' <span class="muted">含手续费 '+fmt(r.fee)+'</span>':'')+(r.refund!=null?' <span class="muted">应退 '+fmt(r.refund)+'</span>':'')+'</span></div>'+

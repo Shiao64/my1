@@ -279,6 +279,7 @@ export async function social(req, env, url, json) {
   if (p === '/reg/left' && req.method === 'GET') return (await REG()).regLeft(url, env, json);
   if (p === '/reg/me' && req.method === 'GET') return (await REG()).regMe(req, env, url, json, regKit());
   if (p.startsWith('/reg/qr/') && req.method === 'GET') return (await REG()).regQr(url, env);
+  if (p.startsWith('/reg/pass/') && req.method === 'GET') return (await REG()).regPassPng(url, env);
   let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400); } }
   if (p === '/reg' && req.method === 'POST') return (await REG()).regSubmit(req, env, b, json, regKit());
   if (p === '/admin/reg' || p.startsWith('/admin/reg/')) return (await REG()).regAdmin(req, env, url, b, json, regKit());
