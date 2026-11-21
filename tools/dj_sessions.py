@@ -63,7 +63,8 @@ def today():
 def clean(n):
     n = re.sub(r'^\s*DJ\d*[\s:：]+', '', str(n or ''), flags=re.I)
     n = re.sub(r'\s*[（(](host|主持)[^)）]*[)）]', '', n, flags=re.I)
-    return re.sub(r'\s+', ' ', n).strip(' .,;:')
+    n = re.sub(r'\s+', ' ', n).strip(' .,;:')
+    return '' if re.match(r'^(tb[acd]|待定|待公布|未定|待公佈|미정)$', n, re.I) else n
 
 
 def split(n):

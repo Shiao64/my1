@@ -226,7 +226,7 @@
  },
  {
   "date": "2026-11-20",
-  "dj": "Bana",
+  "dj": "Ban A",
   "event": "WExJslMr",
   "name": "More than Tango Marathon & Festival & Cup",
   "name_en": "More than Tango Marathon & Festival & Cup",
@@ -532,15 +532,6 @@
  },
  {
   "date": "2027-02-27",
-  "dj": "tbc",
-  "event": "E167",
-  "name": "Legends Tango Festival 2027",
-  "name_en": "Legends Tango Festival 2027",
-  "city": "Guangzhou",
-  "src": "events.json schedule"
- },
- {
-  "date": "2027-02-27",
   "dj": "Vuk (Serbia)",
   "event": "E167",
   "name": "Legends Tango Festival 2027",
@@ -551,15 +542,6 @@
  {
   "date": "2027-02-28",
   "dj": "Misha (Serbia)",
-  "event": "E167",
-  "name": "Legends Tango Festival 2027",
-  "name_en": "Legends Tango Festival 2027",
-  "city": "Guangzhou",
-  "src": "events.json schedule"
- },
- {
-  "date": "2027-02-28",
-  "dj": "tbc",
   "event": "E167",
   "name": "Legends Tango Festival 2027",
   "name_en": "Legends Tango Festival 2027",
