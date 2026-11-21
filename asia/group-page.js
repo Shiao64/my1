@@ -3,6 +3,8 @@
    regular events (weekly milongas / prácticas) -> big events (workshops, festivals) -> classes -> about (full bio, venues, people).
    Events belong to the group when e.groups has the id, or (fallback) an organizer is in members / match. */
 (function () {
+  /* 2026-11-21 (Shiao): remember this page when an event card (?card=) is opened from here, so the card's ‹ comes back (atm-home.js profBack). */
+  document.addEventListener('click', function (ev) { var a = ev.target && ev.target.closest && ev.target.closest('a[href*="card="]'); if (!a || a.closest('.dj-back')) return; try { var u = new URL(a.href, location.href), cid = u.searchParams.get('card'); if (!cid || u.origin !== location.origin || !/\/asia\/$/.test(u.pathname)) return; sessionStorage.setItem('atm_prof_from', JSON.stringify({ id: cid, url: location.pathname + location.search, t: Date.now() })); } catch (e) {} }, true);
   var body = document.body, id = body.getAttribute('data-id') || '', zh = body.getAttribute('data-lang') === 'zh';
   var card = '';
   try { card = new URLSearchParams(location.search).get('card') || ''; } catch (e) {}

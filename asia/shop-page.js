@@ -1,5 +1,7 @@
 /* 2026-11-19: brand page for tango shoes / clothing (Shiao). Data: /asia/vendors.json. ATM only shows; buying is done with the seller directly. */
 (function () {
+  /* 2026-11-21 (Shiao): remember this page when an event card (?card=) is opened from here, so the card's ‹ comes back (atm-home.js profBack). */
+  document.addEventListener('click', function (ev) { var a = ev.target && ev.target.closest && ev.target.closest('a[href*="card="]'); if (!a || a.closest('.dj-back')) return; try { var u = new URL(a.href, location.href), cid = u.searchParams.get('card'); if (!cid || u.origin !== location.origin || !/\/asia\/$/.test(u.pathname)) return; sessionStorage.setItem('atm_prof_from', JSON.stringify({ id: cid, url: location.pathname + location.search, t: Date.now() })); } catch (e) {} }, true);
   var body = document.body, id = body.getAttribute('data-id') || '', zh = body.getAttribute('data-lang') === 'zh';
   var back = document.querySelector('.dj-back');
   if (back) back.innerHTML = '<svg width="14" height="28" viewBox="0 0 14 28" aria-hidden="true"><path d="M11.5 2.5L2.8 14l8.7 11.5" fill="none" stroke="#0A4F57" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
