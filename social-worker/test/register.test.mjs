@@ -217,6 +217,11 @@ check('QR hidden without key', q2.status === 404);
 // live mode goes to the dancer
 env.REG_LIVE = '1'; mails.length = 0; const cat = subscriber('cat@qq.com', 'Cat');
 d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter to the dancer in Chinese', mails.some(m => m.includes('to=cat@qq.com') && m.includes('已收到报名')), mails);
+// Cloudflare send_email binding: Reply-To must not be sent as a custom header
+{ const sent = []; const benv = { ...env, SOCIAL_MAIL: 'sub_mail', REG_LIVE: '', SUB_MAIL: { send: async m => { if (m.headers && (m.headers['Reply-To'] || m.headers.Cc)) throw new Error("custom header 'Reply-To' is not allowed"); sent.push(m); } } };
+  const dan = subscriber('dan@gmail.com', 'Dan');
+  const res = await social(new Request('https://api.tangoweekend.org/social/reg', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: 'https://tangoweekend.org', Authorization: 'Bearer ' + dan }, body: JSON.stringify(form()) }), benv, new URL('https://api.tangoweekend.org/social/reg'), json);
+  check('binding mail goes out with replyTo field, no Reply-To header', (await res.json()).ok && sent.some(m => m.replyTo === 'info@tangoweekend.org' && /Registration received/.test(m.subject)), sent.map(m => m.subject)); }
 // cron before migration is quiet
 const bare = new DatabaseSync(':memory:'); const rr2 = await regCron({ ...env, SDB: D1(bare) }); check('cron quiet before migration', rr2.sent === 0);
 
