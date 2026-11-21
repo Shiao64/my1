@@ -41,8 +41,8 @@ textarea{width:100%;min-height:60px}
 </style>
 </head>
 <body>
-<header><b>报名管理 · 北京精选探戈周末 2027</b>
-  <span><input id="tok" type="password" placeholder="报名管理密码" style="width:220px"> <button class="p" id="load">登入 / 刷新</button></span>
+<header><b>报名管理 · 北京精选探戈周末 2027 <small id="hello" style="font-weight:400;color:#e8c06a"></small></b>
+  <span><input id="tok" type="password" placeholder="你的管理密码" style="width:220px"> <button class="p" id="load">登入 / 刷新</button></span>
 </header>
 <main>
   <div class="card" id="sum" hidden>
@@ -58,6 +58,22 @@ textarea{width:100%;min-height:60px}
       <button id="csv">导出 CSV</button>
     </div>
     <div id="rows"></div>
+  </div>
+  <div class="card" id="ledgerCard" hidden>
+    <h2>收款纪录</h2>
+    <div class="pills" id="ledgerSum"></div>
+    <div class="filters" style="margin-top:10px"><select id="lWho"><option value="">全部收款人</option></select><input type="date" id="lFrom"> → <input type="date" id="lTo"><button id="lCsv">导出收款 CSV</button></div>
+    <div id="ledgerList" style="max-height:340px;overflow:auto"></div>
+  </div>
+  <div class="card" id="adminsCard" hidden>
+    <h2>管理员（只有主办看得到）</h2>
+    <p class="muted">每人一个管理密码，只显示一次，请用微信私下传给对方。权限：审核（确认／候补／婉拒）、收款（记收款、退款、现场付现）、取消、修改、门口工作人员、导出。</p>
+    <div class="filters"><input id="aName" placeholder="名字，例如 王凯"><span id="aPerms"></span><button class="p" id="aAdd">新增管理员</button></div>
+    <div id="aNew" hidden style="background:#fff8e6;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-bottom:10px">
+      <div><b id="aNewName"></b> 的管理密码（只显示这一次）：</div>
+      <input id="aPw" readonly style="width:100%;margin:6px 0;font-family:monospace"><button id="aCopy">复制密码</button>
+    </div>
+    <div id="adminList"></div>
   </div>
   <div class="card" id="staffCard" hidden>
     <h2>门口工作人员</h2>
@@ -85,8 +101,12 @@ var NAME={MV:'周五 欢迎舞会',M1:'周六 下午场',M2:'周六 晚场',M3:'
 var PKG={full:'全程套餐',combo:'周末套餐',pass:'周末舞会4场',single:'单场'};
 var ST={pending:'待审核',confirmed:'已确认',paid:'已付款',cash:'现场付现',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
 var ROLE={leader:'Leader',follower:'Follower',both:'都可以'};
-var ACTS={pending:['confirm','waitlist','decline','cancel'],waitlist:['confirm','decline','cancel'],confirmed:['paid','cash','cancel'],cash:['paid','cancel'],paid:['cancel'],declined:[],cancelled:[]};
-var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',paid:'已付款',cash:'现场付现',cancel:'取消'};
+var ACTS={pending:['confirm','waitlist','decline','cancel'],waitlist:['confirm','decline','cancel'],confirmed:['pay','cash','cancel'],cash:['pay','cancel'],paid:['pay','cancel'],declined:[],cancelled:['refund']};
+var ACT_PERM={confirm:'review',waitlist:'review',decline:'review',pay:'collect',cash:'collect',refund:'collect',cancel:'cancel'};
+var PERM_NAME={review:'审核',collect:'收款',cancel:'取消',modify:'修改',staff:'门口工作人员',export:'导出'};
+var METHOD={wechat:'微信',alipay:'支付宝',cash:'现金',other:'其他'};
+function can(p){return !p||(DATA&&DATA.me&&(DATA.me.owner||DATA.me.perms.indexOf(p)>=0))}
+var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'现场付现',cancel:'取消',refund:'记退款'};
 try{$('tok').value=localStorage.getItem('bstw_admin')||''}catch(e){}
 function toast(s){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},3500)}
 function call(path,opt){opt=opt||{};return fetch(API+path,{method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+$('tok').value.trim()},body:opt.body?JSON.stringify(opt.body):undefined})}
@@ -95,7 +115,10 @@ function load(){try{localStorage.setItem('bstw_admin',$('tok').value.trim())}cat
 function fmt(n){return '¥'+Number(n||0).toLocaleString('en-US')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function render(){
-  $('sum').hidden=$('list').hidden=$('qr').hidden=$('staffCard').hidden=false;staff();
+  $('sum').hidden=$('list').hidden=false;$('ledgerCard').hidden=false;$('staffCard').hidden=!can('staff');$('qr').hidden=$('adminsCard').hidden=!DATA.me.owner;
+  $('csv').hidden=!can('export');$('lCsv').hidden=!can('export');
+  $('hello').textContent=DATA.me.name+(DATA.me.owner?'（主办）':'（'+DATA.me.perms.map(function(p){return PERM_NAME[p]}).join('、')+'）');
+  staff();ledger();admins();
   $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c];return '<div class="cap'+(l<=20?' low':'')+'"><small>'+c+' '+NAME[c]+'</small><b>剩 '+l+'</b><small>上限 '+DATA.caps[c]+(DATA.checked&&DATA.checked[c]?' · 已签到 '+DATA.checked[c]:'')+'</small></div>'}).join('');
   var c=DATA.counts;$('pills').innerHTML=['pending','confirmed','paid','cash','waitlist'].map(function(k){return '<span class="pill">'+ST[k]+' '+(c[k]||0)+'</span>'}).join('')+
     '<span class="pill" style="border-color:#b3121b">逾期 '+DATA.overdue+'</span><span class="pill">已占名额：Leader '+DATA.roles.leader+' · Follower '+DATA.roles.follower+' · 都可以 '+DATA.roles.both+'</span>';
@@ -114,22 +137,55 @@ function rows(){
       var ck=(r.checkins||[]).filter(function(x){return x.person===i}).map(function(x){return x.item});
       return '<li><b>'+esc(p.name)+'</b>'+(ck.length?' <span class="tag" style="background:#d9f2df;color:#2c7a3f">已签到 '+ck.join(' ')+'</span>':'')+' · '+ROLE[p.role]+' · '+esc(p.city)+' '+esc(p.country)+(p.country==='CN'?'<span class="tag">国内</span>':'')+' — '+esc(what)+' '+fmt(p.amount)+'</li>'}).join('');
     var rooms=d.hotel?d.rooms.map(function(x,i){return '<li>房间'+(i+1)+'：'+(x.type==='king'?'大床':'双床')+' '+x.ci+'→'+x.co+'（'+x.nights+'晚 '+fmt(x.amount)+'）'+x.guests.map(function(g){var pp=d.passports[g]||{};return esc(d.people[g].name)+' ['+esc(pp.s)+' / '+esc(pp.g)+']'}).join('、')+'</li>'}).join(''):'';
-    var acts=(ACTS[r.status]||[]).map(function(a){return '<button data-a="'+a+'" data-id="'+r.id+'"'+(a==='confirm'?' class="p"':'')+'>'+ACT_NAME[a]+'</button>'}).join('');
+    var acts=(ACTS[r.status]||[]).filter(function(a){return can(ACT_PERM[a])&&!(a==='refund'&&!(r.refund>0))}).map(function(a){return '<button data-a="'+a+'" data-id="'+r.id+'"'+(a==='confirm'||a==='pay'?' class="p"':'')+'>'+ACT_NAME[a]+'</button>'}).join('');
+    var pays=(r.payments||[]).map(function(x){return '<div>'+x.at.slice(5,16).replace('T',' ')+' · '+(x.amount<0?'退款 ':'')+fmt(Math.abs(x.amount))+' · '+METHOD[x.method]+' · 收款人 '+esc(x.collector)+(x.by_admin!==x.collector?'（'+esc(x.by_admin)+' 记录）':'')+(x.note?' · '+esc(x.note):'')+'</div>'}).join('');
+    var payLine=(r.payments&&r.payments.length)||r.status==='confirmed'||r.status==='cash'?'<div class="muted" style="margin-top:4px">已收 <b>'+fmt(r.paid_total||0)+'</b> · 尚欠 <b>'+fmt(Math.max(0,(r.status==='cancelled'?0:r.amount)-(r.paid_total||0)))+'</b>'+(pays?'<div style="margin:4px 0 0 10px">'+pays+'</div>':'')+'</div>':'';
     return '<div class="row'+(r.overdue?' overdue':'')+'"><div class="rh"><span><b>'+r.code+'</b> <span class="st '+r.status+'">'+ST[r.status]+(r.overdue?' · 逾期':'')+'</span> '+esc(r.email)+' · '+r.people+'人 · '+r.lang+'</span><span><b>'+fmt(r.amount)+'</b>'+(r.fee?' <span class="muted">含手续费 '+fmt(r.fee)+'</span>':'')+(r.refund!=null?' <span class="muted">应退 '+fmt(r.refund)+'</span>':'')+'</span></div>'+
       '<ul class="ppl">'+ppl+rooms+'</ul>'+
       '<div class="muted">提交 '+r.created_at.slice(0,16).replace('T',' ')+(r.due_at?' · 付款截止 '+r.due_at.slice(0,10):'')+(r.promo?' · 码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':''):'')+(d.msg?' · 留言：'+esc(d.msg):'')+'</div>'+
-      '<div class="acts">'+acts+'</div>'+
+      payLine+'<div class="acts">'+acts+'</div><div class="payform" data-pf="'+r.id+'" hidden></div>'+
       '<textarea data-note="'+r.id+'" placeholder="内部备注（只有你看得到）">'+esc(r.note||'')+'</textarea></div>'}).join(''):'<p class="muted">没有符合的报名。</p>';
 }
+function rowOf(id){return DATA.rows.filter(function(r){return r.id===id})[0]}
+function payForm(id,a){var r=rowOf(id),box=document.querySelector('[data-pf="'+id+'"]'),rest=a==='refund'?Math.max(0,(r.refund||0)+((r.payments||[]).filter(function(x){return x.amount<0}).reduce(function(s,x){return s+x.amount},0))):Math.max(0,r.amount-(r.paid_total||0));
+  box.hidden=false;box.innerHTML='<div class="filters" style="background:#fffaf0;border:1px solid var(--line);border-radius:10px;padding:8px;margin-top:8px">'+(a==='refund'?'退款':'收款')+' <input type="number" class="pa" value="'+rest+'" style="width:110px"> <select class="pm">'+Object.keys(METHOD).map(function(k){return '<option value="'+k+'">'+METHOD[k]+'</option>'}).join('')+'</select> '+(a==='refund'?'退款人':'收款人')+' <input class="pc" value="'+esc(DATA.me.name)+'" style="width:90px"> <input class="pn" placeholder="备注，例如转账单号" style="flex:1;min-width:140px"> <button class="p ps">确定</button> <button class="px">取消</button></div>';
+  box.querySelector('.px').onclick=function(){box.hidden=true};
+  box.querySelector('.ps').onclick=function(){var btn=this;btn.disabled=true;
+    call('/social/admin/reg/act',{method:'POST',body:{id:id,action:a,pay:{amount:+box.querySelector('.pa').value,method:box.querySelector('.pm').value,collector:box.querySelector('.pc').value.trim(),note:box.querySelector('.pn').value.trim()}}}).then(function(r){return r.json()}).then(function(d){
+      if(d.ok){toast(a==='refund'?'已记退款':(d.status==='paid'?'已收齐，付款确认信已寄出':'已记收款，尚欠 '+fmt(d.rest)));load()}else{btn.disabled=false;toast(d.error==='no_permission'?'你没有这个权限':'没成功：'+d.error)}})}}
 $('rows').addEventListener('click',function(e){var b=e.target.closest('button[data-a]');if(!b)return;var a=b.dataset.a,id=+b.dataset.id;
+  if(a==='pay'||a==='refund')return payForm(id,a);
   if(!confirm('确定要「'+ACT_NAME[a]+'」这笔报名吗？会寄信通知舞者。'))return;b.disabled=true;
   call('/social/admin/reg/act',{method:'POST',body:{id:id,action:a}}).then(function(r){return r.json()}).then(function(d){
     if(d.ok){toast('已'+ACT_NAME[a]+(d.refund!=null?'，应退 '+fmt(d.refund):''));load();return}
-    b.disabled=false;toast(d.error==='full'?(NAME[d.item]+' 只剩 '+d.left+' 位，这笔要 '+d.need+' 位'):('没成功：'+d.error))})});
+    b.disabled=false;toast(d.error==='no_permission'?'你没有这个权限':d.error==='full'?(NAME[d.item]+' 只剩 '+d.left+' 位，这笔要 '+d.need+' 位'):('没成功：'+d.error))})});
 $('rows').addEventListener('change',function(e){var t=e.target;if(!t.dataset.note)return;
   call('/social/admin/reg/act',{method:'POST',body:{id:+t.dataset.note,action:'note',note:t.value}}).then(function(r){return r.json()}).then(function(d){toast(d.ok?'备注已存':'备注没存上')})});
 ['fSt','fDom','fRole'].forEach(function(i){$(i).addEventListener('change',rows)});$('fQ').addEventListener('input',rows);
 $('load').addEventListener('click',load);
+function inRange(x){var f=$('lFrom').value,t=$('lTo').value,d=x.at.slice(0,10);return (!f||d>=f)&&(!t||d<=t)}
+function ledger(){var all=[];DATA.rows.forEach(function(r){(r.payments||[]).forEach(function(x){all.push(Object.assign({code:r.code},x))})});
+  var who={};all.forEach(function(x){who[x.collector]=1});var sel=$('lWho'),cur=sel.value;sel.innerHTML='<option value="">全部收款人</option>'+Object.keys(who).map(function(n){return '<option>'+esc(n)+'</option>'}).join('');sel.value=cur;
+  var list=all.filter(function(x){return (!sel.value||x.collector===sel.value)&&inRange(x)}).reverse(),sum={};
+  list.forEach(function(x){var s=sum[x.collector]=sum[x.collector]||{in:0,out:0,n:0};if(x.amount>=0)s.in+=x.amount;else s.out-=x.amount;s.n++});
+  $('ledgerSum').innerHTML=Object.keys(sum).length?Object.keys(sum).map(function(n){var s=sum[n];return '<span class="pill"><b>'+esc(n)+'</b> 收 '+fmt(s.in)+(s.out?' · 退 '+fmt(s.out):'')+' · 净 '+fmt(s.in-s.out)+' · '+s.n+' 笔</span>'}).join(''):'<span class="muted">还没有收款纪录。</span>';
+  $('ledgerList').innerHTML=list.map(function(x){return '<div class="row" style="padding:6px 10px"><b>'+x.code+'</b> · '+x.at.slice(0,16).replace('T',' ')+' · <b>'+(x.amount<0?'退 ':'收 ')+fmt(Math.abs(x.amount))+'</b> · '+METHOD[x.method]+' · '+esc(x.collector)+(x.by_admin!==x.collector?'（'+esc(x.by_admin)+' 记录）':'')+(x.note?' · '+esc(x.note):'')+'</div>'}).join('')}
+['lWho','lFrom','lTo'].forEach(function(i){$(i).addEventListener('change',ledger)});
+$('lCsv').addEventListener('click',function(){call('/social/admin/reg/payments?event=bj2027').then(function(r){return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bj2027-payments.csv';a.click()})});
+$('aPerms').innerHTML=Object.keys(PERM_NAME).map(function(p){return '<label style="margin-right:6px;white-space:nowrap"><input type="checkbox" value="'+p+'"'+(p==='collect'?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('');
+function admins(){if(!DATA.me.owner)return;var L=DATA.admins||[];
+  $('adminList').innerHTML=L.length?L.map(function(x){var ps=(x.perms||'').split(',').filter(Boolean);return '<div class="row"><div class="rh"><span><b>'+esc(x.name)+'</b> '+(x.disabled_at?'<span class="st cancelled">已停用</span>':'')+'</span><span class="muted">收款净额 '+fmt(((DATA.ledger||{})[x.name]||{in:0,out:0}).in-((DATA.ledger||{})[x.name]||{out:0}).out)+'</span></div>'+
+    '<div class="acts">'+Object.keys(PERM_NAME).map(function(p){return '<label style="white-space:nowrap"><input type="checkbox" data-ap="'+x.id+'" value="'+p+'"'+(ps.indexOf(p)>=0?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('')+
+    ' <button data-ad="perms" data-id="'+x.id+'">保存权限</button><button data-ad="reset" data-id="'+x.id+'">重设密码</button>'+(x.disabled_at?'':'<button data-ad="disable" data-id="'+x.id+'">停用</button>')+'</div></div>'}).join(''):'<p class="muted">还没有其他管理员。</p>'}
+function showPw(name,pw){$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
+$('aAdd').addEventListener('click',function(){var n=$('aName').value.trim();if(!n)return toast('请填名字');var ps=[].map.call($('aPerms').querySelectorAll('input:checked'),function(i){return i.value});
+  call('/social/admin/reg/admins',{method:'POST',body:{name:n,perms:ps}}).then(function(r){return r.json()}).then(function(d){if(d.ok){$('aName').value='';showPw(d.name,d.password);load()}else toast(d.error==='name_taken'?'已经有这个名字了':'没成功：'+d.error)})});
+$('adminList').addEventListener('click',function(e){var b=e.target.closest('button[data-ad]');if(!b)return;var a=b.dataset.ad,id=+b.dataset.id,body={id:id};
+  if(a==='perms')body.perms=[].map.call(document.querySelectorAll('input[data-ap="'+id+'"]:checked'),function(i){return i.value});
+  if(a!=='perms'&&!confirm(a==='disable'?'停用后他的密码马上失效，确定？':'重设后旧密码马上失效，确定？'))return;
+  call('/social/admin/reg/admins/'+a,{method:'POST',body:body}).then(function(r){return r.json()}).then(function(d){if(d.ok){if(d.password)showPw(rowName(id),d.password);toast(a==='perms'?'权限已保存':a==='disable'?'已停用':'已产生新密码');load()}else toast('没成功：'+d.error)})});
+function rowName(id){return ((DATA.admins||[]).filter(function(x){return x.id===id})[0]||{}).name||''}
+$('aCopy').addEventListener('click',function(){var i=$('aPw');i.select();try{navigator.clipboard.writeText(i.value).then(function(){toast('已复制')})}catch(e){document.execCommand('copy');toast('已复制')}});
 function staff(){var L=DATA.staff||[];$('staffList').innerHTML=L.length?L.map(function(x){var st=x.disabled_at?'<span class="st cancelled">已停用</span>':x.activated_at?'<span class="st paid">已启用 '+x.activated_at.slice(5,16).replace('T',' ')+'</span>':'<span class="st pending">还没打开连结</span>';
   return '<div class="row"><div class="rh"><span><b>'+esc(x.name)+'</b> '+st+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts"><button data-s="reissue" data-id="'+x.id+'">重发连结</button>'+(x.disabled_at?'':'<button data-s="disable" data-id="'+x.id+'">停用</button>')+'</div></div>'}).join(''):'<p class="muted">还没有工作人员。</p>'}
 function showLink(d){$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link}

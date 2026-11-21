@@ -20,7 +20,7 @@ const db = new DatabaseSync(':memory:');
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT, wx_used INTEGER DEFAULT 0);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);`);
-for (const f of ['0020_registrations.sql', '0021_reg_checkin.sql']) db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', f), 'utf8'));
+for (const f of ['0020_registrations.sql', '0021_reg_checkin.sql', '0022_reg_admins_ledger.sql']) db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', f), 'utf8'));
 function D1(database) {
   return { prepare(sql) { const st = database.prepare(sql); let args = []; return {
     bind(...a) { args = a; return this; },
@@ -228,6 +228,43 @@ check('QR hidden without key', q2.status === 404);
   m = await call('GET', '/reg/me?event=bj2027', null, eve); check('cancelled: shown with refund', m.reg.status === 'cancelled' && m.reg.refund === 650, m.reg);
   m = await call('POST', '/reg', form({ people: [person({ name: 'Eve', pkg: 'combo' })] }), eve); check('can register again after cancel', m.ok && m.code !== undefined);
   m = await call('GET', '/reg/me?event=bj2027', null, eve); check('me prefers the live registration over the cancelled one', m.reg.status === 'pending' && m.reg.amount === 1150, m.reg); }
+// --- organizers: own passwords, permissions, payment ledger ---
+{ let d = await call('POST', '/admin/reg/admins', { name: '王凯', perms: ['collect'] }, env.REG_ADMIN_TOKEN);
+  check('owner adds a collector, password shown once', d.ok && /^[0-9a-f]{40}$/.test(d.password) && d.perms.join() === 'collect', d);
+  const wk = d.password, wkId = d.id;
+  d = await call('POST', '/admin/reg/admins', { name: '竟文', perms: ['review', 'collect', 'cancel', 'export'] }, env.REG_ADMIN_TOKEN); const jw = d.password;
+  d = await call('POST', '/admin/reg/admins', { name: '刘峥', perms: ['nonsense', 'review'] }, wk); check('only the owner manages organizers', d._s === 403);
+  d = await call('GET', '/admin/reg/me?event=bj2027', null, wk); check('collector sees own name and perms', d.name === '王凯' && d.perms.join() === 'collect' && !d.owner, d);
+  d = await call('GET', '/admin/reg?event=bj2027', null, wk); check('collector can view the list', d._s === 200 && d.admins === undefined && d.staff.length === 0);
+  const fay = subscriber('fay@gmail.com', 'Fay');
+  const fr = await call('POST', '/reg', form({ people: [person({ name: 'Fay', pkg: 'pass' }), person({ name: 'Gus', pkg: 'pass', role: 'leader' })] }), fay);
+  const fid = (await call('GET', '/admin/reg?event=bj2027', null, ADMIN)).rows.find(r => r.code === fr.code).id;
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'confirm', silent: 1 }, wk); check('collector cannot confirm', d._s === 403 && d.error === 'no_permission');
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'confirm', silent: 1 }, jw); check('reviewer confirms', d.ok && d.status === 'confirmed');
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: 600, method: 'alipay', note: '单号 123' }, silent: 1 }, wk);
+  check('partial payment recorded, still confirmed', d.ok && d.status === 'confirmed' && d.paid === 600 && d.rest === 800, d);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { method: 'wechat' }, silent: 1 }, jw);
+  check('second payment covers the rest → paid', d.ok && d.status === 'paid' && d.paid === 1400 && d.rest === 0, d);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: -5 } }, wk); check('bad amount refused', d._s === 400);
+  d = await call('GET', '/admin/reg?event=bj2027', null, ADMIN); const fr2 = d.rows.find(r => r.id === fid);
+  check('ledger per collector', d.ledger['王凯'].in === 600 && d.ledger['竟文'].in === 800 && fr2.paid_total === 1400 && fr2.payments[0].by_admin === '王凯' && fr2.payments[0].method === 'alipay', d.ledger);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'cancel', silent: 1 }, wk); check('collector cannot cancel', d._s === 403);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'cancel', silent: 1 }, jw); check('cancel refunds what was paid minus ¥50', d.ok && d.refund === 1350, d);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'refund', pay: { amount: 2000, method: 'wechat' }, silent: 1 }, wk); check('cannot refund more than held', d._s === 400);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'refund', pay: { method: 'wechat' }, silent: 1 }, wk); check('refund recorded as negative', d.ok && d.refunded === 1350 && d.due === 0, d);
+  d = await call('GET', '/admin/reg?event=bj2027', null, ADMIN); check('ledger shows refund out', d.ledger['王凯'].out === 1350 && d.rows.find(r => r.id === fid).paid_total === 50, d.ledger);
+  const pr = await social(new Request('https://api.tangoweekend.org/social/admin/reg/payments?event=bj2027', { headers: { Authorization: 'Bearer ' + wk } }), env, new URL('https://api.tangoweekend.org/social/admin/reg/payments?event=bj2027'), json);
+  check('collector without export cannot download ledger', pr.status === 403);
+  const pj = await social(new Request('https://api.tangoweekend.org/social/admin/reg/payments?event=bj2027', { headers: { Authorization: 'Bearer ' + jw } }), env, new URL('https://api.tangoweekend.org/social/admin/reg/payments?event=bj2027'), json);
+  const csvp = await pj.text(); check('ledger CSV has collector and recorder', pj.status === 200 && csvp.includes('alipay,王凯,王凯,单号 123') && csvp.includes('-1350'), csvp.slice(0, 300));
+  d = await call('GET', '/reg/door/me', null, wk); check('any organizer can use the door page', d.ok && d.name === '王凯');
+  d = await call('POST', '/admin/reg/admins/reset', { id: wkId }, env.REG_ADMIN_TOKEN); const wk2 = d.password;
+  d = await call('GET', '/admin/reg/me?event=bj2027', null, wk); check('old password stops after reset', d._s === 401);
+  d = await call('GET', '/admin/reg/me?event=bj2027', null, wk2); check('new password works', d.name === '王凯');
+  d = await call('POST', '/admin/reg/admins/perms', { id: wkId, perms: ['collect', 'cancel'] }, env.REG_ADMIN_TOKEN); check('owner changes perms', d.ok);
+  d = await call('GET', '/admin/reg/me?event=bj2027', null, wk2); check('perms take effect', d.perms.includes('cancel'));
+  d = await call('POST', '/admin/reg/admins/disable', { id: wkId }, env.REG_ADMIN_TOKEN);
+  d = await call('GET', '/admin/reg/me?event=bj2027', null, wk2); check('disabled organizer locked out', d._s === 401); }
 // live mode goes to the dancer
 env.REG_LIVE = '1'; mails.length = 0; const cat = subscriber('cat@qq.com', 'Cat');
 d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter to the dancer in Chinese', mails.some(m => m.includes('to=cat@qq.com') && m.includes('已收到报名')), mails);
