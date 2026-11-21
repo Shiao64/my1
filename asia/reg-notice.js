@@ -1,6 +1,7 @@
 /* Registration reminder bar (Beijing Select Tango Weekend 2027).
    For a signed-in subscriber who registered: when the status changes (confirmed → please pay, paid → entry QR, …)
-   show one small bar at the top of the map. ✕ hides it until the status changes again. No call without a session. */
+   show one small bar at the top of the map. ✕ hides it until the status changes again. No call without a session.
+   Once paid: tapping the ATM logo opens "My entry pass" full screen (one QR per person, swipe between them). */
 (function () {
   var API = 'https://api.tangoweekend.org';
   try { var qa = new URLSearchParams(location.search).get('api'); if (qa && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(qa)) API = qa; } catch (e) {}   // local test only
@@ -21,7 +22,9 @@
   fetch(API + '/social/reg/me?event=bj2027&lang=' + (zh ? 'zh' : 'en'), { headers: { Authorization: 'Bearer ' + tok } })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (d) {
-      var r = d && d.reg; if (!r || !T[r.status]) return;
+      var r = d && d.reg; if (!r) return;
+      if (r.passes && r.passes.length) logoPass(r);
+      if (!T[r.status]) return;
       var kind = r.status, left = r.due ? (Date.parse(r.due) - Date.now()) / 864e5 : 99;
       if (kind === 'confirmed' && left <= 3) kind = 'soon';
       var key = r.code + ':' + kind; if (seen() === key) return;
@@ -40,4 +43,51 @@
       x.addEventListener('click', hide); a.addEventListener('click', function () { try { localStorage.setItem('bstw_seen', key); } catch (e) {} });
       bar.append(a, x); D.body.appendChild(bar);
     }).catch(function () {});
+
+  // ---------- tap the ATM logo → my entry pass ----------
+  function logoPass(r) {
+    var logo = D.querySelector('.china-sticky-top img.atm-sign') || D.querySelector('img.atm-sign'); if (!logo) return;
+    var wrap = logo.parentNode; if (getComputedStyle(wrap).position === 'static') wrap.style.position = 'relative';
+    var tag = D.createElement('span'); tag.textContent = '🎫'; tag.setAttribute('aria-hidden', 'true');
+    tag.style.cssText = 'position:absolute;right:-6px;top:-6px;font-size:14px;line-height:1;background:#fff;border-radius:50%;padding:2px;box-shadow:0 1px 4px rgba(0,0,0,.3);pointer-events:none';
+    wrap.appendChild(tag);
+    logo.setAttribute('title', zh ? '我的入场码' : 'My entry pass');
+    // Capture phase: the logo is inside the header link and title tap handler; only the pass opens.
+    logo.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); open(r); }, true);
+  }
+  var lock = null;
+  function open(r) {
+    if (D.getElementById('atm-pass')) return;
+    var ov = D.createElement('div'); ov.id = 'atm-pass'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#fff;color:#2a1a14;display:flex;flex-direction:column;font:15px/1.4 system-ui,-apple-system,"PingFang SC",sans-serif';
+    var top = D.createElement('div');
+    top.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:max(12px,env(safe-area-inset-top)) 16px 10px;background:#4a0609;color:#f6e3b4';
+    var h = D.createElement('b'); h.textContent = (zh ? '我的入场码 · 北京精选探戈周末' : 'My entry pass · Beijing Select Tango Weekend');
+    var x = D.createElement('button'); x.type = 'button'; x.textContent = '✕'; x.setAttribute('aria-label', T.close);
+    x.style.cssText = 'background:none;border:0;color:#e8c06a;font-size:22px;padding:0 4px;cursor:pointer';
+    top.append(h, x);
+    var row = D.createElement('div');
+    row.style.cssText = 'flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch';
+    r.passes.forEach(function (p, i) {
+      var c = D.createElement('div');
+      c.style.cssText = 'flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;box-sizing:border-box';
+      var im = D.createElement('img'); im.src = p.img; im.alt = 'QR';
+      im.style.cssText = 'width:min(82vw,62vh,380px);height:auto;aspect-ratio:1;image-rendering:pixelated;background:#fff';
+      var n = D.createElement('div'); n.textContent = p.name; n.style.cssText = 'font-size:22px;font-weight:800;margin-top:14px';
+      var cd = D.createElement('div'); cd.textContent = p.pass.split('.')[0] + (r.passes.length > 1 ? '  ·  ' + (i + 1) + ' / ' + r.passes.length : '');
+      cd.style.cssText = 'color:#7a6255;margin-top:4px';
+      c.append(im, n, cd); row.appendChild(c);
+    });
+    var foot = D.createElement('div');
+    foot.style.cssText = 'padding:10px 16px max(14px,env(safe-area-inset-bottom));text-align:center;color:#7a6255;font-size:13px';
+    foot.textContent = (r.passes.length > 1 ? (zh ? '左右滑动看同行者的码 · ' : 'Swipe for your companions · ') : '') +
+      (zh ? '入场时出示，请把屏幕调亮' : 'Show it at the door. Turn up your screen brightness.');
+    if (r.status === 'cash') foot.textContent += (zh ? ' · 请到场付现 ¥' : ' · Pay in cash at the event: ¥') + Number(r.amount || 0).toLocaleString('en-US');
+    ov.append(top, row, foot); D.body.appendChild(ov);
+    var oldOverflow = D.documentElement.style.overflow; D.documentElement.style.overflow = 'hidden';
+    try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (l) { lock = l; }).catch(function () {}); } catch (e) {}
+    function close() { ov.remove(); D.documentElement.style.overflow = oldOverflow; try { if (lock) lock.release(); } catch (e) {} lock = null; D.removeEventListener('keydown', esc); }
+    function esc(e) { if (e.key === 'Escape') close(); }
+    x.addEventListener('click', close); D.addEventListener('keydown', esc);
+  }
 })();
