@@ -41,6 +41,27 @@ def dates(s, e, zh):
     if a[0] != b[0]: return f'{MON[a[1]-1]} {a[2]}, {a[0]} – {MON[b[1]-1]} {b[2]}, {b[0]}'
     if a[1] != b[1]: return f'{MON[a[1]-1]} {a[2]} – {MON[b[1]-1]} {b[2]}, {a[0]}'
     return f'{MON[a[1]-1]} {a[2]}–{b[2]}, {a[0]}'
+# DJ names in the schedule link to a profile page (2026-11-21, Shiao): asia/djs.json -> /dj/<id>/,
+# else a person (not a group) in asia/organizers.json -> /organizer/<id>/ (e.g. 刘峥 is organizer and DJ).
+# Same name matching as cardB.js profileOf(): name, name_zh, match[], ignoring case, spaces and punctuation.
+_PROF = None
+def _pkey(n): return re.sub(r'[^a-z0-9\u4e00-\u9fff]', '', str(n or '').lower())
+def profile_href(name, zh):
+    global _PROF
+    if _PROF is None:
+        _PROF = {}
+        for f, kind in (('asia/organizers.json', 'organizer'), ('asia/djs.json', 'dj')):  # djs.json last = wins
+            try: rows = json.load(open(os.path.join(ROOT, f)))
+            except Exception: rows = []
+            for r in rows:
+                if not r.get('id') or r.get('kind') == 'group': continue
+                for n in [r.get('name'), r.get('name_zh')] + list(r.get('match') or []):
+                    if _pkey(n): _PROF[_pkey(n)] = (kind, r['id'])
+    hit = _PROF.get(_pkey(name))
+    return (('/zh' if zh else '') + f'/{hit[0]}/{hit[1]}/') if hit else ''
+def dj_html(dj, zh):
+    h = profile_href(dj, zh)
+    return f'<a href="{E(h)}">{E(dj)}</a>' if h else E(dj)
 def linkify(t):
     t = E(t)
     return re.sub(r'(https?://[^\s<，。；）)]+)', r'<a href="\1" target="_blank" rel="noopener">\1</a>', t).replace('\n', '<br>')
@@ -114,7 +135,7 @@ def page(e, slug, zh):
                 main, sub = split_sub((r.get('session_zh') if zh else None) or r.get('session', ''))
                 dj = r.get('dj') or ''
                 dj = djz.get(dj, dj)
-                extra = ([f'<span class="ev-dj">DJ {E(dj)}</span>'] if dj else []) + ([f'<span class="ev-sub">{E(sub)}</span>'] if sub else []) + ([f'<span class="ev-sv">{E(v)}</span>'] if many_v and not dayv and v else [])
+                extra = ([f'<span class="ev-dj">DJ {dj_html(dj, zh)}</span>'] if dj else []) + ([f'<span class="ev-sub">{E(sub)}</span>'] if sub else []) + ([f'<span class="ev-sv">{E(v)}</span>'] if many_v and not dayv and v else [])
                 li.append(f'<li><span class="ev-t">{tm(r["time"])}</span><span class="ev-s"><b>{E(main)}</b>{"".join(extra)}</span></li>')
             out.append('<div class="ev-day"><h3 class="ev-dh">%s%s</h3><ul>%s</ul></div>' % (E(dl(d)), f'<span class="ev-dv">{E(dayv)}</span>' if dayv else '', ''.join(li)))
         nav.append(('schedule', '日程' if zh else 'Schedule'))
