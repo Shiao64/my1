@@ -59,6 +59,16 @@ textarea{width:100%;min-height:60px}
     </div>
     <div id="rows"></div>
   </div>
+  <div class="card" id="staffCard" hidden>
+    <h2>门口工作人员</h2>
+    <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结只能在<b>第一支打开它的手机</b>上启用；换手机就按「重发连结」，不帮忙了就按「停用」。请对方用 Safari 或 Chrome 打开（不要在微信里直接打开）。</p>
+    <div class="filters"><input id="sName" placeholder="工作人员名字，例如 王凯"><button class="p" id="sAdd">新增</button></div>
+    <div id="sNew" hidden style="background:#fff8e6;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-bottom:10px">
+      <div><b id="sNewName"></b> 的专属连结（只显示这一次，请马上复制传给他）：</div>
+      <input id="sLink" readonly style="width:100%;margin:6px 0"><button id="sCopy">复制连结</button>
+    </div>
+    <div id="staffList"></div>
+  </div>
   <div class="card" id="qr" hidden>
     <h2>收款码（确认信里会附上）</h2>
     <p class="muted">国际舞者用 intl-wechat、intl-alipay；国内舞者用 cn-wechat、cn-alipay。图片只存在后台，不进仓库。</p>
@@ -85,7 +95,7 @@ function load(){try{localStorage.setItem('bstw_admin',$('tok').value.trim())}cat
 function fmt(n){return '¥'+Number(n||0).toLocaleString('en-US')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function render(){
-  $('sum').hidden=$('list').hidden=$('qr').hidden=false;
+  $('sum').hidden=$('list').hidden=$('qr').hidden=$('staffCard').hidden=false;staff();
   $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c];return '<div class="cap'+(l<=20?' low':'')+'"><small>'+c+' '+NAME[c]+'</small><b>剩 '+l+'</b><small>上限 '+DATA.caps[c]+(DATA.checked&&DATA.checked[c]?' · 已签到 '+DATA.checked[c]:'')+'</small></div>'}).join('');
   var c=DATA.counts;$('pills').innerHTML=['pending','confirmed','paid','cash','waitlist'].map(function(k){return '<span class="pill">'+ST[k]+' '+(c[k]||0)+'</span>'}).join('')+
     '<span class="pill" style="border-color:#b3121b">逾期 '+DATA.overdue+'</span><span class="pill">已占名额：Leader '+DATA.roles.leader+' · Follower '+DATA.roles.follower+' · 都可以 '+DATA.roles.both+'</span>';
@@ -120,6 +130,15 @@ $('rows').addEventListener('change',function(e){var t=e.target;if(!t.dataset.not
   call('/social/admin/reg/act',{method:'POST',body:{id:+t.dataset.note,action:'note',note:t.value}}).then(function(r){return r.json()}).then(function(d){toast(d.ok?'备注已存':'备注没存上')})});
 ['fSt','fDom','fRole'].forEach(function(i){$(i).addEventListener('change',rows)});$('fQ').addEventListener('input',rows);
 $('load').addEventListener('click',load);
+function staff(){var L=DATA.staff||[];$('staffList').innerHTML=L.length?L.map(function(x){var st=x.disabled_at?'<span class="st cancelled">已停用</span>':x.activated_at?'<span class="st paid">已启用 '+x.activated_at.slice(5,16).replace('T',' ')+'</span>':'<span class="st pending">还没打开连结</span>';
+  return '<div class="row"><div class="rh"><span><b>'+esc(x.name)+'</b> '+st+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts"><button data-s="reissue" data-id="'+x.id+'">重发连结</button>'+(x.disabled_at?'':'<button data-s="disable" data-id="'+x.id+'">停用</button>')+'</div></div>'}).join(''):'<p class="muted">还没有工作人员。</p>'}
+function showLink(d){$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link}
+$('sAdd').addEventListener('click',function(){var n=$('sName').value.trim();if(!n)return toast('请填名字');
+  call('/social/admin/reg/staff',{method:'POST',body:{name:n}}).then(function(r){return r.json()}).then(function(d){if(d.ok){$('sName').value='';showLink(d);load()}else toast(d.error==='name_taken'?'已经有这个名字了':'没成功：'+d.error)})});
+$('staffList').addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;var a=b.dataset.s;
+  if(!confirm(a==='disable'?'停用后他的手机马上不能签到，确定？':'重发后旧连结和他现在的手机都会失效，确定？'))return;
+  call('/social/admin/reg/staff/'+a,{method:'POST',body:{id:+b.dataset.id}}).then(function(r){return r.json()}).then(function(d){if(d.ok){if(d.link)showLink(d);toast(a==='disable'?'已停用':'已产生新连结');load()}else toast('没成功：'+d.error)})});
+$('sCopy').addEventListener('click',function(){var i=$('sLink');i.select();try{navigator.clipboard.writeText(i.value).then(function(){toast('已复制')})}catch(e){document.execCommand('copy');toast('已复制')}});
 $('csv').addEventListener('click',function(){call('/social/admin/reg?event=bj2027&format=csv').then(function(r){return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bj2027-registrations.csv';a.click()})});
 $('qUp').addEventListener('click',function(){var f=$('qFile').files[0];if(!f)return toast('先选一张图片');if(f.size>1e6)return toast('图片太大（1MB 以内）');
   var rd=new FileReader();rd.onload=function(){call('/social/admin/reg/asset',{method:'POST',body:{name:$('qName').value,mime:f.type,b64:rd.result}}).then(function(r){return r.json()}).then(function(d){toast(d.ok?'已上传 '+d.name:'上传失败：'+d.error)})};rd.readAsDataURL(f)});

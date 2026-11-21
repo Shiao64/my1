@@ -386,11 +386,14 @@ export async function regAdmin(req, env, url, b, json, kit) {
       if (SEATED.includes(r.status)) r.data.people.forEach(pp => roles[pp.role]++);
       if (r.status === 'confirmed' && r.due_at && Date.parse(r.due_at) < t) { r.overdue = true; overdue++; } }
     const caps = Object.fromEntries(Object.entries(ev.items).filter(([, it]) => it.cap).map(([c, it]) => [c, it.cap]));
-    const checked = {}, inRows = {};
-    for (const c of ((await env.SDB.prepare('SELECT c.reg_id,c.person,c.item FROM reg_checkin c JOIN reg r ON r.id=c.reg_id WHERE r.event=?').bind(ev.id).all()).results || [])) {
-      checked[c.item] = (checked[c.item] || 0) + 1; (inRows[c.reg_id] = inRows[c.reg_id] || []).push({ person: c.person, item: c.item }); }
+    const checked = {}, inRows = {}, byStaff = {};
+    for (const c of ((await env.SDB.prepare('SELECT c.reg_id,c.person,c.item,c.staff FROM reg_checkin c JOIN reg r ON r.id=c.reg_id WHERE r.event=?').bind(ev.id).all()).results || [])) {
+      checked[c.item] = (checked[c.item] || 0) + 1; byStaff[c.staff || ''] = (byStaff[c.staff || ''] || 0) + 1;
+      (inRows[c.reg_id] = inRows[c.reg_id] || []).push({ person: c.person, item: c.item, staff: c.staff }); }
     rows.forEach(r => { r.checkins = inRows[r.id] || []; });
-    return json({ event: ev.id, left, caps, roles, counts, overdue, checked, rows });
+    const staff = (((await env.SDB.prepare('SELECT id,name,created_at,activated_at,disabled_at FROM reg_staff WHERE event=? ORDER BY id').bind(ev.id).all()).results) || [])
+      .map(x => ({ ...x, checkins: byStaff[x.name] || 0 }));
+    return json({ event: ev.id, left, caps, roles, counts, overdue, checked, staff, rows });
   }
   if (p === '/asset' && req.method === 'POST') {
     const name = str(b.name, 40), mime = str(b.mime, 40), data = String(b.b64 || '').replace(/^data:[^,]+,/, '');
@@ -399,8 +402,9 @@ export async function regAdmin(req, env, url, b, json, kit) {
     return json({ ok: true, name });
   }
   if (p === '/act' && req.method === 'POST') return regAct(env, b, json, kit, ev);
-  if (p === '/pass' && req.method === 'GET') return regPassInfo(env, url.searchParams.get('p'), json);
-  if (p === '/checkin' && req.method === 'POST') return regCheckin(env, b, json);
+  if (p === '/staff' && req.method === 'POST') return staffAdd(env, ev, b, json);
+  if (p === '/staff/reissue' && req.method === 'POST') return staffReissue(env, ev, b, json);
+  if (p === '/staff/disable' && req.method === 'POST') return staffDisable(env, ev, b, json);
   return json({ error: 'not_found' }, 404);
 }
 const NEXT = { confirm: ['pending', 'waitlist'], waitlist: ['pending'], decline: ['pending', 'waitlist'], paid: ['confirmed', 'cash'], cash: ['confirmed'], cancel: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], modify: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], note: null };
@@ -457,7 +461,55 @@ export async function regRemind(env, kit) {
   return out;
 }
 
-// ---------- door check-in (organizer phone) ----------
+// ---------- door check-in ----------
+// Who may scan: a door helper's phone (token from a one-time link, bound to the first phone that opens it), or the organizer password.
+const rndHex = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
+async function sha256(s) { return [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join(''); }
+const doorLink = (env, act) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/checkin/?act=' + act;
+async function doorWho(req, env) {
+  const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  if (adminOK(req, env)) return { name: '主办', admin: true };
+  const m = /^staff:([0-9a-f]{64})$/.exec(a); if (!m) return null;
+  const st = await env.SDB.prepare('SELECT id,name,event FROM reg_staff WHERE device_hash=? AND disabled_at IS NULL').bind(await sha256(m[1])).first();
+  return st ? { name: st.name, staff: st.id, event: st.event } : null;
+}
+async function staffAdd(env, ev, b, json) {
+  const name = str(b && b.name, 40); if (!name) return json({ error: 'need_name' }, 400);
+  if (await env.SDB.prepare('SELECT 1 FROM reg_staff WHERE event=? AND name=? AND disabled_at IS NULL').bind(ev.id, name).first()) return json({ error: 'name_taken' }, 409);
+  const act = rndHex(24);
+  const r = await env.SDB.prepare('INSERT INTO reg_staff(event,name,act_hash,created_at) VALUES(?,?,?,?)').bind(ev.id, name, await sha256(act), nowIso()).run();
+  return json({ ok: true, id: r.meta.last_row_id, name, link: doorLink(env, act) });
+}
+async function staffReissue(env, ev, b, json) {
+  const st = await env.SDB.prepare('SELECT id,name FROM reg_staff WHERE id=? AND event=?').bind(Number(b && b.id) || 0, ev.id).first(); if (!st) return json({ error: 'not_found' }, 404);
+  const act = rndHex(24);   // a new link; the phone that used the old one stops working
+  await env.SDB.prepare('UPDATE reg_staff SET act_hash=?,device_hash=NULL,activated_at=NULL,disabled_at=NULL WHERE id=?').bind(await sha256(act), st.id).run();
+  return json({ ok: true, id: st.id, name: st.name, link: doorLink(env, act) });
+}
+async function staffDisable(env, ev, b, json) {
+  const r = await env.SDB.prepare('UPDATE reg_staff SET disabled_at=?,act_hash=NULL,device_hash=NULL WHERE id=? AND event=?').bind(nowIso(), Number(b && b.id) || 0, ev.id).run();
+  return r.meta.changes ? json({ ok: true }) : json({ error: 'not_found' }, 404);
+}
+export async function regDoor(req, env, url, b, json) {
+  const p = url.pathname.slice('/social/reg/door'.length);
+  if (p === '/activate' && req.method === 'POST') {
+    const act = String(b && b.act || ''); if (!/^[0-9a-f]{48}$/.test(act)) return json({ error: 'bad_link' }, 400);
+    const h = await sha256(act);
+    const st = await env.SDB.prepare('SELECT * FROM reg_staff WHERE act_hash=?').bind(h).first();
+    if (!st) return json({ error: 'used_or_invalid' }, 409);   // already opened on another phone, re-issued, or never existed
+    if (st.disabled_at) return json({ error: 'disabled' }, 403);
+    const tok = rndHex(32);
+    const r = await env.SDB.prepare('UPDATE reg_staff SET device_hash=?,activated_at=?,act_hash=NULL WHERE id=? AND act_hash=?').bind(await sha256(tok), nowIso(), st.id, h).run();
+    if (!r.meta.changes) return json({ error: 'used_or_invalid' }, 409);
+    return json({ ok: true, name: st.name, token: 'staff:' + tok });
+  }
+  const who = await doorWho(req, env); if (!who) return json({ error: 'auth' }, 401);
+  if (p === '/me' && req.method === 'GET') return json({ ok: true, name: who.name, admin: !!who.admin });
+  if (p === '/pass' && req.method === 'GET') return regPassInfo(env, url.searchParams.get('p'), json, who);
+  if (p === '/checkin' && req.method === 'POST') return regCheckin(env, b, json, who);
+  return json({ error: 'not_found' }, 404);
+}
+
 async function passContext(env, raw) {
   const p = await readPass(env, raw); if (!p) return { error: 'bad_pass' };
   const reg = await env.SDB.prepare('SELECT * FROM reg WHERE code=?').bind(p.code).first();
@@ -465,24 +517,27 @@ async function passContext(env, raw) {
   const d = JSON.parse(reg.data), person = d.people[p.idx]; if (!person) return { error: 'bad_pass' };
   return { p, reg, d, person };
 }
-export async function regPassInfo(env, raw, json) {
+export async function regPassInfo(env, raw, json, who) {
   const x = await passContext(env, raw); if (x.error) return json(x, 404);
-  const ins = ((await env.SDB.prepare('SELECT item,at FROM reg_checkin WHERE reg_id=? AND person=?').bind(x.reg.id, x.p.idx).all()).results) || [];
+  if (who && who.event && who.event !== x.reg.event) return json({ error: 'bad_pass' }, 404);
+  const ins = ((await env.SDB.prepare('SELECT item,at,staff FROM reg_checkin WHERE reg_id=? AND person=?').bind(x.reg.id, x.p.idx).all()).results) || [];
   return json({ ok: true, code: x.reg.code, pass: x.p.pass.split('.')[0], status: x.reg.status, valid: PAID.includes(x.reg.status),
     cash_due: x.reg.status === 'cash' ? x.reg.amount : 0, people: x.reg.people,
     person: { name: x.person.name, nick: x.person.nick || '', role: x.person.role, country: x.person.country, city: x.person.city, items: x.person.items },
     checkins: ins, note: x.reg.note || '' });
 }
-export async function regCheckin(env, b, json) {
+export async function regCheckin(env, b, json, who) {
   const x = await passContext(env, b && b.p); if (x.error) return json(x, 404);
+  if (who && who.event && who.event !== x.reg.event) return json({ error: 'bad_pass' }, 404);
   const item = String(b.item || '');
   if (!PAID.includes(x.reg.status)) return json({ error: 'not_paid', status: x.reg.status }, 409);
   if (!x.person.items.includes(item)) return json({ error: 'not_registered', item }, 409);
   if (b.undo === 1) { await env.SDB.prepare('DELETE FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).run(); await log(env, x.reg.id, 'checkin_undo', x.p.idx + ':' + item); return json({ ok: true, undone: true }); }
-  const had = await env.SDB.prepare('SELECT at FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).first();
-  if (had) return json({ error: 'already', at: had.at }, 409);
-  const at = nowIso();
-  await env.SDB.prepare('INSERT INTO reg_checkin(reg_id,person,item,at) VALUES(?,?,?,?)').bind(x.reg.id, x.p.idx, item, at).run();
-  await log(env, x.reg.id, 'checkin', x.p.idx + ':' + item);
-  return json({ ok: true, at });
+  const at = nowIso(), by = who ? who.name : '';
+  // INSERT OR IGNORE: two phones scanning the same person at once still give one row, and the slower one sees 'already'.
+  const r = await env.SDB.prepare('INSERT OR IGNORE INTO reg_checkin(reg_id,person,item,at,staff) VALUES(?,?,?,?,?)').bind(x.reg.id, x.p.idx, item, at, by).run();
+  if (!r.meta.changes) { const had = await env.SDB.prepare('SELECT at,staff FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).first();
+    return json({ error: 'already', at: had && had.at, by: had && had.staff }, 409); }
+  await log(env, x.reg.id, 'checkin', x.p.idx + ':' + item + ' by ' + by);
+  return json({ ok: true, at, by });
 }
