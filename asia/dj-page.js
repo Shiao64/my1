@@ -33,11 +33,13 @@
     var names = [profile.name, profile.name_zh].concat(profile.match || [], profile.members || []).map(key).filter(Boolean), got = [];
     if (kind === 'organizer' || kind === 'group') (e.organizers || []).concat(e.organizers_en || []).forEach(function (n) { if (n) got.push(n); });
     else {
-      if (e.dj) got.push(e.dj);
-      var map = e.poster_djs || {};
-      Object.keys(map).forEach(function (p) { if (map[p]) got.push(map[p]); });
+      /* 2026-11-21: only nights still to come. Past nights are in the "recent DJ sets" list (dj-recent.json).
+         Weekly card: its dj is the current poster's, so only while poster_date is today or later. */
+      var dd = today();
+      if (e.kind === 'weekly') { if (e.dj && e.poster_date && e.poster_date >= dd) got.push(e.dj); }
+      else if (e.dj) got = got.concat(e.dj);
     }
-    return got.some(function (n) { return names.indexOf(key(n)) >= 0; });
+    return got.some(function (n) { return String(n).split(/\s*(?:、|\+|＆|&|\/|,|;)\s*/).some(function (x) { return names.indexOf(key(x)) >= 0; }); });
   }
   function when(e) { return e.kind === 'weekly' ? (zh ? '每周' : 'Weekly') : (e.start || ''); }
   function isPast(e, day) { if (e.kind === 'weekly') return false; var end = e.end || e.start || ''; return !!(end && end < day); }
@@ -50,6 +52,26 @@
     var aff = zh ? (profile.affiliation_zh || profile.affiliation || '') : (profile.affiliation || profile.affiliation_zh || '');
     var h1 = document.querySelector('.dj-bar h1'); if (h1 && name) h1.textContent = name;
     setText('pf-aff', aff); setText('pf-bio', bio); setPhoto(profile.photo || '', name);
+    /* 2026-11-21 (Shiao): DJ pages keep a place for the intro, and list the last 5 nights from the DJ session log (asia/dj-recent.json, tools/dj_sessions.py). */
+    if (!bio && kind === 'dj') { var bz = document.getElementById('pf-bio'); if (bz) { bz.textContent = zh ? '介绍待补充。' : 'Profile coming soon.'; bz.classList.add('dj-bio-wait'); bz.style.color = '#8a7a66'; bz.style.fontStyle = 'italic'; } }
+    fetch('/asia/dj-recent.json?v=r1').then(function (r) { return r.json(); }).then(function (all) {
+      var rec = all && all[id], list = rec && rec.recent || [];
+      if (!list.length) return;
+      var main = document.querySelector('.dj-main'), story = document.querySelector('.dj-story'); if (!main) return;
+      var CZ = { Shanghai: '上海', Beijing: '北京', Shenzhen: '深圳', Guangzhou: '广州', Hangzhou: '杭州', Chengdu: '成都', Wuhan: '武汉', Nanjing: '南京', Suzhou: '苏州', Xiamen: '厦门', Tianjin: '天津', Chongqing: '重庆', "Xi'an": '西安', 'Hong Kong': '香港', Taipei: '台北', Macau: '澳门', Seoul: '首尔', Daegu: '大邱', Busan: '釜山', Tokyo: '东京', 'Da Nang': '岘港', 'Kuala Lumpur': '吉隆坡' };
+      var home = zh ? '/zh/asia/' : '/asia/', sec = document.createElement('section'); sec.className = 'dj-recent';
+      var h = document.createElement('h2'); h.textContent = zh ? '最近担任 DJ 的场次' : 'Recent DJ sets'; sec.appendChild(h);
+      var box = document.createElement('div'); box.className = 'dj-events'; sec.appendChild(box);
+      list.forEach(function (x) {
+        var a = document.createElement('a'); a.href = home + '?card=' + encodeURIComponent(x.event);
+        var b = document.createElement('b'); b.textContent = (zh ? x.name : (x.name_en || x.name)) || ''; a.appendChild(b);
+        var sp = document.createElement('span'); var d = String(x.date || '');
+        sp.textContent = [d ? (zh ? d.slice(0, 4) + '/' + (+d.slice(5, 7)) + '/' + (+d.slice(8, 10)) : d) : '', (zh && CZ[x.city]) || x.city || ''].filter(Boolean).join(' · '); a.appendChild(sp);
+        box.appendChild(a);
+      });
+      if (rec.n > list.length) { var m = document.createElement('p'); m.className = 'dj-empty'; m.textContent = zh ? ('地图上共记录 ' + rec.n + ' 场') : (rec.n + ' sets recorded on the map'); sec.appendChild(m); }
+      if (story && story.nextSibling) main.insertBefore(sec, story.nextSibling); else main.appendChild(sec);
+    }).catch(function () {});
     var links = profile.links || {};
     setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || ''); setLink('pf-web', links.website || '');
     return fetch('/asia/events.json?v=e233').then(function (r) { return r.json(); }).then(function (events) {

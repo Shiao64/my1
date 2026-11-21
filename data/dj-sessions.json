@@ -1,0 +1,758 @@
+[
+ {
+  "date": "2026-10-10",
+  "dj": "哈博",
+  "event": "R202",
+  "name": "MILONGAGA",
+  "name_en": "MILONGAGA",
+  "city": "Beijing",
+  "src": "events.json poster R202-no42-20261010.jpg"
+ },
+ {
+  "date": "2026-10-17",
+  "dj": "WangWei",
+  "event": "R030",
+  "name": "Milonga Iris",
+  "name_en": "Milonga Iris",
+  "city": "Shanghai",
+  "src": "events.json poster R030-no1-20261017.jpg"
+ },
+ {
+  "date": "2026-10-17",
+  "dj": "孙越",
+  "event": "R202",
+  "name": "MILONGAGA",
+  "name_en": "MILONGAGA",
+  "city": "Beijing",
+  "src": "events.json poster R202-no43-20261017.jpg"
+ },
+ {
+  "date": "2026-10-31",
+  "dj": "张羽",
+  "event": "R202",
+  "name": "MILONGAGA",
+  "name_en": "MILONGAGA",
+  "city": "Beijing",
+  "src": "events.json poster R202-no44-20261031.jpg"
+ },
+ {
+  "date": "2026-11-03",
+  "dj": "Yelyn Woo",
+  "event": "GqufXmMX",
+  "name": "探戈会",
+  "name_en": "Milonga V",
+  "city": "Beijing",
+  "src": "events.json poster GqufXmMX.jpg"
+ },
+ {
+  "date": "2026-11-04",
+  "dj": "Vuk",
+  "event": "2tbfzeS7",
+  "name": "Kai's Milonga",
+  "name_en": "Kai's Milonga",
+  "city": "Shanghai",
+  "src": "events.json poster 2tbfzeS7.jpg"
+ },
+ {
+  "date": "2026-11-05",
+  "dj": "Stefan Pan",
+  "event": "yhBU2qgt",
+  "name": "Milonga Nuevo",
+  "name_en": "Milonga Nuevo",
+  "city": "Hong Kong",
+  "src": "events.json poster yhBU2qgt.jpg"
+ },
+ {
+  "date": "2026-11-07",
+  "dj": "修行",
+  "event": "E158",
+  "name": "北京红舞馨 Milonga el Torito · 首日双场舞会",
+  "name_en": "Milonga el Torito · Opening Double Milonga",
+  "city": "Beijing",
+  "src": "events.json poster E158.jpg"
+ },
+ {
+  "date": "2026-11-07",
+  "dj": "蔓婷",
+  "event": "R202",
+  "name": "MILONGAGA",
+  "name_en": "MILONGAGA",
+  "city": "Beijing",
+  "src": "events.json poster R202-no45-20261107.png"
+ },
+ {
+  "date": "2026-11-07",
+  "dj": "TJ 老汉",
+  "event": "rccbKIYP",
+  "name": "探戈极限",
+  "name_en": "Infinity Tango",
+  "city": "Shanghai",
+  "src": "events.json poster rccbKIYP.jpg"
+ },
+ {
+  "date": "2026-11-08",
+  "dj": "Cris",
+  "event": "NmkWjMxo",
+  "name": "Milonga Los Vinos",
+  "name_en": "Milonga Los Vinos",
+  "city": "Beijing",
+  "src": "events.json poster NmkWjMxo_2026-11-08.jpg"
+ },
+ {
+  "date": "2026-11-09",
+  "dj": "艺侨",
+  "event": "UiQphCjS",
+  "name": "练习舞会",
+  "name_en": "Práctica del Paraíso",
+  "city": "Beijing",
+  "src": "events.json weekly dj"
+ },
+ {
+  "date": "2026-11-10",
+  "dj": "哈博",
+  "event": "GqufXmMX",
+  "name": "探戈会",
+  "name_en": "Milonga V",
+  "city": "Beijing",
+  "src": "events.json poster GqufXmMX-no215-20261110.jpg"
+ },
+ {
+  "date": "2026-11-11",
+  "dj": "Xeniya (Kazakhstan)",
+  "event": "2tbfzeS7",
+  "name": "Kai's Milonga",
+  "name_en": "Kai's Milonga",
+  "city": "Shanghai",
+  "src": "events.json poster 2tbfzeS7_998_2026-11-11.jpg"
+ },
+ {
+  "date": "2026-11-14",
+  "dj": "大酒 Jensen",
+  "event": "EDPSh1eZ",
+  "name": "Milonga Cadencia",
+  "name_en": "Milonga Cadencia",
+  "city": "Guangzhou",
+  "src": "events.json weekly dj"
+ },
+ {
+  "date": "2026-11-14",
+  "dj": "Jessie (SH)",
+  "event": "R030",
+  "name": "Milonga Iris",
+  "name_en": "Milonga Iris",
+  "city": "Shanghai",
+  "src": "events.json poster R030.jpg"
+ },
+ {
+  "date": "2026-11-14",
+  "dj": "王为",
+  "event": "rccbKIYP",
+  "name": "探戈极限",
+  "name_en": "Infinity Tango",
+  "city": "Shanghai",
+  "src": "events.json poster rccbKIYP_2026-11-14.jpg"
+ },
+ {
+  "date": "2026-11-15",
+  "dj": "Anton",
+  "event": "DFBKYdPX",
+  "name": "Kai's Milonga",
+  "name_en": "Kai's Milonga",
+  "city": "Shanghai",
+  "src": "events.json poster DFBKYdPX.jpg"
+ },
+ {
+  "date": "2026-11-15",
+  "dj": "艺侨",
+  "event": "NmkWjMxo",
+  "name": "Milonga Los Vinos",
+  "name_en": "Milonga Los Vinos",
+  "city": "Beijing",
+  "src": "events.json poster NmkWjMxo.jpg"
+ },
+ {
+  "date": "2026-11-17",
+  "dj": "Dandi",
+  "event": "GqufXmMX",
+  "name": "探戈会",
+  "name_en": "Milonga V",
+  "city": "Beijing",
+  "src": "events.json poster GqufXmMX.png"
+ },
+ {
+  "date": "2026-11-18",
+  "dj": "Yuan Long (Shanghai)",
+  "event": "2tbfzeS7",
+  "name": "Kai's Milonga",
+  "name_en": "Kai's Milonga",
+  "city": "Shanghai",
+  "src": "events.json poster 2tbfzeS7-1000-20261118.jpg"
+ },
+ {
+  "date": "2026-11-19",
+  "dj": "Nadim",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-20",
+  "dj": "Sergio",
+  "event": "6Pcl1YgL",
+  "name": "MiTango Milonga",
+  "name_en": "MiTango Milonga",
+  "city": "Shanghai",
+  "src": "events.json poster 6Pcl1YgL.jpg"
+ },
+ {
+  "date": "2026-11-20",
+  "dj": "Thyne Kong",
+  "event": "E152",
+  "name": "Milonga Manzana Hong Kong",
+  "name_en": "Milonga Manzana Hong Kong",
+  "city": "Hong Kong",
+  "src": "events.json poster E152.jpg"
+ },
+ {
+  "date": "2026-11-20",
+  "dj": "Anthony",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-20",
+  "dj": "Bana",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-20",
+  "dj": "GEN",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-21",
+  "dj": "Horacio Pebete Godoy",
+  "event": "E186",
+  "name": "香港探戈周末 · Horacio Godoy & Maricel Giacomini",
+  "name_en": "Hong Kong Tango Weekend · Horacio Godoy & Maricel Giacomini",
+  "city": "Hong Kong",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-21",
+  "dj": "Anthony",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-21",
+  "dj": "Becca",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-21",
+  "dj": "Jessie",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-21",
+  "dj": "Vincent",
+  "event": "rccbKIYP",
+  "name": "探戈极限",
+  "name_en": "Infinity Tango",
+  "city": "Shanghai",
+  "src": "events.json poster rccbKIYP_2026-11-21.jpg"
+ },
+ {
+  "date": "2026-11-22",
+  "dj": "Federico",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-22",
+  "dj": "Geff",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-22",
+  "dj": "Shinji",
+  "event": "WExJslMr",
+  "name": "More than Tango Marathon & Festival & Cup",
+  "name_en": "More than Tango Marathon & Festival & Cup",
+  "city": "Shanghai",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-24",
+  "dj": "Kirill",
+  "event": "Q0Dhqqdr",
+  "name": "Milonga X",
+  "name_en": "Milonga X",
+  "city": "Hong Kong",
+  "src": "events.json poster Q0Dhqqdr.jpg"
+ },
+ {
+  "date": "2026-12-03",
+  "dj": "Che Tango",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-04",
+  "dj": "Fiona",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-04",
+  "dj": "Fiona Szeto",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "git 60a56816 2026-11-01 schedule"
+ },
+ {
+  "date": "2026-12-04",
+  "dj": "Odysseus Dada",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-05",
+  "dj": "Gianluca",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-05",
+  "dj": "Miki",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-05",
+  "dj": "Tu Duong",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-05",
+  "dj": "Yutaka",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-05",
+  "dj": "Yutaka Miki",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "git 60a56816 2026-11-01 schedule"
+ },
+ {
+  "date": "2026-12-06",
+  "dj": "Liu Zheng",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "git e64216a6 2026-11-03 schedule"
+ },
+ {
+  "date": "2026-12-06",
+  "dj": "Lorena",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-06",
+  "dj": "刘峥",
+  "event": "E086",
+  "name": "岘港探戈马拉松暨岘港都会探戈锦标赛",
+  "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
+  "city": "Da Nang",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2026-12-31",
+  "dj": "Bella",
+  "event": "ONKkPuWH",
+  "name": "广州探戈节 2027",
+  "name_en": "Guangzhou Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-01-01",
+  "dj": "Jeanette",
+  "event": "ONKkPuWH",
+  "name": "广州探戈节 2027",
+  "name_en": "Guangzhou Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-01-01",
+  "dj": "Raymond",
+  "event": "ONKkPuWH",
+  "name": "广州探戈节 2027",
+  "name_en": "Guangzhou Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-01-02",
+  "dj": "Li-Yan",
+  "event": "ONKkPuWH",
+  "name": "广州探戈节 2027",
+  "name_en": "Guangzhou Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-01-02",
+  "dj": "Xiao-xin",
+  "event": "ONKkPuWH",
+  "name": "广州探戈节 2027",
+  "name_en": "Guangzhou Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-01-03",
+  "dj": "Marisol",
+  "event": "ONKkPuWH",
+  "name": "广州探戈节 2027",
+  "name_en": "Guangzhou Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-01-03",
+  "dj": "Xingchen",
+  "event": "ONKkPuWH",
+  "name": "广州探戈节 2027",
+  "name_en": "Guangzhou Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-02-25",
+  "dj": "Leandro Haeder (Argentina)",
+  "event": "E167",
+  "name": "Legends Tango Festival 2027",
+  "name_en": "Legends Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-02-26",
+  "dj": "Shiro (Busan - Korea)",
+  "event": "E167",
+  "name": "Legends Tango Festival 2027",
+  "name_en": "Legends Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-02-26",
+  "dj": "Sophie (Guangzhou)",
+  "event": "E167",
+  "name": "Legends Tango Festival 2027",
+  "name_en": "Legends Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-02-27",
+  "dj": "Cor Cor (Hong Kong)",
+  "event": "E167",
+  "name": "Legends Tango Festival 2027",
+  "name_en": "Legends Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-02-27",
+  "dj": "tbc",
+  "event": "E167",
+  "name": "Legends Tango Festival 2027",
+  "name_en": "Legends Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-02-27",
+  "dj": "Vuk (Serbia)",
+  "event": "E167",
+  "name": "Legends Tango Festival 2027",
+  "name_en": "Legends Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-02-28",
+  "dj": "Misha (Serbia)",
+  "event": "E167",
+  "name": "Legends Tango Festival 2027",
+  "name_en": "Legends Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-02-28",
+  "dj": "tbc",
+  "event": "E167",
+  "name": "Legends Tango Festival 2027",
+  "name_en": "Legends Tango Festival 2027",
+  "city": "Guangzhou",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-04-28",
+  "dj": "Asin",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-04-29",
+  "dj": "Dave",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-04-30",
+  "dj": "Lucila",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-04-30",
+  "dj": "Tony",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-01",
+  "dj": "Epitone",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-01",
+  "dj": "Sumire",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-02",
+  "dj": "Daniel",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-02",
+  "dj": "Zheng Zhong",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-02",
+  "dj": "刘峥",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-03",
+  "dj": "Zaman",
+  "event": "E039",
+  "name": "DITM Daegu International Tango Marathon",
+  "name_en": "DITM Daegu International Tango Marathon",
+  "city": "Daegu",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-21",
+  "dj": "Chris Han",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-21",
+  "dj": "Kwon",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-21",
+  "dj": "Lucila",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-21",
+  "dj": "Nacho",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-22",
+  "dj": "Alex",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-22",
+  "dj": "Eugène",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-22",
+  "dj": "Rafael",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-22",
+  "dj": "Stone",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-23",
+  "dj": "Ban A",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-23",
+  "dj": "Gerardo",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ },
+ {
+  "date": "2027-05-23",
+  "dj": "Hoon",
+  "event": "E116",
+  "name": "2027 群山日落探戈马拉松",
+  "name_en": "Gunsan Sunset Tango Marathon 2027",
+  "city": "Gunsan",
+  "src": "events.json schedule"
+ }
+]
