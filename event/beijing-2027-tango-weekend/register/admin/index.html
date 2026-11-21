@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>报名管理 · 北京精选探戈周末</title>
+<style>
+:root{--red:#b3121b;--red-dark:#7a0a10;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--ok:#2c7a3f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif}
+header{background:#4a0609;color:#f6e3b4;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+header b{font-size:1.05rem}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+h2{margin:0 0 10px;font-size:1.05rem;color:var(--red-dark)}
+input,select,textarea,button{font:inherit}
+input,select,textarea{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--cream)}
+button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 11px;cursor:pointer}
+button.p{background:var(--red);color:#fff;border-color:var(--red)}
+button:disabled{opacity:.5;cursor:default}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.cap{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.cap b{display:block;font-size:1.25rem}
+.cap.low b{color:var(--red)}
+.cap small{color:var(--muted)}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{border-radius:999px;padding:3px 10px;background:var(--cream);border:1px solid var(--line);font-size:.88rem}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.row{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:#fff}
+.row.overdue{border-color:var(--red);background:#fff4f3}
+.rh{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.st{font-weight:700;border-radius:6px;padding:1px 8px;font-size:.85rem;background:#eee}
+.st.pending{background:#fff1cc}.st.confirmed{background:#dceeff}.st.paid,.st.cash{background:#d9f2df}.st.waitlist{background:#efe3ff}.st.declined,.st.cancelled{background:#eee;color:#888}
+.ppl{margin:6px 0;padding-left:18px;font-size:.92rem}
+.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.muted{color:var(--muted);font-size:.86rem}
+.tag{font-size:.78rem;border-radius:5px;padding:0 6px;background:#ffe0e0;color:var(--red-dark);margin-left:4px}
+#msg{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#2a1a14;color:#fff;padding:9px 16px;border-radius:10px;display:none;max-width:90vw}
+textarea{width:100%;min-height:60px}
+</style>
+</head>
+<body>
+<header><b>报名管理 · 北京精选探戈周末 2027</b>
+  <span><input id="tok" type="password" placeholder="管理员密码 ADMIN_TOKEN" style="width:220px"> <button class="p" id="load">登入 / 刷新</button></span>
+</header>
+<main>
+  <div class="card" id="sum" hidden>
+    <h2>每场剩余名额</h2><div class="grid" id="caps"></div>
+    <h2 style="margin-top:14px">概况</h2><div class="pills" id="pills"></div>
+  </div>
+  <div class="card" id="list" hidden>
+    <div class="filters">
+      <select id="fSt"><option value="">全部状态</option><option value="pending">待审核</option><option value="confirmed">已确认</option><option value="overdue">逾期</option><option value="paid">已付款</option><option value="cash">现场付现</option><option value="waitlist">候补</option><option value="declined">婉拒</option><option value="cancelled">已取消</option></select>
+      <select id="fDom"><option value="">国内＋国际</option><option value="1">只看国内</option><option value="0">只看国际</option></select>
+      <select id="fRole"><option value="">全部角色</option><option value="leader">有 Leader</option><option value="follower">有 Follower</option><option value="both">有 都可以</option></select>
+      <input id="fQ" placeholder="搜寻姓名、邮箱、编号">
+      <button id="csv">导出 CSV</button>
+    </div>
+    <div id="rows"></div>
+  </div>
+  <div class="card" id="qr" hidden>
+    <h2>收款码（确认信里会附上）</h2>
+    <p class="muted">国际舞者用 intl-wechat、intl-alipay；国内舞者用 cn-wechat、cn-alipay。图片只存在后台，不进仓库。</p>
+    <select id="qName"><option>intl-wechat</option><option>intl-alipay</option><option>cn-wechat</option><option>cn-alipay</option></select>
+    <input type="file" id="qFile" accept="image/png,image/jpeg,image/webp"> <button id="qUp">上传</button>
+  </div>
+</main>
+<div id="msg"></div>
+<script>
+(function(){
+var API=(function(){try{var a=new URLSearchParams(location.search).get('api');if(a&&/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(a))return a}catch(e){}return 'https://api.tangoweekend.org'})();
+var $=function(i){return document.getElementById(i)},DATA=null;
+var NAME={MV:'周五 欢迎舞会',M1:'周六 下午场',M2:'周六 晚场',M3:'周日 下午场',M4:'周日 晚场',T1:'周五 一日游',S1:'周一 探戈小院',T2:'周二 城市漫步',MF:'周二 告别舞会'};
+var PKG={full:'全程套餐',combo:'周末套餐',pass:'周末舞会4场',single:'单场'};
+var ST={pending:'待审核',confirmed:'已确认',paid:'已付款',cash:'现场付现',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
+var ROLE={leader:'Leader',follower:'Follower',both:'都可以'};
+var ACTS={pending:['confirm','waitlist','decline','cancel'],waitlist:['confirm','decline','cancel'],confirmed:['paid','cash','cancel'],cash:['paid','cancel'],paid:['cancel'],declined:[],cancelled:[]};
+var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',paid:'已付款',cash:'现场付现',cancel:'取消'};
+try{$('tok').value=localStorage.getItem('bstw_admin')||''}catch(e){}
+function toast(s){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},3500)}
+function call(path,opt){opt=opt||{};return fetch(API+path,{method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+$('tok').value.trim()},body:opt.body?JSON.stringify(opt.body):undefined})}
+function load(){try{localStorage.setItem('bstw_admin',$('tok').value.trim())}catch(e){}
+  call('/social/admin/reg?event=bj2027').then(function(r){if(r.status===401){toast('密码不对');return null}return r.json()}).then(function(d){if(!d)return;DATA=d;render()}).catch(function(){toast('连不上后台')})}
+function fmt(n){return '¥'+Number(n||0).toLocaleString('en-US')}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function render(){
+  $('sum').hidden=$('list').hidden=$('qr').hidden=false;
+  $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c];return '<div class="cap'+(l<=20?' low':'')+'"><small>'+c+' '+NAME[c]+'</small><b>剩 '+l+'</b><small>上限 '+DATA.caps[c]+'</small></div>'}).join('');
+  var c=DATA.counts;$('pills').innerHTML=['pending','confirmed','paid','cash','waitlist'].map(function(k){return '<span class="pill">'+ST[k]+' '+(c[k]||0)+'</span>'}).join('')+
+    '<span class="pill" style="border-color:#b3121b">逾期 '+DATA.overdue+'</span><span class="pill">已占名额：Leader '+DATA.roles.leader+' · Follower '+DATA.roles.follower+' · 都可以 '+DATA.roles.both+'</span>';
+  rows();
+}
+function rows(){
+  var st=$('fSt').value,dom=$('fDom').value,role=$('fRole').value,q=$('fQ').value.trim().toLowerCase();
+  var list=DATA.rows.filter(function(r){
+    if(st==='overdue'?!r.overdue:(st&&r.status!==st))return false;
+    if(dom!==''&&String(r.domestic)!==dom)return false;
+    if(role&&!r.data.people.some(function(p){return p.role===role}))return false;
+    if(q&&(r.code+' '+r.email+' '+r.data.people.map(function(p){return p.name}).join(' ')).toLowerCase().indexOf(q)<0)return false;
+    return true}).reverse();
+  $('rows').innerHTML=list.length?list.map(function(r){var d=r.data;
+    var ppl=d.people.map(function(p){var what=(p.pkg&&p.pkg!=='single'?[PKG[p.pkg]].concat(p.extra.map(function(x){return NAME[x]})):p.items.map(function(x){return NAME[x]})).join(' + ');
+      return '<li><b>'+esc(p.name)+'</b> · '+ROLE[p.role]+' · '+esc(p.city)+' '+esc(p.country)+(p.country==='CN'?'<span class="tag">国内</span>':'')+' — '+esc(what)+' '+fmt(p.amount)+'</li>'}).join('');
+    var rooms=d.hotel?d.rooms.map(function(x,i){return '<li>房间'+(i+1)+'：'+(x.type==='king'?'大床':'双床')+' '+x.ci+'→'+x.co+'（'+x.nights+'晚 '+fmt(x.amount)+'）'+x.guests.map(function(g){var pp=d.passports[g]||{};return esc(d.people[g].name)+' ['+esc(pp.s)+' / '+esc(pp.g)+']'}).join('、')+'</li>'}).join(''):'';
+    var acts=(ACTS[r.status]||[]).map(function(a){return '<button data-a="'+a+'" data-id="'+r.id+'"'+(a==='confirm'?' class="p"':'')+'>'+ACT_NAME[a]+'</button>'}).join('');
+    return '<div class="row'+(r.overdue?' overdue':'')+'"><div class="rh"><span><b>'+r.code+'</b> <span class="st '+r.status+'">'+ST[r.status]+(r.overdue?' · 逾期':'')+'</span> '+esc(r.email)+' · '+r.people+'人 · '+r.lang+'</span><span><b>'+fmt(r.amount)+'</b>'+(r.fee?' <span class="muted">含手续费 '+fmt(r.fee)+'</span>':'')+(r.refund!=null?' <span class="muted">应退 '+fmt(r.refund)+'</span>':'')+'</span></div>'+
+      '<ul class="ppl">'+ppl+rooms+'</ul>'+
+      '<div class="muted">提交 '+r.created_at.slice(0,16).replace('T',' ')+(r.due_at?' · 付款截止 '+r.due_at.slice(0,10):'')+(r.promo?' · 码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':''):'')+(d.msg?' · 留言：'+esc(d.msg):'')+'</div>'+
+      '<div class="acts">'+acts+'</div>'+
+      '<textarea data-note="'+r.id+'" placeholder="内部备注（只有你看得到）">'+esc(r.note||'')+'</textarea></div>'}).join(''):'<p class="muted">没有符合的报名。</p>';
+}
+$('rows').addEventListener('click',function(e){var b=e.target.closest('button[data-a]');if(!b)return;var a=b.dataset.a,id=+b.dataset.id;
+  if(!confirm('确定要「'+ACT_NAME[a]+'」这笔报名吗？会寄信通知舞者。'))return;b.disabled=true;
+  call('/social/admin/reg/act',{method:'POST',body:{id:id,action:a}}).then(function(r){return r.json()}).then(function(d){
+    if(d.ok){toast('已'+ACT_NAME[a]+(d.refund!=null?'，应退 '+fmt(d.refund):''));load();return}
+    b.disabled=false;toast(d.error==='full'?(NAME[d.item]+' 只剩 '+d.left+' 位，这笔要 '+d.need+' 位'):('没成功：'+d.error))})});
+$('rows').addEventListener('change',function(e){var t=e.target;if(!t.dataset.note)return;
+  call('/social/admin/reg/act',{method:'POST',body:{id:+t.dataset.note,action:'note',note:t.value}}).then(function(r){return r.json()}).then(function(d){toast(d.ok?'备注已存':'备注没存上')})});
+['fSt','fDom','fRole'].forEach(function(i){$(i).addEventListener('change',rows)});$('fQ').addEventListener('input',rows);
+$('load').addEventListener('click',load);
+$('csv').addEventListener('click',function(){call('/social/admin/reg?event=bj2027&format=csv').then(function(r){return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bj2027-registrations.csv';a.click()})});
+$('qUp').addEventListener('click',function(){var f=$('qFile').files[0];if(!f)return toast('先选一张图片');if(f.size>1e6)return toast('图片太大（1MB 以内）');
+  var rd=new FileReader();rd.onload=function(){call('/social/admin/reg/asset',{method:'POST',body:{name:$('qName').value,mime:f.type,b64:rd.result}}).then(function(r){return r.json()}).then(function(d){toast(d.ok?'已上传 '+d.name:'上传失败：'+d.error)})};rd.readAsDataURL(f)});
+if($('tok').value)load();
+})();
+</script>
+</body>
+</html>
