@@ -306,9 +306,20 @@ export async function regLeft(url, env, json) {
 export async function regMe(req, env, url, json, kit) {
   const u = await kit.user(req, env); if (!u) return json({ error: 'auth' }, 401);
   const ev = EVENTS[url.searchParams.get('event') || 'bj2027']; if (!ev) return json({ error: 'bad_event' }, 400);
-  const r = await env.SDB.prepare('SELECT code,status,data FROM reg WHERE event=? AND email=? AND status<>\'cancelled\' ORDER BY id DESC LIMIT 1').bind(ev.id, String(u.email).toLowerCase()).first();
-  const passes = r ? (await passesOf(env, r)).map(x => ({ name: x.name, pass: x.pass, img: passImg(env, x.pass) })) : [];
-  return json({ email: u.email, name: u.name, reg: r ? { code: r.code, status: r.status, passes } : null });
+  const r = await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND email=? ORDER BY (status=\'cancelled\'), id DESC LIMIT 1').bind(ev.id, String(u.email).toLowerCase()).first();
+  if (!r) return json({ email: u.email, name: u.name, reg: null });
+  const passes = (await passesOf(env, r)).map(x => ({ name: x.name, pass: x.pass, img: passImg(env, x.pass) }));
+  // Payment QR codes only for a confirmed, unpaid registration, and only those the organizer uploaded.
+  let pay = [];
+  if (r.status === 'confirmed' && env.REG_QR_KEY) {
+    const want = String((r.domestic ? env.REG_QR_CN : env.REG_QR_INTL) || (r.domestic ? 'cn-wechat,cn-alipay' : 'intl-wechat,intl-alipay')).split(',').map(x => x.trim()).filter(Boolean);
+    const have = new Set((((await env.SDB.prepare('SELECT name FROM reg_asset').all()).results) || []).map(x => x.name));
+    const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+    pay = want.filter(n => have.has(n)).map(n => ({ name: n, img: base + '/social/reg/qr/' + encodeURIComponent(n) + '?k=' + encodeURIComponent(env.REG_QR_KEY) }));
+  }
+  const d = JSON.parse(r.data);
+  return json({ email: u.email, name: u.name, reg: { code: r.code, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
+    updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang), pay, passes } });
 }
 export async function regSubmit(req, env, b, json, kit) {
   const u = await kit.user(req, env);

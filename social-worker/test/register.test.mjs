@@ -214,6 +214,20 @@ const q1 = await social(new Request('https://api.tangoweekend.org/social/reg/qr/
 check('QR served with key', q1.status === 200 && (await q1.text()) === 'PNGDATA');
 const q2 = await social(new Request('https://api.tangoweekend.org/social/reg/qr/intl-wechat?k=bad'), env, new URL('https://api.tangoweekend.org/social/reg/qr/intl-wechat?k=bad'), json);
 check('QR hidden without key', q2.status === 404);
+// status on the registration page / site reminder
+{ const eve = subscriber('eve@gmail.com', 'Eve');
+  let m = await call('POST', '/reg', form({ people: [person({ name: 'Eve', pkg: 'pass' })] }), eve);
+  const eid = (await call('GET', '/admin/reg?event=bj2027', null, ADMIN)).rows.find(r => r.code === m.code).id;
+  m = await call('GET', '/reg/me?event=bj2027', null, eve); check('pending: status, amount, lines, no pay QR', m.reg.status === 'pending' && m.reg.amount === 700 && m.reg.lines.length === 1 && m.reg.pay.length === 0, m.reg);
+  await call('POST', '/admin/reg/act', { id: eid, action: 'confirm', silent: 1 }, ADMIN);
+  m = await call('GET', '/reg/me?event=bj2027', null, eve);
+  check('confirmed: due date and only uploaded pay QR', m.reg.status === 'confirmed' && m.reg.due && m.reg.pay.length === 1 && m.reg.pay[0].name === 'intl-wechat' && /\/social\/reg\/qr\/intl-wechat\?k=qrkey$/.test(m.reg.pay[0].img), m.reg);
+  await call('POST', '/admin/reg/act', { id: eid, action: 'paid', silent: 1 }, ADMIN);
+  m = await call('GET', '/reg/me?event=bj2027', null, eve); check('paid: passes, no pay QR', m.reg.passes.length === 1 && m.reg.pay.length === 0);
+  await call('POST', '/admin/reg/act', { id: eid, action: 'cancel', silent: 1 }, ADMIN);
+  m = await call('GET', '/reg/me?event=bj2027', null, eve); check('cancelled: shown with refund', m.reg.status === 'cancelled' && m.reg.refund === 650, m.reg);
+  m = await call('POST', '/reg', form({ people: [person({ name: 'Eve', pkg: 'combo' })] }), eve); check('can register again after cancel', m.ok && m.code !== undefined);
+  m = await call('GET', '/reg/me?event=bj2027', null, eve); check('me prefers the live registration over the cancelled one', m.reg.status === 'pending' && m.reg.amount === 1150, m.reg); }
 // live mode goes to the dancer
 env.REG_LIVE = '1'; mails.length = 0; const cat = subscriber('cat@qq.com', 'Cat');
 d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter to the dancer in Chinese', mails.some(m => m.includes('to=cat@qq.com') && m.includes('已收到报名')), mails);
