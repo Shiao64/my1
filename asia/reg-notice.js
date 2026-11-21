@@ -76,7 +76,9 @@
       var n = D.createElement('div'); n.textContent = p.name; n.style.cssText = 'font-size:22px;font-weight:800;margin-top:14px';
       var cd = D.createElement('div'); cd.textContent = p.pass.split('.')[0] + (r.passes.length > 1 ? '  ·  ' + (i + 1) + ' / ' + r.passes.length : '');
       cd.style.cssText = 'color:#7a6255;margin-top:4px';
-      c.append(im, n, cd); row.appendChild(c);
+      // Name above, code below, so the QR itself sits in the middle of the screen.
+      n.style.margin = '0 0 12px'; cd.style.margin = '10px 0 0';
+      c.append(n, im, cd); row.appendChild(c);
     });
     var foot = D.createElement('div');
     foot.style.cssText = 'padding:10px 16px max(14px,env(safe-area-inset-bottom));text-align:center;color:#7a6255;font-size:13px';
