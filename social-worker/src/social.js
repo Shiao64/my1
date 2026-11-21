@@ -1,4 +1,6 @@
 import { gmailSend } from './smtp.js';
+// Registration module is loaded only when a /reg route is used, so older tests that copy social.js alone keep working.
+const REG = () => import('./register.js');
 import { updateFooter } from './unsub.js';
 import { goingConfirm, goingAwait, goingCode, goingEnter, goingPass, goingPhone, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
 export { generateGoingStats, runGoingNotices };
@@ -259,6 +261,8 @@ async function confirmLink(req, env, url) {
   return donePage(u.lang === 'zh' ? 'zh' : 'en', dest.toString(), unsub);
 }
 
+function regKit() { return { ...goingKit(), user }; }
+export function regCron(env) { return REG().then(m => m.regRemind(env, regKit())).catch(e => { if (/no such table/i.test(String(e && e.message))) return { sent: 0 }; throw e; }); }   // quiet until migration 0020 runs
 function goingKit() { return { sha, he, clean, now, rnd, turnstile, deliver, safeNext, emailParam, confirmPage, confirmFields, issueSession, applyList, EMAIL_RE, ID_RE, DEV_RE }; }
 export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
@@ -272,7 +276,14 @@ export async function social(req, env, url, json) {
   if (p === '/going/dates' && req.method === 'GET') return goingDates(url, env, json, goingKit());
   if (p === '/going/reach' && req.method === 'GET') return goingReach(url, env, json, goingKit());
   if (p === '/going/mine' && req.method === 'GET') return goingMine(req, env, json);
+  if (p === '/reg/left' && req.method === 'GET') return (await REG()).regLeft(url, env, json);
+  if (p === '/reg/me' && req.method === 'GET') return (await REG()).regMe(req, env, url, json, regKit());
+  if (p.startsWith('/reg/qr/') && req.method === 'GET') return (await REG()).regQr(url, env);
+  if (p.startsWith('/reg/pass/') && req.method === 'GET') return (await REG()).regPassPng(url, env);
   let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400); } }
+  if (p === '/reg' && req.method === 'POST') return (await REG()).regSubmit(req, env, b, json, regKit());
+  if (p.startsWith('/reg/door/')) return (await REG()).regDoor(req, env, url, b, json);
+  if (p === '/admin/reg' || p.startsWith('/admin/reg/')) return (await REG()).regAdmin(req, env, url, b, json, regKit());
   if (p === '/profile' && req.method === 'POST') return goingProfile(req, env, b, ip, iph, json, goingKit());
   if (p === '/going/pass' && req.method === 'POST') return goingPass(req, env, b, json, goingKit());
   if (p === '/going/phone' && req.method === 'POST') return goingPhone(req, env, b, iph, json, goingKit());

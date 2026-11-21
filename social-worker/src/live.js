@@ -55,6 +55,8 @@ export default {
     if (env.GOING_NOTICE_SEND === 'on' && event.cron === noticeCron) jobs.push(runGoingNotices(env, null).catch(e => console.log('going notices', String(e && e.message || e).slice(0, 160))));
     if (jobs.length) { ctx.waitUntil(Promise.all(jobs)); return; }
     ctx.waitUntil(wxExpireSweep(env).then(r => console.log('wx sweep', JSON.stringify(r))));
+    // Registration: day-10 payment reminder for confirmed, unpaid forms. register.js
+    ctx.waitUntil(import('./social.js').then(m => m.regCron(env)).then(r => { if (r.sent) console.log('reg remind', JSON.stringify(r)); }).catch(e => console.log('reg remind', String(e && e.message || e).slice(0, 160))));
     // Monthly subscriber roster to the owner (first 10-minute run of each Beijing month). roster.js
     ctx.waitUntil(monthlyRoster(env).then(r => { if (r !== 'already') console.log('roster', r); }).catch(e => console.log('roster', String(e && e.message || e).slice(0, 160))));
   }
