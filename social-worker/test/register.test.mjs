@@ -147,6 +147,11 @@ db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,hotel_amo
 const hid = db.prepare("SELECT id FROM reg WHERE code='H-1'").get().id;
 d = await call('POST', '/admin/reg/act', { id: hid, action: 'cancel', silent: 1 }, ADMIN); check('late cancel keeps hotel', d.refund === 3950 - 50 - 2500, d);
 late.hotelRefundBy = saved;
+// registration-only password works for registration admin only
+env.REG_ADMIN_TOKEN = 'r'.repeat(32);
+d = await call('GET', '/admin/reg?event=bj2027', null, env.REG_ADMIN_TOKEN); check('REG_ADMIN_TOKEN opens registration admin', d._s === 200 && Array.isArray(d.rows));
+d = await call('GET', '/admin/wx-pending', null, env.REG_ADMIN_TOKEN); check('REG_ADMIN_TOKEN cannot open site admin', d._s === 401);
+d = await call('GET', '/admin/reg?event=bj2027', null, 'short'); check('short token refused', d._s === 401);
 // note, csv
 d = await call('POST', '/admin/reg/act', { id: id2, action: 'note', note: '付款截图已收' }, ADMIN); check('note', d.ok);
 const csvRes = await social(new Request('https://api.tangoweekend.org/social/admin/reg?event=bj2027&format=csv', { headers: { Authorization: 'Bearer ' + ADMIN } }), env, new URL('https://api.tangoweekend.org/social/admin/reg?event=bj2027&format=csv'), json);

@@ -45,8 +45,8 @@
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
-## 0.8 北京精选探戈周末 2027 报名表（11/21 写好，分支 feat/beijing-register-form，**还没部署**）
-- 报名页：`event/beijing-2027-tango-weekend/register/draft/`（EN 为主，可切韩/西/俄/中；`?lang=ko`）；管理页：`…/register/admin/`（输入 ADMIN_TOKEN）。两页都 noindex、不连到网站。`?demo=1` 不连后台看画面；`?api=http://localhost:8787` 连本机测试后台。
+## 0.8 北京精选探戈周末 2027 报名表（11/21 写好，分支 feat/beijing-register-form，11/21 已部署后台与迁移 0020；REG_CODES、REG_ADMIN_TOKEN 已设）
+- 报名页：`event/beijing-2027-tango-weekend/register/draft/`（EN 为主，可切韩/西/俄/中；`?lang=ko`）；管理页：`…/register/admin/`（输入报名专用密码 `REG_ADMIN_TOKEN`；网站的 `ADMIN_TOKEN` 也能用，但它还用在取消订阅链接签名，**不要换**）。两页都 noindex、不连到网站。`?demo=1` 不连后台看画面；`?api=http://localhost:8787` 连本机测试后台。
 - 后台：`social-worker/src/register.js`（social.js 用到 /reg 路由时才载入）；表 `migrations/0020_registrations.sql`（只新增 reg、reg_log、reg_asset 三张表）；测试 `node social-worker/test/register.test.mjs`。
 - 规则（用户 11/21 定）：要先**订阅网站并验证邮箱**才能报名（沿用 /social/profile + /social/going/code，邮箱以订阅为准）。一份表最多 6 人（填表人 + 5 位同行者），每人项目可不同；确认信只寄填表人，一个编号（BJ27-0001）、一次付款。套餐：全程 ¥1450（early 码 2027/2/1 前 ¥1350；DJ 朋友码 ¥1200，码放 Cloudflare secret `REG_CODES`，**不进仓库**）、周末套餐 ¥1150、周末 4 场 ¥700、单场。名额只在主办按「确认」时扣（欢迎 200、周末各 300、小院 120、告别 150，一日游/漫步不限），不超卖。住宿默认不需要；大床 ¥500／双床 ¥550 每晚，房费预付；一间最多 2 人、一人一间、房数 ≤ 人数；订房时每个人都填护照姓／名（只收英文字母）；日期 6/11–6/28。
 - 流程：提交 → 待审核（自动寄「收到报名」，10 天内回复）→ 主办确认（寄确认信：付款截止 = 寄出日 + 14 天，附微信／支付宝收款码；不能用的人回信附机票截图、到场付现）→ 第 10 天自动提醒一次 → 逾期由主办手动取消。手续费 ¥50 每份报名只收一次；房费 6/11（含）前取消可退。

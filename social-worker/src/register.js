@@ -5,7 +5,7 @@
 //   GET  /social/reg/me?event=bj2027 (Bearer) -> {email, reg:{code,status}|null}
 //   POST /social/reg (Bearer subscriber)      -> {ok, code, total}   new form, or update of a still-pending one
 //   GET  /social/reg/qr/<name>?k=KEY          -> payment QR image used inside the confirmation letter
-// Organizer (Bearer ADMIN_TOKEN)
+// Organizer (Bearer REG_ADMIN_TOKEN, or the site-wide ADMIN_TOKEN)
 //   GET  /social/admin/reg?event=bj2027[&format=csv] -> list + summary
 //   POST /social/admin/reg/act {id, action, note?, data?}  confirm|waitlist|decline|paid|cash|cancel|modify|note
 //   POST /social/admin/reg/asset {name, mime, b64}         upload a payment QR
@@ -320,7 +320,12 @@ export async function regQr(url, env) {
 }
 
 // ---------- organizer ----------
-function adminOK(req, env) { const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, ''); return !!env.ADMIN_TOKEN && a.length >= 24 && a === env.ADMIN_TOKEN; }
+// Registration has its own organizer password (REG_ADMIN_TOKEN) so it can be shared without the site-wide ADMIN_TOKEN.
+function adminOK(req, env) {
+  const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
+  if (a.length < 24) return false;
+  return (!!env.REG_ADMIN_TOKEN && a === env.REG_ADMIN_TOKEN) || (!!env.ADMIN_TOKEN && a === env.ADMIN_TOKEN);
+}
 const CSV_COLS = ['code', 'status', 'created', 'email', 'lang', 'person', 'name', 'nick', 'role', 'country', 'city', 'domestic', 'wechat', 'facebook', 'package', 'items', 'person_amount', 'room', 'room_type', 'check_in', 'check_out', 'nights', 'passport_surname', 'passport_given', 'promo', 'promo_dj', 'total', 'fee', 'refund', 'due', 'paid_at', 'note'];
 const csvCell = v => { const s = String(v == null ? '' : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 export async function regAdmin(req, env, url, b, json, kit) {
