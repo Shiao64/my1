@@ -6,12 +6,12 @@
 - 两个名字是同一人：写进 `data/dj-names.json` 的 `same`；不要做页面：写进 `skip`。
 - 「多个城市」的要特别看：可能是同名的两个人。
 
-记录共 84 条，73 个名字。更新：2026-11-21
+记录共 82 条，72 个名字。更新：2026-11-21
 
 目前没有满 3 场的人。
 ## 差 1 场的（参考，不用处理）
 
-Anthony、Ban A / Bana、Jessie / Jessie (SH)、Lucila、Vuk / Vuk (Serbia)、WangWei / 王为、tbc、哈博、艺侨
+Anthony、Ban A、Jessie / Jessie (SH)、Lucila、Vuk / Vuk (Serbia)、WangWei / 王为、哈博、艺侨
 
 ## 同一人的写法？
 

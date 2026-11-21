@@ -1,1 +1,10 @@
-{"same": [], "skip": []}
+{
+ "same": [
+  [
+   "Ban A",
+   "Bana",
+   "Ban-A"
+  ]
+ ],
+ "skip": []
+}
