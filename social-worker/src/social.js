@@ -74,8 +74,11 @@ async function deliver(env, to, subject, text, html, headers, opt) {
   if (env.PREVIEW === '1' && previewAllow && p !== 'log' && String(to || '').trim().toLowerCase() !== previewAllow) throw new Error('preview recipient not allowed');
   if (env.TEST_ONLY_RECIPIENT && to !== env.TEST_ONLY_RECIPIENT && p !== 'log') throw new Error('recipient not allowed in test mode');
   const hdrs = Object.assign({}, headers || {});
-  if (cc) hdrs.Cc = cc;
-  if (replyTo) hdrs['Reply-To'] = replyTo;
+  // Cloudflare's send_email binding refuses Reply-To/Cc as custom headers ("only whitelisted headers and X-*"),
+  // so for the binding they go only in its own replyTo / cc fields below. Other providers keep the headers.
+  const viaBinding = p === 'sub_mail' || p === 'cloudflare';
+  if (cc && !viaBinding) hdrs.Cc = cc;
+  if (replyTo && !viaBinding) hdrs['Reply-To'] = replyTo;
   const hasH = Object.keys(hdrs).length ? hdrs : undefined;
   if (p === 'resend') { const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({ from: resendFrom(env, fromName), to: [to], subject, text, ...(html ? { html } : {}), ...(list.length ? { cc: list } : {}), ...(replyTo ? { reply_to: replyTo } : {}), ...(hasH ? { headers: hasH } : {}) }) });
