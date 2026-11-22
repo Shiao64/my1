@@ -119,7 +119,7 @@ d = await call('POST', '/admin/reg/act', { id: id1, action: 'paid' }, ADMIN); ch
 mails.length = 0;
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'confirm' }, ADMIN);
 check('confirm sets due date +14d', d.ok && d.status === 'confirmed' && Math.abs(Date.parse(d.due) - Date.now() - 14 * 864e5) < 6e4, d);
-check('confirmation letter has pay + rules + QR', mails.some(m => m.includes('Registration confirmed · BJ27-0001') && m.includes('WeChat Pay or Alipay') && m.includes('June 11, 2027') && m.includes('/social/reg/qr/intl-wechat?k=qrkey')), mails);
+check('confirmation letter has pay + rules + QR', mails.some(m => m.includes('Registration confirmed · BJ27-0001') && m.includes('WeChat Pay or Alipay') && m.includes('June 11, 2027') && m.includes('/register/draft/?lang=en#pay') && !m.includes('transfer note') && !m.includes('/social/reg/qr/')), mails);
 d = await call('GET', '/reg/left?event=bstw2027'); check('confirmed pass uses M1–M4, not S1', d.left.M1 === 299 && d.left.S1 === 120, d.left);
 d = await call('POST', '/reg', form(), amy); check('cannot resubmit after confirm', d._s === 409 && d.error === 'exists');
 // capacity: fill S1 to 1 left, then a 2-person S1 form cannot be confirmed
@@ -246,7 +246,7 @@ check('QR hidden without key', q2.status === 404);
   check('partial payment recorded, still confirmed', d.ok && d.status === 'confirmed' && d.paid === 600 && d.rest === 800, d);
   d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { method: 'wechat' }, silent: 1 }, jw);
   check('second payment covers the rest → paid', d.ok && d.status === 'paid' && d.paid === 1400 && d.rest === 0, d);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: -5 } }, wk); check('bad amount refused', d._s === 400);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: -5 } }, wk); check('nothing more on a fully paid one', d._s === 409 && d.error === 'already_paid');
   d = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN); const fr2 = d.rows.find(r => r.id === fid);
   check('ledger per collector', d.ledger['王凯'].in === 600 && d.ledger['竟文'].in === 800 && fr2.paid_total === 1400 && fr2.payments[0].by_admin === '王凯' && fr2.payments[0].method === 'alipay', d.ledger);
   d = await call('POST', '/admin/reg/act', { id: fid, action: 'cancel', silent: 1 }, wk); check('collector cannot cancel', d._s === 403);
@@ -279,6 +279,72 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const dan = subscriber('dan@gmail.com', 'Dan');
   const res = await social(new Request('https://api.tangoweekend.org/social/reg', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: 'https://tangoweekend.org', Authorization: 'Bearer ' + dan }, body: JSON.stringify(form()) }), benv, new URL('https://api.tangoweekend.org/social/reg'), json);
   check('binding mail goes out with replyTo field, no Reply-To header', (await res.json()).ok && sent.some(m => m.replyTo === 'info@tangoweekend.org' && /Registration received/.test(m.subject)), sent.map(m => m.subject)); }
+// letters: only uploaded QR codes, page link, Beijing date, no transfer note
+{ const reg = { code: 'BJ27-0777', lang: 'zh', amount: 1450, due_at: '2026-12-14T17:30:00.000Z', data: { people: [], rooms: [], hotel: false } };
+  for (const lang of ['en', 'zh', 'ko', 'es', 'ru']) for (const kind of ['conf', 'upd', 'rem']) {
+    const m = R.letter(kind, { ...reg, lang }, env, null, ['intl-alipay']);
+    check(`${lang} ${kind}: date, link, only uploaded QR`, m.text.includes('2026-12-15') && !m.text.includes('2026-12-14') && m.html.includes(`?lang=${lang}#pay"`) && m.html.includes('intl-alipay') && !m.html.includes('intl-wechat'), m.text);
+    check(`${lang} ${kind}: no transfer note, new word`, !/transfer note|转账备注|收款码|송금 메모|nota de la transferencia|комментарии к переводу/.test(m.text));
+  }
+  const p = R.letter('paid', reg, env, [{ name: 'A', pass: 'BJ27-0777-1.x' }]);
+  check('paid letter links to the live page', p.text.includes('/register/draft/?lang=zh#passes') && p.html.includes('#passes"'));
+  mails.length = 0;
+  db.prepare("INSERT INTO reg_asset(name,mime,data,updated_at) SELECT 'intl-alipay',mime,data,updated_at FROM reg_asset WHERE name='intl-wechat'").run();
+  db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at,due_at) VALUES('bstw2027','BJ27-0901','qr@x.com','en','confirmed',1,?,1450,'2026-01-01','2026-01-01','2026-01-01T00:00:00Z','2026-01-15T00:00:00Z')").run(JSON.stringify({ people: [], rooms: [], passports: [], hotel: false }));
+  await regCron(env);
+  check('reminder: both uploaded QRs, Alipay first', mails.some(m => m.includes('BJ27-0901') && m.indexOf('/qr/intl-alipay') > 0 && m.indexOf('/qr/intl-alipay') < m.indexOf('/qr/intl-wechat'))); }
+// registration sign-in must not change update-mail consent
+{ db.exec("CREATE TABLE IF NOT EXISTS email_subs(id INTEGER PRIMARY KEY, email TEXT, status TEXT, unsubscribed_at TEXT); CREATE TABLE IF NOT EXISTS mail_unsub(email TEXT PRIMARY KEY, at TEXT); CREATE TABLE IF NOT EXISTS user_phone(user_id INTEGER PRIMARY KEY, phone TEXT, updated_at TEXT)");
+  const st = subscriber('stay@x.com', 'Stay'); db.prepare("INSERT INTO email_subs(email,status) VALUES('stay@x.com','active')").run();
+  const status = () => db.prepare("SELECT status FROM email_subs WHERE email='stay@x.com'").get().status;
+  const ret = 'https://tangoweekend.org/event/beijing-2027-tango-weekend/register/draft/';
+  let p = await call('POST', '/profile', { email: 'stay@x.com', sub: 1, ret }, st);
+  check('sign-in again keeps the subscription', p.ok && status() === 'active', p);
+  p = await call('POST', '/profile', { email: 'stay@x.com', sub: 1, alert: 0, ret }, st);
+  check('explicit opt-out still works', p.ok && status() === 'unsubscribed', p); }
+// pay on arrival: scan to collect, no entry before payment, no double collection
+{ mails.length = 0;
+  const mk = db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at) VALUES('bstw2027','BJ27-0950','arr@x.com','ko','confirmed',2,?,2900,'2026-12-01','2026-12-01','2026-12-01T00:00:00Z')")
+    .run(JSON.stringify({ people: [person({ pkg: 'single', items: ['M1'], amount: 1450 }), person({ name: 'Second', pkg: 'single', items: ['M1'], amount: 1450 })], rooms: [], passports: [], hotel: false }));
+  const aid = Number(mk.lastInsertRowid);
+  db.prepare("UPDATE reg SET note='private note' WHERE id=?").run(aid);
+  let a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 900, method: 'alipay' } }, ADMIN);
+  check('arrival: part paid first', a.ok && a.rest === 2000, a);
+  a = await call('POST', '/admin/reg/act', { id: aid, action: 'cash' }, ADMIN);
+  check('arrival: letter shows what is left, zh + ko', a.ok && mails.some(m => m.includes('BJ27-0950') && m.includes('¥2,000') && m.includes('付款后才能入场') && m.includes('결제 후 입장')), mails);
+  const arr = subscriber('arr@x.com', 'Arr');
+  const me = await call('GET', '/reg/me?event=bstw2027', null, arr);
+  check('arrival: page gets lang, people and rest', me.reg.lang === 'ko' && me.reg.people === 2 && me.reg.rest === 2000 && me.reg.passes.length === 2, me);
+  const [p1, p2] = me.reg.passes.map(x => encodeURIComponent(x.pass));
+  const desk = await call('POST', '/admin/reg/staff', { name: 'Desk' }, ADMIN);
+  const dt = (await call('POST', '/reg/door/activate', { act: desk.link.match(/act=([0-9a-f]{48})/)[1] })).token;
+  a = await call('GET', '/reg/door/pass?p=' + p1, null, dt);
+  check('front desk: pay first, no amount, no note', a.pay_first === true && !a.collect && !a.cash_due && a.note === '' && !JSON.stringify(a).includes('2000') && a.lang === 'ko', a);
+  a = await call('POST', '/reg/door/checkin', { p: me.reg.passes[0].pass, item: 'M1' }, dt);
+  check('cannot check in before paying', a._s === 409 && a.error === 'pay_first', a);
+  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { method: 'alipay' } }, dt);
+  check('front desk cannot collect', a._s === 401 || a._s === 403, a);
+  const rev = await call('POST', '/admin/reg/admins', { name: 'Reviewer', perms: ['review'] }, ADMIN), col = await call('POST', '/admin/reg/admins', { name: 'Collector', perms: ['collect'] }, ADMIN);
+  const pw = x => x.password || x.pass || x.token;
+  a = await call('GET', '/reg/door/pass?p=' + p1, null, pw(rev));
+  check('manager without collect: no amount', a.pay_first && !a.collect, a);
+  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { method: 'alipay' } }, pw(rev));
+  check('manager without collect cannot collect', a._s === 403, a);
+  a = await call('GET', '/reg/door/pass?p=' + p2, null, pw(col));
+  check('collector: rest from a companion code', a.collect.id === aid && a.collect.rest === 2000 && a.collect.paid === 900, a);
+  check('collector: /me says collect', (await call('GET', '/reg/door/me', null, pw(col))).collect === true);
+  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: -5 } }, pw(col));
+  check('bad amount refused', a._s === 400, a);
+  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 2001 } }, pw(col));
+  check('cannot collect more than is owed', a._s === 400 && a.rest === 2000, a);
+  const both = await Promise.all([1, 2].map(() => call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 2000, method: 'cash' } }, pw(col))));
+  check('simultaneous collection: only one recorded', both.filter(x => x.ok).length === 1 && both.some(x => x._s === 409) && db.prepare('SELECT SUM(amount) s FROM reg_payment WHERE reg_id=?').get(aid).s === 2900, both);
+  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 100 } }, pw(col));
+  check('paid registration refuses more', a._s === 409 && a.error === 'already_paid' && a.last.collector === 'Collector', a);
+  for (const p of me.reg.passes) { a = await call('POST', '/reg/door/checkin', { p: p.pass, item: 'M1' }, dt); check('after payment everyone can enter', a.ok, a); }
+  db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('other2027','Other',?,'collect','2026-12-01')").run(sha('b'.repeat(40)));
+  a = await call('GET', '/reg/door/pass?p=' + p1, null, 'b'.repeat(40));
+  check('manager of another event cannot read the pass', a._s === 404, a); }
 // cron before migration is quiet
 const bare = new DatabaseSync(':memory:'); const rr2 = await regCron({ ...env, SDB: D1(bare) }); check('cron quiet before migration', rr2.sent === 0);
 

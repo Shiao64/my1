@@ -1305,7 +1305,8 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
         throw e;
       }
     }
-    await setSitewide(env, kit, { email, name, lang }, alert === 1);
+    // A sign-in that says nothing about update mail (the registration page) must not change the subscription.
+    if (!(subOnly && b.alert == null)) await setSitewide(env, kit, { email, name, lang }, alert === 1);
     return json({ ok: true, verified: true, session: true, mailed: false, sitewide: alert === 1, phone_tail: await phoneTailOf(env, session.id) });
   }
   let recent = null;
