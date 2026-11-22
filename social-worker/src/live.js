@@ -24,7 +24,10 @@ export default {
       // The confirm form is served on this host and checked by the magic token. Mail and WeChat clients may send Origin: null.
       const postedForm = url.pathname === '/social/confirm' || url.pathname === '/social/going/confirm' || url.pathname === '/social/going/unsub' || url.pathname === '/social/going/enter';
       if (req.method === 'POST' && og && !hostOK(og, env) && !url.pathname.startsWith('/social/admin/') && !postedForm) return json({ error: 'forbidden_origin' }, 403);
-      return social(req, env, url, json);
+      const res = await social(req, env, url, json);
+      // json() carries the CORS headers; a file built by hand (CSV export) does not, and the admin page could not read it.
+      if (url.pathname.startsWith('/social/admin/reg') && !res.headers.get('Access-Control-Allow-Origin')) for (const [k, v] of Object.entries(h)) res.headers.set(k, v);
+      return res;
     }
     if (url.pathname === '/unsubscribe' && (req.method === 'GET' || req.method === 'POST') && (url.searchParams.get('t') || '').includes('.')) return unsub2(url, env);   // signed update-mail link; POST is List-Unsubscribe one-click
     if (url.pathname === '/subscribe' && req.method === 'POST') {
