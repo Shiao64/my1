@@ -76,6 +76,13 @@ tr.sel{background:#fff4d6}
 .perms label{white-space:nowrap}
 .once{background:#fff8e6;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-bottom:10px}
 .once input{width:100%;margin:6px 0}
+.once .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.linkqr{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.linkqr canvas{width:220px;height:220px;background:#fff;border-radius:8px;image-rendering:pixelated}
+.linkqr div{flex:1;min-width:200px}
+a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:inherit;border-radius:8px;padding:7px 12px;text-decoration:none;white-space:nowrap}
+details.gone{margin-top:12px}
+details.gone summary{cursor:pointer;color:var(--muted)}
 #msg{position:fixed;z-index:9;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:10px;display:none;max-width:90vw}
 @media(max-width:760px){
   header{padding:9px 12px}
@@ -161,12 +168,16 @@ tr.sel{background:#fff4d6}
     </div>
     <div class="card" id="staffCard">
       <h2>前台</h2>
-      <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结只能在<b>第一支打开它的手机</b>上启用；换手机按「重发连结」。请对方用 Safari 或 Chrome 打开，不要在微信里打开。<b>启用后的网址就是义工的工作证：转发了别人也能签到</b>，有问题就停用或重发。</p>
-      <div class="bar"><input id="sName" placeholder="名字，例如 义工小李"><button class="p" id="sAdd">新增前台</button></div>
-      <div class="once" id="sNew" hidden><div><b id="sNewName"></b> 的前台连结已建好（只显示这一次）：</div><input id="sLink" readonly>
-        <div class="acts"><button class="p" id="sCopy">复制给义工的话（含连结）</button><button id="sCopyUrl">只复制连结</button></div>
-        <p id="sNext" style="margin:10px 0 0"><b>下一步：用微信发给义工本人，不要在这台打开</b>（这台已经登入管理页，不能当前台）。</p>
-        <p class="muted" style="margin:4px 0 0">自己想先试：按「只复制连结」，贴到另一支手机的 Safari／Chrome，或这台的无痕窗口。启用一次就用掉了，试完要按「重发连结」再发给义工。</p></div>
+      <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结<b>只能启用一次</b>；换手机按「重发连结」。在微信里收到后，要按右上角 ··· 选「在浏览器打开」才能启用。<b>启用后的网址就是前台的工作证：转发了别人也能签到</b>，有问题就去除或重发。</p>
+      <div class="bar"><input id="sName" placeholder="名字，例如 小李"><button class="p" id="sAdd">新增前台</button></div>
+      <div class="once" id="sNew" hidden>
+        <div class="top"><div><b id="sNewName"></b> 的前台连结已建好（只显示这一次，启用后会自动收起）</div><button id="sClose">关闭</button></div>
+        <div class="linkqr" id="sQrBox"><canvas id="sQr" role="img" aria-label="前台连结二维码"></canvas>
+          <div><b>人在旁边：用对方手机的相机扫这个码</b><p class="muted">会直接在浏览器里启用。用微信扫也可以，但要再按右上角 ··· →「在浏览器打开」。</p></div></div>
+        <p id="sNext" style="margin:0"><b>人不在旁边：用微信或邮件发给前台本人，不要在这台打开</b>（这台已经登入管理页，不能当前台）。</p>
+        <input id="sLink" readonly>
+        <div class="acts"><button class="p" id="sCopy">复制给前台的话（含连结）</button><a class="btn" id="sMail">用邮件发送</a><button id="sCopyUrl">只复制连结</button></div>
+        <p class="muted" style="margin:6px 0 0">「用邮件发送」会打开你自己的邮件程序，填上对方邮箱再寄。连结只能启用一次：自己试过以后，要按「重发连结」再发给对方。</p></div>
       <div id="staffList"></div>
     </div>
     <div class="card" id="qr">
@@ -466,33 +477,73 @@ $('lCsvSome').addEventListener('click',function(){var k={};payList(payAll()).for
 
 // ---------- 设置
 function permBoxes(on,attr){return Object.keys(PERM_NAME).map(function(p){return '<label><input type="checkbox" '+(attr||'')+' value="'+p+'"'+(on.indexOf(p)>=0?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('')+(on.indexOf('modify')>=0?'<input type="checkbox" hidden checked '+(attr||'')+' value="modify">':'')}
+// A one-time link or password must not stay on screen once it no longer works.
+function dropSpent(box,field,list,spent){
+  var id=+$(box).dataset.id;
+  if((list||[]).some(function(x){return x.id===id&&spent(x)})){$(box).hidden=true;$(box).dataset.id='';$(field).value=''}}
 function settings(){
+  dropSpent('sNew','sLink',DATA.staff,function(x){return x.disabled_at||x.activated_at});
+  if($('sNew').hidden)closeLink();
+  dropSpent('aNew','aPw',DATA.admins,function(x){return x.disabled_at});
   $('adminList').innerHTML=DATA.me.owner?(DATA.admins||[]).map(function(x){var s=(DATA.ledger||{})[x.name]||{in:0,out:0};
     return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+(x.disabled_at?'<span class="st cancelled">已停用</span>':'')+'</span><span class="muted">收款净额 '+fmt(s.in-s.out)+'</span></div>'+
       '<div class="perms">'+permBoxes((x.perms||'').split(','),'data-ap="'+x.id+'"')+'</div><div class="acts"><button data-ad="perms" data-id="'+x.id+'">保存权限</button><button data-ad="reset" data-id="'+x.id+'">重设密码</button>'+(x.disabled_at?'':'<button data-ad="disable" data-id="'+x.id+'">停用</button>')+'</div></div>'}).join('')||'<p class="muted">还没有活动经理。</p>':'';
-  $('staffList').innerHTML=can('staff')?(DATA.staff||[]).map(function(x){
-    var s=x.disabled_at?'<span class="st cancelled">已停用</span>':x.activated_at?'<span class="st paid">已启用 '+bj(x.activated_at).slice(5)+'</span>':'<span class="st pending">还没打开连结</span>';
-    return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+s+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts"><button data-s="reissue" data-id="'+x.id+'">重发连结</button>'+(x.disabled_at?'':'<button data-s="disable" data-id="'+x.id+'">停用</button>')+'</div></div>'}).join('')||'<p class="muted">还没有前台。</p>':''}
+  deskList()}
+var goneOpen=false;
+function deskList(){
+  if(!can('staff')){$('staffList').innerHTML='';return}
+  function row(x){
+    var s=x.disabled_at?'<span class="st cancelled">已去除</span>':x.activated_at?'<span class="st paid">已启用 '+bj(x.activated_at).slice(5)+'</span>':'<span class="st pending">还没打开连结</span>';
+    return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+s+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts">'+
+      (x.disabled_at?'<button data-s="reissue" data-id="'+x.id+'">恢复（发新连结）</button>':'<button data-s="reissue" data-id="'+x.id+'">重发连结</button><button data-s="disable" data-id="'+x.id+'">去除</button>')+'</div></div>'}
+  var all=DATA.staff||[],on=all.filter(function(x){return !x.disabled_at}),off=all.filter(function(x){return x.disabled_at});
+  $('staffList').innerHTML=(on.map(row).join('')||'<p class="muted">现在没有前台。</p>')+(off.length?'<details class="gone"'+(goneOpen?' open':'')+'><summary>已去除（'+off.length+'）</summary>'+off.map(row).join('')+'</details>':'');
+  var g=$('staffList').querySelector('details');if(g)g.addEventListener('toggle',function(){goneOpen=g.open})}
 $('aPerms').innerHTML=permBoxes(['collect']);
-function showPw(name,pw){$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
-function showLink(d){$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link;$('sNew').scrollIntoView({block:'center'})}
+function showPw(id,name,pw){$('aNew').dataset.id=id;$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
+var DESK_TEXT='这是你的前台签到连结：在微信里点开后，按右上角 ··· 选「在浏览器打开」（Safari 或 Chrome）。这个网址就是你的工作证，不要转发。\n';
+var qrLib=null;
+function drawLink(link){
+  $('sQrBox').hidden=true;
+  qrLib=qrLib||import('/event/beijing-2027-tango-weekend/register/vendor/qrcode.js');
+  qrLib.then(function(m){
+    if($('sLink').value!==link)return;
+    var q=m.default(0,'M');q.addData(link);q.make();
+    var n=q.getModuleCount(),s=6,c=$('sQr'),g;c.width=c.height=(n+8)*s;g=c.getContext('2d');
+    g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.fillStyle='#000';
+    for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))g.fillRect((k+4)*s,(r+4)*s,s,s);
+    $('sQrBox').hidden=false;
+  }).catch(function(){qrLib=null})}
+function closeLink(){$('sNew').hidden=true;$('sNew').dataset.id='';$('sLink').value='';$('sMail').removeAttribute('href');$('sQr').width=$('sQr').height=0}
+$('sClose').addEventListener('click',function(){if(confirm('关闭后就看不到这个连结和二维码了。还要用时请按「重发连结」。'))closeLink()});
+// while a link is on screen, notice by itself when the other phone has used it
+var polling=false;
+setInterval(function(){
+  if(!DATA||polling||document.hidden||S.tab!=='set'||$('sNew').hidden)return;
+  var id=+$('sNew').dataset.id;polling=true;
+  call('/social/admin/reg?event=bstw2027').then(function(r){return r.ok?r.json():null}).then(function(d){
+    var x=d&&(d.staff||[]).filter(function(s){return s.id===id})[0];
+    if(!DATA||!x||+$('sNew').dataset.id!==id||!(x.activated_at||x.disabled_at))return;
+    DATA.staff=d.staff;closeLink();deskList();toast(x.disabled_at?x.name+' 已去除':x.name+' 已启用，可以签到了')
+  }).catch(function(){}).then(function(){polling=false})},4000);
+function showLink(d){drawLink(d.link);$('sMail').href='mailto:?subject='+encodeURIComponent('前台签到连结 · 北京精选探戈周末 2027')+'&body='+encodeURIComponent((DESK_TEXT+d.link).replace(/\n/g,'\r\n'));$('sNew').dataset.id=d.id;$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link;$('sNew').scrollIntoView({block:'start'});scrollBy(0,-70)}
 function copy(id,before){var i=$(id);i.select();try{navigator.clipboard.writeText((before||'')+i.value).then(function(){toast('已复制')},function(){toast('没复制成功，请长按手动复制')})}catch(e){document.execCommand('copy');toast('已复制')}}
 $('aCopy').addEventListener('click',function(){copy('aPw')});
 $('sCopyUrl').addEventListener('click',function(){copy('sLink')});
-$('sCopy').addEventListener('click',function(){copy('sLink','这是你的前台签到连结：在微信里点开后，按右上角 ··· 选「在浏览器打开」（Safari 或 Chrome）。这个网址就是你的工作证，不要转发。\n')});
+$('sCopy').addEventListener('click',function(){copy('sLink',DESK_TEXT)});
 $('aAdd').addEventListener('click',function(){var b=this,n=$('aName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
-  act('/admins',{name:n,perms:[].map.call($('aPerms').querySelectorAll('input:checked'),function(i){return i.value})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('aName').value='';showPw(d.name,d.password);load()})});
+  act('/admins',{name:n,perms:[].map.call($('aPerms').querySelectorAll('input:checked'),function(i){return i.value})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('aName').value='';showPw(d.id,d.name,d.password);load()})});
 $('adminList').addEventListener('click',function(e){var b=e.target.closest('button[data-ad]');if(!b)return;var a=b.dataset.ad,id=+b.dataset.id,body={id:id},name=((DATA.admins||[]).filter(function(x){return x.id===id})[0]||{}).name||'';
   if(a==='perms')body.perms=[].map.call(document.querySelectorAll('input[data-ap="'+id+'"]:checked'),function(i){return i.value});
   if(a!=='perms'&&!confirm(name+(a==='disable'?'：停用后密码马上失效，确定？':'：重设后旧密码马上失效，确定？')))return;
-  act('/admins/'+a,body).then(function(d){if(!d.ok)return toast(errText(d));if(d.password)showPw(name,d.password);toast(a==='perms'?'权限已保存':a==='disable'?'已停用':'已产生新密码');load()})});
+  act('/admins/'+a,body).then(function(d){if(!d.ok)return toast(errText(d));if(d.password)showPw(id,name,d.password);toast(a==='perms'?'权限已保存':a==='disable'?'已停用':'已产生新密码');load()})});
 $('sAdd').addEventListener('click',function(){var b=this,n=$('sName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
   act('/staff',{name:n}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('sName').value='';showLink(d);load()})});
 $('staffList').addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;var a=b.dataset.s;
-  if(!confirm(a==='disable'?'停用后这支手机马上不能签到，确定？':'重发后旧连结和现在的手机都会失效，确定？'))return;
-  act('/staff/'+a,{id:+b.dataset.id}).then(function(d){if(!d.ok)return toast(errText(d));if(d.link)showLink(d);toast(a==='disable'?'已停用':'已产生新连结');load()})});
+  if(!confirm(a==='disable'?'去除后，这个前台马上不能签到。签到纪录会保留，以后也可以恢复。确定去除？':'重发后旧连结和现在的手机都会失效，确定？'))return;
+  act('/staff/'+a,{id:+b.dataset.id}).then(function(d){if(!d.ok)return toast(errText(d));if(d.link)showLink(d);toast(a==='disable'?'已去除':'已产生新连结');load()})});
 $('qUp').addEventListener('click',function(){var f=$('qFile').files[0],name=$('qName').value;
   if(!name)return toast('先选是哪一种收款码');if(!f)return toast('先选一张图片');if(f.size>1e6)return toast('图片太大（1MB 以内）');
   var rd=new FileReader();rd.onload=function(){act('/asset',{name:name,mime:f.type,b64:rd.result}).then(function(d){toast(d.ok?'已上传 '+d.name+'，请到报名页用另一支手机扫一次':errText(d))})};rd.readAsDataURL(f)});
