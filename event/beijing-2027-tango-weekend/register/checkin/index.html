@@ -103,6 +103,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
     </div>
     <div class="muted" id="note" style="margin-top:8px"></div>
     <button class="btn" id="go" hidden></button>
+    <p class="muted" id="undoHelp" hidden>按错了？请找活动经理撤销。</p>
     <button class="btn sec" id="undo" hidden>撤销这一场的签到</button>
   </div>
   <button class="btn sec" id="swap" hidden></button>
@@ -152,7 +153,7 @@ function show(){
   else if(c&&c.last){box.hidden=false;box.style.background='#d9f2df';line('span','已付款：'+c.last.collector+' '+hm(c.last.at)+' 收（'+(METHOD[c.last.method]||c.last.method)+'）')}
   if(due||!c||!c.last)box.style.background='';
   $('note').textContent=info.note?'备注：'+info.note:'';
-  var go=$('go');$('undo').hidden=!did[cur];go.hidden=true;
+  var go=$('go');$('undo').hidden=!did[cur]||!asAdmin();$('undoHelp').hidden=!did[cur]||asAdmin();go.hidden=true;
   if(!info.valid)return res('no','✕ 未完成付款，不能入场。如要现场付款，请活动经理在管理页处理');
   if(due){go.hidden=false;go.disabled=true;go.textContent='签到（付款后才能按）';return res('warn',c&&c.rest>0?'待收款':'待付款 · 请带到活动经理处')}
   go.disabled=false;
@@ -173,7 +174,7 @@ $('go').addEventListener('click',function(){var cur=$('item').value;$('go').disa
     if(d._s===401){choose();return}
     res('no','✕ '+(d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到活动经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
 $('undo').addEventListener('click',function(){var cur=$('item').value;if(!confirm('撤销「'+NAME[cur]+'」的签到？'))return;
-  call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur,undo:1}}).then(function(d){if(d.ok){info.checkins=info.checkins.filter(function(c){return c.item!==cur});show()}})});
+  call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur,undo:1}}).then(function(d){if(d.ok){info.checkins=info.checkins.filter(function(c){return c.item!==cur});show();return}res('no',d.error==='manager_only'?'只有活动经理能撤销':'✕ 没撤销成功：'+d.error)}).catch(function(){res('no','连不上后台，不确定有没有撤销：请重扫一次看看')})});
 $('login').addEventListener('submit',function(e){e.preventDefault();var v=$('tok').value.trim();if(!v){$('tok').focus();return}
   if(get('bstw_staff'))return;   // a front-desk phone never takes a password
   put('bstw_admin',v);$('tok').value='';res('','');whoami()});
