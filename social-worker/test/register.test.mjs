@@ -479,7 +479,7 @@ check('QR hidden without key', q2.status === 404);
   mails.length = 0;
   EV.chief = seat; }
 // a form re-sent at the moment someone reviews it
-{ const ned = subscriber('ned@gmail.com', 'Ned'), first = await call('POST', '/reg', form({ people: [person({ name: 'Ned', pkg: 'pass' })] }), ned);
+{ const ned = subscriber('ned@example.com', 'Ned'), first = await call('POST', '/reg', form({ people: [person({ name: 'Ned', pkg: 'pass' })] }), ned);
   const real = env.SDB.prepare;
   env.SDB.prepare = sql => { if (sql.startsWith('UPDATE reg SET lang=')) db.prepare("UPDATE reg SET status='waitlist' WHERE code=?").run(first.code); return real(sql); };
   const d = await call('POST', '/reg', form({ people: [person({ name: 'Ned', pkg: 'full' })] }), ned);
