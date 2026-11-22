@@ -168,68 +168,97 @@ const T = {
     recvS: 'Registration received · {c}', recv: 'We have received your registration {c}. We will review it and reply within 10 days.',
     confS: 'Registration confirmed · {c}', conf: 'Your registration {c} is confirmed.',
     pay: 'Please pay {t} by {d} (within 2 weeks of this email) by WeChat Pay or Alipay, using the payment QR code. After paying, reply to this email with a screenshot of the payment.',
-    noApp: 'If you cannot use WeChat Pay or Alipay, reply to this email with a screenshot of your flight ticket instead; you can then pay in cash at the event.',
+    noApp: 'If you cannot use WeChat Pay or Alipay, reply to this email with a screenshot of your flight ticket instead; you can then pay when you arrive.',
     rules: 'Changes, additions and cancellations: ¥50 handling fee, charged once per registration. If you cannot attend, we refund your payment minus ¥50. Hotel charges are refunded only for cancellations on or before June 11, 2027. Places cannot be passed to another person.',
     waitS: 'Waiting list · {c}', wait: 'Your registration {c} is on the waiting list. We will email you as soon as a place opens.',
     declS: 'Registration · {c}', decl: 'We are sorry, we cannot accept your registration {c} this time. Thank you for your interest.',
     remS: 'Payment reminder · {c}', rem: 'A friendly reminder: payment for {c} ({t}) is due by {d}.',
     paidS: 'Payment received · {c}', paid: 'We have received your payment for {c}. Your registration is complete. See you in Beijing!',
-    cashS: 'Pay at the event · {c}', cash: 'We have received your flight ticket for {c}. Please pay {t} in cash at the event.',
+    cashS: 'Pay at the event · {c}', cash: 'We have received your flight ticket for {c}. Please pay {t} when you arrive (Alipay, WeChat Pay or cash).',
     cancS: 'Registration cancelled · {c}', canc: 'Your registration {c} has been cancelled.', refund: 'Refund: {r}.',
     updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.' },
   zh: { viewPay: '查看报名和付款码', viewPass: '查看报名和入场码', passT: '下方是每个人的入场二维码，请在入场时出示。登入报名页也看得到。建议先把入场码截图存在手机里，以免现场网络不好。', hi: '{n}，你好：', sign: '张孝、刘峥\n北京精选探戈周末', total: '合计', hotel: '住宿', nights: '晚', details: '你的报名',
     recvS: '已收到报名 · {c}', recv: '我们已收到你的报名 {c}，审核后会在 10 天内回复。',
     confS: '报名确认 · {c}', conf: '你的报名 {c} 已确认。',
     pay: '请在 {d} 前（收到本信后 2 周内）用微信或支付宝扫付款码支付 {t}，付款后直接回复本邮件并附上付款截图。请不要发送你自己支付宝、微信里的「付款码」。',
-    noApp: '如无法使用微信、支付宝，请回复本邮件并附上机票截图，即可到场付现金。',
+    noApp: '如无法使用微信、支付宝，请回复本邮件并附上机票截图，即可到场付款。',
     rules: '报名后改动、增加、取消，每份报名收一次手续费 ¥50。如无法出席，可退费，扣除手续费 ¥50。房费在 2027年6月11日（含）前取消可退，之后不退。参加资格仅限报名者本人，不能换人。',
     waitS: '候补名单 · {c}', wait: '你的报名 {c} 目前在候补名单上，有名额时我们会立即通知你。',
     declS: '报名结果 · {c}', decl: '很抱歉，这次无法接受你的报名 {c}。谢谢你的关注。',
     remS: '付款提醒 · {c}', rem: '提醒你：报名 {c} 的款项 {t} 请在 {d} 前支付。',
     paidS: '已收到付款 · {c}', paid: '已收到报名 {c} 的付款，报名完成。北京见！',
-    cashS: '到场付现 · {c}', cash: '已收到报名 {c} 的机票截图，请到场以现金支付 {t}。',
+    cashS: '到场付款 · {c}', cash: '已收到报名 {c} 的机票截图，请到场时支付 {t}（支付宝、微信或现金）。',
     cancS: '报名已取消 · {c}', canc: '你的报名 {c} 已取消。', refund: '退款：{r}。',
     updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新，合计已含手续费 ¥50。' },
   ko: { viewPay: '신청 내역·결제 QR 보기', viewPass: '신청 내역·입장 QR 보기', passT: '아래는 1인당 하나씩인 입장 QR 코드입니다. 입장할 때 보여 주세요. 신청 페이지에 로그인해도 볼 수 있습니다. 현장에 인터넷이 약할 수 있으니 입장 QR 코드를 미리 캡처해 휴대폰에 저장해 두세요.', hi: '{n} 님, 안녕하세요.', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: '합계', hotel: '호텔', nights: '박', details: '신청 내역',
     recvS: '신청 접수 · {c}', recv: '신청 {c}이(가) 접수되었습니다. 검토 후 10일 이내에 답장드리겠습니다.',
     confS: '신청 확정 · {c}', conf: '신청 {c}이(가) 확정되었습니다.',
     pay: '{d}까지(이 메일을 받은 후 2주 이내) 결제 QR 코드로 위챗페이 또는 알리페이로 {t}을(를) 결제해 주세요. 결제 후 이 메일에 결제 캡처를 첨부해 회신해 주세요.',
-    noApp: '위챗페이/알리페이를 사용할 수 없다면 항공권 캡처를 회신해 주세요. 현장에서 현금으로 결제할 수 있습니다.',
+    noApp: '위챗페이/알리페이를 사용할 수 없다면 항공권 캡처를 회신해 주세요. 도착해서 결제할 수 있습니다.',
     rules: '신청 후 변경·추가·취소 시 신청 건당 ¥50 수수료가 한 번 부과됩니다. 참가할 수 없게 되면 ¥50을 제외하고 환불합니다. 호텔 요금은 2027년 6월 11일(포함)까지 취소 시에만 환불됩니다. 다른 사람으로 바꿀 수 없습니다.',
     waitS: '대기자 명단 · {c}', wait: '신청 {c}은(는) 대기자 명단에 있습니다. 자리가 나면 바로 알려드리겠습니다.',
     declS: '신청 결과 · {c}', decl: '죄송하지만 이번에는 신청 {c}을(를) 받을 수 없습니다. 관심 가져 주셔서 감사합니다.',
     remS: '결제 안내 · {c}', rem: '신청 {c}의 결제({t}) 기한은 {d}입니다.',
     paidS: '결제 확인 · {c}', paid: '신청 {c}의 결제를 확인했습니다. 신청이 완료되었습니다. 베이징에서 만나요!',
-    cashS: '현장 결제 · {c}', cash: '신청 {c}의 항공권을 확인했습니다. 현장에서 현금으로 {t}을(를) 결제해 주세요.',
+    cashS: '현장 결제 · {c}', cash: '신청 {c}의 항공권을 확인했습니다. 도착 시 {t}을(를) 결제해 주세요(알리페이, 위챗페이 또는 현금).',
     cancS: '신청 취소 · {c}', canc: '신청 {c}이(가) 취소되었습니다.', refund: '환불: {r}.',
     updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.' },
   es: { viewPay: 'Ver inscripción y QR de pago', viewPass: 'Ver inscripción y QR de entrada', passT: 'Abajo están los códigos QR de entrada (uno por persona). Muéstralos en la puerta. También puedes verlos en la página de inscripción al iniciar sesión. Consejo: haz ya una captura de tu código QR por si no hay internet en la puerta.', hi: 'Hola, {n}:', sign: 'Shiao Chang y Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'noches', details: 'Tu inscripción',
     recvS: 'Inscripción recibida · {c}', recv: 'Hemos recibido tu inscripción {c}. La revisaremos y te responderemos en 10 días.',
     confS: 'Inscripción confirmada · {c}', conf: 'Tu inscripción {c} está confirmada.',
     pay: 'Paga {t} antes del {d} (2 semanas desde este email) con WeChat Pay o Alipay usando el código QR de pago. Después de pagar, responde a este email con una captura del pago.',
-    noApp: 'Si no puedes usar WeChat Pay ni Alipay, responde con una captura de tu billete de avión; así podrás pagar en efectivo en el evento.',
+    noApp: 'Si no puedes usar WeChat Pay ni Alipay, responde con una captura de tu billete de avión; así podrás pagar al llegar.',
     rules: 'Cambios, añadidos y cancelaciones: cargo de ¥50, una sola vez por inscripción. Si no puedes asistir, devolvemos lo pagado menos ¥50. El hotel solo se reembolsa si cancelas hasta el 11 de junio de 2027. La plaza no se puede ceder a otra persona.',
     waitS: 'Lista de espera · {c}', wait: 'Tu inscripción {c} está en lista de espera. Te escribiremos en cuanto haya plaza.',
     declS: 'Inscripción · {c}', decl: 'Lo sentimos, esta vez no podemos aceptar tu inscripción {c}. Gracias por tu interés.',
     remS: 'Recordatorio de pago · {c}', rem: 'Recordatorio: el pago de {c} ({t}) vence el {d}.',
     paidS: 'Pago recibido · {c}', paid: 'Hemos recibido el pago de {c}. Tu inscripción está completa. ¡Nos vemos en Pekín!',
-    cashS: 'Pago en el evento · {c}', cash: 'Hemos recibido tu billete de avión para {c}. Paga {t} en efectivo en el evento.',
+    cashS: 'Pago en el evento · {c}', cash: 'Hemos recibido tu billete de avión para {c}. Paga {t} al llegar (Alipay, WeChat Pay o efectivo).',
     cancS: 'Inscripción cancelada · {c}', canc: 'Tu inscripción {c} ha sido cancelada.', refund: 'Reembolso: {r}.',
     updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.' },
   ru: { viewPay: 'Регистрация и QR для оплаты', viewPass: 'Регистрация и входной QR', passT: 'Ниже входные QR-коды (по одному на человека). Покажите их на входе. Их также видно на странице регистрации после входа. Совет: сохраните скриншот QR-кода заранее — на входе может не быть интернета.', hi: 'Здравствуйте, {n}!', sign: 'Shiao Chang и Liu Zheng\nBeijing Select Tango Weekend', total: 'Итого', hotel: 'Отель', nights: 'ноч.', details: 'Ваша регистрация',
     recvS: 'Регистрация получена · {c}', recv: 'Мы получили вашу регистрацию {c}. Проверим её и ответим в течение 10 дней.',
     confS: 'Регистрация подтверждена · {c}', conf: 'Ваша регистрация {c} подтверждена.',
     pay: 'Оплатите {t} до {d} (в течение 2 недель после этого письма) через WeChat Pay или Alipay по QR-коду для оплаты. После оплаты ответьте на это письмо со скриншотом.',
-    noApp: 'Если не можете пользоваться WeChat Pay или Alipay, пришлите в ответ скриншот авиабилета — тогда оплата наличными на месте.',
+    noApp: 'Если не можете пользоваться WeChat Pay или Alipay, пришлите в ответ скриншот авиабилета — тогда оплата по прибытии.',
     rules: 'Изменения, добавления и отмена: сбор ¥50, один раз за регистрацию. Если вы не сможете приехать, вернём оплату за вычетом ¥50. Отель возвращается только при отмене до 11 июня 2027 включительно. Место нельзя передать другому человеку.',
     waitS: 'Лист ожидания · {c}', wait: 'Ваша регистрация {c} в листе ожидания. Напишем, как только освободится место.',
     declS: 'Регистрация · {c}', decl: 'К сожалению, в этот раз мы не можем принять регистрацию {c}. Спасибо за интерес.',
     remS: 'Напоминание об оплате · {c}', rem: 'Напоминаем: оплата {c} ({t}) до {d}.',
     paidS: 'Оплата получена · {c}', paid: 'Мы получили оплату {c}. Регистрация завершена. До встречи в Пекине!',
-    cashS: 'Оплата на месте · {c}', cash: 'Мы получили авиабилет для {c}. Оплатите {t} наличными на месте.',
+    cashS: 'Оплата на месте · {c}', cash: 'Мы получили авиабилет для {c}. Оплатите {t} по прибытии (Alipay, WeChat Pay или наличные).',
     cancS: 'Регистрация отменена · {c}', canc: 'Ваша регистрация {c} отменена.', refund: 'Возврат: {r}.',
     updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.' }
 };
+// Words that go with a QR code: always Chinese, plus the registrant's language.
+const CAP = {
+ "zh": {
+  "pay": "请扫码付款，付款后回复确认信并附截图",
+  "pass": "入场码：请出示给前台，每人一个",
+  "cash": "到场付款：请出示此二维码给活动经理，付款后才能入场"
+ },
+ "en": {
+  "pay": "Scan to pay, then reply to the confirmation email with a screenshot",
+  "pass": "Entry code: show it at the front desk, one per person",
+  "cash": "Pay on arrival: show this QR code to an event manager. Entry is possible after payment"
+ },
+ "ko": {
+  "pay": "QR을 스캔해 결제한 뒤 확인 메일에 캡처를 첨부해 회신해 주세요",
+  "pass": "입장 코드: 안내 데스크에 보여 주세요. 1인당 하나입니다",
+  "cash": "현장 결제: 이 QR 코드를 행사 매니저에게 보여 주세요. 결제 후 입장할 수 있습니다"
+ },
+ "es": {
+  "pay": "Escanea para pagar y responde al email de confirmación con una captura",
+  "pass": "Código de entrada: muéstralo en recepción, uno por persona",
+  "cash": "Pago al llegar: muestra este código QR al responsable del evento. Podrás entrar después de pagar"
+ },
+ "ru": {
+  "pay": "Отсканируйте для оплаты и ответьте на письмо с подтверждением, приложив скриншот",
+  "pass": "Входной код: покажите на стойке, один на человека",
+  "cash": "Оплата на месте: покажите этот QR-код менеджеру мероприятия. Вход возможен после оплаты"
+ }
+};
+const caption = (lang, k) => (lang !== 'zh' && CAP[lang] ? [CAP.zh[k], CAP[lang][k]] : [CAP.zh[k]]);
 const NAMES = {
   en: { full: 'Full Pass', combo: 'Weekend Package', pass: 'All 4 weekend milongas', single: 'Single milongas', MV: 'Fri Welcome Milonga', M1: 'Sat afternoon milonga', M2: 'Sat night milonga', M3: 'Sun afternoon milonga', M4: 'Sun night milonga', T1: 'Fri Day Tour', S1: 'Mon Tango Courtyard', T2: 'Tue City Walk', MF: 'Tue Farewell Milonga', king: 'Queen room', twin: 'Twin room' },
   zh: { full: '全程套餐', combo: '周末套餐', pass: '周末舞会（4 场）', single: '单场舞会', MV: '周五 欢迎舞会', M1: '周六 下午场', M2: '周六 晚场', M3: '周日 下午场', M4: '周日 晚场', T1: '周五 一日游', S1: '周一 探戈小院', T2: '周二 城市漫步', MF: '周二 告别舞会', king: '大床房', twin: '双床房' },
@@ -254,7 +283,7 @@ export function detailLines(d, lang) {
 export function letter(kind, reg, env, passes, qrs = []) {
   const d = typeof reg.data === 'string' ? JSON.parse(reg.data) : reg.data;
   const lang = T[reg.lang] ? reg.lang : 'en', L = T[lang];
-  const v = { n: d.people[0] && d.people[0].name, c: reg.code, t: fmt(reg.amount), d: reg.due_at ? bjDate(reg.due_at) : '', r: fmt(reg.refund || 0) };
+  const v = { n: d.people[0] && d.people[0].name, c: reg.code, t: fmt(reg.rest == null ? reg.amount : reg.rest), d: reg.due_at ? bjDate(reg.due_at) : '', r: fmt(reg.refund || 0) };
   const body = [fill(L.hi, v), '', fill(L[kind], v)];
   if (kind === 'canc' && reg.refund != null) body.push(fill(L.refund, v));
   if (['recv', 'conf', 'upd'].includes(kind)) { const colon = lang === 'zh' ? '：' : ': ';
@@ -266,18 +295,21 @@ export function letter(kind, reg, env, passes, qrs = []) {
   const toPay = kind === 'conf' || kind === 'upd' || kind === 'rem', toPass = kind === 'paid' || kind === 'cash';
   const view = toPay ? L.viewPay : L.viewPass, href = regPage(env) + '?lang=' + lang + (toPay ? '#pay' : '#passes');
   const button = `<p style="margin:18px 0 6px"><a href="${he(href)}" style="display:inline-block;background:#4a0609;color:#f6e3b4;padding:11px 22px;border-radius:999px;text-decoration:none;font-weight:700">${he(view)}</a></p>`;
+  const capK = toPay ? 'pay' : kind === 'cash' ? 'cash' : 'pass';
+  if ((toPay && qrs.length) || (toPass && passes && passes.length)) body.push('', ...caption(lang, capK));
+  const capHtml = caption(lang, capK).map(x => `<div style="max-width:220px;margin:5px auto 0;font-size:13px;line-height:1.4">${he(x)}</div>`).join('');
   if (toPay || toPass) body.push('', view + (lang === 'zh' ? '：' : ': '), href);
   body.push('', L.sign);
   const text = body.join('\n');
   let html = '';
   if (kind === 'conf' || kind === 'upd' || kind === 'rem') {
     const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
-    const imgs = qrs.map(n => `<div style="display:inline-block;text-align:center;margin:6px"><div style="font-weight:700">${/alipay/.test(n) ? 'Alipay 支付宝' : 'WeChat Pay 微信支付'}</div><img src="${he(base)}/social/reg/qr/${encodeURIComponent(n)}?k=${encodeURIComponent(env.REG_QR_KEY || '')}" alt="${he(n)}" width="220" style="border:1px solid #e7d3b0;border-radius:8px"></div>`).join('');
+    const imgs = qrs.map(n => `<div style="display:inline-block;text-align:center;margin:6px"><div style="font-weight:700">${/alipay/.test(n) ? 'Alipay 支付宝' : 'WeChat Pay 微信支付'}</div><img src="${he(base)}/social/reg/qr/${encodeURIComponent(n)}?k=${encodeURIComponent(env.REG_QR_KEY || '')}" alt="${he(n)}" width="220" style="border:1px solid #e7d3b0;border-radius:8px">${capHtml}</div>`).join('');
     html = `<!doctype html><html><body style="font-family:Georgia,serif;color:#2a1a14;background:#fbf5e9;padding:20px"><div style="max-width:560px;margin:auto;background:#fff;border:1px solid #e7d3b0;border-radius:12px;padding:20px">` +
       he(text).replace(/\n/g, '<br>') + button + `<div style="margin-top:14px">${imgs}</div></div></body></html>`;
   }
   if ((kind === 'paid' || kind === 'cash') && passes && passes.length) {
-    const cards = passes.map(x => `<div style="display:inline-block;text-align:center;margin:8px"><img src="${he(passImg(env, x.pass))}" alt="QR" width="200" height="200" style="border:1px solid #e7d3b0;border-radius:8px"><div style="font-weight:700">${he(x.name)}</div><div style="font-size:12px;color:#7a6255">${he(x.pass.split('.')[0])}</div></div>`).join('');
+    const cards = passes.map(x => `<div style="display:inline-block;text-align:center;margin:8px"><img src="${he(passImg(env, x.pass))}" alt="QR" width="200" height="200" style="border:1px solid #e7d3b0;border-radius:8px"><div style="font-weight:700">${he(x.name)}</div><div style="font-size:12px;color:#7a6255">${he(x.pass.split('.')[0])}</div>${capHtml}</div>`).join('');
     html = `<!doctype html><html><body style="font-family:Georgia,serif;color:#2a1a14;background:#fbf5e9;padding:20px"><div style="max-width:560px;margin:auto;background:#fff;border:1px solid #e7d3b0;border-radius:12px;padding:20px">` +
       he(text).replace(/\n/g, '<br>') + button + `<div style="margin-top:14px;text-align:center">${cards}</div></div></body></html>`;
   }
@@ -296,7 +328,8 @@ async function send(env, kit, reg, action) {
   const kind = KIND[action]; if (!kind) return;
   const passes = (action === 'paid' || action === 'cash') ? await passesOf(env, reg) : null;
   const qrs = ['conf', 'upd', 'rem'].includes(kind) ? await payNames(env, reg) : [];
-  const m = letter(kind, reg, env, passes, qrs);
+  const rest = kind === 'cash' || kind === 'rem' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
+  const m = letter(kind, rest == null ? reg : { ...reg, rest }, env, passes, qrs);
   // Test stage: every registration letter goes to the test inbox until REG_LIVE=1.
   const live = env.REG_LIVE === '1', to = live ? reg.email : (env.REG_TEST_INBOX || 'selecttango@gmail.com');
   const subject = (live ? '' : '[TEST → ' + reg.email + '] ') + m.subject;
@@ -328,7 +361,8 @@ export async function regMe(req, env, url, json, kit) {
     pay = (await payNames(env, r)).map(n => ({ name: n, img: base + '/social/reg/qr/' + encodeURIComponent(n) + '?k=' + encodeURIComponent(env.REG_QR_KEY) }));
   }
   const d = JSON.parse(r.data);
-  return json({ email: u.email, name: u.name, reg: { code: r.code, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
+  const rest = r.status === 'confirmed' || r.status === 'cash' ? Math.max(0, r.amount - await paidSum(env, r.id)) : 0;
+  return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
     updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang), pay, passes } });
 }
 export async function regSubmit(req, env, b, json, kit) {
@@ -397,7 +431,7 @@ async function adminWho(req, env, evId) {
   try { row = await env.SDB.prepare('SELECT id,name,perms,event FROM reg_admin WHERE pass_hash=? AND disabled_at IS NULL').bind(await sha256(a)).first(); }
   catch (e) { if (/no such table/i.test(String(e && e.message))) return null; throw e; }
   if (!row || (evId && row.event !== evId)) return null;
-  return { id: row.id, name: row.name, owner: false, perms: new Set(String(row.perms || '').split(',').filter(x => PERMS.includes(x))) };
+  return { id: row.id, event: row.event, name: row.name, owner: false, perms: new Set(String(row.perms || '').split(',').filter(x => PERMS.includes(x))) };
 }
 const can = (who, perm) => !perm || who.owner || who.perms.has(perm);
 export async function paidSum(env, regId) { const r = await env.SDB.prepare('SELECT COALESCE(SUM(amount),0) s FROM reg_payment WHERE reg_id=?').bind(regId).first(); return Number(r && r.s || 0); }
@@ -498,10 +532,15 @@ export async function regAct(env, b, json, kit, ev, who) {
   } else if (a === 'paid' || a === 'pay') {
     // Record money received. Default: the rest of what is owed. The registration becomes paid once fully covered.
     const pay = b.pay || {}, before = await paidSum(env, reg.id), rest = reg.amount - before;
+    const already = async () => json({ error: 'already_paid', last: await env.SDB.prepare('SELECT at,collector,method FROM reg_payment WHERE reg_id=? AND amount>0 ORDER BY id DESC LIMIT 1').bind(reg.id).first() }, 409);
+    if (rest <= 0) return already();
     const amount = pay.amount == null || pay.amount === '' ? rest : Math.round(Number(pay.amount));
-    if (!Number.isFinite(amount) || amount <= 0) return json({ error: 'bad_amount', rest }, 400);
+    if (!Number.isFinite(amount) || amount <= 0 || amount > rest) return json({ error: 'bad_amount', rest }, 400);
     const method = METHODS.includes(pay.method) ? pay.method : 'wechat', collector = str(pay.collector, 40) || who.name;
-    await env.SDB.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) VALUES(?,?,?,?,?,?,?)').bind(reg.id, ts, amount, method, collector, str(pay.note, 300) || null, who.name).run();
+    // Two managers can scan two codes of one registration at the same moment: insert only if nothing was recorded since we read the sum.
+    const ins = await env.SDB.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) SELECT ?,?,?,?,?,?,? WHERE (SELECT COALESCE(SUM(amount),0) FROM reg_payment WHERE reg_id=?)=?')
+      .bind(reg.id, ts, amount, method, collector, str(pay.note, 300) || null, who.name, reg.id, before).run();
+    if (!ins.meta.changes) return already();
     const total = before + amount;
     if (total >= reg.amount && reg.status !== 'paid') await env.SDB.prepare("UPDATE reg SET status='paid',paid_at=?,updated_at=? WHERE id=?").bind(ts, ts, reg.id).run();
     else await env.SDB.prepare('UPDATE reg SET updated_at=? WHERE id=?').bind(ts, reg.id).run();
@@ -565,8 +604,8 @@ async function sha256(s) { return [...new Uint8Array(await crypto.subtle.digest(
 const doorLink = (env, act) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/checkin/?act=' + act;
 async function doorWho(req, env) {
   const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-  if (adminOK(req, env)) return { name: '主办', admin: true };
-  const adm = await adminWho(req, env); if (adm) return { name: adm.name, admin: true };
+  if (adminOK(req, env)) return { name: '主办', admin: true, collect: true };
+  const adm = await adminWho(req, env); if (adm) return { name: adm.name, admin: true, event: adm.event, collect: adm.perms.has('collect') };
   const m = /^staff:([0-9a-f]{64})$/.exec(a); if (!m) return null;
   const st = await env.SDB.prepare('SELECT id,name,event FROM reg_staff WHERE device_hash=? AND disabled_at IS NULL').bind(await sha256(m[1])).first();
   return st ? { name: st.name, staff: st.id, event: st.event } : null;
@@ -602,7 +641,7 @@ export async function regDoor(req, env, url, b, json) {
     return json({ ok: true, name: st.name, token: 'staff:' + tok });
   }
   const who = await doorWho(req, env); if (!who) return json({ error: 'auth' }, 401);
-  if (p === '/me' && req.method === 'GET') return json({ ok: true, name: who.name, admin: !!who.admin });
+  if (p === '/me' && req.method === 'GET') return json({ ok: true, name: who.name, admin: !!who.admin, collect: !!who.collect });
   if (p === '/pass' && req.method === 'GET') return regPassInfo(env, url.searchParams.get('p'), json, who);
   if (p === '/checkin' && req.method === 'POST') return regCheckin(env, b, json, who);
   return json({ error: 'not_found' }, 404);
@@ -619,10 +658,17 @@ export async function regPassInfo(env, raw, json, who) {
   const x = await passContext(env, raw); if (x.error) return json(x, 404);
   if (who && who.event && who.event !== x.reg.event) return json({ error: 'bad_pass' }, 404);
   const ins = ((await env.SDB.prepare('SELECT item,at,staff FROM reg_checkin WHERE reg_id=? AND person=?').bind(x.reg.id, x.p.idx).all()).results) || [];
+  // Amounts and who collected: only for someone who may collect. The internal note: never for front-desk links.
+  let collect;
+  if (who && who.collect && PAID.includes(x.reg.status)) {
+    const got = await paidSum(env, x.reg.id);
+    const last = await env.SDB.prepare('SELECT at,collector,method FROM reg_payment WHERE reg_id=? AND amount>0 ORDER BY id DESC LIMIT 1').bind(x.reg.id).first();
+    collect = { id: x.reg.id, event: x.reg.event, paid: got, rest: x.reg.status === 'cash' ? Math.max(0, x.reg.amount - got) : 0, last: last || null };
+  }
   return json({ ok: true, code: x.reg.code, pass: x.p.pass.split('.')[0], status: x.reg.status, valid: PAID.includes(x.reg.status),
-    cash_due: x.reg.status === 'cash' ? x.reg.amount : 0, people: x.reg.people,
+    pay_first: x.reg.status === 'cash', lang: x.reg.lang, people: x.reg.people, collect,
     person: { name: x.person.name, nick: x.person.nick || '', role: x.person.role, country: x.person.country, city: x.person.city, items: x.person.items },
-    checkins: ins, note: x.reg.note || '' });
+    checkins: ins, note: who && who.admin ? x.reg.note || '' : '' });
 }
 export async function regCheckin(env, b, json, who) {
   const x = await passContext(env, b && b.p); if (x.error) return json(x, 404);
@@ -631,6 +677,7 @@ export async function regCheckin(env, b, json, who) {
   if (!PAID.includes(x.reg.status)) return json({ error: 'not_paid', status: x.reg.status }, 409);
   if (!x.person.items.includes(item)) return json({ error: 'not_registered', item }, 409);
   if (b.undo === 1) { await env.SDB.prepare('DELETE FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).run(); await log(env, x.reg.id, 'checkin_undo', x.p.idx + ':' + item); return json({ ok: true, undone: true }); }
+  if (x.reg.status === 'cash') return json({ error: 'pay_first' }, 409);   // pass is out, but entry only after the money is in
   const at = nowIso(), by = who ? who.name : '';
   // INSERT OR IGNORE: two phones scanning the same person at once still give one row, and the slower one sees 'already'.
   const r = await env.SDB.prepare('INSERT OR IGNORE INTO reg_checkin(reg_id,person,item,at,staff) VALUES(?,?,?,?,?)').bind(x.reg.id, x.p.idx, item, at, by).run();
