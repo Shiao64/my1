@@ -1,6 +1,6 @@
 /* Registration reminder bar (Beijing Select Tango Weekend 2027).
    For a signed-in subscriber who registered: when the status changes (confirmed → please pay, paid → entry QR, …)
-   show one small bar at the top of the map. ✕ hides it until the status changes again. No call without a session.
+   show one small bar at the top of the map. ✕ hides it until the status changes again; while payment is due it folds to one line instead. No call without a session.
    Once paid: tapping the ATM logo opens "My entry pass" full screen (one QR per person, swipe between them). */
 (function () {
   var API = 'https://api.tangoweekend.org';
@@ -13,11 +13,15 @@
     confirmed: '🎉 北京精选探戈周末：你的报名 C 已确认，请在 D 前付款 A', soon: '⏰ 北京精选探戈周末：报名 C 的付款期限 D 快到了（A）',
     paid: '✓ 北京精选探戈周末：已收到报名 C 的付款，入场二维码在这里', cash: '北京精选探戈周末：报名 C 请到场付现 A，入场二维码在这里',
     waitlist: '北京精选探戈周末：报名 C 目前在候补名单上', declined: '北京精选探戈周末：报名 C 的审核结果',
-    go: '查看', close: '关闭' } : {
+    go: '查看', close: '关闭', payH: '💳 你的付款码已准备好', soonH: '⏰ 付款期限快到了', waitH: '🎉 报名已确认', passH: '🎫 你的入场码已准备好',
+    ev: '北京精选探戈周末', payL: '请在 D 前付款 A', waitL: '付款码稍后提供', paidL: '已收到付款，建议先截图保存', cashL: '请到场付现 A',
+    payB: '查看付款码', passB: '查看入场码', mini: '💳 待付款 A · D 前', miniB: '付款码' } : {
     confirmed: '🎉 Beijing Select Tango Weekend: registration C is confirmed. Please pay A by D', soon: '⏰ Beijing Select Tango Weekend: payment for C (A) is due D',
     paid: '✓ Beijing Select Tango Weekend: payment for C received. Your entry QR codes are here', cash: 'Beijing Select Tango Weekend: C, pay A in cash at the event. Entry QR codes here',
     waitlist: 'Beijing Select Tango Weekend: registration C is on the waiting list', declined: 'Beijing Select Tango Weekend: result for registration C',
-    go: 'View', close: 'Close' };
+    go: 'View', close: 'Close', payH: '💳 Your payment QR code is ready', soonH: '⏰ Payment is due soon', waitH: '🎉 Registration confirmed', passH: '🎫 Your entry QR code is ready',
+    ev: 'Beijing Select Tango Weekend', payL: 'Please pay A by D', waitL: 'The payment QR code will follow', paidL: 'Payment received. Take a screenshot to keep', cashL: 'Pay A in cash at the event',
+    payB: 'View payment QR', passB: 'View entry QR', mini: '💳 Pay A by D', miniB: 'QR code' };
   function seen() { try { return localStorage.getItem('bstw_seen') || ''; } catch (e) { return ''; } }
   fetch(API + '/social/reg/me?event=bstw2027&lang=' + (zh ? 'zh' : 'en'), { headers: { Authorization: 'Bearer ' + tok } })
     .then(function (r) { return r.ok ? r.json() : null; })
@@ -28,21 +32,39 @@
       if (r.passes && r.passes.length && r.passes.some(function (p) { return (p.items || []).some(function (c) { return SCHED[c] && SCHED[c][0] === bjToday(); }); })) logoPass(r);
       if (!T[r.status]) return;
       var kind = r.status, left = r.due ? (Date.parse(r.due) - Date.now()) / 864e5 : 99;
-      if (kind === 'confirmed' && left <= 3) kind = 'soon';
-      var key = r.code + ':' + kind; if (seen() === key) return;
-      var date = r.due ? new Date(r.due).toLocaleDateString(zh ? 'zh-CN' : 'en', { month: 'short', day: 'numeric' }) : '';
-      var text = T[kind].replace('C', r.code).replace('A', '¥' + Number(r.amount || 0).toLocaleString('en-US')).replace('D', date);
-      var bar = D.createElement('div');
+      var unpaid = kind === 'confirmed', hasQr = !!(r.pay && r.pay.length), hasPass = kind === 'paid' || kind === 'cash';
+      if (unpaid) kind = left <= 3 ? (hasQr ? 'soon' : 'soon_noqr') : (hasQr ? 'confirmed' : 'confirmed_noqr');
+      var key = r.code + ':' + kind + ':2', folded = seen() === key;
+      if (folded && !(unpaid && hasQr)) return;   // only an unpaid registration with a QR keeps a one-line reminder
+      var date = r.due ? new Date(r.due).toLocaleDateString(zh ? 'zh-CN' : 'en', { month: 'short', day: 'numeric', timeZone: 'Asia/Shanghai' }) : '';
+      var fill = function (s) { return s.replace(/\b[ACD]\b/g, function (m) { return m === 'A' ? '¥' + Number(r.amount || 0).toLocaleString('en-US') : m === 'C' ? r.code : date; }); };
+      var href = PAGE + '?lang=' + (zh ? 'zh' : 'en') + (unpaid ? '#pay' : hasPass ? '#passes' : '');
+      var el = function (tag, text, css) { var e = D.createElement(tag); e.textContent = text; if (css) e.style.cssText = css; return e; };
+      var keep = function () { try { localStorage.setItem('bstw_seen', key); } catch (e) {} };
+      // The one-line reminder sits in the page flow, so it never covers the header or the logo.
+      function slim() {
+        var s = D.createElement('a'); s.id = 'atm-reg-slim'; s.href = href; s.setAttribute('role', 'status');
+        s.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:10px;box-sizing:border-box;width:100%;min-height:40px;padding:8px 14px;background:#4a0609;color:#f6e3b4;text-decoration:none;font:14px/1.4 system-ui,-apple-system,"PingFang SC",sans-serif';
+        s.append(el('span', fill(T.mini)), el('b', T.miniB + ' ›', 'color:#e8c06a;white-space:nowrap'));
+        D.body.insertBefore(s, D.body.firstChild);
+      }
+      if (folded) { slim(); return; }
+      var bar = D.createElement('div'); bar.id = 'atm-reg-bar';
       bar.setAttribute('role', 'status');
       bar.style.cssText = 'position:fixed;left:8px;right:8px;top:8px;z-index:99999;max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px;' +
-        'background:#4a0609;color:#f6e3b4;border:1px solid #e8c06a;border-radius:12px;padding:10px 12px;font:14px/1.4 system-ui,-apple-system,"PingFang SC",sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25)';
-      var a = D.createElement('a'); a.href = PAGE + '?lang=' + (zh ? 'zh' : 'en'); a.style.cssText = 'flex:1;color:#f6e3b4;text-decoration:none';
-      a.textContent = text + ' › ';
-      var go = D.createElement('b'); go.textContent = T.go; go.style.color = '#e8c06a'; a.appendChild(go);
+        'background:#4a0609;color:#f6e3b4;border:1px solid #e8c06a;border-radius:12px;padding:10px 12px;font:14px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.25)';
+      var a = D.createElement('a'); a.href = href; a.style.cssText = 'flex:1;min-width:0;color:#f6e3b4;text-decoration:none';
+      if (unpaid || hasPass) {
+        var head = hasPass ? T.passH : left <= 3 ? T.soonH : hasQr ? T.payH : T.waitH;
+        a.append(el('b', head, 'display:block;font-size:16px'), el('span', T.ev + ' · ' + r.code, 'display:block'),
+          el('span', fill(hasPass ? (kind === 'cash' ? T.cashL : T.paidL) : T.payL), 'display:block'));
+        if (unpaid && !hasQr) a.append(el('span', T.waitL, 'display:block'));
+        a.append(el('b', hasPass ? T.passB : hasQr ? T.payB : T.go, 'display:inline-block;margin-top:8px;padding:6px 18px;border-radius:999px;background:#e8c06a;color:#4a0609'));
+      } else a.append(el('span', fill(T[kind]) + ' › '), el('b', T.go, 'color:#e8c06a'));
       var x = D.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', T.close); x.textContent = '✕';
-      x.style.cssText = 'background:none;border:0;color:#e8c06a;font-size:18px;cursor:pointer;padding:0 4px';
-      function hide() { try { localStorage.setItem('bstw_seen', key); } catch (e) {} bar.remove(); }
-      x.addEventListener('click', hide); a.addEventListener('click', function () { try { localStorage.setItem('bstw_seen', key); } catch (e) {} });
+      x.style.cssText = 'background:none;border:0;color:#e8c06a;font-size:18px;cursor:pointer;min-width:36px;min-height:44px;padding:0 4px';
+      x.addEventListener('click', function () { keep(); bar.remove(); if (unpaid && hasQr) slim(); });
+      a.addEventListener('click', keep);
       bar.append(a, x); D.body.appendChild(bar);
     }).catch(function () {});
 

@@ -117,7 +117,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return
 function render(){
   $('sum').hidden=$('list').hidden=false;$('ledgerCard').hidden=false;$('staffCard').hidden=!can('staff');$('qr').hidden=$('adminsCard').hidden=!DATA.me.owner;
   $('csv').hidden=!can('export');$('lCsv').hidden=!can('export');
-  $('hello').textContent=DATA.me.name+(DATA.me.owner?'（主办）':'（'+DATA.me.perms.map(function(p){return PERM_NAME[p]}).join('、')+'）');
+  $('hello').textContent=DATA.me.owner?'':DATA.me.name+'（'+DATA.me.perms.map(function(p){return PERM_NAME[p]}).join('、')+'）';
   staff();ledger();admins();
   $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c];return '<div class="cap'+(l<=20?' low':'')+'"><small>'+c+' '+NAME[c]+'</small><b>剩 '+l+'</b><small>上限 '+DATA.caps[c]+(DATA.checked&&DATA.checked[c]?' · 已签到 '+DATA.checked[c]:'')+'</small></div>'}).join('');
   var c=DATA.counts;$('pills').innerHTML=['pending','confirmed','paid','cash','waitlist'].map(function(k){return '<span class="pill">'+ST[k]+' '+(c[k]||0)+'</span>'}).join('')+
@@ -142,7 +142,7 @@ function rows(){
     var payLine=(r.payments&&r.payments.length)||r.status==='confirmed'||r.status==='cash'?'<div class="muted" style="margin-top:4px">已收 <b>'+fmt(r.paid_total||0)+'</b> · 尚欠 <b>'+fmt(Math.max(0,(r.status==='cancelled'?0:r.amount)-(r.paid_total||0)))+'</b>'+(pays?'<div style="margin:4px 0 0 10px">'+pays+'</div>':'')+'</div>':'';
     return '<div class="row'+(r.overdue?' overdue':'')+'"><div class="rh"><span><b>'+r.code+'</b> <span class="st '+r.status+'">'+ST[r.status]+(r.overdue?' · 逾期':'')+'</span> '+esc(r.email)+' · '+r.people+'人 · '+r.lang+'</span><span><b>'+fmt(r.amount)+'</b>'+(r.fee?' <span class="muted">含手续费 '+fmt(r.fee)+'</span>':'')+(r.refund!=null?' <span class="muted">应退 '+fmt(r.refund)+'</span>':'')+'</span></div>'+
       '<ul class="ppl">'+ppl+rooms+'</ul>'+
-      '<div class="muted">提交 '+r.created_at.slice(0,16).replace('T',' ')+(r.due_at?' · 付款截止 '+r.due_at.slice(0,10):'')+(r.promo?' · 码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':''):'')+(d.msg?' · 留言：'+esc(d.msg):'')+'</div>'+
+      '<div class="muted">提交 '+r.created_at.slice(0,16).replace('T',' ')+(r.due_at?' · 付款截止 '+new Date(Date.parse(r.due_at)+288e5).toISOString().slice(0,10):'')+(r.promo?' · 码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':''):'')+(d.msg?' · 留言：'+esc(d.msg):'')+'</div>'+
       payLine+'<div class="acts">'+acts+'</div><div class="payform" data-pf="'+r.id+'" hidden></div>'+
       '<textarea data-note="'+r.id+'" placeholder="内部备注（只有你看得到）">'+esc(r.note||'')+'</textarea></div>'}).join(''):'<p class="muted">没有符合的报名。</p>';
 }
