@@ -74,9 +74,8 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
     </div>
     <div class="card" id="roleDesk">
       <h2>前台</h2>
-      <p class="muted can">扫码、签到。看不到金额和名单，不能收款。</p>
+      <p class="muted can">扫码、签到。看不到金额和名单，不能收款。请用自己的手机，不和活动经理共用。</p>
       <p style="margin:0" id="deskHow">不用密码：请用组织者发给你的<b>前台专属连结</b>，在 Safari 或 Chrome 打开一次，这支手机就启用了。</p>
-      <button class="btn sec" id="deskGo" hidden>用前台身份继续</button>
     </div>
   </div>
   <div class="card" id="welcome" hidden>
@@ -118,11 +117,12 @@ function get(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
 function put(k,v){try{if(v)localStorage.setItem(k,v);else localStorage.removeItem(k)}catch(e){}}
 // The phone key: a helper token (staff:…) or the organizer password. On iPhone the home-screen icon keeps its own storage,
 // so after activation the key also sits in this page's address (?k=…) and comes back when the icon is opened.
-// One person can be both: the front-desk link by default, their own password after switching (needed to collect money).
-function asAdmin(){return get('bstw_role')==='admin'||!get('bstw_staff')}
+// One phone, one role (2026-11-22): a front-desk phone only checks in and never holds a manager password.
+// A manager uses their own phone and can check in and, with the permission, collect.
+function asAdmin(){return !get('bstw_staff')}
 function key(){return asAdmin()?get('bstw_admin'):get('bstw_staff')}
 function keepUrl(extra){var u=new URLSearchParams();if(get('bstw_staff'))u.set('k',get('bstw_staff').replace(/^staff:/,''));if(Q.get('api'))u.set('api',Q.get('api'));if(extra)for(var k in extra)u.set(k,extra[k]);history.replaceState(null,'','?'+u.toString())}
-if(/^[0-9a-f]{64}$/.test(Q.get('k')||'')&&!get('bstw_staff'))put('bstw_staff','staff:'+Q.get('k'));
+if(/^[0-9a-f]{64}$/.test(Q.get('k')||'')&&!get('bstw_staff')&&!get('bstw_admin'))put('bstw_staff','staff:'+Q.get('k'));
 var pass=Q.get('p')||'',info=null,flash='';
 if(get('bstw_item'))$('item').value=get('bstw_item');
 $('item').addEventListener('change',function(){put('bstw_item',$('item').value);show()});
@@ -136,8 +136,8 @@ function takeState(){$('take').disabled=taking||!method||!$('arrived').checked;[
 function ready(name,collect){var adm=asAdmin(),badge=document.createElement('span'),org=adm&&name==='主办';
   badge.className='badge';badge.textContent=adm?(org?'组织者':'活动经理'):'前台';$('me').textContent='';$('me').appendChild(badge);
   $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
-  $('swap').hidden=false;$('swap').textContent=adm?(get('bstw_staff')?'切换到前台（只能签到）':'退出活动经理'):'切换到活动经理（要密码）';$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false}
-function choose(){stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('nokey').hidden=false;$('deskGo').hidden=!get('bstw_staff');$('deskHow').hidden=!!get('bstw_staff')}
+  $('swap').hidden=false;$('swap').textContent=adm?'退出活动经理':'退出前台';$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false}
+function choose(){stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('nokey').hidden=false;}
 function show(){
   if(!info)return;var cur=$('item').value,p=info.person,did={},by={};info.checkins.forEach(function(c){did[c.item]=c.at;by[c.item]=c.staff});
   $('who').hidden=false;$('name').textContent=p.name+(p.nick?'（'+p.nick+'）':'');
@@ -174,15 +174,14 @@ $('go').addEventListener('click',function(){var cur=$('item').value;$('go').disa
 $('undo').addEventListener('click',function(){var cur=$('item').value;if(!confirm('撤销「'+NAME[cur]+'」的签到？'))return;
   call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur,undo:1}}).then(function(d){if(d.ok){info.checkins=info.checkins.filter(function(c){return c.item!==cur});show()}})});
 $('login').addEventListener('submit',function(e){e.preventDefault();var v=$('tok').value.trim();if(!v){$('tok').focus();return}
-  put('bstw_admin',v);put('bstw_role','admin');$('tok').value='';res('','');whoami()});
-$('deskGo').addEventListener('click',function(){put('bstw_role','');res('','');whoami()});
-$('swap').addEventListener('click',function(){stopScan();info=null;$('who').hidden=true;$('welcome').hidden=true;res('','');
-  if(asAdmin()){put('bstw_role','');
-    if(get('bstw_staff'))return whoami();
-    if(!confirm('退出活动经理？再进来要重新输入密码。'))return whoami();
-    put('bstw_admin','');return choose()}
-  if(get('bstw_admin')){put('bstw_role','admin');return whoami()}
-  choose();$('tok').focus()});
+  if(get('bstw_staff'))return;   // a front-desk phone never takes a password
+  put('bstw_admin',v);$('tok').value='';res('','');whoami()});
+$('swap').addEventListener('click',function(){var adm=asAdmin();
+  if(!confirm(adm?'退出活动经理？再进来要重新输入密码。':'退出前台？这支手机就不能签到了，再用要请组织者重发连结。'))return;
+  stopScan();info=null;pass='';res('','');
+  put('bstw_staff','');put('bstw_admin','');
+  history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));
+  choose()});
 $('collect').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b){method=b.dataset.m;takeState()}});
 $('arrived').addEventListener('change',takeState);
 $('take').addEventListener('click',function(){var c=info&&info.collect;if(!c||!method||!$('arrived').checked||taking)return;
@@ -215,15 +214,26 @@ $('stopBtn').addEventListener('click',stopScan);
 // ---------- start ----------
 function whoami(){if(!key()){choose();return}
   var wasStaff=!asAdmin();
-  call('/social/reg/door/me').then(function(d){if(d.ok){ready(d.name,d.collect);load()}else{if(d._s===401){put('bstw_role','');put(wasStaff?'bstw_staff':'bstw_admin','');if(wasStaff)history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));choose();res('no',wasStaff?'这支手机的签到权限已停用或换了连结，请找组织者':'密码不对')}}})
+  call('/social/reg/door/me').then(function(d){if(d.ok){ready(d.name,d.collect);load()}else{if(d._s===401){put(wasStaff?'bstw_staff':'bstw_admin','');if(wasStaff)history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));choose();res('no',wasStaff?'这支手机的签到权限已停用或换了连结，请找组织者':'密码不对')}}})
   .catch(function(){res('no','连不上后台，请检查网络')})}
+put('bstw_role','');
+if(get('bstw_staff'))put('bstw_admin','');
 var act=Q.get('act')||'';
-if(act){
-  if(/MicroMessenger/i.test(navigator.userAgent)){$('wechat').hidden=false;$('item').hidden=true}
-  else call('/social/reg/door/activate',{method:'POST',body:{act:act},noAuth:true}).then(function(d){
-    if(d.ok){put('bstw_staff',d.token);put('bstw_role','');keepUrl();$('welcome').hidden=false;$('wName').textContent=d.name+'，你好';ready(d.name);return}
+function activate(){
+  call('/social/reg/door/activate',{method:'POST',body:{act:act},noAuth:true}).then(function(d){
+    if(d.ok){put('bstw_staff',d.token);put('bstw_admin','');keepUrl();$('welcome').hidden=false;$('wName').textContent=d.name+'，你好';ready(d.name);return}
     if(get('bstw_staff')){keepUrl();whoami();return}   // this phone already activated with this link before
     choose();res('no',d.error==='disabled'?'这个连结已停用，请找组织者':'这个连结已经在别的手机启用过，或已失效。请找组织者重发。')
+  }).catch(function(){res('no','连不上后台，请检查网络')});
+}
+if(act){
+  if(/MicroMessenger/i.test(navigator.userAgent)){$('wechat').hidden=false;$('item').hidden=true}
+  else if(!get('bstw_admin'))activate();
+  else call('/social/reg/door/me').then(function(d){
+    // do not use up the one-time link on a manager's phone
+    if(d.ok){history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));ready(d.name,d.collect);res('warn','这支手机已登入活动经理，不能再当前台。这个连结还没用掉：请让前台用自己的手机打开');return}
+    if(d._s===401){put('bstw_admin','');activate();return}
+    res('no','连不上后台，请稍后再开一次连结')
   }).catch(function(){res('no','连不上后台，请检查网络')});
 }else{if(get('bstw_staff'))keepUrl(pass?{p:pass}:null);whoami()}
 })();
