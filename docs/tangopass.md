@@ -36,7 +36,7 @@
 | `REG_ADMIN_TOKEN` | 主办（张孝）管理密码，可新增其他管理员 |
 | `REG_CODES` | DJ 朋友码 JSON（码 → DJ 名） |
 | `REG_PASS_SECRET` | 入场码签名 |
-| `REG_QR_KEY` | 收款码图片网址的钥匙（**还没设**，上传收款码时设） |
+| `REG_QR_KEY` | 收款码图片网址的钥匙（11/22 已设） |
 | `REG_LIVE` | 设 `1` 才寄给舞者本人；没设时所有系统信只寄 `REG_TEST_INBOX`（默认 selecttango@gmail.com） |
 | `ADMIN_TOKEN` | 网站共用，也能开管理页，但它还签取消订阅链接，**不要换** |
 
@@ -61,7 +61,8 @@
 
 - 已上线：报名页（draft）、管理页（多管理员、收款纪录）、签到页、入场码、首页提醒条、点 LOGO 入场码。测试中，信只寄 selecttango@gmail.com。
 - 进行中：`bj2027` → `bstw2027` 改名（迁移 0023，待部署）；第二个活动 `2027mvny` 等刘峥给资料后加设定与报名页。
-- 待办：收款码与 `REG_QR_KEY`；韩西俄文校对；管理页「修改」按钮；Chris 的 3 个问题（Shiao：先不回答）；Year End 资料（刘峥）；实地测试（Google《实地测试计划》）。
+- 收款码（11/22）：先用刘峥的支付宝「Milonga V」经营码，上传为 `intl-alipay`、`cn-alipay`；微信收款码还没有。
+- 待办：微信收款码；韩西俄文校对；管理页「修改」按钮；Chris 的 3 个问题（Shiao：先不回答）；Year End 资料（刘峥）；实地测试（Google《实地测试计划》）。
 - 12/1 上线清单：报名页搬到 `register/`（`reg-notice.js` 的 `PAGE` 一起改）；设 `REG_LIVE=1`；清掉测试资料（报名、收款、签到、测试管理员与工作人员）；检查活动页按钮、DJ 信与付款信的连结。
 
 ## 部署
