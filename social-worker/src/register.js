@@ -42,6 +42,8 @@ export const EVENTS = {
     hotelRefundBy: '2027-06-11', fee: 50, payDays: 14, remindDay: 10, maxPeople: 6
   }
 };
+// looked up by what a visitor typed: 'constructor' and the like are not entries
+const own = (o, k) => (Object.hasOwn(o, String(k)) ? o[k] : undefined);
 const KEY2CODE = ev => Object.fromEntries(Object.entries(ev.items).map(([c, it]) => [it.key, c]));
 const ROLES = ['leader', 'follower', 'both'];
 const LANGS = ['en', 'ko', 'es', 'ru', 'zh'];
@@ -87,7 +89,7 @@ function nights(ci, co) { const n = Math.round((Date.parse(co + 'T00:00:00Z') - 
 
 // Validate a submitted form and compute every amount. Returns {error} or {data, total, hotel, domestic, promo}.
 export function evaluate(b, env, at = Date.now()) {
-  const ev = EVENTS[str(b && b.event, 20)];
+  const ev = own(EVENTS, str(b && b.event, 20));
   if (!ev) return { error: 'bad_event' };
   const k2c = KEY2CODE(ev);
   const people = Array.isArray(b.people) ? b.people : [];
@@ -104,8 +106,8 @@ export function evaluate(b, env, at = Date.now()) {
     if (!q.city) return { error: 'need_city', person: i };
     if (!q.role) return { error: 'need_role', person: i };
     if (i > 0 && q.email && !EMAIL_STRICT.test(q.email)) return { error: 'bad_email', person: i };
-    const pkg = ev.pkgs[p.pkg] ? p.pkg : '';
-    const picked = (Array.isArray(p.items) ? p.items : []).map(k => k2c[k] || (ev.items[k] ? k : '')).filter(Boolean);
+    const pkg = own(ev.pkgs, p.pkg) ? p.pkg : '';
+    const picked = (Array.isArray(p.items) ? p.items : []).map(k => own(k2c, k) || (own(ev.items, k) ? k : '')).filter(Boolean);
     const covers = pkg ? ev.pkgs[pkg].covers : [];
     const extra = [...new Set(picked)].filter(c => !covers.includes(c));
     if (pkg === 'single' && !extra.some(c => /^M[1-4]$/.test(c))) return { error: 'need_items', person: i };
@@ -120,7 +122,7 @@ export function evaluate(b, env, at = Date.now()) {
     if (rs.length < 1 || rs.length > outPeople.length) return { error: 'bad_rooms' };
     const used = new Set();
     for (const r of rs) {
-      const type = ev.rooms[r && r.type] ? r.type : '';
+      const type = own(ev.rooms, r && r.type) ? r.type : '';
       const ci = str(r && r.ci, 10), co = str(r && r.co, 10);
       const guests = (Array.isArray(r && r.guests) ? r.guests : []).map(Number).filter(g => Number.isInteger(g) && g >= 0 && g < outPeople.length);
       if (!type) return { error: 'bad_room_type' };
@@ -331,8 +333,9 @@ async function payNames(env, reg) {
   const have = new Set((((await env.SDB.prepare('SELECT name FROM reg_asset').all()).results) || []).map(x => x.name));
   return want.filter(n => have.has(n));
 }
+// 'sent' or 'failed'; what was saved stays saved either way
 async function send(env, kit, reg, action) {
-  const kind = KIND[action]; if (!kind) return;
+  const kind = KIND[action]; if (!kind) return undefined;
   const passes = (action === 'paid' || action === 'cash') ? await passesOf(env, reg) : null;
   const qrs = ['conf', 'upd', 'rem'].includes(kind) ? await payNames(env, reg) : [];
   const rest = kind === 'cash' || kind === 'rem' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
@@ -340,24 +343,24 @@ async function send(env, kit, reg, action) {
   // Test stage: every registration letter goes to the test inbox until REG_LIVE=1.
   const live = env.REG_LIVE === '1', to = live ? reg.email : (env.REG_TEST_INBOX || 'selecttango@gmail.com');
   const subject = (live ? '' : '[TEST → ' + reg.email + '] ') + m.subject;
-  try { await kit.deliver(env, to, subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: env.REG_REPLY_TO || 'info@tangoweekend.org' }); await log(env, reg.id, 'mail:' + action, to); }
-  catch (e) { await log(env, reg.id, 'mail_failed:' + action, String(e && e.message || e)); }
+  try { await kit.deliver(env, to, subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: env.REG_REPLY_TO || 'info@tangoweekend.org' }); await log(env, reg.id, 'mail:' + action, to); return 'sent'; }
+  catch (e) { await log(env, reg.id, 'mail_failed:' + action, String(e && e.message || e)); return 'failed'; }
 }
 async function notifyOwner(env, kit, reg) {
   const to = env.REG_NOTIFY || 'selecttango@gmail.com', d = JSON.parse(reg.data);
   const text = [`New registration ${reg.code} (${reg.people} people${reg.domestic ? ', domestic' : ''})`, `${reg.email} · ${reg.lang}`, ...detailLines(d, 'zh'), `合计 ${fmt(reg.amount)}`, d.promo && d.promo.code ? `码 ${d.promo.code}${d.promo.dj ? ' (' + d.promo.dj + ')' : ''}` : '', d.msg ? '留言：' + d.msg : ''].filter(Boolean).join('\n');
-  try { await kit.deliver(env, to, '新报名 ' + reg.code, text, undefined, undefined, { fromName: 'Registration' }); } catch (e) { console.log('reg owner mail', String(e && e.message || e).slice(0, 120)); }
+  try { await kit.deliver(env, to, '新报名 ' + reg.code, text, undefined, undefined, { fromName: 'Registration' }); } catch (e) { console.log('reg owner mail', String(e && e.message || e).slice(0, 120)); await log(env, reg.id, 'mail_failed:notify', String(e && e.message || e)); }
 }
 
 // ---------- public handlers ----------
 export async function regLeft(url, env, json) {
-  const ev = EVENTS[url.searchParams.get('event') || 'bstw2027'];
+  const ev = own(EVENTS, url.searchParams.get('event') || 'bstw2027');
   if (!ev) return json({ error: 'bad_event' }, 400);
   return json({ left: await seatsLeft(env, ev) });
 }
 export async function regMe(req, env, url, json, kit) {
   const u = await kit.user(req, env); if (!u) return json({ error: 'auth' }, 401);
-  const ev = EVENTS[url.searchParams.get('event') || 'bstw2027']; if (!ev) return json({ error: 'bad_event' }, 400);
+  const ev = own(EVENTS, url.searchParams.get('event') || 'bstw2027'); if (!ev) return json({ error: 'bad_event' }, 400);
   const r = await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND email=? ORDER BY (status=\'cancelled\'), id DESC LIMIT 1').bind(ev.id, String(u.email).toLowerCase()).first();
   if (!r) return json({ email: u.email, name: u.name, reg: null });
   const passes = (await passesOf(env, r)).map(x => ({ name: x.name, items: x.items, pass: x.pass, img: passImg(env, x.pass) }));
@@ -391,16 +394,19 @@ export async function regSubmit(req, env, b, json, kit) {
   if (ex) {
     if (ex.status !== 'pending') return json({ error: 'exists', code: ex.code, status: ex.status }, 409);
     // the same form again within two minutes is the same press of the button (or a retry after a lost answer): no second letter
-    if (ex.data === data && ex.amount === r.total && Date.parse(ts) - Date.parse(ex.updated_at) < 12e4) return json({ ok: true, code: ex.code, total: ex.amount, updated: true, promo: r.promo.kind });
+    if (ex.data === data && ex.amount === r.total && Date.parse(ts) - Date.parse(ex.updated_at) < 12e4) {
+      const sent = await env.SDB.prepare("SELECT action FROM reg_log WHERE reg_id=? AND action IN ('mail:recv','mail_failed:recv') ORDER BY id DESC LIMIT 1").bind(ex.id).first();
+      return json({ ok: true, code: ex.code, total: ex.amount, updated: true, mail: !sent ? undefined : sent.action === 'mail:recv' ? 'sent' : 'failed', promo: r.promo.kind });
+    }
     const up = await env.SDB.prepare("UPDATE reg SET lang=?,domestic=?,people=?,data=?,amount=?,hotel_amount=?,promo=?,promo_dj=?,updated_at=? WHERE id=? AND status='pending'")
       .bind(r.lang, r.domestic, r.data.people.length, data, r.total, r.hotel, r.promo.code || null, r.promo.dj || null, ts, ex.id).run();
     reg = await env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(ex.id).first();
     if (!up.meta.changes) return json({ error: 'exists', code: reg.code, status: reg.status }, 409);   // reviewed while they were editing: what was reviewed stands
     await log(env, reg.id, 'resubmit');
   }
-  await send(env, kit, reg, 'recv');
+  const mail = await send(env, kit, reg, 'recv');
   await notifyOwner(env, kit, reg);
-  return json({ ok: true, code: reg.code, total: reg.amount, updated: !!ex, promo: r.promo.kind });
+  return json({ ok: true, code: reg.code, total: reg.amount, updated: !!ex, mail, promo: r.promo.kind });
 }
 export async function regPassPng(url, env) {
   const p = await readPass(env, decodeURIComponent(url.pathname.split('/').pop() || '').replace(/\.png$/, ''));
@@ -549,7 +555,12 @@ export async function regAdmin(req, env, url, b, json, kit) {
         const m = /^(\d+):(\w+)/.exec(l.text);
         if (m) (undone[raw.reg_id] = undone[raw.reg_id] || []).push({ at: l.at, person: +m[1], item: m[2], by: l.by });
       } else if (l.action !== 'pay' && l.action !== 'refund') (history[raw.reg_id] = history[raw.reg_id] || []).push({ action: l.action, at: l.at, by: l.by }); }   // money is shown from reg_payment
-    rows.forEach(r => { r.checkins = inRows[r.id] || []; r.undos = undone[r.id] || []; r.log = history[r.id] || [];
+    // letters that did not go out, unless the same kind went out later. Never the error text or the address.
+    const unsent = {};
+    for (const l of ((await env.SDB.prepare("SELECT l.reg_id,l.action,l.at FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND substr(l.action,1,4)='mail' ORDER BY l.id").bind(ev.id).all()).results || [])) {
+      const [state, kind] = l.action.split(':'), m = unsent[l.reg_id] = unsent[l.reg_id] || {};
+      if (state === 'mail_failed') m[kind] = { action: kind, at: l.at }; else delete m[kind]; }
+    rows.forEach(r => { r.mail_failed = Object.values(unsent[r.id] || {}); r.checkins = inRows[r.id] || []; r.undos = undone[r.id] || []; r.log = history[r.id] || [];
       if (!can(who, 'passport')) delete r.data.passports; });   // not sent at all, not just hidden
     const staff = await staffList(env, ev.id);
     const pays = ((await env.SDB.prepare('SELECT p.* FROM reg_payment p JOIN reg r ON r.id=p.reg_id WHERE r.event=? ORDER BY p.id').bind(ev.id).all()).results) || [];
@@ -685,8 +696,9 @@ export async function regAct(env, b, json, kit, ev, who) {
         : db.prepare('UPDATE reg SET updated_at=? WHERE id=? AND changes()>0').bind(ts, reg.id));
     if (!ok) return already();
     const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first(), total = got.sum + amount, left = Math.max(0, after.amount - total);
-    if (covered && after.status === 'paid' && (site || b.silent !== 1)) await send(env, kit, after, 'paid');
-    return json(site ? { ok: true, status: after.status, rest: left } : { ok: true, status: after.status, amount: after.amount, paid: total, rest: left });
+    let mail;
+    if (covered && after.status === 'paid' && (site || b.silent !== 1)) mail = await send(env, kit, after, 'paid');
+    return json(site ? { ok: true, status: after.status, rest: left, mail } : { ok: true, status: after.status, amount: after.amount, paid: total, rest: left, mail });
   }
   if ((b.from && b.from !== reg.status) || !NEXT[a].includes(reg.status)) return late();
   if (a === 'refund') {
@@ -735,8 +747,8 @@ export async function regAct(env, b, json, kit, ev, who) {
   }
   if (!(await done(change, b.note ? str(b.note, 500) : ''))) return late();   // and no letter from the one who was late
   const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
-  if (b.silent !== 1) await send(env, kit, after, a);
-  return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, due: after.due_at });
+  const mail = b.silent !== 1 ? await send(env, kit, after, a) : undefined;
+  return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, due: after.due_at, mail });
 }
 
 // Day-10 reminder for confirmed registrations that are still unpaid. Called from the 10-minute cron.
@@ -745,7 +757,12 @@ export async function regRemind(env, kit) {
   for (const ev of Object.values(EVENTS)) {
     const cutoff = new Date(Date.now() - ev.remindDay * 864e5).toISOString();
     const rows = (await env.SDB.prepare("SELECT * FROM reg WHERE event=? AND status='confirmed' AND reminded_at IS NULL AND confirmed_at<=? LIMIT 20").bind(ev.id, cutoff).all()).results || [];
-    for (const r of rows) { await env.SDB.prepare('UPDATE reg SET reminded_at=? WHERE id=? AND reminded_at IS NULL').bind(nowIso(), r.id).run(); await send(env, kit, r, 'remind'); out.sent++; }
+    for (const r of rows) {
+      // timers can overlap: only the run that claims a registration writes to them, and not if it was paid meanwhile
+      const claim = await env.SDB.prepare("UPDATE reg SET reminded_at=? WHERE id=? AND reminded_at IS NULL AND status='confirmed'").bind(nowIso(), r.id).run();
+      if (!claim.meta.changes) continue;
+      await send(env, kit, r, 'remind'); out.sent++;
+    }
   }
   return out;
 }

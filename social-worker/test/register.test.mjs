@@ -525,6 +525,24 @@ check('QR hidden without key', q2.status === 404);
   for (const t of ['reg_payment', 'reg_log']) db.exec(`DELETE FROM ${t} WHERE reg_id IN (${mine})`);
   db.exec("DELETE FROM reg WHERE email LIKE '%@example.test'");
   mails.length = 0; }
+// --- found by the 200-registration run, 2026-11-23 ---
+{ const t = subscriber('odd@example.test', 'Odd');
+  for (const o of [{ event: 'constructor' }, { people: [person({ pkg: 'constructor', items: [] })] }, { people: [person({ pkg: 'single', items: ['constructor'] })] }, { hotel: 'yes', passports: [{ s: 'AA', g: 'BB' }], rooms: [{ type: 'constructor', ci: '2027-06-18', co: '2027-06-20', guests: [0] }] }]) {
+    const d = await call('POST', '/reg', form(o), t).catch(e => ({ _s: 500, error: String(e.message) }));
+    check('odd input is refused, not a server error', d._s === 400, d); }
+  const ids = [];
+  for (let i = 0; i < 3; i++) ids.push(Number(db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,created_at,updated_at,confirmed_at) VALUES('bstw2027',?,?,'confirmed',1,'{\"people\":[],\"rooms\":[],\"passports\":[]}',700,'2026-01-01','2026-01-01','2026-01-01T00:00:00Z')").run('BJ27-84' + String(i).padStart(2, '0'), `due${i}@example.test`).lastInsertRowid));
+  mails.length = 0; readLag = 20;
+  await Promise.all([regCron(env), regCron(env), regCron(env)]);
+  readLag = 0;
+  check('overlapping timers: one reminder each', ids.every((_, i) => mails.filter(m => m.includes('BJ27-840' + i)).length === 1), mails.length);
+  db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,'2026-11-23','mail_failed:paid','SMTP secret detail')").run(ids[0]);
+  db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,'2026-11-23','mail_failed:remind','x'),(?,'2026-11-24','mail:remind','to')").run(ids[1], ids[1]);
+  const list = await call('GET', '/admin/reg', null, ADMIN), row = i => list.rows.find(r => r.id === ids[i]);
+  check('failed letters are shown, without the error text', row(0).mail_failed.map(f => f.action).join() === 'paid' && !JSON.stringify(list).includes('SMTP secret detail'), row(0).mail_failed);
+  check('a later success clears it', row(1).mail_failed.length === 0);
+  for (const id of ids) { db.prepare('DELETE FROM reg_log WHERE reg_id=?').run(id); db.prepare('DELETE FROM reg WHERE id=?').run(id); }
+  mails.length = 0; }
 // rename migration moves old bj2027 rows
 db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,created_at,updated_at) VALUES('bj2027','OLD-1','old@x.com','pending',1,'{\"people\":[],\"rooms\":[],\"passports\":[]}',0,'2026-11-01','2026-11-01')").run();
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0023_rename_bstw2027.sql'), 'utf8'));
