@@ -45,11 +45,15 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
 .arrived input{width:22px;height:22px;flex:none}
 .btn:disabled{background:#d8d2c8;color:#777;cursor:default}
 .go-other{display:block;margin-top:5px;font-weight:500}
+.roles .card h2{font-size:1.2rem;margin:0}
+.roles .can{margin:6px 0 10px}
+.roles label{display:block;font-size:.9rem;margin-bottom:4px}
+.badge{display:inline-block;margin-right:6px;padding:1px 8px;border-radius:999px;background:var(--gold);color:var(--deep);font-weight:700}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
-<header><b>入场签到<small id="me"></small></b><select id="item" aria-label="现在这一场">
+<header><b>入场签到<small id="me"></small></b><select id="item" hidden aria-label="现在这一场">
   <option value="MV">周五 欢迎舞会</option><option value="T1">周五 一日游</option>
   <option value="M1">周六 下午场</option><option value="M2">周六 晚场</option>
   <option value="M3">周日 下午场</option><option value="M4">周日 晚场</option>
@@ -60,9 +64,20 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
     <p style="margin-top:0"><b>请不要在微信里启用。</b></p>
     <p>点右上角 <b>···</b>，选「<b>在浏览器打开</b>」（iPhone 选 Safari），再启用。这个连结只能启用一次。</p>
   </div>
-  <div class="card" id="nokey" hidden>
-    <p style="margin-top:0"><b>这支手机还没启用。</b>请用组织者传给你的专属连结打开（用 Safari 或 Chrome）。</p>
-    <details><summary class="muted">我是组织者／活动经理</summary><input id="tok" type="password" style="width:100%;margin-top:8px" placeholder="报名管理密码"><button class="btn sec" id="save">用密码登入</button></details>
+  <div class="roles" id="nokey" hidden>
+    <p style="margin-top:0"><b>请选你的身份</b></p>
+    <div class="card" id="roleManager">
+      <h2>活动经理</h2>
+      <p class="muted can">扫码、签到；有「收款」权限的可以收款、看金额。组织者也从这里登入。</p>
+      <form id="login"><label for="tok">你自己的管理密码</label><input id="tok" type="password" autocomplete="current-password" style="width:100%">
+        <button class="btn" id="save">活动经理登入</button></form>
+    </div>
+    <div class="card" id="roleDesk">
+      <h2>前台</h2>
+      <p class="muted can">扫码、签到。看不到金额和名单，不能收款。</p>
+      <p style="margin:0" id="deskHow">不用密码：请用组织者发给你的<b>前台专属连结</b>，在 Safari 或 Chrome 打开一次，这支手机就启用了。</p>
+      <button class="btn sec" id="deskGo" hidden>用前台身份继续</button>
+    </div>
   </div>
   <div class="card" id="welcome" hidden>
     <div class="big" id="wName"></div>
@@ -118,8 +133,11 @@ var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'},met
 function yen(n){return '¥'+Number(n).toLocaleString('en-US')}
 function hm(iso){return new Date(iso).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'})}
 function takeState(){$('take').disabled=taking||!method||!$('arrived').checked;[].forEach.call(document.querySelectorAll('[data-m]'),function(b){b.setAttribute('aria-pressed',b.dataset.m===method)})}
-function ready(name,collect){$('me').textContent=name?(collect?'签到、收款：':'签到人：')+name:'';
-  $('swap').hidden=!get('bstw_staff');$('swap').textContent=asAdmin()?'回到前台身份（只签到）':'我是活动经理：用密码登入收款';$('nokey').hidden=true;$('scanBtn').hidden=false}
+function ready(name,collect){var adm=asAdmin(),badge=document.createElement('span'),org=adm&&name==='主办';
+  badge.className='badge';badge.textContent=adm?(org?'组织者':'活动经理'):'前台';$('me').textContent='';$('me').appendChild(badge);
+  $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
+  $('swap').hidden=false;$('swap').textContent=adm?(get('bstw_staff')?'切换到前台（只能签到）':'退出活动经理'):'切换到活动经理（要密码）';$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false}
+function choose(){stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('nokey').hidden=false;$('deskGo').hidden=!get('bstw_staff');$('deskHow').hidden=!!get('bstw_staff')}
 function show(){
   if(!info)return;var cur=$('item').value,p=info.person,did={},by={};info.checkins.forEach(function(c){did[c.item]=c.at;by[c.item]=c.staff});
   $('who').hidden=false;$('name').textContent=p.name+(p.nick?'（'+p.nick+'）':'');
@@ -143,7 +161,7 @@ function show(){
 }
 function load(){if(!pass)return;
   call('/social/reg/door/pass?p='+encodeURIComponent(pass)).then(function(d){
-    if(d._s===401){$('nokey').hidden=false;return}
+    if(d._s===401){choose();return}
     if(!d.ok){$('who').hidden=true;res('no','✕ 无效的入场码');return}
     info=d;method='';taking=false;$('arrived').checked=false;show();if(flash){res('ok',flash);flash=''}
   }).catch(function(){res('no','连不上后台，请检查网络')})}
@@ -151,15 +169,20 @@ $('go').addEventListener('click',function(){var cur=$('item').value;$('go').disa
   call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur}}).then(function(d){$('go').disabled=false;
     if(d.ok){info.checkins.push({item:cur,at:d.at,staff:d.by});show();res('ok','✓ 签到成功 · '+NAME[cur]);return}
     if(d.error==='already'){info.checkins.push({item:cur,at:d.at,staff:d.by});show();return}
-    if(d._s===401){$('nokey').hidden=false;return}
+    if(d._s===401){choose();return}
     res('no','✕ '+(d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到活动经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
 $('undo').addEventListener('click',function(){var cur=$('item').value;if(!confirm('撤销「'+NAME[cur]+'」的签到？'))return;
   call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur,undo:1}}).then(function(d){if(d.ok){info.checkins=info.checkins.filter(function(c){return c.item!==cur});show()}})});
-$('save').addEventListener('click',function(){put('bstw_admin',$('tok').value.trim());put('bstw_role','admin');whoami()});
-$('swap').addEventListener('click',function(){stopScan();info=null;$('who').hidden=true;res('','');
-  if(asAdmin()){put('bstw_role','');return whoami()}
+$('login').addEventListener('submit',function(e){e.preventDefault();var v=$('tok').value.trim();if(!v){$('tok').focus();return}
+  put('bstw_admin',v);put('bstw_role','admin');$('tok').value='';res('','');whoami()});
+$('deskGo').addEventListener('click',function(){put('bstw_role','');res('','');whoami()});
+$('swap').addEventListener('click',function(){stopScan();info=null;$('who').hidden=true;$('welcome').hidden=true;res('','');
+  if(asAdmin()){put('bstw_role','');
+    if(get('bstw_staff'))return whoami();
+    if(!confirm('退出活动经理？再进来要重新输入密码。'))return whoami();
+    put('bstw_admin','');return choose()}
   if(get('bstw_admin')){put('bstw_role','admin');return whoami()}
-  $('nokey').hidden=false;$('nokey').querySelector('details').open=true;$('tok').focus()});
+  choose();$('tok').focus()});
 $('collect').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b){method=b.dataset.m;takeState()}});
 $('arrived').addEventListener('change',takeState);
 $('take').addEventListener('click',function(){var c=info&&info.collect;if(!c||!method||!$('arrived').checked||taking)return;
@@ -190,17 +213,17 @@ $('scanBtn').addEventListener('click',function(){res('','');$('who').hidden=true
 $('stopBtn').addEventListener('click',stopScan);
 
 // ---------- start ----------
-function whoami(){if(!key()){$('nokey').hidden=false;return}
+function whoami(){if(!key()){choose();return}
   var wasStaff=!asAdmin();
-  call('/social/reg/door/me').then(function(d){if(d.ok){ready(d.name,d.collect);load()}else{if(d._s===401){put('bstw_role','');put(wasStaff?'bstw_staff':'bstw_admin','');if(wasStaff)history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));$('nokey').hidden=false;res('no',wasStaff?'这支手机的签到权限已停用或换了连结，请找组织者':'密码不对')}}})
+  call('/social/reg/door/me').then(function(d){if(d.ok){ready(d.name,d.collect);load()}else{if(d._s===401){put('bstw_role','');put(wasStaff?'bstw_staff':'bstw_admin','');if(wasStaff)history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));choose();res('no',wasStaff?'这支手机的签到权限已停用或换了连结，请找组织者':'密码不对')}}})
   .catch(function(){res('no','连不上后台，请检查网络')})}
 var act=Q.get('act')||'';
 if(act){
-  if(/MicroMessenger/i.test(navigator.userAgent)){$('wechat').hidden=false}
+  if(/MicroMessenger/i.test(navigator.userAgent)){$('wechat').hidden=false;$('item').hidden=true}
   else call('/social/reg/door/activate',{method:'POST',body:{act:act},noAuth:true}).then(function(d){
     if(d.ok){put('bstw_staff',d.token);put('bstw_role','');keepUrl();$('welcome').hidden=false;$('wName').textContent=d.name+'，你好';ready(d.name);return}
     if(get('bstw_staff')){keepUrl();whoami();return}   // this phone already activated with this link before
-    res('no',d.error==='disabled'?'这个连结已停用，请找组织者':'这个连结已经在别的手机启用过，或已失效。请找组织者重发。')
+    choose();res('no',d.error==='disabled'?'这个连结已停用，请找组织者':'这个连结已经在别的手机启用过，或已失效。请找组织者重发。')
   }).catch(function(){res('no','连不上后台，请检查网络')});
 }else{if(get('bstw_staff'))keepUrl(pass?{p:pass}:null);whoami()}
 })();
