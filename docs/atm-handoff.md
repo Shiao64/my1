@@ -45,17 +45,8 @@
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
-## 0.8 北京精选探戈周末 2027 报名表（11/21 写好，分支 feat/beijing-register-form，11/21 已部署后台与迁移 0020；REG_CODES、REG_ADMIN_TOKEN 已设）
-- 报名页：`event/beijing-2027-tango-weekend/register/draft/`（EN 为主，可切韩/西/俄/中；`?lang=ko`）；管理页：`…/register/admin/`（输入报名专用密码 `REG_ADMIN_TOKEN`；网站的 `ADMIN_TOKEN` 也能用，但它还用在取消订阅链接签名，**不要换**）。两页都 noindex、不连到网站。`?demo=1` 不连后台看画面；`?api=http://localhost:8787` 连本机测试后台。
-- 后台：`social-worker/src/register.js`（social.js 用到 /reg 路由时才载入）；表 `migrations/0020_registrations.sql`（只新增 reg、reg_log、reg_asset 三张表）；测试 `node social-worker/test/register.test.mjs`。
-- 规则（用户 11/21 定）：要先**订阅网站并验证邮箱**才能报名（沿用 /social/profile + /social/going/code，邮箱以订阅为准）。一份表最多 6 人（填表人 + 5 位同行者），每人项目可不同；确认信只寄填表人，一个编号（BJ27-0001）、一次付款。套餐：全程 ¥1450（early 码 2027/2/1 前 ¥1350；DJ 朋友码 ¥1200，码放 Cloudflare secret `REG_CODES`，**不进仓库**）、周末套餐 ¥1150、周末 4 场 ¥700、单场。名额只在主办按「确认」时扣（欢迎 200、周末各 300、小院 120、告别 150，一日游/漫步不限），不超卖。住宿默认不需要；大床 ¥500／双床 ¥550 每晚，房费预付；一间最多 2 人、一人一间、房数 ≤ 人数；订房时每个人都填护照姓／名（只收英文字母）；日期 6/11–6/28。
-- 流程：提交 → 待审核（自动寄「收到报名」，10 天内回复）→ 主办确认（寄确认信：付款截止 = 寄出日 + 14 天，附微信／支付宝收款码；不能用的人回信附机票截图、到场付现）→ 第 10 天自动提醒一次 → 逾期由主办手动取消。手续费 ¥50 每份报名只收一次；房费 6/11（含）前取消可退。
-- **上线前要做**：① 跑迁移 0020 + 部署（照规定先问 Shiao）；② Cloudflare 加 secret `REG_CODES`、`REG_QR_KEY`（随机长字串）；③ 用管理页上传收款码 intl-wechat / intl-alipay / cn-wechat / cn-alipay；④ 测试期间信只寄 `REG_TEST_INBOX`（默认 selecttango@gmail.com），确定后设 `REG_LIVE=1`；⑤ 把 `register/draft/` 搬到 `register/`，取代现在的倒计时页。
-- **入场二维码与签到（11/21 用户定）**：付款完成（已付款／现场付现）后每人一个入场码 `BJ27-0001-1.<签名>`（HMAC，secret `REG_PASS_SECRET`），付款信附二维码 PNG（`/social/reg/pass/<码>.png`），报名页登入后也显示。门口工作人员用手机相机扫码 → 打开 `…/register/checkin/?p=…`（第一次输入报名管理密码），选好「现在这一场」后按签到；重复扫会提示已签到，没报这场会显示红字。迁移 `0021_reg_checkin.sql`。管理页显示每场已签到人数。
-- **门口工作人员（11/21 用户定 B2）**：管理页「门口工作人员」新增名字 → 产生专属连结（只显示一次）。连结只能在第一支打开它的手机启用（之后转给别人无效），只能签到、看不到名单金额；「重发连结」换手机、「停用」立即失效。不用注册 ATM。签到页有页面内扫码（BarcodeDetector，iPhone 用 jsQR CDN），可加到主屏幕（iPhone 桌面图标存储与 Safari 分开，所以启用后金钥也放在网址 `?k=`）。在微信里打开会提示改用浏览器。接口 `/social/reg/door/*`；签到记录写是谁签的。**合并 PR 前连结打不开**（连结指向 tangoweekend.org）。
-- **状态显示与网站提醒（11/22 用户定）**：报名页登入后按状态显示（待审核可改、已确认显示金额/截止日/收款码、已付款显示入场二维码、候补/婉拒/取消说明），资料来自 `/social/reg/me`（只有 confirmed 才给收款码，且只给已上传的）。地图中英首页加 `asia/reg-notice.js`：登入的报名者在状态变化时看到顶部提醒条，✕ 后同一状态不再出现；付款期限前 3 天再提醒一次。**12/1 搬页时要把 reg-notice.js 里的 PAGE 改成 `/register/`**。推播不做（中国安卓收不到、微信不支持）。**点 LOGO 出入场码（11/22）**：已付款／现场付现的报名者，地图首页 LOGO（`img.atm-sign`）右上角出现 🎫，点 LOGO 全屏显示「我的入场码」（每人一张，左右滑动，尽量保持亮屏 wakeLock）；其他人 LOGO 照旧。
-- **多位管理员与收款纪录（11/22 用户定）**：主办密码（REG_ADMIN_TOKEN）可做一切并在管理页「管理员」新增其他人；每人一个管理密码（只显示一次）、权限可选：审核、收款、取消、修改、门口工作人员、导出。「记收款」可分笔记（金额、方式、收款人、备注），收齐自动变已付款并寄付款信；取消后「记退款」记负数。管理页「收款纪录」按收款人／日期统计，可导出收款 CSV。迁移 `0022_reg_admins_ledger.sql`。
-- 还没做：管理页的「修改」（API 有 `action:modify`，页面还没按钮）；韩/西/俄文请舞友校对。
+## 0.8 探戈通 Tango Pass（TP，活动报名系统）
+详细说明、所有决定、Cloudflare 设定名称、部署步骤、待办都在 **`docs/tangopass.md`**，改报名系统前先读、改完更新那份。活动：`bstw2027`（北京精选探戈周末 2027）、`2027mvny`（Milonga V 2027 New Year）。
 
 ## 1. 先读这些
 

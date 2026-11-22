@@ -111,7 +111,7 @@ try{$('tok').value=localStorage.getItem('bstw_admin')||''}catch(e){}
 function toast(s){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},3500)}
 function call(path,opt){opt=opt||{};return fetch(API+path,{method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+$('tok').value.trim()},body:opt.body?JSON.stringify(opt.body):undefined})}
 function load(){try{localStorage.setItem('bstw_admin',$('tok').value.trim())}catch(e){}
-  call('/social/admin/reg?event=bj2027').then(function(r){if(r.status===401){toast('密码不对');return null}return r.json()}).then(function(d){if(!d)return;DATA=d;render()}).catch(function(){toast('连不上后台')})}
+  call('/social/admin/reg?event=bstw2027').then(function(r){if(r.status===401){toast('密码不对');return null}return r.json()}).then(function(d){if(!d)return;DATA=d;render()}).catch(function(){toast('连不上后台')})}
 function fmt(n){return '¥'+Number(n||0).toLocaleString('en-US')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
 function render(){
@@ -171,7 +171,7 @@ function ledger(){var all=[];DATA.rows.forEach(function(r){(r.payments||[]).forE
   $('ledgerSum').innerHTML=Object.keys(sum).length?Object.keys(sum).map(function(n){var s=sum[n];return '<span class="pill"><b>'+esc(n)+'</b> 收 '+fmt(s.in)+(s.out?' · 退 '+fmt(s.out):'')+' · 净 '+fmt(s.in-s.out)+' · '+s.n+' 笔</span>'}).join(''):'<span class="muted">还没有收款纪录。</span>';
   $('ledgerList').innerHTML=list.map(function(x){return '<div class="row" style="padding:6px 10px"><b>'+x.code+'</b> · '+x.at.slice(0,16).replace('T',' ')+' · <b>'+(x.amount<0?'退 ':'收 ')+fmt(Math.abs(x.amount))+'</b> · '+METHOD[x.method]+' · '+esc(x.collector)+(x.by_admin!==x.collector?'（'+esc(x.by_admin)+' 记录）':'')+(x.note?' · '+esc(x.note):'')+'</div>'}).join('')}
 ['lWho','lFrom','lTo'].forEach(function(i){$(i).addEventListener('change',ledger)});
-$('lCsv').addEventListener('click',function(){call('/social/admin/reg/payments?event=bj2027').then(function(r){return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bj2027-payments.csv';a.click()})});
+$('lCsv').addEventListener('click',function(){call('/social/admin/reg/payments?event=bstw2027').then(function(r){return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bstw2027-payments.csv';a.click()})});
 $('aPerms').innerHTML=Object.keys(PERM_NAME).map(function(p){return '<label style="margin-right:6px;white-space:nowrap"><input type="checkbox" value="'+p+'"'+(p==='collect'?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('');
 function admins(){if(!DATA.me.owner)return;var L=DATA.admins||[];
   $('adminList').innerHTML=L.length?L.map(function(x){var ps=(x.perms||'').split(',').filter(Boolean);return '<div class="row"><div class="rh"><span><b>'+esc(x.name)+'</b> '+(x.disabled_at?'<span class="st cancelled">已停用</span>':'')+'</span><span class="muted">收款净额 '+fmt(((DATA.ledger||{})[x.name]||{in:0,out:0}).in-((DATA.ledger||{})[x.name]||{out:0}).out)+'</span></div>'+
@@ -195,7 +195,7 @@ $('staffList').addEventListener('click',function(e){var b=e.target.closest('butt
   if(!confirm(a==='disable'?'停用后他的手机马上不能签到，确定？':'重发后旧连结和他现在的手机都会失效，确定？'))return;
   call('/social/admin/reg/staff/'+a,{method:'POST',body:{id:+b.dataset.id}}).then(function(r){return r.json()}).then(function(d){if(d.ok){if(d.link)showLink(d);toast(a==='disable'?'已停用':'已产生新连结');load()}else toast('没成功：'+d.error)})});
 $('sCopy').addEventListener('click',function(){var i=$('sLink');i.select();try{navigator.clipboard.writeText(i.value).then(function(){toast('已复制')})}catch(e){document.execCommand('copy');toast('已复制')}});
-$('csv').addEventListener('click',function(){call('/social/admin/reg?event=bj2027&format=csv').then(function(r){return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bj2027-registrations.csv';a.click()})});
+$('csv').addEventListener('click',function(){call('/social/admin/reg?event=bstw2027&format=csv').then(function(r){return r.blob()}).then(function(b){var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='bstw2027-registrations.csv';a.click()})});
 $('qUp').addEventListener('click',function(){var f=$('qFile').files[0];if(!f)return toast('先选一张图片');if(f.size>1e6)return toast('图片太大（1MB 以内）');
   var rd=new FileReader();rd.onload=function(){call('/social/admin/reg/asset',{method:'POST',body:{name:$('qName').value,mime:f.type,b64:rd.result}}).then(function(r){return r.json()}).then(function(d){toast(d.ok?'已上传 '+d.name:'上传失败：'+d.error)})};rd.readAsDataURL(f)});
 if($('tok').value)load();

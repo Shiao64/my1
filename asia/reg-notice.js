@@ -19,7 +19,7 @@
     waitlist: 'Beijing Select Tango Weekend: registration C is on the waiting list', declined: 'Beijing Select Tango Weekend: result for registration C',
     go: 'View', close: 'Close' };
   function seen() { try { return localStorage.getItem('bstw_seen') || ''; } catch (e) { return ''; } }
-  fetch(API + '/social/reg/me?event=bj2027&lang=' + (zh ? 'zh' : 'en'), { headers: { Authorization: 'Bearer ' + tok } })
+  fetch(API + '/social/reg/me?event=bstw2027&lang=' + (zh ? 'zh' : 'en'), { headers: { Authorization: 'Bearer ' + tok } })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (d) {
       var r = d && d.reg; if (!r) return;

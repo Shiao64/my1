@@ -501,7 +501,7 @@ function payload(s){
     guests:[].map.call(rm.querySelectorAll('.guests input:checked'),function(c){return idx[c.value]})}}):[];
   var pv=function(id){var i=$('ppAll').querySelector('[data-pid="'+id+'"]');return i?i.value.trim().toUpperCase():''};
   var passports=s.hy?s.ppl.map(function(p){return {s:pv(p.id+'-s'),g:pv(p.id+'-g')}}):[];
-  return {event:'bj2027',lang:L,code:$('code').value.trim(),src:$('src').value,msg:$('msg').value.trim(),website:$('hp')?$('hp').value:'',people:people,hotel:s.hy?'yes':'no',rooms:rooms,passports:passports};
+  return {event:'bstw2027',lang:L,code:$('code').value.trim(),src:$('src').value,msg:$('msg').value.trim(),website:$('hp')?$('hp').value:'',people:people,hotel:s.hy?'yes':'no',rooms:rooms,passports:passports};
 }
 function showDone(s,code){
   var rows=code?[[t('regNo'),code]]:[];rows.push([t('dName'),$('name').value],[t('email'),$('email').value]);
@@ -590,9 +590,9 @@ function applyLeft(){document.querySelectorAll('.cards input[type=checkbox]').fo
 function boot(){
   try{var m=/[#&]atm=([0-9a-f]{64})/.exec(location.hash);if(m){localStorage.setItem('atm_session',m[1]);history.replaceState(null,'',location.pathname+location.search)}}catch(e){}
   if(DEMO){showForm();return}
-  api('/social/reg/left?event=bj2027').then(function(d){if(d.left){LEFT=d.left;applyLeft()}}).catch(function(){});
+  api('/social/reg/left?event=bstw2027').then(function(d){if(d.left){LEFT=d.left;applyLeft()}}).catch(function(){});
   if(!tok()){showGate();return}
-  api('/social/reg/me?event=bj2027&lang='+L).then(function(d){
+  api('/social/reg/me?event=bstw2027&lang='+L).then(function(d){
     if(d._s===401){showGate();return}
     var r=d.reg;
     if(r&&r.status!=='pending'&&r.status!=='cancelled'){showStatus(r);return}
