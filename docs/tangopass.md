@@ -83,9 +83,10 @@
 - 已上线：报名页（draft）、管理页（多活动经理、收款纪录）、签到页、入场码、首页提醒条、点 LOGO 入场码。测试中，信只寄 selecttango@gmail.com。
 - `bj2027` → `bstw2027` 改名已部署；第二个活动 `2027mvny` 等刘峥给资料后加设定与报名页。
 - 收款码（11/22）：先用刘峥的支付宝「Milonga V」经营码，上传为 `intl-alipay`、`cn-alipay`；微信收款码还没有。
+- **11/22 晚已部署、上线（#370、#369、#371）**：扫码收款、付清前不能签到、二维码双语提示、付款码提示。worker 版本 `bcf77257`，回退版本 `87cb53aa`；部署前 D1 书签 `00000cff-00000000-0000512b-0d86dc27f86c32b6dd9598525d78b099`。地图页用 `reg-notice.js?v=rn8`。
 - 待办：决定国内微信码；核对 info@ 收得到回信；境外卡手续费与限额；管理页 200 人以上的显示；B5（看码须验证码登录，Year End 后定）；韩西俄文校对；管理页「修改」按钮；Chris 的 3 个问题（Shiao：先不回答）；Year End 资料（刘峥）；实地测试（Google《实地测试计划》）。
 - 12/1 上线清单：报名页搬到 `register/`（`reg-notice.js` 的 `PAGE`、`register.js` 的 `regPage` 一起改，`draft/` 留转址并保留 ?lang 和 #pay／#passes，免得已寄出的信点错）；设 `REG_LIVE=1`；清掉测试资料（报名、收款、签到、测试活动经理与前台）；检查活动页按钮、DJ 信与付款信的连结。
 
 ## 部署
 
-照 CLAUDE.md：改后端、部署要先问 Shiao。步骤：`git fetch` 确认 main 的 worker 程序没有别人新改 → `subscribe-worker/` 里 `npx wrangler@3 d1 time-travel info tango-subscribe`（记书签）→ 有新迁移就 `d1 execute --remote --file=...` → `npx wrangler@3 deploy --keep-vars` → 检查 `/social/reg/left`、`/social/likes` 等 → 合并 PR。Cloudflare 寄信（send_email）不接受 Reply-To／Cc 自订标头（11/22 踩过）。
+照 CLAUDE.md：改后端、部署要先问 Shiao。步骤：`git fetch` 确认 main 的 worker 程序没有别人新改 → `subscribe-worker/` 里 `npx wrangler@3 d1 time-travel info tango-subscribe`（记书签）→ 有新迁移就 `d1 execute --remote --file=...` → `npx wrangler@3 deploy --keep-vars` → 检查 `/social/reg/left`、`/social/likes` 等 → 合并 PR。**网页发布完成前不要去请求新的 `?v=` 网址**：CDN 会把旧内容按新版本号缓存一年（11/22 踩过，只能再换一个版本号）；地图 HTML 本身缓存 10 分钟。Cloudflare 寄信（send_email）不接受 Reply-To／Cc 自订标头（11/22 踩过）。
