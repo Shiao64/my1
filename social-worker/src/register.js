@@ -467,7 +467,11 @@ export async function regAdmin(req, env, url, b, json, kit) {
     for (const c of ((await env.SDB.prepare('SELECT c.reg_id,c.person,c.item,c.staff FROM reg_checkin c JOIN reg r ON r.id=c.reg_id WHERE r.event=?').bind(ev.id).all()).results || [])) {
       checked[c.item] = (checked[c.item] || 0) + 1; byStaff[c.staff || ''] = (byStaff[c.staff || ''] || 0) + 1;
       (inRows[c.reg_id] = inRows[c.reg_id] || []).push({ person: c.person, item: c.item, staff: c.staff }); }
-    rows.forEach(r => { r.checkins = inRows[r.id] || []; });
+    const undone = {};
+    for (const l of ((await env.SDB.prepare("SELECT l.reg_id,l.at,l.detail FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND l.action='checkin_undo'").bind(ev.id).all()).results || [])) {
+      const m = /^(\d+):(\w+)(?: by (.*))?$/.exec(l.detail || '');
+      if (m) (undone[l.reg_id] = undone[l.reg_id] || []).push({ at: l.at, person: +m[1], item: m[2], by: m[3] || '' }); }
+    rows.forEach(r => { r.checkins = inRows[r.id] || []; r.undos = undone[r.id] || []; });
     const staff = (((await env.SDB.prepare('SELECT id,name,created_at,activated_at,disabled_at FROM reg_staff WHERE event=? ORDER BY id').bind(ev.id).all()).results) || [])
       .map(x => ({ ...x, checkins: byStaff[x.name] || 0 }));
     const pays = ((await env.SDB.prepare('SELECT p.* FROM reg_payment p JOIN reg r ON r.id=p.reg_id WHERE r.event=? ORDER BY p.id').bind(ev.id).all()).results) || [];
@@ -678,7 +682,12 @@ export async function regCheckin(env, b, json, who) {
   const item = String(b.item || '');
   if (!PAID.includes(x.reg.status)) return json({ error: 'not_paid', status: x.reg.status }, 409);
   if (!x.person.items.includes(item)) return json({ error: 'not_registered', item }, 409);
-  if (b.undo === 1) { await env.SDB.prepare('DELETE FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).run(); await log(env, x.reg.id, 'checkin_undo', x.p.idx + ':' + item); return json({ ok: true, undone: true }); }
+  if (b.undo === 1) {   // the front desk only checks in; a wrong tap is undone by a manager, and their name is kept
+    if (!who || !who.admin) return json({ error: 'manager_only' }, 403);
+    const gone = await env.SDB.prepare('DELETE FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).run();
+    if (gone.meta.changes) await log(env, x.reg.id, 'checkin_undo', x.p.idx + ':' + item + ' by ' + who.name);
+    return json({ ok: true, undone: true });
+  }
   if (x.reg.status === 'cash') return json({ error: 'pay_first' }, 409);   // pass is out, but entry only after the money is in
   const at = nowIso(), by = who ? who.name : '';
   // INSERT OR IGNORE: two phones scanning the same person at once still give one row, and the slower one sees 'already'.

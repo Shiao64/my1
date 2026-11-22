@@ -342,6 +342,13 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 100 } }, pw(col));
   check('paid registration refuses more', a._s === 409 && a.error === 'already_paid' && a.last.collector === 'Collector', a);
   for (const p of me.reg.passes) { a = await call('POST', '/reg/door/checkin', { p: p.pass, item: 'M1' }, dt); check('after payment everyone can enter', a.ok, a); }
+  const undo = who => call('POST', '/reg/door/checkin', { p: me.reg.passes[0].pass, item: 'M1', undo: 1 }, who);
+  a = await undo(dt); check('front desk cannot undo', a._s === 403 && a.error === 'manager_only', a);
+  a = await call('GET', '/reg/door/pass?p=' + p1, null, dt); check('check-in still there after refused undo', a.checkins.length === 1, a);
+  a = await undo(pw(rev)); check('any manager can undo', a.ok && a.undone, a);
+  await undo(pw(rev));
+  a = (await call('GET', '/admin/reg', null, ADMIN)).rows.find(r => r.id === aid);
+  check('undo keeps who did it, once', a.undos.length === 1 && a.undos[0].by === 'Reviewer' && a.undos[0].item === 'M1' && a.undos[0].person === 0 && a.undos[0].at, a.undos);
   db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('other2027','Other',?,'collect','2026-12-01')").run(sha('b'.repeat(40)));
   a = await call('GET', '/reg/door/pass?p=' + p1, null, 'b'.repeat(40));
   check('manager of another event cannot read the pass', a._s === 404, a); }
