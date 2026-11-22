@@ -452,7 +452,7 @@ check('QR hidden without key', q2.status === 404);
   readLag = 0;
   const again = await call('POST', '/reg/door/checkin', { p: ci.p, item: 'M3' }, m1.tok);
   d = await call('POST', '/reg/door/checkin', { p: ci.p, item: 'M3', undo: 1, at: '2026-11-01T00:00:00.000Z' }, m2.tok);
-  check('an old screen cannot undo a newer check-in', again.ok && d.error === 'already_undone' && db.prepare('SELECT 1 FROM reg_checkin WHERE reg_id=?').get(ci.id), d);
+  check('an old screen cannot undo a newer check-in', again.ok && d.error === 'already_undone' && d.last.action === 'checkin' && d.last.by === m1.name && db.prepare('SELECT 1 FROM reg_checkin WHERE reg_id=?').get(ci.id), d);
   // 7. names and times on the page
   const h = await seed('pending');
   for (const [action, t] of [['confirm', deps[0].tok], ['cash', deps[1].tok], ['cancel', ADMIN]]) await post('/act', { id: h.id, action, silent: 1 }, t);

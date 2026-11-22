@@ -825,6 +825,8 @@ export async function regCheckin(env, b, json, who) {
     const key = x.p.idx + ':' + item, seen = b.at ? String(b.at) : null;   // seen = which check-in the caller's screen showed
     const change = env.SDB.prepare('DELETE FROM reg_checkin WHERE reg_id=? AND person=? AND item=?' + (seen ? ' AND at=?' : '')).bind(x.reg.id, x.p.idx, item, ...(seen ? [seen] : []));
     if (await doLogged(env, change, x.reg.id, 'checkin_undo', who.name, key)) return json({ ok: true, undone: true });
+    const again = await env.SDB.prepare('SELECT at,staff FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).first();
+    if (again) return json({ error: 'already_undone', last: { action: 'checkin', at: again.at, by: again.staff || '' } }, 409);   // undone and checked in again since that screen
     const mine = ((await env.SDB.prepare("SELECT action,at,detail FROM reg_log WHERE reg_id=? AND action='checkin_undo' ORDER BY id DESC").bind(x.reg.id).all()).results || []).map(readLog).find(l => l.text.startsWith(key));
     return json({ error: 'already_undone', last: mine ? { at: mine.at, by: mine.by } : null }, 409);
   }
