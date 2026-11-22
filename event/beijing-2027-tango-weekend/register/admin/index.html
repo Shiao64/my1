@@ -163,7 +163,10 @@ tr.sel{background:#fff4d6}
       <h2>前台</h2>
       <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结只能在<b>第一支打开它的手机</b>上启用；换手机按「重发连结」。请对方用 Safari 或 Chrome 打开，不要在微信里打开。<b>启用后的网址就是义工的工作证：转发了别人也能签到</b>，有问题就停用或重发。</p>
       <div class="bar"><input id="sName" placeholder="名字，例如 义工小李"><button class="p" id="sAdd">新增前台</button></div>
-      <div class="once" id="sNew" hidden><div><b id="sNewName"></b> 的专属连结（只显示这一次）：</div><input id="sLink" readonly><button id="sCopy">复制连结和提醒</button></div>
+      <div class="once" id="sNew" hidden><div><b id="sNewName"></b> 的前台连结已建好（只显示这一次）：</div><input id="sLink" readonly>
+        <div class="acts"><button class="p" id="sCopy">复制给义工的话（含连结）</button><button id="sCopyUrl">只复制连结</button></div>
+        <p id="sNext" style="margin:10px 0 0"><b>下一步：用微信发给义工本人，不要在这台打开</b>（这台已经登入管理页，不能当前台）。</p>
+        <p class="muted" style="margin:4px 0 0">自己想先试：按「只复制连结」，贴到另一支手机的 Safari／Chrome，或这台的无痕窗口。启用一次就用掉了，试完要按「重发连结」再发给义工。</p></div>
       <div id="staffList"></div>
     </div>
     <div class="card" id="qr">
@@ -472,10 +475,11 @@ function settings(){
     return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+s+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts"><button data-s="reissue" data-id="'+x.id+'">重发连结</button>'+(x.disabled_at?'':'<button data-s="disable" data-id="'+x.id+'">停用</button>')+'</div></div>'}).join('')||'<p class="muted">还没有前台。</p>':''}
 $('aPerms').innerHTML=permBoxes(['collect']);
 function showPw(name,pw){$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
-function showLink(d){$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link}
+function showLink(d){$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link;$('sNew').scrollIntoView({block:'center'})}
 function copy(id,before){var i=$(id);i.select();try{navigator.clipboard.writeText((before||'')+i.value).then(function(){toast('已复制')},function(){toast('没复制成功，请长按手动复制')})}catch(e){document.execCommand('copy');toast('已复制')}}
 $('aCopy').addEventListener('click',function(){copy('aPw')});
-$('sCopy').addEventListener('click',function(){copy('sLink','这是你的前台签到连结：请用 Safari 或 Chrome 打开，不要在微信里打开。这个网址就是你的工作证，不要转发。\n')});
+$('sCopyUrl').addEventListener('click',function(){copy('sLink')});
+$('sCopy').addEventListener('click',function(){copy('sLink','这是你的前台签到连结：在微信里点开后，按右上角 ··· 选「在浏览器打开」（Safari 或 Chrome）。这个网址就是你的工作证，不要转发。\n')});
 $('aAdd').addEventListener('click',function(){var b=this,n=$('aName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
   act('/admins',{name:n,perms:[].map.call($('aPerms').querySelectorAll('input:checked'),function(i){return i.value})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('aName').value='';showPw(d.name,d.password);load()})});
