@@ -345,6 +345,14 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('other2027','Other',?,'collect','2026-12-01')").run(sha('b'.repeat(40)));
   a = await call('GET', '/reg/door/pass?p=' + p1, null, 'b'.repeat(40));
   check('manager of another event cannot read the pass', a._s === 404, a); }
+// CSV: no formulas from typed text, Beijing time
+{ db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at) VALUES('bstw2027','BJ27-0960','csv@x.com','en','pending',1,?,0,'2026-12-01T17:30:00.000Z','2026-12-01')")
+    .run(JSON.stringify({ people: [{ name: '=1+1', city: '@x', wechat: '+86 123', pkg: 'single', items: [], extra: [], amount: 0 }], rooms: [], passports: [], hotel: false }));
+  const u = 'https://api.tangoweekend.org/social/admin/reg?event=bstw2027&format=csv';
+  const t = await (await social(new Request(u, { headers: { Authorization: 'Bearer ' + ADMIN } }), env, new URL(u), json)).text();
+  const line = t.split('\n').find(l => l.startsWith('BJ27-0960'));
+  check('csv: formulas neutralised', line.includes("'=1+1") && line.includes("'@x") && line.includes("'+86 123"), line);
+  check('csv: Beijing time', line.includes('2026-12-02 01:30'), line); }
 // cron before migration is quiet
 const bare = new DatabaseSync(':memory:'); const rr2 = await regCron({ ...env, SDB: D1(bare) }); check('cron quiet before migration', rr2.sent === 0);
 

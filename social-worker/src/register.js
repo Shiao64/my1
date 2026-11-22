@@ -418,7 +418,9 @@ function adminOK(req, env) {
   return (!!env.REG_ADMIN_TOKEN && a === env.REG_ADMIN_TOKEN) || (!!env.ADMIN_TOKEN && a === env.ADMIN_TOKEN);
 }
 const CSV_COLS = ['code', 'status', 'created', 'email', 'lang', 'person', 'name', 'nick', 'role', 'country', 'city', 'domestic', 'wechat', 'facebook', 'package', 'items', 'person_amount', 'room', 'room_type', 'check_in', 'check_out', 'nights', 'passport_surname', 'passport_given', 'promo', 'promo_dj', 'total', 'fee', 'refund', 'due', 'paid_at', 'note'];
-const csvCell = v => { const s = String(v == null ? '' : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+// Text typed by registrants must never run as a formula in Excel: such cells get a leading '. Real numbers stay numbers.
+const csvCell = v => { let s = String(v == null ? '' : v); if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+const bjTime = iso => iso ? new Date(Date.parse(iso) + 8 * 36e5).toISOString().slice(0, 16).replace('T', ' ') : '';   // exports use Beijing time
 // Who is calling the organizer API. The owner password (REG_ADMIN_TOKEN / ADMIN_TOKEN) can do everything and manage
 // the other organizers; each other organizer has their own password and a set of permissions.
 export const PERMS = ['review', 'collect', 'cancel', 'modify', 'staff', 'export'];
@@ -450,8 +452,8 @@ export async function regAdmin(req, env, url, b, json, kit) {
       const lines = [CSV_COLS.join(',')];
       for (const r of rows) r.data.people.forEach((pp, i) => {
         const ri = r.data.rooms.findIndex(x => x.guests.includes(i)), room = ri >= 0 ? r.data.rooms[ri] : null, pass = r.data.passports[i] || {};
-        lines.push([r.code, r.status, r.created_at.slice(0, 16), r.email, r.lang, i + 1, pp.name, pp.nick, pp.role, pp.country, pp.city, pp.country === 'CN' ? 1 : 0, pp.wechat, pp.facebook, pp.pkg, pp.items.join(' '), pp.amount,
-          room ? ri + 1 : '', room ? room.type : '', room ? room.ci : '', room ? room.co : '', room ? room.nights : '', pass.s, pass.g, r.promo, r.promo_dj, i ? '' : r.amount, i ? '' : r.fee, i ? '' : r.refund, i ? '' : r.due_at, i ? '' : r.paid_at, i ? '' : r.note].map(csvCell).join(','));
+        lines.push([r.code, r.status, bjTime(r.created_at), r.email, r.lang, i + 1, pp.name, pp.nick, pp.role, pp.country, pp.city, pp.country === 'CN' ? 1 : 0, pp.wechat, pp.facebook, pp.pkg, pp.items.join(' '), pp.amount,
+          room ? ri + 1 : '', room ? room.type : '', room ? room.ci : '', room ? room.co : '', room ? room.nights : '', pass.s, pass.g, r.promo, r.promo_dj, i ? '' : r.amount, i ? '' : r.fee, i ? '' : r.refund, i ? '' : bjTime(r.due_at), i ? '' : bjTime(r.paid_at), i ? '' : r.note].map(csvCell).join(','));
       });
       return new Response('﻿' + lines.join('\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${ev.id}-registrations.csv"`, 'Cache-Control': 'no-store' } });
     }
@@ -478,7 +480,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
   if (p === '/payments' && req.method === 'GET') {
     if (!can(who, 'export')) return deny();
     const rows = ((await env.SDB.prepare('SELECT p.*,r.code,r.email FROM reg_payment p JOIN reg r ON r.id=p.reg_id WHERE r.event=? ORDER BY p.id').bind(ev.id).all()).results) || [];
-    const lines = [['at', 'code', 'email', 'amount', 'method', 'collector', 'recorded_by', 'note'].join(',')].concat(rows.map(x => [x.at.slice(0, 16).replace('T', ' '), x.code, x.email, x.amount, x.method, x.collector, x.by_admin, x.note].map(csvCell).join(',')));
+    const lines = [['at', 'code', 'email', 'amount', 'method', 'collector', 'recorded_by', 'note'].join(',')].concat(rows.map(x => [bjTime(x.at), x.code, x.email, x.amount, x.method, x.collector, x.by_admin, x.note].map(csvCell).join(',')));
     return new Response('\ufeff' + lines.join('\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${ev.id}-payments.csv"`, 'Cache-Control': 'no-store' } });
   }
   if (p.startsWith('/admins')) {
