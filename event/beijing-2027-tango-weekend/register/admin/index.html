@@ -244,6 +244,8 @@ var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款
 var ACT_NEEDS={confirm:'review',waitlist:'review',decline:'review',pay:'review',cash:'review',cancel:'cancel',refund:'refund'};
 var DONE={confirm:'确认',waitlist:'候补',decline:'婉拒',cash:'批准到场付款',pay:'记了收款',refund:'记了退款',cancel:'取消报名',modify:'修改报名',note:'改了内部备注'};
 var WHO={owner:'平台管理员',chief:'总管',deputy:'副总管',manager:'现场经理'},LEVEL={manager:1,deputy:2,chief:3};
+var LETTER={recv:'收到报名的信',notify:'给主办的新报名通知',confirm:'确认信',waitlist:'候补信',decline:'婉拒信',cash:'到场付款信',paid:'付款确认信',remind:'付款提醒',cancel:'取消信',modify:'修改确认信'};
+function mailTip(d){return d.mail==='sent'?'，信已寄出':d.mail==='failed'?'。但信没寄出，请自己联系报名者':''}
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'};
 var SITE=[['site','现场']];
 var TABS=[['todo','待办'],['regs','报名'],['ppl','名单'],['money','收款'],['set','设置']];
@@ -271,7 +273,9 @@ function card(title,big,small,attr,hot){var t=attr?'button':'div';return '<'+t+'
 function toast(s,ms){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},ms||4000)}
 
 // ---------- session
-function call(path,opt){opt=opt||{};return fetch(API+path,{method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},body:opt.body?JSON.stringify(opt.body):undefined})}
+var WAIT=20000;
+function within(ms){if(!window.AbortController)return undefined;var c=new AbortController();setTimeout(function(){c.abort()},ms);return c.signal}   // a lost network must not wait for ever
+function call(path,opt){opt=opt||{};return fetch(API+path,{signal:within(WAIT),method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},body:opt.body?JSON.stringify(opt.body):undefined})}
 function put(v){try{if(v)localStorage.setItem('bstw_admin',v);else localStorage.removeItem('bstw_admin')}catch(e){}}
 function signedOut(){
   DATA=null;TOKEN='';put('');drafts={};bases={};S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
@@ -359,6 +363,8 @@ function todo(){
     card('待付款',n.confirmed||0,'收到截图就记收款','data-go="confirmed"')+
     card('到场付款',n.cash||0,'到场扫码收款','data-go="cash"')+
     card('候补',n.waitlist||0,'有名额时递补','data-go="waitlist"');
+  var unsent=DATA.rows.filter(function(r){return (r.mail_failed||[]).length}).length;
+  if(unsent)$('todoCards').innerHTML+=card('信没寄出',unsent,'点进去看是哪一封','data-go="unsent"',true);
   $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c],k=(DATA.checked||{})[c];return card(NAME[c],l,'上限 '+DATA.caps[c]+(k?' · 已签到 '+k:''),'',l<=20)}).join('');
   $('roleCards').innerHTML=Object.keys(ROLE).map(function(k){return card(ROLE[k],DATA.roles[k],'人')}).join('')}
 $('todoCards').addEventListener('click',function(e){var b=e.target.closest('[data-go]');if(!b)return;
@@ -369,7 +375,7 @@ $('todoCards').addEventListener('click',function(e){var b=e.target.closest('[dat
 function regList(){
   var q=$('fQ').value.trim().toLowerCase(),dom=$('fDom').value,sort=$('fSort').value;
   return DATA.rows.filter(function(r){
-    return (!S.st||state(r)===S.st)&&(dom===''||String(r.domestic?1:0)===dom)&&(!q||(r.code+' '+r.email+' '+r.data.people.map(function(p){return p.name+' '+(p.nick||'')}).join(' ')).toLowerCase().indexOf(q)>=0)
+    return (!S.st||(S.st==='unsent'?(r.mail_failed||[]).length>0:state(r)===S.st))&&(dom===''||String(r.domestic?1:0)===dom)&&(!q||(r.code+' '+r.email+' '+r.data.people.map(function(p){return p.name+' '+(p.nick||'')}).join(' ')).toLowerCase().indexOf(q)>=0)
   }).sort(function(a,b){
     if(sort==='old')return a.id-b.id;
     if(sort==='amount')return b.amount-a.amount||b.id-a.id;
@@ -381,8 +387,8 @@ function pager(key,total,unit){
   return '<button data-pg="'+key+'" data-d="-1"'+(p?'':' disabled')+'>‹ 上一页</button><span>第 '+(p+1)+' / '+z+' 页 · 共 '+total+' '+unit+'</span><button data-pg="'+key+'" data-d="1"'+(p<z-1?'':' disabled')+'>下一页 ›</button>'}
 function someLabel(id,n){var b=$(id);b.textContent='导出筛选的 '+n;b.disabled=!n}
 function regs(){
-  var n={};DATA.rows.forEach(function(r){var s=state(r);n[s]=(n[s]||0)+1});
-  $('chips').innerHTML=[['','全部',DATA.rows.length]].concat(Object.keys(ST).map(function(k){return [k,ST[k],n[k]||0]})).map(function(c){return '<button data-st="'+c[0]+'" class="'+(S.st===c[0]?'on':'')+'">'+c[1]+' '+c[2]+'</button>'}).join('');
+  var n={},unsent=0;DATA.rows.forEach(function(r){var s=state(r);n[s]=(n[s]||0)+1;if((r.mail_failed||[]).length)unsent++});
+  $('chips').innerHTML=[['','全部',DATA.rows.length]].concat(Object.keys(ST).map(function(k){return [k,ST[k],n[k]||0]})).concat(unsent||S.st==='unsent'?[['unsent','信没寄出',unsent]]:[]).map(function(c){return '<button data-st="'+c[0]+'" class="'+(S.st===c[0]?'on':'')+'">'+c[1]+' '+c[2]+'</button>'}).join('');
   var l=regList();$('regPager').innerHTML=pager('regs',l.length,'笔');someLabel('csvSome',l.length);
   $('rows').innerHTML=l.slice(S.pg.regs*N,(S.pg.regs+1)*N).map(function(r){var p=r.data.people[0]||{},due=r.status==='confirmed'&&r.due_at?bj(r.due_at).slice(5,10):'';
     return '<tr tabindex="0" data-open="'+r.id+'"'+(S.open===r.id?' class="sel"':'')+'><td class="x">'+esc(r.code)+'</td>'+
@@ -461,7 +467,8 @@ function history_(r){
   // registrations from before the names were kept
   if(r.confirmed_at&&!had.confirm)h.push([r.confirmed_at,'已确认']);
   if(r.cancelled_at&&!had.cancel)h.push([r.cancelled_at,'已取消']);
-  if(r.reminded_at)h.push([r.reminded_at,'已寄付款提醒']);
+  if(r.reminded_at&&!(r.mail_failed||[]).some(function(m){return m.action==='remind'}))h.push([r.reminded_at,'已寄付款提醒']);
+  (r.mail_failed||[]).forEach(function(m){h.push([m.at,'信没寄出：'+(LETTER[m.action]||m.action)])});
   (r.payments||[]).forEach(function(x){h.push([x.at,(x.amount<0?'退款 ':'收款 ')+fmt(Math.abs(x.amount))+' · '+(METHOD[x.method]||x.method)+' · '+byName(x.collector)+(x.by_admin!==x.collector?'（'+byName(x.by_admin)+' 记录）':'')+(x.note?' · '+x.note:'')])});
   if(r.paid_at)h.push([r.paid_at,'已付款']);
   (r.undos||[]).forEach(function(u){h.push([u.at,'撤销签到 '+((r.data.people[u.person]||{}).name||'')+' · '+(NAME[u.item]||u.item)+' · '+byName(u.by)])});
@@ -483,6 +490,7 @@ function side(){
   var note=r.id in drafts?drafts[r.id]:r.note||'';
   $('side').innerHTML='<div class="sh"><h2>'+esc(r.code)+'</h2><button data-close aria-label="关闭">✕</button></div>'+
     '<div class="sideinfo">'+tag(r)+' <span class="muted">'+(r.domestic?'国内':'国际')+' · '+r.people+' 人 · '+esc(r.email)+' · 语言 '+esc(r.lang)+'</span></div>'+
+    (r.mail_failed||[]).map(function(m){return '<p class="why" data-unsent>信没寄出：'+esc(LETTER[m.action]||m.action)+'（'+bj(m.at).slice(5)+'）</p>'}).join('')+
     '<ul>'+ppl+rooms+'</ul>'+(d.hotel&&can('passport')?'<button data-show>'+(S.show?'隐藏护照姓名':'显示护照姓名')+'</button>':'')+
     '<div class="cards">'+card('应收',fmt(r.amount),r.status==='confirmed'&&r.due_at?'期限 '+bj(r.due_at).slice(0,10):r.fee?'含手续费 '+fmt(r.fee):'全部人合计')+
       (r.status==='cancelled'?card('应退',fmt(r.refund),'已收净额 '+fmt(r.paid_total)):card('尚欠',fmt(r.status==='pending'||r.status==='waitlist'?r.amount:rest),'已收 '+fmt(r.paid_total)))+'</div>'+
@@ -513,7 +521,7 @@ $('side').addEventListener('submit',function(e){
   b.disabled=true;
   act('/act',{id:id,action:a,from:f.dataset.from,pay:{seen:+f.dataset.seen,amount:+v('.pa'),method:v('.pm'),collector:v('.pc'),note:v('.pn')}}).then(function(d){
     if(!d.ok){b.disabled=false;return refused(d)}
-    toast(a==='refund'?'已记退款':d.status==='paid'?'已收齐，付款确认信已寄出':'已记收款，尚欠 '+fmt(d.rest));load()})});
+    toast(a==='refund'?'已记退款':d.status==='paid'?'已收齐'+mailTip(d):'已记收款，尚欠 '+fmt(d.rest),d.mail==='failed'?12000:4000);load()})});
 $('side').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;var r=rowOf(S.open);if(!r)return;
   if(b.hasAttribute('data-close'))return closeSide();
@@ -529,12 +537,12 @@ $('side').addEventListener('click',function(e){
       r.note=d.note;delete drafts[r.id];delete bases[r.id];if(now)now.note=d.note;toast('备注已存')});return}
   var a=b.dataset.a;if(!a)return;
   if(a==='pay'||a==='refund')return payForm(r,a);
-  if(!confirm('确定要「'+ACT_NAME[a]+'」'+r.code+'（'+r.data.people[0].name+'，'+r.people+' 人，'+fmt(r.amount)+'）吗？会寄信通知报名者。'))return;
+  if(!confirm('确定要「'+ACT_NAME[a]+'」'+r.code+'（'+r.data.people[0].name+'，'+r.people+' 人，'+fmt(r.amount)+'）吗？会试着寄信通知报名者。'))return;
   var l=S.tab==='regs'?regList():[],k=l.map(function(x){return x.id}).indexOf(r.id),after=k>=0&&l[k+1]?l[k+1].id:0;
   b.disabled=true;
   act('/act',{id:r.id,action:a,from:r.status}).then(function(d){
     if(!d.ok){b.disabled=false;return refused(d)}
-    toast(r.code+' 已'+ACT_NAME[a]+(d.refund!=null&&a==='cancel'?'，应退 '+fmt(d.refund):''));
+    toast(r.code+' 已'+ACT_NAME[a]+(d.refund!=null&&a==='cancel'?'，应退 '+fmt(d.refund):'')+mailTip(d),d.mail==='failed'?12000:4000);
     // reviewing one by one: go straight on to the next one that is waiting
     if(S.st==='pending'&&after&&S.open===r.id&&(a==='confirm'||a==='waitlist'||a==='decline')){S.open=after;S.show=false;$('side').scrollTop=0}
     load()})});
