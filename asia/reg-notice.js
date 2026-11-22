@@ -11,16 +11,16 @@
   var D = document, zh = (D.documentElement.getAttribute('data-asia-lang') || D.documentElement.lang || '').indexOf('zh') === 0;
   var T = zh ? {
     confirmed: '🎉 北京精选探戈周末：你的报名 C 已确认，请在 D 前付款 A', soon: '⏰ 北京精选探戈周末：报名 C 的付款期限 D 快到了（A）',
-    paid: '✓ 北京精选探戈周末：已收到报名 C 的付款，入场二维码在这里', cash: '北京精选探戈周末：报名 C 请到场付现 A，入场二维码在这里',
+    paid: '✓ 北京精选探戈周末：已收到报名 C 的付款，入场二维码在这里', cash: '北京精选探戈周末：报名 C 请到场付款 A，入场二维码在这里',
     waitlist: '北京精选探戈周末：报名 C 目前在候补名单上', declined: '北京精选探戈周末：报名 C 的审核结果',
     go: '查看', close: '关闭', payH: '💳 你的付款码已准备好', soonH: '⏰ 付款期限快到了', waitH: '🎉 报名已确认', passH: '🎫 你的入场码已准备好',
-    ev: '北京精选探戈周末', payL: '请在 D 前付款 A', waitL: '付款码稍后提供', paidL: '已收到付款，建议先截图保存', cashL: '请到场付现 A',
+    ev: '北京精选探戈周末', payL: '请在 D 前付款 A', waitL: '付款码稍后提供', paidL: '已收到付款，建议先截图保存', cashL: '到场请先出示二维码给活动经理，付款 A',
     payB: '查看付款码', passB: '查看入场码', mini: '💳 待付款 A · D 前', miniB: '付款码' } : {
     confirmed: '🎉 Beijing Select Tango Weekend: registration C is confirmed. Please pay A by D', soon: '⏰ Beijing Select Tango Weekend: payment for C (A) is due D',
-    paid: '✓ Beijing Select Tango Weekend: payment for C received. Your entry QR codes are here', cash: 'Beijing Select Tango Weekend: C, pay A in cash at the event. Entry QR codes here',
+    paid: '✓ Beijing Select Tango Weekend: payment for C received. Your entry QR codes are here', cash: 'Beijing Select Tango Weekend: C, pay A when you arrive. Entry QR codes here',
     waitlist: 'Beijing Select Tango Weekend: registration C is on the waiting list', declined: 'Beijing Select Tango Weekend: result for registration C',
     go: 'View', close: 'Close', payH: '💳 Your payment QR code is ready', soonH: '⏰ Payment is due soon', waitH: '🎉 Registration confirmed', passH: '🎫 Your entry QR code is ready',
-    ev: 'Beijing Select Tango Weekend', payL: 'Please pay A by D', waitL: 'The payment QR code will follow', paidL: 'Payment received. Take a screenshot to keep', cashL: 'Pay A in cash at the event',
+    ev: 'Beijing Select Tango Weekend', payL: 'Please pay A by D', waitL: 'The payment QR code will follow', paidL: 'Payment received. Take a screenshot to keep', cashL: 'On arrival, show your QR to an event manager and pay A',
     payB: 'View payment QR', passB: 'View entry QR', mini: '💳 Pay A by D', miniB: 'QR code' };
   function seen() { try { return localStorage.getItem('bstw_seen') || ''; } catch (e) { return ''; } }
   fetch(API + '/social/reg/me?event=bstw2027&lang=' + (zh ? 'zh' : 'en'), { headers: { Authorization: 'Bearer ' + tok } })
@@ -37,7 +37,7 @@
       var key = r.code + ':' + kind + ':2', folded = seen() === key;
       if (folded && !(unpaid && hasQr)) return;   // only an unpaid registration with a QR keeps a one-line reminder
       var date = r.due ? new Date(r.due).toLocaleDateString(zh ? 'zh-CN' : 'en', { month: 'short', day: 'numeric', timeZone: 'Asia/Shanghai' }) : '';
-      var fill = function (s) { return s.replace(/\b[ACD]\b/g, function (m) { return m === 'A' ? '¥' + Number(r.amount || 0).toLocaleString('en-US') : m === 'C' ? r.code : date; }); };
+      var fill = function (s) { return s.replace(/\b[ACD]\b/g, function (m) { return m === 'A' ? '¥' + Number((r.rest == null ? r.amount : r.rest) || 0).toLocaleString('en-US') : m === 'C' ? r.code : date; }); };
       var href = PAGE + '?lang=' + (zh ? 'zh' : 'en') + (unpaid ? '#pay' : hasPass ? '#passes' : '');
       var el = function (tag, text, css) { var e = D.createElement(tag); e.textContent = text; if (css) e.style.cssText = css; return e; };
       var keep = function () { try { localStorage.setItem('bstw_seen', key); } catch (e) {} };
@@ -80,6 +80,8 @@
     logo.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); open(r); }, true);
   }
   var lock = null;
+  // Words under the QR: always Chinese, plus the language chosen when registering.
+  var CAP = {"zh": {"pass": "入场码：请出示给前台，每人一个", "cash": "到场付款：请出示此二维码给活动经理，付款后才能入场"}, "en": {"pass": "Entry code: show it at the front desk, one per person", "cash": "Pay on arrival: show this QR code to an event manager. Entry is possible after payment"}, "ko": {"pass": "입장 코드: 안내 데스크에 보여 주세요. 1인당 하나입니다", "cash": "현장 결제: 이 QR 코드를 행사 매니저에게 보여 주세요. 결제 후 입장할 수 있습니다"}, "es": {"pass": "Código de entrada: muéstralo en recepción, uno por persona", "cash": "Pago al llegar: muestra este código QR al responsable del evento. Podrás entrar después de pagar"}, "ru": {"pass": "Входной код: покажите на стойке, один на человека", "cash": "Оплата на месте: покажите этот QR-код менеджеру мероприятия. Вход возможен после оплаты"}};
   // Event schedule (Beijing time). One pass covers every event the person chose; the door picks the event.
   var SCHED = { MV: ['2027-06-18', '20:00', '周五 欢迎舞会', 'Fri Welcome Milonga'], T1: ['2027-06-18', '09:00', '周五 一日游', 'Fri Day Tour'],
     M1: ['2027-06-19', '14:00', '周六 下午场', 'Sat afternoon milonga'], M2: ['2027-06-19', '20:00', '周六 晚场', 'Sat night milonga'],
@@ -106,12 +108,13 @@
     x.style.cssText = 'background:none;border:0;color:#e8c06a;font-size:22px;padding:0 4px;cursor:pointer';
     top.append(h, x);
     var row = D.createElement('div');
-    row.style.cssText = 'flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch';
+    row.style.cssText = 'flex:1;min-height:0;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch';
     r.passes.forEach(function (p, i) {
       var c = D.createElement('div');
-      c.style.cssText = 'flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;box-sizing:border-box';
+      c.style.cssText = 'flex:0 0 100%;scroll-snap-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;min-height:0;overflow-y:auto';
+      if (window.innerHeight < 700) c.style.justifyContent = 'flex-start';
       var im = D.createElement('img'); im.src = p.img; im.alt = 'QR';
-      im.style.cssText = 'width:min(82vw,62vh,380px);height:auto;aspect-ratio:1;image-rendering:pixelated;background:#fff';
+      im.style.cssText = 'flex-shrink:0;width:min(82vw,42vh,380px);height:auto;aspect-ratio:1;image-rendering:pixelated;background:#fff';
       var n = D.createElement('div'); n.textContent = p.name; n.style.cssText = 'font-size:22px;font-weight:800;margin-top:14px';
       var cd = D.createElement('div'); cd.textContent = p.pass.split('.')[0] + (r.passes.length > 1 ? '  ·  ' + (i + 1) + ' / ' + r.passes.length : '');
       cd.style.cssText = 'color:#7a6255;margin-top:4px';
@@ -119,13 +122,17 @@
       n.style.margin = '0 0 12px'; cd.style.margin = '10px 0 0';
       var ev = D.createElement('div'); ev.textContent = scheduleLine(p.items);
       ev.style.cssText = 'margin-top:10px;max-width:420px;text-align:center;font-weight:700;color:#7a0a10;font-size:15px;line-height:1.5';
-      c.append(n, im, cd, ev); row.appendChild(c);
+      var words = D.createElement('div'), k = r.status === 'cash' ? 'cash' : 'pass', rl = CAP[r.lang] ? r.lang : (zh ? 'zh' : 'en');
+      words.className = 'atm-pass-words'; words.style.cssText = 'margin-top:10px;max-width:360px;text-align:center;font-size:14px;line-height:1.4';
+      [CAP.zh[k]].concat(rl === 'zh' ? [] : [CAP[rl][k]]).forEach(function (s, j) { var w = D.createElement('div'); w.textContent = s; w.style.cssText = j ? 'margin-top:4px;padding-top:4px;border-top:1px solid #ead9b8' : 'font-weight:700'; words.appendChild(w); });
+      if (window.innerHeight < 700) { c.style.padding = '8px 16px'; im.style.width = 'min(72vw,30vh)'; words.style.fontSize = '12.5px'; }
+      c.append(n, im, cd, ev, words); row.appendChild(c);
     });
     var foot = D.createElement('div');
     foot.style.cssText = 'padding:10px 16px max(14px,env(safe-area-inset-bottom));text-align:center;color:#7a6255;font-size:13px';
     foot.textContent = (r.passes.length > 1 ? (zh ? '左右滑动看同行者的码 · ' : 'Swipe for your companions · ') : '') +
       (zh ? '入场时出示，请把屏幕调亮' : 'Show it at the door. Turn up your screen brightness.');
-    if (r.status === 'cash') foot.textContent += (zh ? ' · 请到场付现 ¥' : ' · Pay in cash at the event: ¥') + Number(r.amount || 0).toLocaleString('en-US');
+    if (r.status === 'cash') foot.textContent += (zh ? ' · 请到场付款 ¥' : ' · Pay on arrival: ¥') + Number((r.rest == null ? r.amount : r.rest) || 0).toLocaleString('en-US');
     ov.append(top, row, foot); D.body.appendChild(ov);
     var oldOverflow = D.documentElement.style.overflow; D.documentElement.style.overflow = 'hidden';
     try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (l) { lock = l; }).catch(function () {}); } catch (e) {}

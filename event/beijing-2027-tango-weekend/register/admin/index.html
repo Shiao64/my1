@@ -51,7 +51,7 @@ textarea{width:100%;min-height:60px}
   </div>
   <div class="card" id="list" hidden>
     <div class="filters">
-      <select id="fSt"><option value="">全部状态</option><option value="pending">待审核</option><option value="confirmed">已确认</option><option value="overdue">逾期</option><option value="paid">已付款</option><option value="cash">现场付现</option><option value="waitlist">候补</option><option value="declined">婉拒</option><option value="cancelled">已取消</option></select>
+      <select id="fSt"><option value="">全部状态</option><option value="pending">待审核</option><option value="confirmed">已确认</option><option value="overdue">逾期</option><option value="paid">已付款</option><option value="cash">到场付款</option><option value="waitlist">候补</option><option value="declined">婉拒</option><option value="cancelled">已取消</option></select>
       <select id="fDom"><option value="">国内＋国际</option><option value="1">只看国内</option><option value="0">只看国际</option></select>
       <select id="fRole"><option value="">全部角色</option><option value="leader">有 Leader</option><option value="follower">有 Follower</option><option value="both">有 都可以</option></select>
       <input id="fQ" placeholder="搜寻姓名、邮箱、编号">
@@ -67,7 +67,7 @@ textarea{width:100%;min-height:60px}
   </div>
   <div class="card" id="adminsCard" hidden>
     <h2>管理员（只有主办看得到）</h2>
-    <p class="muted">每人一个管理密码，只显示一次，请用微信私下传给对方。权限：审核（确认／候补／婉拒）、收款（记收款、退款、现场付现）、取消、修改、门口工作人员、导出。</p>
+    <p class="muted">每人一个管理密码，只显示一次，请用微信私下传给对方。权限：审核（确认／候补／婉拒）、收款（记收款、退款、到场付款）、取消、修改、门口工作人员、导出。</p>
     <div class="filters"><input id="aName" placeholder="名字，例如 竟文"><span id="aPerms"></span><button class="p" id="aAdd">新增管理员</button></div>
     <div id="aNew" hidden style="background:#fff8e6;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-bottom:10px">
       <div><b id="aNewName"></b> 的管理密码（只显示这一次）：</div>
@@ -99,14 +99,14 @@ var API=(function(){try{var a=new URLSearchParams(location.search).get('api');if
 var $=function(i){return document.getElementById(i)},DATA=null;
 var NAME={MV:'周五 欢迎舞会',M1:'周六 下午场',M2:'周六 晚场',M3:'周日 下午场',M4:'周日 晚场',T1:'周五 一日游',S1:'周一 探戈小院',T2:'周二 城市漫步',MF:'周二 告别舞会'};
 var PKG={full:'全程套餐',combo:'周末套餐',pass:'周末舞会4场',single:'单场'};
-var ST={pending:'待审核',confirmed:'已确认',paid:'已付款',cash:'现场付现',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
+var ST={pending:'待审核',confirmed:'已确认',paid:'已付款',cash:'到场付款',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
 var ROLE={leader:'Leader',follower:'Follower',both:'都可以'};
 var ACTS={pending:['confirm','waitlist','decline','cancel'],waitlist:['confirm','decline','cancel'],confirmed:['pay','cash','cancel'],cash:['pay','cancel'],paid:['pay','cancel'],declined:[],cancelled:['refund']};
 var ACT_PERM={confirm:'review',waitlist:'review',decline:'review',pay:'collect',cash:'collect',refund:'collect',cancel:'cancel'};
 var PERM_NAME={review:'审核',collect:'收款',cancel:'取消',modify:'修改',staff:'门口工作人员',export:'导出'};
 var METHOD={wechat:'微信',alipay:'支付宝',cash:'现金',other:'其他'};
 function can(p){return !p||(DATA&&DATA.me&&(DATA.me.owner||DATA.me.perms.indexOf(p)>=0))}
-var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'现场付现',cancel:'取消',refund:'记退款'};
+var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'到场付款',cancel:'取消',refund:'记退款'};
 try{$('tok').value=localStorage.getItem('bstw_admin')||''}catch(e){}
 function toast(s){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},3500)}
 function call(path,opt){opt=opt||{};return fetch(API+path,{method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+$('tok').value.trim()},body:opt.body?JSON.stringify(opt.body):undefined})}
@@ -152,10 +152,10 @@ function payForm(id,a){var r=rowOf(id),box=document.querySelector('[data-pf="'+i
   box.querySelector('.px').onclick=function(){box.hidden=true};
   box.querySelector('.ps').onclick=function(){var btn=this;btn.disabled=true;
     call('/social/admin/reg/act',{method:'POST',body:{id:id,action:a,pay:{amount:+box.querySelector('.pa').value,method:box.querySelector('.pm').value,collector:box.querySelector('.pc').value.trim(),note:box.querySelector('.pn').value.trim()}}}).then(function(r){return r.json()}).then(function(d){
-      if(d.ok){toast(a==='refund'?'已记退款':(d.status==='paid'?'已收齐，付款确认信已寄出':'已记收款，尚欠 '+fmt(d.rest)));load()}else{btn.disabled=false;toast(d.error==='no_permission'?'你没有这个权限':'没成功：'+d.error)}})}}
+      if(d.ok){toast(a==='refund'?'已记退款':(d.status==='paid'?'已收齐，付款确认信已寄出':'已记收款，尚欠 '+fmt(d.rest)));load()}else{btn.disabled=false;toast(d.error==='no_permission'?'你没有这个权限':d.error==='already_paid'?'已经收齐，或刚刚有人记过。请按「登入 / 刷新」看最新':d.error==='bad_amount'?'金额不对：最多 '+fmt(d.rest!=null?d.rest:d.due):'没成功：'+d.error)}})}}
 $('rows').addEventListener('click',function(e){var b=e.target.closest('button[data-a]');if(!b)return;var a=b.dataset.a,id=+b.dataset.id;
   if(a==='pay'||a==='refund')return payForm(id,a);
-  if(!confirm('确定要「'+ACT_NAME[a]+'」这笔报名吗？会寄信通知舞者。'))return;b.disabled=true;
+  if(!confirm('确定要「'+ACT_NAME[a]+'」这笔报名吗？会寄信通知报名者。'))return;b.disabled=true;
   call('/social/admin/reg/act',{method:'POST',body:{id:id,action:a}}).then(function(r){return r.json()}).then(function(d){
     if(d.ok){toast('已'+ACT_NAME[a]+(d.refund!=null?'，应退 '+fmt(d.refund):''));load();return}
     b.disabled=false;toast(d.error==='no_permission'?'你没有这个权限':d.error==='full'?(NAME[d.item]+' 只剩 '+d.left+' 位，这笔要 '+d.need+' 位'):('没成功：'+d.error))})});
