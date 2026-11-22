@@ -45,7 +45,7 @@
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
-## 0.8 探戈通 TangoPass（活动报名系统）
+## 0.8 探戈通 Tango Pass（TGT，活动报名系统）
 详细说明、所有决定、Cloudflare 设定名称、部署步骤、待办都在 **`docs/tangopass.md`**，改报名系统前先读、改完更新那份。活动：`bstw2027`（北京精选探戈周末 2027）、`2027mvny`（Milonga V 2027 New Year）。
 
 ## 1. 先读这些
