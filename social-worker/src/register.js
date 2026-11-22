@@ -5,9 +5,11 @@
 //   GET  /social/reg/me?event=bstw2027 (Bearer) -> {email, reg:{code,status}|null}
 //   POST /social/reg (Bearer subscriber)      -> {ok, code, total}   new form, or update of a still-pending one
 //   GET  /social/reg/qr/<name>?k=KEY          -> payment QR image used inside the confirmation letter
-// Organizer (Bearer REG_ADMIN_TOKEN, or the site-wide ADMIN_TOKEN)
-//   GET  /social/admin/reg?event=bstw2027[&format=csv] -> list + summary
-//   POST /social/admin/reg/act {id, action, note?, data?}  confirm|waitlist|decline|paid|cash|cancel|modify|note
+// Management (Bearer REG_ADMIN_TOKEN / ADMIN_TOKEN = platform admin, or a person's own password). Rules: docs/tangopass.md.
+//   GET  /social/admin/reg?event=bstw2027[&format=csv] -> only what that role may see
+//   POST /social/admin/reg/act {id, action, from?, note?, was?, pay?, data?, p?}
+//        confirm|waitlist|decline|pay|cash|refund|cancel|modify|note; from / was / pay.seen = what the caller's screen showed
+//   POST /social/admin/reg/admins[/role|/reset|/delete], /staff[/reissue|/delete]   appointments
 //   POST /social/admin/reg/asset {name, mime, b64}         upload a payment QR
 //   Organizer page: /event/beijing-2027-tango-weekend/register/admin/ (static, asks for the token)
 //
@@ -15,7 +17,8 @@
 
 export const EVENTS = {
   bstw2027: {
-    id: 'bstw2027', prefix: 'BJ27', name: { en: 'Beijing Select Tango Weekend 2027', zh: '北京精选探戈周末 2027' },
+    id: 'bstw2027', prefix: 'BJ27', chief: 'owner',   // the one 总管 is the platform admin himself, with the existing password
+    name: { en: 'Beijing Select Tango Weekend 2027', zh: '北京精选探戈周末 2027' },
     items: {
       MV: { key: 'welcome', price: 150, cap: 200 },
       M1: { key: 'sat-aft', price: 150, cap: 300 },
@@ -421,27 +424,40 @@ const CSV_COLS = ['code', 'status', 'created', 'email', 'lang', 'person', 'name'
 // Text typed by registrants must never run as a formula in Excel: such cells get a leading '. Real numbers stay numbers.
 const csvCell = v => { let s = String(v == null ? '' : v); if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 const bjTime = iso => iso ? new Date(Date.parse(iso) + 8 * 36e5).toISOString().slice(0, 16).replace('T', ' ') : '';   // exports use Beijing time
-// Who is calling the organizer API. Four roles (2026-11-23):
-//   owner   the organizer / platform admin (REG_ADMIN_TOKEN, ADMIN_TOKEN): everything, and the only one who appoints chiefs and changes payment QRs
-//   chief   总管, reg_admin.perms = 'chief': everything else inside that event, including appointing site managers
-//   manager 现场经理, reg_admin.perms = any of collect,staff: money on site for a scanned pass, and the front desk. Never the list.
-//   desk    前台, a reg_staff link: check-in only
-export const PERMS = ['review', 'collect', 'cancel', 'modify', 'staff', 'export'];
-const SITE_PERMS = ['collect', 'staff'];
+// Who is calling. The rules are the first section of docs/tangopass.md (2026-11-23):
+//   owner    平台管理员: every event, appoints everyone. Where the event says chief:'owner', also that event's 总管
+//   chief    总管: one per event
+//   deputy   副总管: three at most per event
+//   manager  现场经理: money on site, for the code just scanned
+//   desk     前台 (reg_staff): check-in only
+// Nobody acts on their own rank or above. reg_admin.perms holds the role; any older value is a site manager.
+const RANK = { desk: 0, manager: 1, deputy: 2, chief: 3, owner: 4 };
+const LIMIT = { chief: 1, deputy: 3 };
+const ALL = ['door', 'undo', 'collect', 'review', 'list', 'cancel', 'refund', 'modify', 'passport', 'export'];
+const GRANT = { owner: [...ALL, 'asset'], chief: ALL, deputy: ['door', 'undo', 'collect', 'review', 'list'], manager: ['door', 'undo', 'collect'], desk: ['door'] };
+const ACT_NEEDS = { confirm: 'review', waitlist: 'review', decline: 'review', cash: 'review', paid: 'review', pay: 'review', note: 'review', cancel: 'cancel', refund: 'refund', modify: 'modify' };
+const roleOf = perms => perms === 'chief' || perms === 'deputy' ? perms : 'manager';
+const can = (who, perm) => !!who && GRANT[who.role].includes(perm);
+const mayAppoint = (who, role) => RANK[who.role] >= RANK.deputy && RANK[who.role] > RANK[role];
 async function adminWho(req, env, evId) {
-  if (adminOK(req, env)) return { name: env.REG_OWNER_NAME || '张孝', role: 'owner', owner: true, full: true, perms: new Set(PERMS) };
+  if (adminOK(req, env)) return { name: ownerName(env), role: 'owner' };
   const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
   if (!/^[0-9a-f]{40}$/.test(a)) return null;
   let row = null;
-  try { row = await env.SDB.prepare('SELECT id,name,perms,event FROM reg_admin WHERE pass_hash=? AND disabled_at IS NULL').bind(await sha256(a)).first(); }
+  try { row = await env.SDB.prepare('SELECT id,name,perms,event,created_at FROM reg_admin WHERE pass_hash=? AND disabled_at IS NULL').bind(await sha256(a)).first(); }
   catch (e) { if (/no such table/i.test(String(e && e.message))) return null; throw e; }
   if (!row || (evId && row.event !== evId)) return null;
-  const chief = row.perms === 'chief';
-  return { id: row.id, event: row.event, name: row.name, role: chief ? 'chief' : 'manager', owner: false, full: chief, perms: new Set(chief ? PERMS : String(row.perms || '').split(',').filter(x => SITE_PERMS.includes(x))) };
+  return { id: row.id, event: row.event, name: row.name, since: row.created_at, role: roleOf(row.perms) };
 }
-const can = (who, perm) => who.full || who.perms.has(perm);
-// Names are what check-ins and payments record, so nobody may be added under the organizer's.
-const reserved = (env, name) => [env.REG_OWNER_NAME || '张孝', '主办', '组织者'].includes(name);
+const ownerName = env => env.REG_OWNER_NAME || '张孝';
+// Names are what the records keep, so nobody is added under the platform admin's, and two working people never share one.
+const reserved = (env, name) => [ownerName(env), '主办', '组织者'].includes(name);
+const NAME_FREE = 'NOT EXISTS (SELECT 1 FROM reg_admin WHERE event=? AND name=? AND disabled_at IS NULL) AND NOT EXISTS (SELECT 1 FROM reg_staff WHERE event=? AND name=? AND disabled_at IS NULL)';
+async function nameFree(env, evId, name) { return !!(await env.SDB.prepare('SELECT 1 x WHERE ' + NAME_FREE).bind(evId, name, evId, name).first()); }
+function meOf(who, ev) {
+  const appoint = ['chief', 'deputy', 'manager', 'desk'].filter(x => mayAppoint(who, x) && !(x === 'chief' && ev.chief === 'owner'));
+  return { name: who.name, role: who.role, seat: who.role === 'owner' && ev.chief === 'owner' ? 'chief' : who.role, perms: GRANT[who.role], appoint };
+}
 // Deleted people leave their name in the records; someone added later under that name only counts from their own start.
 async function staffList(env, evId) {
   return (await env.SDB.prepare(`SELECT s.id,s.name,s.created_at,s.activated_at,s.disabled_at,
@@ -450,22 +466,52 @@ async function staffList(env, evId) {
 }
 async function managerHome(env, ev, who, json) {
   const mine = (await env.SDB.prepare(`SELECT p.id,p.at,p.amount,p.method,r.code,r.data FROM reg_payment p JOIN reg r ON r.id=p.reg_id
-    WHERE r.event=? AND p.by_admin=? AND p.amount>0 AND p.at>=(SELECT created_at FROM reg_admin WHERE id=?) ORDER BY p.id`).bind(ev.id, who.name, who.id).all()).results || [];
-  return json({ event: ev.id, me: meOf(who), staff: can(who, 'staff') ? await staffList(env, ev.id) : [],
-    mine: mine.map(({ data, ...x }) => ({ ...x, name: (JSON.parse(data).people[0] || {}).name || '' })) });
+    WHERE r.event=? AND p.by_admin=? AND p.amount>0 AND p.at>=? ORDER BY p.id`).bind(ev.id, who.name, who.since).all()).results || [];
+  return json({ event: ev.id, me: meOf(who, ev), mine: mine.map(({ data, ...x }) => ({ ...x, name: (JSON.parse(data).people[0] || {}).name || '' })) });
 }
-const meOf = who => ({ name: who.name, role: who.role, owner: who.owner, perms: [...who.perms] });
+
+// ---------- who did what
+// A change and its log line go in one batch (a transaction): the line is written only if the change was made, so the
+// first of two simultaneous callers wins and the later one can always be told who that was.
+const doLogged = async (env, change, id, action, by, text = '', ...more) => (await env.SDB.batch([
+  change,
+  env.SDB.prepare('INSERT INTO reg_log(reg_id,at,action,detail) SELECT ?,?,?,? WHERE changes()>0').bind(id, nowIso(), action, JSON.stringify({ by, text: String(text).slice(0, 700) })),
+  ...more]))[0].meta.changes > 0;
+const HANDLED = ['confirm', 'waitlist', 'decline', 'cash', 'pay', 'refund', 'cancel', 'modify', 'note', 'checkin_undo'];
+function readLog(l) {
+  const raw = String(l.detail || '');
+  try { const d = JSON.parse(raw); if (d && typeof d.by === 'string') return { action: l.action, at: l.at, by: d.by, text: d.text || '' }; } catch { /* a line from before 2026-11-23 */ }
+  const m = l.action === 'checkin_undo' ? /^(\S+) by (.*)$/.exec(raw) : /^(.*)\((?:recorded )?by ([^()]*)\)$/.exec(raw);
+  return { action: l.action, at: l.at, by: m ? m[2] : '', text: m ? m[1].trim() : raw };
+}
+async function lastHandled(env, regId, actions = HANDLED.filter(x => x !== 'note' && x !== 'checkin_undo')) {
+  const l = await env.SDB.prepare(`SELECT action,at,detail FROM reg_log WHERE reg_id=? AND action IN (${actions.map(() => '?')}) ORDER BY id DESC LIMIT 1`).bind(regId, ...actions).first();
+  if (!l) return null;
+  const { action, at, by } = readLog(l);   // never the text: it can hold an amount
+  return { action, at, by };
+}
+async function lastPayment(env, regId, who, sign = 1) {
+  const p = await env.SDB.prepare(`SELECT at,collector,method,by_admin FROM reg_payment WHERE reg_id=? AND amount${sign > 0 ? '>' : '<'}0 ORDER BY id DESC LIMIT 1`).bind(regId).first();
+  if (!p) return null;
+  const out = { action: sign > 0 ? 'pay' : 'refund', at: p.at, by: p.by_admin, collector: p.collector };
+  return can(who, 'list') ? { ...out, method: p.method } : out;
+}
 export async function paidSum(env, regId) { const r = await env.SDB.prepare('SELECT COALESCE(SUM(amount),0) s FROM reg_payment WHERE reg_id=?').bind(regId).first(); return Number(r && r.s || 0); }
+async function moneyOf(env, regId) {
+  const r = (await env.SDB.prepare('SELECT COUNT(*) n,COALESCE(SUM(amount),0) s,COALESCE(SUM(CASE WHEN amount<0 THEN -amount ELSE 0 END),0) o FROM reg_payment WHERE reg_id=?').bind(regId).first()) || {};
+  return { n: Number(r.n || 0), sum: Number(r.s || 0), out: Number(r.o || 0) };
+}
 export async function regAdmin(req, env, url, b, json, kit) {
   const p = url.pathname.slice('/social/admin/reg'.length);
-  const ev = EVENTS[(b && b.event) || url.searchParams.get('event') || 'bstw2027'];
+  const evId = String((b && b.event) || url.searchParams.get('event') || 'bstw2027');
+  const ev = Object.hasOwn(EVENTS, evId) ? EVENTS[evId] : null;
   if (!ev) return json({ error: 'bad_event' }, 400);
   const who = await adminWho(req, env, ev.id);
   if (!who) return json({ error: 'auth' }, 401);
   const deny = () => json({ error: 'no_permission' }, 403);
-  if (p === '/me' && req.method === 'GET') return json({ ok: true, ...meOf(who) });
+  if (p === '/me' && req.method === 'GET') return json({ ok: true, ...meOf(who, ev) });
   if (p === '' && req.method === 'GET') {
-    if (!who.full) return url.searchParams.get('format') ? deny() : managerHome(env, ev, who, json);
+    if (!can(who, 'list')) return url.searchParams.get('format') ? deny() : managerHome(env, ev, who, json);
     const rows = ((await env.SDB.prepare('SELECT * FROM reg WHERE event=? ORDER BY id').bind(ev.id).all()).results || []).map(r => ({ ...r, data: JSON.parse(r.data) }));
     if (url.searchParams.get('format') === 'csv') {
       if (!can(who, 'export')) return deny();
@@ -487,19 +533,24 @@ export async function regAdmin(req, env, url, b, json, kit) {
     for (const c of ((await env.SDB.prepare('SELECT c.reg_id,c.person,c.item,c.staff FROM reg_checkin c JOIN reg r ON r.id=c.reg_id WHERE r.event=?').bind(ev.id).all()).results || [])) {
       checked[c.item] = (checked[c.item] || 0) + 1;
       (inRows[c.reg_id] = inRows[c.reg_id] || []).push({ person: c.person, item: c.item, staff: c.staff }); }
-    const undone = {};
-    for (const l of ((await env.SDB.prepare("SELECT l.reg_id,l.at,l.detail FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND l.action='checkin_undo'").bind(ev.id).all()).results || [])) {
-      const m = /^(\d+):(\w+)(?: by (.*))?$/.exec(l.detail || '');
-      if (m) (undone[l.reg_id] = undone[l.reg_id] || []).push({ at: l.at, person: +m[1], item: m[2], by: m[3] || '' }); }
-    rows.forEach(r => { r.checkins = inRows[r.id] || []; r.undos = undone[r.id] || []; });
+    const undone = {}, history = {};
+    for (const raw of ((await env.SDB.prepare(`SELECT l.reg_id,l.action,l.at,l.detail FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND l.action IN (${HANDLED.map(() => '?')}) ORDER BY l.id`).bind(ev.id, ...HANDLED).all()).results || [])) {
+      const l = readLog(raw);
+      if (l.action === 'checkin_undo') {
+        const m = /^(\d+):(\w+)/.exec(l.text);
+        if (m) (undone[raw.reg_id] = undone[raw.reg_id] || []).push({ at: l.at, person: +m[1], item: m[2], by: l.by });
+      } else if (l.action !== 'pay' && l.action !== 'refund') (history[raw.reg_id] = history[raw.reg_id] || []).push({ action: l.action, at: l.at, by: l.by }); }   // money is shown from reg_payment
+    rows.forEach(r => { r.checkins = inRows[r.id] || []; r.undos = undone[r.id] || []; r.log = history[r.id] || [];
+      if (!can(who, 'passport')) delete r.data.passports; });   // not sent at all, not just hidden
     const staff = await staffList(env, ev.id);
     const pays = ((await env.SDB.prepare('SELECT p.* FROM reg_payment p JOIN reg r ON r.id=p.reg_id WHERE r.event=? ORDER BY p.id').bind(ev.id).all()).results) || [];
     const byReg = {}, byCollector = {};
     for (const x of pays) { (byReg[x.reg_id] = byReg[x.reg_id] || []).push(x); const c = byCollector[x.collector] = byCollector[x.collector] || { in: 0, out: 0, n: 0 }; if (x.amount >= 0) c.in += x.amount; else c.out -= x.amount; c.n++; }
     rows.forEach(r => { r.payments = byReg[r.id] || []; r.paid_total = r.payments.reduce((s, x) => s + x.amount, 0); });
     const admins = ((await env.SDB.prepare('SELECT id,name,perms,created_at,disabled_at FROM reg_admin WHERE event=? ORDER BY id').bind(ev.id).all()).results || [])
-      .map(x => ({ ...x, role: x.perms === 'chief' ? 'chief' : 'manager' }));
-    return json({ event: ev.id, me: meOf(who), left, caps, roles, counts, overdue, checked, staff, ledger: byCollector, admins, rows });
+      .map(({ perms, ...x }) => { const role = roleOf(perms); return { ...x, role, manage: mayAppoint(who, role) }; })
+      .sort((x, y) => RANK[y.role] - RANK[x.role] || x.id - y.id);
+    return json({ event: ev.id, me: meOf(who, ev), chief: ev.chief === 'owner' ? ownerName(env) : '', left, caps, roles, counts, overdue, checked, staff, ledger: byCollector, admins, rows });
   }
   if (p === '/payments' && req.method === 'GET') {
     if (!can(who, 'export')) return deny();
@@ -508,118 +559,159 @@ export async function regAdmin(req, env, url, b, json, kit) {
     return new Response('\ufeff' + lines.join('\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${ev.id}-payments.csv"`, 'Cache-Control': 'no-store' } });
   }
   if (p.startsWith('/admins')) {
-    if (!who.full) return deny();
+    if (RANK[who.role] < RANK.deputy) return deny();
     if (req.method !== 'POST') return json({ error: 'not_found' }, 404);
-    const wanted = b && b.role;
-    if (wanted != null && wanted !== 'chief' && wanted !== 'manager') return json({ error: 'bad_role' }, 400);
-    if (wanted === 'chief' && !who.owner) return deny();   // only the organizer appoints a chief
-    // not given = both, the default for a site manager
-    const site = list => (Array.isArray(list) ? SITE_PERMS.filter(x => list.includes(x)) : SITE_PERMS).join(',');
+    const want = p === '/admins' ? (b.role == null ? 'manager' : b.role) : b && b.role;
+    if (p === '/admins' || p === '/admins/role') {
+      if (!['chief', 'deputy', 'manager'].includes(want)) return json({ error: 'bad_role' }, 400);
+      if (!mayAppoint(who, want)) return deny();
+      if (want === 'chief' && ev.chief === 'owner') return json({ error: 'chief_taken' }, 409);
+    }
+    // the limit is part of the write itself, so two people appointing at once cannot pass it
+    const room = LIMIT[want] ? ' AND (SELECT COUNT(*) FROM reg_admin WHERE event=? AND perms=? AND disabled_at IS NULL)<?' : '';
+    const roomArgs = LIMIT[want] ? [ev.id, want, LIMIT[want]] : [];
+    const noRoom = () => json({ error: want === 'chief' ? 'chief_taken' : 'deputy_full' }, 409);
     if (p === '/admins') {
       const name = str(b.name, 40); if (!name) return json({ error: 'need_name' }, 400);
       if (reserved(env, name)) return json({ error: 'name_reserved' }, 409);
-      if (await env.SDB.prepare('SELECT 1 FROM reg_admin WHERE event=? AND name=? AND disabled_at IS NULL').bind(ev.id, name).first()) return json({ error: 'name_taken' }, 409);
-      const pw = rndHex(20), perms = wanted === 'chief' ? 'chief' : site(b.perms);
-      const r = await env.SDB.prepare('INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES(?,?,?,?,?)').bind(ev.id, name, await sha256(pw), perms, nowIso()).run();
-      return json({ ok: true, id: r.meta.last_row_id, name, password: pw, role: wanted || 'manager', perms });
+      const pw = rndHex(20);
+      const r = await env.SDB.prepare('INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) SELECT ?,?,?,?,? WHERE ' + NAME_FREE + room)
+        .bind(ev.id, name, await sha256(pw), want, nowIso(), ev.id, name, ev.id, name, ...roomArgs).run();
+      if (!r.meta.changes) return (await nameFree(env, ev.id, name)) ? noRoom() : json({ error: 'name_taken' }, 409);
+      return json({ ok: true, id: r.meta.last_row_id, name, password: pw, role: want });
     }
     const id = Number(b && b.id) || 0;
-    const t = await env.SDB.prepare('SELECT id,perms FROM reg_admin WHERE id=? AND event=?').bind(id, ev.id).first();
+    const t = await env.SDB.prepare('SELECT id,perms,pass_hash,disabled_at FROM reg_admin WHERE id=? AND event=?').bind(id, ev.id).first();
     if (!t) return json({ error: 'not_found' }, 404);
-    if (t.perms === 'chief' && !who.owner) return deny();   // also covers a chief acting on themselves
-    // every write repeats perms=?, so someone promoted a moment ago is not changed by a chief
-    let r, out;
-    if (p === '/admins/perms') {
-      const perms = (wanted || (t.perms === 'chief' ? 'chief' : 'manager')) === 'chief' ? 'chief' : site(b.perms);
-      r = await env.SDB.prepare('UPDATE reg_admin SET perms=? WHERE id=? AND perms=?').bind(perms, id, t.perms).run(); out = { perms };
-    } else if (p === '/admins/reset') {
+    const had = roleOf(t.perms);
+    if (!mayAppoint(who, had)) return deny();   // peers, anyone above, and oneself
+    const changed = () => json({ error: 'changed' }, 409);
+    // every write repeats what was read, so someone promoted a moment ago is not touched from below
+    if (p === '/admins/role') {
+      if (t.disabled_at) return changed();
+      if (had === want) return json({ ok: true, role: want });
+      const r = await env.SDB.prepare('UPDATE reg_admin SET perms=? WHERE id=? AND perms=? AND disabled_at IS NULL' + room).bind(want, id, t.perms, ...roomArgs).run();
+      if (r.meta.changes) return json({ ok: true, role: want, check: had === 'deputy' && RANK[want] < RANK.deputy });
+      const now = await env.SDB.prepare('SELECT perms FROM reg_admin WHERE id=? AND disabled_at IS NULL').bind(id).first();
+      return now && now.perms === t.perms && room ? noRoom() : changed();
+    }
+    if (p === '/admins/reset') {
       const pw = rndHex(20);
-      r = await env.SDB.prepare('UPDATE reg_admin SET pass_hash=? WHERE id=? AND perms=? AND disabled_at IS NULL').bind(await sha256(pw), id, t.perms).run(); out = { password: pw };
-    } else if (p === '/admins/delete') {
-      r = await env.SDB.prepare('DELETE FROM reg_admin WHERE id=? AND perms=?').bind(id, t.perms).run(); out = {};
-    } else return json({ error: 'not_found' }, 404);
-    return r.meta.changes ? json({ ok: true, ...out }) : json({ error: 'changed' }, 409);
+      const r = await env.SDB.prepare('UPDATE reg_admin SET pass_hash=? WHERE id=? AND perms=? AND pass_hash=? AND disabled_at IS NULL').bind(await sha256(pw), id, t.perms, t.pass_hash).run();
+      return r.meta.changes ? json({ ok: true, password: pw }) : changed();
+    }
+    if (p === '/admins/delete') {
+      const r = await env.SDB.prepare('DELETE FROM reg_admin WHERE id=? AND perms=?').bind(id, t.perms).run();
+      // check: a removed deputy knows the passwords and links they handed out
+      return r.meta.changes ? json({ ok: true, check: had === 'deputy' && !t.disabled_at }) : changed();
+    }
+    return json({ error: 'not_found' }, 404);
   }
   if (p === '/asset' && req.method === 'POST') {
-    if (!who.owner) return deny();
+    if (!can(who, 'asset')) return deny();
     const name = str(b.name, 40), mime = str(b.mime, 40), data = String(b.b64 || '').replace(/^data:[^,]+,/, '');
     if (!/^[a-z0-9-]{2,40}$/.test(name) || !/^image\/(png|jpeg|webp|gif)$/.test(mime) || !data || data.length > 1.4e6) return json({ error: 'bad_asset' }, 400);
     await env.SDB.prepare('INSERT INTO reg_asset(name,mime,data,updated_at) VALUES(?,?,?,?) ON CONFLICT(name) DO UPDATE SET mime=excluded.mime,data=excluded.data,updated_at=excluded.updated_at').bind(name, mime, data, nowIso()).run();
     return json({ ok: true, name });
   }
   if (p === '/act' && req.method === 'POST') {
-    if (who.full) return regAct(env, b, json, kit, ev, who);
-    // A site manager only takes money for the pass they just scanned, of someone approved to pay on arrival.
-    if (b.action !== 'pay' || !can(who, 'collect') || !b.p) return deny();
+    const a = String(b.action || '');
+    if (can(who, 'list')) {
+      if (!Object.hasOwn(ACT_NEEDS, a)) return json({ error: 'bad_action' }, 400);
+      return can(who, ACT_NEEDS[a]) ? regAct(env, b, json, kit, ev, who) : deny();
+    }
+    // A site manager only takes money, for the code just scanned, of someone approved to pay on arrival.
+    if (a !== 'pay' || !can(who, 'collect') || !b.p) return deny();
     const x = await passContext(env, b.p);
-    if (x.error || x.reg.event !== ev.id || x.reg.id !== Number(b.id) || !PAID.includes(x.reg.status)) return deny();
-    return regAct(env, { id: x.reg.id, action: 'pay', pay: { amount: b.pay && b.pay.amount, method: b.pay && b.pay.method } }, json, kit, ev, who);
+    if (x.error || x.reg.event !== ev.id || x.reg.id !== Number(b.id)) return deny();
+    const pay = b.pay || {};
+    return regAct(env, { id: x.reg.id, action: 'pay', pay: { amount: pay.amount, method: pay.method, seen: pay.seen } }, json, kit, ev, who);
   }
-  if (p.startsWith('/staff') && !can(who, 'staff')) return deny();
+  if (p.startsWith('/staff') && !mayAppoint(who, 'desk')) return deny();
   if (p === '/staff' && req.method === 'POST') return staffAdd(env, ev, b, json);
   if (p === '/staff/reissue' && req.method === 'POST') return staffReissue(env, ev, b, json);
   if (p === '/staff/delete' && req.method === 'POST') return staffDelete(env, ev, b, json);
   return json({ error: 'not_found' }, 404);
 }
-const NEXT = { confirm: ['pending', 'waitlist'], waitlist: ['pending'], decline: ['pending', 'waitlist'], paid: ['confirmed', 'cash'], pay: ['confirmed', 'cash', 'paid'], refund: ['cancelled'], cash: ['confirmed'], cancel: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], modify: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], note: null };
+const NEXT = { confirm: ['pending', 'waitlist'], waitlist: ['pending'], decline: ['pending', 'waitlist'], pay: ['confirmed', 'cash', 'paid'], refund: ['cancelled'], cash: ['confirmed'], cancel: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], modify: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], note: null };
 const METHODS = ['wechat', 'alipay', 'cash', 'other'];
 export async function regAct(env, b, json, kit, ev, who) {
-  who = who || { name: '主办', owner: true, full: true, perms: new Set(PERMS) };
   const reg = await env.SDB.prepare('SELECT * FROM reg WHERE id=? AND event=?').bind(Number(b.id) || 0, ev.id).first();
   if (!reg) return json({ error: 'not_found' }, 404);
-  const a = String(b.action || '');
-  if (!(a in NEXT)) return json({ error: 'bad_action' }, 400);
-  if (NEXT[a] && !NEXT[a].includes(reg.status)) return json({ error: 'bad_state', status: reg.status }, 409);
-  const ts = nowIso(), d = JSON.parse(reg.data);
-  if (a === 'note') { await env.SDB.prepare('UPDATE reg SET note=?,updated_at=? WHERE id=?').bind(str(b.note, 2000), ts, reg.id).run(); return json({ ok: true }); }
+  const a = b.action === 'paid' ? 'pay' : String(b.action || '');
+  if (!Object.hasOwn(NEXT, a)) return json({ error: 'bad_action' }, 400);
+  const db = env.SDB, ts = nowIso(), d = JSON.parse(reg.data);
+  const done = (change, text = '', ...more) => doLogged(env, change, reg.id, a, who.name, text, ...more);
+  // Someone else got there first: say who, and change nothing.
+  const late = async () => {
+    const now = await db.prepare('SELECT status FROM reg WHERE id=?').bind(reg.id).first();
+    return json({ error: 'bad_state', status: now && now.status, last: await lastHandled(env, reg.id) }, 409);
+  };
+  if (a === 'note') {
+    const text = str(b.note, 2000), cur = reg.note || '';
+    const clash = async () => json({ error: 'note_changed', note: ((await db.prepare('SELECT note FROM reg WHERE id=?').bind(reg.id).first()) || {}).note || '', last: await lastHandled(env, reg.id, ['note']) }, 409);
+    if (b.was != null && str(b.was, 2000) !== str(cur, 2000)) return clash();
+    if (text === cur) return json({ ok: true, note: cur });
+    if (!(await done(db.prepare("UPDATE reg SET note=?,updated_at=? WHERE id=? AND COALESCE(note,'')=?").bind(text, ts, reg.id, cur)))) return clash();
+    return json({ ok: true, note: text });
+  }
+  if (a === 'pay') {
+    // Record money received. Default: the rest of what is owed. The registration becomes paid once fully covered.
+    // Payments are only ever added, so their count tells whether anything was recorded since we looked.
+    const pay = b.pay || {}, got = await moneyOf(env, reg.id), rest = reg.amount - got.sum, site = !can(who, 'review');
+    const already = async () => json({ error: 'already_paid', last: await lastPayment(env, reg.id, who) }, 409);
+    if (rest <= 0 && ['confirmed', 'cash', 'paid'].includes(reg.status)) return already();
+    if (site ? reg.status !== 'cash' : !NEXT.pay.includes(reg.status) || (b.from && b.from !== reg.status)) return late();
+    if (pay.seen != null && Number(pay.seen) !== rest) return already();
+    const amount = pay.amount == null || pay.amount === '' ? rest : Math.round(Number(pay.amount));
+    if (!Number.isFinite(amount) || amount <= 0 || amount > rest) return json({ error: 'bad_amount', rest }, 400);
+    const method = METHODS.includes(pay.method) ? pay.method : 'wechat', collector = (!site && str(pay.collector, 40)) || who.name;
+    const covered = got.sum + amount >= reg.amount && reg.status !== 'paid';
+    const ok = await done(
+      db.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) SELECT ?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?')
+        .bind(reg.id, ts, amount, method, collector, str(pay.note, 300) || null, who.name, reg.id, got.n),
+      `${amount} ${method} → ${collector}`,
+      covered ? db.prepare("UPDATE reg SET status='paid',paid_at=?,updated_at=? WHERE id=? AND changes()>0").bind(ts, ts, reg.id)
+        : db.prepare('UPDATE reg SET updated_at=? WHERE id=? AND changes()>0').bind(ts, reg.id));
+    if (!ok) return already();
+    const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first(), total = got.sum + amount, left = Math.max(0, after.amount - total);
+    if (covered && after.status === 'paid' && (site || b.silent !== 1)) await send(env, kit, after, 'paid');
+    return json(site ? { ok: true, status: after.status, rest: left } : { ok: true, status: after.status, amount: after.amount, paid: total, rest: left });
+  }
+  if ((b.from && b.from !== reg.status) || !NEXT[a].includes(reg.status)) return late();
+  if (a === 'refund') {
+    // all refunds together never exceed what is due, nor what is still held
+    const pay = b.pay || {}, got = await moneyOf(env, reg.id), due = Math.max(0, (reg.refund == null ? 0 : reg.refund) - got.out);
+    const already = async () => json({ error: 'already_refunded', due, last: await lastPayment(env, reg.id, who, -1) }, 409);
+    if (got.out > 0 && (!due || (pay.seen != null && Number(pay.seen) !== due))) return already();
+    const amount = pay.amount == null || pay.amount === '' ? due : Math.round(Number(pay.amount));
+    if (!Number.isFinite(amount) || amount <= 0 || amount > due || amount > got.sum) return json({ error: 'bad_amount', due: Math.min(due, Math.max(0, got.sum)) }, 400);
+    const method = METHODS.includes(pay.method) ? pay.method : 'wechat', collector = str(pay.collector, 40) || who.name;
+    const ok = await done(
+      db.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) SELECT ?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?')
+        .bind(reg.id, ts, -amount, method, collector, str(pay.note, 300) || 'refund', who.name, reg.id, got.n),
+      `${amount} ${method} by ${collector}`);
+    if (!ok) return already();
+    return json({ ok: true, refunded: got.out + amount, due: Math.max(0, due - amount) });
+  }
+  // The rest change the registration itself, and only from the status it was read in.
+  let change;
   if (a === 'confirm') {
     const left = await seatsLeft(env, ev, reg.id), n = need(d);
     for (const [c, k] of Object.entries(n)) if (left[c] != null && k > left[c]) return json({ error: 'full', item: c, left: left[c], need: k }, 409);
     const due = new Date(Date.now() + ev.payDays * 864e5).toISOString();
-    await env.SDB.prepare("UPDATE reg SET status='confirmed',confirmed_at=?,due_at=?,reminded_at=NULL,updated_at=? WHERE id=?").bind(ts, due, ts, reg.id).run();
-  } else if (a === 'waitlist' || a === 'decline') {
-    await env.SDB.prepare('UPDATE reg SET status=?,updated_at=? WHERE id=?').bind(a === 'waitlist' ? 'waitlist' : 'declined', ts, reg.id).run();
-  } else if (a === 'paid' || a === 'pay') {
-    // Record money received. Default: the rest of what is owed. The registration becomes paid once fully covered.
-    const pay = b.pay || {}, before = await paidSum(env, reg.id), rest = reg.amount - before;
-    const already = async () => json({ error: 'already_paid', last: await env.SDB.prepare('SELECT at,collector,method FROM reg_payment WHERE reg_id=? AND amount>0 ORDER BY id DESC LIMIT 1').bind(reg.id).first() }, 409);
-    if (rest <= 0) return already();
-    if (!who.full && reg.status !== 'cash') return json({ error: 'no_permission' }, 403);
-    const amount = pay.amount == null || pay.amount === '' ? rest : Math.round(Number(pay.amount));
-    if (!Number.isFinite(amount) || amount <= 0 || amount > rest) return json({ error: 'bad_amount', rest }, 400);
-    const method = METHODS.includes(pay.method) ? pay.method : 'wechat', collector = str(pay.collector, 40) || who.name;
-    // Two managers can scan two codes of one registration at the same moment: insert only if nothing was recorded since we read the sum.
-    const ins = await env.SDB.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) SELECT ?,?,?,?,?,?,? WHERE (SELECT COALESCE(SUM(amount),0) FROM reg_payment WHERE reg_id=?)=?')
-      .bind(reg.id, ts, amount, method, collector, str(pay.note, 300) || null, who.name, reg.id, before).run();
-    if (!ins.meta.changes) return already();
-    const total = before + amount;
-    if (total >= reg.amount && reg.status !== 'paid') await env.SDB.prepare("UPDATE reg SET status='paid',paid_at=?,updated_at=? WHERE id=?").bind(ts, ts, reg.id).run();
-    else await env.SDB.prepare('UPDATE reg SET updated_at=? WHERE id=?').bind(ts, reg.id).run();
-    await log(env, reg.id, 'pay', `${amount} ${method} → ${collector} (by ${who.name})`);
-    const after = await env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
-    if (after.status === 'paid' && reg.status !== 'paid' && b.silent !== 1) await send(env, kit, after, 'paid');
-    return json({ ok: true, status: after.status, amount: after.amount, paid: total, rest: Math.max(0, after.amount - total) });
-  } else if (a === 'refund') {
-    const pay = b.pay || {}, owed = await paidSum(env, reg.id);   // cannot pay back more than is still held
-    const already = -(((await env.SDB.prepare('SELECT COALESCE(SUM(amount),0) s FROM reg_payment WHERE reg_id=? AND amount<0').bind(reg.id).first()) || {}).s || 0);
-    const due = Math.max(0, (reg.refund == null ? 0 : reg.refund) - already);
-    const amount = pay.amount == null || pay.amount === '' ? due : Math.round(Number(pay.amount));
-    if (!Number.isFinite(amount) || amount <= 0 || amount > owed) return json({ error: 'bad_amount', due }, 400);
-    const method = METHODS.includes(pay.method) ? pay.method : 'wechat', collector = str(pay.collector, 40) || who.name;
-    await env.SDB.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) VALUES(?,?,?,?,?,?,?)').bind(reg.id, ts, -amount, method, collector, str(pay.note, 300) || 'refund', who.name).run();
-    await log(env, reg.id, 'refund', `${amount} ${method} by ${collector} (recorded by ${who.name})`);
-    return json({ ok: true, refunded: already + amount, due: Math.max(0, due - amount) });
-  } else if (a === 'cash') {
-    await env.SDB.prepare('UPDATE reg SET status=?,updated_at=? WHERE id=?').bind('cash', ts, reg.id).run();
+    change = db.prepare("UPDATE reg SET status='confirmed',confirmed_at=?,due_at=?,reminded_at=NULL,updated_at=? WHERE id=? AND status=?").bind(ts, due, ts, reg.id, reg.status);
+  } else if (a === 'waitlist' || a === 'decline' || a === 'cash') {
+    change = db.prepare('UPDATE reg SET status=?,updated_at=? WHERE id=? AND status=?').bind({ waitlist: 'waitlist', decline: 'declined', cash: 'cash' }[a], ts, reg.id, reg.status);
   } else if (a === 'cancel') {
     // Refund only what was paid: everything minus the ¥50 fee (once), minus hotel after the hotel refund date.
     let refund = null;
     const paid = await paidSum(env, reg.id), took = reg.status === 'paid' ? Math.max(paid, paid ? 0 : reg.amount) : paid;
     if (took > 0) {
-      const late = ts.slice(0, 10) > ev.hotelRefundBy;
-      refund = Math.max(0, took - ev.fee - (late ? reg.hotel_amount : 0));   // the ¥50 fee is kept once, whether or not a change already charged it
+      const afterCutoff = ts.slice(0, 10) > ev.hotelRefundBy;
+      refund = Math.max(0, took - ev.fee - (afterCutoff ? reg.hotel_amount : 0));   // the ¥50 fee is kept once, whether or not a change already charged it
     }
-    await env.SDB.prepare("UPDATE reg SET status='cancelled',cancelled_at=?,refund=?,fee=CASE WHEN fee>0 THEN fee ELSE ? END,updated_at=? WHERE id=?").bind(ts, refund, took > 0 ? ev.fee : 0, ts, reg.id).run();
+    change = db.prepare("UPDATE reg SET status='cancelled',cancelled_at=?,refund=?,fee=CASE WHEN fee>0 THEN fee ELSE ? END,updated_at=? WHERE id=? AND status=?").bind(ts, refund, took > 0 ? ev.fee : 0, ts, reg.id, reg.status);
   } else if (a === 'modify') {
     const r = evaluate({ ...b.data, event: ev.id, lang: reg.lang }, env, Date.parse(reg.created_at));   // promo judged at the original submit time
     if (r.error) return json(r, 400);
@@ -628,11 +720,11 @@ export async function regAct(env, b, json, kit, ev, who) {
       const left = await seatsLeft(env, ev, reg.id), n = need(r.data);
       for (const [c, k] of Object.entries(n)) if (left[c] != null && k > left[c]) return json({ error: 'full', item: c, left: left[c], need: k }, 409);
     }
-    await env.SDB.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,updated_at=? WHERE id=?')
-      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, r.total + fee, r.hotel, fee, r.promo.code || null, r.promo.dj || null, ts, reg.id).run();
+    change = db.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,updated_at=? WHERE id=? AND status=? AND data=?')
+      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, r.total + fee, r.hotel, fee, r.promo.code || null, r.promo.dj || null, ts, reg.id, reg.status, reg.data);
   }
-  await log(env, reg.id, a, (b.note ? str(b.note, 500) + ' ' : '') + '(by ' + who.name + ')');
-  const after = await env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
+  if (!(await done(change, b.note ? str(b.note, 500) : ''))) return late();   // and no letter from the one who was late
+  const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
   if (b.silent !== 1) await send(env, kit, after, a);
   return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, due: after.due_at });
 }
@@ -654,25 +746,25 @@ const rndHex = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.to
 async function sha256(s) { return [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join(''); }
 const doorLink = (env, act) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/checkin/?act=' + act;
 async function doorWho(req, env) {
-  const a = (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-  if (adminOK(req, env)) return { name: '主办', role: 'owner', admin: true, full: true, collect: true };
-  const adm = await adminWho(req, env); if (adm) return { name: adm.name, role: adm.role, admin: true, full: adm.full, event: adm.event, collect: adm.perms.has('collect') };
-  const m = /^staff:([0-9a-f]{64})$/.exec(a); if (!m) return null;
+  const adm = await adminWho(req, env); if (adm) return adm;
+  const m = /^staff:([0-9a-f]{64})$/.exec((req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '')); if (!m) return null;
   const st = await env.SDB.prepare('SELECT id,name,event FROM reg_staff WHERE device_hash=? AND disabled_at IS NULL').bind(await sha256(m[1])).first();
-  return st ? { name: st.name, role: 'desk', staff: st.id, event: st.event } : null;
+  return st ? { name: st.name, role: 'desk', event: st.event } : null;
 }
 async function staffAdd(env, ev, b, json) {
   const name = str(b && b.name, 40); if (!name) return json({ error: 'need_name' }, 400);
   if (reserved(env, name)) return json({ error: 'name_reserved' }, 409);
-  if (await env.SDB.prepare('SELECT 1 FROM reg_staff WHERE event=? AND name=? AND disabled_at IS NULL').bind(ev.id, name).first()) return json({ error: 'name_taken' }, 409);
   const act = rndHex(24);
-  const r = await env.SDB.prepare('INSERT INTO reg_staff(event,name,act_hash,created_at) VALUES(?,?,?,?)').bind(ev.id, name, await sha256(act), nowIso()).run();
+  const r = await env.SDB.prepare('INSERT INTO reg_staff(event,name,act_hash,created_at) SELECT ?,?,?,? WHERE ' + NAME_FREE).bind(ev.id, name, await sha256(act), nowIso(), ev.id, name, ev.id, name).run();
+  if (!r.meta.changes) return json({ error: 'name_taken' }, 409);
   return json({ ok: true, id: r.meta.last_row_id, name, link: doorLink(env, act) });
 }
 async function staffReissue(env, ev, b, json) {
-  const st = await env.SDB.prepare('SELECT id,name FROM reg_staff WHERE id=? AND event=? AND disabled_at IS NULL').bind(Number(b && b.id) || 0, ev.id).first(); if (!st) return json({ error: 'not_found' }, 404);
-  const act = rndHex(24);   // a new link; the phone that used the old one stops working
-  await env.SDB.prepare('UPDATE reg_staff SET act_hash=?,device_hash=NULL,activated_at=NULL WHERE id=?').bind(await sha256(act), st.id).run();
+  const st = await env.SDB.prepare('SELECT id,name,act_hash,device_hash FROM reg_staff WHERE id=? AND event=? AND disabled_at IS NULL').bind(Number(b && b.id) || 0, ev.id).first(); if (!st) return json({ error: 'not_found' }, 404);
+  const act = rndHex(24);   // a new link; the phone that used the old one stops working. Of two reissues at once, one gives a link.
+  const r = await env.SDB.prepare("UPDATE reg_staff SET act_hash=?,device_hash=NULL,activated_at=NULL WHERE id=? AND COALESCE(act_hash,'')=? AND COALESCE(device_hash,'')=?")
+    .bind(await sha256(act), st.id, st.act_hash || '', st.device_hash || '').run();
+  if (!r.meta.changes) return json({ error: 'changed' }, 409);
   return json({ ok: true, id: st.id, name: st.name, link: doorLink(env, act) });
 }
 // Deleting is final: no history and no undo. What they checked in stays, under their name.
@@ -694,7 +786,7 @@ export async function regDoor(req, env, url, b, json) {
     return json({ ok: true, name: st.name, token: 'staff:' + tok });
   }
   const who = await doorWho(req, env); if (!who) return json({ error: 'auth' }, 401);
-  if (p === '/me' && req.method === 'GET') return json({ ok: true, name: who.name, role: who.role, admin: !!who.admin, collect: !!who.collect });
+  if (p === '/me' && req.method === 'GET') return json({ ok: true, name: who.name, role: who.role, admin: who.role !== 'desk', collect: can(who, 'collect') });
   if (p === '/pass' && req.method === 'GET') return regPassInfo(env, url.searchParams.get('p'), json, who);
   if (p === '/checkin' && req.method === 'POST') return regCheckin(env, b, json, who);
   return json({ error: 'not_found' }, 404);
@@ -711,17 +803,16 @@ export async function regPassInfo(env, raw, json, who) {
   const x = await passContext(env, raw); if (x.error) return json(x, 404);
   if (who && who.event && who.event !== x.reg.event) return json({ error: 'bad_pass' }, 404);
   const ins = ((await env.SDB.prepare('SELECT item,at,staff FROM reg_checkin WHERE reg_id=? AND person=?').bind(x.reg.id, x.p.idx).all()).results) || [];
-  // Amounts and who collected: only for someone who may collect; a site manager sees amounts only while money is due. The internal note: chiefs and the organizer.
+  // Amounts: whoever may collect, and a site manager only the rest to take now (the other payments are not their account).
   let collect;
-  if (who && who.collect && PAID.includes(x.reg.status)) {
-    const got = await paidSum(env, x.reg.id);
-    const last = await env.SDB.prepare('SELECT at,collector,method FROM reg_payment WHERE reg_id=? AND amount>0 ORDER BY id DESC LIMIT 1').bind(x.reg.id).first();
-    collect = { id: x.reg.id, event: x.reg.event, paid: who.full || x.reg.status === 'cash' ? got : undefined, rest: x.reg.status === 'cash' ? Math.max(0, x.reg.amount - got) : 0, last: last || null };
+  if (can(who, 'collect') && PAID.includes(x.reg.status)) {
+    const got = await paidSum(env, x.reg.id), due = x.reg.status === 'cash';
+    collect = { id: x.reg.id, event: x.reg.event, paid: can(who, 'list') ? got : undefined, rest: due ? Math.max(0, x.reg.amount - got) : 0, last: await lastPayment(env, x.reg.id, who) };
   }
   return json({ ok: true, code: x.reg.code, pass: x.p.pass.split('.')[0], status: x.reg.status, valid: PAID.includes(x.reg.status),
     pay_first: x.reg.status === 'cash', lang: x.reg.lang, people: x.reg.people, collect,
     person: { name: x.person.name, nick: x.person.nick || '', role: x.person.role, country: x.person.country, city: x.person.city, items: x.person.items },
-    checkins: ins, note: who && who.full ? x.reg.note || '' : '' });
+    checkins: ins, note: can(who, 'list') ? x.reg.note || '' : '' });
 }
 export async function regCheckin(env, b, json, who) {
   const x = await passContext(env, b && b.p); if (x.error) return json(x, 404);
@@ -729,18 +820,20 @@ export async function regCheckin(env, b, json, who) {
   const item = String(b.item || '');
   if (!PAID.includes(x.reg.status)) return json({ error: 'not_paid', status: x.reg.status }, 409);
   if (!x.person.items.includes(item)) return json({ error: 'not_registered', item }, 409);
-  if (b.undo === 1) {   // the front desk only checks in; a wrong tap is undone by a manager, and their name is kept
-    if (!who || !who.admin) return json({ error: 'manager_only' }, 403);
-    const gone = await env.SDB.prepare('DELETE FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).run();
-    if (gone.meta.changes) await log(env, x.reg.id, 'checkin_undo', x.p.idx + ':' + item + ' by ' + who.name);
-    return json({ ok: true, undone: true });
+  if (b.undo === 1) {   // the front desk only checks in; a wrong tap is undone by someone above, and their name is kept
+    if (!can(who, 'undo')) return json({ error: 'manager_only' }, 403);
+    const key = x.p.idx + ':' + item, seen = b.at ? String(b.at) : null;   // seen = which check-in the caller's screen showed
+    const change = env.SDB.prepare('DELETE FROM reg_checkin WHERE reg_id=? AND person=? AND item=?' + (seen ? ' AND at=?' : '')).bind(x.reg.id, x.p.idx, item, ...(seen ? [seen] : []));
+    if (await doLogged(env, change, x.reg.id, 'checkin_undo', who.name, key)) return json({ ok: true, undone: true });
+    const mine = ((await env.SDB.prepare("SELECT action,at,detail FROM reg_log WHERE reg_id=? AND action='checkin_undo' ORDER BY id DESC").bind(x.reg.id).all()).results || []).map(readLog).find(l => l.text.startsWith(key));
+    return json({ error: 'already_undone', last: mine ? { at: mine.at, by: mine.by } : null }, 409);
   }
   if (x.reg.status === 'cash') return json({ error: 'pay_first' }, 409);   // pass is out, but entry only after the money is in
   const at = nowIso(), by = who ? who.name : '';
   // INSERT OR IGNORE: two phones scanning the same person at once still give one row, and the slower one sees 'already'.
-  const r = await env.SDB.prepare('INSERT OR IGNORE INTO reg_checkin(reg_id,person,item,at,staff) VALUES(?,?,?,?,?)').bind(x.reg.id, x.p.idx, item, at, by).run();
-  if (!r.meta.changes) { const had = await env.SDB.prepare('SELECT at,staff FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).first();
+  const fresh = await doLogged(env, env.SDB.prepare('INSERT OR IGNORE INTO reg_checkin(reg_id,person,item,at,staff) VALUES(?,?,?,?,?)').bind(x.reg.id, x.p.idx, item, at, by),
+    x.reg.id, 'checkin', by, x.p.idx + ':' + item);
+  if (!fresh) { const had = await env.SDB.prepare('SELECT at,staff FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).first();
     return json({ error: 'already', at: had && had.at, by: had && had.staff }, 409); }
-  await log(env, x.reg.id, 'checkin', x.p.idx + ':' + item + ' by ' + by);
   return json({ ok: true, at, by });
 }

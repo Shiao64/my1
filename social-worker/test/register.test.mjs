@@ -21,11 +21,17 @@ db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT
   verified_at TEXT, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT, wx_used INTEGER DEFAULT 0);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);`);
 for (const f of ['0020_registrations.sql', '0021_reg_checkin.sql', '0022_reg_admins_ledger.sql', '0023_rename_bstw2027.sql']) db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', f), 'utf8'));
+// readLag: like a real network database, a read answers a little later, so requests sent together really overlap
+let readLag = 0;
+const later = v => readLag ? new Promise(ok => setTimeout(() => ok(v), readLag)) : v;
 function D1(database) {
-  return { prepare(sql) { const st = database.prepare(sql); let args = []; return {
+  return {
+    // like D1: all or nothing, on one connection (so changes() is the statement before)
+    async batch(list) { database.exec('BEGIN'); try { const out = list.map(x => x.run()); database.exec('COMMIT'); return out; } catch (e) { database.exec('ROLLBACK'); throw e; } },
+    prepare(sql) { const st = database.prepare(sql); let args = []; return {
     bind(...a) { args = a; return this; },
-    first(col) { const r = st.get(...args); if (!r) return null; return col ? r[col] ?? null : r; },
-    all() { return { results: st.all(...args) }; },
+    first(col) { const r = st.get(...args); if (!r) return later(null); return later(col ? r[col] ?? null : r); },
+    all() { return later({ results: st.all(...args) }); },
     run() { const r = st.run(...args); return { meta: { changes: r.changes, last_row_id: Number(r.lastInsertRowid) } }; }
   }; } };
 }
@@ -233,70 +239,238 @@ check('QR hidden without key', q2.status === 404);
   m = await call('GET', '/reg/me?event=bstw2027', null, eve); check('cancelled: shown with refund', m.reg.status === 'cancelled' && m.reg.refund === 650, m.reg);
   m = await call('POST', '/reg', form({ people: [person({ name: 'Eve', pkg: 'combo' })] }), eve); check('can register again after cancel', m.ok && m.code !== undefined);
   m = await call('GET', '/reg/me?event=bstw2027', null, eve); check('me prefers the live registration over the cancelled one', m.reg.status === 'pending' && m.reg.amount === 1150, m.reg); }
-// --- four roles, own passwords, payment ledger ---
-{ let d = await call('POST', '/admin/reg/admins', { name: '王凯' }, ADMIN);
-  check('site manager by default: collect + front desk', d.ok && /^[0-9a-f]{40}$/.test(d.password) && d.role === 'manager' && d.perms === 'collect,staff', d);
-  const wk = d.password, wkId = d.id;
-  d = await call('POST', '/admin/reg/admins', { name: '竟文', role: 'chief' }, ADMIN); const jw = d.password, jwId = d.id;
-  check('organizer appoints a chief', d.ok && d.role === 'chief', d);
-  d = await call('POST', '/admin/reg/admins', { name: '主办' }, ADMIN); check('organizer name is reserved', d._s === 409);
-  d = await call('POST', '/admin/reg/admins', { name: 'X', role: 'owner' }, ADMIN); check('unknown role refused', d._s === 400);
-  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk); check('manager sees own role', d.role === 'manager' && d.perms.join() === 'collect,staff' && !d.owner, d);
-  d = await call('GET', '/admin/reg/me?event=bstw2027', null, jw); check('chief sees own role', d.role === 'chief' && !d.owner && d.perms.includes('export'), d);
-  d = await call('GET', '/admin/reg?event=bstw2027', null, wk);
-  check('manager gets no list, emails, ledger or admins', d._s === 200 && Object.keys(d).filter(k => k !== '_s').sort().join() === 'event,me,mine,staff' && !JSON.stringify(d).includes('@'), d);
-  const fay = subscriber('fay@gmail.com', 'Fay');
-  const fr = await call('POST', '/reg', form({ people: [person({ name: 'Fay', pkg: 'pass' }), person({ name: 'Gus', pkg: 'pass', role: 'leader' })] }), fay);
-  const fid = (await call('GET', '/admin/reg?event=bstw2027', null, ADMIN)).rows.find(r => r.code === fr.code).id;
-  for (const action of ['confirm', 'waitlist', 'decline', 'cash', 'refund', 'cancel', 'modify', 'note', 'paid', 'bogus']) {
-    d = await call('POST', '/admin/reg/act', { id: fid, action, silent: 1 }, wk); check('manager cannot ' + action, d._s === 403 && d.error === 'no_permission', d); }
-  for (const [path, body] of [['', { name: 'M2' }], ['', { name: 'C2', role: 'chief' }], ['/perms', { id: wkId, role: 'chief' }], ['/reset', { id: jwId }], ['/delete', { id: jwId }]]) {
-    d = await call('POST', '/admin/reg/admins' + path, body, wk); check('manager cannot manage people ' + (path || '/add') + (body.role || ''), d._s === 403, d); }
-  d = await call('POST', '/admin/reg/asset', { name: 'cn-alipay', mime: 'image/png', b64: 'AA' }, wk); check('manager cannot change payment QR', d._s === 403);
-  d = await call('POST', '/admin/reg/asset', { name: 'cn-alipay', mime: 'image/png', b64: 'AA' }, jw); check('chief cannot change payment QR', d._s === 403);
-  for (const [path, body] of [['', { name: 'C3', role: 'chief' }], ['/perms', { id: wkId, role: 'chief' }], ['/perms', { id: jwId, role: 'manager' }], ['/reset', { id: jwId }], ['/delete', { id: jwId }]]) {
-    d = await call('POST', '/admin/reg/admins' + path, body, jw); check('chief cannot appoint or touch a chief ' + (path || '/add') + (body.role || ''), d._s === 403, d); }
-  d = await call('POST', '/admin/reg/admins', { name: '小陈', perms: ['collect', 'chief', 'export'] }, jw);
-  check('chief adds a manager; unknown perms dropped', d.ok && d.role === 'manager' && d.perms === 'collect', d);
-  const cid = d.id, cpw = d.password;
-  d = await call('POST', '/admin/reg/staff', { name: 'NoStaff' }, cpw); check('manager without staff cannot add a desk', d._s === 403);
-  d = await call('POST', '/admin/reg/admins/perms', { id: cid, perms: ['collect', 'staff'] }, jw); check('chief changes a manager', d.ok && d.perms === 'collect,staff', d);
-  d = await call('POST', '/admin/reg/staff', { name: '小李' }, cpw); check('manager adds a desk', d.ok, d);
-  check('manager deletes a desk', (await call('POST', '/admin/reg/staff/delete', { id: d.id }, cpw)).ok);
-  check('chief deletes a manager', (await call('POST', '/admin/reg/admins/delete', { id: cid }, jw)).ok);
-  check('deleted manager locked out', (await call('GET', '/reg/door/me', null, cpw))._s === 401);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'confirm', silent: 1 }, jw); check('chief confirms', d.ok && d.status === 'confirmed');
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: 600 } }, wk); check('manager cannot record a screenshot payment', d._s === 403, d);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: 600, method: 'alipay', note: '单号 123', collector: '王凯' }, silent: 1 }, jw);
-  check('partial payment recorded, still confirmed', d.ok && d.status === 'confirmed' && d.paid === 600 && d.rest === 800, d);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { method: 'wechat' }, silent: 1 }, jw);
-  check('second payment covers the rest → paid', d.ok && d.status === 'paid' && d.paid === 1400 && d.rest === 0, d);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: -5 } }, jw); check('nothing more on a fully paid one', d._s === 409 && d.error === 'already_paid');
-  d = await call('GET', '/admin/reg?event=bstw2027', null, jw); const fr2 = d.rows.find(r => r.id === fid);
-  check('chief sees list and ledger per collector', d.admins.length === 2 && d.ledger['王凯'].in === 600 && d.ledger['竟文'].in === 800 && fr2.paid_total === 1400 && fr2.payments[0].by_admin === '竟文', d.ledger);
-  d = await call('GET', '/admin/reg?event=bstw2027', null, wk); check('money someone else recorded is not "mine"', d.mine.length === 0, d.mine);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'cancel', silent: 1 }, jw); check('cancel refunds what was paid minus ¥50', d.ok && d.refund === 1350, d);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'refund', pay: { amount: 2000, method: 'wechat' }, silent: 1 }, jw); check('cannot refund more than held', d._s === 400);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'refund', pay: { method: 'wechat' }, silent: 1 }, jw); check('refund recorded as negative', d.ok && d.refunded === 1350 && d.due === 0, d);
-  d = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN); check('ledger shows refund out', d.ledger['竟文'].out === 1350 && d.rows.find(r => r.id === fid).paid_total === 50, d.ledger);
-  for (const path of ['?event=bstw2027&format=csv', '/payments?event=bstw2027']) {
-    const u = 'https://api.tangoweekend.org/social/admin/reg' + path, get = t => social(new Request(u, { headers: { Authorization: 'Bearer ' + t } }), env, new URL(u), json);
-    check('manager cannot export ' + path, (await get(wk)).status === 403);
-    const ok = await get(jw), text = await ok.text();
-    check('chief exports ' + path, ok.status === 200 && (path.includes('csv') || (text.includes('alipay,王凯,竟文,单号 123') && text.includes('-1350'))), text.slice(0, 300)); }
-  d = await call('GET', '/reg/door/me', null, wk); check('manager uses the door page', d.ok && d.name === '王凯' && d.role === 'manager' && d.collect);
-  d = await call('POST', '/admin/reg/admins/reset', { id: wkId }, jw); const wk2 = d.password;
-  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk); check('old password stops after reset', d._s === 401);
-  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk2); check('new password works', d.name === '王凯');
-  check('organizer promotes', (await call('POST', '/admin/reg/admins/perms', { id: wkId, role: 'chief' }, ADMIN)).ok && (await call('GET', '/admin/reg/me?event=bstw2027', null, wk2)).role === 'chief');
-  check('organizer demotes', (await call('POST', '/admin/reg/admins/perms', { id: wkId, role: 'manager' }, ADMIN)).perms === 'collect,staff');
-  db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('other2027','OtherChief',?,'chief','2026-12-01')").run(sha('c'.repeat(40)));
-  check('chief of another event is nobody here', (await call('GET', '/admin/reg?event=bstw2027', null, 'c'.repeat(40)))._s === 401);
-  db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027','Old',?,'review,export,cancel','2026-12-01')").run(sha('d'.repeat(40)));
-  check('old-style perms never grant more than a site manager', (await call('GET', '/admin/reg/me?event=bstw2027', null, 'd'.repeat(40))).perms.length === 0);
-  d = await call('POST', '/admin/reg/admins/delete', { id: wkId }, ADMIN); check('organizer deletes', d.ok && !db.prepare('SELECT 1 FROM reg_admin WHERE id=?').get(wkId));
-  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk2); check('deleted person locked out', d._s === 401);
-  check('payments keep the deleted name', db.prepare("SELECT 1 FROM reg_payment WHERE collector='王凯'").get()); }
+// --- five roles (docs/tangopass.md, first section): can / cannot, appointments, simultaneous work ---
+{ const EV = R.EVENTS.bstw2027, seat = EV.chief, U = 'https://api.tangoweekend.org/social';
+  const raw = (path, tok) => social(new Request(U + path, { headers: { Authorization: 'Bearer ' + tok } }), env, new URL(U + path), json);
+  const post = (path, body, tok) => call('POST', '/admin/reg' + path, body, tok);
+  let d = await post('/admins', { name: 'Seat', role: 'chief' }, ADMIN);
+  check('BSTW: the chief seat is taken by the platform admin', d._s === 409 && d.error === 'chief_taken', d);
+  d = await call('GET', '/admin/reg/me', null, ADMIN);
+  check('BSTW: platform admin is the chief and is not offered a second one', d.role === 'owner' && d.seat === 'chief' && d.appoint.join() === 'deputy,manager,desk' && d.perms.includes('asset'), d);
+  delete EV.chief;   // from here: an event whose organizer delegated the chief
+
+  let n = 0;
+  const wipe = () => { db.exec("DELETE FROM reg_admin WHERE name LIKE 'T-%'"); db.exec("DELETE FROM reg_staff WHERE name LIKE 'T-%'"); };
+  const person_ = (role, event = 'bstw2027') => { n++;
+    const name = 'T-' + role + n;
+    if (role === 'owner') return { tok: ADMIN, role, name: '张孝' };
+    if (role === 'desk') { const key = crypto.randomBytes(32).toString('hex');
+      const r = db.prepare("INSERT INTO reg_staff(event,name,device_hash,created_at,activated_at) VALUES(?,?,?,'2026-11-01','2026-11-01')").run(event, name, sha(key));
+      return { tok: 'staff:' + key, id: Number(r.lastInsertRowid), role, name }; }
+    const key = crypto.randomBytes(20).toString('hex');
+    const r = db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES(?,?,?,?,'2026-11-01')").run(event, name, sha(key), role);
+    return { tok: key, id: Number(r.lastInsertRowid), role, name }; };
+  const codes = [];
+  const seed = async (status, o = {}) => { n++;
+    const code = 'BJ27-' + (7000 + n), amount = o.amount || 1000;
+    const r = db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,refund,note,created_at,updated_at) VALUES('bstw2027',?,?,'en',?,1,?,?,?,?,'2026-11-20','2026-11-20')")
+      .run(code, code + '@example.com', status, JSON.stringify({ people: [person({ pkg: 'single', items: ['M3'], amount })], rooms: [{ type: 'king', ci: '2027-06-18', co: '2027-06-19', nights: 1, guests: [0], amount: 500 }], hotel: true, passports: [{ s: 'SECRETSURNAME', g: 'SECRETGIVEN' }] }), amount, o.refund ?? null, o.note || 'PRIVATE');
+    const id = Number(r.lastInsertRowid); codes.push(id);
+    if (o.paid) db.prepare("INSERT INTO reg_payment(reg_id,at,amount,method,collector,by_admin) VALUES(?,'2026-11-21',?,'alipay','Earlier','Earlier')").run(id, o.paid);
+    return { id, code, p: await R.passFor(env, code, 0) }; };
+  const status = id => db.prepare('SELECT status FROM reg WHERE id=?').get(id).status;
+
+  // 3. every role × every row of the table
+  const CAN = { owner: 'door undo site review list cancel refund passport export asset', chief: 'door undo site review list cancel refund passport export', deputy: 'door undo site review list', manager: 'door undo site', desk: 'door' };
+  for (const role of Object.keys(CAN)) {
+    wipe();
+    const who = person_(role), t = who.tok, may = x => CAN[role].split(' ').includes(x), no = role === 'desk' ? 401 : 403;
+    const expect = (what, res, perm, extra = true) => check(`${role}: ${may(perm) ? 'can' : 'cannot'} ${what}`, res._s === (may(perm) ? 200 : no) && extra, res);
+    const paid = await seed('paid', { paid: 1000 }), cash = await seed('cash', { paid: 300 });
+    let a = await call('GET', '/reg/door/pass?p=' + paid.p, null, t);
+    check(role + ': scans', a.ok, a);
+    check(role + ': note only with the list', (a.note === 'PRIVATE') === may('list'), a);
+    check(role + ': who sees what was paid', may('list') ? a.collect.paid === 1000 : !JSON.stringify(a).includes('1000'), a);
+    a = await call('POST', '/reg/door/checkin', { p: paid.p, item: 'M3' }, t);
+    check(role + ': checks in, own name', a.ok && a.by === who.name, a);
+    a = await call('POST', '/reg/door/checkin', { p: paid.p, item: 'M3', undo: 1 }, t);
+    check(`${role}: undo`, may('undo') ? a.undone : a._s === 403 && a.error === 'manager_only', a);
+    a = await call('POST', '/reg/door/checkin', { p: cash.p, item: 'M3' }, t);
+    check(role + ': no check-in before arrival payment is settled', a._s === 409 && a.error === 'pay_first', a);
+    a = await call('GET', '/reg/door/pass?p=' + cash.p, null, t);
+    check(role + ': amount to take only for collectors', may('site') ? a.collect.rest === 700 : !a.collect && !JSON.stringify(a).includes('700'), a);
+    a = await post('/act', { id: cash.id, p: cash.p, action: 'pay', pay: { method: 'cash' } }, t);
+    expect('collect on site', a, 'site', !may('site') || status(cash.id) === 'paid');
+    for (const [action, from, to] of [['confirm', 'pending', 'confirmed'], ['waitlist', 'pending', 'waitlist'], ['decline', 'pending', 'declined'], ['cash', 'confirmed', 'cash'], ['pay', 'confirmed', 'paid']]) {
+      const x = await seed(from);
+      a = await post('/act', { id: x.id, action, pay: { method: 'alipay' }, silent: 1 }, t);
+      expect(action === 'pay' ? 'record a screenshot payment' : action, a, 'review', status(x.id) === (may('review') ? to : from)); }
+    const c = await seed('paid', { paid: 1000 }), rf = await seed('cancelled', { paid: 1000, refund: 950 }), nt = await seed('pending');
+    expect('edit the note', await post('/act', { id: nt.id, action: 'note', note: 'x' }, t), 'list');
+    expect('cancel', await post('/act', { id: c.id, action: 'cancel', silent: 1 }, t), 'cancel', status(c.id) === (may('cancel') ? 'cancelled' : 'paid'));
+    expect('refund', await post('/act', { id: rf.id, action: 'refund', pay: { method: 'alipay' } }, t), 'refund');
+    const mo = await seed('pending');
+    expect('modify a registration', await post('/act', { id: mo.id, action: 'modify', silent: 1, data: form() }, t), 'cancel');
+    const res = await raw('/admin/reg?event=bstw2027', t), text = await res.text();
+    check(role + ': list', res.status === (role === 'desk' ? 401 : 200) && text.includes('"rows"') === may('list'), res.status);
+    check(role + ': emails, notes, full ledger', text.includes('@example.com') === may('list') && text.includes('PRIVATE') === may('list') && text.includes('"ledger"') === may('list'));
+    check(role + ': passport names are not even sent', text.includes('SECRETSURNAME') === may('passport') && text.includes('SECRETGIVEN') === may('passport'));
+    check(role + ': no password hashes sent', !text.includes('pass_hash') && !text.includes('device_hash'));
+    for (const path of ['/admin/reg?format=csv', '/admin/reg/payments']) {
+      const r = await raw(path, t);
+      check(`${role}: export ${path}`, r.status === (may('export') ? 200 : no), r.status); }
+    expect('change the payment QR', await post('/asset', { name: 'test-qr', mime: 'image/png', b64: 'AA' }, t), 'asset');
+  }
+  db.exec("DELETE FROM reg_asset WHERE name='test-qr'");
+
+  // 2. every actor × every target × every kind of appointment
+  const RK = { desk: 0, manager: 1, deputy: 2, chief: 3, owner: 4 }, ROLES5 = Object.keys(RK);
+  for (const actor of ROLES5) for (const target of ['chief', 'deputy', 'manager', 'desk']) {
+    const ok = (...roles) => RK[actor] >= 2 && roles.every(r => RK[actor] > RK[r]), no = actor === 'desk' ? 401 : 403;
+    const ops = target === 'desk' ? ['add', 'reissue', 'delete'] : ['add', 'reset', 'delete', 'to:chief', 'to:deputy', 'to:manager'];
+    for (const op of ops) {
+      wipe();
+      const who = person_(actor), it = op === 'add' ? null : person_(target);
+      let res, want;
+      if (op === 'add') { want = ok(target);
+        res = target === 'desk' ? await post('/staff', { name: 'T-new' }, who.tok) : await post('/admins', { name: 'T-new', role: target }, who.tok);
+      } else if (op.startsWith('to:')) { const role = op.slice(3); want = ok(target, role);
+        res = await post('/admins/role', { id: it.id, role }, who.tok);
+        if (want) check(`demoting a deputy reminds (${actor})`, !!res.check === (target === 'deputy' && role === 'manager'), res);
+        if (target !== role) check(`${actor} ${op} from ${target}: stored`, (db.prepare('SELECT perms FROM reg_admin WHERE id=?').get(it.id).perms === role) === want, res);
+      } else { want = ok(target);
+        res = await post((target === 'desk' ? '/staff/' : '/admins/') + op, { id: it.id }, who.tok);
+        if (op === 'delete') {
+          check(`${actor} delete ${target}: row gone only if allowed`, !db.prepare(`SELECT 1 FROM ${target === 'desk' ? 'reg_staff' : 'reg_admin'} WHERE id=?`).get(it.id) === want, res);
+          if (want) { check(`deleted ${target} stops at once`, (await call('GET', '/reg/door/me', null, it.tok))._s === 401);
+            check(`deleting reminds only for a deputy (${target})`, !!res.check === (target === 'deputy'), res); } }
+      }
+      check(`appoint: ${actor} ${op} ${target}`, res._s === (want ? 200 : no), res);
+    }
+  }
+  for (const role of ['chief', 'deputy', 'manager']) { wipe(); const me = person_(role);
+    for (const [path, body] of [['/admins/role', { role: 'manager' }], ['/admins/role', { role: 'chief' }], ['/admins/reset', {}], ['/admins/delete', {}]])
+      check(`${role}: never acts on oneself ${path}`, (await post(path, { id: me.id, ...body }, me.tok))._s === 403); }
+  { wipe(); const other = person_('chief', 'other2027'), here = person_('manager'), x = await seed('paid', { paid: 1000 });
+    check('chief of another event: no list', (await call('GET', '/admin/reg', null, other.tok))._s === 401);
+    check('chief of another event: no appointments', (await post('/admins/delete', { id: here.id }, other.tok))._s === 401);
+    check('chief of another event: no pass', (await call('GET', '/reg/door/pass?p=' + x.p, null, other.tok))._s === 404);
+    const chief = person_('chief'), there = person_('manager', 'other2027');
+    check('chief here cannot touch someone there', (await post('/admins/delete', { id: there.id }, chief.tok))._s === 404);
+    check('prototype names are not events', (await call('GET', '/admin/reg/me?event=constructor', null, here.tok))._s === 400);
+    check('prototype names are not actions', (await post('/act', { id: x.id, action: 'constructor' }, chief.tok))._s === 400); }
+
+  // passwords, names, limits
+  wipe();
+  const made = await post('/admins', { name: 'T-made', role: 'manager' }, ADMIN);
+  check('password shown once, forty characters', /^[0-9a-f]{40}$/.test(made.password), made);
+  d = await post('/admins/reset', { id: made.id }, ADMIN);
+  check('old password stops after reset', (await call('GET', '/admin/reg/me', null, made.password))._s === 401);
+  check('new password works', (await call('GET', '/admin/reg/me', null, d.password)).name === 'T-made');
+  check('a desk cannot take a working manager\'s name', (await post('/staff', { name: 'T-made' }, ADMIN)).error === 'name_taken');
+  check('platform admin name is reserved', (await post('/admins', { name: '张孝' }, ADMIN)).error === 'name_reserved');
+  check('unknown role refused', (await post('/admins', { name: 'T-x', role: 'owner' }, ADMIN))._s === 400);
+  db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027','T-old',?,'review,export,cancel','2026-11-01')").run(sha('d'.repeat(40)));
+  d = await call('GET', '/admin/reg/me', null, 'd'.repeat(40));
+  check('someone from before the rules is a site manager', d.role === 'manager' && d.perms.join() === 'door,undo,collect' && !d.appoint.length, d);
+  const deputies = () => db.prepare("SELECT COUNT(*) c FROM reg_admin WHERE perms='deputy' AND name LIKE 'T-%' AND event='bstw2027'").get().c;
+  wipe();
+  readLag = 5;
+  let many = await Promise.all([1, 2, 3, 4, 5, 6].map(i => post('/admins', { name: 'T-dep' + i, role: 'deputy' }, ADMIN)));
+  check('six deputies at once → three', many.filter(x => x.ok).length === 3 && deputies() === 3 && many.filter(x => !x.ok).every(x => x.error === 'deputy_full'), many);
+  const up = person_('manager');
+  check('no fourth by promotion', (await post('/admins/role', { id: up.id, role: 'deputy' }, ADMIN)).error === 'deputy_full' && deputies() === 3);
+  wipe();
+  const cands = [1, 2, 3, 4].map(() => person_('manager'));
+  many = await Promise.all(cands.map(c => post('/admins/role', { id: c.id, role: 'chief' }, ADMIN)));
+  check('four chiefs at once → one', many.filter(x => x.ok).length === 1 && db.prepare("SELECT COUNT(*) c FROM reg_admin WHERE perms='chief' AND name LIKE 'T-%' AND event='bstw2027'").get().c === 1, many);
+  wipe();
+  many = await Promise.all([1, 2, 3].map(() => post('/admins', { name: 'T-same' }, ADMIN)));
+  check('same name at once → one', many.filter(x => x.ok).length === 1 && many.filter(x => x.error === 'name_taken').length === 2, many);
+
+  readLag = 0;
+  // 4. a site manager: only the scanned one, only own account
+  wipe();
+  const mg = person_('manager'), mg2 = person_('manager'), c1 = await seed('cash', { paid: 250 }), c2 = await seed('cash'), cf = await seed('confirmed');
+  check('manager: needs the scanned code', (await post('/act', { id: c1.id, action: 'pay' }, mg.tok))._s === 403);
+  check('manager: a forged code is refused', (await post('/act', { id: c1.id, p: c1.p.slice(0, -1) + (c1.p.endsWith('0') ? '1' : '0'), action: 'pay' }, mg.tok))._s === 403);
+  check('manager: the code pays only its own registration', (await post('/act', { id: c2.id, p: c1.p, action: 'pay' }, mg.tok))._s === 403 && status(c2.id) === 'cash');
+  d = await post('/act', { id: cf.id, p: cf.p, action: 'pay', pay: { amount: 1000 } }, mg.tok);
+  check('manager: not before pay-on-arrival is approved', d._s === 409 && status(cf.id) === 'confirmed', d);
+  d = await post('/act', { id: c1.id, p: c1.p, action: 'pay', pay: { amount: 750, method: 'cash', collector: 'Someone else' }, silent: 1 }, mg.tok);
+  check('manager: answer has no other payments', d.ok && !('paid' in d) && !('amount' in d) && !JSON.stringify(d).includes('250'), d);
+  const p1 = db.prepare('SELECT * FROM reg_payment WHERE reg_id=? ORDER BY id DESC').get(c1.id);
+  check('manager: recorded under own name whatever was sent', p1.collector === mg.name && p1.by_admin === mg.name, p1);
+  check('manager: own takings', (await call('GET', '/admin/reg', null, mg.tok)).mine.map(x => x.amount).join() === '750');
+  check('manager: not a colleague\'s takings', (await call('GET', '/admin/reg', null, mg2.tok)).mine.length === 0);
+  d = await post('/act', { id: c1.id, p: c1.p, action: 'pay' }, mg2.tok);
+  check('manager late: sees who, not how or how much', d.error === 'already_paid' && d.last.by === mg.name && !d.last.method && !JSON.stringify(d).includes('750'), d);
+
+  // 6. several at once: one wins, the others learn who, one log line, one letter
+  wipe();
+  const deps = [1, 2, 3].map(() => person_('deputy')), boss = person_('chief'), team = [ADMIN, boss.tok, ...deps.map(x => x.tok)];
+  const name = new Map([[ADMIN, '张孝'], [boss.tok, boss.name], ...deps.map(x => [x.tok, x.name])]);
+  for (const [action, from, o, crew] of [['confirm', 'pending', {}, team], ['waitlist', 'pending', {}, team], ['decline', 'pending', {}, team], ['cash', 'confirmed', {}, team], ['pay', 'confirmed', {}, team], ['cancel', 'paid', { paid: 1000 }, team.slice(0, 2)], ['refund', 'cancelled', { paid: 1000, refund: 950 }, team.slice(0, 2)],
+    // same kind of caller = same timing, so these really read before either has written
+    ['pay', 'confirmed', {}, deps.map(x => x.tok)], ['cash', 'confirmed', {}, deps.map(x => x.tok)], ['cancel', 'paid', { paid: 1000 }, [boss.tok, boss.tok]], ['refund', 'cancelled', { paid: 1000, refund: 950 }, [boss.tok, boss.tok]]]) {
+    const x = await seed(from, o), before = mails.length;
+    readLag = 25;
+    const out = await Promise.all(crew.map(t => post('/act', { id: x.id, action, from, pay: { method: 'alipay' } }, t)));
+    readLag = 0;
+    const won = out.map((r, i) => r.ok ? name.get(crew[i]) : '').filter(Boolean);
+    check(`at once: ${action} → one wins`, won.length === 1, out);
+    check(`at once: ${action} → the others see who`, out.filter(r => !r.ok).every(r => r._s === 409 && r.last && r.last.by === won[0] && r.last.at), out);
+    check(`at once: ${action} → one log line`, db.prepare('SELECT COUNT(*) c FROM reg_log WHERE reg_id=? AND action=?').get(x.id, action).c === 1);
+    check(`at once: ${action} → one letter at most`, mails.length - before === (action === 'refund' ? 0 : 1), mails.length - before);
+    if (action === 'pay' || action === 'refund') check(`at once: ${action} → one amount`, db.prepare('SELECT COUNT(*) c FROM reg_payment WHERE reg_id=? AND by_admin<>?').get(x.id, 'Earlier').c === 1);
+  }
+  const st = await seed('pending');
+  await post('/act', { id: st.id, action: 'waitlist', from: 'pending', silent: 1 }, deps[0].tok);
+  d = await post('/act', { id: st.id, action: 'confirm', from: 'pending', silent: 1 }, deps[1].tok);
+  check('an old screen cannot overwrite what was decided', d.error === 'bad_state' && d.last.by === deps[0].name && status(st.id) === 'waitlist', d);
+  const part = await seed('confirmed');
+  await post('/act', { id: part.id, action: 'pay', pay: { amount: 300, seen: 1000 } }, deps[0].tok);
+  d = await post('/act', { id: part.id, action: 'pay', pay: { amount: 300, seen: 1000 } }, deps[1].tok);
+  check('the same screenshot twice from an old screen → once', d.error === 'already_paid' && d.last.by === deps[0].name, d);
+  check('a second instalment from a fresh screen is fine', (await post('/act', { id: part.id, action: 'pay', pay: { amount: 300, seen: 700 } }, deps[1].tok)).rest === 400);
+  const no_ = await seed('pending', { note: 'first' });
+  check('note saved', (await post('/act', { id: no_.id, action: 'note', was: 'first', note: 'mine' }, deps[0].tok)).note === 'mine');
+  d = await post('/act', { id: no_.id, action: 'note', was: 'first', note: 'theirs' }, deps[1].tok);
+  check('note: late writer sees who', d.error === 'note_changed' && d.note === 'mine' && d.last.by === deps[0].name, d);
+
+  // 5. refunds together never above what is due
+  const rf = await seed('cancelled', { paid: 2000, refund: 1200 });
+  check('refund above due (although held)', (await post('/act', { id: rf.id, action: 'refund', pay: { amount: 1201 } }, boss.tok))._s === 400);
+  check('refund in parts', (await post('/act', { id: rf.id, action: 'refund', pay: { amount: 700 } }, boss.tok)).due === 500);
+  check('second part above the rest', (await post('/act', { id: rf.id, action: 'refund', pay: { amount: 501 } }, boss.tok))._s === 400);
+  check('last part', (await post('/act', { id: rf.id, action: 'refund', pay: { amount: 500 } }, boss.tok)).due === 0);
+  d = await post('/act', { id: rf.id, action: 'refund', pay: { amount: 1 } }, ADMIN);
+  check('nothing more once all is back', d.error === 'already_refunded' && d.last.by === boss.name, d);
+  const none = await seed('cancelled', { paid: 50, refund: 0 });
+  check('nothing due → nothing refunded', (await post('/act', { id: none.id, action: 'refund', pay: { amount: 50 } }, boss.tok))._s === 400);
+
+  readLag = 5;
+  // check-in and undo at once
+  const ci = await seed('paid', { paid: 1000 }), m1 = person_('manager'), m2 = person_('manager');
+  many = await Promise.all([m1, m2].map(x => call('POST', '/reg/door/checkin', { p: ci.p, item: 'M3' }, x.tok)));
+  check('check-in at once → one, the other sees who', many.filter(x => x.ok).length === 1 && many.find(x => !x.ok).by === many.find(x => x.ok).by, many);
+  const at = many.find(x => x.ok).at;
+  many = await Promise.all([m1, m2].map(x => call('POST', '/reg/door/checkin', { p: ci.p, item: 'M3', undo: 1, at }, x.tok)));
+  const un = [m1, m2][many.findIndex(x => x.ok)];
+  check('undo at once → one, the other sees who', many.filter(x => x.ok).length === 1 && many.find(x => !x.ok).last.by === un.name, many);
+
+  readLag = 0;
+  const again = await call('POST', '/reg/door/checkin', { p: ci.p, item: 'M3' }, m1.tok);
+  d = await call('POST', '/reg/door/checkin', { p: ci.p, item: 'M3', undo: 1, at: '2026-11-01T00:00:00.000Z' }, m2.tok);
+  check('an old screen cannot undo a newer check-in', again.ok && d.error === 'already_undone' && db.prepare('SELECT 1 FROM reg_checkin WHERE reg_id=?').get(ci.id), d);
+  // 7. names and times on the page
+  const h = await seed('pending');
+  for (const [action, t] of [['confirm', deps[0].tok], ['cash', deps[1].tok], ['cancel', ADMIN]]) await post('/act', { id: h.id, action, silent: 1 }, t);
+  db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)").run(st.id, '2026-11-22T00:00:00Z', 'decline', 'sorry (by Old Name)');
+  db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)").run(st.id, '2026-11-22T00:00:01Z', 'checkin_undo', '0:M3 by Old Undo');
+  d = await call('GET', '/admin/reg', null, boss.tok);
+  const row = id => d.rows.find(r => r.id === id);
+  check('history: every step with name and time', row(h.id).log.map(l => l.action + ':' + l.by).join() === `confirm:${deps[0].name},cash:${deps[1].name},cancel:张孝` && row(h.id).log.every(l => l.at), row(h.id).log);
+  check('history: undo with the name', row(ci.id).undos[0].by === un.name && row(ci.id).undos[0].item === 'M3', row(ci.id).undos);
+  check('history: lines from before still read', row(st.id).log.some(l => l.by === 'Old Name') && row(st.id).undos.some(u => u.by === 'Old Undo'), row(st.id).log);
+  check('history: money has who recorded it', row(rf.id).payments.filter(p => p.amount < 0).every(p => p.by_admin === boss.name && p.at));
+  const c = await raw('/admin/reg/payments', boss.tok);
+  check('ledger CSV has the recorder', (await c.text()).includes(boss.name));
+
+  wipe();
+  for (const id of codes) for (const [t, col] of [['reg_checkin', 'reg_id'], ['reg_payment', 'reg_id'], ['reg_log', 'reg_id'], ['reg', 'id']]) db.prepare(`DELETE FROM ${t} WHERE ${col}=?`).run(id);
+  mails.length = 0;
+  EV.chief = seat; }
 // rename migration moves old bj2027 rows
 db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,created_at,updated_at) VALUES('bj2027','OLD-1','old@x.com','pending',1,'{\"people\":[],\"rooms\":[],\"passports\":[]}',0,'2026-11-01','2026-11-01')").run();
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0023_rename_bstw2027.sql'), 'utf8'));
@@ -355,14 +529,12 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   check('cannot check in before paying', a._s === 409 && a.error === 'pay_first', a);
   a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { method: 'alipay' } }, dt);
   check('front desk cannot collect', a._s === 401 || a._s === 403, a);
-  const rev = await call('POST', '/admin/reg/admins', { name: 'Reviewer', perms: ['staff'] }, ADMIN), col = await call('POST', '/admin/reg/admins', { name: 'Collector', perms: ['collect'] }, ADMIN);
+  const rev = await call('POST', '/admin/reg/admins', { name: 'Reviewer', role: 'deputy' }, ADMIN), col = await call('POST', '/admin/reg/admins', { name: 'Collector', perms: ['collect'] }, ADMIN);
   const pw = x => x.password || x.pass || x.token;
   a = await call('GET', '/reg/door/pass?p=' + p1, null, pw(rev));
-  check('manager without collect: no amount', a.pay_first && !a.collect, a);
-  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { method: 'alipay' } }, pw(rev));
-  check('manager without collect cannot collect', a._s === 403, a);
+  check('deputy: rest and what was paid before', a.pay_first && a.collect.rest === 2000 && a.collect.paid === 900, a);
   a = await call('GET', '/reg/door/pass?p=' + p2, null, pw(col));
-  check('collector: rest from a companion code', a.collect.id === aid && a.collect.rest === 2000 && a.collect.paid === 900, a);
+  check('collector: rest from a companion code, not the earlier payment', a.collect.id === aid && a.collect.rest === 2000 && a.collect.paid === undefined, a);
   check('collector: /me says collect', (await call('GET', '/reg/door/me', null, pw(col))).collect === true);
   a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 2000 } }, pw(col));
   check('manager collects only with the scanned code', a._s === 403, a);
@@ -384,7 +556,7 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const undo = who => call('POST', '/reg/door/checkin', { p: me.reg.passes[0].pass, item: 'M1', undo: 1 }, who);
   a = await undo(dt); check('front desk cannot undo', a._s === 403 && a.error === 'manager_only', a);
   a = await call('GET', '/reg/door/pass?p=' + p1, null, dt); check('check-in still there after refused undo', a.checkins.length === 1, a);
-  a = await undo(pw(rev)); check('any manager can undo', a.ok && a.undone, a);
+  a = await undo(pw(rev)); check('deputy can undo', a.ok && a.undone, a);
   await undo(pw(rev));
   a = (await call('GET', '/admin/reg', null, ADMIN)).rows.find(r => r.id === aid);
   check('undo keeps who did it, once', a.undos.length === 1 && a.undos[0].by === 'Reviewer' && a.undos[0].item === 'M1' && a.undos[0].person === 0 && a.undos[0].at, a.undos);
