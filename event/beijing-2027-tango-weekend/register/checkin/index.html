@@ -61,8 +61,22 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
 </select></header>
 <main>
   <div class="card" id="wechat" hidden>
-    <p style="margin-top:0"><b>请不要在微信里启用。</b></p>
-    <p>点右上角 <b>···</b>，选「<b>在浏览器打开</b>」（iPhone 选 Safari），再启用。这个连结只能启用一次。</p>
+    <div class="big">还差一步</div>
+    <p><b>连结没问题，但不能在微信里启用。</b></p>
+    <ol class="steps"><li>点右上角 <b>···</b></li><li>选「<b>在浏览器打开</b>」（iPhone 是 Safari）</li><li>看到「你好」就启用好了</li></ol>
+    <p class="muted">没有这个选项：按下面的按钮复制，贴到 Safari 或 Chrome 的网址栏。</p>
+  </div>
+  <div class="card" id="managerHere" hidden>
+    <div class="big">这台不能当前台</div>
+    <p>它已经登入管理页（组织者或活动经理）。<b>连结还没用掉。</b></p>
+    <ol class="steps"><li>给义工：复制连结，用微信发给义工本人</li><li>自己想试：复制连结，贴到另一支手机，或这台的无痕窗口</li></ol>
+  </div>
+  <div class="card" id="linkBox" hidden>
+    <label for="linkText" class="muted">前台连结</label>
+    <input id="linkText" readonly style="width:100%;margin-top:4px">
+    <button class="btn" id="linkCopy">复制连结</button>
+    <p class="muted" id="linkCopied" role="status" hidden></p>
+    <button class="btn sec" id="linkSkip" hidden>不启用，继续用活动经理签到</button>
   </div>
   <div class="roles" id="nokey" hidden>
     <p style="margin-top:0"><b>请选你的身份</b></p>
@@ -135,6 +149,16 @@ var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'},met
 function yen(n){return '¥'+Number(n).toLocaleString('en-US')}
 function hm(iso){return new Date(iso).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'})}
 function takeState(){$('take').disabled=taking||!method||!$('arrived').checked;[].forEach.call(document.querySelectorAll('[data-m]'),function(b){b.setAttribute('aria-pressed',b.dataset.m===method)})}
+function offerLink(){
+  var u=new URL(location.href);u.hash='';
+  $('linkText').value=u.href;$('linkBox').hidden=false}
+$('linkCopy').addEventListener('click',function(){
+  var i=$('linkText'),m=$('linkCopied');i.focus();i.select();i.setSelectionRange(0,i.value.length);m.hidden=false;
+  var old=function(){var ok=false;try{ok=document.execCommand('copy')}catch(e){}m.textContent=ok?'已复制':'没复制成功：请长按上面的连结手动复制'};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(i.value).then(function(){m.textContent='已复制'},old);else old()});
+$('linkSkip').addEventListener('click',function(){
+  history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));
+  $('linkBox').hidden=$('managerHere').hidden=true;res('','');whoami()});
 function ready(name,collect){var adm=asAdmin(),badge=document.createElement('span'),org=adm&&name==='主办';
   badge.className='badge';badge.textContent=adm?(org?'组织者':'活动经理'):'前台';$('me').textContent='';$('me').appendChild(badge);
   $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
@@ -222,18 +246,19 @@ put('bstw_role','');
 if(get('bstw_staff'))put('bstw_admin','');
 var act=Q.get('act')||'';
 function activate(){
+  res('warn','正在启用…');
   call('/social/reg/door/activate',{method:'POST',body:{act:act},noAuth:true}).then(function(d){
-    if(d.ok){put('bstw_staff',d.token);put('bstw_admin','');keepUrl();$('welcome').hidden=false;$('wName').textContent=d.name+'，你好';ready(d.name);return}
-    if(get('bstw_staff')){keepUrl();whoami();return}   // this phone already activated with this link before
+    if(d.ok){put('bstw_staff',d.token);put('bstw_admin','');keepUrl();res('','');$('welcome').hidden=false;$('wName').textContent=d.name+'，你好';ready(d.name);return}
+    if(get('bstw_staff')){res('','');keepUrl();whoami();return}   // this phone already activated with this link before
     choose();res('no',d.error==='disabled'?'这个连结已停用，请找组织者':'这个连结已经在别的手机启用过，或已失效。请找组织者重发。')
   }).catch(function(){res('no','连不上后台，请检查网络')});
 }
 if(act){
-  if(/MicroMessenger/i.test(navigator.userAgent)){$('wechat').hidden=false;$('item').hidden=true}
+  if(/MicroMessenger/i.test(navigator.userAgent)){$('wechat').hidden=false;$('item').hidden=true;offerLink()}
   else if(!get('bstw_admin'))activate();
   else call('/social/reg/door/me').then(function(d){
     // do not use up the one-time link on a manager's phone
-    if(d.ok){history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));ready(d.name,d.collect);res('warn','这支手机已登入活动经理，不能再当前台。这个连结还没用掉：请让前台用自己的手机打开');return}
+    if(d.ok){$('item').hidden=true;$('managerHere').hidden=false;$('linkSkip').hidden=false;offerLink();res('','');return}
     if(d._s===401){put('bstw_admin','');activate();return}
     res('no','连不上后台，请稍后再开一次连结')
   }).catch(function(){res('no','连不上后台，请检查网络')});
