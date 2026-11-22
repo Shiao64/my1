@@ -159,10 +159,14 @@ export async function seatsLeft(env, ev, skipId) {
 function need(data) { const n = {}; for (const p of data.people) for (const c of p.items) n[c] = (n[c] || 0) + 1; return n; }
 
 async function log(env, id, action, detail) { await env.SDB.prepare('INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)').bind(id, nowIso(), action, detail ? String(detail).slice(0, 1000) : null).run(); }
-async function nextCode(env, ev) {
-  const r = await env.SDB.prepare('SELECT COUNT(*) n FROM reg WHERE event=?').bind(ev.id).first();
-  for (let n = (r && r.n || 0) + 1; ; n++) { const c = ev.prefix + '-' + String(n).padStart(4, '0');
-    if (!(await env.SDB.prepare('SELECT 1 FROM reg WHERE code=?').bind(c).first())) return c; }
+// One statement takes the next number and refuses a second live form of the same email, so any number of people can send at once.
+async function addReg(env, r, userId, email, data, ts) {
+  const pre = r.ev.prefix + '-';
+  const ins = await env.SDB.prepare(`INSERT INTO reg(event,code,user_id,email,lang,status,domestic,people,data,amount,hotel_amount,promo,promo_dj,created_at,updated_at)
+    SELECT ?,(SELECT ? || printf('%04d', COALESCE(MAX(CAST(substr(code,?) AS INTEGER)),0)+1) FROM reg WHERE code LIKE ?),?,?,?,'pending',?,?,?,?,?,?,?,?,?
+    WHERE NOT EXISTS (SELECT 1 FROM reg WHERE event=? AND email=? AND status<>'cancelled')`)
+    .bind(r.ev.id, pre, pre.length + 1, pre + '%', userId, email, r.lang, r.domestic, r.data.people.length, data, r.total, r.hotel, r.promo.code || null, r.promo.dj || null, ts, ts, r.ev.id, email).run();
+  return ins.meta.changes ? env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(ins.meta.last_row_id).first() : null;
 }
 
 // ---------- letters ----------
@@ -376,22 +380,23 @@ export async function regSubmit(req, env, b, json, kit) {
   if (b && b.website) return json({ ok: true });   // honeypot
   const r = evaluate(b, env);
   if (r.error) return json(r, 400);
-  const ex = await env.SDB.prepare("SELECT * FROM reg WHERE event=? AND email=? AND status<>'cancelled' ORDER BY id DESC LIMIT 1").bind(r.ev.id, email).first();
-  if (ex && ex.status !== 'pending') return json({ error: 'exists', code: ex.code, status: ex.status }, 409);
   const ts = nowIso(), data = JSON.stringify(r.data);
-  let reg;
+  const live = () => env.SDB.prepare("SELECT * FROM reg WHERE event=? AND email=? AND status<>'cancelled' ORDER BY id DESC LIMIT 1").bind(r.ev.id, email).first();
+  let reg = null, ex = await live();
+  if (!ex) {
+    reg = await addReg(env, r, u.id, email, data, ts);
+    if (reg) await log(env, reg.id, 'submit');
+    else if (!(ex = await live())) return json({ error: 'busy' }, 409);
+  }
   if (ex) {
+    if (ex.status !== 'pending') return json({ error: 'exists', code: ex.code, status: ex.status }, 409);
+    // the same form again within two minutes is the same press of the button (or a retry after a lost answer): no second letter
+    if (ex.data === data && ex.amount === r.total && Date.parse(ts) - Date.parse(ex.updated_at) < 12e4) return json({ ok: true, code: ex.code, total: ex.amount, updated: true, promo: r.promo.kind });
     const up = await env.SDB.prepare("UPDATE reg SET lang=?,domestic=?,people=?,data=?,amount=?,hotel_amount=?,promo=?,promo_dj=?,updated_at=? WHERE id=? AND status='pending'")
       .bind(r.lang, r.domestic, r.data.people.length, data, r.total, r.hotel, r.promo.code || null, r.promo.dj || null, ts, ex.id).run();
     reg = await env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(ex.id).first();
     if (!up.meta.changes) return json({ error: 'exists', code: reg.code, status: reg.status }, 409);   // reviewed while they were editing: what was reviewed stands
     await log(env, reg.id, 'resubmit');
-  } else {
-    const code = await nextCode(env, r.ev);
-    const ins = await env.SDB.prepare('INSERT INTO reg(event,code,user_id,email,lang,status,domestic,people,data,amount,hotel_amount,promo,promo_dj,created_at,updated_at) VALUES(?,?,?,?,?,\'pending\',?,?,?,?,?,?,?,?,?)')
-      .bind(r.ev.id, code, u.id, email, r.lang, r.domestic, r.data.people.length, data, r.total, r.hotel, r.promo.code || null, r.promo.dj || null, ts, ts).run();
-    reg = await env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(ins.meta.last_row_id).first();
-    await log(env, reg.id, 'submit');
   }
   await send(env, kit, reg, 'recv');
   await notifyOwner(env, kit, reg);
@@ -713,7 +718,7 @@ export async function regAct(env, b, json, kit, ev, who) {
     let refund = null;
     const paid = await paidSum(env, reg.id), took = reg.status === 'paid' ? Math.max(paid, paid ? 0 : reg.amount) : paid;
     if (took > 0) {
-      const afterCutoff = ts.slice(0, 10) > ev.hotelRefundBy;
+      const afterCutoff = bjDate(ts) > ev.hotelRefundBy;
       refund = Math.max(0, took - ev.fee - (afterCutoff ? reg.hotel_amount : 0));   // the ¥50 fee is kept once, whether or not a change already charged it
     }
     change = db.prepare("UPDATE reg SET status='cancelled',cancelled_at=?,refund=?,fee=CASE WHEN fee>0 THEN fee ELSE ? END,updated_at=? WHERE id=? AND status=?").bind(ts, refund, took > 0 ? ev.fee : 0, ts, reg.id, reg.status);

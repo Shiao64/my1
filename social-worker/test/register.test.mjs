@@ -485,6 +485,46 @@ check('QR hidden without key', q2.status === 404);
   const d = await call('POST', '/reg', form({ people: [person({ name: 'Ned', pkg: 'full' })] }), ned);
   env.SDB.prepare = real;
   check('a re-sent form cannot change what was just reviewed', d._s === 409 && d.status === 'waitlist' && db.prepare('SELECT amount FROM reg WHERE code=?').get(first.code).amount === 700, d); }
+// --- three bugs found 2026-11-23 (all reproduced on real D1 before they were fixed) ---
+{ const safe = (...a) => call(...a).catch(e => ({ _s: 500, error: String(e && e.message || e) }));
+  // 1. sent together → every one saved, every code different
+  const toks = Array.from({ length: 200 }, (_, i) => subscriber(`burst${i}@example.test`, 'Burst ' + i));
+  readLag = 10;
+  const out = await Promise.all(toks.map(t => safe('POST', '/reg', form(), t)));
+  readLag = 0;
+  check('200 sent at once: none fails', out.every(r => r.ok), [out.filter(r => !r.ok).length, out.find(r => !r.ok)]);
+  check('200 sent at once: 200 different codes', new Set(out.filter(r => r.ok).map(r => r.code)).size === 200 && out.every(r => !r.ok || /^BJ27-\d{4}$/.test(r.code)));
+  // 2. one email pressing again and again → one registration, one receipt
+  for (const gap of [0, 12, 40]) {
+    const email = `press${gap}@example.test`, t = subscriber(email, 'Press'), before = mails.length;
+    readLag = 25;
+    const r = await Promise.all([0, 1, 2, 3, 4].map(i => new Promise(ok => setTimeout(ok, i * gap)).then(() => safe('POST', '/reg', form(), t))));
+    readLag = 0;
+    check(`same email pressed five times (${gap} ms): one row`, db.prepare('SELECT COUNT(*) c FROM reg WHERE email=?').get(email).c === 1);
+    check(`same email pressed five times (${gap} ms): every press gets that code`, r.every(x => x.ok && x.code === r[0].code), r);
+    check(`same email pressed five times (${gap} ms): one receipt`, mails.slice(before).filter(m => m.includes(`to=${email}`) || m.includes(`${email}] `)).length === 1, mails.length - before);
+  }
+  { const t = subscriber('edit@example.test', 'Edit');
+    await call('POST', '/reg', form(), t);
+    const d = await call('POST', '/reg', form({ people: [person({ pkg: 'pass' })] }), t);
+    check('a changed form still updates the waiting one', d.ok && d.updated && d.total === 700, d); }
+  // 3. the hotel refund date ends at Beijing midnight
+  for (const [at, want] of [['2027-06-11T23:59:59+08:00', 2400], ['2027-06-12T00:00:00+08:00', 1400]]) {
+    const email = `cut${want}@example.test`, t = subscriber(email, 'Cut');
+    const reg = await call('POST', '/reg', form({ hotel: 'yes', rooms: [{ type: 'king', ci: '2027-06-18', co: '2027-06-20', guests: [0] }], passports: [{ s: 'TEST', g: 'CUT' }] }), t);
+    const id = db.prepare('SELECT id FROM reg WHERE code=?').get(reg.code).id;
+    db.prepare("UPDATE reg SET status='paid',amount=2450,hotel_amount=1000 WHERE id=?").run(id);
+    db.prepare("INSERT INTO reg_payment(reg_id,at,amount,method,collector,by_admin) VALUES(?,'2027-01-01',2450,'alipay','x','x')").run(id);
+    const Real = globalThis.Date, now = Real.parse(at);
+    globalThis.Date = class extends Real { constructor(...a) { super(...(a.length ? a : [now])); } static now() { return now; } };
+    const d = await call('POST', '/admin/reg/act', { id, action: 'cancel', silent: 1 }, ADMIN);
+    globalThis.Date = Real;
+    check('hotel refund, Beijing time ' + at, d.refund === want, d);
+  }
+  const mine = "SELECT id FROM reg WHERE email LIKE '%@example.test'";
+  for (const t of ['reg_payment', 'reg_log']) db.exec(`DELETE FROM ${t} WHERE reg_id IN (${mine})`);
+  db.exec("DELETE FROM reg WHERE email LIKE '%@example.test'");
+  mails.length = 0; }
 // rename migration moves old bj2027 rows
 db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,created_at,updated_at) VALUES('bj2027','OLD-1','old@x.com','pending',1,'{\"people\":[],\"rooms\":[],\"passports\":[]}',0,'2026-11-01','2026-11-01')").run();
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0023_rename_bstw2027.sql'), 'utf8'));
@@ -509,9 +549,9 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   check('paid letter links to the live page', p.text.includes('/register/draft/?lang=zh#passes') && p.html.includes('#passes"'));
   mails.length = 0;
   db.prepare("INSERT INTO reg_asset(name,mime,data,updated_at) SELECT 'intl-alipay',mime,data,updated_at FROM reg_asset WHERE name='intl-wechat'").run();
-  db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at,due_at) VALUES('bstw2027','BJ27-0901','qr@x.com','en','confirmed',1,?,1450,'2026-01-01','2026-01-01','2026-01-01T00:00:00Z','2026-01-15T00:00:00Z')").run(JSON.stringify({ people: [], rooms: [], passports: [], hotel: false }));
+  db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at,due_at) VALUES('bstw2027','BJ27-8901','qr@x.com','en','confirmed',1,?,1450,'2026-01-01','2026-01-01','2026-01-01T00:00:00Z','2026-01-15T00:00:00Z')").run(JSON.stringify({ people: [], rooms: [], passports: [], hotel: false }));
   await regCron(env);
-  check('reminder: both uploaded QRs, Alipay first', mails.some(m => m.includes('BJ27-0901') && m.indexOf('/qr/intl-alipay') > 0 && m.indexOf('/qr/intl-alipay') < m.indexOf('/qr/intl-wechat'))); }
+  check('reminder: both uploaded QRs, Alipay first', mails.some(m => m.includes('BJ27-8901') && m.indexOf('/qr/intl-alipay') > 0 && m.indexOf('/qr/intl-alipay') < m.indexOf('/qr/intl-wechat'))); }
 // registration sign-in must not change update-mail consent
 { db.exec("CREATE TABLE IF NOT EXISTS email_subs(id INTEGER PRIMARY KEY, email TEXT, status TEXT, unsubscribed_at TEXT); CREATE TABLE IF NOT EXISTS mail_unsub(email TEXT PRIMARY KEY, at TEXT); CREATE TABLE IF NOT EXISTS user_phone(user_id INTEGER PRIMARY KEY, phone TEXT, updated_at TEXT)");
   const st = subscriber('stay@x.com', 'Stay'); db.prepare("INSERT INTO email_subs(email,status) VALUES('stay@x.com','active')").run();
@@ -523,14 +563,14 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   check('explicit opt-out still works', p.ok && status() === 'unsubscribed', p); }
 // pay on arrival: scan to collect, no entry before payment, no double collection
 { mails.length = 0;
-  const mk = db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at) VALUES('bstw2027','BJ27-0950','arr@x.com','ko','confirmed',2,?,2900,'2026-12-01','2026-12-01','2026-12-01T00:00:00Z')")
+  const mk = db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at) VALUES('bstw2027','BJ27-8950','arr@x.com','ko','confirmed',2,?,2900,'2026-12-01','2026-12-01','2026-12-01T00:00:00Z')")
     .run(JSON.stringify({ people: [person({ pkg: 'single', items: ['M1'], amount: 1450 }), person({ name: 'Second', pkg: 'single', items: ['M1'], amount: 1450 })], rooms: [], passports: [], hotel: false }));
   const aid = Number(mk.lastInsertRowid);
   db.prepare("UPDATE reg SET note='private note' WHERE id=?").run(aid);
   let a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 900, method: 'alipay' } }, ADMIN);
   check('arrival: part paid first', a.ok && a.rest === 2000, a);
   a = await call('POST', '/admin/reg/act', { id: aid, action: 'cash' }, ADMIN);
-  check('arrival: letter shows what is left, zh + ko', a.ok && mails.some(m => m.includes('BJ27-0950') && m.includes('¥2,000') && m.includes('付款后才能入场') && m.includes('결제 후 입장')), mails);
+  check('arrival: letter shows what is left, zh + ko', a.ok && mails.some(m => m.includes('BJ27-8950') && m.includes('¥2,000') && m.includes('付款后才能入场') && m.includes('결제 후 입장')), mails);
   const arr = subscriber('arr@x.com', 'Arr');
   const me = await call('GET', '/reg/me?event=bstw2027', null, arr);
   check('arrival: page gets lang, people and rest', me.reg.lang === 'ko' && me.reg.people === 2 && me.reg.rest === 2000 && me.reg.passes.length === 2, me);
@@ -563,7 +603,7 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   a = await call('POST', '/admin/reg/act', { id: aid, p: me.reg.passes[1].pass, action: 'pay', pay: { amount: 100 } }, pw(col));
   check('paid registration refuses more', a._s === 409 && a.error === 'already_paid' && a.last.collector === 'Collector', a);
   a = await call('GET', '/admin/reg?event=bstw2027', null, pw(col));
-  check('manager sees own takings', a.mine.length === 1 && a.mine[0].amount === 2000 && a.mine[0].code === 'BJ27-0950', a.mine);
+  check('manager sees own takings', a.mine.length === 1 && a.mine[0].amount === 2000 && a.mine[0].code === 'BJ27-8950', a.mine);
   a = await call('GET', '/reg/door/pass?p=' + p1, null, pw(col));
   check('manager: no amount and no note once paid', a.collect.paid === undefined && a.collect.rest === 0 && a.note === '', a);
   for (const p of me.reg.passes) { a = await call('POST', '/reg/door/checkin', { p: p.pass, item: 'M1' }, dt); check('after payment everyone can enter', a.ok, a); }
@@ -578,11 +618,11 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   a = await call('GET', '/reg/door/pass?p=' + p1, null, 'b'.repeat(40));
   check('manager of another event cannot read the pass', a._s === 404, a); }
 // CSV: no formulas from typed text, Beijing time
-{ db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at) VALUES('bstw2027','BJ27-0960','csv@x.com','en','pending',1,?,0,'2026-12-01T17:30:00.000Z','2026-12-01')")
+{ db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at) VALUES('bstw2027','BJ27-8960','csv@x.com','en','pending',1,?,0,'2026-12-01T17:30:00.000Z','2026-12-01')")
     .run(JSON.stringify({ people: [{ name: '=1+1', city: '@x', wechat: '+86 123', pkg: 'single', items: [], extra: [], amount: 0 }], rooms: [], passports: [], hotel: false }));
   const u = 'https://api.tangoweekend.org/social/admin/reg?event=bstw2027&format=csv';
   const t = await (await social(new Request(u, { headers: { Authorization: 'Bearer ' + ADMIN } }), env, new URL(u), json)).text();
-  const line = t.split('\n').find(l => l.startsWith('BJ27-0960'));
+  const line = t.split('\n').find(l => l.startsWith('BJ27-8960'));
   check('csv: formulas neutralised', line.includes("'=1+1") && line.includes("'@x") && line.includes("'+86 123"), line);
   check('csv: Beijing time', line.includes('2026-12-02 01:30'), line); }
 // cron before migration is quiet
