@@ -972,10 +972,12 @@
   "name_en": "Anton",
   "name_local": "",
   "cities": [
-   "Shanghai"
+   "Shanghai",
+   "Xi'an"
   ],
   "events": [
-   "DFBKYdPX"
+   "DFBKYdPX",
+   "E199"
   ],
   "from": "Vladivostok"
  },
@@ -1360,7 +1362,8 @@
    "Zhuhai"
   ],
   "events": [
-   "E183"
+   "E183",
+   "E200"
   ],
   "from": "澳门"
  }
