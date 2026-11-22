@@ -5,7 +5,7 @@
 ## 先读
 1. **`docs/atm-handoff.md`**（交接说明，规则和现状都在这里，以它为准）
 2. `data/inbox/README.md`（和探戈助理的协作须知）
-3. 报名系统「探戈通 Tango Pass（TGT）」（报名表、管理页、收款、入场码、签到）：先读 **`docs/tangopass.md`**
+3. 报名系统「探戈通 Tango Pass（TP）」（报名表、管理页、收款、入场码、签到）：先读 **`docs/tangopass.md`**
 4. 需要时：`docs/going-deploy.md`、`docs/card-r2.md`、`tools/README.md`
 
 ## 和 Shiao 合作
