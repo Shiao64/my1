@@ -189,7 +189,8 @@ var ROLE={leader:'Leader',follower:'Follower',both:'都可以'};
 var ACTS={pending:['confirm','waitlist','decline','cancel'],waitlist:['confirm','decline','cancel'],confirmed:['pay','cash','cancel'],cash:['pay','cancel'],paid:['pay','cancel'],declined:[],cancelled:['refund']};
 var ACT_PERM={confirm:'review',waitlist:'review',decline:'review',pay:'collect',cash:'collect',refund:'collect',cancel:'cancel'};
 var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'到场付款',cancel:'取消报名',refund:'记退款'};
-var PERM_NAME={review:'审核',collect:'收款',cancel:'取消',modify:'修改',staff:'前台',export:'导出'};
+// 'modify' is not offered until this page has an edit screen; one granted earlier is kept when saving.
+var PERM_NAME={review:'审核',collect:'收款',cancel:'取消',staff:'前台',export:'导出'};
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'};
 var TABS=[['todo','待办'],['regs','报名'],['ppl','名单'],['money','收款'],['set','设置']];
 var CC={CN:'中国大陆',HK:'香港',TW:'台湾',MO:'澳门'},REGION=null;
@@ -243,7 +244,7 @@ function errText(d){
 
 function render(){
   $('login').hidden=true;$('tok').value='';$('app').hidden=$('nav').hidden=$('session').hidden=false;
-  $('hello').textContent=DATA.me.owner?'':DATA.me.name+'（'+DATA.me.perms.map(function(p){return PERM_NAME[p]}).join('、')+'）';
+  $('hello').textContent=DATA.me.owner?'':DATA.me.name+'（'+DATA.me.perms.filter(function(p){return PERM_NAME[p]}).map(function(p){return PERM_NAME[p]}).join('、')+'）';
   $('adminsCard').hidden=$('qr').hidden=!DATA.me.owner;$('staffCard').hidden=!can('staff');
   [].forEach.call(document.querySelectorAll('[data-exp]'),function(b){b.hidden=!can('export')});
   todo();regs();people();money();settings();go(S.tab||location.hash.slice(1),true);side()}
@@ -367,6 +368,7 @@ function history_(r){
   if(r.reminded_at)h.push([r.reminded_at,'已寄付款提醒']);
   (r.payments||[]).forEach(function(x){h.push([x.at,(x.amount<0?'退款 ':'收款 ')+fmt(Math.abs(x.amount))+' · '+(METHOD[x.method]||x.method)+' · '+x.collector+(x.by_admin!==x.collector?'（'+x.by_admin+' 记录）':'')+(x.note?' · '+x.note:'')])});
   if(r.paid_at)h.push([r.paid_at,'已付款']);
+  (r.undos||[]).forEach(function(u){h.push([u.at,'撤销签到 '+((r.data.people[u.person]||{}).name||'')+' · '+(NAME[u.item]||u.item)+' · '+(u.by==='主办'?'组织者':u.by||'未记名')])});
   if(r.cancelled_at)h.push([r.cancelled_at,'已取消']);
   return h.sort(function(a,b){return Date.parse(a[0])-Date.parse(b[0])}).map(function(x){return '<div>'+bj(x[0]).slice(5)+' '+esc(x[1])+'</div>'}).join('')}
 function side(){
@@ -460,7 +462,7 @@ $('pCsvSome').addEventListener('click',function(){var k={};pplList().forEach(fun
 $('lCsvSome').addEventListener('click',function(){var k={};payList(payAll()).forEach(function(v){k[v.n]=1});saveCsv(this,PAYCSV,'bstw2027-payments-filtered.csv',function(x,i){return k[i]})});
 
 // ---------- 设置
-function permBoxes(on,attr){return Object.keys(PERM_NAME).map(function(p){return '<label><input type="checkbox" '+(attr||'')+' value="'+p+'"'+(on.indexOf(p)>=0?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('')}
+function permBoxes(on,attr){return Object.keys(PERM_NAME).map(function(p){return '<label><input type="checkbox" '+(attr||'')+' value="'+p+'"'+(on.indexOf(p)>=0?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('')+(on.indexOf('modify')>=0?'<input type="checkbox" hidden checked '+(attr||'')+' value="modify">':'')}
 function settings(){
   $('adminList').innerHTML=DATA.me.owner?(DATA.admins||[]).map(function(x){var s=(DATA.ledger||{})[x.name]||{in:0,out:0};
     return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+(x.disabled_at?'<span class="st cancelled">已停用</span>':'')+'</span><span class="muted">收款净额 '+fmt(s.in-s.out)+'</span></div>'+
