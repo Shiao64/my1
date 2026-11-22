@@ -379,6 +379,13 @@ check('QR hidden without key', q2.status === 404);
   check('same name at once → one', many.filter(x => x.ok).length === 1 && many.filter(x => x.error === 'name_taken').length === 2, many);
 
   readLag = 0;
+  { wipe();
+    const m = person_('manager'), k = person_('desk'), list = await call('GET', '/admin/reg', null, ADMIN);
+    const mv = list.admins.find(a => a.id === m.id).v, kv = list.staff.find(a => a.id === k.id).v;
+    check('reset from the screen that is current', (await post('/admins/reset', { id: m.id, v: mv }, ADMIN)).ok);
+    check('reset from an older screen loses', (await post('/admins/reset', { id: m.id, v: mv }, ADMIN)).error === 'changed');
+    check('reissue from the screen that is current', (await post('/staff/reissue', { id: k.id, v: kv }, ADMIN)).ok);
+    check('reissue from an older screen loses', (await post('/staff/reissue', { id: k.id, v: kv }, ADMIN)).error === 'changed'); }
   // 4. a site manager: only the scanned one, only own account
   wipe();
   const mg = person_('manager'), mg2 = person_('manager'), c1 = await seed('cash', { paid: 250 }), c2 = await seed('cash'), cf = await seed('confirmed');
@@ -471,6 +478,13 @@ check('QR hidden without key', q2.status === 404);
   for (const id of codes) for (const [t, col] of [['reg_checkin', 'reg_id'], ['reg_payment', 'reg_id'], ['reg_log', 'reg_id'], ['reg', 'id']]) db.prepare(`DELETE FROM ${t} WHERE ${col}=?`).run(id);
   mails.length = 0;
   EV.chief = seat; }
+// a form re-sent at the moment someone reviews it
+{ const ned = subscriber('ned@gmail.com', 'Ned'), first = await call('POST', '/reg', form({ people: [person({ name: 'Ned', pkg: 'pass' })] }), ned);
+  const real = env.SDB.prepare;
+  env.SDB.prepare = sql => { if (sql.startsWith('UPDATE reg SET lang=')) db.prepare("UPDATE reg SET status='waitlist' WHERE code=?").run(first.code); return real(sql); };
+  const d = await call('POST', '/reg', form({ people: [person({ name: 'Ned', pkg: 'full' })] }), ned);
+  env.SDB.prepare = real;
+  check('a re-sent form cannot change what was just reviewed', d._s === 409 && d.status === 'waitlist' && db.prepare('SELECT amount FROM reg WHERE code=?').get(first.code).amount === 700, d); }
 // rename migration moves old bj2027 rows
 db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,created_at,updated_at) VALUES('bj2027','OLD-1','old@x.com','pending',1,'{\"people\":[],\"rooms\":[],\"passports\":[]}',0,'2026-11-01','2026-11-01')").run();
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0023_rename_bstw2027.sql'), 'utf8'));

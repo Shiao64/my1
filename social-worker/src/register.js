@@ -381,9 +381,10 @@ export async function regSubmit(req, env, b, json, kit) {
   const ts = nowIso(), data = JSON.stringify(r.data);
   let reg;
   if (ex) {
-    await env.SDB.prepare('UPDATE reg SET lang=?,domestic=?,people=?,data=?,amount=?,hotel_amount=?,promo=?,promo_dj=?,updated_at=? WHERE id=?')
+    const up = await env.SDB.prepare("UPDATE reg SET lang=?,domestic=?,people=?,data=?,amount=?,hotel_amount=?,promo=?,promo_dj=?,updated_at=? WHERE id=? AND status='pending'")
       .bind(r.lang, r.domestic, r.data.people.length, data, r.total, r.hotel, r.promo.code || null, r.promo.dj || null, ts, ex.id).run();
     reg = await env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(ex.id).first();
+    if (!up.meta.changes) return json({ error: 'exists', code: reg.code, status: reg.status }, 409);   // reviewed while they were editing: what was reviewed stands
     await log(env, reg.id, 'resubmit');
   } else {
     const code = await nextCode(env, r.ev);
@@ -458,11 +459,14 @@ function meOf(who, ev) {
   const appoint = ['chief', 'deputy', 'manager', 'desk'].filter(x => mayAppoint(who, x) && !(x === 'chief' && ev.chief === 'owner'));
   return { name: who.name, role: who.role, seat: who.role === 'owner' && ev.chief === 'owner' ? 'chief' : who.role, perms: GRANT[who.role], appoint };
 }
+// v = which password or link a screen was showing; a reset or reissue from an older screen loses. Not a secret: a piece of a hash.
+const verOf = h => String(h || '').slice(0, 8);
 // Deleted people leave their name in the records; someone added later under that name only counts from their own start.
 async function staffList(env, evId) {
-  return (await env.SDB.prepare(`SELECT s.id,s.name,s.created_at,s.activated_at,s.disabled_at,
+  const rows = (await env.SDB.prepare(`SELECT s.id,s.name,s.created_at,s.activated_at,s.disabled_at,s.act_hash,s.device_hash,
     (SELECT COUNT(*) FROM reg_checkin c JOIN reg r ON r.id=c.reg_id WHERE r.event=s.event AND c.staff=s.name AND c.at>=s.created_at) checkins
     FROM reg_staff s WHERE s.event=? ORDER BY s.id`).bind(evId).all()).results || [];
+  return rows.map(({ act_hash, device_hash, ...x }) => ({ ...x, v: verOf(act_hash || device_hash) }));
 }
 async function managerHome(env, ev, who, json) {
   const mine = (await env.SDB.prepare(`SELECT p.id,p.at,p.amount,p.method,r.code,r.data FROM reg_payment p JOIN reg r ON r.id=p.reg_id
@@ -547,8 +551,8 @@ export async function regAdmin(req, env, url, b, json, kit) {
     const byReg = {}, byCollector = {};
     for (const x of pays) { (byReg[x.reg_id] = byReg[x.reg_id] || []).push(x); const c = byCollector[x.collector] = byCollector[x.collector] || { in: 0, out: 0, n: 0 }; if (x.amount >= 0) c.in += x.amount; else c.out -= x.amount; c.n++; }
     rows.forEach(r => { r.payments = byReg[r.id] || []; r.paid_total = r.payments.reduce((s, x) => s + x.amount, 0); });
-    const admins = ((await env.SDB.prepare('SELECT id,name,perms,created_at,disabled_at FROM reg_admin WHERE event=? ORDER BY id').bind(ev.id).all()).results || [])
-      .map(({ perms, ...x }) => { const role = roleOf(perms); return { ...x, role, manage: mayAppoint(who, role) }; })
+    const admins = ((await env.SDB.prepare('SELECT id,name,perms,pass_hash,created_at,disabled_at FROM reg_admin WHERE event=? ORDER BY id').bind(ev.id).all()).results || [])
+      .map(({ perms, pass_hash, ...x }) => { const role = roleOf(perms), manage = mayAppoint(who, role); return { ...x, role, manage, v: manage ? verOf(pass_hash) : undefined }; })
       .sort((x, y) => RANK[y.role] - RANK[x.role] || x.id - y.id);
     return json({ event: ev.id, me: meOf(who, ev), chief: ev.chief === 'owner' ? ownerName(env) : '', left, caps, roles, counts, overdue, checked, staff, ledger: byCollector, admins, rows });
   }
@@ -596,6 +600,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
       return now && now.perms === t.perms && room ? noRoom() : changed();
     }
     if (p === '/admins/reset') {
+      if (b.v != null && b.v !== verOf(t.pass_hash)) return changed();
       const pw = rndHex(20);
       const r = await env.SDB.prepare('UPDATE reg_admin SET pass_hash=? WHERE id=? AND perms=? AND pass_hash=? AND disabled_at IS NULL').bind(await sha256(pw), id, t.perms, t.pass_hash).run();
       return r.meta.changes ? json({ ok: true, password: pw }) : changed();
@@ -761,6 +766,7 @@ async function staffAdd(env, ev, b, json) {
 }
 async function staffReissue(env, ev, b, json) {
   const st = await env.SDB.prepare('SELECT id,name,act_hash,device_hash FROM reg_staff WHERE id=? AND event=? AND disabled_at IS NULL').bind(Number(b && b.id) || 0, ev.id).first(); if (!st) return json({ error: 'not_found' }, 404);
+  if (b.v != null && b.v !== verOf(st.act_hash || st.device_hash)) return json({ error: 'changed' }, 409);
   const act = rndHex(24);   // a new link; the phone that used the old one stops working. Of two reissues at once, one gives a link.
   const r = await env.SDB.prepare("UPDATE reg_staff SET act_hash=?,device_hash=NULL,activated_at=NULL WHERE id=? AND COALESCE(act_hash,'')=? AND COALESCE(device_hash,'')=?")
     .bind(await sha256(act), st.id, st.act_hash || '', st.device_hash || '').run();
