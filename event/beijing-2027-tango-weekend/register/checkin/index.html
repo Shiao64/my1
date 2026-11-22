@@ -69,7 +69,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
   <div class="card" id="managerHere" hidden>
     <div class="big">这台不能当前台</div>
     <p>它已经登入管理页（组织者或活动经理）。<b>连结还没用掉。</b></p>
-    <ol class="steps"><li>给义工：复制连结，用微信发给义工本人</li><li>自己想试：复制连结，贴到另一支手机，或这台的无痕窗口</li></ol>
+    <ol class="steps"><li>给前台：复制连结，用微信发给前台本人</li><li>自己想试：复制连结，贴到另一支手机，或这台的无痕窗口</li></ol>
   </div>
   <div class="card" id="linkBox" hidden>
     <label for="linkText" class="muted">前台连结</label>
@@ -240,7 +240,7 @@ $('stopBtn').addEventListener('click',stopScan);
 // ---------- start ----------
 function whoami(){if(!key()){choose();return}
   var wasStaff=!asAdmin();
-  call('/social/reg/door/me').then(function(d){if(d.ok){ready(d.name,d.collect);load()}else{if(d._s===401){put(wasStaff?'bstw_staff':'bstw_admin','');if(wasStaff)history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));choose();res('no',wasStaff?'这支手机的签到权限已停用或换了连结，请找组织者':'密码不对')}}})
+  call('/social/reg/door/me').then(function(d){if(d.ok){ready(d.name,d.collect);load()}else{if(d._s===401){put(wasStaff?'bstw_staff':'bstw_admin','');if(wasStaff)history.replaceState(null,'',location.pathname+(Q.get('api')?'?api='+encodeURIComponent(Q.get('api')):''));choose();res('no',wasStaff?'这支手机的前台已被去除或换了连结，请找组织者':'密码不对')}}})
   .catch(function(){res('no','连不上后台，请检查网络')})}
 put('bstw_role','');
 if(get('bstw_staff'))put('bstw_admin','');
@@ -250,7 +250,7 @@ function activate(){
   call('/social/reg/door/activate',{method:'POST',body:{act:act},noAuth:true}).then(function(d){
     if(d.ok){put('bstw_staff',d.token);put('bstw_admin','');keepUrl();res('','');$('welcome').hidden=false;$('wName').textContent=d.name+'，你好';ready(d.name);return}
     if(get('bstw_staff')){res('','');keepUrl();whoami();return}   // this phone already activated with this link before
-    choose();res('no',d.error==='disabled'?'这个连结已停用，请找组织者':'这个连结已经在别的手机启用过，或已失效。请找组织者重发。')
+    choose();res('no',d.error==='disabled'?'这个前台已被去除，请找组织者':'这个连结已经在别的手机启用过，或已失效。请找组织者重发。')
   }).catch(function(){res('no','连不上后台，请检查网络')});
 }
 if(act){
