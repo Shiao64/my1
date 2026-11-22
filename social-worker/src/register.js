@@ -1,12 +1,12 @@
-// Event registration: Beijing Select Tango Weekend 2027 (bj2027). Mounted under /social/* by social.js.
+// Event registration: Beijing Select Tango Weekend 2027 (bstw2027). Mounted under /social/* by social.js.
 //
 // Public
-//   GET  /social/reg/left?event=bj2027        -> {left:{M1:280,...}}  seats left; events without a cap are left out
-//   GET  /social/reg/me?event=bj2027 (Bearer) -> {email, reg:{code,status}|null}
+//   GET  /social/reg/left?event=bstw2027        -> {left:{M1:280,...}}  seats left; events without a cap are left out
+//   GET  /social/reg/me?event=bstw2027 (Bearer) -> {email, reg:{code,status}|null}
 //   POST /social/reg (Bearer subscriber)      -> {ok, code, total}   new form, or update of a still-pending one
 //   GET  /social/reg/qr/<name>?k=KEY          -> payment QR image used inside the confirmation letter
 // Organizer (Bearer REG_ADMIN_TOKEN, or the site-wide ADMIN_TOKEN)
-//   GET  /social/admin/reg?event=bj2027[&format=csv] -> list + summary
+//   GET  /social/admin/reg?event=bstw2027[&format=csv] -> list + summary
 //   POST /social/admin/reg/act {id, action, note?, data?}  confirm|waitlist|decline|paid|cash|cancel|modify|note
 //   POST /social/admin/reg/asset {name, mime, b64}         upload a payment QR
 //   Organizer page: /event/beijing-2027-tango-weekend/register/admin/ (static, asks for the token)
@@ -14,8 +14,8 @@
 // Safety: until REG_LIVE=1, every registration letter goes to REG_TEST_INBOX (default selecttango@gmail.com).
 
 export const EVENTS = {
-  bj2027: {
-    id: 'bj2027', prefix: 'BJ27', name: { en: 'Beijing Select Tango Weekend 2027', zh: '北京精选探戈周末 2027' },
+  bstw2027: {
+    id: 'bstw2027', prefix: 'BJ27', name: { en: 'Beijing Select Tango Weekend 2027', zh: '北京精选探戈周末 2027' },
     items: {
       MV: { key: 'welcome', price: 150, cap: 200 },
       M1: { key: 'sat-aft', price: 150, cap: 300 },
@@ -299,13 +299,13 @@ async function notifyOwner(env, kit, reg) {
 
 // ---------- public handlers ----------
 export async function regLeft(url, env, json) {
-  const ev = EVENTS[url.searchParams.get('event') || 'bj2027'];
+  const ev = EVENTS[url.searchParams.get('event') || 'bstw2027'];
   if (!ev) return json({ error: 'bad_event' }, 400);
   return json({ left: await seatsLeft(env, ev) });
 }
 export async function regMe(req, env, url, json, kit) {
   const u = await kit.user(req, env); if (!u) return json({ error: 'auth' }, 401);
-  const ev = EVENTS[url.searchParams.get('event') || 'bj2027']; if (!ev) return json({ error: 'bad_event' }, 400);
+  const ev = EVENTS[url.searchParams.get('event') || 'bstw2027']; if (!ev) return json({ error: 'bad_event' }, 400);
   const r = await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND email=? ORDER BY (status=\'cancelled\'), id DESC LIMIT 1').bind(ev.id, String(u.email).toLowerCase()).first();
   if (!r) return json({ email: u.email, name: u.name, reg: null });
   const passes = (await passesOf(env, r)).map(x => ({ name: x.name, items: x.items, pass: x.pass, img: passImg(env, x.pass) }));
@@ -393,7 +393,7 @@ const can = (who, perm) => !perm || who.owner || who.perms.has(perm);
 export async function paidSum(env, regId) { const r = await env.SDB.prepare('SELECT COALESCE(SUM(amount),0) s FROM reg_payment WHERE reg_id=?').bind(regId).first(); return Number(r && r.s || 0); }
 export async function regAdmin(req, env, url, b, json, kit) {
   const p = url.pathname.slice('/social/admin/reg'.length);
-  const ev = EVENTS[(b && b.event) || url.searchParams.get('event') || 'bj2027'];
+  const ev = EVENTS[(b && b.event) || url.searchParams.get('event') || 'bstw2027'];
   if (!ev) return json({ error: 'bad_event' }, 400);
   const who = await adminWho(req, env, ev.id);
   if (!who) return json({ error: 'auth' }, 401);
