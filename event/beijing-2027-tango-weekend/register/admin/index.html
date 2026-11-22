@@ -161,9 +161,9 @@ tr.sel{background:#fff4d6}
     </div>
     <div class="card" id="staffCard">
       <h2>前台</h2>
-      <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结只能在<b>第一支打开它的手机</b>上启用；换手机按「重发连结」。请对方用 Safari 或 Chrome 打开，不要在微信里打开。</p>
+      <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结只能在<b>第一支打开它的手机</b>上启用；换手机按「重发连结」。请对方用 Safari 或 Chrome 打开，不要在微信里打开。<b>启用后的网址就是义工的工作证：转发了别人也能签到</b>，有问题就停用或重发。</p>
       <div class="bar"><input id="sName" placeholder="名字，例如 义工小李"><button class="p" id="sAdd">新增前台</button></div>
-      <div class="once" id="sNew" hidden><div><b id="sNewName"></b> 的专属连结（只显示这一次）：</div><input id="sLink" readonly><button id="sCopy">复制连结</button></div>
+      <div class="once" id="sNew" hidden><div><b id="sNewName"></b> 的专属连结（只显示这一次）：</div><input id="sLink" readonly><button id="sCopy">复制连结和提醒</button></div>
       <div id="staffList"></div>
     </div>
     <div class="card" id="qr">
@@ -471,9 +471,9 @@ function settings(){
 $('aPerms').innerHTML=permBoxes(['collect']);
 function showPw(name,pw){$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
 function showLink(d){$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link}
-function copy(id){var i=$(id);i.select();try{navigator.clipboard.writeText(i.value).then(function(){toast('已复制')},function(){toast('没复制成功，请长按手动复制')})}catch(e){document.execCommand('copy');toast('已复制')}}
+function copy(id,before){var i=$(id);i.select();try{navigator.clipboard.writeText((before||'')+i.value).then(function(){toast('已复制')},function(){toast('没复制成功，请长按手动复制')})}catch(e){document.execCommand('copy');toast('已复制')}}
 $('aCopy').addEventListener('click',function(){copy('aPw')});
-$('sCopy').addEventListener('click',function(){copy('sLink')});
+$('sCopy').addEventListener('click',function(){copy('sLink','这是你的前台签到连结：请用 Safari 或 Chrome 打开，不要在微信里打开。这个网址就是你的工作证，不要转发。\n')});
 $('aAdd').addEventListener('click',function(){var b=this,n=$('aName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
   act('/admins',{name:n,perms:[].map.call($('aPerms').querySelectorAll('input:checked'),function(i){return i.value})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('aName').value='';showPw(d.name,d.password);load()})});
