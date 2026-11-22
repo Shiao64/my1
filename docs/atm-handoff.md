@@ -75,6 +75,7 @@
   - `atm-addr.js`：地址、交通、地图链接、放大给司机看、路线图；
   - `atm-ui2.js`：`?ui=2` 视觉测试层；
   - `atm-later.js`：**打包文件**，由 `tools/build_asia_assets.mjs` 从 `atm-menu.js` 等源文件生成。改源文件后要重新打包，不要直接改打包文件（打包时 `atm-critical.css`、`atm-early.js` 也会被重写，若只是工具版本差异就还原）。`atm-critical.css` 也是打包产物（来源 `css/atm-map-page.css`、`css/style.css`、`asia/cardB.css`、`asia/atm-theme.css`）；只想盖掉旧样式时，在 `atm-home.js` 的新版 CSS 里加覆盖规则比较安全（#160 这样做）。
+  - `atm-install.js`（不打包，两个地图页各自引用，改了要一起加版本号）：菜单「放到桌面」和专用链接 `/zh/asia/?install=1`。只有四种说明（App 内、iOS、安卓一键、其他安卓），**不自动弹提示**；第一版请 5 位舞友真机试，4 人能自己装好再考虑「第一次收藏时提示」（用户 11/22 同意）。注意：iOS 桌面版和 Safari 的 localStorage 不相通，登录只带回「要参加／感兴趣」，只按星星的收藏和团体收藏带不回；
 - **活动数据**：`asia/events.json`、`events-core.json`、`events-more.json`，三个文件同一张卡要一致，格式是紧凑 JSON（`separators=(',',':')`, `ensure_ascii=False`；events-more 结尾有换行）。合并到 main 后，GitHub 任务「R2 sync」自动上传到 R2（#198 起只传改过的文件，通常几分钟）。**不要直接改 R2。** 注意：用 GITHUB_TOKEN 合并的 PR 不会触发 R2 sync（自动上线流程已经自己补上启动）；本环境的 `gh api … /merge` 可以触发，11/16 验证过。
   - **新卡放哪个文件**：中国大陆／台湾／香港的卡和 featured 卡放 `events.json` + `events-core.json`；其他地区一般卡放 `events.json` + `events-more.json`。
   - **编号**：活动 `E###`（11/16 用到 E187），每周 `R###`（用到 R272）。`weekday` 0＝周日，3＝周三。
