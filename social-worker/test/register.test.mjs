@@ -178,8 +178,12 @@ d = await call('POST', '/admin/reg/staff/reissue', { id: sid }, ADMIN); const ac
 d = await call('GET', '/reg/door/me', null, phone1); check('old phone stops after reissue', d._s === 401);
 d = await call('POST', '/reg/door/activate', { act: act1 }); check('old link dead after reissue', d._s === 409);
 d = await call('POST', '/reg/door/activate', { act: act2 }); const phone2 = d.token; check('new link works on the new phone', d.ok);
-d = await call('POST', '/admin/reg/staff/disable', { id: sid }, ADMIN); check('disable helper', d.ok);
-d = await call('GET', '/reg/door/me', null, phone2); check('disabled helper locked out', d._s === 401);
+d = await call('POST', '/admin/reg/staff/delete', { id: sid }, ADMIN); check('delete helper', d.ok);
+check('deleted helper leaves no row', !db.prepare('SELECT 1 FROM reg_staff WHERE id=?').get(sid));
+check('deleted helper: check-in keeps the name', db.prepare("SELECT staff FROM reg_checkin WHERE staff='王凯'").get());
+d = await call('POST', '/admin/reg/staff/reissue', { id: sid }, ADMIN); check('deleted helper cannot be brought back', d._s === 404);
+d = await call('POST', '/admin/reg/staff', { name: '主办' }, ADMIN); check('desk cannot take the organizer name', d._s === 409 && d.error === 'name_reserved');
+d = await call('GET', '/reg/door/me', null, phone2); check('deleted helper locked out', d._s === 401);
 // modify after confirm: +¥50 once
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'modify', data: form({ people: [person({ pkg: 'pass', items: ['tour'] })] }) }, ADMIN);
 check('modify adds ¥50 fee', d.ok && d.amount === 700 + 450 + 50, d);
@@ -229,43 +233,70 @@ check('QR hidden without key', q2.status === 404);
   m = await call('GET', '/reg/me?event=bstw2027', null, eve); check('cancelled: shown with refund', m.reg.status === 'cancelled' && m.reg.refund === 650, m.reg);
   m = await call('POST', '/reg', form({ people: [person({ name: 'Eve', pkg: 'combo' })] }), eve); check('can register again after cancel', m.ok && m.code !== undefined);
   m = await call('GET', '/reg/me?event=bstw2027', null, eve); check('me prefers the live registration over the cancelled one', m.reg.status === 'pending' && m.reg.amount === 1150, m.reg); }
-// --- organizers: own passwords, permissions, payment ledger ---
-{ let d = await call('POST', '/admin/reg/admins', { name: '王凯', perms: ['collect'] }, env.REG_ADMIN_TOKEN);
-  check('owner adds a collector, password shown once', d.ok && /^[0-9a-f]{40}$/.test(d.password) && d.perms.join() === 'collect', d);
+// --- four roles, own passwords, payment ledger ---
+{ let d = await call('POST', '/admin/reg/admins', { name: '王凯' }, ADMIN);
+  check('site manager by default: collect + front desk', d.ok && /^[0-9a-f]{40}$/.test(d.password) && d.role === 'manager' && d.perms === 'collect,staff', d);
   const wk = d.password, wkId = d.id;
-  d = await call('POST', '/admin/reg/admins', { name: '竟文', perms: ['review', 'collect', 'cancel', 'export'] }, env.REG_ADMIN_TOKEN); const jw = d.password;
-  d = await call('POST', '/admin/reg/admins', { name: '刘峥', perms: ['nonsense', 'review'] }, wk); check('only the owner manages organizers', d._s === 403);
-  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk); check('collector sees own name and perms', d.name === '王凯' && d.perms.join() === 'collect' && !d.owner, d);
-  d = await call('GET', '/admin/reg?event=bstw2027', null, wk); check('collector can view the list', d._s === 200 && d.admins === undefined && d.staff.length === 0);
+  d = await call('POST', '/admin/reg/admins', { name: '竟文', role: 'chief' }, ADMIN); const jw = d.password, jwId = d.id;
+  check('organizer appoints a chief', d.ok && d.role === 'chief', d);
+  d = await call('POST', '/admin/reg/admins', { name: '主办' }, ADMIN); check('organizer name is reserved', d._s === 409);
+  d = await call('POST', '/admin/reg/admins', { name: 'X', role: 'owner' }, ADMIN); check('unknown role refused', d._s === 400);
+  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk); check('manager sees own role', d.role === 'manager' && d.perms.join() === 'collect,staff' && !d.owner, d);
+  d = await call('GET', '/admin/reg/me?event=bstw2027', null, jw); check('chief sees own role', d.role === 'chief' && !d.owner && d.perms.includes('export'), d);
+  d = await call('GET', '/admin/reg?event=bstw2027', null, wk);
+  check('manager gets no list, emails, ledger or admins', d._s === 200 && Object.keys(d).filter(k => k !== '_s').sort().join() === 'event,me,mine,staff' && !JSON.stringify(d).includes('@'), d);
   const fay = subscriber('fay@gmail.com', 'Fay');
   const fr = await call('POST', '/reg', form({ people: [person({ name: 'Fay', pkg: 'pass' }), person({ name: 'Gus', pkg: 'pass', role: 'leader' })] }), fay);
   const fid = (await call('GET', '/admin/reg?event=bstw2027', null, ADMIN)).rows.find(r => r.code === fr.code).id;
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'confirm', silent: 1 }, wk); check('collector cannot confirm', d._s === 403 && d.error === 'no_permission');
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'confirm', silent: 1 }, jw); check('reviewer confirms', d.ok && d.status === 'confirmed');
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: 600, method: 'alipay', note: '单号 123' }, silent: 1 }, wk);
+  for (const action of ['confirm', 'waitlist', 'decline', 'cash', 'refund', 'cancel', 'modify', 'note', 'paid', 'bogus']) {
+    d = await call('POST', '/admin/reg/act', { id: fid, action, silent: 1 }, wk); check('manager cannot ' + action, d._s === 403 && d.error === 'no_permission', d); }
+  for (const [path, body] of [['', { name: 'M2' }], ['', { name: 'C2', role: 'chief' }], ['/perms', { id: wkId, role: 'chief' }], ['/reset', { id: jwId }], ['/delete', { id: jwId }]]) {
+    d = await call('POST', '/admin/reg/admins' + path, body, wk); check('manager cannot manage people ' + (path || '/add') + (body.role || ''), d._s === 403, d); }
+  d = await call('POST', '/admin/reg/asset', { name: 'cn-alipay', mime: 'image/png', b64: 'AA' }, wk); check('manager cannot change payment QR', d._s === 403);
+  d = await call('POST', '/admin/reg/asset', { name: 'cn-alipay', mime: 'image/png', b64: 'AA' }, jw); check('chief cannot change payment QR', d._s === 403);
+  for (const [path, body] of [['', { name: 'C3', role: 'chief' }], ['/perms', { id: wkId, role: 'chief' }], ['/perms', { id: jwId, role: 'manager' }], ['/reset', { id: jwId }], ['/delete', { id: jwId }]]) {
+    d = await call('POST', '/admin/reg/admins' + path, body, jw); check('chief cannot appoint or touch a chief ' + (path || '/add') + (body.role || ''), d._s === 403, d); }
+  d = await call('POST', '/admin/reg/admins', { name: '小陈', perms: ['collect', 'chief', 'export'] }, jw);
+  check('chief adds a manager; unknown perms dropped', d.ok && d.role === 'manager' && d.perms === 'collect', d);
+  const cid = d.id, cpw = d.password;
+  d = await call('POST', '/admin/reg/staff', { name: 'NoStaff' }, cpw); check('manager without staff cannot add a desk', d._s === 403);
+  d = await call('POST', '/admin/reg/admins/perms', { id: cid, perms: ['collect', 'staff'] }, jw); check('chief changes a manager', d.ok && d.perms === 'collect,staff', d);
+  d = await call('POST', '/admin/reg/staff', { name: '小李' }, cpw); check('manager adds a desk', d.ok, d);
+  check('manager deletes a desk', (await call('POST', '/admin/reg/staff/delete', { id: d.id }, cpw)).ok);
+  check('chief deletes a manager', (await call('POST', '/admin/reg/admins/delete', { id: cid }, jw)).ok);
+  check('deleted manager locked out', (await call('GET', '/reg/door/me', null, cpw))._s === 401);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'confirm', silent: 1 }, jw); check('chief confirms', d.ok && d.status === 'confirmed');
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: 600 } }, wk); check('manager cannot record a screenshot payment', d._s === 403, d);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: 600, method: 'alipay', note: '单号 123', collector: '王凯' }, silent: 1 }, jw);
   check('partial payment recorded, still confirmed', d.ok && d.status === 'confirmed' && d.paid === 600 && d.rest === 800, d);
   d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { method: 'wechat' }, silent: 1 }, jw);
   check('second payment covers the rest → paid', d.ok && d.status === 'paid' && d.paid === 1400 && d.rest === 0, d);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: -5 } }, wk); check('nothing more on a fully paid one', d._s === 409 && d.error === 'already_paid');
-  d = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN); const fr2 = d.rows.find(r => r.id === fid);
-  check('ledger per collector', d.ledger['王凯'].in === 600 && d.ledger['竟文'].in === 800 && fr2.paid_total === 1400 && fr2.payments[0].by_admin === '王凯' && fr2.payments[0].method === 'alipay', d.ledger);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'cancel', silent: 1 }, wk); check('collector cannot cancel', d._s === 403);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'pay', pay: { amount: -5 } }, jw); check('nothing more on a fully paid one', d._s === 409 && d.error === 'already_paid');
+  d = await call('GET', '/admin/reg?event=bstw2027', null, jw); const fr2 = d.rows.find(r => r.id === fid);
+  check('chief sees list and ledger per collector', d.admins.length === 2 && d.ledger['王凯'].in === 600 && d.ledger['竟文'].in === 800 && fr2.paid_total === 1400 && fr2.payments[0].by_admin === '竟文', d.ledger);
+  d = await call('GET', '/admin/reg?event=bstw2027', null, wk); check('money someone else recorded is not "mine"', d.mine.length === 0, d.mine);
   d = await call('POST', '/admin/reg/act', { id: fid, action: 'cancel', silent: 1 }, jw); check('cancel refunds what was paid minus ¥50', d.ok && d.refund === 1350, d);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'refund', pay: { amount: 2000, method: 'wechat' }, silent: 1 }, wk); check('cannot refund more than held', d._s === 400);
-  d = await call('POST', '/admin/reg/act', { id: fid, action: 'refund', pay: { method: 'wechat' }, silent: 1 }, wk); check('refund recorded as negative', d.ok && d.refunded === 1350 && d.due === 0, d);
-  d = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN); check('ledger shows refund out', d.ledger['王凯'].out === 1350 && d.rows.find(r => r.id === fid).paid_total === 50, d.ledger);
-  const pr = await social(new Request('https://api.tangoweekend.org/social/admin/reg/payments?event=bstw2027', { headers: { Authorization: 'Bearer ' + wk } }), env, new URL('https://api.tangoweekend.org/social/admin/reg/payments?event=bstw2027'), json);
-  check('collector without export cannot download ledger', pr.status === 403);
-  const pj = await social(new Request('https://api.tangoweekend.org/social/admin/reg/payments?event=bstw2027', { headers: { Authorization: 'Bearer ' + jw } }), env, new URL('https://api.tangoweekend.org/social/admin/reg/payments?event=bstw2027'), json);
-  const csvp = await pj.text(); check('ledger CSV has collector and recorder', pj.status === 200 && csvp.includes('alipay,王凯,王凯,单号 123') && csvp.includes('-1350'), csvp.slice(0, 300));
-  d = await call('GET', '/reg/door/me', null, wk); check('any organizer can use the door page', d.ok && d.name === '王凯');
-  d = await call('POST', '/admin/reg/admins/reset', { id: wkId }, env.REG_ADMIN_TOKEN); const wk2 = d.password;
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'refund', pay: { amount: 2000, method: 'wechat' }, silent: 1 }, jw); check('cannot refund more than held', d._s === 400);
+  d = await call('POST', '/admin/reg/act', { id: fid, action: 'refund', pay: { method: 'wechat' }, silent: 1 }, jw); check('refund recorded as negative', d.ok && d.refunded === 1350 && d.due === 0, d);
+  d = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN); check('ledger shows refund out', d.ledger['竟文'].out === 1350 && d.rows.find(r => r.id === fid).paid_total === 50, d.ledger);
+  for (const path of ['?event=bstw2027&format=csv', '/payments?event=bstw2027']) {
+    const u = 'https://api.tangoweekend.org/social/admin/reg' + path, get = t => social(new Request(u, { headers: { Authorization: 'Bearer ' + t } }), env, new URL(u), json);
+    check('manager cannot export ' + path, (await get(wk)).status === 403);
+    const ok = await get(jw), text = await ok.text();
+    check('chief exports ' + path, ok.status === 200 && (path.includes('csv') || (text.includes('alipay,王凯,竟文,单号 123') && text.includes('-1350'))), text.slice(0, 300)); }
+  d = await call('GET', '/reg/door/me', null, wk); check('manager uses the door page', d.ok && d.name === '王凯' && d.role === 'manager' && d.collect);
+  d = await call('POST', '/admin/reg/admins/reset', { id: wkId }, jw); const wk2 = d.password;
   d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk); check('old password stops after reset', d._s === 401);
   d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk2); check('new password works', d.name === '王凯');
-  d = await call('POST', '/admin/reg/admins/perms', { id: wkId, perms: ['collect', 'cancel'] }, env.REG_ADMIN_TOKEN); check('owner changes perms', d.ok);
-  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk2); check('perms take effect', d.perms.includes('cancel'));
-  d = await call('POST', '/admin/reg/admins/disable', { id: wkId }, env.REG_ADMIN_TOKEN);
-  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk2); check('disabled organizer locked out', d._s === 401); }
+  check('organizer promotes', (await call('POST', '/admin/reg/admins/perms', { id: wkId, role: 'chief' }, ADMIN)).ok && (await call('GET', '/admin/reg/me?event=bstw2027', null, wk2)).role === 'chief');
+  check('organizer demotes', (await call('POST', '/admin/reg/admins/perms', { id: wkId, role: 'manager' }, ADMIN)).perms === 'collect,staff');
+  db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('other2027','OtherChief',?,'chief','2026-12-01')").run(sha('c'.repeat(40)));
+  check('chief of another event is nobody here', (await call('GET', '/admin/reg?event=bstw2027', null, 'c'.repeat(40)))._s === 401);
+  db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027','Old',?,'review,export,cancel','2026-12-01')").run(sha('d'.repeat(40)));
+  check('old-style perms never grant more than a site manager', (await call('GET', '/admin/reg/me?event=bstw2027', null, 'd'.repeat(40))).perms.length === 0);
+  d = await call('POST', '/admin/reg/admins/delete', { id: wkId }, ADMIN); check('organizer deletes', d.ok && !db.prepare('SELECT 1 FROM reg_admin WHERE id=?').get(wkId));
+  d = await call('GET', '/admin/reg/me?event=bstw2027', null, wk2); check('deleted person locked out', d._s === 401);
+  check('payments keep the deleted name', db.prepare("SELECT 1 FROM reg_payment WHERE collector='王凯'").get()); }
 // rename migration moves old bj2027 rows
 db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,created_at,updated_at) VALUES('bj2027','OLD-1','old@x.com','pending',1,'{\"people\":[],\"rooms\":[],\"passports\":[]}',0,'2026-11-01','2026-11-01')").run();
 db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0023_rename_bstw2027.sql'), 'utf8'));
@@ -324,7 +355,7 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   check('cannot check in before paying', a._s === 409 && a.error === 'pay_first', a);
   a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { method: 'alipay' } }, dt);
   check('front desk cannot collect', a._s === 401 || a._s === 403, a);
-  const rev = await call('POST', '/admin/reg/admins', { name: 'Reviewer', perms: ['review'] }, ADMIN), col = await call('POST', '/admin/reg/admins', { name: 'Collector', perms: ['collect'] }, ADMIN);
+  const rev = await call('POST', '/admin/reg/admins', { name: 'Reviewer', perms: ['staff'] }, ADMIN), col = await call('POST', '/admin/reg/admins', { name: 'Collector', perms: ['collect'] }, ADMIN);
   const pw = x => x.password || x.pass || x.token;
   a = await call('GET', '/reg/door/pass?p=' + p1, null, pw(rev));
   check('manager without collect: no amount', a.pay_first && !a.collect, a);
@@ -333,14 +364,22 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   a = await call('GET', '/reg/door/pass?p=' + p2, null, pw(col));
   check('collector: rest from a companion code', a.collect.id === aid && a.collect.rest === 2000 && a.collect.paid === 900, a);
   check('collector: /me says collect', (await call('GET', '/reg/door/me', null, pw(col))).collect === true);
-  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: -5 } }, pw(col));
+  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 2000 } }, pw(col));
+  check('manager collects only with the scanned code', a._s === 403, a);
+  a = await call('POST', '/admin/reg/act', { id: aid + 1, p: me.reg.passes[1].pass, action: 'pay', pay: { amount: 100 } }, pw(col));
+  check('a scanned code pays only its own registration', a._s === 403, a);
+  a = await call('POST', '/admin/reg/act', { id: aid, p: me.reg.passes[1].pass, action: 'pay', pay: { amount: -5 } }, pw(col));
   check('bad amount refused', a._s === 400, a);
-  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 2001 } }, pw(col));
+  a = await call('POST', '/admin/reg/act', { id: aid, p: me.reg.passes[1].pass, action: 'pay', pay: { amount: 2001 } }, pw(col));
   check('cannot collect more than is owed', a._s === 400 && a.rest === 2000, a);
-  const both = await Promise.all([1, 2].map(() => call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 2000, method: 'cash' } }, pw(col))));
+  const both = await Promise.all([1, 2].map(() => call('POST', '/admin/reg/act', { id: aid, p: me.reg.passes[1].pass, action: 'pay', pay: { amount: 2000, method: 'cash' } }, pw(col))));
   check('simultaneous collection: only one recorded', both.filter(x => x.ok).length === 1 && both.some(x => x._s === 409) && db.prepare('SELECT SUM(amount) s FROM reg_payment WHERE reg_id=?').get(aid).s === 2900, both);
-  a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { amount: 100 } }, pw(col));
+  a = await call('POST', '/admin/reg/act', { id: aid, p: me.reg.passes[1].pass, action: 'pay', pay: { amount: 100 } }, pw(col));
   check('paid registration refuses more', a._s === 409 && a.error === 'already_paid' && a.last.collector === 'Collector', a);
+  a = await call('GET', '/admin/reg?event=bstw2027', null, pw(col));
+  check('manager sees own takings', a.mine.length === 1 && a.mine[0].amount === 2000 && a.mine[0].code === 'BJ27-0950', a.mine);
+  a = await call('GET', '/reg/door/pass?p=' + p1, null, pw(col));
+  check('manager: no amount and no note once paid', a.collect.paid === undefined && a.collect.rest === 0 && a.note === '', a);
   for (const p of me.reg.passes) { a = await call('POST', '/reg/door/checkin', { p: p.pass, item: 'M1' }, dt); check('after payment everyone can enter', a.ok, a); }
   const undo = who => call('POST', '/reg/door/checkin', { p: me.reg.passes[0].pass, item: 'M1', undo: 1 }, who);
   a = await undo(dt); check('front desk cannot undo', a._s === 403 && a.error === 'manager_only', a);
