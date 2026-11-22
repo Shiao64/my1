@@ -81,8 +81,6 @@ tr.sel{background:#fff4d6}
 .linkqr canvas{width:220px;height:220px;background:#fff;border-radius:8px;image-rendering:pixelated}
 .linkqr div{flex:1;min-width:200px}
 a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:inherit;border-radius:8px;padding:7px 12px;text-decoration:none;white-space:nowrap}
-details.gone{margin-top:12px}
-details.gone summary{cursor:pointer;color:var(--muted)}
 #msg{position:fixed;z-index:9;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:10px;display:none;max-width:90vw}
 @media(max-width:760px){
   header{padding:9px 12px}
@@ -105,7 +103,7 @@ details.gone summary{cursor:pointer;color:var(--muted)}
 
 <form id="login"><div class="card">
   <h2>登入</h2>
-  <label for="tok">你自己的管理密码（组织者或活动经理）</label>
+  <label for="tok">你自己的管理密码（组织者、总管或现场经理）</label>
   <input id="tok" type="password" autocomplete="current-password">
   <button class="p" id="load">登入</button>
   <p class="muted">前台不用这一页：请用专属连结打开签到页。</p>
@@ -113,6 +111,12 @@ details.gone summary{cursor:pointer;color:var(--muted)}
 
 <nav id="nav" hidden></nav>
 <main id="app" hidden>
+  <section id="v-site" hidden>
+    <div class="bar"><a class="btn" id="toDoor" href="../checkin/">打开签到页，扫码</a></div>
+    <p class="muted">扫到谁，处理谁。这里只有你自己收的账；名单、审核、退款和批准到场付款找总管。</p>
+    <div class="cards" id="siteCards"></div>
+    <table><thead><tr><th>时间</th><th>报名者</th><th>方式</th><th class="n">金额</th></tr></thead><tbody id="siteList"></tbody></table>
+  </section>
   <section id="v-todo">
     <h3>要处理</h3><div class="cards" id="todoCards"></div>
     <h3>每场剩余名额</h3><div class="cards" id="caps"></div>
@@ -160,15 +164,15 @@ details.gone summary{cursor:pointer;color:var(--muted)}
 
   <section id="v-set" hidden>
     <div class="card" id="adminsCard">
-      <h2>活动经理（只有组织者看得到）</h2>
-      <p class="muted">每人一个管理密码，只显示一次，请用微信私下传给对方。审核＝确认、候补、婉拒；收款＝记收款、退款、到场付款、扫码收款。</p>
-      <div class="bar"><input id="aName" placeholder="名字，例如 竟文"><span class="perms" id="aPerms"></span><button class="p" id="aAdd">新增活动经理</button></div>
+      <h2>总管和现场经理</h2>
+      <p class="muted"><b>总管</b>：这场活动的全部权限，只有组织者能任免。<b>现场经理</b>：扫码、撤销签到；默认可以现场收款、管前台，看不到名单。每人一个管理密码，只显示一次，请用微信私下传给对方。</p>
+      <div class="bar"><input id="aName" placeholder="名字，例如 竟文"><select id="aRole" aria-label="身份"><option value="manager">现场经理</option><option value="chief">总管</option></select><span class="perms" id="aPerms"></span><button class="p" id="aAdd">新增</button></div>
       <div class="once" id="aNew" hidden><div><b id="aNewName"></b> 的管理密码（只显示这一次）：</div><input id="aPw" readonly><button id="aCopy">复制密码</button></div>
       <div id="adminList"></div>
     </div>
     <div class="card" id="staffCard">
       <h2>前台</h2>
-      <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结<b>只能启用一次</b>；换手机按「重发连结」。在微信里收到后，要按右上角 ··· 选「在浏览器打开」才能启用。<b>启用后的网址就是前台的工作证：转发了别人也能签到</b>，有问题就去除或重发。</p>
+      <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结<b>只能启用一次</b>；换手机按「重发连结」。在微信里收到后，要按右上角 ··· 选「在浏览器打开」才能启用。<b>启用后的网址就是前台的工作证：转发了别人也能签到</b>，有问题就删除或重发。</p>
       <div class="bar"><input id="sName" placeholder="名字，例如 小李"><button class="p" id="sAdd">新增前台</button></div>
       <div class="once" id="sNew" hidden>
         <div class="top"><div><b id="sNewName"></b> 的前台连结已建好（只显示这一次，启用后会自动收起）</div><button id="sClose">关闭</button></div>
@@ -201,11 +205,11 @@ var PKG={full:'全程套餐',combo:'周末套餐',pass:'周末舞会4场',single
 var ST={pending:'待审核',confirmed:'待付款',overdue:'逾期',paid:'已付款',cash:'到场付款',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
 var ROLE={leader:'Leader',follower:'Follower',both:'都可以'};
 var ACTS={pending:['confirm','waitlist','decline','cancel'],waitlist:['confirm','decline','cancel'],confirmed:['pay','cash','cancel'],cash:['pay','cancel'],paid:['pay','cancel'],declined:[],cancelled:['refund']};
-var ACT_PERM={confirm:'review',waitlist:'review',decline:'review',pay:'collect',cash:'collect',refund:'collect',cancel:'cancel'};
 var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'到场付款',cancel:'取消报名',refund:'记退款'};
-// 'modify' is not offered until this page has an edit screen; one granted earlier is kept when saving.
-var PERM_NAME={review:'审核',collect:'收款',cancel:'取消',staff:'前台',export:'导出'};
+// The switches of a site manager. A chief has everything in the event; 'modify' waits for an edit screen.
+var PERM_NAME={collect:'现场收款',staff:'管前台'},WHO={owner:'组织者',chief:'总管',manager:'现场经理'};
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'};
+var SITE=[['site','现场'],['set','设置']];
 var TABS=[['todo','待办'],['regs','报名'],['ppl','名单'],['money','收款'],['set','设置']];
 var CC={CN:'中国大陆',HK:'香港',TW:'台湾',MO:'澳门'},REGION=null;
 try{REGION=new Intl.DisplayNames(['zh-CN'],{type:'region'})}catch(e){}
@@ -214,7 +218,8 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function fmt(n){return '¥'+Number(n||0).toLocaleString('en-US')}
 function bj(iso){return iso?new Date(Date.parse(iso)+288e5).toISOString().slice(0,16).replace('T',' '):''}
 function country(c){if(CC[c])return CC[c];try{return /^[A-Z]{2}$/.test(c)&&REGION?REGION.of(c):c||''}catch(e){return c||''}}
-function can(p){return !p||!!(DATA&&(DATA.me.owner||DATA.me.perms.indexOf(p)>=0))}
+function can(p){return !p||!!(DATA&&(full()||DATA.me.perms.indexOf(p)>=0))}
+function full(){return !!DATA&&(DATA.me.role==='owner'||DATA.me.role==='chief')}
 function state(r){return r.status==='confirmed'&&r.overdue?'overdue':r.status}
 function tag(r){var s=state(r);return '<span class="st '+esc(s)+'">'+esc(ST[s]||s)+'</span>'}
 function what(p){return p.pkg&&p.pkg!=='single'?[PKG[p.pkg]].concat((p.extra||[]).map(function(x){return NAME[x]})).join(' + '):(p.items||[]).map(function(x){return NAME[x]}).join(' + ')}
@@ -234,7 +239,9 @@ function signedOut(){
   $('app').hidden=$('nav').hidden=$('session').hidden=$('side').hidden=true;$('side').innerHTML='';
   $('login').hidden=false;$('hello').textContent='';
   $('aPw').value=$('sLink').value='';$('aNew').hidden=$('sNew').hidden=true;
-  ['rows','people','ledgerList','adminList','staffList'].forEach(function(i){$(i).innerHTML=''})}
+  wipe(['staffList','siteList','siteCards'].concat(LISTS))}
+var LISTS=['side','rows','people','ledgerList','ledgerSum','moneyCards','adminList'];
+function wipe(ids){ids.forEach(function(i){$(i).innerHTML=''})}
 function load(){
   if(!TOKEN)return Promise.resolve();
   $('refresh').disabled=$('load').disabled=true;
@@ -254,20 +261,34 @@ function errText(d){
   if(e==='already_paid')return '已经收齐，或刚刚有人记过，请刷新看最新';
   if(e==='bad_amount')return '金额不对：最多 '+fmt(d.rest!=null?d.rest:d.due);
   if(e==='name_taken')return '已经有这个名字了';
+  if(e==='name_reserved')return '这个名字留给组织者，请换一个';
+  if(e==='changed'||e==='not_found')return '已经被别人改过或删除，请刷新看最新';
   return '没成功：'+e}
 
 function render(){
   $('login').hidden=true;$('tok').value='';$('app').hidden=$('nav').hidden=$('session').hidden=false;
-  $('hello').textContent=DATA.me.owner?'':DATA.me.name+'（'+DATA.me.perms.filter(function(p){return PERM_NAME[p]}).map(function(p){return PERM_NAME[p]}).join('、')+'）';
-  $('adminsCard').hidden=$('qr').hidden=!DATA.me.owner;$('staffCard').hidden=!can('staff');
+  var all=full();
+  $('hello').textContent=DATA.me.owner?'':DATA.me.name+'（'+(WHO[DATA.me.role]||'现场经理')+'）';
+  $('adminsCard').hidden=!all;$('aRole').hidden=$('qr').hidden=!DATA.me.owner;$('staffCard').hidden=!can('staff');
+  if(!DATA.me.owner)$('aRole').value='manager';
+  $('aPerms').hidden=$('aRole').value==='chief';
   [].forEach.call(document.querySelectorAll('[data-exp]'),function(b){b.hidden=!can('export')});
-  todo();regs();people();money();settings();go(S.tab||location.hash.slice(1),true);side()}
+  if(all){todo();regs();people();money()}
+  else{S.open=0;drafts={};$('side').hidden=true;wipe(LISTS);$('aPw').value='';$('aNew').hidden=true;site()}
+  settings();go(S.tab||location.hash.slice(1),true);if(all)side()}
 function go(tab,keep){
-  var allow=TABS.filter(function(t){return t[0]!=='set'||DATA.me.owner||can('staff')});
-  if(!allow.some(function(t){return t[0]===tab}))tab='todo';
+  var allow=full()?TABS:SITE.filter(function(t){return t[0]!=='set'||can('staff')});
+  if(!allow.some(function(t){return t[0]===tab}))tab=allow[0][0];
   S.tab=tab;$('nav').innerHTML=allow.map(function(t){return '<button data-tab="'+t[0]+'" class="'+(t[0]===tab?'on':'')+'">'+t[1]+'</button>'}).join('');
-  TABS.forEach(function(t){$('v-'+t[0]).hidden=t[0]!==tab});
+  TABS.concat([SITE[0]]).forEach(function(t){$('v-'+t[0]).hidden=t[0]!==tab});
   if(!keep){closeSide();history.replaceState(null,'','#'+tab);scrollTo(0,0)}}
+// ---------- 现场（现场经理）
+if(location.search)$('toDoor').href='../checkin/'+location.search;
+function site(){
+  var l=DATA.mine||[],today=bj(new Date().toISOString()).slice(0,10),sum=0,day=0,by={};
+  l.forEach(function(x){sum+=x.amount;if(bj(x.at).slice(0,10)===today)day+=x.amount;by[x.method]=(by[x.method]||0)+x.amount});
+  $('siteCards').innerHTML=card('我收的合计',fmt(sum),l.length+' 笔')+card('今天',fmt(day),'北京时间')+Object.keys(by).map(function(m){return card(esc(METHOD[m]||m),fmt(by[m]),'我收的')}).join('');
+  $('siteList').innerHTML=l.slice().reverse().map(function(x){return '<tr><td>'+bj(x.at).slice(5)+'</td><td class="name">'+esc(x.name)+'<span class="sub">'+esc(x.code)+'</span></td><td>'+esc(METHOD[x.method]||x.method)+'</td><td class="n">'+fmt(x.amount)+'</td></tr>'}).join('')||'<tr><td colspan="4" class="empty">你还没有收过款</td></tr>'}
 $('nav').addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b)go(b.dataset.tab)});
 
 // ---------- 待办
@@ -393,7 +414,6 @@ function side(){
       (p.wechat?'<br>微信：'+esc(p.wechat):'')+(p.facebook?'<br>Facebook：'+esc(p.facebook):'')+(i&&p.email?'<br>'+esc(p.email):'')+(ck.length?'<br>已签到：'+ck.join('、'):'')+'</div></li>'}).join('');
   var rooms=d.hotel?d.rooms.map(function(x,i){return '<li>房间 '+(i+1)+'：'+(x.type==='king'?'大床':'双床')+' · '+esc(x.ci)+' → '+esc(x.co)+' · '+x.nights+' 晚 '+fmt(x.amount)+'<div class="muted">'+x.guests.map(function(g){var q=pp[g]||{};return esc((d.people[g]||{}).name)+(S.show?'：'+esc(q.s)+' / '+esc(q.g):'')}).join('、')+'</div></li>'}).join(''):'';
   var acts=(ACTS[r.status]||[]).filter(function(a){
-    if(!can(ACT_PERM[a]))return false;
     if(a==='refund')return r.refund>0;
     if(a==='pay')return r.amount-(r.paid_total||0)>0;
     return true}).map(function(a){return '<button data-a="'+a+'"'+(a==='confirm'||a==='pay'?' class="p"':'')+'>'+ACT_NAME[a]+'</button>'}).join('');
@@ -409,7 +429,7 @@ function side(){
     (r.promo?'<p class="muted">折扣码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':'')+'</p>':'')+
     (d.msg?'<h3>报名者留言</h3><div class="sideinfo">'+esc(d.msg)+'</div>':'')+
     '<h3>处理纪录（北京时间）</h3><div class="muted hist">'+history_(r)+'</div>'+
-    '<h3>内部备注</h3><textarea data-note placeholder="组织者和活动经理看得到，前台看不到">'+esc(note)+'</textarea><button data-save>保存备注</button>'+
+    '<h3>内部备注</h3><textarea data-note placeholder="组织者和总管看得到，现场经理和前台看不到">'+esc(note)+'</textarea><button data-save>保存备注</button>'+
     '<div id="payBox"></div><div class="acts sacts">'+acts+next+'</div>'}
 function payForm(r,a){
   var rf=a==='refund',back=(r.payments||[]).reduce(function(s,x){return x.amount<0?s-x.amount:s},0),amount=rf?Math.max(0,(r.refund||0)-back):Math.max(0,r.amount-(r.paid_total||0));
@@ -476,31 +496,34 @@ $('pCsvSome').addEventListener('click',function(){var k={};pplList().forEach(fun
 $('lCsvSome').addEventListener('click',function(){var k={};payList(payAll()).forEach(function(v){k[v.n]=1});saveCsv(this,PAYCSV,'bstw2027-payments-filtered.csv',function(x,i){return k[i]})});
 
 // ---------- 设置
-function permBoxes(on,attr){return Object.keys(PERM_NAME).map(function(p){return '<label><input type="checkbox" '+(attr||'')+' value="'+p+'"'+(on.indexOf(p)>=0?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('')+(on.indexOf('modify')>=0?'<input type="checkbox" hidden checked '+(attr||'')+' value="modify">':'')}
-// A one-time link or password must not stay on screen once it no longer works.
+function permBoxes(on,attr){return Object.keys(PERM_NAME).map(function(p){return '<label><input type="checkbox" '+(attr||'')+' value="'+p+'"'+(on.indexOf(p)>=0?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('')}
+// A one-time link or password must not stay on screen once it no longer works, or its person was deleted.
+// "seen": a list fetched before the person was added does not count as deleted.
 function dropSpent(box,field,list,spent){
-  var id=+$(box).dataset.id;
-  if((list||[]).some(function(x){return x.id===id&&spent(x)})){$(box).hidden=true;$(box).dataset.id='';$(field).value=''}}
+  var el=$(box),id=+el.dataset.id;if(!id)return;
+  var x=(list||[]).filter(function(v){return v.id===id})[0];
+  if(x)el.dataset.seen='1';
+  if(x?spent(x):el.dataset.seen){el.hidden=true;el.dataset.id='';$(field).value=''}}
 function settings(){
   dropSpent('sNew','sLink',DATA.staff,function(x){return x.disabled_at||x.activated_at});
-  if($('sNew').hidden)closeLink();
+  if($('sNew').hidden||!can('staff'))closeLink();
   dropSpent('aNew','aPw',DATA.admins,function(x){return x.disabled_at});
-  $('adminList').innerHTML=DATA.me.owner?(DATA.admins||[]).map(function(x){var s=(DATA.ledger||{})[x.name]||{in:0,out:0};
-    return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+(x.disabled_at?'<span class="st cancelled">已停用</span>':'')+'</span><span class="muted">收款净额 '+fmt(s.in-s.out)+'</span></div>'+
-      '<div class="perms">'+permBoxes((x.perms||'').split(','),'data-ap="'+x.id+'"')+'</div><div class="acts"><button data-ad="perms" data-id="'+x.id+'">保存权限</button><button data-ad="reset" data-id="'+x.id+'">重设密码</button>'+(x.disabled_at?'':'<button data-ad="disable" data-id="'+x.id+'">停用</button>')+'</div></div>'}).join('')||'<p class="muted">还没有活动经理。</p>':'';
+  $('adminList').innerHTML=full()?(DATA.admins||[]).map(function(x){
+    var s=(DATA.ledger||{})[x.name]||{in:0,out:0},chief=x.role==='chief',mine=DATA.me.owner||!chief,id=' data-id="'+x.id+'"',ad=function(a,t){return '<button data-ad="'+a+'"'+id+'>'+t+'</button>'};
+    if(x.disabled_at)return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> <span class="st cancelled">已停用</span></span></div>'+(mine?'<div class="acts">'+ad('delete','删除')+'</div>':'')+'</div>';
+    return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> <span class="st '+(chief?'paid':'confirmed')+'">'+WHO[x.role]+'</span></span><span class="muted">收款净额 '+fmt(s.in-s.out)+'</span></div>'+
+      (chief?'':'<div class="perms">'+permBoxes((x.perms||'').split(','),'data-ap="'+x.id+'"')+'</div>')+
+      (mine?'<div class="acts">'+(chief?'':ad('perms','保存权限'))+(DATA.me.owner?ad(chief?'manager':'chief',chief?'改为现场经理':'改为总管'):'')+ad('reset','重设密码')+ad('delete','删除')+'</div>':'')+'</div>'}).join('')||'<p class="muted">还没有总管和现场经理。</p>':'';
   deskList()}
-var goneOpen=false;
 function deskList(){
   if(!can('staff')){$('staffList').innerHTML='';return}
-  function row(x){
-    var s=x.disabled_at?'<span class="st cancelled">已去除</span>':x.activated_at?'<span class="st paid">已启用 '+bj(x.activated_at).slice(5)+'</span>':'<span class="st pending">还没打开连结</span>';
+  $('staffList').innerHTML=(DATA.staff||[]).map(function(x){
+    var s=x.disabled_at?'<span class="st cancelled">已停用</span>':x.activated_at?'<span class="st paid">已启用 '+bj(x.activated_at).slice(5)+'</span>':'<span class="st pending">还没打开连结</span>';
     return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+s+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts">'+
-      (x.disabled_at?'<button data-s="reissue" data-id="'+x.id+'">恢复（发新连结）</button>':'<button data-s="reissue" data-id="'+x.id+'">重发连结</button><button data-s="disable" data-id="'+x.id+'">去除</button>')+'</div></div>'}
-  var all=DATA.staff||[],on=all.filter(function(x){return !x.disabled_at}),off=all.filter(function(x){return x.disabled_at});
-  $('staffList').innerHTML=(on.map(row).join('')||'<p class="muted">现在没有前台。</p>')+(off.length?'<details class="gone"'+(goneOpen?' open':'')+'><summary>已去除（'+off.length+'）</summary>'+off.map(row).join('')+'</details>':'');
-  var g=$('staffList').querySelector('details');if(g)g.addEventListener('toggle',function(){goneOpen=g.open})}
-$('aPerms').innerHTML=permBoxes(['collect']);
-function showPw(id,name,pw){$('aNew').dataset.id=id;$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
+      (x.disabled_at?'':'<button data-s="reissue" data-id="'+x.id+'">重发连结</button>')+'<button data-s="delete" data-id="'+x.id+'">删除</button></div></div>'}).join('')||'<p class="muted">现在没有前台。</p>'}
+$('aPerms').innerHTML=permBoxes(Object.keys(PERM_NAME));
+$('aRole').addEventListener('change',function(){$('aPerms').hidden=this.value==='chief'});
+function showPw(id,name,pw){$('aNew').dataset.id=id;delete $('aNew').dataset.seen;$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
 var DESK_TEXT='这是你的前台签到连结：在微信里点开后，按右上角 ··· 选「在浏览器打开」（Safari 或 Chrome）。这个网址就是你的工作证，不要转发。\n';
 var qrLib=null;
 function drawLink(link){
@@ -514,7 +537,7 @@ function drawLink(link){
     for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))g.fillRect((k+4)*s,(r+4)*s,s,s);
     $('sQrBox').hidden=false;
   }).catch(function(){qrLib=null})}
-function closeLink(){$('sNew').hidden=true;$('sNew').dataset.id='';$('sLink').value='';$('sMail').removeAttribute('href');$('sQr').width=$('sQr').height=0}
+function closeLink(){$('sNew').hidden=true;delete $('sNew').dataset.seen;$('sNew').dataset.id='';$('sLink').value='';$('sMail').removeAttribute('href');$('sQr').width=$('sQr').height=0}
 $('sClose').addEventListener('click',function(){if(confirm('关闭后就看不到这个连结和二维码了。还要用时请按「重发连结」。'))closeLink()});
 // while a link is on screen, notice by itself when the other phone has used it
 var polling=false;
@@ -523,27 +546,42 @@ setInterval(function(){
   var id=+$('sNew').dataset.id;polling=true;
   call('/social/admin/reg?event=bstw2027').then(function(r){return r.ok?r.json():null}).then(function(d){
     var x=d&&(d.staff||[]).filter(function(s){return s.id===id})[0];
-    if(!DATA||!x||+$('sNew').dataset.id!==id||!(x.activated_at||x.disabled_at))return;
-    DATA.staff=d.staff;closeLink();deskList();toast(x.disabled_at?x.name+' 已去除':x.name+' 已启用，可以签到了')
+    if(!DATA||!d||+$('sNew').dataset.id!==id)return;
+    if(x&&!(x.activated_at||x.disabled_at)){$('sNew').dataset.seen='1';return}
+    if(!x&&!$('sNew').dataset.seen)return;
+    var name=$('sNewName').textContent;
+    DATA.staff=d.staff||[];closeLink();deskList();toast(x&&!x.disabled_at?x.name+' 已启用，可以签到了':name+' 已被删除')
   }).catch(function(){}).then(function(){polling=false})},4000);
-function showLink(d){drawLink(d.link);$('sMail').href='mailto:?subject='+encodeURIComponent('前台签到连结 · 北京精选探戈周末 2027')+'&body='+encodeURIComponent((DESK_TEXT+d.link).replace(/\n/g,'\r\n'));$('sNew').dataset.id=d.id;$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link;$('sNew').scrollIntoView({block:'start'});scrollBy(0,-70)}
+function showLink(d){drawLink(d.link);$('sMail').href='mailto:?subject='+encodeURIComponent('前台签到连结 · 北京精选探戈周末 2027')+'&body='+encodeURIComponent((DESK_TEXT+d.link).replace(/\n/g,'\r\n'));$('sNew').dataset.id=d.id;delete $('sNew').dataset.seen;$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link;$('sNew').scrollIntoView({block:'start'});scrollBy(0,-70)}
 function copy(id,before){var i=$(id);i.select();try{navigator.clipboard.writeText((before||'')+i.value).then(function(){toast('已复制')},function(){toast('没复制成功，请长按手动复制')})}catch(e){document.execCommand('copy');toast('已复制')}}
 $('aCopy').addEventListener('click',function(){copy('aPw')});
 $('sCopyUrl').addEventListener('click',function(){copy('sLink')});
 $('sCopy').addEventListener('click',function(){copy('sLink',DESK_TEXT)});
 $('aAdd').addEventListener('click',function(){var b=this,n=$('aName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
-  act('/admins',{name:n,perms:[].map.call($('aPerms').querySelectorAll('input:checked'),function(i){return i.value})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('aName').value='';showPw(d.id,d.name,d.password);load()})});
-$('adminList').addEventListener('click',function(e){var b=e.target.closest('button[data-ad]');if(!b)return;var a=b.dataset.ad,id=+b.dataset.id,body={id:id},name=((DATA.admins||[]).filter(function(x){return x.id===id})[0]||{}).name||'';
+  var role=$('aRole').value,body={name:n,role:role};
+  if(role==='manager')body.perms=[].map.call($('aPerms').querySelectorAll('input:checked'),function(i){return i.value});
+  act('/admins',body).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('aName').value='';$('aRole').value='manager';$('aPerms').hidden=false;showPw(d.id,d.name,d.password);load()})});
+$('adminList').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-ad]');if(!b)return;
+  var a=b.dataset.ad,id=+b.dataset.id,body={id:id},name=((DATA.admins||[]).filter(function(x){return x.id===id})[0]||{}).name||'',path=a;
+  var ask={chief:'改为总管？总管有这场活动的全部权限：名单、审核、退款、任免现场经理。',manager:'改为现场经理？会马上看不到名单，只能现场收款、管前台。',reset:'重设后旧密码马上失效，确定？','delete':'删除？密码马上失效，这个人会从这里消失，不能恢复。已有的收款、签到纪录还留着。'};
   if(a==='perms')body.perms=[].map.call(document.querySelectorAll('input[data-ap="'+id+'"]:checked'),function(i){return i.value});
-  if(a!=='perms'&&!confirm(name+(a==='disable'?'：停用后密码马上失效，确定？':'：重设后旧密码马上失效，确定？')))return;
-  act('/admins/'+a,body).then(function(d){if(!d.ok)return toast(errText(d));if(d.password)showPw(id,name,d.password);toast(a==='perms'?'权限已保存':a==='disable'?'已停用':'已产生新密码');load()})});
+  if(a==='chief'||a==='manager'){path='perms';body.role=a}
+  if(ask[a]&&!confirm('「'+name+'」'+ask[a]))return;
+  act('/admins/'+path,body).then(function(d){if(!d.ok)return toast(errText(d));
+    if(a==='delete'&&+$('aNew').dataset.id===id){$('aNew').hidden=true;$('aNew').dataset.id='';$('aPw').value=''}
+    if(d.password)showPw(id,name,d.password);
+    toast({perms:'权限已保存',chief:'已改为总管',manager:'已改为现场经理',reset:'已产生新密码','delete':'已删除'}[a]);load()})});
 $('sAdd').addEventListener('click',function(){var b=this,n=$('sName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
   act('/staff',{name:n}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('sName').value='';showLink(d);load()})});
-$('staffList').addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;var a=b.dataset.s;
-  if(!confirm(a==='disable'?'去除后，这个前台马上不能签到。签到纪录会保留，以后也可以恢复。确定去除？':'重发后旧连结和现在的手机都会失效，确定？'))return;
-  act('/staff/'+a,{id:+b.dataset.id}).then(function(d){if(!d.ok)return toast(errText(d));if(d.link)showLink(d);toast(a==='disable'?'已去除':'已产生新连结');load()})});
+$('staffList').addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;
+  var a=b.dataset.s,id=+b.dataset.id,name=((DATA.staff||[]).filter(function(x){return x.id===id})[0]||{}).name||'';
+  if(!confirm(a==='delete'?'删除「'+name+'」？连结马上失效，这个人会从这里消失，不能恢复。已有的签到纪录还留着。':'重发后旧连结和现在的手机都会失效，确定？'))return;
+  act('/staff/'+a,{id:id}).then(function(d){if(!d.ok)return toast(errText(d));
+    if(a==='delete'&&+$('sNew').dataset.id===id)closeLink();
+    if(d.link)showLink(d);toast(a==='delete'?'已删除':'已产生新连结');load()})});
 $('qUp').addEventListener('click',function(){var f=$('qFile').files[0],name=$('qName').value;
   if(!name)return toast('先选是哪一种收款码');if(!f)return toast('先选一张图片');if(f.size>1e6)return toast('图片太大（1MB 以内）');
   var rd=new FileReader();rd.onload=function(){act('/asset',{name:name,mime:f.type,b64:rd.result}).then(function(d){toast(d.ok?'已上传 '+d.name+'，请到报名页用另一支手机扫一次':errText(d))})};rd.readAsDataURL(f)});
