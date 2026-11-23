@@ -105,8 +105,9 @@ const awayLaterRow = db.prepare('SELECT intent i, mail_status s, attend_date a F
 check('a verified not-going is stored without a human-check token', awayLater.mail === 'withheld' && awayLaterRow && awayLaterRow.i === 'absent' && awayLaterRow.s === 'none' && !awayLaterRow.a);
 const noTs = await post('/going', { ...base, email: 'nots@example.com', name: 'NoTs', id: 'F1', intent: 'interested', ts: '', dev: 'device-nots-0001' });
 check('intent confirm ignores a failing human check', noTs.confirm === true && noTs._s === 200 && !noTs.error);
-const profileBlocked = await post('/profile', { name: 'NoTs', email: 'profile-ts@example.com', city: '上海', role: 'leader', lang: 'zh', alert: 0, ret, ts: '', last4: '8000' });
-check('profile still requires the human check', profileBlocked._s === 403 && profileBlocked.error === 'turnstile');
+// 2026-11-23: no human check on the email-code step any more (Shiao: ATM does not use it), even with a failing one configured
+const profileNoCheck = await post('/profile', { name: 'NoTs', email: 'profile-ts@example.com', city: '上海', role: 'leader', lang: 'zh', alert: 0, ret, ts: '', last4: '8000' }, { 'CF-Connecting-IP': '198.51.100.7' });
+check('profile sends the code without a human check', profileNoCheck._s === 200 && !profileNoCheck.error, profileNoCheck);
 const restoreBlocked = await post('/going/restore', { email: 'ann@example.com', ret, ts: '', lang: 'zh' });
 check('restore still requires the human check', restoreBlocked._s === 403 && restoreBlocked.error === 'turnstile');
 delete env.TURNSTILE_SECRET;
@@ -129,6 +130,15 @@ const third = await post('/going', re);
 check('only one resend is sent for that show within a day', resent.confirm === true && third._s === 429 && third.error === 'resend_used' && !JSON.stringify(third).includes('resend@'));
 const otherShow = await post('/going', { ...base, email: 'resend@example.com', name: 'Re', id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], dev: 'device-resend-02' });
 check('another show is not blocked by the first show cap', otherShow.confirm === true);
+// without the human check, at most CODES_PER_HOUR codes in an hour across the whole site
+{ const t = new Date().toISOString(), had = db.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE created_at>?').get(new Date(Date.now() - 3600e3).toISOString()).n;
+  const ins = db.prepare("INSERT INTO going_confirm_log(email,dev,ip_hash,created_at,anchor) VALUES(?,?,?,?,'cap-test')");
+  for (let n = had; n < 300; n++) ins.run('cap' + n + '@example.com', 'device-cap-' + n, 'ip-cap-' + n, t);
+  const over = await post('/profile', { email: 'capfresh@example.com', lang: 'zh', alert: 0, ret, ts: '', last4: '8001', sub: 1 }, { 'CF-Connecting-IP': '198.51.100.8' });
+  check('the site-wide hourly cap stops a flood', over._s === 429 && over.error === 'rate_limited' && !JSON.stringify(over).includes('capfresh@'), over);
+  db.prepare("DELETE FROM going_confirm_log WHERE anchor='cap-test'").run();
+  const after = await post('/profile', { email: 'capfresh@example.com', lang: 'zh', alert: 0, ret, ts: '', last4: '8001', sub: 1 }, { 'CF-Connecting-IP': '198.51.100.8' });
+  check('under the cap it goes again', after._s === 200 && !after.error, after); }
 const sched = digestSchedule({});
 check('featured default is Monday 14:00 and still not approved', sched.weekday === 1 && sched.hour === 14 && sched.approved === false && sched.pendingReview === true);
 const sub = fs.readFileSync(path.join(root, 'asia/asia-subscribe.js'), 'utf8');
