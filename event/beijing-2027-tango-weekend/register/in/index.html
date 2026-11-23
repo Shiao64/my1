@@ -39,7 +39,7 @@ label{display:block;margin:20px 0 8px;color:var(--muted);font-size:.95rem}
   <div id="none" hidden>
     <div class="hi">请用你的专属链接</div>
     <p>打开上级发给你的链接，或用手机相机扫二维码，再输入六位密码。</p>
-    <p class="note">平台管理员请到<a href="../admin/">管理页</a>用长密码登入。</p>
+    <p class="note">管理员请到<a href="../admin/">管理页</a>用长密码登入。</p>
   </div>
   <div id="wechat" hidden>
     <div class="hi">请在浏览器打开</div>
@@ -73,7 +73,7 @@ label{display:block;margin:20px 0 8px;color:var(--muted);font-size:.95rem}
     <p class="note" id="help"></p>
   </form>
 </main>
-<script src="../tp.js?v=1"></script>
+<script src="../tp.js?v=2"></script>
 <script>
 (function(){
 var Q=new URLSearchParams(location.search);
@@ -89,7 +89,7 @@ if(!KEY){show('none');return}
 if(/MicroMessenger/i.test(navigator.userAgent)){show('wechat');
   $('copy').addEventListener('click',function(){var u=location.href;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){$('copied').textContent='已复制'},function(){$('copied').textContent='请长按网址手动复制'})});return}
 // one phone, one identity
-if(TP.owner()){show('taken');$('takenTitle').textContent='这台不能用这个链接';$('takenText').textContent='这台已经登入平台管理员。链接请给本人用自己的手机打开；自己想试，用另一支手机或无痕窗口。';$('stay').textContent='回管理页';return}
+if(TP.owner()){show('taken');$('takenTitle').textContent='这台不能用这个链接';$('takenText').textContent='这台已经登入管理员。链接请给本人用自己的手机打开；自己想试，用另一支手机或无痕窗口。';$('stay').textContent='回管理页';return}
 var me=TP.who();
 function start(){
   post('/hello',{key:KEY}).then(function(d){

@@ -4,8 +4,8 @@
 (function () {
   function get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function put(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
-  var ROLE = { owner: '平台管理员', chief: '总管', deputy: '副总管', manager: '现场经理', desk: '前台' };
-  var UP = { chief: '平台管理员', deputy: '总管', manager: '副总管或总管', desk: '副总管或总管' };
+  var ROLE = { owner: '管理员', chief: '总管', deputy: '副总管', manager: '现场经理', desk: '前台' };
+  var UP = { chief: '管理员', deputy: '总管', manager: '副总管或总管', desk: '副总管或总管' };
   function bjTime(iso) { return iso ? new Date(Date.parse(iso) + 288e5).toISOString().slice(11, 16) : ''; }
   function bjDay(iso) { return iso ? new Date(Date.parse(iso) + 288e5).toISOString().slice(0, 16).replace('T', ' ').replace(/-/g, '/') : ''; }
   function who() { try { return JSON.parse(get('tp_who') || 'null'); } catch (e) { return null; } }

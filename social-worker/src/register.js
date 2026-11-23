@@ -21,7 +21,7 @@
 
 export const EVENTS = {
   bstw2027: {
-    id: 'bstw2027', prefix: 'BJ27', chief: 'owner',   // the one 总管 is the platform admin himself, with the existing password
+    id: 'bstw2027', prefix: 'BJ27',   // 2026-11-23 Shiao: 张孝 is the 管理员 (long password) and appoints one 总管
     name: { en: 'Beijing Select Tango Weekend 2027', zh: '北京精选探戈周末 2027' },
     items: {
       MV: { key: 'welcome', price: 150, cap: 200 },
@@ -453,7 +453,7 @@ const CSV_COLS = ['code', 'status', 'created', 'email', 'lang', 'person', 'name'
 const csvCell = v => { let s = String(v == null ? '' : v); if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 const bjTime = iso => iso ? new Date(Date.parse(iso) + 8 * 36e5).toISOString().slice(0, 16).replace('T', ' ') : '';   // exports use Beijing time
 // Who is calling. The rules are the first section of docs/tangopass.md (2026-11-23):
-//   owner    平台管理员: every event, appoints everyone. Where the event says chief:'owner', also that event's 总管
+//   owner    管理员 (平台管理员 until 2026-11-23): every event, appoints everyone. Where the event says chief:'owner', also that event's 总管
 //   chief    总管: one per event
 //   deputy   副总管: three at most per event
 //   manager  现场经理: money on site, for the code just scanned

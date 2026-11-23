@@ -263,11 +263,25 @@ check('QR hidden without key', q2.status === 404);
   // the password goes along wherever the rules ask for it again (任免, a 总管's refund and export)
   const post = (path, body, tok) => call('POST', '/admin/reg' + path, PIN.has(tok) && body && body.pin === undefined ? { ...body, pin: PIN.get(tok) } : body, tok);
   const rawPost = (path, body, tok) => social(new Request(U + path, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(PIN.has(tok) ? { ...body, pin: PIN.get(tok) } : body) }), env, new URL(U + path), json);
-  let d = await post('/admins', { name: 'Seat', role: 'chief' }, ADMIN);
-  check('BSTW: the chief seat is taken by the platform admin', d._s === 409 && d.error === 'chief_taken', d);
+  // BSTW since 2026-11-23 (Shiao): 张孝 is the 管理员 and appoints one 总管
+  let d = await call('GET', '/admin/reg/me', null, ADMIN);
+  check('BSTW: the 管理员 is offered the 总管 seat', seat === undefined && d.role === 'owner' && d.seat === 'owner' && d.appoint.join() === 'chief,deputy,manager,desk' && d.perms.includes('asset'), d);
+  d = await post('/admins', { name: 'T-Seat1', role: 'chief' }, ADMIN);
+  check('BSTW: the 管理员 appoints a 总管 (link + temporary password)', d.ok && d.role === 'chief' && /\/register\/in\/#[0-9a-f]{48}$/.test(d.link) && /^\d{6}$/.test(d.pin), d);
+  const listed = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN);
+  check('BSTW: the 总管 shows in the settings, the seat is no longer the 管理员', listed.chief === '' && listed.admins.some(x => x.name === 'T-Seat1' && x.role === 'chief'), [listed.chief, listed.admins]);
+  d = await post('/admins', { name: 'T-Seat2', role: 'chief' }, ADMIN);
+  check('BSTW: only one 总管', d._s === 409 && d.error === 'chief_taken', d);
+  d = await post('/admins', { name: 'T-Seat2', role: 'deputy' }, ADMIN);
+  d = await post('/admins/role', { id: d.id, role: 'chief' }, ADMIN);
+  check('BSTW: no second 总管 by promotion either', d._s === 409 && d.error === 'chief_taken', d);
+  db.exec("DELETE FROM reg_admin WHERE name LIKE 'T-Seat%'");
+  EV.chief = 'owner';   // an event whose 总管 is the 管理员 himself: the seat is taken
+  d = await post('/admins', { name: 'Seat', role: 'chief' }, ADMIN);
+  check('chief:owner: the 总管 seat is taken by the 管理员', d._s === 409 && d.error === 'chief_taken', d);
   d = await call('GET', '/admin/reg/me', null, ADMIN);
-  check('BSTW: platform admin is the chief and is not offered a second one', d.role === 'owner' && d.seat === 'chief' && d.appoint.join() === 'deputy,manager,desk' && d.perms.includes('asset'), d);
-  delete EV.chief;   // from here: an event whose organizer delegated the chief
+  check('chief:owner: the 管理员 is the 总管 and is not offered a second one', d.role === 'owner' && d.seat === 'chief' && d.appoint.join() === 'deputy,manager,desk' && d.perms.includes('asset'), d);
+  delete EV.chief;   // from here: BSTW as it is, with an appointed 总管
 
   let n = 0;
   const wipe = () => { db.exec("DELETE FROM reg_admin WHERE name LIKE 'T-%'"); db.exec("DELETE FROM reg_staff WHERE name LIKE 'T-%'"); };   // their reg_device rows stay: ended or orphaned, like the real thing after a delete
