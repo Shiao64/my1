@@ -286,6 +286,7 @@ export async function social(req, env, url, json) {
   let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400); } }
   if (p === '/reg' && req.method === 'POST') return (await REG()).regSubmit(req, env, b, json, regKit());
   if (p.startsWith('/reg/door/')) return (await REG()).regDoor(req, env, url, b, json);
+  if (p === '/reg/login' || p.startsWith('/reg/login/')) return (await REG()).regLogin(req, env, url, b, json);
   if (p === '/admin/reg' || p.startsWith('/admin/reg/')) return (await REG()).regAdmin(req, env, url, b, json, regKit());
   if (p === '/profile' && req.method === 'POST') return goingProfile(req, env, b, ip, iph, json, goingKit());
   if (p === '/going/pass' && req.method === 'POST') return goingPass(req, env, b, json, goingKit());
