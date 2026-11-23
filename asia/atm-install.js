@@ -184,7 +184,15 @@
       '<button type="button" class="x" aria-label="' + T.close + '">✕</button>';
     bar.querySelector('.t').addEventListener('click', show);
     bar.querySelector('.x').addEventListener('click', function () { try { localStorage.setItem(K, '1'); } catch (e) {} bar.remove(); });
-    document.body.insertBefore(bar, document.body.firstChild);   /* in the page flow: covers nothing */
+    /* in the page flow: covers nothing on the page; WeChat's ··· sits in WeChat's own title bar, outside the page.
+       Order: the beta notice first; the bar appears once it is closed (like the ?install=1 guide below). */
+    function put() { document.body.insertBefore(bar, document.body.firstChild); }
+    var n = document.getElementById('atm-notice');
+    var open = function () { return n && !n.hidden && !document.documentElement.classList.contains('atm-notice-ack') && getComputedStyle(n).display !== 'none'; };
+    if (!open()) return put();
+    var mo = new MutationObserver(function () { if (!open()) { mo.disconnect(); put(); } });
+    mo.observe(n, { attributes: true, attributeFilter: ['hidden', 'style', 'class'] });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
   }
 
   var after = document.querySelector('#atm-menu [data-a="mine"]');
