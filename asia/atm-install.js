@@ -162,6 +162,31 @@
   addEventListener('keydown', function (e) { if (e.key === 'Escape') hide(); });
   addEventListener('appinstalled', hide);
 
+  /* 2026-11-23 (Shiao): WeChat only — a small bar at the top of the page: open in the browser instead.
+     No "open in browser" button: WeChat does not let a page leave for another browser. The arrow points at WeChat's own ··· (top right).
+     Tapping the words opens the guide above (red circle + copy link). ✕ hides it for good on this phone (localStorage). */
+  if (/MicroMessenger/i.test(UA) && (ios || android) && !wanted) wxBar();
+  function wxBar() {
+    var K = 'atm_wx_bar';
+    try { if (localStorage.getItem(K)) return; } catch (e) {}
+    var W = zh ? { a: '用浏览器打开更好用：可以放到手机桌面，下次一点就开。', b: '点右上角 ··· → 选「在浏览器打开」', more: '怎么做 ›' }
+      : { a: 'Works better in your browser: add it to your Home Screen, one tap next time.', b: 'Tap ··· at the top right → Open in Browser', more: 'How ›' };
+    var c = document.createElement('style');
+    c.textContent = '#atm-wx{display:flex;align-items:center;gap:6px;box-sizing:border-box;width:100%;padding:8px 4px 8px 14px;background:#0A4F57;color:#fbf5e9;font:14px/1.45 system-ui,-apple-system,"PingFang SC",sans-serif}' +
+      '#atm-wx .t{flex:1;min-width:0;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left}#atm-wx .t b{display:block;font-weight:600}' +
+      '#atm-wx .t span{display:block;color:#f3d98b}#atm-wx .t i{font-style:normal;color:#fff;text-decoration:underline;white-space:nowrap}' +
+      '#atm-wx svg{flex:none;width:30px;height:30px;align-self:flex-start;fill:none;stroke:#f3d98b;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}' +
+      '#atm-wx .x{flex:none;width:40px;min-height:44px;padding:0;border:0;background:none;color:#fbf5e9;font:20px/1 sans-serif}';
+    document.head.appendChild(c);
+    var bar = document.createElement('div'); bar.id = 'atm-wx'; bar.setAttribute('role', 'note');
+    bar.innerHTML = '<button type="button" class="t"><b>' + W.a + '</b><span>' + W.b + ' <i>' + W.more + '</i></span></button>' +
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L18 6M9 6h9v9"/></svg>' +
+      '<button type="button" class="x" aria-label="' + T.close + '">✕</button>';
+    bar.querySelector('.t').addEventListener('click', show);
+    bar.querySelector('.x').addEventListener('click', function () { try { localStorage.setItem(K, '1'); } catch (e) {} bar.remove(); });
+    document.body.insertBefore(bar, document.body.firstChild);   /* in the page flow: covers nothing */
+  }
+
   var after = document.querySelector('#atm-menu [data-a="mine"]');
   if (after && (ios || android)) {
     var item = document.createElement('button');
