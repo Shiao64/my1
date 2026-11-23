@@ -877,7 +877,12 @@ async function confirmBlocked(env, email, dev, iph) {
   const ed = await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE email=? AND created_at>?').bind(email, day).first('n');
   const ih = await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE ip_hash=? AND created_at>?').bind(iph || '', hour).first('n');
   const dh = dev ? await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE dev=? AND created_at>?').bind(dev, hour).first('n') : 0;
-  return (eh || 0) >= 3 || (ed || 0) >= 10 || (ih || 0) >= 10 || (dh || 0) >= 10;
+  // one email: 10 an hour, 50 a day (Shiao, 2026-11-23); one network or one device: 10 an hour
+  return (eh || 0) >= 10 || (ed || 0) >= 50 || (ih || 0) >= 10 || (dh || 0) >= 10;
+}
+const CODES_PER_HOUR = 300;
+async function codesLastHour(env) {
+  return (await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE created_at>?').bind(new Date(Date.now() - 3600e3).toISOString()).first('n')) || 0;
 }
 const RESEND_GAP_MS = 60e3;
 const RESEND_WINDOW_MS = 24 * 3600e3;
@@ -1292,9 +1297,11 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   if (!ret) return json({ error: 'bad_return' }, 400);
   const lang = b.lang === 'zh' ? 'zh' : 'en';
   const alert = flag(b.alert, 0);
-  if (!same && !(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
+  if (!same && kit.humanCheck !== false && !(await kit.turnstile(env, b.ts, ip))) return json({ error: 'turnstile' }, 403);
   if (!same) {
     if (await confirmBlocked(env, email, String(b.dev || ''), iph)) return json({ error: 'rate_limited' }, 429);
+    // without the human check, a cap on all codes sent in the last hour keeps a flood from many networks small
+    if (kit.humanCheck === false && (await codesLastHour(env)) >= CODES_PER_HOUR) return json({ error: 'rate_limited' }, 429);
   }
   if (same) {
     await env.SDB.prepare("UPDATE users SET name=COALESCE(NULLIF(?,''),name),city=COALESCE(NULLIF(?,''),city),role=COALESCE(NULLIF(?,''),role),lang=? WHERE id=?").bind(name, city || '', role || '', lang, session.id).run();
