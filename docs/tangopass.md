@@ -201,6 +201,40 @@
 - 待办：决定国内微信码；核对 info@ 收得到回信；境外卡手续费与限额；B5（看码须验证码登录，Year End 后定）；韩西俄文校对；管理页「修改」画面；Chris 的 3 个问题（Shiao：先不回答）；Year End 资料（刘峥）；实地测试（Google《实地测试计划》）。
 - 12/1 上线清单：报名页搬到 `register/`（`reg-notice.js` 的 `PAGE`、`register.js` 的 `regPage` 一起改，`draft/` 留转址并保留 ?lang 和 #pay／#passes，免得已寄出的信点错）；设 `REG_LIVE=1`；清掉测试资料（报名、收款、签到、测试副总管、现场经理与前台）；检查活动页按钮、DJ 信与付款信的连结。
 
+## 测试模式和正式的差别（2026-11-23 整理）
+
+现在是**测试模式**（Cloudflare 没设 `REG_LIVE`）。Google 上另有一份给 Shiao 看的同内容文件《探戈通 TP · 测试模式和正式的差别》。
+
+**不一样的地方**
+
+| | 测试模式（现在） | 正式（国际报名 12/1 起） | 在哪里改 |
+|---|---|---|---|
+| 报名页网址 | `…/register/draft/`，页顶固定横幅「测试版 · 邮件只寄到主办的测试信箱」 | `…/register/`（现在只是「12 月 1 日开放」的预告页） | 搬家时把报名表放到 `register/`、拿掉横幅；`draft/` 留转址，保留 `?lang` 和 `#pay`／`#passes` |
+| 给报名者的系统信（收到报名、确认、候补、婉拒、付款提醒、付款确认、到场付款、取消、修改） | 全部寄 `REG_TEST_INBOX`（没设＝selecttango@gmail.com），标题前加「[TEST → 原收件人]」 | 寄给报名者本人 | Cloudflare 设 `REG_LIVE=1`（改 Cloudflare 设定，先问 Shiao） |
+| 首页提醒条、信里「回到报名页」的连结 | 指向 `draft/` | 指向 `register/` | `asia/reg-notice.js` 的 `PAGE`（两张地图页一起换 `?v=`）、`register.js` 的 `regPage` |
+
+**一样的地方（测试动到的就是真的）**
+
+- 管理页 `…/register/admin/`、签到页 `…/register/checkin/`、登入页 `…/register/in/`：同一个网址、同一套系统，没有测试版。
+- 资料库同一个、活动同一个（`bstw2027`）：测试的报名、收款、签到、处理纪录都在正式资料里。清掉后编号从 BJ27-0001 重新开始（编号＝现有最大号＋1）。
+- 工作人员账号、专属链接、六位密码都是真的；设备登入纪录也是真的。
+- 收款码是真的（刘峥／Milonga V）：测试不要真的付款。3 张（intl-alipay、cn-alipay、intl-wechat）Shiao 11/23 说保留。
+- 价格、折扣码、早鸟（北京时间 2027/2/2 零点截止）、名额上限：都照正式规则算。测试报名确认后会占名额，清掉才放回。
+- 国家选中国大陆就算国内报名，付款页给国内收款码（国内微信码还没上传，2/15 前补）。
+- 不分测试正式的信：邮箱验证码（6 位数，ATM 网站寄，直接寄本人）；给主办的「新报名」通知（寄 `REG_NOTIFY`，没设＝selecttango@gmail.com）。
+- 定时器照跑：第 10 天付款提醒测试期间寄测试信箱。
+- 寄验证码不用人机验证、次数限制（同一邮箱每小时 10、每天 50 等）：两种模式一样。
+
+**测试工具**：`…/register/draft/?demo=1` 只看画面、不连后台、什么都不寄；`?api=http://localhost:…` 连本机后台。
+
+**12/1 切换清单**（11/30 先问 Shiao；改后端、Cloudflare 都要先问）
+1. 记 D1 书签。
+2. 清测试资料：列出测试报名、收款、签到、处理纪录，以及测试用的副总管、现场经理、前台和登入的手机，Shiao 确认后才删。保留收款码、正式工作人员、网站会员账号。
+3. 报名页搬到 `register/`，拿掉测试横幅，`draft/` 转址；改 `reg-notice.js` 的 `PAGE`、`register.js` 的 `regPage`；部署后台、合并网页（地图页换 `?v=`）。
+4. Cloudflare 设 `REG_LIVE=1`。
+5. 检查：活动页报名按钮、DJ 信、确认信、付款信里的连结都到 `register/`；报名页没有测试横幅。
+6. 用自己的邮箱报一笔：信寄到本人、标题没有 [TEST]；看完取消、删掉。
+
 ## 部署
 
 照 CLAUDE.md：改后端、部署要先问 Shiao。步骤：`git fetch` 确认 main 的 worker 程序没有别人新改 → `subscribe-worker/` 里 `npx wrangler@3 d1 time-travel info tango-subscribe`（记书签）→ 有新迁移就 `d1 execute --remote --file=...` → `npx wrangler@3 deploy --keep-vars` → 检查 `/social/reg/left`、`/social/likes` 等 → 合并 PR。**网页发布完成前不要去请求新的 `?v=` 网址**：CDN 会把旧内容按新版本号缓存一年（11/22 踩过，只能再换一个版本号）；地图 HTML 本身缓存 10 分钟。Cloudflare 寄信（send_email）不接受 Reply-To／Cc 自订标头（11/22 踩过）。
