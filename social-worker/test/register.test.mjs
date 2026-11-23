@@ -20,7 +20,7 @@ const db = new DatabaseSync(':memory:');
 db.exec(`CREATE TABLE users(id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, name TEXT NOT NULL, lang TEXT NOT NULL DEFAULT 'en',
   verified_at TEXT, created_at TEXT NOT NULL, ip_hash TEXT, city TEXT, role TEXT, wx_used INTEGER DEFAULT 0);
 CREATE TABLE sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL, created_at TEXT NOT NULL);`);
-for (const f of ['0020_registrations.sql', '0021_reg_checkin.sql', '0022_reg_admins_ledger.sql', '0023_rename_bstw2027.sql']) db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', f), 'utf8'));
+for (const f of ['0020_registrations.sql', '0021_reg_checkin.sql', '0022_reg_admins_ledger.sql', '0023_rename_bstw2027.sql', '0024_reg_login.sql']) db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', f), 'utf8'));
 // readLag: like a real network database, a read answers a little later, so requests sent together really overlap
 let readLag = 0;
 const later = v => readLag ? new Promise(ok => setTimeout(() => ok(v), readLag)) : v;
@@ -36,7 +36,7 @@ function D1(database) {
   }; } };
 }
 const ADMIN = 'a'.repeat(32);
-const env = { SDB: D1(db), DB: D1(db), API_BASE: 'https://api.tangoweekend.org', SOCIAL_MAIL: 'log', ADMIN_TOKEN: ADMIN, REG_QR_KEY: 'qrkey', REG_PASS_SECRET: 'pass-secret-for-tests',
+const env = { SDB: D1(db), DB: D1(db), API_BASE: 'https://api.tangoweekend.org', SOCIAL_MAIL: 'log', ADMIN_TOKEN: ADMIN, REG_QR_KEY: 'qrkey', REG_PASS_SECRET: 'pass-secret-for-tests', REG_PIN_PEPPER: 'pepper-for-tests',
   REG_CODES: JSON.stringify({ Alpha618: 'Chris Han', Gamma618: 'Ajit', Delta618: 'Uno', Beta618: 'Kostas', Echo618: 'Robin' }) };
 const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s });
 const fail = []; let passed = 0;
@@ -46,6 +46,23 @@ const orig = console.log;
 console.log = (...a) => { const s = a.map(String).join(' '); if (s.startsWith('[mail:log]')) mails.push(s); else orig(...a); };
 
 const sha = s => crypto.createHash('sha256').update(s).digest('hex');
+// sign-in (TP step 2): the same hash the worker keeps, and a phone signed in straight in the database for fixtures
+const pinH = (salt, pin) => crypto.createHmac('sha256', env.REG_PIN_PEPPER).update(salt + ':' + pin).digest('hex');
+const PIN = new Map();   // phone key -> that person's password, sent along where the rules ask for it again
+function phoneFor(kind, id, event, pin = '730195', authAt = new Date().toISOString()) {
+  const salt = crypto.randomBytes(8).toString('hex'), key = crypto.randomBytes(32).toString('hex');
+  db.prepare(`UPDATE ${kind === 'staff' ? 'reg_staff' : 'reg_admin'} SET link_hash=?,pin_hash=?,pin_salt=?,pin_temp=0 WHERE id=?`).run(sha(crypto.randomBytes(24).toString('hex')), pinH(salt, pin), salt, id);
+  db.prepare('INSERT INTO reg_device(kind,person,event,token_hash,created_at,auth_at) VALUES(?,?,?,?,?,?)').run(kind, id, event, sha(key), authAt, authAt);
+  PIN.set('dev:' + key, pin); return 'dev:' + key;
+}
+const keyOf = link => (/\/register\/in\/#([0-9a-f]{48})$/.exec(link || '') || [])[1];
+// through the real pages' calls: link + temporary password, then one's own
+async function signIn(made, own = '730195') {
+  const key = keyOf(made.link);
+  const d = await call('POST', '/reg/login', { key, pin: made.pin, new_pin: own });
+  if (d.token) PIN.set(d.token, own);
+  return d.token;
+}
 function subscriber(email, name, verified = true) {
   const r = db.prepare('INSERT INTO users(email,name,lang,verified_at,created_at) VALUES(?,?,?,?,?)').run(email, name, 'en', verified ? '2026-11-01' : null, '2026-11-01');
   const tok = crypto.randomBytes(32).toString('hex');
@@ -164,32 +181,33 @@ d = await call('POST', '/reg/door/checkin', { p: pCat, item: 'T1' }, ADMIN); che
 d = await call('POST', '/reg/door/checkin', { p: pCat, item: 'M2', undo: 1 }, ADMIN); check('undo check-in', d.ok && d.undone);
 d = await call('POST', '/reg/door/checkin', { p: pCat, item: 'M2' }, ADMIN); check('check in again after undo', d.ok);
 d = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN); check('admin counts check-ins per event', d.checked.M2 === 1 && d.rows.find(r => r.id === id2).checkins.length === 1, d.checked);
-// --- door helpers: one-time link bound to the first phone ---
-d = await call('POST', '/admin/reg/staff', { name: '王凯' }); check('adding a helper needs the password', d._s === 401);
-d = await call('POST', '/admin/reg/staff', { name: '王凯' }, ADMIN); check('add helper → link', d.ok && /checkin\/\?act=[0-9a-f]{48}$/.test(d.link), d);
-const act1 = d.link.split('act=')[1], sid = d.id;
+// --- front desk (TP step 2): personal link + six-digit password, one phone ---
+d = await call('POST', '/admin/reg/staff', { name: '王凯' }); check('adding a desk needs to be signed in', d._s === 401);
+d = await call('POST', '/admin/reg/staff', { name: '王凯' }, ADMIN); check('add desk → personal link and a temporary password', d.ok && keyOf(d.link) && /^\d{6}$/.test(d.pin) && !d.link.includes(d.pin), d);
+const desk1 = d, sid = d.id;
 d = await call('POST', '/admin/reg/staff', { name: '王凯' }, ADMIN); check('same name twice refused', d._s === 409);
-d = await call('POST', '/reg/door/activate', { act: act1 }); check('first phone activates', d.ok && d.name === '王凯' && /^staff:[0-9a-f]{64}$/.test(d.token), d);
-const phone1 = d.token;
-d = await call('POST', '/reg/door/activate', { act: act1 }); check('second phone cannot reuse the link', d._s === 409);
-d = await call('GET', '/reg/door/me', null, phone1); check('helper phone recognised', d.ok && d.name === '王凯' && !d.admin);
-d = await call('GET', '/reg/door/pass?p=' + encodeURIComponent(pBob), null, phone1); check('helper can look up a pass', d.ok && d.person.name === 'Bob');
-d = await call('GET', '/admin/reg?event=bstw2027', null, phone1); check('helper cannot open the admin list', d._s === 401);
-d = await call('POST', '/admin/reg/act', { id: id2, action: 'cancel' }, phone1); check('helper cannot change registrations', d._s === 401);
-d = await call('POST', '/reg/door/checkin', { p: pBob, item: 'M1' }, phone1); check('helper checks in, name recorded', d.ok && d.by === '王凯', d);
+d = await call('POST', '/reg/door/activate', { act: 'a'.repeat(48) }); check('the old one-time links are gone', d._s === 410);
+const phone1 = await signIn(desk1);
+check('desk signs in with link + password', /^dev:[0-9a-f]{64}$/.test(phone1 || ''));
+d = await call('GET', '/reg/door/me', null, phone1); check('desk phone recognised', d.ok && d.name === '王凯' && !d.admin && d.until === R.EVENTS.bstw2027.deskEnds, d);
+d = await call('GET', '/reg/door/pass?p=' + encodeURIComponent(pBob), null, phone1); check('desk can look up a pass', d.ok && d.person.name === 'Bob');
+d = await call('GET', '/admin/reg?event=bstw2027', null, phone1); check('desk cannot open the admin list', d._s === 401);
+d = await call('POST', '/admin/reg/act', { id: id2, action: 'cancel' }, phone1); check('desk cannot change registrations', d._s === 401);
+d = await call('POST', '/reg/door/checkin', { p: pBob, item: 'M1' }, phone1); check('desk checks in, name recorded', d.ok && d.by === '王凯', d);
 d = await call('POST', '/reg/door/checkin', { p: pBob, item: 'M1' }, ADMIN); check('organizer rescan shows who did it', d._s === 409 && d.error === 'already' && d.by === '王凯', d);
-d = await call('GET', '/reg/door/pass?p=' + encodeURIComponent(pBob), null, 'staff:' + 'f'.repeat(64)); check('unknown phone token refused', d._s === 401);
-d = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN); check('admin shows helper with count', d.staff.length === 1 && d.staff[0].checkins === 1 && d.staff[0].activated_at, d.staff);
-d = await call('POST', '/admin/reg/staff/reissue', { id: sid }, ADMIN); const act2 = d.link.split('act=')[1]; check('reissue gives a new link', d.ok && act2 !== act1);
-d = await call('GET', '/reg/door/me', null, phone1); check('old phone stops after reissue', d._s === 401);
-d = await call('POST', '/reg/door/activate', { act: act1 }); check('old link dead after reissue', d._s === 409);
-d = await call('POST', '/reg/door/activate', { act: act2 }); const phone2 = d.token; check('new link works on the new phone', d.ok);
-d = await call('POST', '/admin/reg/staff/delete', { id: sid }, ADMIN); check('delete helper', d.ok);
-check('deleted helper leaves no row', !db.prepare('SELECT 1 FROM reg_staff WHERE id=?').get(sid));
-check('deleted helper: check-in keeps the name', db.prepare("SELECT staff FROM reg_checkin WHERE staff='王凯'").get());
-d = await call('POST', '/admin/reg/staff/reissue', { id: sid }, ADMIN); check('deleted helper cannot be brought back', d._s === 404);
+d = await call('GET', '/reg/door/pass?p=' + encodeURIComponent(pBob), null, 'dev:' + 'f'.repeat(64)); check('unknown phone key refused', d._s === 401);
+d = await call('GET', '/reg/door/pass?p=' + encodeURIComponent(pBob), null, 'staff:' + 'f'.repeat(64)); check('old desk keys refused', d._s === 401);
+d = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN); check('admin shows desk with count and state', d.staff.length === 1 && d.staff[0].checkins === 1 && d.staff[0].login.state === 'on' && d.staff[0].login.devices === 1, d.staff);
+d = await call('POST', '/admin/reg/staff/reset', { id: sid }, ADMIN); const desk2 = d; check('reset gives a new link and password', d.ok && keyOf(d.link) && keyOf(d.link) !== keyOf(desk1.link) && /^\d{6}$/.test(d.pin));
+d = await call('GET', '/reg/door/me', null, phone1); check('the phone stops at once after a reset, and is told why', d._s === 401 && d.error === 'signed_out' && d.why === 'reset', d);
+d = await call('POST', '/reg/login/hello', { key: keyOf(desk1.link) }); check('old link dead after reset', d._s === 404);
+const phone2 = await signIn(desk2); check('new link works', !!phone2);
+d = await call('POST', '/admin/reg/staff/delete', { id: sid }, ADMIN); check('delete desk', d.ok);
+check('deleted desk leaves no row', !db.prepare('SELECT 1 FROM reg_staff WHERE id=?').get(sid));
+check('deleted desk: check-in keeps the name', db.prepare("SELECT staff FROM reg_checkin WHERE staff='王凯'").get());
+d = await call('POST', '/admin/reg/staff/reset', { id: sid }, ADMIN); check('deleted desk cannot be brought back', d._s === 404);
 d = await call('POST', '/admin/reg/staff', { name: '主办' }, ADMIN); check('desk cannot take the organizer name', d._s === 409 && d.error === 'name_reserved');
-d = await call('GET', '/reg/door/me', null, phone2); check('deleted helper locked out', d._s === 401);
+d = await call('GET', '/reg/door/me', null, phone2); check('deleted desk signed out, told why', d._s === 401 && d.why === 'deleted', d);
 // modify after confirm: +¥50 once
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'modify', data: form({ people: [person({ pkg: 'pass', items: ['tour'] })] }) }, ADMIN);
 check('modify adds ¥50 fee', d.ok && d.amount === 700 + 450 + 50, d);
@@ -242,7 +260,9 @@ check('QR hidden without key', q2.status === 404);
 // --- five roles (docs/tangopass.md, first section): can / cannot, appointments, simultaneous work ---
 { const EV = R.EVENTS.bstw2027, seat = EV.chief, U = 'https://api.tangoweekend.org/social';
   const raw = (path, tok) => social(new Request(U + path, { headers: { Authorization: 'Bearer ' + tok } }), env, new URL(U + path), json);
-  const post = (path, body, tok) => call('POST', '/admin/reg' + path, body, tok);
+  // the password goes along wherever the rules ask for it again (任免, a 总管's refund and export)
+  const post = (path, body, tok) => call('POST', '/admin/reg' + path, PIN.has(tok) && body && body.pin === undefined ? { ...body, pin: PIN.get(tok) } : body, tok);
+  const rawPost = (path, body, tok) => social(new Request(U + path, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(PIN.has(tok) ? { ...body, pin: PIN.get(tok) } : body) }), env, new URL(U + path), json);
   let d = await post('/admins', { name: 'Seat', role: 'chief' }, ADMIN);
   check('BSTW: the chief seat is taken by the platform admin', d._s === 409 && d.error === 'chief_taken', d);
   d = await call('GET', '/admin/reg/me', null, ADMIN);
@@ -250,16 +270,15 @@ check('QR hidden without key', q2.status === 404);
   delete EV.chief;   // from here: an event whose organizer delegated the chief
 
   let n = 0;
-  const wipe = () => { db.exec("DELETE FROM reg_admin WHERE name LIKE 'T-%'"); db.exec("DELETE FROM reg_staff WHERE name LIKE 'T-%'"); };
+  const wipe = () => { db.exec("DELETE FROM reg_admin WHERE name LIKE 'T-%'"); db.exec("DELETE FROM reg_staff WHERE name LIKE 'T-%'"); };   // their reg_device rows stay: ended or orphaned, like the real thing after a delete
   const person_ = (role, event = 'bstw2027') => { n++;
     const name = 'T-' + role + n;
     if (role === 'owner') return { tok: ADMIN, role, name: '张孝' };
-    if (role === 'desk') { const key = crypto.randomBytes(32).toString('hex');
-      const r = db.prepare("INSERT INTO reg_staff(event,name,device_hash,created_at,activated_at) VALUES(?,?,?,'2026-11-01','2026-11-01')").run(event, name, sha(key));
-      return { tok: 'staff:' + key, id: Number(r.lastInsertRowid), role, name }; }
-    const key = crypto.randomBytes(20).toString('hex');
-    const r = db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES(?,?,?,?,'2026-11-01')").run(event, name, sha(key), role);
-    return { tok: key, id: Number(r.lastInsertRowid), role, name }; };
+    if (role === 'desk') {
+      const r = db.prepare("INSERT INTO reg_staff(event,name,created_at) VALUES(?,?,'2026-11-01')").run(event, name), id = Number(r.lastInsertRowid);
+      return { tok: phoneFor('staff', id, event), id, role, name }; }
+    const r = db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES(?,?,'-',?,'2026-11-01')").run(event, name, role), id = Number(r.lastInsertRowid);
+    return { tok: phoneFor('admin', id, event), id, role, name }; };
   const codes = [];
   const seed = async (status, o = {}) => { n++;
     const code = 'BJ27-' + (7000 + n), amount = o.amount || 1000;
@@ -305,10 +324,13 @@ check('QR hidden without key', q2.status === 404);
     check(role + ': list', res.status === (role === 'desk' ? 401 : 200) && text.includes('"rows"') === may('list'), res.status);
     check(role + ': emails, notes, full ledger', text.includes('@example.com') === may('list') && text.includes('PRIVATE') === may('list') && text.includes('"ledger"') === may('list'));
     check(role + ': passport names are not even sent', text.includes('SECRETSURNAME') === may('passport') && text.includes('SECRETGIVEN') === may('passport'));
-    check(role + ': no password hashes sent', !text.includes('pass_hash') && !text.includes('device_hash'));
-    for (const path of ['/admin/reg?format=csv', '/admin/reg/payments']) {
+    check(role + ': no hashes sent', !/pass_hash|device_hash|link_hash|pin_hash|pin_salt|token_hash/.test(text));
+    for (const what of ['regs', 'payments']) {
+      const r = await rawPost('/admin/reg/export', { what }, t);
+      check(`${role}: export ${what}`, r.status === (may('export') ? 200 : no) && (!may('export') || (await r.text()).includes(what === 'regs' ? 'passport_surname' : 'recorded_by')), r.status); }
+    if (role !== 'owner') for (const path of ['/admin/reg?format=csv', '/admin/reg/payments']) {
       const r = await raw(path, t);
-      check(`${role}: export ${path}`, r.status === (may('export') ? 200 : no), r.status); }
+      check(`${role}: no export without the password again ${path}`, r.status === (may('export') ? 401 : no), r.status); }
     expect('change the payment QR', await post('/asset', { name: 'test-qr', mime: 'image/png', b64: 'AA' }, t), 'asset');
   }
   db.exec("DELETE FROM reg_asset WHERE name='test-qr'");
@@ -317,7 +339,7 @@ check('QR hidden without key', q2.status === 404);
   const RK = { desk: 0, manager: 1, deputy: 2, chief: 3, owner: 4 }, ROLES5 = Object.keys(RK);
   for (const actor of ROLES5) for (const target of ['chief', 'deputy', 'manager', 'desk']) {
     const ok = (...roles) => RK[actor] >= 2 && roles.every(r => RK[actor] > RK[r]), no = actor === 'desk' ? 401 : 403;
-    const ops = target === 'desk' ? ['add', 'reissue', 'delete'] : ['add', 'reset', 'delete', 'to:chief', 'to:deputy', 'to:manager'];
+    const ops = target === 'desk' ? ['add', 'reset', 'delete'] : ['add', 'reset', 'delete', 'to:chief', 'to:deputy', 'to:manager'];
     for (const op of ops) {
       wipe();
       const who = person_(actor), it = op === 'add' ? null : person_(target);
@@ -328,11 +350,12 @@ check('QR hidden without key', q2.status === 404);
         res = await post('/admins/role', { id: it.id, role }, who.tok);
         if (want) check(`demoting a deputy reminds (${actor})`, !!res.check === (target === 'deputy' && role === 'manager'), res);
         if (target !== role) check(`${actor} ${op} from ${target}: stored`, (db.prepare('SELECT perms FROM reg_admin WHERE id=?').get(it.id).perms === role) === want, res);
+        if (want && target !== role) check(`${actor} ${op} from ${target}: that person's phones are out`, (await call('GET', '/reg/door/me', null, it.tok)).why === 'role');
       } else { want = ok(target);
         res = await post((target === 'desk' ? '/staff/' : '/admins/') + op, { id: it.id }, who.tok);
         if (op === 'delete') {
           check(`${actor} delete ${target}: row gone only if allowed`, !db.prepare(`SELECT 1 FROM ${target === 'desk' ? 'reg_staff' : 'reg_admin'} WHERE id=?`).get(it.id) === want, res);
-          if (want) { check(`deleted ${target} stops at once`, (await call('GET', '/reg/door/me', null, it.tok))._s === 401);
+          if (want) { check(`deleted ${target} stops at once`, (await call('GET', '/reg/door/me', null, it.tok)).why === 'deleted');
             check(`deleting reminds only for a deputy (${target})`, !!res.check === (target === 'deputy'), res); } }
       }
       check(`appoint: ${actor} ${op} ${target}`, res._s === (want ? 200 : no), res);
@@ -353,15 +376,17 @@ check('QR hidden without key', q2.status === 404);
   // passwords, names, limits
   wipe();
   const made = await post('/admins', { name: 'T-made', role: 'manager' }, ADMIN);
-  check('password shown once, forty characters', /^[0-9a-f]{40}$/.test(made.password), made);
+  check('personal link and a temporary password, shown once', keyOf(made.link) && /^\d{6}$/.test(made.pin) && !('password' in made), made);
+  const madeTok = await signIn(made);
   d = await post('/admins/reset', { id: made.id }, ADMIN);
-  check('old password stops after reset', (await call('GET', '/admin/reg/me', null, made.password))._s === 401);
-  check('new password works', (await call('GET', '/admin/reg/me', null, d.password)).name === 'T-made');
+  check('after a reset the phone is out', (await call('GET', '/admin/reg/me', null, madeTok)).why === 'reset');
+  check('after a reset the old link is dead', (await call('POST', '/reg/login/hello', { key: keyOf(made.link) }))._s === 404);
+  check('the new link works', (await call('GET', '/admin/reg/me', null, await signIn(d))).name === 'T-made');
   check('a desk cannot take a working manager\'s name', (await post('/staff', { name: 'T-made' }, ADMIN)).error === 'name_taken');
   check('platform admin name is reserved', (await post('/admins', { name: '张孝' }, ADMIN)).error === 'name_reserved');
   check('unknown role refused', (await post('/admins', { name: 'T-x', role: 'owner' }, ADMIN))._s === 400);
-  db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027','T-old',?,'review,export,cancel','2026-11-01')").run(sha('d'.repeat(40)));
-  d = await call('GET', '/admin/reg/me', null, 'd'.repeat(40));
+  const old = Number(db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027','T-old','-','review,export,cancel','2026-11-01')").run().lastInsertRowid);
+  d = await call('GET', '/admin/reg/me', null, phoneFor('admin', old, 'bstw2027'));
   check('someone from before the rules is a site manager', d.role === 'manager' && d.perms.join() === 'door,undo,collect' && !d.appoint.length, d);
   const deputies = () => db.prepare("SELECT COUNT(*) c FROM reg_admin WHERE perms='deputy' AND name LIKE 'T-%' AND event='bstw2027'").get().c;
   wipe();
@@ -384,8 +409,8 @@ check('QR hidden without key', q2.status === 404);
     const mv = list.admins.find(a => a.id === m.id).v, kv = list.staff.find(a => a.id === k.id).v;
     check('reset from the screen that is current', (await post('/admins/reset', { id: m.id, v: mv }, ADMIN)).ok);
     check('reset from an older screen loses', (await post('/admins/reset', { id: m.id, v: mv }, ADMIN)).error === 'changed');
-    check('reissue from the screen that is current', (await post('/staff/reissue', { id: k.id, v: kv }, ADMIN)).ok);
-    check('reissue from an older screen loses', (await post('/staff/reissue', { id: k.id, v: kv }, ADMIN)).error === 'changed'); }
+    check('desk reset from the screen that is current', (await post('/staff/reset', { id: k.id, v: kv }, ADMIN)).ok);
+    check('desk reset from an older screen loses', (await post('/staff/reset', { id: k.id, v: kv }, ADMIN)).error === 'changed'); }
   // 4. a site manager: only the scanned one, only own account
   wipe();
   const mg = person_('manager'), mg2 = person_('manager'), c1 = await seed('cash', { paid: 250 }), c2 = await seed('cash'), cf = await seed('confirmed');
@@ -471,7 +496,7 @@ check('QR hidden without key', q2.status === 404);
   check('history: undo with the name', row(ci.id).undos[0].by === un.name && row(ci.id).undos[0].item === 'M3', row(ci.id).undos);
   check('history: lines from before still read', row(st.id).log.some(l => l.by === 'Old Name') && row(st.id).undos.some(u => u.by === 'Old Undo'), row(st.id).log);
   check('history: money has who recorded it', row(rf.id).payments.filter(p => p.amount < 0).every(p => p.by_admin === boss.name && p.at));
-  const c = await raw('/admin/reg/payments', boss.tok);
+  const c = await rawPost('/admin/reg/export', { what: 'payments' }, boss.tok);
   check('ledger CSV has the recorder', (await c.text()).includes(boss.name));
 
   wipe();
@@ -593,16 +618,15 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const me = await call('GET', '/reg/me?event=bstw2027', null, arr);
   check('arrival: page gets lang, people and rest', me.reg.lang === 'ko' && me.reg.people === 2 && me.reg.rest === 2000 && me.reg.passes.length === 2, me);
   const [p1, p2] = me.reg.passes.map(x => encodeURIComponent(x.pass));
-  const desk = await call('POST', '/admin/reg/staff', { name: 'Desk' }, ADMIN);
-  const dt = (await call('POST', '/reg/door/activate', { act: desk.link.match(/act=([0-9a-f]{48})/)[1] })).token;
+  const dt = await signIn(await call('POST', '/admin/reg/staff', { name: 'Desk' }, ADMIN));
   a = await call('GET', '/reg/door/pass?p=' + p1, null, dt);
   check('front desk: pay first, no amount, no note', a.pay_first === true && !a.collect && !a.cash_due && a.note === '' && !JSON.stringify(a).includes('2000') && a.lang === 'ko', a);
   a = await call('POST', '/reg/door/checkin', { p: me.reg.passes[0].pass, item: 'M1' }, dt);
   check('cannot check in before paying', a._s === 409 && a.error === 'pay_first', a);
   a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { method: 'alipay' } }, dt);
   check('front desk cannot collect', a._s === 401 || a._s === 403, a);
-  const rev = await call('POST', '/admin/reg/admins', { name: 'Reviewer', role: 'deputy' }, ADMIN), col = await call('POST', '/admin/reg/admins', { name: 'Collector', perms: ['collect'] }, ADMIN);
-  const pw = x => x.password || x.pass || x.token;
+  const rev = await signIn(await call('POST', '/admin/reg/admins', { name: 'Reviewer', role: 'deputy' }, ADMIN)), col = await signIn(await call('POST', '/admin/reg/admins', { name: 'Collector', perms: ['collect'] }, ADMIN));
+  const pw = x => x;
   a = await call('GET', '/reg/door/pass?p=' + p1, null, pw(rev));
   check('deputy: rest and what was paid before', a.pay_first && a.collect.rest === 2000 && a.collect.paid === 900, a);
   a = await call('GET', '/reg/door/pass?p=' + p2, null, pw(col));
@@ -632,8 +656,8 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   await undo(pw(rev));
   a = (await call('GET', '/admin/reg', null, ADMIN)).rows.find(r => r.id === aid);
   check('undo keeps who did it, once', a.undos.length === 1 && a.undos[0].by === 'Reviewer' && a.undos[0].item === 'M1' && a.undos[0].person === 0 && a.undos[0].at, a.undos);
-  db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('other2027','Other',?,'collect','2026-12-01')").run(sha('b'.repeat(40)));
-  a = await call('GET', '/reg/door/pass?p=' + p1, null, 'b'.repeat(40));
+  const oth = Number(db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('other2027','Other','-','collect','2026-12-01')").run().lastInsertRowid);
+  a = await call('GET', '/reg/door/pass?p=' + p1, null, phoneFor('admin', oth, 'other2027'));
   check('manager of another event cannot read the pass', a._s === 404, a); }
 // CSV: no formulas from typed text, Beijing time
 { db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at) VALUES('bstw2027','BJ27-8960','csv@x.com','en','pending',1,?,0,'2026-12-01T17:30:00.000Z','2026-12-01')")
@@ -643,6 +667,138 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const line = t.split('\n').find(l => l.startsWith('BJ27-8960'));
   check('csv: formulas neutralised', line.includes("'=1+1") && line.includes("'@x") && line.includes("'+86 123"), line);
   check('csv: Beijing time', line.includes('2026-12-02 01:30'), line); }
+// --- sign-in (TP step 2, docs/tangopass.md 2026-11-23): link + six digits, lock, stop, phones, password again ---
+{ const Real = globalThis.Date;
+  const at = iso => { const now = Real.parse(iso); globalThis.Date = class extends Real { constructor(...a) { super(...(a.length ? a : [now])); } static now() { return now; } }; };
+  const back = () => { globalThis.Date = Real; };
+  const L = (path, body, tok) => call('POST', '/reg/login' + path, body, tok);
+  const me = tok => call('GET', '/admin/reg/me?event=bstw2027', null, tok);
+  const T0 = '2027-06-19T01:00:00.000Z';   // 09:00 Beijing
+  at(T0);
+  // made: link + temporary password; the QR is the link and holds no password
+  const m = await call('POST', '/admin/reg/admins', { name: 'L-mgr', role: 'manager' }, ADMIN), key = keyOf(m.link);
+  check('login: link holds no password', key && !m.link.includes(m.pin) && m.link.startsWith('https://tangoweekend.org/event/beijing-2027-tango-weekend/register/in/#'), m);
+  let d = await L('/hello', { key });
+  check('login: opening the link says whose it is, and nothing else', d.ok && d.name === 'L-mgr' && d.role === 'manager' && d.state === 'new' && d.devices === 1 && Object.keys(d).sort().join() === '_s,devices,event,event_name,name,ok,role,state', d);
+  check('login: unknown link', (await L('/hello', { key: 'a'.repeat(48) }))._s === 404 && (await L('/hello', { key: 'x' }))._s === 404);
+  const row = () => db.prepare("SELECT * FROM reg_admin WHERE name='L-mgr'").get();
+  check('login: the digits are never stored', !JSON.stringify(row()).includes(m.pin) && row().pin_hash !== sha(m.pin) && row().pin_hash === pinH(row().pin_salt, m.pin));
+  // first sign-in: the temporary one must be changed, and not to something simple
+  d = await L('', { key, pin: m.pin }); check('login: temporary password asks for a new one', d.need_new && !d.token, d);
+  for (const [bad, why] of [['111111', 'same'], ['123456', 'run'], ['654321', 'run'], ['012345', 'run'], ['121212', 'repeat'], ['123123', 'repeat'], ['112233', 'repeat'], ['520520', 'repeat'], ['520131', 'common'], ['147258', 'common'], ['159753', 'common'], [m.pin, 'temp'], ['12345', 'format'], ['12a456', 'format']]) {
+    d = await L('', { key, pin: m.pin, new_pin: bad }); check('login: too simple ' + bad, d._s === 400 && d.error === 'too_simple' && d.why === why, d); }
+  check('login: refusing a simple one costs no try', row().fails === 0);
+  check('login: a birthday is allowed', !R.pinWeak('19880412'.slice(2)) && !R.pinWeak('041288'));
+  d = await L('', { key, pin: m.pin, new_pin: '730195' }); const ph1 = d.token;
+  check('login: in, to the right page', d.ok && /^dev:[0-9a-f]{64}$/.test(ph1) && d.home === 'admin' && d.role === 'manager', d);
+  check('login: the temporary one is spent', (await L('', { key, pin: m.pin }))._s === 401 && row().fails === 1);
+  check('login: the link opens again', (await L('/hello', { key })).state === 'ok');
+  d = await L('', { key, pin: '730195' }); check('login: the right one resets the count', d.ok && row().fails === 0, d);
+  const ph2 = d.token;
+  // one phone for a 现场经理: the earlier one is out and told why
+  d = await me(ph1); check('phones: over the limit, the first is out', d._s === 401 && d.error === 'signed_out' && d.why === 'replaced' && d.at, d);
+  check('phones: the newer one works', (await me(ph2)).name === 'L-mgr');
+  // five wrong: 15 minutes; the right one does not help while locked
+  for (let i = 1; i <= 4; i++) { d = await L('', { key, pin: '000001' }); check('lock: wrong ' + i + ' says how many are left', d._s === 401 && d.error === 'wrong_pin' && d.left === 5 - i && d.then === 'lock', d); }
+  d = await L('', { key, pin: '000001' }); check('lock: the fifth locks 15 minutes', d._s === 423 && d.error === 'locked' && Real.parse(d.until) - Real.parse(T0) === 15 * 60e3, d);
+  d = await L('', { key, pin: '730195' }); check('lock: right while locked is still refused', d._s === 423, d);
+  check('lock: hello says locked', (await L('/hello', { key })).state === 'locked');
+  check('lock: a phone already in goes on working', (await me(ph2)).name === 'L-mgr');
+  at('2027-06-19T01:15:01.000Z');
+  // after the lock, wrong goes on counting to ten: stopped, every phone out, only a reset brings back
+  for (let i = 6; i <= 9; i++) { d = await L('', { key, pin: '000002' }); check('stop: wrong ' + i, d.error === 'wrong_pin' && d.left === 10 - i && d.then === 'stop', d); }
+  d = await L('', { key, pin: '000002' }); check('stop: the tenth stops', d._s === 403 && d.error === 'stopped', d);
+  check('stop: the right one no longer works', (await L('', { key, pin: '730195' }))._s === 403);
+  check('stop: phones out, told why', (await me(ph2)).why === 'stopped');
+  let list = (await call('GET', '/admin/reg?event=bstw2027', null, ADMIN)).admins.find(a => a.name === 'L-mgr');
+  check('stop: settings show it', list.login.state === 'stopped', list.login);
+  const r1 = await call('POST', '/admin/reg/admins/reset', { id: m.id }, ADMIN);
+  check('stop: reset lifts it with a new link', r1.ok && (await L('/hello', { key: keyOf(r1.link) })).state === 'new' && (await L('/hello', { key }))._s === 404);
+  const ph3 = await signIn(r1, '730195'); check('stop: in again after reset', (await me(ph3)).name === 'L-mgr');
+  // tries sent together cannot get round the lock
+  readLag = 15;
+  let many = await Promise.all(Array.from({ length: 20 }, () => L('', { key: keyOf(r1.link), pin: '000003' })));
+  readLag = 0;
+  check('lock: twenty at once → at most five tried', many.filter(x => x.error === 'wrong_pin').length + many.filter(x => x._s === 423 && x.error === 'locked').length === 20 && many.filter(x => x.error === 'wrong_pin').length <= 5 && row().fails === 5, [row().fails, many.map(x => x.error).join()]);
+  at('2027-06-19T01:31:00.000Z');
+  check('lock: over after 15 minutes', (await L('', { key: keyOf(r1.link), pin: '730195' })).ok && row().fails === 0);
+  // 现场经理 types it again once a day; the day changes at 06:00 Beijing
+  const mk = async (name, role, iso) => { at(iso); const x = await call('POST', '/admin/reg/admins', { name, role }, ADMIN); return { ...x, tok: await signIn(x) }; };
+  const mg = await mk('L-day', 'manager', '2027-06-18T23:00:00.000Z');   // 07:00 Beijing
+  at('2027-06-19T18:30:00.000Z'); check('daily: past midnight the night goes on', (await me(mg.tok)).name === 'L-day');
+  at('2027-06-19T21:59:00.000Z'); check('daily: still before 06:00', (await me(mg.tok)).name === 'L-day');
+  at('2027-06-19T22:00:00.000Z'); d = await me(mg.tok); check('daily: from 06:00 the password again', d._s === 401 && d.error === 'reauth', d);
+  check('daily: nothing works until then', (await call('GET', '/reg/door/pass?p=x', null, mg.tok)).error === 'reauth');
+  d = await L('/again', { pin: '999999' }, mg.tok); check('again: wrong counts', d.error === 'wrong_pin' && d.left === 4, d);
+  d = await L('/again', { pin: '730195' }, mg.tok); check('again: right, and on', d.ok && (await me(mg.tok)).name === 'L-day', d);
+  const mg2 = await mk('L-dawn', 'manager', '2027-06-19T21:00:00.000Z');   // 05:00 Beijing: that day ends at 06:00
+  at('2027-06-19T22:01:00.000Z'); check('daily: signed in at 05:00, again at 06:01', (await me(mg2.tok)).error === 'reauth');
+  // 总管、副总管: every 12 hours; two phones, the third pushes out the first
+  const dp = await mk('L-dep', 'deputy', '2027-06-19T00:00:00.000Z');
+  const dp2 = await L('', { key: keyOf(dp.link), pin: '730195' }), dp3 = await L('', { key: keyOf(dp.link), pin: '730195' });
+  check('phones: a 副总管 has two', (await me(dp.tok)).why === 'replaced' && (await me(dp2.token)).name === 'L-dep' && (await me(dp3.token)).name === 'L-dep');
+  at('2027-06-19T11:59:00.000Z'); check('12 h: not yet', (await me(dp2.token)).name === 'L-dep');
+  at('2027-06-19T12:01:00.000Z'); check('12 h: due', (await me(dp2.token)).error === 'reauth');
+  check('12 h: per phone', (await L('/again', { pin: '730195' }, dp2.token)).ok && (await me(dp2.token)).name === 'L-dep' && (await me(dp3.token)).error === 'reauth');
+  // 任免: the password again in the same request
+  d = await call('POST', '/admin/reg/staff', { name: 'L-desk' }, dp2.token); check('appoint: without the password again', d._s === 401 && d.error === 'pin_needed', d);
+  d = await call('POST', '/admin/reg/staff', { name: 'L-desk', pin: '111112' }, dp2.token); check('appoint: wrong password counts', d.error === 'wrong_pin' && d.left === 4, d);
+  d = await call('POST', '/admin/reg/staff', { name: 'L-desk', pin: '730195' }, dp2.token); check('appoint: with it', d.ok && keyOf(d.link), d);
+  const desk = d;
+  // 前台: once, then until the event's end; one phone
+  at('2027-06-19T12:05:00.000Z'); const dk = await signIn(desk, '730195');
+  at('2027-06-22T21:59:00.000Z'); check('desk: no password again for days', (await call('GET', '/reg/door/me', null, dk)).name === 'L-desk');
+  at('2027-06-22T22:00:00.000Z'); d = await call('GET', '/reg/door/me', null, dk); check('desk: out when the event ends (06-23 06:00 Beijing)', d.why === 'ended', d);
+  check('desk: no sign-in after the end', (await L('', { key: keyOf(desk.link), pin: '730195' })).error === 'ended' && (await L('/hello', { key: keyOf(desk.link) })).state === 'ended');
+  at('2027-06-19T12:10:00.000Z');
+  const dkb = await L('', { key: keyOf(desk.link), pin: '730195' });
+  check('desk: one phone', (await call('GET', '/reg/door/me', null, dk)).why === 'replaced' && (await call('GET', '/reg/door/me', null, dkb.token)).name === 'L-desk');
+  // a 总管's refund and export take it again; the platform admin does not
+  const ch = R.EVENTS.bstw2027.chief; delete R.EVENTS.bstw2027.chief;
+  const cf = await mk('L-chief', 'chief', '2027-06-19T12:10:00.000Z');
+  const rid = Number(db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,refund,created_at,updated_at) VALUES('bstw2027','BJ27-8970','rf@example.com','cancelled',1,'{\"people\":[],\"rooms\":[],\"passports\":[]}',1000,950,'2026-12-01','2026-12-01')").run().lastInsertRowid);
+  db.prepare("INSERT INTO reg_payment(reg_id,at,amount,method,collector,by_admin) VALUES(?,'2026-12-01',1000,'alipay','x','x')").run(rid);
+  d = await call('POST', '/admin/reg/act', { id: rid, action: 'refund', pay: { amount: 100 } }, cf.tok); check('chief refund: password needed', d.error === 'pin_needed', d);
+  d = await call('POST', '/admin/reg/act', { id: rid, action: 'refund', pay: { amount: 100 }, pin: '730195' }, cf.tok); check('chief refund: with it', d.ok, d);
+  d = await call('POST', '/admin/reg/export', { what: 'regs' }, cf.tok); check('chief export: password needed', d.error === 'pin_needed', d);
+  d = await call('POST', '/admin/reg/act', { id: rid, action: 'refund', pay: { amount: 100 } }, ADMIN); check('platform admin: no password again', d.ok, d);
+  R.EVENTS.bstw2027.chief = ch;
+  // sign out; role change; delete
+  check('logout: this phone only', (await L('/out', {}, dp2.token)).ok && (await me(dp2.token)).why === 'logout' && (await L('/again', { pin: '730195' }, dp3.token)).ok && (await me(dp3.token)).name === 'L-dep');
+  d = await call('POST', '/admin/reg/admins/role', { id: dp.id, role: 'manager' }, ADMIN); check('role change: every phone out', d.ok && d.check && (await me(dp3.token)).why === 'role', d);
+  d = await call('POST', '/admin/reg/admins/delete', { id: mg.id }, ADMIN); check('delete: out', d.ok && (await me(mg.tok)).why === 'deleted' && (await L('/hello', { key: keyOf(mg.link) }))._s === 404);
+  // settings show the sign-in state, no hashes
+  list = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN);
+  const st = n => (list.admins.find(a => a.name === n) || list.staff.find(a => a.name === n)).login;
+  check('settings: states', st('L-dep').state === 'off' && st('L-dep').devices === 0 && st('L-dawn').state === 'on' && st('L-dawn').devices === 1 && st('L-dawn').max === 1 && st('L-desk').state === 'on' && st('L-desk').max === 1, [st('L-dep'), st('L-dawn'), st('L-desk')]);
+  check('settings: no hashes or keys', !/link_hash|pin_hash|pin_salt|token_hash|730195/.test(JSON.stringify(list)));
+  // two phones signing in at once still keep the limit
+  readLag = 10;
+  many = await Promise.all([1, 2, 3, 4].map(() => L('', { key: keyOf(mg2.link), pin: '730195' })));
+  readLag = 0;
+  check('phones: four at once → one left', many.every(x => x.ok) && db.prepare("SELECT COUNT(*) c FROM reg_device WHERE kind='admin' AND person=? AND ended_at IS NULL").get(mg2.id).c === 1, many.map(x => x.error || 'ok'));
+  // the old ways are gone
+  check('old: 40-character passwords refused', (await me('d'.repeat(40)))._s === 401);
+  check('old: the platform admin long password works', (await me(ADMIN)).role === 'owner');
+  check('not ready without the secret', (await social(new Request('https://api.tangoweekend.org/social/reg/login/hello', { method: 'POST', body: '{}', headers: { 'Content-Type': 'application/json' } }), { ...env, REG_PIN_PEPPER: '' }, new URL('https://api.tangoweekend.org/social/reg/login/hello'), json)).status === 503);
+  back();
+  db.exec("DELETE FROM reg_admin WHERE name LIKE 'L-%'"); db.exec("DELETE FROM reg_staff WHERE name LIKE 'L-%'");
+  for (const t of ['reg_payment', 'reg_log']) db.prepare(`DELETE FROM ${t} WHERE reg_id=?`).run(rid);
+  db.prepare('DELETE FROM reg WHERE id=?').run(rid); }
+// the switch-over: old passwords and desk links are cleared, nothing else
+{ const old = new DatabaseSync(':memory:');
+  for (const f of ['0020_registrations.sql', '0021_reg_checkin.sql', '0022_reg_admins_ledger.sql', '0023_rename_bstw2027.sql']) old.exec(fs.readFileSync(path.join(root, 'social-worker/migrations', f), 'utf8'));
+  old.exec("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027','Jing','" + sha('e'.repeat(40)) + "','collect','2026-11-23'); INSERT INTO reg_staff(event,name,act_hash,device_hash,created_at,activated_at) VALUES('bstw2027','AAA','x','" + sha('f'.repeat(64)) + "','2026-11-22','2026-11-22'); INSERT INTO reg_staff(event,name,created_at,disabled_at) VALUES('bstw2027','KAI','2026-11-20','2026-11-21');");
+  old.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0024_reg_login.sql'), 'utf8'));
+  const a = old.prepare('SELECT * FROM reg_admin').get(), s = old.prepare("SELECT * FROM reg_staff WHERE name='AAA'").get();
+  check('switch-over: old password cleared, the person stays', a.name === 'Jing' && a.perms === 'collect' && a.pass_hash === '-' && a.link_hash === null && a.fails === 0);
+  check('switch-over: old desk link and phone cleared', s.act_hash === null && s.device_hash === null && s.name === 'AAA');
+  check('switch-over: a stopped one stays as it was', old.prepare("SELECT disabled_at FROM reg_staff WHERE name='KAI'").get().disabled_at === '2026-11-21');
+  const oenv = { ...env, SDB: D1(old), DB: D1(old) };
+  const l = await social(new Request('https://api.tangoweekend.org/social/admin/reg?event=bstw2027', { headers: { Authorization: 'Bearer ' + ADMIN } }), oenv, new URL('https://api.tangoweekend.org/social/admin/reg?event=bstw2027'), json).then(r => r.json());
+  check('switch-over: settings say who needs a reset', l.admins[0].login.state === 'none' && l.staff.find(x => x.name === 'AAA').login.state === 'none', [l.admins, l.staff]);
+  const r = await social(new Request('https://api.tangoweekend.org/social/admin/reg/admins/reset', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + ADMIN }, body: JSON.stringify({ event: 'bstw2027', id: a.id, v: l.admins[0].v }) }), oenv, new URL('https://api.tangoweekend.org/social/admin/reg/admins/reset'), json).then(r => r.json());
+  check('switch-over: one reset and she has a link', r.ok && keyOf(r.link) && /^\d{6}$/.test(r.pin), r); }
 // cron before migration is quiet
 const bare = new DatabaseSync(':memory:'); const rr2 = await regCron({ ...env, SDB: D1(bare) }); check('cron quiet before migration', rr2.sent === 0);
 
