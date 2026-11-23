@@ -14,7 +14,7 @@
     paid: '✓ 北京精选探戈周末：已收到报名 C 的付款，入场二维码在这里', cash: '北京精选探戈周末：报名 C 请到场付款 A，入场二维码在这里',
     waitlist: '北京精选探戈周末：报名 C 目前在候补名单上', declined: '北京精选探戈周末：报名 C 的审核结果',
     go: '查看', close: '关闭', payH: '💳 你的付款码已准备好', soonH: '⏰ 付款期限快到了', waitH: '🎉 报名已确认', passH: '🎫 你的入场码已准备好',
-    ev: '北京精选探戈周末', payL: '请在 D 前付款 A', waitL: '付款码稍后提供', paidL: '已收到付款，建议先截图保存', cashL: '到场请先出示二维码给活动经理，付款 A',
+    ev: '北京精选探戈周末', payL: '请在 D 前付款 A', waitL: '付款码稍后提供', paidL: '已收到付款，建议先截图保存', cashL: '到场请先出示二维码给现场经理，付款 A',
     payB: '查看付款码', passB: '查看入场码', mini: '💳 待付款 A · D 前', miniB: '付款码' } : {
     confirmed: '🎉 Beijing Select Tango Weekend: registration C is confirmed. Please pay A by D', soon: '⏰ Beijing Select Tango Weekend: payment for C (A) is due D',
     paid: '✓ Beijing Select Tango Weekend: payment for C received. Your entry QR codes are here', cash: 'Beijing Select Tango Weekend: C, pay A when you arrive. Entry QR codes here',
@@ -81,7 +81,7 @@
   }
   var lock = null;
   // Words under the QR: always Chinese, plus the language chosen when registering.
-  var CAP = {"zh": {"pass": "入场码：请出示给前台，每人一个", "cash": "到场付款：请出示此二维码给活动经理，付款后才能入场"}, "en": {"pass": "Entry code: show it at the front desk, one per person", "cash": "Pay on arrival: show this QR code to an event manager. Entry is possible after payment"}, "ko": {"pass": "입장 코드: 안내 데스크에 보여 주세요. 1인당 하나입니다", "cash": "현장 결제: 이 QR 코드를 행사 매니저에게 보여 주세요. 결제 후 입장할 수 있습니다"}, "es": {"pass": "Código de entrada: muéstralo en recepción, uno por persona", "cash": "Pago al llegar: muestra este código QR al responsable del evento. Podrás entrar después de pagar"}, "ru": {"pass": "Входной код: покажите на стойке, один на человека", "cash": "Оплата на месте: покажите этот QR-код менеджеру мероприятия. Вход возможен после оплаты"}};
+  var CAP = {"zh": {"pass": "入场码：请出示给前台，每人一个", "cash": "到场付款：请出示此二维码给现场经理，付款后才能入场"}, "en": {"pass": "Entry code: show it at the front desk, one per person", "cash": "Pay on arrival: show this QR code to an event manager. Entry is possible after payment"}, "ko": {"pass": "입장 코드: 안내 데스크에 보여 주세요. 1인당 하나입니다", "cash": "현장 결제: 이 QR 코드를 행사 매니저에게 보여 주세요. 결제 후 입장할 수 있습니다"}, "es": {"pass": "Código de entrada: muéstralo en recepción, uno por persona", "cash": "Pago al llegar: muestra este código QR al responsable del evento. Podrás entrar después de pagar"}, "ru": {"pass": "Входной код: покажите на стойке, один на человека", "cash": "Оплата на месте: покажите этот QR-код менеджеру мероприятия. Вход возможен после оплаты"}};
   // Event schedule (Beijing time). One pass covers every event the person chose; the door picks the event.
   var SCHED = { MV: ['2027-06-18', '20:00', '周五 欢迎舞会', 'Fri Welcome Milonga'], T1: ['2027-06-18', '09:00', '周五 一日游', 'Fri Day Tour'],
     M1: ['2027-06-19', '14:00', '周六 下午场', 'Sat afternoon milonga'], M2: ['2027-06-19', '20:00', '周六 晚场', 'Sat night milonga'],

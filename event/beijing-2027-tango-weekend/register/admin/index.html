@@ -72,8 +72,15 @@ tr.sel{background:#fff4d6}
 .form input,.form select{width:100%}
 .item{border-bottom:1px solid var(--line);padding:10px 0}
 .item .h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
-.perms{display:flex;gap:4px 10px;flex-wrap:wrap}
-.perms label{white-space:nowrap}
+.remind{border:2px solid #b3131b;border-radius:10px;padding:10px;margin:10px 0}
+.team{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start;margin-bottom:14px}
+.team .card{margin:0;min-width:0}
+.team h2 em{float:right;font-style:normal;color:var(--ink)}
+.team .bar input{flex:1;min-width:0}
+.team .item .h b{overflow-wrap:anywhere}
+.why{background:#fff0bd;border-radius:8px;padding:6px 8px;font-size:13px;margin:0 0 8px}
+@media(min-width:700px){.team{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1100px){.team{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .once{background:#fff8e6;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-bottom:10px}
 .once input{width:100%;margin:6px 0}
 .once .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
@@ -81,9 +88,7 @@ tr.sel{background:#fff4d6}
 .linkqr canvas{width:220px;height:220px;background:#fff;border-radius:8px;image-rendering:pixelated}
 .linkqr div{flex:1;min-width:200px}
 a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:inherit;border-radius:8px;padding:7px 12px;text-decoration:none;white-space:nowrap}
-details.gone{margin-top:12px}
-details.gone summary{cursor:pointer;color:var(--muted)}
-#msg{position:fixed;z-index:9;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:10px;display:none;max-width:90vw}
+#msg{position:fixed;z-index:9;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:10px;display:none;width:max-content;max-width:90vw}
 @media(max-width:760px){
   header{padding:9px 12px}
   nav{padding:0}
@@ -103,9 +108,15 @@ details.gone summary{cursor:pointer;color:var(--muted)}
 <header><div><b>报名管理 · 北京精选探戈周末 2027</b> <small id="hello"></small></div>
   <div class="r" id="session" hidden><button id="refresh">刷新</button><button id="logout">退出</button></div></header>
 
+<div class="card" id="deskPhone" hidden>
+  <h2>这支手机是前台</h2>
+  <p>一支手机一种身份：前台的手机不能登入管理页。请用你自己的手机。</p>
+  <p class="muted">这支手机真的不再当前台：到签到页按「退出前台」，再回来登入。</p>
+  <a class="btn" id="deskExit" href="../checkin/">打开签到页</a>
+</div>
 <form id="login"><div class="card">
   <h2>登入</h2>
-  <label for="tok">你自己的管理密码（组织者或活动经理）</label>
+  <label for="tok">你自己的管理密码（总管、副总管或现场经理）</label>
   <input id="tok" type="password" autocomplete="current-password">
   <button class="p" id="load">登入</button>
   <p class="muted">前台不用这一页：请用专属连结打开签到页。</p>
@@ -113,6 +124,12 @@ details.gone summary{cursor:pointer;color:var(--muted)}
 
 <nav id="nav" hidden></nav>
 <main id="app" hidden>
+  <section id="v-site" hidden>
+    <div class="bar"><a class="btn" id="toDoor" href="../checkin/">打开签到页，扫码</a></div>
+    <p class="muted">扫到谁，处理谁。这里只有你自己收的账；审核、批准到场付款找副总管或总管，退款找总管。</p>
+    <div class="cards" id="siteCards"></div>
+    <table><thead><tr><th>时间</th><th>报名者</th><th>方式</th><th class="n">金额</th></tr></thead><tbody id="siteList"></tbody></table>
+  </section>
   <section id="v-todo">
     <h3>要处理</h3><div class="cards" id="todoCards"></div>
     <h3>每场剩余名额</h3><div class="cards" id="caps"></div>
@@ -159,18 +176,12 @@ details.gone summary{cursor:pointer;color:var(--muted)}
   </section>
 
   <section id="v-set" hidden>
-    <div class="card" id="adminsCard">
-      <h2>活动经理（只有组织者看得到）</h2>
-      <p class="muted">每人一个管理密码，只显示一次，请用微信私下传给对方。审核＝确认、候补、婉拒；收款＝记收款、退款、到场付款、扫码收款。</p>
-      <div class="bar"><input id="aName" placeholder="名字，例如 竟文"><span class="perms" id="aPerms"></span><button class="p" id="aAdd">新增活动经理</button></div>
-      <div class="once" id="aNew" hidden><div><b id="aNewName"></b> 的管理密码（只显示这一次）：</div><input id="aPw" readonly><button id="aCopy">复制密码</button></div>
-      <div id="adminList"></div>
-    </div>
-    <div class="card" id="staffCard">
-      <h2>前台</h2>
-      <p class="muted">每人一个专属连结，只能签到，看不到名单和金额。连结<b>只能启用一次</b>；换手机按「重发连结」。在微信里收到后，要按右上角 ··· 选「在浏览器打开」才能启用。<b>启用后的网址就是前台的工作证：转发了别人也能签到</b>，有问题就去除或重发。</p>
-      <div class="bar"><input id="sName" placeholder="名字，例如 小李"><button class="p" id="sAdd">新增前台</button></div>
-      <div class="once" id="sNew" hidden>
+    <div class="remind" id="checkNote" role="alert" hidden>
+      <b id="checkWho"></b><b>请总管现在检查现场经理和前台两栏。</b>
+      <p>这位副总管可能知道经手过的密码和连结：不认得的人就删除；需要时给现场经理「重设密码」、给前台「重发连结」。</p>
+      <button id="checkOk">检查好了</button></div>
+    <div class="once" id="aNew" hidden><div><b id="aNewName"></b> 的管理密码（只显示这一次，用微信私下传给本人，不共用、不转发）：</div><input id="aPw" readonly><button id="aCopy">复制密码</button></div>
+    <div class="once" id="sNew" hidden>
         <div class="top"><div><b id="sNewName"></b> 的前台连结已建好（只显示这一次，启用后会自动收起）</div><button id="sClose">关闭</button></div>
         <div class="linkqr" id="sQrBox"><canvas id="sQr" role="img" aria-label="前台连结二维码"></canvas>
           <div><b>人在旁边：用对方手机的相机扫这个码</b><p class="muted">会直接在浏览器里启用。用微信扫也可以，但要再按右上角 ··· →「在浏览器打开」。</p></div></div>
@@ -178,7 +189,34 @@ details.gone summary{cursor:pointer;color:var(--muted)}
         <input id="sLink" readonly>
         <div class="acts"><button class="p" id="sCopy">复制给前台的话（含连结）</button><a class="btn" id="sMail">用邮件发送</a><button id="sCopyUrl">只复制连结</button></div>
         <p class="muted" style="margin:6px 0 0">「用邮件发送」会打开你自己的邮件程序，填上对方邮箱再寄。连结只能启用一次：自己试过以后，要按「重发连结」再发给对方。</p></div>
-      <div id="staffList"></div>
+    <div class="team" id="team">
+      <div class="card" id="col-chief">
+        <h2>总管<em id="c-chief"></em></h2>
+        <p class="muted">全部权限。每场 1 位，组织者本人或其委托的人。</p>
+        <div class="bar" id="add-chief"><input id="n-chief" aria-label="总管的名字" placeholder="名字"><button class="p" data-add="chief">新增</button></div>
+        <p class="why" id="why-chief" hidden></p>
+        <div id="list-chief"></div>
+      </div>
+      <div class="card" id="col-deputy">
+        <h2>副总管<em id="c-deputy"></em></h2>
+        <p class="muted">日常工作。不能取消、退款、看护照姓名、导出。最多 3 位。</p>
+        <div class="bar" id="add-deputy"><input id="n-deputy" aria-label="副总管的名字" placeholder="名字，例如 竟文"><button class="p" data-add="deputy">新增</button></div>
+        <p class="why" id="why-deputy" hidden></p>
+        <div id="list-deputy"></div>
+      </div>
+      <div class="card" id="col-manager">
+        <h2>现场经理<em id="c-manager"></em></h2>
+        <p class="muted">扫码、撤销签到、现场收款。看不到名单，不管前台。</p>
+        <div class="bar" id="add-manager"><input id="n-manager" aria-label="现场经理的名字" placeholder="名字，例如 小王"><button class="p" data-add="manager">新增</button></div>
+        <p class="why" id="why-manager" hidden></p>
+        <div id="list-manager"></div>
+      </div>
+      <div class="card" id="col-desk">
+        <h2>前台<em id="c-desk"></em></h2>
+        <p class="muted">只签到，看不到名单和金额。每人一个连结，<b>只能启用一次</b>；换手机按「重发连结」。在微信里要按右上角 ··· 选「在浏览器打开」。<b>启用后的网址不要转发：转发了别人也能签到</b>。</p>
+        <div class="bar"><input id="sName" aria-label="前台的名字" placeholder="名字，例如 小李"><button class="p" id="sAdd">新增</button></div>
+        <div id="staffList"></div>
+      </div>
     </div>
     <div class="card" id="qr">
       <h2>收款码（报名页和确认信里会显示）</h2>
@@ -195,17 +233,21 @@ details.gone summary{cursor:pointer;color:var(--muted)}
 (function(){
 var API=(function(){try{var a=new URLSearchParams(location.search).get('api');if(a&&/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(a))return a}catch(e){}return 'https://api.tangoweekend.org'})();
 var $=function(i){return document.getElementById(i)},DATA=null,N=50;
-var S={tab:'',st:'',open:0,show:false,pg:{regs:0,ppl:0,money:0}},drafts={},TOKEN='';
+var S={tab:'',st:'',open:0,show:false,pg:{regs:0,ppl:0,money:0}},drafts={},bases={},TOKEN='';
 var NAME={MV:'周五 欢迎舞会',T1:'周五 一日游',M1:'周六 下午场',M2:'周六 晚场',M3:'周日 下午场',M4:'周日 晚场',S1:'周一 探戈小院',T2:'周二 城市漫步',MF:'周二 告别舞会'};
 var PKG={full:'全程套餐',combo:'周末套餐',pass:'周末舞会4场',single:'单场'};
 var ST={pending:'待审核',confirmed:'待付款',overdue:'逾期',paid:'已付款',cash:'到场付款',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
 var ROLE={leader:'Leader',follower:'Follower',both:'都可以'};
 var ACTS={pending:['confirm','waitlist','decline','cancel'],waitlist:['confirm','decline','cancel'],confirmed:['pay','cash','cancel'],cash:['pay','cancel'],paid:['pay','cancel'],declined:[],cancelled:['refund']};
-var ACT_PERM={confirm:'review',waitlist:'review',decline:'review',pay:'collect',cash:'collect',refund:'collect',cancel:'cancel'};
 var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'到场付款',cancel:'取消报名',refund:'记退款'};
-// 'modify' is not offered until this page has an edit screen; one granted earlier is kept when saving.
-var PERM_NAME={review:'审核',collect:'收款',cancel:'取消',staff:'前台',export:'导出'};
+// mirrors the backend only to leave out buttons; the backend decides and does not send what a role may not see
+var ACT_NEEDS={confirm:'review',waitlist:'review',decline:'review',pay:'review',cash:'review',cancel:'cancel',refund:'refund'};
+var DONE={confirm:'确认',waitlist:'候补',decline:'婉拒',cash:'批准到场付款',pay:'记了收款',refund:'记了退款',cancel:'取消报名',modify:'修改报名',note:'改了内部备注'};
+var WHO={owner:'平台管理员',chief:'总管',deputy:'副总管',manager:'现场经理'},LEVEL={manager:1,deputy:2,chief:3};
+var LETTER={recv:'收到报名的信',notify:'给主办的新报名通知',confirm:'确认信',waitlist:'候补信',decline:'婉拒信',cash:'到场付款信',paid:'付款确认信',remind:'付款提醒',cancel:'取消信',modify:'修改确认信'};
+function mailTip(d){return d.mail==='sent'?'，信已寄出':d.mail==='failed'?'。但信没寄出，请自己联系报名者':''}
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'};
+var SITE=[['site','现场']];
 var TABS=[['todo','待办'],['regs','报名'],['ppl','名单'],['money','收款'],['set','设置']];
 var CC={CN:'中国大陆',HK:'香港',TW:'台湾',MO:'澳门'},REGION=null;
 try{REGION=new Intl.DisplayNames(['zh-CN'],{type:'region'})}catch(e){}
@@ -214,7 +256,11 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){retur
 function fmt(n){return '¥'+Number(n||0).toLocaleString('en-US')}
 function bj(iso){return iso?new Date(Date.parse(iso)+288e5).toISOString().slice(0,16).replace('T',' '):''}
 function country(c){if(CC[c])return CC[c];try{return /^[A-Z]{2}$/.test(c)&&REGION?REGION.of(c):c||''}catch(e){return c||''}}
-function can(p){return !p||!!(DATA&&(DATA.me.owner||DATA.me.perms.indexOf(p)>=0))}
+function can(p){return !!DATA&&(DATA.me.perms||[]).indexOf(p)>=0}
+function full(){return can('list')}
+function appoints(role){return !!DATA&&(DATA.me.appoint||[]).indexOf(role)>=0}
+function isDesk(){try{return !!localStorage.getItem('bstw_staff')}catch(e){return false}}
+function byName(n){return n==='主办'?'组织者':n||'未记名'}
 function state(r){return r.status==='confirmed'&&r.overdue?'overdue':r.status}
 function tag(r){var s=state(r);return '<span class="st '+esc(s)+'">'+esc(ST[s]||s)+'</span>'}
 function what(p){return p.pkg&&p.pkg!=='single'?[PKG[p.pkg]].concat((p.extra||[]).map(function(x){return NAME[x]})).join(' + '):(p.items||[]).map(function(x){return NAME[x]}).join(' + ')}
@@ -224,18 +270,23 @@ function owed(r){
   return 0}
 function rowOf(id){return DATA.rows.filter(function(r){return r.id===id})[0]}
 function card(title,big,small,attr,hot){var t=attr?'button':'div';return '<'+t+' class="k'+(hot?' hot':'')+'" '+(attr||'')+'><small>'+title+'</small><b>'+big+'</b><small>'+small+'</small></'+t+'>'}
-function toast(s){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},4000)}
+function toast(s,ms){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},ms||4000)}
 
 // ---------- session
-function call(path,opt){opt=opt||{};return fetch(API+path,{method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},body:opt.body?JSON.stringify(opt.body):undefined})}
+var WAIT=20000;
+function within(ms){if(!window.AbortController)return undefined;var c=new AbortController();setTimeout(function(){c.abort()},ms);return c.signal}   // a lost network must not wait for ever
+function call(path,opt){opt=opt||{};return fetch(API+path,{signal:within(WAIT),method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},body:opt.body?JSON.stringify(opt.body):undefined})}
 function put(v){try{if(v)localStorage.setItem('bstw_admin',v);else localStorage.removeItem('bstw_admin')}catch(e){}}
 function signedOut(){
-  DATA=null;TOKEN='';put('');drafts={};S.open=0;S.st='';
+  DATA=null;TOKEN='';put('');drafts={};bases={};S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
   $('app').hidden=$('nav').hidden=$('session').hidden=$('side').hidden=true;$('side').innerHTML='';
-  $('login').hidden=false;$('hello').textContent='';
-  $('aPw').value=$('sLink').value='';$('aNew').hidden=$('sNew').hidden=true;
-  ['rows','people','ledgerList','adminList','staffList'].forEach(function(i){$(i).innerHTML=''})}
+  $('login').hidden=isDesk();$('deskPhone').hidden=!isDesk();$('hello').textContent='';
+  closeLink();$('aPw').value='';$('aNew').hidden=true;
+  wipe(['staffList','siteList','siteCards'].concat(LISTS))}
+var LISTS=['side','rows','people','ledgerList','ledgerSum','moneyCards','lWho','todoCards','caps','roleCards','chips','list-chief','list-deputy','list-manager','staffList','c-chief','c-deputy','c-manager','c-desk','checkWho'];
+function wipe(ids){ids.forEach(function(i){$(i).innerHTML=''})}
 function load(){
+  if(isDesk()){signedOut();return Promise.resolve()}   // one phone, one identity
   if(!TOKEN)return Promise.resolve();
   $('refresh').disabled=$('load').disabled=true;
   return call('/social/admin/reg?event=bstw2027').then(function(r){
@@ -244,30 +295,62 @@ function load(){
     return r.json();
   }).then(function(d){if(!d||!TOKEN)return;if(!DATA)$('msg').style.display='none';DATA=d;put(TOKEN);render()})
     .catch(function(){toast('连不上后台')}).then(function(){$('refresh').disabled=$('load').disabled=false})}
+// A deletion, reset or change of 职务 also takes effect on a screen that is already open.
+var watching=false;
+function watch(){
+  if(!DATA||!TOKEN||watching||document.hidden)return;
+  var t=TOKEN;watching=true;
+  call('/social/admin/reg/me?event=bstw2027').then(function(r){
+    if(r.status===401)return {gone:1};
+    return r.ok?r.json():null}).then(function(d){
+    if(!d||!DATA||t!==TOKEN)return;
+    if(d.gone){signedOut();toast('已经退出：账号被删除，或密码被重设',9000);return}
+    if(d.role!==DATA.me.role){var now=WHO[d.role];load().then(function(){toast('你的职务已改为'+now,9000)})}
+  }).catch(function(){}).then(function(){watching=false})}
+setInterval(watch,15000);
+document.addEventListener('visibilitychange',watch);
 function act(path,body){return call('/social/admin/reg'+path,{method:'POST',body:body}).then(function(r){return r.json()}).catch(function(){return {error:'network'}})}
 function errText(d){
-  var e=d.error;
+  var e=d.error,l=d.last,who=l?byName(l.by)+' '+bj(l.at).slice(5)+(DONE[l.action]?' 已'+DONE[l.action].replace('了',''):' 已处理'):'';
   if(e==='network')return '连不上后台：不确定有没有成功，请先刷新看看，不要马上重按';
   if(e==='no_permission')return '你没有这个权限';
+  if(e==='bad_state')return '没有改：'+(who||'状态已经被别人改过')+'。画面已换成最新的';
+  if(e==='already_paid')return '没有再记：'+(who||'已经收齐')+'。画面已换成最新的';
+  if(e==='already_refunded')return '没有再退：'+(who||'已经退过')+'。画面已换成最新的';
+  if(e==='note_changed')return '还没存：'+(who||'别人刚改过')+'，现在是「'+String(d.note||'（空白）').slice(0,60)+'」。你写的还在；再按一次保存就会盖掉它';
+  if(e==='chief_taken')return '每场只有 1 位总管';
+  if(e==='deputy_full')return '副总管最多 3 位，已经满了：不能新增或升级，先删除或降级一位';
   if(e==='full')return NAME[d.item]+' 只剩 '+d.left+' 位，这笔要 '+d.need+' 位';
-  if(e==='bad_state')return '状态已经被别人改过，请刷新看最新';
-  if(e==='already_paid')return '已经收齐，或刚刚有人记过，请刷新看最新';
   if(e==='bad_amount')return '金额不对：最多 '+fmt(d.rest!=null?d.rest:d.due);
   if(e==='name_taken')return '已经有这个名字了';
+  if(e==='name_reserved')return '这个名字留给平台管理员，请换一个';
+  if(e==='changed'||e==='not_found')return '没有改：别人刚改过或删除了。画面已换成最新的';
   return '没成功：'+e}
 
 function render(){
   $('login').hidden=true;$('tok').value='';$('app').hidden=$('nav').hidden=$('session').hidden=false;
-  $('hello').textContent=DATA.me.owner?'':DATA.me.name+'（'+DATA.me.perms.filter(function(p){return PERM_NAME[p]}).map(function(p){return PERM_NAME[p]}).join('、')+'）';
-  $('adminsCard').hidden=$('qr').hidden=!DATA.me.owner;$('staffCard').hidden=!can('staff');
+  var all=full();
+  $('deskPhone').hidden=true;
+  $('hello').textContent=DATA.me.role==='owner'?'':DATA.me.name+'（'+WHO[DATA.me.role]+'）';
+  $('team').hidden=!all;$('qr').hidden=!can('asset');
+  if(!can('passport'))S.show=false;
   [].forEach.call(document.querySelectorAll('[data-exp]'),function(b){b.hidden=!can('export')});
-  todo();regs();people();money();settings();go(S.tab||location.hash.slice(1),true);side()}
+  if(all){todo();regs();people();money()}
+  else{S.open=0;drafts={};bases={};$('side').hidden=true;wipe(LISTS);$('aPw').value='';$('aNew').hidden=$('checkNote').hidden=true;site()}
+  settings();go(S.tab||location.hash.slice(1),true);if(all)side()}
 function go(tab,keep){
-  var allow=TABS.filter(function(t){return t[0]!=='set'||DATA.me.owner||can('staff')});
-  if(!allow.some(function(t){return t[0]===tab}))tab='todo';
+  var allow=full()?TABS:SITE;
+  if(!allow.some(function(t){return t[0]===tab}))tab=allow[0][0];
   S.tab=tab;$('nav').innerHTML=allow.map(function(t){return '<button data-tab="'+t[0]+'" class="'+(t[0]===tab?'on':'')+'">'+t[1]+'</button>'}).join('');
-  TABS.forEach(function(t){$('v-'+t[0]).hidden=t[0]!==tab});
+  TABS.concat(SITE).forEach(function(t){$('v-'+t[0]).hidden=t[0]!==tab});
   if(!keep){closeSide();history.replaceState(null,'','#'+tab);scrollTo(0,0)}}
+// ---------- 现场（现场经理）
+if(location.search)$('toDoor').href='../checkin/'+location.search;
+function site(){
+  var l=DATA.mine||[],today=bj(new Date().toISOString()).slice(0,10),sum=0,day=0,by={};
+  l.forEach(function(x){sum+=x.amount;if(bj(x.at).slice(0,10)===today)day+=x.amount;by[x.method]=(by[x.method]||0)+x.amount});
+  $('siteCards').innerHTML=card('我收的合计',fmt(sum),l.length+' 笔')+card('今天',fmt(day),'北京时间')+Object.keys(by).map(function(m){return card(esc(METHOD[m]||m),fmt(by[m]),'我收的')}).join('');
+  $('siteList').innerHTML=l.slice().reverse().map(function(x){return '<tr><td>'+bj(x.at).slice(5)+'</td><td class="name">'+esc(x.name)+'<span class="sub">'+esc(x.code)+'</span></td><td>'+esc(METHOD[x.method]||x.method)+'</td><td class="n">'+fmt(x.amount)+'</td></tr>'}).join('')||'<tr><td colspan="4" class="empty">你还没有收过款</td></tr>'}
 $('nav').addEventListener('click',function(e){var b=e.target.closest('[data-tab]');if(b)go(b.dataset.tab)});
 
 // ---------- 待办
@@ -280,6 +363,8 @@ function todo(){
     card('待付款',n.confirmed||0,'收到截图就记收款','data-go="confirmed"')+
     card('到场付款',n.cash||0,'到场扫码收款','data-go="cash"')+
     card('候补',n.waitlist||0,'有名额时递补','data-go="waitlist"');
+  var unsent=DATA.rows.filter(function(r){return (r.mail_failed||[]).length}).length;
+  if(unsent)$('todoCards').innerHTML+=card('信没寄出',unsent,'点进去看是哪一封','data-go="unsent"',true);
   $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c],k=(DATA.checked||{})[c];return card(NAME[c],l,'上限 '+DATA.caps[c]+(k?' · 已签到 '+k:''),'',l<=20)}).join('');
   $('roleCards').innerHTML=Object.keys(ROLE).map(function(k){return card(ROLE[k],DATA.roles[k],'人')}).join('')}
 $('todoCards').addEventListener('click',function(e){var b=e.target.closest('[data-go]');if(!b)return;
@@ -290,7 +375,7 @@ $('todoCards').addEventListener('click',function(e){var b=e.target.closest('[dat
 function regList(){
   var q=$('fQ').value.trim().toLowerCase(),dom=$('fDom').value,sort=$('fSort').value;
   return DATA.rows.filter(function(r){
-    return (!S.st||state(r)===S.st)&&(dom===''||String(r.domestic?1:0)===dom)&&(!q||(r.code+' '+r.email+' '+r.data.people.map(function(p){return p.name+' '+(p.nick||'')}).join(' ')).toLowerCase().indexOf(q)>=0)
+    return (!S.st||(S.st==='unsent'?(r.mail_failed||[]).length>0:state(r)===S.st))&&(dom===''||String(r.domestic?1:0)===dom)&&(!q||(r.code+' '+r.email+' '+r.data.people.map(function(p){return p.name+' '+(p.nick||'')}).join(' ')).toLowerCase().indexOf(q)>=0)
   }).sort(function(a,b){
     if(sort==='old')return a.id-b.id;
     if(sort==='amount')return b.amount-a.amount||b.id-a.id;
@@ -302,8 +387,8 @@ function pager(key,total,unit){
   return '<button data-pg="'+key+'" data-d="-1"'+(p?'':' disabled')+'>‹ 上一页</button><span>第 '+(p+1)+' / '+z+' 页 · 共 '+total+' '+unit+'</span><button data-pg="'+key+'" data-d="1"'+(p<z-1?'':' disabled')+'>下一页 ›</button>'}
 function someLabel(id,n){var b=$(id);b.textContent='导出筛选的 '+n;b.disabled=!n}
 function regs(){
-  var n={};DATA.rows.forEach(function(r){var s=state(r);n[s]=(n[s]||0)+1});
-  $('chips').innerHTML=[['','全部',DATA.rows.length]].concat(Object.keys(ST).map(function(k){return [k,ST[k],n[k]||0]})).map(function(c){return '<button data-st="'+c[0]+'" class="'+(S.st===c[0]?'on':'')+'">'+c[1]+' '+c[2]+'</button>'}).join('');
+  var n={},unsent=0;DATA.rows.forEach(function(r){var s=state(r);n[s]=(n[s]||0)+1;if((r.mail_failed||[]).length)unsent++});
+  $('chips').innerHTML=[['','全部',DATA.rows.length]].concat(Object.keys(ST).map(function(k){return [k,ST[k],n[k]||0]})).concat(unsent||S.st==='unsent'?[['unsent','信没寄出',unsent]]:[]).map(function(c){return '<button data-st="'+c[0]+'" class="'+(S.st===c[0]?'on':'')+'">'+c[1]+' '+c[2]+'</button>'}).join('');
   var l=regList();$('regPager').innerHTML=pager('regs',l.length,'笔');someLabel('csvSome',l.length);
   $('rows').innerHTML=l.slice(S.pg.regs*N,(S.pg.regs+1)*N).map(function(r){var p=r.data.people[0]||{},due=r.status==='confirmed'&&r.due_at?bj(r.due_at).slice(5,10):'';
     return '<tr tabindex="0" data-open="'+r.id+'"'+(S.open===r.id?' class="sel"':'')+'><td class="x">'+esc(r.code)+'</td>'+
@@ -377,13 +462,16 @@ function closeSide(){
 addEventListener('popstate',function(){if(DATA&&S.open){S.open=0;$('side').hidden=true;regs()}});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSide()});
 function history_(r){
-  var h=[[r.created_at,'提交']];
-  if(r.confirmed_at)h.push([r.confirmed_at,'已确认']);
-  if(r.reminded_at)h.push([r.reminded_at,'已寄付款提醒']);
-  (r.payments||[]).forEach(function(x){h.push([x.at,(x.amount<0?'退款 ':'收款 ')+fmt(Math.abs(x.amount))+' · '+(METHOD[x.method]||x.method)+' · '+x.collector+(x.by_admin!==x.collector?'（'+x.by_admin+' 记录）':'')+(x.note?' · '+x.note:'')])});
+  var h=[[r.created_at,'提交']],had={};
+  (r.log||[]).forEach(function(l){had[l.action]=1;h.push([l.at,(DONE[l.action]||l.action)+' · '+byName(l.by)])});
+  // registrations from before the names were kept
+  if(r.confirmed_at&&!had.confirm)h.push([r.confirmed_at,'已确认']);
+  if(r.cancelled_at&&!had.cancel)h.push([r.cancelled_at,'已取消']);
+  if(r.reminded_at&&!(r.mail_failed||[]).some(function(m){return m.action==='remind'}))h.push([r.reminded_at,'已寄付款提醒']);
+  (r.mail_failed||[]).forEach(function(m){h.push([m.at,'信没寄出：'+(LETTER[m.action]||m.action)])});
+  (r.payments||[]).forEach(function(x){h.push([x.at,(x.amount<0?'退款 ':'收款 ')+fmt(Math.abs(x.amount))+' · '+(METHOD[x.method]||x.method)+' · '+byName(x.collector)+(x.by_admin!==x.collector?'（'+byName(x.by_admin)+' 记录）':'')+(x.note?' · '+x.note:'')])});
   if(r.paid_at)h.push([r.paid_at,'已付款']);
-  (r.undos||[]).forEach(function(u){h.push([u.at,'撤销签到 '+((r.data.people[u.person]||{}).name||'')+' · '+(NAME[u.item]||u.item)+' · '+(u.by==='主办'?'组织者':u.by||'未记名')])});
-  if(r.cancelled_at)h.push([r.cancelled_at,'已取消']);
+  (r.undos||[]).forEach(function(u){h.push([u.at,'撤销签到 '+((r.data.people[u.person]||{}).name||'')+' · '+(NAME[u.item]||u.item)+' · '+byName(u.by)])});
   return h.sort(function(a,b){return Date.parse(a[0])-Date.parse(b[0])}).map(function(x){return '<div>'+bj(x[0]).slice(5)+' '+esc(x[1])+'</div>'}).join('')}
 function side(){
   var r=S.open&&rowOf(S.open);$('side').hidden=!r;if(!r)return;
@@ -391,9 +479,9 @@ function side(){
   var ppl=d.people.map(function(p,i){var ck=(r.checkins||[]).filter(function(c){return c.person===i}).map(function(c){return NAME[c.item]});
     return '<li><b>'+esc(p.name)+'</b>'+(p.nick?'（'+esc(p.nick)+'）':'')+' '+(i?'同行者':'报名者')+' · '+esc(ROLE[p.role]||'')+'<div class="muted">'+esc(p.city)+' '+esc(country(p.country))+' · '+esc(what(p))+' · '+fmt(p.amount)+
       (p.wechat?'<br>微信：'+esc(p.wechat):'')+(p.facebook?'<br>Facebook：'+esc(p.facebook):'')+(i&&p.email?'<br>'+esc(p.email):'')+(ck.length?'<br>已签到：'+ck.join('、'):'')+'</div></li>'}).join('');
-  var rooms=d.hotel?d.rooms.map(function(x,i){return '<li>房间 '+(i+1)+'：'+(x.type==='king'?'大床':'双床')+' · '+esc(x.ci)+' → '+esc(x.co)+' · '+x.nights+' 晚 '+fmt(x.amount)+'<div class="muted">'+x.guests.map(function(g){var q=pp[g]||{};return esc((d.people[g]||{}).name)+(S.show?'：'+esc(q.s)+' / '+esc(q.g):'')}).join('、')+'</div></li>'}).join(''):'';
+  var rooms=d.hotel?d.rooms.map(function(x,i){return '<li>房间 '+(i+1)+'：'+(x.type==='king'?'大床':'双床')+' · '+esc(x.ci)+' → '+esc(x.co)+' · '+x.nights+' 晚 '+fmt(x.amount)+'<div class="muted">'+x.guests.map(function(g){var q=pp[g]||{};return esc((d.people[g]||{}).name)+(S.show&&d.passports?'：'+esc(q.s)+' / '+esc(q.g):'')}).join('、')+'</div></li>'}).join(''):'';
   var acts=(ACTS[r.status]||[]).filter(function(a){
-    if(!can(ACT_PERM[a]))return false;
+    if(!can(ACT_NEEDS[a]))return false;
     if(a==='refund')return r.refund>0;
     if(a==='pay')return r.amount-(r.paid_total||0)>0;
     return true}).map(function(a){return '<button data-a="'+a+'"'+(a==='confirm'||a==='pay'?' class="p"':'')+'>'+ACT_NAME[a]+'</button>'}).join('');
@@ -402,31 +490,38 @@ function side(){
   var note=r.id in drafts?drafts[r.id]:r.note||'';
   $('side').innerHTML='<div class="sh"><h2>'+esc(r.code)+'</h2><button data-close aria-label="关闭">✕</button></div>'+
     '<div class="sideinfo">'+tag(r)+' <span class="muted">'+(r.domestic?'国内':'国际')+' · '+r.people+' 人 · '+esc(r.email)+' · 语言 '+esc(r.lang)+'</span></div>'+
-    '<ul>'+ppl+rooms+'</ul>'+(d.hotel?'<button data-show>'+(S.show?'隐藏护照姓名':'显示护照姓名')+'</button>':'')+
+    (r.mail_failed||[]).map(function(m){return '<p class="why" data-unsent>信没寄出：'+esc(LETTER[m.action]||m.action)+'（'+bj(m.at).slice(5)+'）</p>'}).join('')+
+    '<ul>'+ppl+rooms+'</ul>'+(d.hotel&&can('passport')?'<button data-show>'+(S.show?'隐藏护照姓名':'显示护照姓名')+'</button>':'')+
     '<div class="cards">'+card('应收',fmt(r.amount),r.status==='confirmed'&&r.due_at?'期限 '+bj(r.due_at).slice(0,10):r.fee?'含手续费 '+fmt(r.fee):'全部人合计')+
       (r.status==='cancelled'?card('应退',fmt(r.refund),'已收净额 '+fmt(r.paid_total)):card('尚欠',fmt(r.status==='pending'||r.status==='waitlist'?r.amount:rest),'已收 '+fmt(r.paid_total)))+'</div>'+
     (r.fee&&r.status==='confirmed'?'<p class="muted">含手续费 '+fmt(r.fee)+'</p>':'')+
     (r.promo?'<p class="muted">折扣码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':'')+'</p>':'')+
     (d.msg?'<h3>报名者留言</h3><div class="sideinfo">'+esc(d.msg)+'</div>':'')+
     '<h3>处理纪录（北京时间）</h3><div class="muted hist">'+history_(r)+'</div>'+
-    '<h3>内部备注</h3><textarea data-note placeholder="组织者和活动经理看得到，前台看不到">'+esc(note)+'</textarea><button data-save>保存备注</button>'+
+    '<h3>内部备注</h3><textarea data-note placeholder="总管和副总管看得到，现场经理和前台看不到">'+esc(note)+'</textarea><button data-save>保存备注</button>'+
     '<div id="payBox"></div><div class="acts sacts">'+acts+next+'</div>'}
 function payForm(r,a){
   var rf=a==='refund',back=(r.payments||[]).reduce(function(s,x){return x.amount<0?s-x.amount:s},0),amount=rf?Math.max(0,(r.refund||0)-back):Math.max(0,r.amount-(r.paid_total||0));
-  $('payBox').innerHTML='<form class="form" id="payForm" data-act="'+a+'"><h2>'+(rf?'记退款':'记收款')+'</h2>'+
+  $('payBox').innerHTML='<form class="form" id="payForm" data-act="'+a+'" data-seen="'+amount+'" data-from="'+esc(r.status)+'"><h2>'+(rf?'记退款':'记收款')+'</h2>'+
     '<label>金额<input class="pa" type="number" min="1" step="1" required value="'+amount+'"></label>'+
     '<label>方式<select class="pm" required><option value="">请选…</option>'+Object.keys(METHOD).map(function(k){return '<option value="'+k+'">'+METHOD[k]+'</option>'}).join('')+'</select></label>'+
     '<label>'+(rf?'退款人':'收款人')+'<input class="pc" required value="'+esc(DATA.me.name)+'"></label>'+
     '<label>备注<input class="pn" placeholder="例如转账单号（可不填）"></label>'+
     '<div class="acts"><button class="p ps">确定</button><button type="button" data-pay-cancel>不记了</button></div></form>';
   $('payForm').scrollIntoView({block:'nearest'})}
-$('side').addEventListener('input',function(e){if(e.target.matches('[data-note]'))drafts[S.open]=e.target.value});
+$('side').addEventListener('input',function(e){if(!e.target.matches('[data-note]'))return;
+  if(!(S.open in drafts)){var r=rowOf(S.open);bases[S.open]=r&&r.note||''}   // what this draft started from
+  drafts[S.open]=e.target.value});
+// someone was quicker: say who, and show how it is now
+function refused(d){
+  var late=/^(bad_state|already_paid|already_refunded)$/.test(d.error);
+  toast(errText(d),late?9000:4000);if(late)load()}
 $('side').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target,id=S.open,a=f.dataset.act,b=f.querySelector('.ps'),v=function(c){return f.querySelector(c).value.trim()};
   b.disabled=true;
-  act('/act',{id:id,action:a,pay:{amount:+v('.pa'),method:v('.pm'),collector:v('.pc'),note:v('.pn')}}).then(function(d){
-    if(!d.ok){b.disabled=false;toast(errText(d));return}
-    toast(a==='refund'?'已记退款':d.status==='paid'?'已收齐，付款确认信已寄出':'已记收款，尚欠 '+fmt(d.rest));load()})});
+  act('/act',{id:id,action:a,from:f.dataset.from,pay:{seen:+f.dataset.seen,amount:+v('.pa'),method:v('.pm'),collector:v('.pc'),note:v('.pn')}}).then(function(d){
+    if(!d.ok){b.disabled=false;return refused(d)}
+    toast(a==='refund'?'已记退款':d.status==='paid'?'已收齐'+mailTip(d):'已记收款，尚欠 '+fmt(d.rest),d.mail==='failed'?12000:4000);load()})});
 $('side').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;var r=rowOf(S.open);if(!r)return;
   if(b.hasAttribute('data-close'))return closeSide();
@@ -434,18 +529,20 @@ $('side').addEventListener('click',function(e){
   if(b.hasAttribute('data-pay-cancel')){$('payBox').innerHTML='';return}
   if(b.dataset.next)return openSide(+b.dataset.next);
   if(b.hasAttribute('data-save')){
-    var text=$('side').querySelector('[data-note]').value;b.disabled=true;
-    act('/act',{id:r.id,action:'note',note:text}).then(function(d){b.disabled=false;
+    var text=$('side').querySelector('[data-note]').value,was=r.id in bases?bases[r.id]:r.note||'';b.disabled=true;
+    act('/act',{id:r.id,action:'note',note:text,was:was}).then(function(d){b.disabled=false;
+      var now=DATA&&DATA.rows&&rowOf(r.id);
+      if(d.error==='note_changed'){drafts[r.id]=text;bases[r.id]=d.note;if(now)now.note=d.note;return toast(errText(d),12000)}
       if(!d.ok)return toast(errText(d));
-      r.note=text;delete drafts[r.id];var now=DATA&&rowOf(r.id);if(now)now.note=text;toast('备注已存')});return}
+      r.note=d.note;delete drafts[r.id];delete bases[r.id];if(now)now.note=d.note;toast('备注已存')});return}
   var a=b.dataset.a;if(!a)return;
   if(a==='pay'||a==='refund')return payForm(r,a);
-  if(!confirm('确定要「'+ACT_NAME[a]+'」'+r.code+'（'+r.data.people[0].name+'，'+r.people+' 人，'+fmt(r.amount)+'）吗？会寄信通知报名者。'))return;
+  if(!confirm('确定要「'+ACT_NAME[a]+'」'+r.code+'（'+r.data.people[0].name+'，'+r.people+' 人，'+fmt(r.amount)+'）吗？会试着寄信通知报名者。'))return;
   var l=S.tab==='regs'?regList():[],k=l.map(function(x){return x.id}).indexOf(r.id),after=k>=0&&l[k+1]?l[k+1].id:0;
   b.disabled=true;
-  act('/act',{id:r.id,action:a}).then(function(d){
-    if(!d.ok){b.disabled=false;toast(errText(d));return}
-    toast(r.code+' 已'+ACT_NAME[a]+(d.refund!=null&&a==='cancel'?'，应退 '+fmt(d.refund):''));
+  act('/act',{id:r.id,action:a,from:r.status}).then(function(d){
+    if(!d.ok){b.disabled=false;return refused(d)}
+    toast(r.code+' 已'+ACT_NAME[a]+(d.refund!=null&&a==='cancel'?'，应退 '+fmt(d.refund):'')+mailTip(d),d.mail==='failed'?12000:4000);
     // reviewing one by one: go straight on to the next one that is waiting
     if(S.st==='pending'&&after&&S.open===r.id&&(a==='confirm'||a==='waitlist'||a==='decline')){S.open=after;S.show=false;$('side').scrollTop=0}
     load()})});
@@ -476,31 +573,54 @@ $('pCsvSome').addEventListener('click',function(){var k={};pplList().forEach(fun
 $('lCsvSome').addEventListener('click',function(){var k={};payList(payAll()).forEach(function(v){k[v.n]=1});saveCsv(this,PAYCSV,'bstw2027-payments-filtered.csv',function(x,i){return k[i]})});
 
 // ---------- 设置
-function permBoxes(on,attr){return Object.keys(PERM_NAME).map(function(p){return '<label><input type="checkbox" '+(attr||'')+' value="'+p+'"'+(on.indexOf(p)>=0?' checked':'')+'> '+PERM_NAME[p]+'</label>'}).join('')+(on.indexOf('modify')>=0?'<input type="checkbox" hidden checked '+(attr||'')+' value="modify">':'')}
-// A one-time link or password must not stay on screen once it no longer works.
+// A one-time link or password must not stay on screen once it no longer works, or its person was deleted.
+// "seen": a list fetched before the person was added does not count as deleted.
 function dropSpent(box,field,list,spent){
-  var id=+$(box).dataset.id;
-  if((list||[]).some(function(x){return x.id===id&&spent(x)})){$(box).hidden=true;$(box).dataset.id='';$(field).value=''}}
+  var el=$(box),id=+el.dataset.id;if(!id)return;
+  var x=(list||[]).filter(function(v){return v.id===id})[0];
+  if(x)el.dataset.seen='1';
+  if(x?spent(x):el.dataset.seen){el.hidden=true;el.dataset.id='';$(field).value=''}}
 function settings(){
   dropSpent('sNew','sLink',DATA.staff,function(x){return x.disabled_at||x.activated_at});
-  if($('sNew').hidden)closeLink();
+  if($('sNew').hidden||!appoints('desk'))closeLink();
   dropSpent('aNew','aPw',DATA.admins,function(x){return x.disabled_at});
-  $('adminList').innerHTML=DATA.me.owner?(DATA.admins||[]).map(function(x){var s=(DATA.ledger||{})[x.name]||{in:0,out:0};
-    return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+(x.disabled_at?'<span class="st cancelled">已停用</span>':'')+'</span><span class="muted">收款净额 '+fmt(s.in-s.out)+'</span></div>'+
-      '<div class="perms">'+permBoxes((x.perms||'').split(','),'data-ap="'+x.id+'"')+'</div><div class="acts"><button data-ad="perms" data-id="'+x.id+'">保存权限</button><button data-ad="reset" data-id="'+x.id+'">重设密码</button>'+(x.disabled_at?'':'<button data-ad="disable" data-id="'+x.id+'">停用</button>')+'</div></div>'}).join('')||'<p class="muted">还没有活动经理。</p>':'';
-  deskList()}
-var goneOpen=false;
+  team();deskList()}
+// ---------- 设置：四栏
+function team(){
+  if(!full())return;
+  var list=DATA.admins||[],n={chief:DATA.chief?1:0,deputy:0,manager:0},h={chief:'',deputy:'',manager:''};
+  list.forEach(function(x){if(!x.disabled_at)n[x.role]++});
+  var cap={chief:1,deputy:3},over=function(t){return !!cap[t]&&n[t]>=cap[t]};
+  var net=function(name){var s=(DATA.ledger||{})[name]||{in:0,out:0},v=s.in-s.out;return v?'<span class="muted">收款净额 '+fmt(v)+'</span>':''};
+  if(DATA.chief)h.chief='<div class="item"><div class="h"><b>'+esc(DATA.chief)+'</b>'+net(DATA.chief)+'</div><p class="muted">用现有密码，不另建账号，不在这里改。</p></div>';
+  list.forEach(function(x){
+    var id=' data-id="'+x.id+'"',ad=function(a,t,off){return '<button data-ad="'+a+'"'+id+(off?' disabled':'')+'>'+t+'</button>'},why='';
+    if(x.disabled_at){h[x.role]+='<div class="item"><div class="h"><b>'+esc(x.name)+'</b><span class="st cancelled">已停用</span></div>'+(x.manage?'<div class="acts">'+ad('delete','删除')+'</div>':'')+'</div>';return}
+    var moves=['chief','deputy','manager'].filter(function(t){return t!==x.role&&appoints(t)}).map(function(t){
+      var off=over(t);if(off&&!why)why=t==='deputy'?'副总管已满 3 位，不能'+(x.role==='chief'?'降为':'升为')+'副总管。':'已有 1 位总管，不能再升。';
+      return ad(t,(LEVEL[t]>LEVEL[x.role]?'升为':'降为')+WHO[t],off)}).join('');
+    h[x.role]+='<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b>'+(x.name===DATA.me.name?' <span class="muted">（你）</span>':'')+'</span>'+net(x.name)+'</div>'+
+      (x.manage?'<div class="acts">'+moves+ad('reset','重设密码')+ad('delete','删除')+'</div>'+(why?'<p class="muted">'+why+'</p>':''):'')+'</div>'});
+  ['chief','deputy','manager'].forEach(function(t){
+    var may=appoints(t),full_=over(t),why='';
+    if(t==='deputy'&&full_)why='已满 3 位：不能再新增，也不能升级。要换人，先删除或降级一位。'+(may?'':'只有总管能任免。');
+    else if(t==='deputy'&&!may)why='只有总管能任免副总管。';
+    else if(t==='chief'&&!DATA.chief)why=may?(full_?'已有 1 位总管：要换人，先删除或降级现任。':''):'只有平台管理员能任免总管。';
+    $('c-'+t).textContent=n[t]+(cap[t]?' / '+cap[t]:' 位');
+    $('add-'+t).hidden=!may;
+    $('n-'+t).disabled=full_;$('add-'+t).querySelector('button').disabled=full_;
+    if(full_)$('n-'+t).value='';
+    $('why-'+t).textContent=why;$('why-'+t).hidden=!why;
+    $('list-'+t).innerHTML=h[t]||'<p class="muted">现在没有'+WHO[t]+'。</p>'});
+  $('c-desk').textContent=(DATA.staff||[]).filter(function(x){return !x.disabled_at}).length+' 位'}
 function deskList(){
-  if(!can('staff')){$('staffList').innerHTML='';return}
-  function row(x){
-    var s=x.disabled_at?'<span class="st cancelled">已去除</span>':x.activated_at?'<span class="st paid">已启用 '+bj(x.activated_at).slice(5)+'</span>':'<span class="st pending">还没打开连结</span>';
+  if(!appoints('desk')){$('staffList').innerHTML='';return}
+  $('staffList').innerHTML=(DATA.staff||[]).map(function(x){
+    var s=x.disabled_at?'<span class="st cancelled">已停用</span>':x.activated_at?'<span class="st paid">已启用 '+bj(x.activated_at).slice(5)+'</span>':'<span class="st pending">还没打开连结</span>';
     return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+s+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts">'+
-      (x.disabled_at?'<button data-s="reissue" data-id="'+x.id+'">恢复（发新连结）</button>':'<button data-s="reissue" data-id="'+x.id+'">重发连结</button><button data-s="disable" data-id="'+x.id+'">去除</button>')+'</div></div>'}
-  var all=DATA.staff||[],on=all.filter(function(x){return !x.disabled_at}),off=all.filter(function(x){return x.disabled_at});
-  $('staffList').innerHTML=(on.map(row).join('')||'<p class="muted">现在没有前台。</p>')+(off.length?'<details class="gone"'+(goneOpen?' open':'')+'><summary>已去除（'+off.length+'）</summary>'+off.map(row).join('')+'</details>':'');
-  var g=$('staffList').querySelector('details');if(g)g.addEventListener('toggle',function(){goneOpen=g.open})}
-$('aPerms').innerHTML=permBoxes(['collect']);
-function showPw(id,name,pw){$('aNew').dataset.id=id;$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
+      (x.disabled_at?'':'<button data-s="reissue" data-id="'+x.id+'">重发连结</button>')+'<button data-s="delete" data-id="'+x.id+'">删除</button></div></div>'}).join('')||'<p class="muted">现在没有前台。</p>'}
+$('checkOk').addEventListener('click',function(){$('checkNote').hidden=true});
+function showPw(id,name,pw){$('aNew').dataset.id=id;delete $('aNew').dataset.seen;$('aNew').hidden=false;$('aNewName').textContent=name;$('aPw').value=pw}
 var DESK_TEXT='这是你的前台签到连结：在微信里点开后，按右上角 ··· 选「在浏览器打开」（Safari 或 Chrome）。这个网址就是你的工作证，不要转发。\n';
 var qrLib=null;
 function drawLink(link){
@@ -514,7 +634,7 @@ function drawLink(link){
     for(var r=0;r<n;r++)for(var k=0;k<n;k++)if(q.isDark(r,k))g.fillRect((k+4)*s,(r+4)*s,s,s);
     $('sQrBox').hidden=false;
   }).catch(function(){qrLib=null})}
-function closeLink(){$('sNew').hidden=true;$('sNew').dataset.id='';$('sLink').value='';$('sMail').removeAttribute('href');$('sQr').width=$('sQr').height=0}
+function closeLink(){$('sNew').hidden=true;delete $('sNew').dataset.seen;$('sNew').dataset.id='';$('sLink').value='';$('sMail').removeAttribute('href');$('sQr').width=$('sQr').height=0}
 $('sClose').addEventListener('click',function(){if(confirm('关闭后就看不到这个连结和二维码了。还要用时请按「重发连结」。'))closeLink()});
 // while a link is on screen, notice by itself when the other phone has used it
 var polling=false;
@@ -523,36 +643,59 @@ setInterval(function(){
   var id=+$('sNew').dataset.id;polling=true;
   call('/social/admin/reg?event=bstw2027').then(function(r){return r.ok?r.json():null}).then(function(d){
     var x=d&&(d.staff||[]).filter(function(s){return s.id===id})[0];
-    if(!DATA||!x||+$('sNew').dataset.id!==id||!(x.activated_at||x.disabled_at))return;
-    DATA.staff=d.staff;closeLink();deskList();toast(x.disabled_at?x.name+' 已去除':x.name+' 已启用，可以签到了')
+    if(!DATA||!d||!d.staff||+$('sNew').dataset.id!==id)return;
+    if(x&&!(x.activated_at||x.disabled_at)){$('sNew').dataset.seen='1';return}
+    if(!x&&!$('sNew').dataset.seen)return;
+    var name=$('sNewName').textContent;
+    DATA.staff=d.staff||[];closeLink();deskList();toast(x&&!x.disabled_at?x.name+' 已启用，可以签到了':name+' 已被删除')
   }).catch(function(){}).then(function(){polling=false})},4000);
-function showLink(d){drawLink(d.link);$('sMail').href='mailto:?subject='+encodeURIComponent('前台签到连结 · 北京精选探戈周末 2027')+'&body='+encodeURIComponent((DESK_TEXT+d.link).replace(/\n/g,'\r\n'));$('sNew').dataset.id=d.id;$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link;$('sNew').scrollIntoView({block:'start'});scrollBy(0,-70)}
+function showLink(d){drawLink(d.link);$('sMail').href='mailto:?subject='+encodeURIComponent('前台签到连结 · 北京精选探戈周末 2027')+'&body='+encodeURIComponent((DESK_TEXT+d.link).replace(/\n/g,'\r\n'));$('sNew').dataset.id=d.id;delete $('sNew').dataset.seen;$('sNew').hidden=false;$('sNewName').textContent=d.name;$('sLink').value=d.link;$('sNew').scrollIntoView({block:'start'});scrollBy(0,-70)}
 function copy(id,before){var i=$(id);i.select();try{navigator.clipboard.writeText((before||'')+i.value).then(function(){toast('已复制')},function(){toast('没复制成功，请长按手动复制')})}catch(e){document.execCommand('copy');toast('已复制')}}
 $('aCopy').addEventListener('click',function(){copy('aPw')});
 $('sCopyUrl').addEventListener('click',function(){copy('sLink')});
 $('sCopy').addEventListener('click',function(){copy('sLink',DESK_TEXT)});
-$('aAdd').addEventListener('click',function(){var b=this,n=$('aName').value.trim();if(!n)return toast('请填名字');
-  b.disabled=true;
-  act('/admins',{name:n,perms:[].map.call($('aPerms').querySelectorAll('input:checked'),function(i){return i.value})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('aName').value='';showPw(d.id,d.name,d.password);load()})});
-$('adminList').addEventListener('click',function(e){var b=e.target.closest('button[data-ad]');if(!b)return;var a=b.dataset.ad,id=+b.dataset.id,body={id:id},name=((DATA.admins||[]).filter(function(x){return x.id===id})[0]||{}).name||'';
-  if(a==='perms')body.perms=[].map.call(document.querySelectorAll('input[data-ap="'+id+'"]:checked'),function(i){return i.value});
-  if(a!=='perms'&&!confirm(name+(a==='disable'?'：停用后密码马上失效，确定？':'：重设后旧密码马上失效，确定？')))return;
-  act('/admins/'+a,body).then(function(d){if(!d.ok)return toast(errText(d));if(d.password)showPw(id,name,d.password);toast(a==='perms'?'权限已保存':a==='disable'?'已停用':'已产生新密码');load()})});
+$('team').addEventListener('click',function(e){
+  var add=e.target.closest('button[data-add]');
+  if(add){var t=add.dataset.add,box=$('n-'+t),n=box.value.trim();if(!n)return toast('请填名字');
+    add.disabled=true;
+    act('/admins',{name:n,role:t}).then(function(d){add.disabled=false;
+      if(!d.ok){toast(errText(d),7000);if(d.error==='deputy_full'||d.error==='chief_taken')load();return}
+      box.value='';showPw(d.id,d.name,d.password);$('aNew').scrollIntoView({block:'center'});load()});
+    return}
+  var b=e.target.closest('button[data-ad]');if(!b)return;
+  var a=b.dataset.ad,id=+b.dataset.id,x=(DATA.admins||[]).filter(function(v){return v.id===id})[0];if(!x)return;
+  var role=LEVEL[a]?a:'',out=x.role==='deputy'&&!x.disabled_at&&(a==='delete'||role==='manager');
+  var ask={chief:'改成总管？总管有这场活动的全部权限，包括退款、护照姓名、导出、任免副总管。',
+    deputy:x.role==='chief'?'降为副总管？马上不能取消、退款、看护照姓名、导出。':'升为副总管？会看到名单、邮箱、全部账目，也能任免现场经理和前台。',
+    manager:'降为现场经理？马上看不到名单，只能扫码、撤销签到、现场收款。',
+    reset:'重设后旧密码马上失效，确定？','delete':'删除？密码马上失效，这个人会从这里消失，不能恢复。已有的收款、签到纪录还留着。'}[a];
+  if(out)ask+='\n\n做完请总管检查名单，需要时重设现场经理的密码、重发前台连结。';
+  if(!confirm('「'+x.name+'」'+ask))return;
+  act('/admins/'+(role?'role':a),role?{id:id,role:role}:a==='reset'?{id:id,v:x.v}:{id:id}).then(function(d){
+    if(!d.ok){toast(errText(d),7000);if(/^(changed|not_found|deputy_full|chief_taken)$/.test(d.error))load();return}
+    if(a==='delete'&&+$('aNew').dataset.id===id){$('aNew').hidden=true;$('aNew').dataset.id='';$('aPw').value=''}
+    if(d.password)showPw(id,x.name,d.password);
+    if(d.check){$('checkWho').textContent='「'+x.name+'」已经不是副总管。';$('checkNote').hidden=false;$('checkNote').scrollIntoView({block:'center'})}
+    toast(role?'已改为'+WHO[role]:a==='reset'?'已产生新密码':'已删除');load()})});
 $('sAdd').addEventListener('click',function(){var b=this,n=$('sName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
   act('/staff',{name:n}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('sName').value='';showLink(d);load()})});
-$('staffList').addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;var a=b.dataset.s;
-  if(!confirm(a==='disable'?'去除后，这个前台马上不能签到。签到纪录会保留，以后也可以恢复。确定去除？':'重发后旧连结和现在的手机都会失效，确定？'))return;
-  act('/staff/'+a,{id:+b.dataset.id}).then(function(d){if(!d.ok)return toast(errText(d));if(d.link)showLink(d);toast(a==='disable'?'已去除':'已产生新连结');load()})});
+$('staffList').addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;
+  var a=b.dataset.s,id=+b.dataset.id,x=(DATA.staff||[]).filter(function(v){return v.id===id})[0]||{},name=x.name||'';
+  if(!confirm(a==='delete'?'删除「'+name+'」？连结马上失效，这个人会从这里消失，不能恢复。已有的签到纪录还留着。':'重发后旧连结和现在的手机都会失效，确定？'))return;
+  act('/staff/'+a,a==='reissue'?{id:id,v:x.v}:{id:id}).then(function(d){if(!d.ok){toast(errText(d),7000);if(d.error==='changed'||d.error==='not_found')load();return}
+    if(a==='delete'&&+$('sNew').dataset.id===id)closeLink();
+    if(d.link)showLink(d);toast(a==='delete'?'已删除':'已产生新连结');load()})});
 $('qUp').addEventListener('click',function(){var f=$('qFile').files[0],name=$('qName').value;
   if(!name)return toast('先选是哪一种收款码');if(!f)return toast('先选一张图片');if(f.size>1e6)return toast('图片太大（1MB 以内）');
   var rd=new FileReader();rd.onload=function(){act('/asset',{name:name,mime:f.type,b64:rd.result}).then(function(d){toast(d.ok?'已上传 '+d.name+'，请到报名页用另一支手机扫一次':errText(d))})};rd.readAsDataURL(f)});
 
-$('login').addEventListener('submit',function(e){e.preventDefault();TOKEN=$('tok').value.trim();if(TOKEN)load()});
+$('login').addEventListener('submit',function(e){e.preventDefault();TOKEN=$('tok').value.trim();if(TOKEN||isDesk())load()});
 $('refresh').addEventListener('click',load);
 $('logout').addEventListener('click',signedOut);
 try{TOKEN=localStorage.getItem('bstw_admin')||''}catch(e){}
-if(TOKEN)load();
+if(location.search)$('deskExit').href='../checkin/'+location.search;
+if(isDesk())signedOut();else if(TOKEN)load();
 })();
 </script>
 </body>
