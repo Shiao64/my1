@@ -164,6 +164,17 @@ export async function seatsLeft(env, ev, skipId) {
   return left;
 }
 function need(data) { const n = {}; for (const p of data.people) for (const c of p.items) n[c] = (n[c] || 0) + 1; return n; }
+// The seat check written into the UPDATE itself (same count as usedSeats): two people confirming the last seat at the same
+// moment cannot both pass, because the second statement already sees the first one's registration as seated (S02, 2026-11-23).
+const ROOM_SQL = ` AND NOT EXISTS (SELECT 1 FROM json_each(?) n WHERE json_extract(n.value,'$.k') + (
+  SELECT COUNT(*) FROM reg r, json_each(CASE WHEN json_valid(r.data) THEN r.data ELSE '{}' END,'$.people') p, json_each(p.value,'$.items') i
+  WHERE r.event=? AND r.status IN ('confirmed','paid','cash') AND r.id<>? AND i.value=n.key) > json_extract(n.value,'$.cap'))`;
+const roomArgs = (ev, data, id) => [JSON.stringify(Object.fromEntries(Object.entries(need(data)).filter(([c]) => ev.items[c] && ev.items[c].cap).map(([c, k]) => [c, { k, cap: ev.items[c].cap }]))), ev.id, id];
+async function full(env, ev, data, id, json) {
+  const left = await seatsLeft(env, ev, id);
+  for (const [c, k] of Object.entries(need(data))) if (left[c] != null && k > left[c]) return json({ error: 'full', item: c, left: left[c], need: k }, 409);
+  return null;
+}
 
 async function log(env, id, action, detail) { await env.SDB.prepare('INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)').bind(id, nowIso(), action, detail ? String(detail).slice(0, 1000) : null).run(); }
 // One statement takes the next number and refuses a second live form of the same email, so any number of people can send at once.
@@ -741,13 +752,18 @@ export async function regAct(env, b, json, kit, ev, who) {
     if (!Number.isFinite(amount) || amount <= 0 || amount > rest) return json({ error: 'bad_amount', rest }, 400);
     const method = METHODS.includes(pay.method) ? pay.method : 'wechat', collector = (!site && str(pay.collector, 40)) || who.name;
     const covered = got.sum + amount >= reg.amount && reg.status !== 'paid';
+    // recorded only while nothing else happened to it since it was read: no other payment, same status, same amount.
+    // So a cancel at the same moment either comes first (and this is refused) or sees this payment (S09, 2026-11-23).
     const ok = await done(
-      db.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) SELECT ?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?')
-        .bind(reg.id, ts, amount, method, collector, str(pay.note, 300) || null, who.name, reg.id, got.n),
+      db.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) SELECT ?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=? AND EXISTS (SELECT 1 FROM reg WHERE id=? AND status=? AND amount=?)')
+        .bind(reg.id, ts, amount, method, collector, str(pay.note, 300) || null, who.name, reg.id, got.n, reg.id, reg.status, reg.amount),
       `${amount} ${method} → ${collector}`,
-      covered ? db.prepare("UPDATE reg SET status='paid',paid_at=?,updated_at=? WHERE id=? AND changes()>0").bind(ts, ts, reg.id)
+      covered ? db.prepare("UPDATE reg SET status='paid',paid_at=?,updated_at=? WHERE id=? AND status=? AND changes()>0").bind(ts, ts, reg.id, reg.status)
         : db.prepare('UPDATE reg SET updated_at=? WHERE id=? AND changes()>0').bind(ts, reg.id));
-    if (!ok) return already();
+    if (!ok) {
+      const now = await db.prepare('SELECT status,amount FROM reg WHERE id=?').bind(reg.id).first();
+      return now && (now.status !== reg.status || now.amount !== reg.amount) ? late() : already();
+    }
     const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first(), total = got.sum + amount, left = Math.max(0, after.amount - total);
     let mail;
     if (covered && after.status === 'paid' && (site || b.silent !== 1)) mail = await send(env, kit, after, 'paid');
@@ -771,34 +787,40 @@ export async function regAct(env, b, json, kit, ev, who) {
   }
   // The rest change the registration itself, and only from the status it was read in.
   let change;
+  let seats = null;   // the seats this change takes, checked inside the write
   if (a === 'confirm') {
-    const left = await seatsLeft(env, ev, reg.id), n = need(d);
-    for (const [c, k] of Object.entries(n)) if (left[c] != null && k > left[c]) return json({ error: 'full', item: c, left: left[c], need: k }, 409);
+    const no = await full(env, ev, d, reg.id, json); if (no) return no;
     const due = new Date(Date.now() + ev.payDays * 864e5).toISOString();
-    change = db.prepare("UPDATE reg SET status='confirmed',confirmed_at=?,due_at=?,reminded_at=NULL,updated_at=? WHERE id=? AND status=?").bind(ts, due, ts, reg.id, reg.status);
+    seats = d;
+    change = db.prepare("UPDATE reg SET status='confirmed',confirmed_at=?,due_at=?,reminded_at=NULL,updated_at=? WHERE id=? AND status=?" + ROOM_SQL).bind(ts, due, ts, reg.id, reg.status, ...roomArgs(ev, d, reg.id));
   } else if (a === 'waitlist' || a === 'decline' || a === 'cash') {
     change = db.prepare('UPDATE reg SET status=?,updated_at=? WHERE id=? AND status=?').bind({ waitlist: 'waitlist', decline: 'declined', cash: 'cash' }[a], ts, reg.id, reg.status);
   } else if (a === 'cancel') {
     // Refund only what was paid: everything minus the ¥50 fee (once), minus hotel after the hotel refund date.
     let refund = null;
-    const paid = await paidSum(env, reg.id), took = reg.status === 'paid' ? Math.max(paid, paid ? 0 : reg.amount) : paid;
+    const got = await moneyOf(env, reg.id), paid = got.sum, took = reg.status === 'paid' ? Math.max(paid, paid ? 0 : reg.amount) : paid;
     if (took > 0) {
       const afterCutoff = bjDate(ts) > ev.hotelRefundBy;
       refund = Math.max(0, took - ev.fee - (afterCutoff ? reg.hotel_amount : 0));   // the ¥50 fee is kept once, whether or not a change already charged it
     }
-    change = db.prepare("UPDATE reg SET status='cancelled',cancelled_at=?,refund=?,fee=CASE WHEN fee>0 THEN fee ELSE ? END,updated_at=? WHERE id=? AND status=?").bind(ts, refund, took > 0 ? ev.fee : 0, ts, reg.id, reg.status);
+    // the refund is worked out from the payments read just now; if one is recorded before this lands, the cancel is refused (S09)
+    change = db.prepare("UPDATE reg SET status='cancelled',cancelled_at=?,refund=?,fee=CASE WHEN fee>0 THEN fee ELSE ? END,updated_at=? WHERE id=? AND status=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?")
+      .bind(ts, refund, took > 0 ? ev.fee : 0, ts, reg.id, reg.status, reg.id, got.n);
   } else if (a === 'modify') {
     const r = evaluate({ ...b.data, event: ev.id, lang: reg.lang }, env, Date.parse(reg.created_at));   // promo judged at the original submit time
     if (r.error) return json(r, 400);
     const fee = reg.status === 'pending' ? reg.fee : ev.fee;   // changes after review carry the ¥50 fee, once
-    if (SEATED.includes(reg.status)) {
-      const left = await seatsLeft(env, ev, reg.id), n = need(r.data);
-      for (const [c, k] of Object.entries(n)) if (left[c] != null && k > left[c]) return json({ error: 'full', item: c, left: left[c], need: k }, 409);
-    }
-    change = db.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,updated_at=? WHERE id=? AND status=? AND data=?')
-      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, r.total + fee, r.hotel, fee, r.promo.code || null, r.promo.dj || null, ts, reg.id, reg.status, reg.data);
+    const seated = SEATED.includes(reg.status);
+    if (seated) { const no = await full(env, ev, r.data, reg.id, json); if (no) return no; seats = r.data; }
+    change = db.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,updated_at=? WHERE id=? AND status=? AND data=?' + (seated ? ROOM_SQL : ''))
+      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, r.total + fee, r.hotel, fee, r.promo.code || null, r.promo.dj || null, ts, reg.id, reg.status, reg.data, ...(seated ? roomArgs(ev, r.data, reg.id) : []));
   }
-  if (!(await done(change, b.note ? str(b.note, 500) : ''))) return late();   // and no letter from the one who was late
+  if (!(await done(change, b.note ? str(b.note, 500) : ''))) {   // and no letter from the one who was late
+    // still as read: then what stopped it was the seats, taken a moment ago by someone else
+    const now = await db.prepare('SELECT status,data FROM reg WHERE id=?').bind(reg.id).first();
+    if (seats && now && now.status === reg.status && now.data === reg.data) { const no = await full(env, ev, seats, reg.id, json); if (no) return no; }
+    return late();
+  }
   const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
   const mail = b.silent !== 1 ? await send(env, kit, after, a) : undefined;
   return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, due: after.due_at, mail });

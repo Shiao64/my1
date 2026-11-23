@@ -667,6 +667,59 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const line = t.split('\n').find(l => l.startsWith('BJ27-8960'));
   check('csv: formulas neutralised', line.includes("'=1+1") && line.includes("'@x") && line.includes("'+86 123"), line);
   check('csv: Beijing time', line.includes('2026-12-02 01:30'), line); }
+// --- S02 and S09 (2026-11-23): the last seat, and a cancel at the same moment as a payment ---
+{ const EV = R.EVENTS.bstw2027, cap0 = EV.items.S1.cap; let seatSeq = 0;
+  const mk = (status, items = ['yard'], amount = 450, email) => Number(db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at) VALUES('bstw2027',?,?,'en',?,1,?,?,'2026-12-01','2026-12-01','2026-12-01T00:00:00Z')")
+    .run('SEAT-' + (++seatSeq), email || `seat${seatSeq}@example.test`, status, JSON.stringify({ people: [person({ pkg: 'single', items: items.map(k => ({ yard: 'S1', 'sat-eve': 'M2' })[k] || k), amount })], rooms: [], passports: [], hotel: false }), amount).lastInsertRowid);
+  const seated = () => db.prepare("SELECT data FROM reg WHERE event='bstw2027' AND status IN ('confirmed','paid','cash')").all().reduce((n, r) => n + JSON.parse(r.data).people.filter(p => (p.items || []).includes('S1')).length, 0);
+  const clear = () => { db.exec("DELETE FROM reg_log WHERE reg_id IN (SELECT id FROM reg WHERE email LIKE 'seat%@example.test')"); db.exec("DELETE FROM reg_payment WHERE reg_id IN (SELECT id FROM reg WHERE email LIKE 'seat%@example.test')"); db.exec("DELETE FROM reg WHERE email LIKE 'seat%@example.test'"); };
+  EV.items.S1.cap = seated() + 1;   // one seat left
+  for (let round = 0; round < 5; round++) {
+    const ids = [1, 2, 3, 4, 5].map(() => mk('pending'));
+    readLag = 15;
+    const out = await Promise.all(ids.map(id => call('POST', '/admin/reg/act', { id, action: 'confirm', silent: 1 }, ADMIN)));
+    readLag = 0;
+    check('S02: five confirm the last seat at once → one', out.filter(x => x.ok).length === 1 && out.filter(x => x.error === 'full').length === 4 && seated() === EV.items.S1.cap, out.map(x => x.error || 'ok'));
+    db.prepare('UPDATE reg SET status=? WHERE id IN (' + ids.join() + ')').run('cancelled');
+  }
+  { const a = mk('pending'), b = mk('confirmed', ['sat-eve']);
+    readLag = 15;
+    const [c, m] = await Promise.all([call('POST', '/admin/reg/act', { id: a, action: 'confirm', silent: 1 }, ADMIN), call('POST', '/admin/reg/act', { id: b, action: 'modify', silent: 1, data: form({ people: [person({ pkg: 'single', items: ['yard', 'sat-eve'] })] }) }, ADMIN)]);
+    readLag = 0;
+    check('S02: a change into the last seat and a confirm at once → one', [c, m].filter(x => x.ok).length === 1 && seated() <= EV.items.S1.cap, [c.error || 'ok', m.error || 'ok', seated()]); }
+  EV.items.S1.cap = cap0; clear();
+  // S09: whichever comes first, the other is refused and the money adds up
+  let bad = 0;
+  for (let i = 0; i < 20; i++) {
+    const id = mk('confirmed', ['sat-eve'], 1000);
+    if (i % 2) db.prepare("INSERT INTO reg_payment(reg_id,at,amount,method,collector,by_admin) VALUES(?,'2026-12-01',300,'alipay','x','x')").run(id);
+    readLag = 5 + (i % 4) * 5;
+    const [c, p] = await Promise.all([call('POST', '/admin/reg/act', { id, action: 'cancel', silent: 1 }, ADMIN), call('POST', '/admin/reg/act', { id, action: 'pay', pay: { method: 'alipay' }, silent: 1 }, ADMIN)]);
+    readLag = 0;
+    const row = db.prepare('SELECT status,refund FROM reg WHERE id=?').get(id), sum = db.prepare('SELECT COALESCE(SUM(amount),0) s FROM reg_payment WHERE reg_id=?').get(id).s;
+    const right = row.status === 'cancelled' ? (row.refund || 0) === Math.max(0, sum - 50) && !(c.ok && p.ok) : row.status === 'paid' && sum === 1000;
+    if (!right) bad++;
+  }
+  check('S09: cancel and payment at once → always adds up', bad === 0, bad);
+  { const id = mk('confirmed', ['sat-eve'], 1000);
+    db.prepare("UPDATE reg SET status='cancelled',refund=0 WHERE id=?").run(id);
+    const d = await call('POST', '/admin/reg/act', { id, action: 'pay', from: 'confirmed', pay: { method: 'alipay' }, silent: 1 }, ADMIN);
+    check('S09: no payment onto a cancelled registration', !d.ok && db.prepare('SELECT COUNT(*) c FROM reg_payment WHERE reg_id=?').get(id).c === 0, d); }
+  // a payment read before a cancel lands later: refused, and says who cancelled
+  { const id = mk('confirmed', ['sat-eve'], 1000), real = env.SDB.prepare;
+    env.SDB.prepare = sql => { if (sql.startsWith('INSERT INTO reg_payment')) { env.SDB.prepare = real; db.prepare("UPDATE reg SET status='cancelled' WHERE id=?").run(id); db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)").run(id, '2026-12-02T00:00:00Z', 'cancel', JSON.stringify({ by: '总管Z', text: '' })); } return real(sql); };
+    const d = await call('POST', '/admin/reg/act', { id, action: 'pay', pay: { method: 'alipay' }, silent: 1 }, ADMIN);
+    env.SDB.prepare = real;
+    check('S09: the later payment is told who cancelled', d.error === 'bad_state' && d.last && d.last.by === '总管Z' && db.prepare('SELECT COUNT(*) c FROM reg_payment WHERE reg_id=?').get(id).c === 0, d); }
+  // a cancel read before a payment lands later: refused, says who paid; then a fresh cancel refunds the right amount
+  { const id = mk('confirmed', ['sat-eve'], 1000), real = env.SDB.prepare;
+    env.SDB.prepare = sql => { if (sql.startsWith("UPDATE reg SET status='cancelled'")) { env.SDB.prepare = real; db.prepare("INSERT INTO reg_payment(reg_id,at,amount,method,collector,by_admin) VALUES(?,'2026-12-02',300,'alipay','x','副总管F')").run(id); db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)").run(id, '2026-12-02T00:00:00Z', 'pay', JSON.stringify({ by: '副总管F', text: '' })); } return real(sql); };
+    let d = await call('POST', '/admin/reg/act', { id, action: 'cancel', silent: 1 }, ADMIN);
+    env.SDB.prepare = real;
+    check('S09: a cancel worked out before a part payment landed is refused, says who', d.error === 'bad_state' && d.status === 'confirmed' && d.last.by === '副总管F' && db.prepare('SELECT status FROM reg WHERE id=?').get(id).status === 'confirmed', d);
+    d = await call('POST', '/admin/reg/act', { id, action: 'cancel', silent: 1 }, ADMIN);
+    check('S09: cancelled again from the new screen, refund counts that payment', d.ok && d.refund === 250, d); }
+  clear(); mails.length = 0; }
 // --- sign-in (TP step 2, docs/tangopass.md 2026-11-23): link + six digits, lock, stop, phones, password again ---
 { const Real = globalThis.Date;
   const at = iso => { const now = Real.parse(iso); globalThis.Date = class extends Real { constructor(...a) { super(...(a.length ? a : [now])); } static now() { return now; } }; };
