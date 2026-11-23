@@ -47,6 +47,8 @@
 
 ## 0.8 探戈通 Tango Pass（TP，活动报名系统）
 详细说明、所有决定、Cloudflare 设定名称、部署步骤、待办都在 **`docs/tangopass.md`**，改报名系统前先读、改完更新那份。活动：`bstw2027`（北京精选探戈周末 2027）、`2027mvny`（Milonga V 2027 New Year）。
+- 11/23 职务（管理员、总管、经理、前台；11/23 下午起没有现场经理，副总管改称经理，BSTW 总管由管理员任命）、设置页、登入的完整规则在 `docs/tangopass.md` 最上面。**第一步权限 11/23 已上线**（#382／#383，worker `4647f2d5`）；**第二步登入（专属链接＋六位密码）11/23 已上线**（#386／#387，worker `eb04610d`，新密钥 `REG_PIN_PEPPER` 设了就不能换）。
+- **ATM 不使用 Cloudflare 人机验证（Shiao 11/23 定）**：开 VPN 时一直转圈、拿不到验证码。11/23 已移除（网页 #398、后台 #399，worker `8eefb1e5`，回退 `af256d7f`）：`/going/config` 不给 site key，`/profile` 不再要求；靠次数限制防滥寄：同一邮箱每小时 10 封、每天 50 封（Shiao 11/23 定，#401，worker `6d479cda`，回退 `8eefb1e5`），同一网络、同一设备每小时 10 封，全站每小时 300 封。不要再加回去；要恢复只能 Shiao 决定（`social.js` 的 `HUMAN_CHECK`，Cloudflare 金钥还在）。
 
 ## 1. 先读这些
 
@@ -75,6 +77,8 @@
   - `atm-addr.js`：地址、交通、地图链接、放大给司机看、路线图；
   - `atm-ui2.js`：`?ui=2` 视觉测试层；
   - `atm-later.js`：**打包文件**，由 `tools/build_asia_assets.mjs` 从 `atm-menu.js` 等源文件生成。改源文件后要重新打包，不要直接改打包文件（打包时 `atm-critical.css`、`atm-early.js` 也会被重写，若只是工具版本差异就还原）。`atm-critical.css` 也是打包产物（来源 `css/atm-map-page.css`、`css/style.css`、`asia/cardB.css`、`asia/atm-theme.css`）；只想盖掉旧样式时，在 `atm-home.js` 的新版 CSS 里加覆盖规则比较安全（#160 这样做）。
+  - `atm-install.js`（不打包，两个地图页各自引用，改了要一起加版本号）：菜单「放到桌面」和专用链接 `/zh/asia/?install=1`。只有四种说明（App 内、iOS、安卓一键、其他安卓），**不自动弹提示**；第一版请 5 位舞友真机试，4 人能自己装好再考虑「第一次收藏时提示」（用户 11/22 同意）。注意：iOS 桌面版和 Safari 的 localStorage 不相通，登录只带回「要参加／感兴趣」，只按星星的收藏和团体收藏带不回；
+    红圈箭头（用户 11/22 要的）由 `spot()` 决定：iPhone Chrome、微信、iPad Safari 指右上；iPhone Safari 26 起指右下「…」，以前的指底部中间；**位置不确定的浏览器不画箭头**。Safari 版本看 UA 的 `Version/`（iOS 26 起系统号被冻结）；
 - **活动数据**：`asia/events.json`、`events-core.json`、`events-more.json`，三个文件同一张卡要一致，格式是紧凑 JSON（`separators=(',',':')`, `ensure_ascii=False`；events-more 结尾有换行）。合并到 main 后，GitHub 任务「R2 sync」自动上传到 R2（#198 起只传改过的文件，通常几分钟）。**不要直接改 R2。** 注意：用 GITHUB_TOKEN 合并的 PR 不会触发 R2 sync（自动上线流程已经自己补上启动）；本环境的 `gh api … /merge` 可以触发，11/16 验证过。
   - **新卡放哪个文件**：中国大陆／台湾／香港的卡和 featured 卡放 `events.json` + `events-core.json`；其他地区一般卡放 `events.json` + `events-more.json`。
   - **编号**：活动 `E###`（11/16 用到 E187），每周 `R###`（用到 R272）。`weekday` 0＝周日，3＝周三。

@@ -1083,13 +1083,38 @@
  },
  {
   "id": "G080",
+  "name_en": "TangoSang",
+  "name_local": "TangoSang",
+  "cities": [
+   "Xi'an"
+  ],
+  "events": [
+   "E199"
+  ],
+  "organizers": []
+ },
+ {
+  "id": "G081",
+  "name_en": "M.A.T.D.A. Macau Argentine Tango Dance Association",
+  "name_local": "澳门阿根廷探戈舞蹈协会 M.A.T.D.A.",
+  "cities": [
+   "Zhuhai"
+  ],
+  "events": [
+   "E200"
+  ],
+  "organizers": []
+ },
+ {
+  "id": "G082",
   "name_en": "Vstar Tango",
   "name_local": "",
   "cities": [
    "Zhuhai"
   ],
   "events": [
-   "E183"
+   "E183",
+   "E200"
   ],
   "organizers": [
    "O117"

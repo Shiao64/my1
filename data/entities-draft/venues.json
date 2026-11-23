@@ -29,6 +29,19 @@
   "id": "V003",
   "city": "Beijing",
   "country": "China",
+  "name_en": "AC Embassy Hotel, Beijing",
+  "name_local": "北京奥加美术馆酒店",
+  "address_local": "",
+  "address_en": "",
+  "rooms": [],
+  "events": [
+   "E093"
+  ]
+ },
+ {
+  "id": "V004",
+  "city": "Beijing",
+  "country": "China",
   "name_en": "AS Tango Argentine Tango School",
   "name_local": "AS Tango阿根廷探戈学校",
   "address_local": "北京市朝阳区东大桥路尚都SOHO北塔B座3层2320室",
@@ -40,7 +53,7 @@
   ]
  },
  {
-  "id": "V004",
+  "id": "V005",
   "city": "Beijing",
   "country": "China",
   "name_en": "ATer Club",
@@ -59,7 +72,7 @@
   ]
  },
  {
-  "id": "V005",
+  "id": "V006",
   "city": "Beijing",
   "country": "China",
   "name_en": "Beijing Hong Wu Xin Milonga el Torito",
@@ -82,7 +95,7 @@
   ]
  },
  {
-  "id": "V006",
+  "id": "V007",
   "city": "Beijing",
   "country": "China",
   "name_en": "Jinshang 1F",
@@ -95,7 +108,7 @@
   ]
  },
  {
-  "id": "V007",
+  "id": "V008",
   "city": "Beijing",
   "country": "China",
   "name_en": "Jinshang Chengxi · Chengxi Theater",
@@ -108,7 +121,7 @@
   ]
  },
  {
-  "id": "V008",
+  "id": "V009",
   "city": "Beijing",
   "country": "China",
   "name_en": "Liangmahe Wine House 1F",
@@ -122,7 +135,7 @@
   ]
  },
  {
-  "id": "V009",
+  "id": "V010",
   "city": "Beijing",
   "country": "China",
   "name_en": "Tango Union West",
@@ -136,7 +149,7 @@
   ]
  },
  {
-  "id": "V010",
+  "id": "V011",
   "city": "Beijing",
   "country": "China",
   "name_en": "Tango by Ala House",
@@ -155,7 +168,7 @@
   ]
  },
  {
-  "id": "V011",
+  "id": "V012",
   "city": "Beijing",
   "country": "China",
   "name_en": "Vida Mia Tango Club",
@@ -175,7 +188,7 @@
   ]
  },
  {
-  "id": "V012",
+  "id": "V013",
   "city": "Beijing",
   "country": "China",
   "name_en": "Xiangheyuan Subdistrict Community Center",
@@ -188,7 +201,7 @@
   ]
  },
  {
-  "id": "V013",
+  "id": "V014",
   "city": "Beijing",
   "country": "China",
   "name_en": "Xingfuhui Dongcheng Cultural Activity Center",
@@ -201,7 +214,7 @@
   ]
  },
  {
-  "id": "V014",
+  "id": "V015",
   "city": "Beijing",
   "country": "China",
   "name_en": "Yoga & Dance Studio",
@@ -214,7 +227,7 @@
   ]
  },
  {
-  "id": "V015",
+  "id": "V016",
   "city": "Chengdu",
   "country": "China",
   "name_en": "Chengdu LeileiTango Club",
@@ -229,7 +242,7 @@
   ]
  },
  {
-  "id": "V016",
+  "id": "V017",
   "city": "Chengdu",
   "country": "China",
   "name_en": "Crowne Plaza Chengdu Wuhou (Grand Ballroom / main venue)",
@@ -242,7 +255,7 @@
   ]
  },
  {
-  "id": "V017",
+  "id": "V018",
   "city": "Chengdu",
   "country": "China",
   "name_en": "Tango Rosa Chengdu (成都玫瑰探戈俱乐部)",
@@ -255,7 +268,7 @@
   ]
  },
  {
-  "id": "V018",
+  "id": "V019",
   "city": "Chongqing",
   "country": "China",
   "name_en": "BA Tango Club",
@@ -268,7 +281,7 @@
   ]
  },
  {
-  "id": "V019",
+  "id": "V020",
   "city": "Chongqing",
   "country": "China",
   "name_en": "Lianhua Duoduo Jinyuan Dance Club",
@@ -281,7 +294,7 @@
   ]
  },
  {
-  "id": "V020",
+  "id": "V021",
   "city": "Chongqing",
   "country": "China",
   "name_en": "Zijing Commercial Plaza Bldg 3 Unit 6-3",
@@ -294,7 +307,7 @@
   ]
  },
  {
-  "id": "V021",
+  "id": "V022",
   "city": "Guangzhou",
   "country": "China",
   "name_en": "Legends Tango Academy",
@@ -315,7 +328,7 @@
   ]
  },
  {
-  "id": "V022",
+  "id": "V023",
   "city": "Guangzhou",
   "country": "China",
   "name_en": "Nantian Plaza, Huangchao Ge 804",
@@ -328,7 +341,7 @@
   ]
  },
  {
-  "id": "V023",
+  "id": "V024",
   "city": "Guangzhou",
   "country": "China",
   "name_en": "Old Dream, Jiangnan Grand Theatre",
@@ -341,7 +354,7 @@
   ]
  },
  {
-  "id": "V024",
+  "id": "V025",
   "city": "Guangzhou",
   "country": "China",
   "name_en": "Red House, Mingmen Building 5F",
@@ -355,7 +368,7 @@
   ]
  },
  {
-  "id": "V025",
+  "id": "V026",
   "city": "Guangzhou",
   "country": "China",
   "name_en": "Unit 2717, Wuyang New City Plaza",
@@ -368,7 +381,7 @@
   ]
  },
  {
-  "id": "V026",
+  "id": "V027",
   "city": "Haikou",
   "country": "China",
   "name_en": "Banghai Residence Bldg 8, Rm 603",
@@ -381,7 +394,7 @@
   ]
  },
  {
-  "id": "V027",
+  "id": "V028",
   "city": "Hangzhou",
   "country": "China",
   "name_en": "inTango HangZhou",
@@ -400,7 +413,7 @@
   ]
  },
  {
-  "id": "V028",
+  "id": "V029",
   "city": "Hangzhou",
   "country": "China",
   "name_en": "Jinsha Lake Grand Theatre",
@@ -413,7 +426,7 @@
   ]
  },
  {
-  "id": "V029",
+  "id": "V030",
   "city": "Hangzhou",
   "country": "China",
   "name_en": "Tongfang Fortune Building 1202",
@@ -426,7 +439,7 @@
   ]
  },
  {
-  "id": "V030",
+  "id": "V031",
   "city": "Hong Kong",
   "country": "China",
   "name_en": "Central Courtyard, Jockey Club Creative Arts Centre (JCCAC)",
@@ -439,7 +452,7 @@
   ]
  },
  {
-  "id": "V031",
+  "id": "V032",
   "city": "Hong Kong",
   "country": "China",
   "name_en": "Dance Concept (workshops) / Danzstage (Grand Milonga)",
@@ -452,7 +465,7 @@
   ]
  },
  {
-  "id": "V032",
+  "id": "V033",
   "city": "Hong Kong",
   "country": "China",
   "name_en": "Dance Culture Studio",
@@ -465,7 +478,7 @@
   ]
  },
  {
-  "id": "V033",
+  "id": "V034",
   "city": "Hong Kong",
   "country": "China",
   "name_en": "K-97",
@@ -479,7 +492,7 @@
   ]
  },
  {
-  "id": "V034",
+  "id": "V035",
   "city": "Hong Kong",
   "country": "China",
   "name_en": "SDF",
@@ -493,7 +506,7 @@
   ]
  },
  {
-  "id": "V035",
+  "id": "V036",
   "city": "Hong Kong",
   "country": "China",
   "name_en": "Sole Mio",
@@ -507,7 +520,7 @@
   ]
  },
  {
-  "id": "V036",
+  "id": "V037",
   "city": "Qingdao",
   "country": "China",
   "name_en": "Guotai Apartments Bldg 1, Rm 401",
@@ -520,7 +533,7 @@
   ]
  },
  {
-  "id": "V037",
+  "id": "V038",
   "city": "Qingdao",
   "country": "China",
   "name_en": "Tango La Vida",
@@ -534,7 +547,7 @@
   ]
  },
  {
-  "id": "V038",
+  "id": "V039",
   "city": "Shanghai",
   "country": "China",
   "name_en": "1438 N. Shaanxi Rd, Rm 1309",
@@ -547,7 +560,7 @@
   ]
  },
  {
-  "id": "V039",
+  "id": "V040",
   "city": "Shanghai",
   "country": "China",
   "name_en": "583 Yuyao Rd",
@@ -560,7 +573,7 @@
   ]
  },
  {
-  "id": "V040",
+  "id": "V041",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Campanile Hotel Shanghai Jing'an",
@@ -573,7 +586,7 @@
   ]
  },
  {
-  "id": "V041",
+  "id": "V042",
   "city": "Shanghai",
   "country": "China",
   "name_en": "FICS Xinhua 365 Creative Park",
@@ -586,7 +599,7 @@
   ]
  },
  {
-  "id": "V042",
+  "id": "V043",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Fantai Building 5, 3F",
@@ -599,7 +612,7 @@
   ]
  },
  {
-  "id": "V043",
+  "id": "V044",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Hotel Shanghai Hongqiao – Handwritten Collection, 3F",
@@ -612,7 +625,7 @@
   ]
  },
  {
-  "id": "V044",
+  "id": "V045",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Hualin Building 6F",
@@ -627,7 +640,7 @@
   ]
  },
  {
-  "id": "V045",
+  "id": "V046",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Jinchao Dance Hall",
@@ -640,7 +653,7 @@
   ]
  },
  {
-  "id": "V046",
+  "id": "V047",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Maoming Building 313",
@@ -655,7 +668,7 @@
   ]
  },
  {
-  "id": "V047",
+  "id": "V048",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Tango Palace",
@@ -680,7 +693,7 @@
   ]
  },
  {
-  "id": "V048",
+  "id": "V049",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Te Amo Tango Lounge",
@@ -697,7 +710,7 @@
   ]
  },
  {
-  "id": "V049",
+  "id": "V050",
   "city": "Shanghai",
   "country": "China",
   "name_en": "TeAmo / Paramount / Pampamia",
@@ -710,7 +723,7 @@
   ]
  },
  {
-  "id": "V050",
+  "id": "V051",
   "city": "Shanghai",
   "country": "China",
   "name_en": "W BAR",
@@ -723,7 +736,7 @@
   ]
  },
  {
-  "id": "V051",
+  "id": "V052",
   "city": "Shanghai",
   "country": "China",
   "name_en": "Yonghui Building Tower A, Rm 1502",
@@ -737,7 +750,7 @@
   ]
  },
  {
-  "id": "V052",
+  "id": "V053",
   "city": "Shenyang",
   "country": "China",
   "name_en": "Qipan Mountain · Yinshan Town (Fri 27 Nov) / Qinghe Peninsula villa area (Sat 28 Nov)",
@@ -750,7 +763,7 @@
   ]
  },
  {
-  "id": "V053",
+  "id": "V054",
   "city": "Shenzhen",
   "country": "China",
   "name_en": "CheeEr-In",
@@ -763,7 +776,7 @@
   ]
  },
  {
-  "id": "V054",
+  "id": "V055",
   "city": "Shenzhen",
   "country": "China",
   "name_en": "Jinsong Building 8A, Chegongmiao",
@@ -776,7 +789,7 @@
   ]
  },
  {
-  "id": "V055",
+  "id": "V056",
   "city": "Shenzhen",
   "country": "China",
   "name_en": "Lianhua Subdistrict Comprehensive Cultural Service Center",
@@ -789,7 +802,7 @@
   ]
  },
  {
-  "id": "V056",
+  "id": "V057",
   "city": "Shenzhen",
   "country": "China",
   "name_en": "Luna Tango",
@@ -804,7 +817,7 @@
   ]
  },
  {
-  "id": "V057",
+  "id": "V058",
   "city": "Shenzhen",
   "country": "China",
   "name_en": "Perfect Day Vinyl Bar",
@@ -817,7 +830,7 @@
   ]
  },
  {
-  "id": "V058",
+  "id": "V059",
   "city": "Shenzhen",
   "country": "China",
   "name_en": "Poema (Yongxinhui)",
@@ -830,7 +843,7 @@
   ]
  },
  {
-  "id": "V059",
+  "id": "V060",
   "city": "Shenzhen",
   "country": "China",
   "name_en": "Shuxiang Mendi Mingyuan Bldg 6, Rm 401",
@@ -843,7 +856,7 @@
   ]
  },
  {
-  "id": "V060",
+  "id": "V061",
   "city": "Suzhou",
   "country": "China",
   "name_en": "吴郡逸庭酒店 Wujun Yiting Hotel (Fri/Sat milongas)",
@@ -856,7 +869,7 @@
   ]
  },
  {
-  "id": "V061",
+  "id": "V062",
   "city": "Tianjin",
   "country": "China",
   "name_en": "109 Guangrong Rd",
@@ -869,7 +882,7 @@
   ]
  },
  {
-  "id": "V062",
+  "id": "V063",
   "city": "Tianjin",
   "country": "China",
   "name_en": "Dance Activity Center, 6F, Home Inn",
@@ -882,7 +895,7 @@
   ]
  },
  {
-  "id": "V063",
+  "id": "V064",
   "city": "Tianjin",
   "country": "China",
   "name_en": "Henghua Building 1, Rm 607",
@@ -896,7 +909,7 @@
   ]
  },
  {
-  "id": "V064",
+  "id": "V065",
   "city": "Tianjin",
   "country": "China",
   "name_en": "Home Inn 6F",
@@ -909,7 +922,7 @@
   ]
  },
  {
-  "id": "V065",
+  "id": "V066",
   "city": "Tianjin",
   "country": "China",
   "name_en": "Shidai Aocheng Office C5-401",
@@ -929,7 +942,7 @@
   ]
  },
  {
-  "id": "V066",
+  "id": "V067",
   "city": "Xi'an",
   "country": "China",
   "name_en": "TangoSang",
@@ -938,11 +951,16 @@
   "address_en": "Rm 1929, Building 1, Haixing Weilai City, Beilin District, Xi'an City",
   "rooms": [],
   "events": [
+   "E199",
    "R251"
+  ],
+  "name_variants": [
+   "TangoSang",
+   "TangoSang Argentine Tango Club"
   ]
  },
  {
-  "id": "V067",
+  "id": "V068",
   "city": "Zhengzhou",
   "country": "China",
   "name_en": "Zijinshan Department Store 3F (紫金山百货大楼)",
@@ -955,7 +973,7 @@
   ]
  },
  {
-  "id": "V068",
+  "id": "V069",
   "city": "Zhuhai",
   "country": "China",
   "name_en": "Haiyin Youyicheng, Xiangzhou, Zhuhai",
@@ -968,7 +986,20 @@
   ]
  },
  {
-  "id": "V069",
+  "id": "V070",
+  "city": "Zhuhai",
+  "country": "China",
+  "name_en": "MR.COLLECTION",
+  "name_local": "西装先生（MR.COLLECTION）",
+  "address_local": "珠海市香洲区南湾北路海印又一城C2栋21楼",
+  "address_en": "21st Floor, Block C2, Haiyin Youyicheng, North Nanwan Road, Xiangzhou District, Zhuhai City",
+  "rooms": [],
+  "events": [
+   "E200"
+  ]
+ },
+ {
+  "id": "V071",
   "city": "Hong Kong",
   "country": "Hong Kong",
   "name_en": "Dance Concept",
@@ -981,7 +1012,7 @@
   ]
  },
  {
-  "id": "V070",
+  "id": "V072",
   "city": "Hong Kong",
   "country": "Hong Kong",
   "name_en": "Danzstage",
@@ -1009,7 +1040,7 @@
   ]
  },
  {
-  "id": "V071",
+  "id": "V073",
   "city": "Hong Kong",
   "country": "Hong Kong",
   "name_en": "STUDIO 9",
@@ -1023,7 +1054,7 @@
   ]
  },
  {
-  "id": "V072",
+  "id": "V074",
   "city": "Tokyo",
   "country": "Japan",
   "name_en": "Akihabara Hundred Square",
@@ -1036,7 +1067,7 @@
   ]
  },
  {
-  "id": "V073",
+  "id": "V075",
   "city": "Tokyo",
   "country": "Japan",
   "name_en": "Argentine Tango Association (3F)",
@@ -1050,7 +1081,7 @@
   ]
  },
  {
-  "id": "V074",
+  "id": "V076",
   "city": "Tokyo",
   "country": "Japan",
   "name_en": "Rada",
@@ -1063,7 +1094,7 @@
   ]
  },
  {
-  "id": "V075",
+  "id": "V077",
   "city": "Tokyo",
   "country": "Japan",
   "name_en": "Zest (VORT Motoazabu 3F)",
@@ -1076,7 +1107,7 @@
   ]
  },
  {
-  "id": "V076",
+  "id": "V078",
   "city": "Tokyo",
   "country": "Japan",
   "name_en": "Zita",
@@ -1089,7 +1120,7 @@
   ]
  },
  {
-  "id": "V077",
+  "id": "V079",
   "city": "Kuala Lumpur",
   "country": "Malaysia",
   "name_en": "Ceylon House, Ramada Hotel",
@@ -1102,7 +1133,7 @@
   ]
  },
  {
-  "id": "V078",
+  "id": "V080",
   "city": "Kuala Lumpur",
   "country": "Malaysia",
   "name_en": "INDEEP.VINYL MUSIC BAR, OLD MALAYA",
@@ -1115,7 +1146,7 @@
   ]
  },
  {
-  "id": "V079",
+  "id": "V081",
   "city": "Kuala Lumpur",
   "country": "Malaysia",
   "name_en": "Swango Dance Studio",
@@ -1135,7 +1166,7 @@
   ]
  },
  {
-  "id": "V080",
+  "id": "V082",
   "city": "Singapore",
   "country": "Singapore",
   "name_en": "Revamped Studio, Waterloo Centre",
@@ -1148,7 +1179,7 @@
   ]
  },
  {
-  "id": "V081",
+  "id": "V083",
   "city": "Busan",
   "country": "South Korea",
   "name_en": "Amigo",
@@ -1164,7 +1195,7 @@
   ]
  },
  {
-  "id": "V082",
+  "id": "V084",
   "city": "Busan",
   "country": "South Korea",
   "name_en": "De Tango",
@@ -1178,7 +1209,7 @@
   ]
  },
  {
-  "id": "V083",
+  "id": "V085",
   "city": "Busan",
   "country": "South Korea",
   "name_en": "Ideal Tango Cafe",
@@ -1200,7 +1231,7 @@
   ]
  },
  {
-  "id": "V084",
+  "id": "V086",
   "city": "Busan",
   "country": "South Korea",
   "name_en": "Studio 242",
@@ -1216,7 +1247,7 @@
   ]
  },
  {
-  "id": "V085",
+  "id": "V087",
   "city": "Busan",
   "country": "South Korea",
   "name_en": "Tango Mio",
@@ -1229,7 +1260,7 @@
   ]
  },
  {
-  "id": "V086",
+  "id": "V088",
   "city": "Changwon",
   "country": "South Korea",
   "name_en": "Munseong University Gymnasium",
@@ -1242,7 +1273,7 @@
   ]
  },
  {
-  "id": "V087",
+  "id": "V089",
   "city": "Changwon",
   "country": "South Korea",
   "name_en": "Tango club Mi Noche",
@@ -1255,7 +1286,7 @@
   ]
  },
  {
-  "id": "V088",
+  "id": "V090",
   "city": "Changwon",
   "country": "South Korea",
   "name_en": "地点没找到",
@@ -1269,7 +1300,7 @@
   ]
  },
  {
-  "id": "V089",
+  "id": "V091",
   "city": "Cheongju",
   "country": "South Korea",
   "name_en": "Cheongju Tango Urquiza",
@@ -1282,7 +1313,7 @@
   ]
  },
  {
-  "id": "V090",
+  "id": "V092",
   "city": "Cheongju",
   "country": "South Korea",
   "name_en": "StudioAura",
@@ -1296,7 +1327,7 @@
   ]
  },
  {
-  "id": "V091",
+  "id": "V093",
   "city": "Daegu",
   "country": "South Korea",
   "name_en": "Abrazo",
@@ -1310,7 +1341,7 @@
   ]
  },
  {
-  "id": "V092",
+  "id": "V094",
   "city": "Daegu",
   "country": "South Korea",
   "name_en": "Tango Cafe Dia",
@@ -1329,7 +1360,7 @@
   ]
  },
  {
-  "id": "V093",
+  "id": "V095",
   "city": "Daegu",
   "country": "South Korea",
   "name_en": "Tango Café DIA (Wed–Fri, Mon) / The Grand Daegu Hotel ballroom (Sat–Sun)",
@@ -1342,7 +1373,7 @@
   ]
  },
  {
-  "id": "V094",
+  "id": "V096",
   "city": "Daejeon",
   "country": "South Korea",
   "name_en": "Azucar",
@@ -1358,7 +1389,7 @@
   ]
  },
  {
-  "id": "V095",
+  "id": "V097",
   "city": "Daejeon",
   "country": "South Korea",
   "name_en": "Daejeon O Nada",
@@ -1378,7 +1409,7 @@
   ]
  },
  {
-  "id": "V096",
+  "id": "V098",
   "city": "Daejeon",
   "country": "South Korea",
   "name_en": "Daejeon Tango Academy Caminito",
@@ -1391,7 +1422,7 @@
   ]
  },
  {
-  "id": "V097",
+  "id": "V099",
   "city": "Daejeon",
   "country": "South Korea",
   "name_en": "LaBoom",
@@ -1407,7 +1438,7 @@
   ]
  },
  {
-  "id": "V098",
+  "id": "V100",
   "city": "Gunsan",
   "country": "South Korea",
   "name_en": "Gunsan Beerport",
@@ -1420,7 +1451,7 @@
   ]
  },
  {
-  "id": "V099",
+  "id": "V101",
   "city": "Gwangju",
   "country": "South Korea",
   "name_en": "CON TANGO",
@@ -1435,7 +1466,7 @@
   ]
  },
  {
-  "id": "V100",
+  "id": "V102",
   "city": "Gwangju",
   "country": "South Korea",
   "name_en": "Mi Vida tango studio",
@@ -1449,7 +1480,7 @@
   ]
  },
  {
-  "id": "V101",
+  "id": "V103",
   "city": "Jinju",
   "country": "South Korea",
   "name_en": "Jinju Tango People",
@@ -1463,7 +1494,7 @@
   ]
  },
  {
-  "id": "V102",
+  "id": "V104",
   "city": "Pohang",
   "country": "South Korea",
   "name_en": "posTango",
@@ -1477,7 +1508,7 @@
   ]
  },
  {
-  "id": "V103",
+  "id": "V105",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "Andante",
@@ -1498,7 +1529,7 @@
   ]
  },
  {
-  "id": "V104",
+  "id": "V106",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "Bailamos Tango",
@@ -1511,7 +1542,7 @@
   ]
  },
  {
-  "id": "V105",
+  "id": "V107",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "Bonita",
@@ -1524,7 +1555,7 @@
   ]
  },
  {
-  "id": "V106",
+  "id": "V108",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "Club Troilo",
@@ -1538,7 +1569,7 @@
   ]
  },
  {
-  "id": "V107",
+  "id": "V109",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "EL TANGO",
@@ -1555,7 +1586,7 @@
   ]
  },
  {
-  "id": "V108",
+  "id": "V110",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "En Paz Studio",
@@ -1574,7 +1605,7 @@
   ]
  },
  {
-  "id": "V109",
+  "id": "V111",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "La Ventana",
@@ -1590,7 +1621,7 @@
   ]
  },
  {
-  "id": "V110",
+  "id": "V112",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "La Ventana Studio",
@@ -1603,7 +1634,7 @@
   ]
  },
  {
-  "id": "V111",
+  "id": "V113",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "La Vida Studio",
@@ -1617,7 +1648,7 @@
   ]
  },
  {
-  "id": "V112",
+  "id": "V114",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "OTRA",
@@ -1631,7 +1662,7 @@
   ]
  },
  {
-  "id": "V113",
+  "id": "V115",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "PISTA",
@@ -1665,7 +1696,7 @@
   ]
  },
  {
-  "id": "V114",
+  "id": "V116",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "SOLO TANGO",
@@ -1679,7 +1710,7 @@
   ]
  },
  {
-  "id": "V115",
+  "id": "V117",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "OCHO",
@@ -1710,7 +1741,7 @@
   ]
  },
  {
-  "id": "V116",
+  "id": "V118",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "TANGO o nada (YOW/Onada)",
@@ -1730,7 +1761,7 @@
   ]
  },
  {
-  "id": "V117",
+  "id": "V119",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "Tango Passion",
@@ -1746,7 +1777,7 @@
   ]
  },
  {
-  "id": "V118",
+  "id": "V120",
   "city": "Seoul",
   "country": "South Korea",
   "name_en": "todotango",
@@ -1760,7 +1791,7 @@
   ]
  },
  {
-  "id": "V119",
+  "id": "V121",
   "city": "Ulsan",
   "country": "South Korea",
   "name_en": "Del Luna",
@@ -1773,7 +1804,7 @@
   ]
  },
  {
-  "id": "V120",
+  "id": "V122",
   "city": "Hsinchu",
   "country": "Taiwan",
   "name_en": "Feng Live House (風)",
@@ -1786,7 +1817,7 @@
   ]
  },
  {
-  "id": "V121",
+  "id": "V123",
   "city": "Miaoli",
   "country": "Taiwan",
   "name_en": "Grand Royal Hotel, Toufen, Miaoli",
@@ -1799,7 +1830,7 @@
   ]
  },
  {
-  "id": "V122",
+  "id": "V124",
   "city": "New Taipei",
   "country": "Taiwan",
   "name_en": "Weining's Tango Corner",
@@ -1812,7 +1843,7 @@
   ]
  },
  {
-  "id": "V123",
+  "id": "V125",
   "city": "Taichung",
   "country": "Taiwan",
   "name_en": "Champs Elysees Hotel Taichung 2F",
@@ -1825,7 +1856,7 @@
   ]
  },
  {
-  "id": "V124",
+  "id": "V126",
   "city": "Taichung",
   "country": "Taiwan",
   "name_en": "TTA Taichung Tango Academy",
@@ -1839,7 +1870,7 @@
   ]
  },
  {
-  "id": "V125",
+  "id": "V127",
   "city": "Taichung",
   "country": "Taiwan",
   "name_en": "Tango.FelipeH",
@@ -1853,7 +1884,7 @@
   ]
  },
  {
-  "id": "V126",
+  "id": "V128",
   "city": "Taichung",
   "country": "Taiwan",
   "name_en": "Tango.two",
@@ -1868,7 +1899,7 @@
   ]
  },
  {
-  "id": "V127",
+  "id": "V129",
   "city": "Taichung",
   "country": "Taiwan",
   "name_en": "Yangqing Counseling Center, Yongchun Branch",
@@ -1881,7 +1912,7 @@
   ]
  },
  {
-  "id": "V128",
+  "id": "V130",
   "city": "Tainan",
   "country": "Taiwan",
   "name_en": "Cangfeng Art Cafe",
@@ -1894,7 +1925,7 @@
   ]
  },
  {
-  "id": "V129",
+  "id": "V131",
   "city": "Tainan",
   "country": "Taiwan",
   "name_en": "TangoFriendly",
@@ -1907,7 +1938,7 @@
   ]
  },
  {
-  "id": "V130",
+  "id": "V132",
   "city": "Tainan",
   "country": "Taiwan",
   "name_en": "Yunong Community Activity Center 3F",
@@ -1920,7 +1951,7 @@
   ]
  },
  {
-  "id": "V131",
+  "id": "V133",
   "city": "Taipei",
   "country": "Taiwan",
   "name_en": "Bailemos",
@@ -1933,7 +1964,7 @@
   ]
  },
  {
-  "id": "V132",
+  "id": "V134",
   "city": "Taipei",
   "country": "Taiwan",
   "name_en": "Bailemos tango school",
@@ -1946,7 +1977,7 @@
   ]
  },
  {
-  "id": "V133",
+  "id": "V135",
   "city": "Taipei",
   "country": "Taiwan",
   "name_en": "Corazon Tango Studio",
@@ -1960,7 +1991,7 @@
   ]
  },
  {
-  "id": "V134",
+  "id": "V136",
   "city": "Taipei",
   "country": "Taiwan",
   "name_en": "Sport King",
@@ -1973,7 +2004,7 @@
   ]
  },
  {
-  "id": "V135",
+  "id": "V137",
   "city": "Taipei",
   "country": "Taiwan",
   "name_en": "Tanguísimo Tango Space",
@@ -2001,7 +2032,7 @@
   ]
  },
  {
-  "id": "V136",
+  "id": "V138",
   "city": "Taipei",
   "country": "Taiwan",
   "name_en": "The Red House (2F Theater)",
@@ -2014,7 +2045,7 @@
   ]
  },
  {
-  "id": "V137",
+  "id": "V139",
   "city": "Zhubei",
   "country": "Taiwan",
   "name_en": "Dahelian Community, Zhubei",
@@ -2028,7 +2059,7 @@
   ]
  },
  {
-  "id": "V138",
+  "id": "V140",
   "city": "Da Nang",
   "country": "Vietnam",
   "name_en": "Furama Resort Da Nang",
@@ -2041,7 +2072,7 @@
   ]
  },
  {
-  "id": "V139",
+  "id": "V141",
   "city": "Da Nang",
   "country": "Vietnam",
   "name_en": "Luc Thu Dancesport",

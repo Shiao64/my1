@@ -67,8 +67,8 @@ window.atmNoticeGate=function(storage,perf){
   var pages=/\.pages\.dev$/i.test(host);
   var link=document.createElement('link');
   link.rel='preload'; link.as='fetch';
-  if(pages){ link.href='/asia/events-core.json?v=china564'; }
-  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china564'; link.crossOrigin='anonymous'; }
+  if(pages){ link.href='/asia/events-core.json?v=china572'; }
+  else { link.href='https://data.tangoweekend.org/asia/events-core.json?v=china572'; link.crossOrigin='anonymous'; }
   document.head.appendChild(link);
 })();
 </script>
@@ -88,7 +88,7 @@ window.atmNoticeGate=function(storage,perf){
   var host=''; try{ host=location.hostname||''; }catch(e){}
   var pages=/\.pages\.dev$/i.test(host);
   var R2='https://data.tangoweekend.org';
-  var core=pages?'/asia/events-core.json?v=china564':R2+'/asia/events-core.json?v=china564';
+  var core=pages?'/asia/events-core.json?v=china572':R2+'/asia/events-core.json?v=china572';
   var more=pages?'/asia/events-more.json?v=china459':R2+'/asia/events-more.json?v=china459';
   function preload(href, pri){
     if(!href) return;
@@ -337,7 +337,7 @@ window.atmCardDetail=detail;window.atmCardReset=reset;})();</script>
 <script>
 window.CHINA_UI = {
   lang: 'zh',
-  eventsUrl: '../../asia/events-core.json?v=china564',
+  eventsUrl: '../../asia/events-core.json?v=china572',
   hideAddrEn: true,
   keepOrganizerZh: true,
   cityNames: {
@@ -436,11 +436,12 @@ window.CHINA_UI = {
 <script defer src="../../asia/atm-data.js?v=r13"></script>
 <script defer src="../../asia/atm-i18n.js?v=i5"></script>
 <script defer src="/asia/atm-addr.js?v=ad7"></script>
-<script defer src="../../asia/asia-map.js?v=r41"></script>
+<script defer src="../../asia/asia-map.js?v=r43"></script>
 <script defer src="../../asia/atm-later.js?v=lt19"></script>
-<script defer src="/asia/atm-home.js?v=h213"></script>
+<script defer src="/asia/atm-install.js?v=in5"></script>
+<script defer src="/asia/atm-home.js?v=h215"></script>
 <!-- HIDDEN 2026-10-28 (v9): 提示卡隐藏；若到 v11 仍未恢复则删除 asia-howto.js --><!-- <script defer src="../../asia/asia-howto.js?v=china278"></script> -->
-<script defer src="../../asia/asia-subscribe.js?v=sub76"></script>
+<script defer src="../../asia/asia-subscribe.js?v=sub77"></script>
 <script id="atm-palette">/* category colours: single map */window.ATM_TC={milonga:'#9E1020',practica:'#0E6E78',festival:'#D9822B',marathon:'#2F6FB0',championship:'#8C6A12',encuentro:'#5E8C3A',weekend:'#B0548F',event:'#6B4C9A'};</script>
 <script id="draft-fav-hover-js">(function(){var F={cwCbtm27:1,"manual-hz-jinsha":1,E093:1};function m(){document.querySelectorAll(".ev-card").forEach(function(c){if(F[c.dataset.id])c.classList.add("atm-fav-card")});document.querySelectorAll(".tw-m-feat-k").forEach(function(k){if(/收藏/.test(k.textContent)){var c=k.closest(".tw-m-feat-card");if(c)c.classList.add("atm-fav-card")}})}var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(m,80)}).observe(document.documentElement,{childList:true,subtree:true});addEventListener("load",m)})();</script>
 <script id="draft-marks-all">(function(){var TC=window.ATM_TC,TN={milonga:'舞会',practica:'练习场',festival:'探戈节',event:'大型活动',marathon:'马拉松',championship:'锦标赛',encuentro:'聚会',weekend:'周末'},FAV={'cwCbtm27':1,'manual-hz-jinsha':1,'E093':1};
@@ -503,7 +504,7 @@ var t;function run(){cards();dots();setStick();}new MutationObserver(function(){
 new MutationObserver(function(){setTimeout(setStick,250)}).observe(D.documentElement,{attributes:true,attributeFilter:["class"]});
 })();</script>
 
-<script defer src="/asia/cardB.js?v=cb197"></script>
+<script defer src="/asia/cardB.js?v=cb199"></script>
 <!-- atm-notice: replaces the E093 entry ad. This tab remembers a confirm in sessionStorage. A reload or a new tab asks again. bfcache return does not re-arm. -->
 <div id="atm-notice" role="dialog" aria-modal="true" aria-labelledby="atm-notice-title">
   <div class="atm-notice-card">
@@ -594,6 +595,6 @@ var t;new MutationObserver(function(){clearTimeout(t);t=setTimeout(run,60)}).obs
 <script defer src="/asia/atm-social.js?v=s30"></script>
 <script defer src="/asia/atm-star.js?v=st38"></script>
 <script defer src="/asia/atm-dance.js?v=d6"></script>
-<script defer src="/asia/reg-notice.js?v=rn6"></script><!-- registration status reminder (Beijing 2027) --><!-- dancing couple: loading + on save -->
+<script defer src="/asia/reg-notice.js?v=rn9"></script><!-- registration status reminder (Beijing 2027) --><!-- dancing couple: loading + on save -->
 </body>
 </html>
