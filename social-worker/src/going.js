@@ -877,7 +877,8 @@ async function confirmBlocked(env, email, dev, iph) {
   const ed = await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE email=? AND created_at>?').bind(email, day).first('n');
   const ih = await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE ip_hash=? AND created_at>?').bind(iph || '', hour).first('n');
   const dh = dev ? await env.SDB.prepare('SELECT COUNT(*) n FROM going_confirm_log WHERE dev=? AND created_at>?').bind(dev, hour).first('n') : 0;
-  return (eh || 0) >= 3 || (ed || 0) >= 10 || (ih || 0) >= 10 || (dh || 0) >= 10;
+  // one email: 10 an hour, 50 a day (Shiao, 2026-11-23); one network or one device: 10 an hour
+  return (eh || 0) >= 10 || (ed || 0) >= 50 || (ih || 0) >= 10 || (dh || 0) >= 10;
 }
 const CODES_PER_HOUR = 300;
 async function codesLastHour(env) {
