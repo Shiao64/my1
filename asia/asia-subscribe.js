@@ -144,7 +144,7 @@
     var slow = $('tsub-tsslow'); if (!slow) return;
     slow.hidden = true;
     setTimeout(function () {
-      if (!el.isConnected || el.hidden) return;
+      if (!el.isConnected || el.hidden || !window.ATM_TS_KEY) return;   // no human check configured: nothing to wait for
       var shown = el.querySelector('iframe') || el.querySelector('[name="cf-turnstile-response"]');
       slow.hidden = !!shown;
     }, 8000);
@@ -451,7 +451,8 @@
     var tsEl = document.querySelector('#tsub-f .tsub-ts');
     var ts = '';
     if (tsEl && !tsEl.hidden) { var inp = tsEl.querySelector('[name="cf-turnstile-response"]'); ts = inp ? String(inp.value || '').trim() : ''; }
-    if (!profile && !ts) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.dataset.busy = ''; go.textContent = L.send; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
+    // 2026-11-23: ATM no longer uses the Cloudflare human check; ask for it only if the server still hands out a site key
+    if (!profile && !ts && window.ATM_TS_KEY) { err.textContent = zh ? '请先完成人机验证，再发送。' : 'Finish the human check, then send.'; go.disabled = false; go.dataset.busy = ''; go.textContent = L.send; if (tsEl && tsEl.scrollIntoView) tsEl.scrollIntoView({ block: 'nearest' }); return; }
     var body = { name: nm, email: em, city: cy, role: role, lang: zh ? 'zh' : 'en', alert: site, ret: pageRet(), website: $('tsub-hp').value, ts: ts };
     if (tail) body.last4 = tail;
     if (LITE) body.sub = 1;

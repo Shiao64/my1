@@ -22,6 +22,11 @@ const clean = (s, n) => String(s || '').replace(/[\u0000-\u0008\u000b-\u001f]/g,
 // application/x-www-form-urlencoded turns '+' into a space. A plus-address must still find the user row.
 function emailParam(raw) { return clean(String(raw || '').trim().replace(/ /g, '+'), 254).toLowerCase(); }
 
+// Cloudflare human check (Turnstile) on the email-code step: removed 2026-11-23 at Shiao's request — behind a VPN it
+// spun for ever and people could not get a code. The pages no longer load it and /profile no longer asks for it;
+// per-email, per-network, per-device and an hourly site-wide cap still limit how many codes go out (going.js).
+// The keys stay in Cloudflare: set this back to true and redeploy to bring it back.
+const HUMAN_CHECK = false;
 async function turnstile(env, token, ip) {
   if (!env.TURNSTILE_SECRET) return env.ALLOW_NO_TURNSTILE === '1';
   const f = new FormData(); f.append('secret', env.TURNSTILE_SECRET); f.append('response', token || ''); if (ip) f.append('remoteip', ip);
@@ -266,11 +271,11 @@ async function confirmLink(req, env, url) {
 
 function regKit() { return { ...goingKit(), user }; }
 export function regCron(env) { return REG().then(m => m.regRemind(env, regKit())).catch(e => { if (/no such table/i.test(String(e && e.message))) return { sent: 0 }; throw e; }); }   // quiet until migration 0020 runs
-function goingKit() { return { sha, he, clean, now, rnd, turnstile, deliver, safeNext, emailParam, confirmPage, confirmFields, issueSession, applyList, EMAIL_RE, ID_RE, DEV_RE }; }
+function goingKit() { return { sha, he, clean, now, rnd, turnstile, humanCheck: HUMAN_CHECK, deliver, safeNext, emailParam, confirmPage, confirmFields, issueSession, applyList, EMAIL_RE, ID_RE, DEV_RE }; }
 export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
   if (p === '/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return confirmLink(req, env, url);
-  if (p === '/going/config' && req.method === 'GET') return json({ sitekey: env.TURNSTILE_SITEKEY || '', sub_lite: 1, code: 1 });
+  if (p === '/going/config' && req.method === 'GET') return json({ sitekey: HUMAN_CHECK ? env.TURNSTILE_SITEKEY || '' : '', sub_lite: 1, code: 1 });
   if (p === '/going/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingConfirm(req, env, url, goingKit());
   if ((p === '/going/enter' || /^\/going\/enter\/[0-9a-f]{64}$/.test(p)) && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingEnter(req, env, url, goingKit());
   if (p === '/going/pass' && req.method === 'GET') return goingPass(req, env, {}, json, goingKit());

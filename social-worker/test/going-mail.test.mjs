@@ -52,7 +52,7 @@ async function get(path) {
   const d = await res.json(); d._s = res.status; return d;
 }
 const cfg = await get('/going/config');
-check('config is the public site key only', cfg.sitekey === 'public-site-key' && !JSON.stringify(cfg).includes('do-not-leak') && !cfg.secret);
+check('config gives no site key: the human check is off (Shiao, 2026-11-23)', cfg.sitekey === '' && !JSON.stringify(cfg).includes('do-not-leak') && !JSON.stringify(cfg).includes('public-site-key') && !cfg.secret);
 delete env.TURNSTILE_SECRET;
 const ret = 'https://tangoweekend.org/asia/?card=W1';
 const sent = await post('/profile', { name: 'Li', email: 'submail@example.com', city: 'Osaka', role: 'leader', lang: 'en', alert: 0, ret, ts: 'x', last4: '8000' });

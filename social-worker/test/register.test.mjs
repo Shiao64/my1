@@ -263,11 +263,25 @@ check('QR hidden without key', q2.status === 404);
   // the password goes along wherever the rules ask for it again (任免, a 总管's refund and export)
   const post = (path, body, tok) => call('POST', '/admin/reg' + path, PIN.has(tok) && body && body.pin === undefined ? { ...body, pin: PIN.get(tok) } : body, tok);
   const rawPost = (path, body, tok) => social(new Request(U + path, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + tok }, body: JSON.stringify(PIN.has(tok) ? { ...body, pin: PIN.get(tok) } : body) }), env, new URL(U + path), json);
-  let d = await post('/admins', { name: 'Seat', role: 'chief' }, ADMIN);
-  check('BSTW: the chief seat is taken by the platform admin', d._s === 409 && d.error === 'chief_taken', d);
+  // BSTW since 2026-11-23 (Shiao): 张孝 is the 管理员 and appoints one 总管
+  let d = await call('GET', '/admin/reg/me', null, ADMIN);
+  check('BSTW: the 管理员 is offered the 总管 seat', seat === undefined && d.role === 'owner' && d.seat === 'owner' && d.appoint.join() === 'chief,deputy,desk' && d.perms.includes('asset'), d);
+  d = await post('/admins', { name: 'T-Seat1', role: 'chief' }, ADMIN);
+  check('BSTW: the 管理员 appoints a 总管 (link + temporary password)', d.ok && d.role === 'chief' && /\/register\/in\/#[0-9a-f]{48}$/.test(d.link) && /^\d{6}$/.test(d.pin), d);
+  const listed = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN);
+  check('BSTW: the 总管 shows in the settings, the seat is no longer the 管理员', listed.chief === '' && listed.admins.some(x => x.name === 'T-Seat1' && x.role === 'chief'), [listed.chief, listed.admins]);
+  d = await post('/admins', { name: 'T-Seat2', role: 'chief' }, ADMIN);
+  check('BSTW: only one 总管', d._s === 409 && d.error === 'chief_taken', d);
+  d = await post('/admins', { name: 'T-Seat2', role: 'deputy' }, ADMIN);
+  d = await post('/admins/role', { id: d.id, role: 'chief' }, ADMIN);
+  check('BSTW: no second 总管 by promotion either', d._s === 409 && d.error === 'chief_taken', d);
+  db.exec("DELETE FROM reg_admin WHERE name LIKE 'T-Seat%'");
+  EV.chief = 'owner';   // an event whose 总管 is the 管理员 himself: the seat is taken
+  d = await post('/admins', { name: 'Seat', role: 'chief' }, ADMIN);
+  check('chief:owner: the 总管 seat is taken by the 管理员', d._s === 409 && d.error === 'chief_taken', d);
   d = await call('GET', '/admin/reg/me', null, ADMIN);
-  check('BSTW: platform admin is the chief and is not offered a second one', d.role === 'owner' && d.seat === 'chief' && d.appoint.join() === 'deputy,manager,desk' && d.perms.includes('asset'), d);
-  delete EV.chief;   // from here: an event whose organizer delegated the chief
+  check('chief:owner: the 管理员 is the 总管 and is not offered a second one', d.role === 'owner' && d.seat === 'chief' && d.appoint.join() === 'deputy,desk' && d.perms.includes('asset'), d);
+  delete EV.chief;   // from here: BSTW as it is, with an appointed 总管
 
   let n = 0;
   const wipe = () => { db.exec("DELETE FROM reg_admin WHERE name LIKE 'T-%'"); db.exec("DELETE FROM reg_staff WHERE name LIKE 'T-%'"); };   // their reg_device rows stay: ended or orphaned, like the real thing after a delete
@@ -343,10 +357,12 @@ check('QR hidden without key', q2.status === 404);
     for (const op of ops) {
       wipe();
       const who = person_(actor), it = op === 'add' ? null : person_(target);
+      // no 现场经理 since 2026-11-23: making one is refused as an unknown role (someone from before can still be promoted, reset, deleted)
+      const gone = (op === 'add' && target === 'manager') || op === 'to:manager', bad = gone && RK[actor] >= 2;
       let res, want;
-      if (op === 'add') { want = ok(target);
+      if (op === 'add') { want = ok(target) && !gone;
         res = target === 'desk' ? await post('/staff', { name: 'T-new' }, who.tok) : await post('/admins', { name: 'T-new', role: target }, who.tok);
-      } else if (op.startsWith('to:')) { const role = op.slice(3); want = ok(target, role);
+      } else if (op.startsWith('to:')) { const role = op.slice(3); want = ok(target, role) && !gone;
         res = await post('/admins/role', { id: it.id, role }, who.tok);
         if (want) check(`demoting a deputy reminds (${actor})`, !!res.check === (target === 'deputy' && role === 'manager'), res);
         if (target !== role) check(`${actor} ${op} from ${target}: stored`, (db.prepare('SELECT perms FROM reg_admin WHERE id=?').get(it.id).perms === role) === want, res);
@@ -358,11 +374,11 @@ check('QR hidden without key', q2.status === 404);
           if (want) { check(`deleted ${target} stops at once`, (await call('GET', '/reg/door/me', null, it.tok)).why === 'deleted');
             check(`deleting reminds only for a deputy (${target})`, !!res.check === (target === 'deputy'), res); } }
       }
-      check(`appoint: ${actor} ${op} ${target}`, res._s === (want ? 200 : no), res);
+      check(`appoint: ${actor} ${op} ${target}`, res._s === (want ? 200 : bad ? 400 : no) && (!bad || res.error === 'bad_role'), res);
     }
   }
   for (const role of ['chief', 'deputy', 'manager']) { wipe(); const me = person_(role);
-    for (const [path, body] of [['/admins/role', { role: 'manager' }], ['/admins/role', { role: 'chief' }], ['/admins/reset', {}], ['/admins/delete', {}]])
+    for (const [path, body] of [['/admins/role', { role: 'deputy' }], ['/admins/role', { role: 'chief' }], ['/admins/reset', {}], ['/admins/delete', {}]])
       check(`${role}: never acts on oneself ${path}`, (await post(path, { id: me.id, ...body }, me.tok))._s === 403); }
   { wipe(); const other = person_('chief', 'other2027'), here = person_('manager'), x = await seed('paid', { paid: 1000 });
     check('chief of another event: no list', (await call('GET', '/admin/reg', null, other.tok))._s === 401);
@@ -375,7 +391,7 @@ check('QR hidden without key', q2.status === 404);
 
   // passwords, names, limits
   wipe();
-  const made = await post('/admins', { name: 'T-made', role: 'manager' }, ADMIN);
+  const made = await post('/admins', { name: 'T-made', role: 'deputy' }, ADMIN);
   check('personal link and a temporary password, shown once', keyOf(made.link) && /^\d{6}$/.test(made.pin) && !('password' in made), made);
   const madeTok = await signIn(made);
   d = await post('/admins/reset', { id: made.id }, ADMIN);
@@ -383,8 +399,15 @@ check('QR hidden without key', q2.status === 404);
   check('after a reset the old link is dead', (await call('POST', '/reg/login/hello', { key: keyOf(made.link) }))._s === 404);
   check('the new link works', (await call('GET', '/admin/reg/me', null, await signIn(d))).name === 'T-made');
   check('a desk cannot take a working manager\'s name', (await post('/staff', { name: 'T-made' }, ADMIN)).error === 'name_taken');
-  check('platform admin name is reserved', (await post('/admins', { name: '张孝' }, ADMIN)).error === 'name_reserved');
+  check('platform admin name is reserved', (await post('/admins', { name: '张孝', role: 'deputy' }, ADMIN)).error === 'name_reserved');
   check('unknown role refused', (await post('/admins', { name: 'T-x', role: 'owner' }, ADMIN))._s === 400);
+  check('no 现场经理 any more (2026-11-23)', (await post('/admins', { name: 'T-x', role: 'manager' }, ADMIN)).error === 'bad_role' && (await post('/admins', { name: 'T-x' }, ADMIN)).error === 'bad_role' && !db.prepare("SELECT 1 FROM reg_admin WHERE name='T-x'").get());
+  { // migration 0025: a 现场经理 from before becomes 经理, keeps the link, the password and the phone
+    wipe(); const gm = person_('manager'), gmTok = gm.tok;
+    db.exec(fs.readFileSync(path.join(root, 'social-worker/migrations/0025_no_site_manager.sql'), 'utf8'));
+    const after = await call('GET', '/admin/reg/me', null, gmTok);
+    check('0025: the 现场经理 is now 经理, same phone, no new sign-in', after.role === 'deputy' && after.name === gm.name && after.perms.join() === 'door,undo,collect,review,list' && after.appoint.join() === 'desk', after);
+    check('0025: 总管 and 经理 untouched', db.prepare("SELECT COUNT(*) c FROM reg_admin WHERE perms NOT IN ('chief','deputy')").get().c === 0); }
   const old = Number(db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027','T-old','-','review,export,cancel','2026-11-01')").run().lastInsertRowid);
   d = await call('GET', '/admin/reg/me', null, phoneFor('admin', old, 'bstw2027'));
   check('someone from before the rules is a site manager', d.role === 'manager' && d.perms.join() === 'door,undo,collect' && !d.appoint.length, d);
@@ -400,7 +423,7 @@ check('QR hidden without key', q2.status === 404);
   many = await Promise.all(cands.map(c => post('/admins/role', { id: c.id, role: 'chief' }, ADMIN)));
   check('four chiefs at once → one', many.filter(x => x.ok).length === 1 && db.prepare("SELECT COUNT(*) c FROM reg_admin WHERE perms='chief' AND name LIKE 'T-%' AND event='bstw2027'").get().c === 1, many);
   wipe();
-  many = await Promise.all([1, 2, 3].map(() => post('/admins', { name: 'T-same' }, ADMIN)));
+  many = await Promise.all([1, 2, 3].map(() => post('/admins', { name: 'T-same', role: 'deputy' }, ADMIN)));
   check('same name at once → one', many.filter(x => x.ok).length === 1 && many.filter(x => x.error === 'name_taken').length === 2, many);
 
   readLag = 0;
@@ -625,7 +648,7 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   check('cannot check in before paying', a._s === 409 && a.error === 'pay_first', a);
   a = await call('POST', '/admin/reg/act', { id: aid, action: 'pay', pay: { method: 'alipay' } }, dt);
   check('front desk cannot collect', a._s === 401 || a._s === 403, a);
-  const rev = await signIn(await call('POST', '/admin/reg/admins', { name: 'Reviewer', role: 'deputy' }, ADMIN)), col = await signIn(await call('POST', '/admin/reg/admins', { name: 'Collector', perms: ['collect'] }, ADMIN));
+  const rev = await signIn(await call('POST', '/admin/reg/admins', { name: 'Reviewer', role: 'deputy' }, ADMIN)), col = await signIn(await call('POST', '/admin/reg/admins/reset', { id: Number(db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027','Collector','-','manager','2026-11-01')").run().lastInsertRowid) }, ADMIN));   // a 现场经理 from before 2026-11-23 (none can be made now)
   const pw = x => x;
   a = await call('GET', '/reg/door/pass?p=' + p1, null, pw(rev));
   check('deputy: rest and what was paid before', a.pay_first && a.collect.rest === 2000 && a.collect.paid === 900, a);
@@ -667,6 +690,66 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const line = t.split('\n').find(l => l.startsWith('BJ27-8960'));
   check('csv: formulas neutralised', line.includes("'=1+1") && line.includes("'@x") && line.includes("'+86 123"), line);
   check('csv: Beijing time', line.includes('2026-12-02 01:30'), line); }
+// --- S02 and S09 (2026-11-23): the last seat, and a cancel at the same moment as a payment ---
+{ const EV = R.EVENTS.bstw2027, cap0 = EV.items.S1.cap; let seatSeq = 0;
+  const mk = (status, items = ['yard'], amount = 450, email) => Number(db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,created_at,updated_at,confirmed_at) VALUES('bstw2027',?,?,'en',?,1,?,?,'2026-12-01','2026-12-01','2026-12-01T00:00:00Z')")
+    .run('SEAT-' + (++seatSeq), email || `seat${seatSeq}@example.test`, status, JSON.stringify({ people: [person({ pkg: 'single', items: items.map(k => ({ yard: 'S1', 'sat-eve': 'M2' })[k] || k), amount })], rooms: [], passports: [], hotel: false }), amount).lastInsertRowid);
+  const seated = () => db.prepare("SELECT data FROM reg WHERE event='bstw2027' AND status IN ('confirmed','paid','cash')").all().reduce((n, r) => n + JSON.parse(r.data).people.filter(p => (p.items || []).includes('S1')).length, 0);
+  const clear = () => { db.exec("DELETE FROM reg_log WHERE reg_id IN (SELECT id FROM reg WHERE email LIKE 'seat%@example.test')"); db.exec("DELETE FROM reg_payment WHERE reg_id IN (SELECT id FROM reg WHERE email LIKE 'seat%@example.test')"); db.exec("DELETE FROM reg WHERE email LIKE 'seat%@example.test'"); };
+  EV.items.S1.cap = seated() + 1;   // one seat left
+  for (let round = 0; round < 5; round++) {
+    const ids = [1, 2, 3, 4, 5].map(() => mk('pending'));
+    readLag = 15;
+    const out = await Promise.all(ids.map(id => call('POST', '/admin/reg/act', { id, action: 'confirm', silent: 1 }, ADMIN)));
+    readLag = 0;
+    check('S02: five confirm the last seat at once → one', out.filter(x => x.ok).length === 1 && out.filter(x => x.error === 'full').length === 4 && seated() === EV.items.S1.cap, out.map(x => x.error || 'ok'));
+    db.prepare('UPDATE reg SET status=? WHERE id IN (' + ids.join() + ')').run('cancelled');
+  }
+  { const a = mk('pending'), b = mk('confirmed', ['sat-eve']);
+    readLag = 15;
+    const [c, m] = await Promise.all([call('POST', '/admin/reg/act', { id: a, action: 'confirm', silent: 1 }, ADMIN), call('POST', '/admin/reg/act', { id: b, action: 'modify', silent: 1, data: form({ people: [person({ pkg: 'single', items: ['yard', 'sat-eve'] })] }) }, ADMIN)]);
+    readLag = 0;
+    check('S02: a change into the last seat and a confirm at once → one', [c, m].filter(x => x.ok).length === 1 && seated() <= EV.items.S1.cap, [c.error || 'ok', m.error || 'ok', seated()]); }
+  { // someone takes the last seat exactly while a change is being saved: the change is refused, says full
+    EV.items.S1.cap = seated() + 1;
+    const other = mk('pending'), b = mk('confirmed', ['sat-eve']), real = env.SDB.prepare;
+    env.SDB.prepare = sql => { if (sql.startsWith('UPDATE reg SET data=')) { env.SDB.prepare = real; db.prepare("UPDATE reg SET status='confirmed' WHERE id=?").run(other); } return real(sql); };
+    const m = await call('POST', '/admin/reg/act', { id: b, action: 'modify', silent: 1, data: form({ people: [person({ pkg: 'single', items: ['yard', 'sat-eve'] })] }) }, ADMIN);
+    env.SDB.prepare = real;
+    check('S02: a change saved while the last seat goes → refused, full', m.error === 'full' && m.item === 'S1' && seated() === EV.items.S1.cap, [m, seated()]); }
+  EV.items.S1.cap = cap0; clear();
+  // S09: whichever comes first, the other is refused and the money adds up
+  let bad = 0;
+  for (let i = 0; i < 20; i++) {
+    const id = mk('confirmed', ['sat-eve'], 1000);
+    if (i % 2) db.prepare("INSERT INTO reg_payment(reg_id,at,amount,method,collector,by_admin) VALUES(?,'2026-12-01',300,'alipay','x','x')").run(id);
+    readLag = 5 + (i % 4) * 5;
+    const [c, p] = await Promise.all([call('POST', '/admin/reg/act', { id, action: 'cancel', silent: 1 }, ADMIN), call('POST', '/admin/reg/act', { id, action: 'pay', pay: { method: 'alipay' }, silent: 1 }, ADMIN)]);
+    readLag = 0;
+    const row = db.prepare('SELECT status,refund FROM reg WHERE id=?').get(id), sum = db.prepare('SELECT COALESCE(SUM(amount),0) s FROM reg_payment WHERE reg_id=?').get(id).s;
+    const right = row.status === 'cancelled' ? (row.refund || 0) === Math.max(0, sum - 50) && !(c.ok && p.ok) : row.status === 'paid' && sum === 1000;
+    if (!right) bad++;
+  }
+  check('S09: cancel and payment at once → always adds up', bad === 0, bad);
+  { const id = mk('confirmed', ['sat-eve'], 1000);
+    db.prepare("UPDATE reg SET status='cancelled',refund=0 WHERE id=?").run(id);
+    const d = await call('POST', '/admin/reg/act', { id, action: 'pay', from: 'confirmed', pay: { method: 'alipay' }, silent: 1 }, ADMIN);
+    check('S09: no payment onto a cancelled registration', !d.ok && db.prepare('SELECT COUNT(*) c FROM reg_payment WHERE reg_id=?').get(id).c === 0, d); }
+  // a payment read before a cancel lands later: refused, and says who cancelled
+  { const id = mk('confirmed', ['sat-eve'], 1000), real = env.SDB.prepare;
+    env.SDB.prepare = sql => { if (sql.startsWith('INSERT INTO reg_payment')) { env.SDB.prepare = real; db.prepare("UPDATE reg SET status='cancelled' WHERE id=?").run(id); db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)").run(id, '2026-12-02T00:00:00Z', 'cancel', JSON.stringify({ by: '总管Z', text: '' })); } return real(sql); };
+    const d = await call('POST', '/admin/reg/act', { id, action: 'pay', pay: { method: 'alipay' }, silent: 1 }, ADMIN);
+    env.SDB.prepare = real;
+    check('S09: the later payment is told who cancelled', d.error === 'bad_state' && d.last && d.last.by === '总管Z' && db.prepare('SELECT COUNT(*) c FROM reg_payment WHERE reg_id=?').get(id).c === 0, d); }
+  // a cancel read before a payment lands later: refused, says who paid; then a fresh cancel refunds the right amount
+  { const id = mk('confirmed', ['sat-eve'], 1000), real = env.SDB.prepare;
+    env.SDB.prepare = sql => { if (sql.startsWith("UPDATE reg SET status='cancelled'")) { env.SDB.prepare = real; db.prepare("INSERT INTO reg_payment(reg_id,at,amount,method,collector,by_admin) VALUES(?,'2026-12-02',300,'alipay','x','副总管F')").run(id); db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)").run(id, '2026-12-02T00:00:00Z', 'pay', JSON.stringify({ by: '副总管F', text: '' })); } return real(sql); };
+    let d = await call('POST', '/admin/reg/act', { id, action: 'cancel', silent: 1 }, ADMIN);
+    env.SDB.prepare = real;
+    check('S09: a cancel worked out before a part payment landed is refused, says who', d.error === 'bad_state' && d.status === 'confirmed' && d.last.by === '副总管F' && db.prepare('SELECT status FROM reg WHERE id=?').get(id).status === 'confirmed', d);
+    d = await call('POST', '/admin/reg/act', { id, action: 'cancel', silent: 1 }, ADMIN);
+    check('S09: cancelled again from the new screen, refund counts that payment', d.ok && d.refund === 250, d); }
+  clear(); mails.length = 0; }
 // --- sign-in (TP step 2, docs/tangopass.md 2026-11-23): link + six digits, lock, stop, phones, password again ---
 { const Real = globalThis.Date;
   const at = iso => { const now = Real.parse(iso); globalThis.Date = class extends Real { constructor(...a) { super(...(a.length ? a : [now])); } static now() { return now; } }; };
@@ -676,7 +759,10 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const T0 = '2027-06-19T01:00:00.000Z';   // 09:00 Beijing
   at(T0);
   // made: link + temporary password; the QR is the link and holds no password
-  const m = await call('POST', '/admin/reg/admins', { name: 'L-mgr', role: 'manager' }, ADMIN), key = keyOf(m.link);
+  // no new 现场经理 since 2026-11-23: these use one from before, who gets a link by 重设
+  const legacy = async name => { const id = Number(db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027',?,'-','manager','2026-11-01')").run(name).lastInsertRowid);
+    return { ...(await call('POST', '/admin/reg/admins/reset', { id }, ADMIN)), id, name }; };
+  const m = await legacy('L-mgr'), key = keyOf(m.link);
   check('login: link holds no password', key && !m.link.includes(m.pin) && m.link.startsWith('https://tangoweekend.org/event/beijing-2027-tango-weekend/register/in/#'), m);
   let d = await L('/hello', { key });
   check('login: opening the link says whose it is, and nothing else', d.ok && d.name === 'L-mgr' && d.role === 'manager' && d.state === 'new' && d.devices === 1 && Object.keys(d).sort().join() === '_s,devices,event,event_name,name,ok,role,state', d);
@@ -723,7 +809,7 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   at('2027-06-19T01:31:00.000Z');
   check('lock: over after 15 minutes', (await L('', { key: keyOf(r1.link), pin: '730195' })).ok && row().fails === 0);
   // 现场经理 types it again once a day; the day changes at 06:00 Beijing
-  const mk = async (name, role, iso) => { at(iso); const x = await call('POST', '/admin/reg/admins', { name, role }, ADMIN); return { ...x, tok: await signIn(x) }; };
+  const mk = async (name, role, iso) => { at(iso); const x = role === 'manager' ? await legacy(name) : await call('POST', '/admin/reg/admins', { name, role }, ADMIN); return { ...x, tok: await signIn(x) }; };
   const mg = await mk('L-day', 'manager', '2027-06-18T23:00:00.000Z');   // 07:00 Beijing
   at('2027-06-19T18:30:00.000Z'); check('daily: past midnight the night goes on', (await me(mg.tok)).name === 'L-day');
   at('2027-06-19T21:59:00.000Z'); check('daily: still before 06:00', (await me(mg.tok)).name === 'L-day');
@@ -765,12 +851,12 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   R.EVENTS.bstw2027.chief = ch;
   // sign out; role change; delete
   check('logout: this phone only', (await L('/out', {}, dp2.token)).ok && (await me(dp2.token)).why === 'logout' && (await L('/again', { pin: '730195' }, dp3.token)).ok && (await me(dp3.token)).name === 'L-dep');
-  d = await call('POST', '/admin/reg/admins/role', { id: dp.id, role: 'manager' }, ADMIN); check('role change: every phone out', d.ok && d.check && (await me(dp3.token)).why === 'role', d);
+  d = await call('POST', '/admin/reg/admins/role', { id: cf.id, role: 'deputy' }, ADMIN); check('role change: every phone out', d.ok && !d.check && (await me(cf.tok)).why === 'role', d);   // 总管 → 经理 (no 现场经理 to demote to since 2026-11-23)
   d = await call('POST', '/admin/reg/admins/delete', { id: mg.id }, ADMIN); check('delete: out', d.ok && (await me(mg.tok)).why === 'deleted' && (await L('/hello', { key: keyOf(mg.link) }))._s === 404);
   // settings show the sign-in state, no hashes
   list = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN);
   const st = n => (list.admins.find(a => a.name === n) || list.staff.find(a => a.name === n)).login;
-  check('settings: states', st('L-dep').state === 'off' && st('L-dep').devices === 0 && st('L-dawn').state === 'on' && st('L-dawn').devices === 1 && st('L-dawn').max === 1 && st('L-desk').state === 'on' && st('L-desk').max === 1, [st('L-dep'), st('L-dawn'), st('L-desk')]);
+  check('settings: states', st('L-chief').state === 'off' && st('L-chief').devices === 0 && st('L-dawn').state === 'on' && st('L-dawn').devices === 1 && st('L-dawn').max === 1 && st('L-desk').state === 'on' && st('L-desk').max === 1, [st('L-chief'), st('L-dawn'), st('L-desk')]);
   check('settings: no hashes or keys', !/link_hash|pin_hash|pin_salt|token_hash|730195/.test(JSON.stringify(list)));
   // two phones signing in at once still keep the limit
   readLag = 10;
