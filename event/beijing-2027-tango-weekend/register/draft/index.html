@@ -579,7 +579,12 @@ $('back').addEventListener('click',function(){form.hidden=false;$('bar').hidden=
 // ---------- backend ----------
 var API=(function(){try{var a=new URLSearchParams(location.search).get('api');if(a&&/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(a))return a}catch(e){}return 'https://api.tangoweekend.org'})();
 var DEMO=/[?&]demo=1(&|$)/.test(location.search);   // UI preview without the backend: ?demo=1
-function tok(){try{return localStorage.getItem('atm_session')||''}catch(e){return ''}}
+// 2026-11-23: also take the ATM sign-in cookie (set by the confirm link / personal link), like the ATM pages do
+function tok(){var s='';try{s=localStorage.getItem('atm_session')||''}catch(e){}
+  if(/^[0-9a-f]{64}$/.test(s))return s;
+  var m=(document.cookie||'').match(/(?:^|; )atm_session=([0-9a-f]{64})/);
+  if(m){try{localStorage.setItem('atm_session',m[1])}catch(e){}return m[1]}
+  return s}
 function api(path,opt){opt=opt||{};var h={'Content-Type':'application/json'};if(tok())h.Authorization='Bearer '+tok();
   var ctl=window.AbortController?new AbortController():null;if(ctl)setTimeout(function(){ctl.abort()},20000);
   return fetch(API+path,{signal:ctl?ctl.signal:undefined,method:opt.method||'GET',headers:h,body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){return r.json().catch(function(){return {}}).then(function(d){d._s=r.status;return d})})}
