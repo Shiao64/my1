@@ -687,6 +687,13 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
     const [c, m] = await Promise.all([call('POST', '/admin/reg/act', { id: a, action: 'confirm', silent: 1 }, ADMIN), call('POST', '/admin/reg/act', { id: b, action: 'modify', silent: 1, data: form({ people: [person({ pkg: 'single', items: ['yard', 'sat-eve'] })] }) }, ADMIN)]);
     readLag = 0;
     check('S02: a change into the last seat and a confirm at once → one', [c, m].filter(x => x.ok).length === 1 && seated() <= EV.items.S1.cap, [c.error || 'ok', m.error || 'ok', seated()]); }
+  { // someone takes the last seat exactly while a change is being saved: the change is refused, says full
+    EV.items.S1.cap = seated() + 1;
+    const other = mk('pending'), b = mk('confirmed', ['sat-eve']), real = env.SDB.prepare;
+    env.SDB.prepare = sql => { if (sql.startsWith('UPDATE reg SET data=')) { env.SDB.prepare = real; db.prepare("UPDATE reg SET status='confirmed' WHERE id=?").run(other); } return real(sql); };
+    const m = await call('POST', '/admin/reg/act', { id: b, action: 'modify', silent: 1, data: form({ people: [person({ pkg: 'single', items: ['yard', 'sat-eve'] })] }) }, ADMIN);
+    env.SDB.prepare = real;
+    check('S02: a change saved while the last seat goes → refused, full', m.error === 'full' && m.item === 'S1' && seated() === EV.items.S1.cap, [m, seated()]); }
   EV.items.S1.cap = cap0; clear();
   // S09: whichever comes first, the other is refused and the money adds up
   let bad = 0;
