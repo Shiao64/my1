@@ -4,8 +4,8 @@
 (function () {
   function get(k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }
   function put(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
-  var ROLE = { owner: '平台管理员', chief: '总管', deputy: '副总管', manager: '现场经理', desk: '前台' };
-  var UP = { chief: '平台管理员', deputy: '总管', manager: '副总管或总管', desk: '副总管或总管' };
+  var ROLE = { owner: '管理员', chief: '总管', deputy: '经理', manager: '现场经理', desk: '前台' };
+  var UP = { chief: '管理员', deputy: '总管', manager: '经理或总管', desk: '经理或总管' };
   function bjTime(iso) { return iso ? new Date(Date.parse(iso) + 288e5).toISOString().slice(11, 16) : ''; }
   function bjDay(iso) { return iso ? new Date(Date.parse(iso) + 288e5).toISOString().slice(0, 16).replace('T', ' ').replace(/-/g, '/') : ''; }
   function who() { try { return JSON.parse(get('tp_who') || 'null'); } catch (e) { return null; } }
@@ -23,11 +23,11 @@
       return h ? h[1] : /^[0-9a-f]{48}$/.test(q) ? q : '';
     },
     loginUrl: function (key, api) { return '../in/?k=' + encodeURIComponent(key || '') + (api ? '&api=' + encodeURIComponent(api) : ''); },
-    up: function (role) { return UP[role] || '副总管或总管'; },
+    up: function (role) { return UP[role] || '经理或总管'; },
     bjTime: bjTime, bjDay: bjDay,
     // why a phone was signed out (the server keeps a row per phone so it can say)
     gone: function (d, role) {
-      var up = UP[role || (who() || {}).role] || '副总管或总管', w = d && d.why;
+      var up = UP[role || (who() || {}).role] || '经理或总管', w = d && d.why;
       if (w === 'replaced') return '你在另一台手机登入了（北京时间 ' + bjTime(d.at) + '），这台已经退出。';
       if (w === 'reset') return '你的账号已被重设，这台已经退出。请向' + up + '拿新的链接和临时密码。';
       if (w === 'deleted') return '你已经被删除，这台已经退出。';

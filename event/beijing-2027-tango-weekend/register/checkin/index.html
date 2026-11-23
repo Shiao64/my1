@@ -62,15 +62,15 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
 <main>
   <div class="card" id="oldLink" hidden>
     <div class="big">这个前台连结已经停用</div>
-    <p>前台改成「专属链接＋六位密码」了（2026-11-23）。请找副总管或总管按「重设」，拿新的链接和临时密码。</p>
+    <p>前台改成「专属链接＋六位密码」了（2026-11-23）。请找经理或总管按「重设」，拿新的链接和临时密码。</p>
   </div>
   <div class="roles" id="nokey" hidden>
     <div class="card">
       <h2>请用你的专属链接登入</h2>
-      <p class="muted can">打开上级发给你的链接，或用手机相机扫二维码，再输入六位密码。总管、副总管、现场经理、前台都一样。</p>
+      <p class="muted can">打开上级发给你的链接，或用手机相机扫二维码，再输入六位密码。总管、经理、前台都一样。</p>
       <a class="btn" id="toIn" hidden>用这台的链接登入</a>
     </div>
-    <details class="card" id="ownerBox"><summary class="muted">平台管理员</summary>
+    <details class="card" id="ownerBox"><summary class="muted">管理员</summary>
       <form id="login"><label for="tok">长密码</label><input id="tok" type="password" autocomplete="current-password" style="width:100%">
         <button class="btn" id="save">登入</button></form></details>
   </div>
@@ -99,12 +99,12 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
     </div>
     <div class="muted" id="note" style="margin-top:8px"></div>
     <button class="btn" id="go" hidden></button>
-    <p class="muted" id="undoHelp" hidden>按错了？请找现场经理、副总管或总管撤销。</p>
+    <p class="muted" id="undoHelp" hidden>按错了？请找经理或总管撤销。</p>
     <button class="btn sec" id="undo" hidden>撤销这一场的签到</button>
   </div>
   <button class="btn sec" id="swap" hidden></button>
 </main>
-<script src="../tp.js?v=1"></script>
+<script src="../tp.js?v=2"></script>
 <script>
 (function(){
 var Q=new URLSearchParams(location.search);
@@ -129,11 +129,11 @@ $('item').addEventListener('change',function(){put('bstw_item',$('item').value);
 var WAIT=20000;
 function within(ms){if(!window.AbortController)return undefined;var c=new AbortController();setTimeout(function(){c.abort()},ms);return c.signal}   // a lost network must not wait for ever
 function raw(path,opt){opt=opt||{};return fetch(API+path,{signal:within(WAIT),method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(opt.noAuth?'':key())},body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){return r.json().then(function(d){d._s=r.status;return d})})}
-// a manager's password once a day (06:00 Beijing), a 总管／副总管's every 12 hours: asked here, then the same request goes on
+// a manager's password once a day (06:00 Beijing), a 总管／经理's every 12 hours: asked here, then the same request goes on
 var againP=null;
 function again(role){
   if(againP)return againP;
-  againP=TP.pin({title:'请再输一次密码',note:role==='manager'?'现场经理每天第一次用要输一次（北京时间早上 6 点换天）。':'总管、副总管每 12 小时要再输一次。',check:function(pin){
+  againP=TP.pin({title:'请再输一次密码',note:role==='manager'?'现场经理每天第一次用要输一次（北京时间早上 6 点换天）。':'总管、经理每 12 小时要再输一次。',check:function(pin){
     return raw('/social/reg/login/again',{method:'POST',body:{pin:pin}}).then(function(d){
       if(d.ok)return {value:true};if(d.error==='signed_out'){setTimeout(function(){lost(d)},0);return {value:false}}
       return {msg:TP.pinText(d)||'没成功',stop:d.error==='stopped'}})}}).then(function(v){againP=null;return !!v});
@@ -142,16 +142,16 @@ function call(path,opt){return raw(path,opt).then(function(d){
   if(d._s!==401||!TP.dev()||TP.owner()||d.error!=='reauth')return d;
   return again(d.role).then(function(ok){return ok?raw(path,opt):d})})}
 function res(kind,text){var r=$('res');r.className='res '+kind;r.textContent=text;r.hidden=!text}
-var GO={"zh": {"go": "请先到现场经理处付款，再入场"}, "en": {"go": "Please pay the event manager first, then come in"}, "ko": {"go": "먼저 행사 매니저에게 결제한 뒤 입장해 주세요"}, "es": {"go": "Primero paga al responsable del evento y después entra"}, "ru": {"go": "Сначала оплатите у менеджера мероприятия, затем проходите"}};
+var GO={"zh": {"go": "请先到经理处付款，再入场"}, "en": {"go": "Please pay the event manager first, then come in"}, "ko": {"go": "먼저 행사 매니저에게 결제한 뒤 입장해 주세요"}, "es": {"go": "Primero paga al responsable del evento y después entra"}, "ru": {"go": "Сначала оплатите у менеджера мероприятия, затем проходите"}};
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'},method='',taking=false;
 function yen(n){return '¥'+Number(n).toLocaleString('en-US')}
 function hm(iso){return new Date(iso).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'})}
 function when(iso){return new Date(Date.parse(iso)+288e5).toISOString().slice(5,16).replace('T',' ')}
 function late(text){flash=text;flashKind='warn';load()}
 function takeState(){$('take').disabled=taking||!method||!$('arrived').checked;[].forEach.call(document.querySelectorAll('[data-m]'),function(b){b.setAttribute('aria-pressed',b.dataset.m===method)})}
-var WHO={owner:'总管',chief:'总管',deputy:'副总管',manager:'现场经理'},myRole='';   // this page is BSTW's, where the platform admin is the 总管
+var WHO={owner:'管理员',chief:'总管',deputy:'经理',manager:'现场经理'},myRole='';   // manager: only a role from before 2026-11-23
 function ready(name,collect,role){var adm=role!=='desk',badge=document.createElement('span'),org=adm&&role==='owner';
-  myRole=WHO[role]||'现场经理';
+  myRole=WHO[role]||'经理';
   badge.className='badge';badge.textContent=adm?myRole:'前台';$('me').textContent='';$('me').appendChild(badge);
   $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
   $('swap').hidden=false;$('swap').textContent='退出'+(adm?myRole:'前台');$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false}
@@ -177,8 +177,8 @@ function show(){
   $('note').textContent=info.note?'备注：'+info.note:'';
   var go=$('go');$('undo').hidden=!did[cur]||!asAdmin();$('undoHelp').hidden=!did[cur]||asAdmin();go.hidden=true;
   if(info.status==='cancelled'||info.status==='declined')return res('no','✕ '+ST[info.status]+'，不能入场');
-  if(!info.valid)return res('no','✕ 未完成付款，不能入场。如要到场付款，请找副总管或总管批准');
-  if(due){go.hidden=false;go.disabled=true;go.textContent='签到（付款后才能按）';return res('warn',c&&c.rest>0?'待收款':'待付款 · 请带到现场经理处')}
+  if(!info.valid)return res('no','✕ 未完成付款，不能入场。如要到场付款，请找经理或总管批准');
+  if(due){go.hidden=false;go.disabled=true;go.textContent='签到（付款后才能按）';return res('warn',c&&c.rest>0?'待收款':'待付款 · 请带到经理处')}
   go.disabled=false;
   if(p.items.indexOf(cur)<0)return res('no','✕ 没有报名「'+NAME[cur]+'」');
   if(did[cur])return res('warn','⚠ 已经签到过 '+hm(did[cur])+(by[cur]?'（'+by[cur]+'）':''));
@@ -195,14 +195,14 @@ $('go').addEventListener('click',function(){var cur=$('item').value;$('go').disa
     if(d.ok){info.checkins.push({item:cur,at:d.at,staff:d.by});show();res('ok','✓ 签到成功 · '+NAME[cur]);return}
     if(d.error==='already'){info.checkins.push({item:cur,at:d.at,staff:d.by});show();return}
     if(d._s===401){lost(d);return}
-    res('no','✕ '+(d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到现场经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
+    res('no','✕ '+(d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
 $('undo').addEventListener('click',function(){var cur=$('item').value;if(!confirm('撤销「'+NAME[cur]+'」的签到？'))return;
   var seen=info.checkins.filter(function(c){return c.item===cur})[0];
   call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur,undo:1,at:seen&&seen.at}}).then(function(d){
     if(d.ok){info.checkins=info.checkins.filter(function(c){return c.item!==cur});show();return}
     if(d._s===401)return lost(d);
     if(d.error==='already_undone')return late(d.last&&d.last.action==='checkin'?'刚刚已由 '+d.last.by+' '+when(d.last.at)+' 重新签到，这次没有撤销':d.last?'已经由 '+d.last.by+' '+when(d.last.at)+' 撤销过，这次没有再改':'刚刚有人改过，这次没有再改');
-    res('no',d.error==='manager_only'?'只有现场经理、副总管或总管能撤销':'✕ 没撤销成功：'+d.error)}).catch(function(){res('no','连不上后台，不确定有没有撤销：请重扫一次看看')})});
+    res('no',d.error==='manager_only'?'只有经理或总管能撤销':'✕ 没撤销成功：'+d.error)}).catch(function(){res('no','连不上后台，不确定有没有撤销：请重扫一次看看')})});
 $('login').addEventListener('submit',function(e){e.preventDefault();var v=$('tok').value.trim();if(!v){$('tok').focus();return}
   if(TP.dev()){res('no','这台已经是「'+((TP.who()||{}).name||'')+'」的：一支手机一种身份');return}
   put('bstw_admin',v);$('tok').value='';res('','');whoami()});

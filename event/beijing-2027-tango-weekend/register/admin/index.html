@@ -121,10 +121,10 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
 <div class="card" id="gone" hidden><h2>这台已经退出</h2><p id="goneText"></p><a class="btn p" id="goneIn" hidden>用这台的链接重新登入</a></div>
 <form id="login"><div class="card">
   <h2>登入</h2>
-  <p>请打开你的<b>专属链接</b>（或用手机相机扫二维码），再输入六位密码。总管、副总管、现场经理都一样。</p>
+  <p>请打开你的<b>专属链接</b>（或用手机相机扫二维码），再输入六位密码。总管、经理都一样。</p>
   <a class="btn p" id="toIn" hidden>用这台的链接登入</a>
   <p class="muted">前台登入后会直接到签到页。</p>
-  <details id="ownerBox"><summary class="muted">平台管理员</summary>
+  <details id="ownerBox"><summary class="muted">管理员</summary>
     <label for="tok">长密码</label>
     <input id="tok" type="password" autocomplete="current-password">
     <button class="p" id="load">登入</button></details>
@@ -134,7 +134,7 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
 <main id="app" hidden>
   <section id="v-site" hidden>
     <div class="bar"><a class="btn" id="toDoor" href="../checkin/">打开签到页，扫码</a></div>
-    <p class="muted">扫到谁，处理谁。这里只有你自己收的账；审核、批准到场付款找副总管或总管，退款找总管。</p>
+    <p class="muted">扫到谁，处理谁。这里只有你自己收的账；审核、批准到场付款找经理或总管，退款找总管。</p>
     <div class="cards" id="siteCards"></div>
     <table><thead><tr><th>时间</th><th>报名者</th><th>方式</th><th class="n">金额</th></tr></thead><tbody id="siteList"></tbody></table>
   </section>
@@ -185,8 +185,8 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
 
   <section id="v-set" hidden>
     <div class="remind" id="checkNote" role="alert" hidden>
-      <b id="checkWho"></b><b>请总管现在检查现场经理和前台两栏。</b>
-      <p>这位副总管可能知道经手过的链接和临时密码：不认得的人就删除；需要时给现场经理、前台按「重设」。</p>
+      <b id="checkWho"></b><b>请总管现在检查前台一栏。</b>
+      <p>这位经理可能知道经手过的前台链接和临时密码：不认得的人就删除；需要时给前台按「重设」。</p>
       <button id="checkOk">检查好了</button></div>
     <div class="once" id="sNew" hidden>
         <div class="top"><div><b id="sNewName"></b> 的专属链接和临时密码（只显示这一次，本人登入后会自动收起）</div><button id="sClose">关闭</button></div>
@@ -206,18 +206,11 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
         <div id="list-chief"></div>
       </div>
       <div class="card" id="col-deputy">
-        <h2>副总管<em id="c-deputy"></em></h2>
+        <h2>经理<em id="c-deputy"></em></h2>
         <p class="muted">日常工作。不能取消、退款、看护照姓名、导出。最多 3 位。</p>
-        <div class="bar" id="add-deputy"><input id="n-deputy" aria-label="副总管的名字" placeholder="名字，例如 竟文"><button class="p" data-add="deputy">新增</button></div>
+        <div class="bar" id="add-deputy"><input id="n-deputy" aria-label="经理的名字" placeholder="名字，例如 竟文"><button class="p" data-add="deputy">新增</button></div>
         <p class="why" id="why-deputy" hidden></p>
         <div id="list-deputy"></div>
-      </div>
-      <div class="card" id="col-manager">
-        <h2>现场经理<em id="c-manager"></em></h2>
-        <p class="muted">扫码、撤销签到、现场收款。看不到名单，不管前台。</p>
-        <div class="bar" id="add-manager"><input id="n-manager" aria-label="现场经理的名字" placeholder="名字，例如 小王"><button class="p" data-add="manager">新增</button></div>
-        <p class="why" id="why-manager" hidden></p>
-        <div id="list-manager"></div>
       </div>
       <div class="card" id="col-desk">
         <h2>前台<em id="c-desk"></em></h2>
@@ -237,7 +230,7 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
 <aside id="side" aria-label="报名详情" hidden></aside>
 <div id="msg" role="status"></div>
 
-<script src="../tp.js?v=1"></script>
+<script src="../tp.js?v=2"></script>
 <script>
 (function(){
 var API=(function(){try{var a=new URLSearchParams(location.search).get('api');if(a&&/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(a))return a}catch(e){}return 'https://api.tangoweekend.org'})();
@@ -252,7 +245,7 @@ var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款
 // mirrors the backend only to leave out buttons; the backend decides and does not send what a role may not see
 var ACT_NEEDS={confirm:'review',waitlist:'review',decline:'review',pay:'review',cash:'review',cancel:'cancel',refund:'refund'};
 var DONE={confirm:'确认',waitlist:'候补',decline:'婉拒',cash:'批准到场付款',pay:'记了收款',refund:'记了退款',cancel:'取消报名',modify:'修改报名',note:'改了内部备注'};
-var WHO={owner:'平台管理员',chief:'总管',deputy:'副总管',manager:'现场经理'},LEVEL={manager:1,deputy:2,chief:3};
+var WHO={owner:'管理员',chief:'总管',deputy:'经理',manager:'现场经理'},LEVEL={manager:1,deputy:2,chief:3};
 var LETTER={recv:'收到报名的信',notify:'给主办的新报名通知',confirm:'确认信',waitlist:'候补信',decline:'婉拒信',cash:'到场付款信',paid:'付款确认信',remind:'付款提醒',cancel:'取消信',modify:'修改确认信'};
 function mailTip(d){return d.mail==='sent'?'，信已寄出':d.mail==='failed'?'。但信没寄出，请自己联系报名者':''}
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'};
@@ -297,7 +290,7 @@ function call(path,opt){
 var againP=null;
 function again(role){
   if(againP)return againP;
-  againP=TP.pin({title:'请再输一次密码',note:role==='manager'?'现场经理每天第一次用要输一次（北京时间早上 6 点换天）。':'总管、副总管每 12 小时要再输一次。',check:function(pin){
+  againP=TP.pin({title:'请再输一次密码',note:role==='manager'?'现场经理每天第一次用要输一次（北京时间早上 6 点换天）。':'总管、经理每 12 小时要再输一次。',check:function(pin){
     return raw('/social/reg/login/again',{method:'POST',body:{pin:pin}}).then(function(r){return r.json()}).then(function(d){
       if(d.ok)return {value:true};
       if(d.error==='signed_out'){setTimeout(function(){signedOut(d)},0);return {value:false}}
@@ -320,7 +313,7 @@ function signedOut(why){
   $('toIn').hidden=!TP.key();$('toIn').href=TP.loginUrl(TP.key(),apiParam);
   closeLink();
   wipe(['staffList','siteList','siteCards'].concat(LISTS))}
-var LISTS=['side','rows','people','ledgerList','ledgerSum','moneyCards','lWho','todoCards','caps','roleCards','chips','list-chief','list-deputy','list-manager','staffList','c-chief','c-deputy','c-manager','c-desk','checkWho'];
+var LISTS=['side','rows','people','ledgerList','ledgerSum','moneyCards','lWho','todoCards','caps','roleCards','chips','list-chief','list-deputy','staffList','c-chief','c-deputy','c-desk','checkWho'];
 function wipe(ids){ids.forEach(function(i){$(i).innerHTML=''})}
 function load(){
   if(isDesk()){signedOut();return Promise.resolve()}   // one phone, one identity
@@ -364,11 +357,11 @@ function errText(d){
   if(e==='already_refunded')return '没有再退：'+(who||'已经退过')+'。画面已换成最新的';
   if(e==='note_changed')return '还没存：'+(who||'别人刚改过')+'，现在是「'+String(d.note||'（空白）').slice(0,60)+'」。你写的还在；再按一次保存就会盖掉它';
   if(e==='chief_taken')return '每场只有 1 位总管';
-  if(e==='deputy_full')return '副总管最多 3 位，已经满了：不能新增或升级，先删除或降级一位';
+  if(e==='deputy_full')return '经理最多 3 位，已经满了：不能新增或升级，先删除或降级一位';
   if(e==='full')return NAME[d.item]+' 只剩 '+d.left+' 位，这笔要 '+d.need+' 位';
   if(e==='bad_amount')return '金额不对：最多 '+fmt(d.rest!=null?d.rest:d.due);
   if(e==='name_taken')return '已经有这个名字了';
-  if(e==='name_reserved')return '这个名字留给平台管理员，请换一个';
+  if(e==='name_reserved')return '这个名字留给管理员，请换一个';
   if(e==='changed'||e==='not_found')return '没有改：别人刚改过或删除了。画面已换成最新的';
   return '没成功：'+e}
 
@@ -543,7 +536,7 @@ function side(){
     (r.promo?'<p class="muted">折扣码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':'')+'</p>':'')+
     (d.msg?'<h3>报名者留言</h3><div class="sideinfo">'+esc(d.msg)+'</div>':'')+
     '<h3>处理纪录（北京时间）</h3><div class="muted hist">'+history_(r)+'</div>'+
-    '<h3>内部备注</h3><textarea data-note placeholder="总管和副总管看得到，现场经理和前台看不到">'+esc(note)+'</textarea><button data-save>保存备注</button>'+
+    '<h3>内部备注</h3><textarea data-note placeholder="总管和经理看得到，前台看不到">'+esc(note)+'</textarea><button data-save>保存备注</button>'+
     '<div id="payBox"></div><div class="acts sacts">'+acts+next+'</div>'}
 function payForm(r,a){
   var rf=a==='refund',back=(r.payments||[]).reduce(function(s,x){return x.amount<0?s-x.amount:s},0),amount=rf?Math.max(0,(r.refund||0)-back):Math.max(0,r.amount-(r.paid_total||0));
@@ -638,27 +631,27 @@ var LOGIN={none:['还没有链接：请按「重设」','r'],new:['还没登入�
 function loginLine(l){if(!l)return '';var t=LOGIN[l.state]||['',''];
   var text=l.state==='on'?'已登入 '+l.devices+'/'+l.max+' 台':l.state==='locked'?'锁到 '+TP.bjTime(l.until)+'（连错 5 次）':t[0];
   return '<span class="login '+t[1]+'">'+esc(text)+'</span>'}
-// ---------- 设置：四栏
+// ---------- 设置：三栏（2026-11-23 起没有现场经理；旧资料里若还有，不显示）
 function team(){
   if(!full())return;
   var list=DATA.admins||[],n={chief:DATA.chief?1:0,deputy:0,manager:0},h={chief:'',deputy:'',manager:''};
   list.forEach(function(x){if(!x.disabled_at)n[x.role]++});
   var cap={chief:1,deputy:3},over=function(t){return !!cap[t]&&n[t]>=cap[t]};
   var net=function(name){var s=(DATA.ledger||{})[name]||{in:0,out:0},v=s.in-s.out;return v?'<span class="muted">收款净额 '+fmt(v)+'</span>':''};
-  if(DATA.chief)h.chief='<div class="item"><div class="h"><b>'+esc(DATA.chief)+'</b>'+net(DATA.chief)+'</div><p class="muted">平台管理员本人，用长密码登入，不另建账号，不在这里改。</p></div>';
+  if(DATA.chief)h.chief='<div class="item"><div class="h"><b>'+esc(DATA.chief)+'</b>'+net(DATA.chief)+'</div><p class="muted">管理员本人，用长密码登入，不另建账号，不在这里改。</p></div>';
   list.forEach(function(x){
     var id=' data-id="'+x.id+'"',ad=function(a,t,off){return '<button data-ad="'+a+'"'+id+(off?' disabled':'')+'>'+t+'</button>'},why='';
     if(x.disabled_at){h[x.role]+='<div class="item"><div class="h"><b>'+esc(x.name)+'</b><span class="st cancelled">已停用</span></div>'+(x.manage?'<div class="acts">'+ad('delete','删除')+'</div>':'')+'</div>';return}
-    var moves=['chief','deputy','manager'].filter(function(t){return t!==x.role&&appoints(t)}).map(function(t){
-      var off=over(t);if(off&&!why)why=t==='deputy'?'副总管已满 3 位，不能'+(x.role==='chief'?'降为':'升为')+'副总管。':'已有 1 位总管，不能再升。';
+    var moves=['chief','deputy'].filter(function(t){return t!==x.role&&appoints(t)}).map(function(t){
+      var off=over(t);if(off&&!why)why=t==='deputy'?'经理已满 3 位，不能'+(x.role==='chief'?'降为':'升为')+'经理。':'已有 1 位总管，不能再升。';
       return ad(t,(LEVEL[t]>LEVEL[x.role]?'升为':'降为')+WHO[t],off)}).join('');
     h[x.role]+='<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b>'+(x.name===DATA.me.name?' <span class="muted">（你）</span>':'')+' '+loginLine(x.login)+'</span>'+net(x.name)+'</div>'+
       (x.manage?'<div class="acts">'+moves+ad('reset','重设')+ad('delete','删除')+'</div>'+(why?'<p class="muted">'+why+'</p>':''):'')+'</div>'});
-  ['chief','deputy','manager'].forEach(function(t){
+  ['chief','deputy'].forEach(function(t){
     var may=appoints(t),full_=over(t),why='';
     if(t==='deputy'&&full_)why='已满 3 位：不能再新增，也不能升级。要换人，先删除或降级一位。'+(may?'':'只有总管能任免。');
-    else if(t==='deputy'&&!may)why='只有总管能任免副总管。';
-    else if(t==='chief'&&!DATA.chief)why=may?(full_?'已有 1 位总管：要换人，先删除或降级现任。':''):'只有平台管理员能任免总管。';
+    else if(t==='deputy'&&!may)why='只有总管能任免经理。';
+    else if(t==='chief'&&!DATA.chief)why=may?(full_?'已有 1 位总管：要换人，先删除或降级现任。':''):'只有管理员能任免总管。';
     $('c-'+t).textContent=n[t]+(cap[t]?' / '+cap[t]:' 位');
     $('add-'+t).hidden=!may;
     $('n-'+t).disabled=full_;$('add-'+t).querySelector('button').disabled=full_;
@@ -716,19 +709,18 @@ $('team').addEventListener('click',function(e){
     return}
   var b=e.target.closest('button[data-ad]');if(!b)return;
   var a=b.dataset.ad,id=+b.dataset.id,x=(DATA.admins||[]).filter(function(v){return v.id===id})[0];if(!x)return;
-  var role=LEVEL[a]?a:'',out=x.role==='deputy'&&!x.disabled_at&&(a==='delete'||role==='manager');
-  var ask={chief:'改成总管？总管有这场活动的全部权限，包括退款、护照姓名、导出、任免副总管。',
-    deputy:x.role==='chief'?'降为副总管？马上不能取消、退款、看护照姓名、导出。':'升为副总管？会看到名单、邮箱、全部账目，也能任免现场经理和前台。',
-    manager:'降为现场经理？马上看不到名单，只能扫码、撤销签到、现场收款。',
+  var role=LEVEL[a]?a:'',out=x.role==='deputy'&&!x.disabled_at&&a==='delete';
+  var ask={chief:'改成总管？总管有这场活动的全部权限，包括退款、护照姓名、导出、任免经理。',
+    deputy:x.role==='chief'?'降为经理？马上不能取消、退款、看护照姓名、导出。':'升为经理？会看到名单、邮箱、全部账目，也能任免前台。',
     reset:'重设？会产生新的链接和临时密码；旧链接、旧密码马上失效，这个人所有手机马上退出。','delete':'删除？马上失效，这个人所有手机马上退出，会从这里消失，不能恢复。已有的收款、签到纪录还留着。'}[a];
   if(role)ask+='\n\n改职务后，这个人所有手机会退出，要用原来的链接重新登入。';
-  if(out)ask+='\n\n做完请总管检查名单，需要时给现场经理、前台按「重设」。';
+  if(out)ask+='\n\n做完请总管检查名单，需要时给前台按「重设」。';
   if(!confirm('「'+x.name+'」'+ask))return;
   withPin(APPOINT[0],APPOINT[1],function(pin){return act('/admins/'+(role?'role':a),role?{id:id,role:role,pin:pin}:a==='reset'?{id:id,v:x.v,pin:pin}:{id:id,pin:pin})}).then(function(d){
     if(!d.ok){toast(errText(d),7000);if(/^(changed|not_found|deputy_full|chief_taken)$/.test(d.error))load();return}
     if(a==='delete'&&+$('sNew').dataset.id===id&&$('sNew').dataset.kind==='admin')closeLink();
     if(d.link)showLink({id:id,name:x.name,link:d.link,pin:d.pin},'admin');
-    if(d.check){$('checkWho').textContent='「'+x.name+'」已经不是副总管。';$('checkNote').hidden=false;$('checkNote').scrollIntoView({block:'center'})}
+    if(d.check){$('checkWho').textContent='「'+x.name+'」已经不是经理。';$('checkNote').hidden=false;$('checkNote').scrollIntoView({block:'center'})}
     toast(role?'已改为'+WHO[role]:a==='reset'?'已产生新链接和临时密码':'已删除');load()})});
 $('sAdd').addEventListener('click',function(){var b=this,n=$('sName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
@@ -748,7 +740,7 @@ $('login').addEventListener('submit',function(e){e.preventDefault();
   TOKEN=$('tok').value.trim();if(TOKEN){put(TOKEN);load()}});
 $('refresh').addEventListener('click',load);
 $('logout').addEventListener('click',function(){
-  if(!confirm(dev()?'在这台退出？再进来要用链接和密码。':'退出平台管理员？再进来要输长密码。'))return;
+  if(!confirm(dev()?'在这台退出？再进来要用链接和密码。':'退出管理员？再进来要输长密码。'))return;
   if(dev())raw('/social/reg/login/out',{method:'POST',body:{}}).catch(function(){});
   signedOut()});
 // the personal link's key can arrive in the address (a home-screen icon keeps it); it is not enough without the password
