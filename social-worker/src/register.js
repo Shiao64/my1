@@ -260,7 +260,7 @@ const CAP = {
  "zh": {
   "pay": "请扫码付款，付款后回复确认信并附截图",
   "pass": "入场码：请出示给前台，每人一个",
-  "cash": "到场付款：请出示此二维码给现场经理，付款后才能入场"
+  "cash": "到场付款：请出示此二维码给经理，付款后才能入场"
  },
  "en": {
   "pay": "Scan to pay, then reply to the confirmation email with a screenshot",
@@ -455,8 +455,9 @@ const bjTime = iso => iso ? new Date(Date.parse(iso) + 8 * 36e5).toISOString().s
 // Who is calling. The rules are the first section of docs/tangopass.md (2026-11-23):
 //   owner    管理员 (平台管理员 until 2026-11-23): every event, appoints everyone. Where the event says chief:'owner', also that event's 总管
 //   chief    总管: one per event
-//   deputy   副总管: three at most per event
-//   manager  现场经理: money on site, for the code just scanned
+//   deputy   经理 (副总管 until 2026-11-23, same rights): three at most per event
+//   manager  the old 现场经理 (money on site, for the code just scanned). Since 2026-11-23 (Shiao) no longer appointed:
+//            migration 0025 made every one 经理; only a value from before the rules still lands here
 //   desk     前台 (reg_staff): check-in only
 // Nobody acts on their own rank or above. reg_admin.perms holds the role; any older value is a site manager.
 const RANK = { desk: 0, manager: 1, deputy: 2, chief: 3, owner: 4 };
@@ -486,7 +487,7 @@ const reserved = (env, name) => [ownerName(env), '主办', '组织者'].includes
 const NAME_FREE = 'NOT EXISTS (SELECT 1 FROM reg_admin WHERE event=? AND name=? AND disabled_at IS NULL) AND NOT EXISTS (SELECT 1 FROM reg_staff WHERE event=? AND name=? AND disabled_at IS NULL)';
 async function nameFree(env, evId, name) { return !!(await env.SDB.prepare('SELECT 1 x WHERE ' + NAME_FREE).bind(evId, name, evId, name).first()); }
 function meOf(who, ev) {
-  const appoint = ['chief', 'deputy', 'manager', 'desk'].filter(x => mayAppoint(who, x) && !(x === 'chief' && ev.chief === 'owner'));
+  const appoint = ['chief', 'deputy', 'desk'].filter(x => mayAppoint(who, x) && !(x === 'chief' && ev.chief === 'owner'));
   return { name: who.name, role: who.role, seat: who.role === 'owner' && ev.chief === 'owner' ? 'chief' : who.role, perms: GRANT[who.role], appoint };
 }
 // v = which password or link a screen was showing; a reset or reissue from an older screen loses. Not a secret: a piece of a hash.
@@ -552,7 +553,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
   const who = caller.who;
   if (!who) return json({ error: 'auth' }, 401);
   const deny = () => json({ error: 'no_permission' }, 403);
-  // 任免 (总管 and 副总管), and a 总管's refunds and exports, carry the password again in that same request.
+  // 任免 (总管 and 经理), and a 总管's refunds and exports, carry the password again in that same request.
   // The platform admin keeps the long password and is not asked (Shiao, 2026-11-23).
   const stepUp = async () => {
     if (who.role === 'owner') return null;
@@ -620,9 +621,9 @@ export async function regAdmin(req, env, url, b, json, kit) {
   if (p.startsWith('/admins')) {
     if (RANK[who.role] < RANK.deputy) return deny();
     if (req.method !== 'POST') return json({ error: 'not_found' }, 404);
-    const want = p === '/admins' ? (b.role == null ? 'manager' : b.role) : b && b.role;
+    const want = b && b.role;
     if (p === '/admins' || p === '/admins/role') {
-      if (!['chief', 'deputy', 'manager'].includes(want)) return json({ error: 'bad_role' }, 400);
+      if (!['chief', 'deputy'].includes(want)) return json({ error: 'bad_role' }, 400);   // no 现场经理 since 2026-11-23
       if (!mayAppoint(who, want)) return deny();
       if (want === 'chief' && ev.chief === 'owner') return json({ error: 'chief_taken' }, 409);
     }
