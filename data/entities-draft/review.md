@@ -1,6 +1,6 @@
 # 待确认清单（自动生成草稿）
 
-统计：活动卡 324 张；场地 140 个；团体 82 个；组织者 117 位。
+统计：活动卡 324 张；场地 141 个；团体 82 个；组织者 117 位。
 已回答的题目记在 data/entities-draft/decisions.json，不会再出现。
 
 # 第一部分：中国大陆和香港（先做）
@@ -12,8 +12,8 @@
 
 ## B. 同一个场地有几种写法，用哪个？（也可能是同一栋楼里不同的小场地）
 
-3. Hangzhou：V027 名称：INTANGO SALON ／ inTango HangZhou
-4. Xi'an：V066 名称：TangoSang ／ TangoSang Argentine Tango Club
+3. Hangzhou：V028 名称：INTANGO SALON ／ inTango HangZhou
+4. Xi'an：V067 名称：TangoSang ／ TangoSang Argentine Tango Club
 
 ## D. 这是团体还是个人？
 
@@ -23,19 +23,21 @@
 
 ## E. 场地待定或没有地址（以后补）
 
-8. Beijing：Diego y Aldana 再临北京 · 交流论坛（E131）场地写“待定”
-9. Chengdu：2027 TangotoWorldCUP 成都预选赛 · 第5届成都国际非遗探戈比赛（E163）场地写“待定”
-10. Qingdao：Tango La Vida / Tango La Vida 青岛阿根廷探戈舞蹈俱乐部（青岛周六 Milonga · Tango La Vida、Wednesday práctica） 没有地址
-11. Shanghai：TeAmo / Paramount / Pampamia（2027上海探戈（新年）假期） 没有地址
-12. Wuhan：喝死拉倒 | 2027·WuHan·HSLD（E132）场地写“待定”
-13. Wuhan：第二届武汉探戈国际嘉年华（E160）场地写“待定”
+8. Beijing：AC Embassy Hotel, Beijing / 北京奥加美术馆酒店（北京精选探戈周末） 没有地址
+9. Beijing：Diego y Aldana 再临北京 · 交流论坛（E131）场地写“待定”
+10. Chengdu：2027 TangotoWorldCUP 成都预选赛 · 第5届成都国际非遗探戈比赛（E163）场地写“待定”
+11. Qingdao：Tango La Vida / Tango La Vida 青岛阿根廷探戈舞蹈俱乐部（青岛周六 Milonga · Tango La Vida、Wednesday práctica） 没有地址
+12. Shanghai：TeAmo / Paramount / Pampamia（2027上海探戈（新年）假期） 没有地址
+13. Wuhan：喝死拉倒 | 2027·WuHan·HSLD（E132）场地写“待定”
+14. Wuhan：第二届武汉探戈国际嘉年华（E160）场地写“待定”
 
 ## F. 资料要补的（只列还在进行的活动）
 
-14. Qingdao：Wednesday práctica（R253）：缺本地语言地址
-15. Qingdao：青岛周六 Milonga · Tango La Vida（R252）：缺本地语言地址
-16. Shanghai：2027上海探戈（新年）假期（E164）：缺本地语言地址
-17. Shanghai：iTango 练习舞会（juGlRrW2）：海报最新一期是 2026-10-22，超过 4 周
+15. Beijing：北京精选探戈周末（E093）：缺本地语言地址
+16. Qingdao：Wednesday práctica（R253）：缺本地语言地址
+17. Qingdao：青岛周六 Milonga · Tango La Vida（R252）：缺本地语言地址
+18. Shanghai：2027上海探戈（新年）假期（E164）：缺本地语言地址
+19. Shanghai：iTango 练习舞会（juGlRrW2）：海报最新一期是 2026-10-22，超过 4 周
 
 # 第二部分：其他地区（暂缓）
 
