@@ -298,14 +298,14 @@ async function saveVerify(env, kit, row) {
     await env.SDB.prepare(`INSERT INTO profile_verify(email,token_hash,sent_at,tries,lang,name,city,role,alert_opt_in,ret,pending_intent,card_id,wants_sitewide,claim_hash,confirmed_at,claim_session) VALUES(?,?,?,0,?,?,?,?,?,?,?,?,?,?,NULL,NULL)
       ON CONFLICT(email) DO UPDATE SET token_hash=excluded.token_hash,sent_at=excluded.sent_at,tries=0,lang=excluded.lang,name=excluded.name,city=excluded.city,role=excluded.role,alert_opt_in=excluded.alert_opt_in,ret=excluded.ret,pending_intent=excluded.pending_intent,card_id=excluded.card_id,wants_sitewide=excluded.wants_sitewide,claim_hash=excluded.claim_hash,confirmed_at=NULL,claim_session=NULL`)
       .bind(row.email, hash, ts, row.lang, row.name || '', row.city || '', row.role || '', site, row.ret, intent || '', card, site, claim).run();
-    return { link, nonce, code: await saveCode(env, kit, row.email) };
+    return { link, nonce, code: await saveCode(env, kit, row.email), at: ts };
   } catch (e) {
     if (!missingColumn(e)) throw e;
   }
   await env.SDB.prepare(`INSERT INTO profile_verify(email,token_hash,sent_at,tries,lang,name,city,role,alert_opt_in,ret,pending_intent,card_id,wants_sitewide) VALUES(?,?,?,0,?,?,?,?,?,?,?,?,?)
     ON CONFLICT(email) DO UPDATE SET token_hash=excluded.token_hash,sent_at=excluded.sent_at,tries=0,lang=excluded.lang,name=excluded.name,city=excluded.city,role=excluded.role,alert_opt_in=excluded.alert_opt_in,ret=excluded.ret,pending_intent=excluded.pending_intent,card_id=excluded.card_id,wants_sitewide=excluded.wants_sitewide`)
     .bind(row.email, hash, ts, row.lang, row.name || '', row.city || '', row.role || '', site, row.ret, intent || '', card, site).run();
-  return { link, nonce: '' };
+  return { link, nonce: '', at: ts };
 }
 function previewOrigins(env) {
   if (!env || env.PREVIEW !== '1') return [];
@@ -534,6 +534,32 @@ function confirmHello(name, zh) {
   if (zh) return n ? n + '，你好！' : '你好！';
   return n ? 'Hi ' + n + ',' : 'Hi,';
 }
+// 2026-11-23 Shiao: sign-in from the BSTW registration page gets its own short letter: the code in the subject
+// and on the first line, the time it was sent, and that only the newest code works. No subscription wording,
+// no link, no phone last-4 (the registration page signs in with the email code only).
+const REG_CODE = {
+  zh: { subject: '北京精选探戈周末报名验证码 {c}', code: '你的验证码：', go: '请回到报名页输入这 6 位数字，30 分钟内有效。', sent: '这封信在北京时间 {t} 寄出。如果你寄了好几次，只有最新一封信里的验证码有效。', ignore: '如果不是你本人操作，忽略这封信即可。' },
+  en: { subject: 'Beijing Select Tango Weekend registration code {c}', code: 'Your code:', go: 'Go back to the registration page and enter these 6 digits. The code works for 30 minutes.', sent: 'Sent at {t} Beijing time. If you asked more than once, only the code in the newest email works.', ignore: 'If this wasn\'t you, you can ignore this email.' },
+  ko: { subject: '베이징 셀렉트 탱고 위켄드 신청 인증 코드 {c}', code: '인증 코드:', go: '신청 페이지로 돌아가 이 6자리 숫자를 입력해 주세요. 30분 동안 유효합니다.', sent: '베이징 시간 {t}에 발송되었습니다. 여러 번 요청했다면 가장 최근 메일의 코드만 사용할 수 있습니다.', ignore: '본인이 요청하지 않았다면 이 메일은 무시하셔도 됩니다.' },
+  es: { subject: 'Código de inscripción Beijing Select Tango Weekend: {c}', code: 'Tu código:', go: 'Vuelve a la página de inscripción e introduce estos 6 dígitos. Vale 30 minutos.', sent: 'Enviado a las {t}, hora de Pekín. Si lo pediste varias veces, solo funciona el código del correo más reciente.', ignore: 'Si no fuiste tú, ignora este correo.' },
+  ru: { subject: 'Код регистрации Beijing Select Tango Weekend: {c}', code: 'Ваш код:', go: 'Вернитесь на страницу регистрации и введите эти 6 цифр. Код действует 30 минут.', sent: 'Отправлено в {t} по пекинскому времени. Если вы запрашивали код несколько раз, работает только код из самого нового письма.', ignore: 'Если это были не вы, просто проигнорируйте это письмо.' }
+};
+const REG_SIGN = 'Beijing Select Tango Weekend · 北京精选探戈周末';
+function bjClock(at) {
+  const t = Date.parse(at || '');
+  return new Date((Number.isFinite(t) ? t : Date.now()) + 8 * 3600e3).toISOString().slice(11, 16);
+}
+export function buildRegCodeLetter(lang, code, at, he) {
+  const L = REG_CODE[lang] ? lang : 'en';
+  const w = REG_CODE[L];
+  const esc = typeof he === 'function' ? he : (s => String(s == null ? '' : s));
+  const c = String(code || '');
+  const sent = w.sent.replace('{t}', bjClock(at));
+  const subject = w.subject.replace('{c}', c);
+  const text = `${w.code}${L === 'zh' ? '' : ' '}${c}\n\n${w.go}\n\n${sent}\n\n${w.ignore}\n\n${REG_SIGN}`;
+  const html = `<!doctype html><html lang="${L === 'zh' ? 'zh-CN' : L}"><body style="margin:0;padding:24px;background:#fbf5e9;font-family:system-ui,-apple-system,sans-serif;color:#2a1a14"><div style="max-width:480px;margin:0 auto;background:#fff;border:1px solid #ead9b8;border-radius:16px;padding:26px 22px"><p style="margin:0 0 6px;font-size:15px">${esc(w.code)}</p><p style="margin:0 0 18px;font-size:34px;font-weight:700;letter-spacing:6px;color:#7a0a10">${esc(c)}</p><p style="margin:0 0 10px;line-height:1.55">${esc(w.go)}</p><p style="margin:0 0 16px;line-height:1.55;color:#7a6255">${esc(sent)}</p><p style="margin:0;font-size:13px;line-height:1.5;color:#7a6255">${esc(w.ignore)}</p><p style="margin:22px 0 0;font-size:13px">${esc(REG_SIGN)}</p></div></body></html>`;
+  return { subject, text, html, fromName: 'Beijing Select Tango Weekend' };
+}
 // Star submit, menu profile, and restore all send this letter.
 // social.js sendMagic and subscribe-worker /confirm are different letters.
 export function buildConfirmLetter(row, link, _pending, he) {
@@ -555,7 +581,7 @@ export function buildConfirmLetter(row, link, _pending, he) {
   return { subject, text, html, fromName: sign };
 }
 async function sendVerify(env, kit, row, link, pending) {
-  const letter = buildConfirmLetter(row, link, pending, kit.he);
+  const letter = row.reg && row.code ? buildRegCodeLetter(row.rlang || row.lang, row.code, row.at, kit.he) : buildConfirmLetter(row, link, pending, kit.he);
   return kit.deliver(env, row.email, letter.subject, letter.text, letter.html, undefined, { fromName: letter.fromName });
 }
 function intentLabel(intent) {
@@ -1291,7 +1317,9 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
   if (!role && !subOnly) return json({ error: 'need_role' }, 400);
   const session = await sessionUser(req, env);
   const same = !!(session && session.email === email);
-  const phoneCheck = readTail(b, !same);
+  // 2026-11-23 Shiao: the registration page signs in with the email code only, no phone last-4.
+  const forReg = b.for === 'reg';
+  const phoneCheck = readTail(b, !same && !forReg);
   if (phoneCheck.error) return json({ error: phoneCheck.error, mailed: false }, phoneCheck.status);
   const ret = kit.safeNext(b.ret, env);
   if (!ret) return json({ error: 'bad_return' }, 400);
@@ -1336,10 +1364,11 @@ export async function goingProfile(req, env, b, ip, iph, json, kit) {
     }
   }
   let via;
-  try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1, code: saved.code }, link, null); }
+  const rlang = ['en', 'ko', 'es', 'ru', 'zh'].includes(b.rlang) ? b.rlang : lang;
+  try { via = await sendVerify(env, kit, { email, name, lang, promo: alert === 1, code: saved.code, reg: forReg, rlang, at: saved.at }, link, null); }
   catch (e) { return json({ error: 'send_failed' }, 502); }
   await noteConfirm(env, kit, email, String(b.dev || ''), iph);
-  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(saved.code ? { code: true } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
+  return confirmJson(req, { ok: true, confirm: true, mailed: false, ...(forReg && saved.at ? { sent_at: saved.at } : {}), ...(saved.nonce ? { nonce: saved.nonce } : {}), ...(saved.code ? { code: true } : {}), ...(env.PREVIEW_SHOW_CODE === '1' && via === 'log' ? { preview_link: link } : {}) }, 200, env);
 }
 
 export async function goingRestore(req, env, b, ip, json, kit) {
