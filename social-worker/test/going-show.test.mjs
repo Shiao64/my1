@@ -86,11 +86,13 @@ const mine = await get('/going/mine', auth);
 check('mine returns favorites and per-show rows', mine.favs.includes('W1') && mine.items.some(x => x.anchor === dates[1] && x.intent === 'interested' && x.date === ''));
 const drop = await post('/going/unfav', { id: 'W1', explicit: 1 }, auth);
 check('unfavorite cancels every saved show', drop.removed && !db.prepare("SELECT id FROM going_intents WHERE email=? AND status='active'").get('ann@example.com') && !db.prepare('SELECT card_id FROM going_favs WHERE email=?').get('ann@example.com'));
-await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'F1', intent: 'interested', dev: 'device-show-0002' });
-await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], dev: 'device-show-0002' });
-await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'W1', intent: 'going', anchor: dates[1], date: dates[1], dev: 'device-show-0002' });
-const blocked = await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'W1', intent: 'going', anchor: dates[2], date: dates[2], dev: 'device-show-0002' });
-check('the fourth mail in an hour is a plain retry', blocked._s === 429 && blocked.error === 'rate_limited' && !JSON.stringify(blocked).includes('cap@'));
+// one email: 10 an hour, 50 a day (Shiao, 2026-11-23). Earlier mails come from other devices and networks, so only the email limit applies.
+{ const capNow = new Date().toISOString(), capIp = { 'CF-Connecting-IP': '203.0.113.30' };
+  for (let n = 0; n < 9; n++) db.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').run('cap@example.com', 'device-cap-h' + n, 'ip-cap-h' + n, capNow);
+  const tenth = await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'F1', intent: 'interested', dev: 'device-show-0002' }, capIp);
+  check('the tenth mail in an hour for one email still goes', tenth.confirm === true && !tenth.error, tenth);
+  const blocked = await post('/going', { ...base, email: 'cap@example.com', name: 'Cap', id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], dev: 'device-show-0002' }, capIp);
+  check('the eleventh mail in an hour is a plain retry', blocked._s === 429 && blocked.error === 'rate_limited' && !JSON.stringify(blocked).includes('cap@'), blocked); }
 const now = new Date().toISOString();
 for (let n = 0; n < 10; n++) db.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').run('d' + n + '@example.com', 'device-full-0001', 'ip-other', now);
 const overDev = await post('/going', { ...base, email: 'fresh@example.com', name: 'Fresh', id: 'F1', intent: 'interested', dev: 'device-full-0001' });
@@ -113,9 +115,12 @@ check('restore still requires the human check', restoreBlocked._s === 403 && res
 delete env.TURNSTILE_SECRET;
 globalThis.fetch = realFetch;
 const dayNow = new Date().toISOString();
-for (let n = 0; n < 10; n++) db.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').run('daycap@example.com', 'device-day-other', 'ip-day-other', dayNow);
-const overDay = await post('/going', { ...base, email: 'daycap@example.com', name: 'Day', id: 'F1', intent: 'interested', dev: 'device-day-0001' });
-check('the eleventh mail in a day is the same retry', overDay._s === 429 && overDay.error === 'rate_limited' && !JSON.stringify(overDay).includes('daycap@'));
+{ const earlier = new Date(Date.now() - 2 * 3600e3).toISOString(), dayIp = { 'CF-Connecting-IP': '203.0.113.31' };   // two hours ago: outside the hourly window
+  for (let n = 0; n < 49; n++) db.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').run('daycap@example.com', 'device-day-other' + n, 'ip-day-other' + n, earlier);
+  const fiftieth = await post('/going', { ...base, email: 'daycap@example.com', name: 'Day', id: 'F1', intent: 'interested', dev: 'device-day-0001' }, dayIp);
+  check('the fiftieth mail in a day still goes', fiftieth.confirm === true && !fiftieth.error, fiftieth);
+  const overDay = await post('/going', { ...base, email: 'daycap@example.com', name: 'Day', id: 'W1', intent: 'going', anchor: dates[0], date: dates[0], dev: 'device-day-0001' }, dayIp);
+  check('the fifty-first mail in a day is the same retry', overDay._s === 429 && overDay.error === 'rate_limited' && !JSON.stringify(overDay).includes('daycap@'), overDay); }
 const ipHash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode('203.0.113.9atm')))].map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
 for (let n = 0; n < 10; n++) db.prepare('INSERT INTO going_confirm_log(email,dev,ip_hash,created_at) VALUES(?,?,?,?)').run('ip' + n + '@example.com', 'device-ip-other-' + n, ipHash, dayNow);
 const overIp = await post('/going', { ...base, email: 'ipfresh@example.com', name: 'Ip', id: 'F1', intent: 'interested', dev: 'device-ip-fresh1' }, { 'CF-Connecting-IP': '203.0.113.9' });

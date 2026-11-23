@@ -57,7 +57,7 @@ check('a checked subscribe box does not add a second paragraph', promo.text === 
 
 const goingSrc = read('social-worker/src/going.js');
 check('token expiry is 30 minutes', goingSrc.includes('const PROFILE_MS = 30 * 60e3'));
-check('resend limits stay', goingSrc.includes('const RESEND_GAP_MS = 60e3') && goingSrc.includes('if (rows.length >= 2) return { error: \'resend_used\' }') && goingSrc.includes('(eh || 0) >= 3 || (ed || 0) >= 10 || (ih || 0) >= 10 || (dh || 0) >= 10'));
+check('resend limits stay', goingSrc.includes('const RESEND_GAP_MS = 60e3') && goingSrc.includes('if (rows.length >= 2) return { error: \'resend_used\' }') && goingSrc.includes('(eh || 0) >= 10 || (ed || 0) >= 50 || (ih || 0) >= 10 || (dh || 0) >= 10'));
 check('menu profile and the star submit share this letter', /export async function goingProfile[\s\S]*?sendVerify\(/.test(goingSrc) && /export async function goingSubmit[\s\S]*?sendVerify\(/.test(goingSrc));
 const magic = read('social-worker/src/social.js');
 const subWorker = read('subscribe-worker/src/index.js');
