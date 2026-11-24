@@ -85,6 +85,7 @@ tr.sel{background:#fff4d6}
 .team .card{margin:0;min-width:0}
 .team h2 em{float:right;font-style:normal;color:var(--ink)}
 .team .bar input{flex:1;min-width:0}
+.team .bar .em{flex:1 1 100%}.team .bar .em-tip{flex:1 1 100%;margin-top:-4px}
 .team .item .h b{overflow-wrap:anywhere}
 .why{background:#fff0bd;border-radius:8px;padding:6px 8px;font-size:13px;margin:0 0 8px}
 @media(min-width:700px){.team{grid-template-columns:repeat(2,minmax(0,1fr))}}
@@ -221,21 +222,21 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
       <div class="card" id="col-chief">
         <h2>总管<em id="c-chief"></em></h2>
         <p class="muted">全部权限。每场 1 位，组织者本人或其委托的人。</p>
-        <div class="bar" id="add-chief"><input id="n-chief" aria-label="总管的名字" placeholder="名字"><button class="p" data-add="chief">新增</button></div>
+        <div class="bar" id="add-chief"><input id="n-chief" aria-label="总管的名字" placeholder="名字"><button class="p" data-add="chief">新增</button><input class="em" id="m-chief" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="总管的邮箱（可不填）" placeholder="邮箱（可不填）"><span class="muted em-tip">在其他活动任职过的人，填同一个邮箱，就用他原来的链接和密码。</span></div>
         <p class="why" id="why-chief" hidden></p>
         <div id="list-chief"></div>
       </div>
       <div class="card" id="col-deputy">
         <h2>经理<em id="c-deputy"></em></h2>
         <p class="muted">日常工作。不能取消、退款、看护照姓名、导出。最多 3 位。</p>
-        <div class="bar" id="add-deputy"><input id="n-deputy" aria-label="经理的名字" placeholder="名字，例如 竟文"><button class="p" data-add="deputy">新增</button></div>
+        <div class="bar" id="add-deputy"><input id="n-deputy" aria-label="经理的名字" placeholder="名字，例如 竟文"><button class="p" data-add="deputy">新增</button><input class="em" id="m-deputy" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="经理的邮箱（可不填）" placeholder="邮箱（可不填）"><span class="muted em-tip">在其他活动任职过的人，填同一个邮箱，就用他原来的链接和密码。</span></div>
         <p class="why" id="why-deputy" hidden></p>
         <div id="list-deputy"></div>
       </div>
       <div class="card" id="col-desk">
         <h2>前台<em id="c-desk"></em></h2>
         <p class="muted">只签到，看不到名单和金额。每人一个专属链接＋六位密码，<b>只能在 1 台手机登入</b>；换手机就在新手机重新登入，丢了密码按「重设」。活动结束（北京时间 6/23 06:00）自动失效。</p>
-        <div class="bar"><input id="sName" aria-label="前台的名字" placeholder="名字，例如 小李"><button class="p" id="sAdd">新增</button></div>
+        <div class="bar"><input id="sName" aria-label="前台的名字" placeholder="名字，例如 小李"><button class="p" id="sAdd">新增</button><input class="em" id="sMail" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="前台的邮箱（可不填）" placeholder="邮箱（可不填）"><span class="muted em-tip">在其他活动任职过的人，填同一个邮箱，就用他原来的链接和密码。</span></div>
         <div id="staffList"></div>
       </div>
     </div>
@@ -408,6 +409,12 @@ function errText(d){
   if(e==='full')return NAME[d.item]+' 只剩 '+d.left+' 位，这笔要 '+d.need+' 位';
   if(e==='bad_amount')return '金额不对：最多 '+fmt(d.rest!=null?d.rest:d.due);
   if(e==='name_taken')return '已经有这个名字了';
+  if(e==='already_here')return '这个人在这场已经有职务了'+(d.name?'（「'+d.name+'」）':'');
+  if(e==='same_time')return '没有任命：他在「'+(d.event_name||'')+'」任职（'+mdDays(d)+'），和这场的日期重叠。一个人不能同时进行两场活动；前一场结束后才开始的、日期不重叠的可以';
+  if(e==='no_dates')return '没有任命：「'+(d.event_name||'')+'」还没有活动日期，没法确认两场的日期不重叠';
+  if(e==='bad_email')return '邮箱格式不对';
+  if(e==='other_events')return '没有重设：这个人也在其他活动任职，用的是同一个链接和密码，只有管理员能重设';
+  if(e==='not_ready')return '后台还没更新，暂时不能存邮箱：先不填邮箱';
   if(e==='name_reserved')return '这个名字留给管理员，请换一个';
   if(e==='changed'||e==='not_found')return '没有改：别人刚改过或删除了。画面已换成最新的';
   return '没成功：'+e}
@@ -692,7 +699,7 @@ function team(){
     var moves=['chief','deputy'].filter(function(t){return t!==x.role&&appoints(t)}).map(function(t){
       var off=over(t);if(off&&!why)why=t==='deputy'?'经理已满 3 位，不能'+(x.role==='chief'?'降为':'升为')+'经理。':'已有 1 位总管，不能再升。';
       return ad(t,(LEVEL[t]>LEVEL[x.role]?'升为':'降为')+WHO[t],off)}).join('');
-    h[x.role]+='<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b>'+(x.name===DATA.me.name?' <span class="muted">（你）</span>':'')+' '+loginLine(x.login)+'</span>'+net(x.name)+'</div>'+
+    h[x.role]+='<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b>'+(x.name===DATA.me.name?' <span class="muted">（你）</span>':'')+' '+loginLine(x.login)+othersTag(x)+'</span>'+net(x.name)+'</div>'+
       (x.manage?'<div class="acts">'+moves+ad('reset','重设')+ad('delete','删除')+'</div>'+(why?'<p class="muted">'+why+'</p>':''):'')+'</div>'});
   ['chief','deputy'].forEach(function(t){
     var may=appoints(t),full_=over(t),why='';
@@ -701,15 +708,15 @@ function team(){
     else if(t==='chief'&&!DATA.chief)why=may?(full_?'已有 1 位总管：要换人，先删除或降级现任。':''):'只有管理员能任免总管。';
     $('c-'+t).textContent=n[t]+(cap[t]?' / '+cap[t]:' 位');
     $('add-'+t).hidden=!may;
-    $('n-'+t).disabled=full_;$('add-'+t).querySelector('button').disabled=full_;
-    if(full_)$('n-'+t).value='';
+    $('n-'+t).disabled=$('m-'+t).disabled=full_;$('add-'+t).querySelector('button').disabled=full_;
+    if(full_)$('n-'+t).value=$('m-'+t).value='';
     $('why-'+t).textContent=why;$('why-'+t).hidden=!why;
     $('list-'+t).innerHTML=h[t]||'<p class="muted">现在没有'+WHO[t]+'。</p>'});
   $('c-desk').textContent=(DATA.staff||[]).filter(function(x){return !x.disabled_at}).length+' 位'}
 function deskList(){
   if(!appoints('desk')){$('staffList').innerHTML='';return}
   $('staffList').innerHTML=(DATA.staff||[]).map(function(x){
-    var s=x.disabled_at?'<span class="st cancelled">已停用</span>':loginLine(x.login);
+    var s=x.disabled_at?'<span class="st cancelled">已停用</span>':loginLine(x.login)+othersTag(x);
     return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+s+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts">'+
       (x.disabled_at?'':'<button data-s="reset" data-id="'+x.id+'">重设</button>')+'<button data-s="delete" data-id="'+x.id+'">删除</button></div></div>'}).join('')||'<p class="muted">现在没有前台。</p>'}
 // ---------- 设置：活动邮箱（2026-11-24 起；管理员改，总管只能看，其他人后台不给）
@@ -794,6 +801,11 @@ $('mAdminOn').addEventListener('change',function(){var c=this,on=c.checked,m=DAT
   mailSave({admin_on:on},c).then(function(d){if(!d.ok)c.checked=!on})});
 // after an appointment, reset or change of 职务: what happened to the 任命信 and the 总管邮箱
 function letterTip(d){return d.letter==='sent'?'；任命信已寄到总管邮箱':d.letter==='failed'?'；但寄到总管邮箱的信没寄出':''}
+// 一人多场 (2026-11-25): the email box may be left empty; one TP already knows makes the new role that same person's
+function mailOf(id){var v=$(id).value.trim().toLowerCase();if(v&&!/^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(v)){toast('邮箱格式不对');$(id).focus();return null}return v}
+function samePersonTip(n,d){return '已任命「'+n+'」'+(d.known_as&&d.known_as!==n?'（在其他活动叫「'+d.known_as+'」）':'')+'：他在其他活动已经有探戈通登入，用原来的链接和密码，不用再给'}
+function mdDays(d){var f=function(v){return +v.slice(5,7)+'/'+(+v.slice(8,10))};return d.starts?f(d.starts)+(d.ends&&d.ends!==d.starts?'–'+f(d.ends):''):''}
+function othersTag(x){return x.others?' <span class="muted">也在其他 '+x.others+' 场</span>':''}
 function clearedTip(d){return d.mail_cleared?'；总管邮箱已清空':''}
 function mailedLine(d){var m=DATA&&DATA.mailto&&DATA.mailto.chief;
   if(d.letter!=='sent'||!m){$('sMailed').hidden=true;return}
@@ -834,12 +846,14 @@ $('sCopy').addEventListener('click',function(){copy('sLink',LINK_TEXT)});
 $('sCopyPin').addEventListener('click',function(){var t=$('sPin').textContent;try{navigator.clipboard.writeText(t).then(function(){toast('已复制临时密码：请另发一条，不要和链接放在一起')},function(){toast('没复制成功，请手动抄下')})}catch(e){toast('没复制成功，请手动抄下')}});
 $('team').addEventListener('click',function(e){
   var add=e.target.closest('button[data-add]');
-  if(add){var t=add.dataset.add,box=$('n-'+t),n=box.value.trim(),cm=t==='chief'&&DATA.mailto&&DATA.mailto.chief;if(!n)return toast('请填名字');
+  if(add){var t=add.dataset.add,box=$('n-'+t),n=box.value.trim(),em=mailOf('m-'+t),cm=t==='chief'&&DATA.mailto&&DATA.mailto.chief;if(!n)return toast('请填名字');if(em===null)return;
     if(cm&&!confirm('任命「'+n+'」为总管？\n\n任命信会寄到总管邮箱 '+cm+'（只附专属链接，不附密码）。不是这个人的邮箱的话，请先改「活动邮箱」的总管邮箱。'))return;
     add.disabled=true;
-    withPin(APPOINT[0],APPOINT[1],function(pin){return act('/admins',{name:n,role:t,pin:pin})}).then(function(d){add.disabled=false;
+    withPin(APPOINT[0],APPOINT[1],function(pin){return act('/admins',{name:n,role:t,pin:pin,email:em||undefined})}).then(function(d){add.disabled=false;
       if(!d.ok){toast(errText(d),7000);if(d.error==='deputy_full'||d.error==='chief_taken')load();return}
-      box.value='';showLink(d,'admin');mailedLine(d);if(d.letter)toast('已任命'+letterTip(d),8000);load()});
+      box.value='';$('m-'+t).value='';
+      if(d.same_person){toast(samePersonTip(n,d)+letterTip(d),10000);load();return}
+      showLink(d,'admin');mailedLine(d);if(d.letter)toast('已任命'+letterTip(d),8000);load()});
     return}
   var b=e.target.closest('button[data-ad]');if(!b)return;
   var a=b.dataset.ad,id=+b.dataset.id,x=(DATA.admins||[]).filter(function(v){return v.id===id})[0];if(!x)return;
@@ -849,6 +863,8 @@ $('team').addEventListener('click',function(e){
     reset:'重设？会产生新的链接和临时密码；旧链接、旧密码马上失效，这个人所有手机马上退出。','delete':'删除？马上失效，这个人所有手机马上退出，会从这里消失，不能恢复。已有的收款、签到纪录还留着。'}[a];
   var newLink=a==='chief'&&DATA.mailto&&DATA.mailto.chief;
   if(role)ask+=newLink?'\n\n改职务后，这个人所有手机会退出。总管邮箱已填：会寄新的专属登入链接到 '+newLink+'，原来的链接失效（密码不变）。':'\n\n改职务后，这个人所有手机会退出，要用原来的链接重新登入。';
+  if(x.others&&a==='reset')ask+='\n\n他也在其他 '+x.others+' 场活动任职，用的是同一个链接和密码：那边也要用新链接重新登入。';
+  if(x.others&&a==='delete')ask='删除他在这场的职务？他在其他 '+x.others+' 场活动的职务、链接、密码和已登入的手机都不变。已有的收款、签到纪录还留着。';
   if(out)ask+='\n\n做完请总管检查名单，需要时给前台按「重设」。';
   if(x.role==='chief'&&(a==='delete'||a==='deputy')&&DATA.mailto&&DATA.mailto.chief)ask+='\n\n总管邮箱（'+DATA.mailto.chief+'）会清空，不再收副本。';
   if(x.role==='chief'&&a==='reset'&&DATA.mailto&&DATA.mailto.chief)ask+='\n\n新链接会寄到总管邮箱 '+DATA.mailto.chief+'（不附密码）。';
@@ -859,12 +875,16 @@ $('team').addEventListener('click',function(e){
     if(d.link){showLink({id:id,name:x.name,link:d.link,pin:d.pin},'admin');mailedLine(d)}
     if(d.check){$('checkWho').textContent='「'+x.name+'」已经不是经理。';$('checkNote').hidden=false;$('checkNote').scrollIntoView({block:'center'})}
     toast((role?'已改为'+WHO[role]:a==='reset'?'已产生新链接和临时密码':'已删除')+letterTip(d)+clearedTip(d),d.letter||d.mail_cleared?8000:4000);load()})});
-$('sAdd').addEventListener('click',function(){var b=this,n=$('sName').value.trim();if(!n)return toast('请填名字');
+$('sAdd').addEventListener('click',function(){var b=this,n=$('sName').value.trim(),em=mailOf('sMail');if(!n)return toast('请填名字');if(em===null)return;
   b.disabled=true;
-  withPin(APPOINT[0],APPOINT[1],function(pin){return act('/staff',{name:n,pin:pin})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('sName').value='';showLink(d,'staff');load()})});
+  withPin(APPOINT[0],APPOINT[1],function(pin){return act('/staff',{name:n,pin:pin,email:em||undefined})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d),7000);$('sName').value='';$('sMail').value='';
+    if(d.same_person){toast(samePersonTip(n,d),10000);load();return}
+    showLink(d,'staff');load()})});
 $('staffList').addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;
   var a=b.dataset.s,id=+b.dataset.id,x=(DATA.staff||[]).filter(function(v){return v.id===id})[0]||{},name=x.name||'';
-  if(!confirm(a==='delete'?'删除「'+name+'」？马上失效，手机马上退出，这个人会从这里消失，不能恢复。已有的签到纪录还留着。':'重设「'+name+'」？会产生新的链接和临时密码；旧的马上失效，手机马上退出。'))return;
+  var more=x.others?'\n\n他也在其他 '+x.others+' 场活动任职，用的是同一个链接和密码：':'';
+  if(!confirm(a==='delete'?(x.others?'删除「'+name+'」在这场的职务？'+more+'那边的职务、链接、密码和手机都不变。已有的签到纪录还留着。':'删除「'+name+'」？马上失效，手机马上退出，这个人会从这里消失，不能恢复。已有的签到纪录还留着。')
+    :'重设「'+name+'」？会产生新的链接和临时密码；旧的马上失效，手机马上退出。'+(x.others?more+'那边也要用新链接重新登入。':'')))return;
   withPin(APPOINT[0],APPOINT[1],function(pin){return act('/staff/'+a,a==='reset'?{id:id,v:x.v,pin:pin}:{id:id,pin:pin})}).then(function(d){if(!d.ok){toast(errText(d),7000);if(d.error==='changed'||d.error==='not_found')load();return}
     if(a==='delete'&&+$('sNew').dataset.id===id&&$('sNew').dataset.kind==='staff')closeLink();
     if(d.link)showLink(d,'staff');toast(a==='delete'?'已删除':'已产生新链接和临时密码');load()})});
