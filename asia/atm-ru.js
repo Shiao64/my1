@@ -110,6 +110,13 @@
     'Going is not a ticket or a formal registration.': '«Пойду» — это не билет и не официальная регистрация.',
     'Get early-bird, deadline and organizer notices for this event': 'Получать новости о ранней цене, сроках и объявления организатора',
     'First time: enter your email and the last 4 digits of your mobile, then tap the link in the confirmation email. After that, the same two fields sign you in.': 'В первый раз: введите почту и последние 4 цифры мобильного, затем нажмите ссылку в письме-подтверждении. Дальше вход по этим же двум полям.',
+    /* 2026-11-24: Google sign-in (atm-google.js) */
+    'Continuing with Google also joins the ATM site-wide subscription. You can unsubscribe anytime.': 'Вход через Google также подписывает вас на новости всего ATM. Отписаться можно в любой момент.',
+    'or use your email and mobile last 4 digits': 'или email и последние 4 цифры телефона',
+    'Signed in with Google and joined the ATM site-wide subscription.': 'Вы вошли через Google и подписались на новости всего ATM.',
+    'Signed in with Google.': 'Вы вошли через Google.',
+    'Google sign-in did not work. Please try again, or use your email.': 'Не удалось войти через Google. Попробуйте ещё раз или используйте email.',
+    'With Google you skip the mobile digits and the confirmation email.': 'С Google не нужны цифры телефона и письмо с подтверждением.',
     'Complete your details and send the confirmation email. Tap the link in it and you’re done.': 'Заполните данные и отправьте письмо-подтверждение. Нажмите ссылку в письме — и готово.',
     'Event news': 'Новости событий',
     'The confirmation link may open in another browser. After confirming, come back here (e.g. WeChat) and sign in with the same email and last 4 digits.': 'Ссылка подтверждения может открыться в другом браузере. После подтверждения вернитесь сюда (например, в WeChat) и войдите с той же почтой и последними 4 цифрами.',
