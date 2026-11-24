@@ -48,6 +48,7 @@ export const EVENTS = {
     earlyEnd: Date.parse('2027-02-02T00:00:00+08:00'), earlyPrice: 1350, friendPrice: 1200,
     hotelRefundBy: '2027-06-11', fee: 50, payDays: 14, remindDay: 10, maxPeople: 6,
     deskEnds: '2027-06-22T22:00:00.000Z',   // 前台 sign-ins end 2027-06-23 06:00 Beijing, after the farewell milonga
+    starts: '2027-06-18', ends: '2027-06-22',   // its days (Beijing dates), as on its ATM card E093: 一人多场 never at the same time
     // where its pages are, what the letters say it is from, and a 单场 needs one of the four weekend milongas
     slug: 'beijing-2027-tango-weekend', regPath: 'register/draft/', from: 'Beijing Select Tango Weekend', singleNeeds: ['M1', 'M2', 'M3', 'M4']
   }
@@ -62,7 +63,7 @@ const own = (o, k) => (Object.hasOwn(o, String(k)) ? o[k] : undefined);
 // Config fields, as above: prefix, name {zh,en}, items {CODE: {key, price, cap}}, pkgs {key: {price, covers}},
 // and optionally names {lang: {CODE|pkg: name}}, letters {lang: {key: text}} (sign, rules, …), from, slug, regPath,
 // rooms, ciMin…coMax, earlyEnd, earlyPrice, friendPrice, promoPkg, codes {code: who}, singleNeeds, fee, payDays,
-// remindDay, maxPeople, hotelRefundBy, deskEnds.
+// remindDay, maxPeople, hotelRefundBy, deskEnds, starts/ends (its days, Beijing dates YYYY-MM-DD, as on its ATM card).
 const EV_NEEDS = ['prefix', 'name', 'items', 'pkgs'];
 const noSuchTable = e => /no such table/i.test(String(e && e.message));
 function eventOfRow(row) {
@@ -522,14 +523,16 @@ const CHIEF_DOES = '总管有这场活动报名系统的全部权限：审核、
 const COPIES = '此后，这场活动每封报名相关的信，都会另外寄一份到这个邮箱（报名者看不到）。';
 // mode: new = just appointed (temporary password); reset = new link and temporary password;
 //       relink = a new link for the 总管 already there (the 总管邮箱 set or changed, or sent again): same password, phones stay;
-//       promoted = a 经理 made 总管: a new link, same password, the phones were signed out by the change.
+//       promoted = a 经理 made 总管: a new link, same password, the phones were signed out by the change;
+//       added = someone already working in another event made 总管 here (一人多场): their one link made new, same password, phones stay.
 export function chiefLetter(ev, name, mode, link, temp) {
   const e = ev.name.zh, top = name + '，你好：\n\n', linkPart = `你的专属登入链接（登入后进管理页）：\n${link}\n\n${OPEN_LINK}`;
   const pin = mode !== 'new' && mode !== 'reset' && !temp ? '密码不变：输入你自己的六位密码。' : NO_PIN;
   if (mode === 'reset') return { subject: `探戈通：你的总管登入已重设（${e}）`,
     text: top + `管理员重设了你在「${e}」的登入：旧链接、旧密码都已失效，所有手机都已退出。\n\n${linkPart}\n${pin}\n\n链接和密码都不要转发。` };
   const first = mode === 'relink' ? `你是「${e}」的总管。下面是你新的专属登入链接，旧链接已失效；已登入的手机不受影响。`
-    : `管理员任命你为「${e}」的总管。${CHIEF_DOES}` + (mode === 'promoted' ? '职务改了，手机要用下面的新链接重新登入，旧链接已失效。' : '');
+    : `管理员任命你为「${e}」的总管。${CHIEF_DOES}` + (mode === 'promoted' ? '职务改了，手机要用下面的新链接重新登入，旧链接已失效。'
+      : mode === 'added' ? '你在其他活动用的探戈通登入也管这场：同一个人、同一个密码。下面是你新的专属登入链接，旧链接已失效；已登入的手机不受影响，进管理页就能看到这场活动。' : '');
   return { subject: `探戈通：你被任命为总管（${e}）`, text: top + first + '\n\n' + linkPart + '\n' + pin + '\n\n' + COPIES + '\n\n链接和密码都不要转发。不是你本人，或没想到会收到这封信，请回信告诉我们。' };
 }
 // to the 副本邮箱: short, never a link
@@ -554,26 +557,37 @@ async function mailChief(env, kit, ev, name, mode, key, temp, tell) {
 }
 // A link for the 总管 already there: only its hash is kept, so a new one is made and mailed. The password and the
 // phones signed in stay. If the letter cannot go out, the old link is put back.
+// 一人多场: a 总管 who signed in with another event's role first gets that person's one link, made new.
 async function relinkChief(env, kit, ev, mode, tell) {
   if (!(await mailTo(env, ev.id)).chief) return undefined;
   const row = await env.SDB.prepare("SELECT * FROM reg_admin WHERE event=? AND perms='chief' AND disabled_at IS NULL ORDER BY id LIMIT 1").bind(ev.id).first();
   if (!row) return 'wait';   // sent when a 总管 is appointed
-  if (!row.pin_hash || row.stopped_at) return 'need_reset';
-  const key = rndHex(24), h = await sha256(key), old = row.link_hash || '';
-  const ch = await env.SDB.prepare("UPDATE reg_admin SET link_hash=? WHERE id=? AND perms='chief' AND COALESCE(link_hash,'')=? AND disabled_at IS NULL").bind(h, row.id, old).run();
+  const h = await homeOf(env, 'admin', row); if (!h) return 'changed';
+  const home = h.row, T = TABLE[h.kind];
+  if (!home.pin_hash || home.stopped_at) return 'need_reset';
+  const key = rndHex(24), hash = await sha256(key), old = home.link_hash || '';
+  const ch = row.person_id
+    ? await env.SDB.prepare(`UPDATE ${T} SET link_hash=? WHERE id=? AND COALESCE(link_hash,'')=? AND disabled_at IS NULL AND person_id IS NULL AND EXISTS (SELECT 1 FROM reg_admin WHERE id=? AND perms='chief' AND person_id=? AND disabled_at IS NULL)`)
+      .bind(hash, home.id, old, row.id, row.person_id).run()
+    : await env.SDB.prepare("UPDATE reg_admin SET link_hash=? WHERE id=? AND perms='chief' AND COALESCE(link_hash,'')=? AND disabled_at IS NULL").bind(hash, row.id, old).run();
   if (!ch.meta.changes) return 'changed';
-  const r = await mailChief(env, kit, ev, row.name, mode, key, !!row.pin_temp, tell);
-  if (r !== 'sent') await env.SDB.prepare('UPDATE reg_admin SET link_hash=? WHERE id=? AND link_hash=?').bind(old || null, row.id, h).run();
+  const r = await mailChief(env, kit, ev, row.name, mode, key, !!home.pin_temp, tell);
+  if (r !== 'sent') await env.SDB.prepare(`UPDATE ${T} SET link_hash=? WHERE id=? AND link_hash=?`).bind(old || null, home.id, hash).run();
   return r || 'failed';
 }
 // Opening the 任命信's link: only the 总管's own link with the token of the latest letter, to the address set now,
 // in the stage it was sent in (a letter read in the test inbox does not count once live).
-async function mailOk(env, kind, row, m) {
-  if (kind !== 'admin' || roleOf(row.perms) !== 'chief' || !/^[0-9a-f]{32}$/.test(String(m || ''))) return undefined;
-  const s = await settingsOf(env, row.event), [h, addr, stage] = String(s.chief_token || '').split('|');
-  if (!s.chief_email || addr !== s.chief_email || (stage !== 'direct' && stage !== stageOf(isLive(env, await getEvent(env, row.event)))) || h !== await sha256(String(m))) return undefined;
-  await setSetting(env, row.event, 'chief_verified', `${addr}|${stage}|${nowIso()}`, row.name);
-  return true;
+// list: the person's roles (一人多场); the letter is the one of an event where they are 总管.
+async function mailOk(env, list, m) {
+  if (!/^[0-9a-f]{32}$/.test(String(m || ''))) return undefined;
+  for (const { kind, row, role, ev } of list) {
+    if (kind !== 'admin' || role !== 'chief') continue;
+    const s = await settingsOf(env, row.event), [h, addr, stage] = String(s.chief_token || '').split('|');
+    if (!s.chief_email || addr !== s.chief_email || (stage !== 'direct' && stage !== stageOf(isLive(env, ev))) || h !== await sha256(String(m))) continue;
+    await setSetting(env, row.event, 'chief_verified', `${addr}|${stage}|${nowIso()}`, row.name);
+    return true;
+  }
+  return undefined;
 }
 // A 总管 deleted or no longer 总管 stops getting copies.
 async function dropChiefMail(env, ev, by) {
@@ -860,8 +874,9 @@ async function callerOf(req, env, opt) {
   if (adminOK(req, env)) return { who: { name: ownerName(env), role: 'owner' } };
   return deviceWho(req, env, opt);
 }
+// in this event's role (一人多场): someone with none here, or only 前台, is not let in
 async function adminWho(req, env, evId) {
-  const c = await callerOf(req, env);
+  const c = await callerOf(req, env, { event: evId });
   if (c.err) return c;
   const who = c.who;
   if (!who || who.role === 'desk' || (evId && who.event && who.event !== evId)) return {};
@@ -881,8 +896,7 @@ const verOf = h => String(h || '').slice(0, 8);
 // Deleted people leave their name in the records; someone added later under that name only counts from their own start.
 const LIVE_DEVICES = kind => `(SELECT COUNT(*) FROM reg_device d WHERE d.kind='${kind}' AND d.person=x.id AND d.ended_at IS NULL) devices`;
 // what the settings page shows about someone's sign-in; never a hash, never the digits
-function loginOf(x, role, now = nowIso()) {
-  const max = DEVICES[role] || 1;
+function loginOf(x, role, now = nowIso(), max = DEVICES[role] || 1) {
   const state = x.stopped_at ? 'stopped' : !x.link_hash ? 'none' : x.locked_until && x.locked_until > now ? 'locked' : x.pin_temp ? 'new' : x.devices ? 'on' : 'off';
   return { state, devices: x.devices || 0, max, until: state === 'locked' ? x.locked_until : undefined };
 }
@@ -890,7 +904,9 @@ async function staffList(env, evId) {
   const rows = (await env.SDB.prepare(`SELECT x.id,x.name,x.created_at,x.activated_at,x.disabled_at,x.link_hash,x.pin_temp,x.locked_until,x.stopped_at,${LIVE_DEVICES('staff')},
     (SELECT COUNT(*) FROM reg_checkin c JOIN reg r ON r.id=c.reg_id WHERE r.event=x.event AND c.staff=x.name AND c.at>=x.created_at) checkins
     FROM reg_staff x WHERE x.event=? ORDER BY x.id`).bind(evId).all()).results || [];
-  return rows.map(x => { const { link_hash, pin_temp, locked_until, stopped_at, devices, ...y } = x; return { ...y, v: verOf(link_hash), login: loginOf(x, 'desk') }; });
+  const per = await personsIn(env, 'staff', await withPersonIds(env, 'staff', evId, rows));
+  return rows.map((x, i) => { const { link_hash, pin_temp, locked_until, stopped_at, devices, ...y } = x, q = per[i], src = (q && q.home) || x;
+    return { ...y, v: verOf(src.link_hash), login: q && q.home === null ? { state: 'none', devices: 0, max: 1 } : loginOf(src, 'desk', undefined, (q && q.max) || 1), others: q && q.others || undefined }; });
 }
 async function managerHome(env, ev, who, json) {
   const mine = (await env.SDB.prepare(`SELECT p.id,p.at,p.amount,p.method,r.code,r.data FROM reg_payment p JOIN reg r ON r.id=p.reg_id
@@ -993,9 +1009,12 @@ export async function regAdmin(req, env, url, b, json, kit) {
     const byReg = {}, byCollector = {};
     for (const x of pays) { (byReg[x.reg_id] = byReg[x.reg_id] || []).push(x); const c = byCollector[x.collector] = byCollector[x.collector] || { in: 0, out: 0, n: 0 }; if (x.amount >= 0) c.in += x.amount; else c.out -= x.amount; c.n++; }
     rows.forEach(r => { r.payments = byReg[r.id] || []; r.paid_total = r.payments.reduce((s, x) => s + x.amount, 0); });
-    const admins = ((await env.SDB.prepare(`SELECT x.id,x.name,x.perms,x.link_hash,x.pin_temp,x.locked_until,x.stopped_at,x.created_at,x.disabled_at,${LIVE_DEVICES('admin')} FROM reg_admin x WHERE x.event=? ORDER BY x.id`).bind(ev.id).all()).results || [])
-      .map(x => { const { perms, link_hash, pin_temp, locked_until, stopped_at, devices, ...y } = x, role = roleOf(perms), manage = mayAppoint(who, role);
-        return { ...y, role, manage, v: manage ? verOf(link_hash) : undefined, login: manage ? loginOf(x, role) : undefined }; })
+    const adminRows = (await env.SDB.prepare(`SELECT x.id,x.name,x.perms,x.link_hash,x.pin_temp,x.locked_until,x.stopped_at,x.created_at,x.disabled_at,${LIVE_DEVICES('admin')} FROM reg_admin x WHERE x.event=? ORDER BY x.id`).bind(ev.id).all()).results || [];
+    const per = await personsIn(env, 'admin', await withPersonIds(env, 'admin', ev.id, adminRows));
+    const admins = adminRows
+      .map((x, i) => { const { perms, link_hash, pin_temp, locked_until, stopped_at, devices, ...y } = x, role = roleOf(perms), manage = mayAppoint(who, role), q = per[i], src = (q && q.home) || x;
+        const login = q && q.home === null ? { state: 'none', devices: 0, max: DEVICES[role] || 1 } : loginOf(src, role, undefined, (q && q.max) || DEVICES[role] || 1);
+        return { ...y, role, manage, v: manage ? verOf(src.link_hash) : undefined, login: manage ? login : undefined, others: manage && q && q.others || undefined }; })
       .sort((x, y) => RANK[y.role] - RANK[x.role] || x.id - y.id);
     // 活动邮箱: the 管理员 changes them, the 总管 sees them, nobody else is sent them
     const mailto = who.role === 'owner' || who.role === 'chief' ? await mailTo(env, ev.id) : undefined;
@@ -1063,9 +1082,19 @@ export async function regAdmin(req, env, url, b, json, kit) {
       const name = str(b.name, 40); if (!name) return json({ error: 'need_name' }, 400);
       if (reserved(env, name)) return json({ error: 'name_reserved' }, 409);
       const no = await stepUp(); if (no) return no;
-      const c = await freshCredentials(env);
-      const r = await env.SDB.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at,link_hash,pin_hash,pin_salt,pin_temp) SELECT ?,?,'-',?,?,?,?,?,1 WHERE " + NAME_FREE + room)
-        .bind(ev.id, name, want, nowIso(), c.link_hash, c.pin_hash, c.pin_salt, ev.id, name, ev.id, name, ...roomArgs).run();
+      // 一人多场: an email TP already has makes this a role of that person (no new link, no new password)
+      const same = await samePerson(env, b.email); if (same.error) return sameRefused(same, json);
+      if (same.home) {
+        const a = await addRole(env, ev, 'admin', name, want, same, room, roomArgs);
+        if (a.error === 'full') return noRoom();
+        if (a.error) return json(a, 409);
+        // a 总管 still gets the 任命信 at the 总管邮箱: their one link, made new; the password stays theirs
+        const letter = want === 'chief' ? await relinkChief(env, kit, ev, 'added', true) : undefined;
+        return json({ ok: true, id: a.id, name, role: want, same_person: true, known_as: a.known_as, letter });
+      }
+      const c = await freshCredentials(env), em = same.email ? [same.email] : [];
+      const r = await env.SDB.prepare(`INSERT INTO reg_admin(event,name,pass_hash,perms,created_at,link_hash,pin_hash,pin_salt,pin_temp${em.length ? ',email' : ''}) SELECT ?,?,'-',?,?,?,?,?,1${em.length ? ',?' : ''} WHERE ` + NAME_FREE + room)
+        .bind(ev.id, name, want, nowIso(), c.link_hash, c.pin_hash, c.pin_salt, ...em, ev.id, name, ev.id, name, ...roomArgs).run();
       if (!r.meta.changes) return (await nameFree(env, ev.id, name)) ? noRoom() : json({ error: 'name_taken' }, 409);
       const link = personLink(env, c.key, null, ev);
       // a new 总管 gets the 任命信 at the 总管邮箱: the link only, the password is given another way
@@ -1073,17 +1102,19 @@ export async function regAdmin(req, env, url, b, json, kit) {
       return json({ ok: true, id: r.meta.last_row_id, name, role: want, link, pin: c.pin, letter });
     }
     const id = Number(b && b.id) || 0;
-    const t = await env.SDB.prepare('SELECT id,name,perms,link_hash,disabled_at FROM reg_admin WHERE id=? AND event=?').bind(id, ev.id).first();
+    const t = await env.SDB.prepare('SELECT * FROM reg_admin WHERE id=? AND event=?').bind(id, ev.id).first();
     if (!t) return json({ error: 'not_found' }, 404);
     const had = roleOf(t.perms);
     if (!mayAppoint(who, had)) return deny();   // peers, anyone above, and oneself
     const changed = () => json({ error: 'changed' }, 409);
+    // 一人多场: the sign-in (link, password, phones) is the person's, kept on the row they signed in with first
+    const h = await homeOf(env, 'admin', t), hk = h ? h.kind : 'admin', hid = h ? h.row.id : id;
     if (p === '/admins/role' && had === want && !t.disabled_at) return json({ ok: true, role: want });
-    if (p === '/admins/reset' && b.v != null && b.v !== verOf(t.link_hash)) return changed();
+    if (p === '/admins/reset' && b.v != null && b.v !== verOf((h ? h.row : t).link_hash)) return changed();
     const no = await stepUp(); if (no) return no;
     // every write repeats what was read, so someone promoted a moment ago is not touched from below;
     // and in the same batch every phone of that person is signed out
-    const write = async (change, why) => (await env.SDB.batch([change, endDevices(env, 'admin', id, why)]))[0].meta.changes > 0;
+    const write = async (change, why) => (await env.SDB.batch([change, endDevices(env, hk, hid, why)]))[0].meta.changes > 0;
     if (p === '/admins/role') {
       if (t.disabled_at) return changed();
       if (await write(env.SDB.prepare('UPDATE reg_admin SET perms=? WHERE id=? AND perms=? AND disabled_at IS NULL' + room).bind(want, id, t.perms, ...roomArgs), 'role'))
@@ -1095,16 +1126,16 @@ export async function regAdmin(req, env, url, b, json, kit) {
     }
     if (p === '/admins/reset') {
       // a new link and a new temporary password; the old ones and every phone stop at once, and a stop or lock is lifted
+      if (h && !outranksAll(who, await withEvents(env, await rolesOf(env, h.kind, h.row)))) return json({ error: 'other_events' }, 403);
       const c = await freshCredentials(env);
-      const ok = await write(env.SDB.prepare("UPDATE reg_admin SET link_hash=?,pin_hash=?,pin_salt=?,pin_temp=1,fails=0,locked_until=NULL,stopped_at=NULL WHERE id=? AND perms=? AND COALESCE(link_hash,'')=? AND disabled_at IS NULL")
-        .bind(c.link_hash, c.pin_hash, c.pin_salt, id, t.perms, t.link_hash || ''), 'reset');
+      const ok = await write(resetStmt(env, 'admin', t, h, c, ' AND perms=?', [t.perms]), 'reset');
       if (!ok) return changed();
       const link = personLink(env, c.key, null, ev);
       return json({ ok: true, link, pin: c.pin, letter: had === 'chief' ? await mailChief(env, kit, ev, t.name, 'reset', c.key, true, false) : undefined });
     }
     if (p === '/admins/delete') {
       // check: a removed deputy knows the links they handed out, and may have seen temporary passwords
-      if (!(await write(env.SDB.prepare('DELETE FROM reg_admin WHERE id=? AND perms=?').bind(id, t.perms), 'deleted'))) return changed();
+      if (!(await dropRole(env, 'admin', t, ' AND perms=?', [t.perms]))) return changed();
       return json({ ok: true, check: had === 'deputy' && !t.disabled_at, mail_cleared: had === 'chief' ? await dropChiefMail(env, ev, who.name) : undefined });
     }
     return json({ error: 'not_found' }, 404);
@@ -1137,7 +1168,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
     if (!f || req.method !== 'POST') return json({ error: 'not_found' }, 404);
     if (p === '/staff' && !str(b && b.name, 40)) return json({ error: 'need_name' }, 400);
     const no = await stepUp(); if (no) return no;
-    return f(env, ev, b, json);
+    return f(env, ev, b, json, who);
   }
   return json({ error: 'not_found' }, 404);
 }
@@ -1326,21 +1357,238 @@ function due(role, authAt, t = Date.now()) {
 }
 const over = (role, ev, t = Date.now()) => role === 'desk' && !!ev && !!ev.deskEnds && t >= Date.parse(ev.deskEnds);
 const endDevices = (env, kind, id, why) => env.SDB.prepare('UPDATE reg_device SET ended_at=?,why=? WHERE kind=? AND person=? AND ended_at IS NULL AND changes()>0').bind(nowIso(), why, kind, id);
-async function deviceWho(req, env, { again = false } = {}) {
+// over a smaller limit, the phones that signed in first are signed out (only if the change it follows was made: guard)
+const trimDevices = (env, kind, id, max, why, guard, args = []) => env.SDB.prepare(`UPDATE reg_device SET ended_at=?,why=? WHERE kind=? AND person=? AND ended_at IS NULL AND ${guard} AND id NOT IN (SELECT id FROM reg_device WHERE kind=? AND person=? AND ended_at IS NULL ORDER BY id DESC LIMIT ?)`)
+  .bind(nowIso(), why, kind, id, ...args, kind, id, max);
+
+// ---------- one person, several events (platform stage 2, spec v0.6 「一人多场」, 2026-11-25) ----------
+// One link and one password, whatever events someone works in. Their first role (the "home" row, as before) keeps the
+// sign-in: link, password, tries, lock, phones. A role in another event points to it (person_id 'admin:12' / 'staff:7')
+// and has no sign-in of its own; it is made by giving, at the appointment, an email that person already has with TP.
+// A request acts in the role of the event it names; a phone naming none (the check-in page) in the current event.
+// Before migration 0028 there is no person_id: everyone has one role, exactly as before.
+const pkey = (kind, id) => kind + ':' + id;
+const pkeyOf = s => { const m = /^(admin|staff):(\d+)$/.exec(String(s || '')); return m ? { kind: m[1], id: +m[2] } : null; };
+const noColumn = e => /no such column/i.test(String(e && e.message));
+// every role of the person whose sign-in row this is: that row first, then the others in the order they were given
+async function rolesOf(env, kind, home) {
+  const out = [{ kind, row: home }];
+  try {
+    for (const k of ['admin', 'staff'])
+      for (const row of (await env.SDB.prepare(`SELECT * FROM ${TABLE[k]} WHERE person_id=? AND disabled_at IS NULL ORDER BY id`).bind(pkey(kind, home.id)).all()).results || []) out.push({ kind: k, row });
+  } catch (e) { if (!noColumn(e)) throw e; }
+  return out;
+}
+// unknown: keep a role whose event is not (or no longer) set up, as a phone always was: signed in, but every event's
+// pages and passes refuse it. Signing in with the link needs a real event (as before).
+async function withEvents(env, roles, unknown = false) {
+  const out = [];
+  for (const r of roles) {
+    const ev = (await getEvent(env, r.row.event)) || (unknown ? { id: r.row.event, name: { zh: r.row.event }, unknown: true } : null);
+    if (ev) out.push({ ...r, ev, role: roleOfRow(r.kind, r.row) });
+  }
+  return out;
+}
+// the sign-in row behind a role: the row itself, or the role that person signed in with first
+async function homeOf(env, kind, row) {
+  const h = pkeyOf(row.person_id); if (!h) return { kind, row };
+  const home = await env.SDB.prepare(`SELECT * FROM ${TABLE[h.kind]} WHERE id=? AND disabled_at IS NULL`).bind(h.id).first();
+  return home && !home.person_id ? { kind: h.kind, row: home } : null;
+}
+// The current event: the soonest one not over yet (the events are not at the same time, Shiao 2026-11-24); all over, the last.
+// An event's days (Beijing dates, both ends counted). Shiao 2026-11-25: one person never works two events at the same time.
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+function evDays(ev) {
+  const from = ev && ev.starts, to = ev && (ev.ends || ev.starts);
+  return DAY.test(String(from || '')) && DAY.test(String(to || '')) && from <= to ? { from, to } : null;
+}
+const evEnds = ev => Date.parse((ev && ev.deskEnds) || '') || (evDays(ev) ? Date.parse(evDays(ev).to + 'T23:59:59+08:00') : 0) || Infinity;
+function pickRole(list, evId) {
+  if (evId) return list.find(r => r.ev.id === evId) || null;
+  const t = Date.now(), open = list.filter(r => evEnds(r.ev) > t);
+  return (open.length ? [...open].sort((a, b) => evEnds(a.ev) - evEnds(b.ev)) : [...list].sort((a, b) => evEnds(b.ev) - evEnds(a.ev)))[0] || null;
+}
+const devicesFor = list => Math.max(1, ...list.map(r => DEVICES[r.role] || 1));
+const rolesShown = list => list.length > 1 ? list.map(r => ({ event: r.ev.id, event_name: r.ev.name.zh, role: r.role, name: r.row.name })) : undefined;
+// the person behind a signed-in phone, with every role they hold
+async function devicePerson(req, env) {
   const m = /^dev:([0-9a-f]{64})$/.exec(bearer(req)); if (!m) return {};
   let d;
   try { d = await env.SDB.prepare('SELECT * FROM reg_device WHERE token_hash=?').bind(await sha256(m[1])).first(); }
   catch (e) { if (/no such table/i.test(String(e && e.message))) return {}; throw e; }
   if (!d) return {};
   if (d.ended_at) return { err: { error: 'signed_out', why: d.why, at: d.ended_at } };
-  const row = await env.SDB.prepare(`SELECT * FROM ${TABLE[d.kind]} WHERE id=?`).bind(d.person).first();
-  if (!row || row.disabled_at) return { err: { error: 'signed_out', why: 'deleted' } };
-  if (row.stopped_at) return { err: { error: 'signed_out', why: 'stopped', at: row.stopped_at } };
-  const role = roleOfRow(d.kind, row), ev = await getEvent(env, row.event);
-  if (over(role, ev)) return { err: { error: 'signed_out', why: 'ended', at: ev.deskEnds } };
-  const who = { kind: d.kind, id: row.id, event: row.event, name: row.name, since: row.created_at, role, dev: d.id, auth_at: d.auth_at };
-  if (!again && due(role, d.auth_at)) return { err: { error: 'reauth', role, at: d.auth_at }, who };
+  const home = await env.SDB.prepare(`SELECT * FROM ${TABLE[d.kind]} WHERE id=?`).bind(d.person).first();
+  if (!home || home.disabled_at || home.person_id) return { err: { error: 'signed_out', why: 'deleted' } };
+  if (home.stopped_at) return { err: { error: 'signed_out', why: 'stopped', at: home.stopped_at } };
+  return { p: { d, kind: d.kind, home, roles: await withEvents(env, await rolesOf(env, d.kind, home), true) } };
+}
+// that person in one event's role. { none } when they have none there.
+function roleWho(p, { again = false, event } = {}) {
+  const r = pickRole(p.roles, event); if (!r) return { none: true };
+  if (over(r.role, r.ev)) return { err: { error: 'signed_out', why: 'ended', at: r.ev.deskEnds } };
+  const who = { kind: p.kind, id: p.home.id, event: r.ev.id, name: r.row.name, since: r.row.created_at, role: r.role, dev: p.d.id, auth_at: p.d.auth_at, person: p };
+  if (!again && due(r.role, p.d.auth_at)) return { err: { error: 'reauth', role: r.role, at: p.d.auth_at }, who };
   return { who };
+}
+async function deviceWho(req, env, opt = {}) {
+  const c = await devicePerson(req, env);
+  return c.p ? roleWho(c.p, opt) : c;
+}
+// a pass of another event than the one the phone works in: the same person may work there too
+function whoAt(who, evId) {
+  if (!who || !who.event || who.event === evId) return { who };
+  return who.person ? roleWho(who.person, { event: evId }) : { none: true };
+}
+// The email given at an appointment (may be left out). One TP already has for someone working in an event (given at
+// their appointment, or the 总管邮箱 of the event where they are 总管) makes the new role that same person's:
+// no new link, no new password. { email?, home? } | { error }
+async function samePerson(env, raw) {
+  if (raw == null || raw === '') return {};
+  const email = str(raw, 254).toLowerCase();
+  if (!EMAIL_STRICT.test(email)) return { error: 'bad_email' };
+  let hit = null;
+  try {
+    for (const k of ['admin', 'staff']) {
+      const row = hit ? null : await env.SDB.prepare(`SELECT * FROM ${TABLE[k]} WHERE email=? AND disabled_at IS NULL ORDER BY id LIMIT 1`).bind(email).first();
+      if (row) hit = { kind: k, row };
+    }
+  } catch (e) { if (noColumn(e)) return { error: 'not_ready' }; throw e; }
+  if (!hit) {
+    let evs = [];
+    try { evs = (await env.SDB.prepare("SELECT event FROM reg_setting WHERE key='chief_email' AND value=? ORDER BY updated_at").bind(email).all()).results || []; }
+    catch (e) { if (!noTable(e)) throw e; }
+    for (const { event } of evs) {
+      const row = hit ? null : await env.SDB.prepare("SELECT * FROM reg_admin WHERE event=? AND perms='chief' AND disabled_at IS NULL ORDER BY id LIMIT 1").bind(event).first();
+      if (row) hit = { kind: 'admin', row };
+    }
+  }
+  if (!hit) return { email };
+  const home = await homeOf(env, hit.kind, hit.row);
+  return home ? { email, home } : { error: 'changed' };
+}
+const sameRefused = (s, json) => json({ error: s.error }, s.error === 'bad_email' ? 400 : s.error === 'not_ready' ? 503 : 409);
+// one role per person per event
+async function roleHere(env, evId, h) {
+  const K = pkey(h.kind, h.row.id);
+  for (const k of ['admin', 'staff']) {
+    const r = await env.SDB.prepare(`SELECT id,name FROM ${TABLE[k]} WHERE event=? AND disabled_at IS NULL AND (person_id=? OR (?=? AND id=?)) LIMIT 1`).bind(evId, K, k, h.kind, h.row.id).first();
+    if (r) return r;
+  }
+  return null;
+}
+// A role for someone TP already knows: in one write, so the name, the limit, "one role here" and their sign-in row
+// are all as they were checked. { id, known_as } | { error: already_here | name_taken | full | changed }
+async function addRole(env, ev, kind, name, perms, same, room = '', roomArgs = []) {
+  const h = same.home, K = pkey(h.kind, h.row.id), here = await roleHere(env, ev.id, h);
+  if (here) return { error: 'already_here', name: here.name };
+  const clash = sameTime(ev, await withEvents(env, await rolesOf(env, h.kind, h.row)));
+  if (clash) return clash;
+  const [cols, vals, args] = kind === 'admin'
+    ? ['event,name,pass_hash,perms,created_at,person_id,email', "?,?,'-',?,?,?,?", [ev.id, name, perms, nowIso(), K, same.email]]
+    : ['event,name,created_at,person_id,email', '?,?,?,?,?', [ev.id, name, nowIso(), K, same.email]];
+  const r = await env.SDB.prepare(`INSERT INTO ${TABLE[kind]}(${cols}) SELECT ${vals} WHERE ${NAME_FREE}${room}
+      AND EXISTS (SELECT 1 FROM ${TABLE[h.kind]} WHERE id=? AND person_id IS NULL AND disabled_at IS NULL)
+      AND NOT EXISTS (SELECT 1 FROM reg_admin WHERE event=? AND disabled_at IS NULL AND (person_id=? OR (?='admin' AND id=?)))
+      AND NOT EXISTS (SELECT 1 FROM reg_staff WHERE event=? AND disabled_at IS NULL AND (person_id=? OR (?='staff' AND id=?)))`)
+    .bind(...args, ev.id, name, ev.id, name, ...roomArgs, h.row.id, ev.id, K, h.kind, h.row.id, ev.id, K, h.kind, h.row.id).run();
+  if (r.meta.changes) return { id: r.meta.last_row_id, known_as: h.row.name };
+  const again = await roleHere(env, ev.id, h);
+  return again ? { error: 'already_here', name: again.name } : !(await nameFree(env, ev.id, name)) ? { error: 'name_taken' } : room ? { error: 'full' } : { error: 'changed' };
+}
+// Not at the same time (Shiao 2026-11-25): the new event's days must not touch any day of the person's other events.
+// An event whose days are not set cannot be checked, so it is refused too (the days come from its ATM card).
+function sameTime(ev, list) {
+  const mine = evDays(ev);
+  if (!mine) return { error: 'no_dates', event_name: ev.name.zh };
+  for (const r of list) {
+    if (r.ev.id === ev.id) continue;
+    const d = evDays(r.ev);
+    if (!d) return { error: 'no_dates', event_name: r.ev.name.zh };
+    if (mine.from <= d.to && d.from <= mine.to) return { error: 'same_time', event_name: r.ev.name.zh, starts: d.from, ends: d.to };
+  }
+  return null;
+}
+// 「重设」 is the person's: one link and one password for every event they work in. Someone who works in other events
+// too is reset only by whoever is above them in each of those (the 管理员 always is).
+function outranksAll(who, list) {
+  if (who.role === 'owner') return true;
+  const mine = (who.person && who.person.roles) || [];
+  return list.every(r => { const m = mine.find(x => x.ev.id === r.ev.id); return !!m && mayAppoint({ role: m.role }, r.role); });
+}
+// New credentials on the person's sign-in row, from a role row t that was read as it is (guard: what else must still hold).
+function resetStmt(env, kind, t, h, c, guard, args) {
+  if (t.person_id && !h) return env.SDB.prepare(`UPDATE ${TABLE[kind]} SET person_id=NULL,link_hash=?,pin_hash=?,pin_salt=?,pin_temp=1,fails=0,locked_until=NULL,stopped_at=NULL WHERE id=? AND person_id=? AND disabled_at IS NULL${guard}`)
+    .bind(c.link_hash, c.pin_hash, c.pin_salt, t.id, t.person_id, ...args);
+  if (!t.person_id) return env.SDB.prepare(`UPDATE ${TABLE[kind]} SET link_hash=?,pin_hash=?,pin_salt=?,pin_temp=1,fails=0,locked_until=NULL,stopped_at=NULL WHERE id=?${guard} AND COALESCE(link_hash,'')=? AND disabled_at IS NULL`)
+    .bind(c.link_hash, c.pin_hash, c.pin_salt, t.id, ...args, t.link_hash || '');
+  return env.SDB.prepare(`UPDATE ${TABLE[h.kind]} SET link_hash=?,pin_hash=?,pin_salt=?,pin_temp=1,fails=0,locked_until=NULL,stopped_at=NULL WHERE id=? AND COALESCE(link_hash,'')=? AND disabled_at IS NULL AND person_id IS NULL
+      AND EXISTS (SELECT 1 FROM ${TABLE[kind]} WHERE id=? AND person_id=? AND disabled_at IS NULL${guard})`)
+    .bind(c.link_hash, c.pin_hash, c.pin_salt, h.row.id, h.row.link_hash || '', t.id, t.person_id, ...args);
+}
+// Deleting a role is final (no history, no undo; what they did stays under their name). Someone who still works in
+// other events keeps their link, password and phones: if this role held the sign-in, it moves to their next role
+// (搬家, nobody signs in again). Their phones over the smaller limit, if any, are signed out. The last role gone, all go.
+async function dropRole(env, kind, t, guard, args) {
+  const T = TABLE[kind];
+  if (t.person_id) {
+    const h = await homeOf(env, kind, t);
+    const del = env.SDB.prepare(`DELETE FROM ${T} WHERE id=? AND person_id=?${guard}`).bind(t.id, t.person_id, ...args);
+    if (!h) return (await del.run()).meta.changes > 0;
+    const rest = (await withEvents(env, await rolesOf(env, h.kind, h.row))).filter(r => !(r.kind === kind && r.row.id === t.id));
+    return (await env.SDB.batch([del, trimDevices(env, h.kind, h.row.id, devicesFor(rest), 'role', 'changes()>0')]))[0].meta.changes > 0;
+  }
+  const rest = (await rolesOf(env, kind, t)).slice(1)
+    .sort((a, b) => String(a.row.created_at).localeCompare(String(b.row.created_at)) || a.row.id - b.row.id);
+  if (!rest.length) return (await env.SDB.batch([env.SDB.prepare(`DELETE FROM ${T} WHERE id=?${guard}`).bind(t.id, ...args), endDevices(env, kind, t.id, 'deleted')]))[0].meta.changes > 0;
+  const n = rest[0], nT = TABLE[n.kind], K = pkey(kind, t.id), N = pkey(n.kind, n.row.id);
+  // the sign-in as it was read moves; changed meanwhile (a try, a reset), nothing happens and the caller is told
+  const del = env.SDB.prepare(`DELETE FROM ${T} WHERE id=?${guard} AND person_id IS NULL AND link_hash IS ? AND pin_hash IS ? AND pin_salt IS ? AND pin_temp=? AND fails=? AND locked_until IS ? AND stopped_at IS ?`)
+    .bind(t.id, ...args, t.link_hash, t.pin_hash, t.pin_salt, t.pin_temp, t.fails, t.locked_until, t.stopped_at);
+  const moved = `NOT EXISTS (SELECT 1 FROM ${T} WHERE id=?) AND EXISTS (SELECT 1 FROM ${nT} WHERE id=? AND person_id IS NULL)`;
+  const max = devicesFor(await withEvents(env, rest));
+  const out = await env.SDB.batch([
+    del,
+    env.SDB.prepare(`UPDATE ${nT} SET person_id=NULL,link_hash=?,pin_hash=?,pin_salt=?,pin_temp=?,fails=?,locked_until=?,stopped_at=? WHERE id=? AND person_id=? AND changes()>0`)
+      .bind(t.link_hash, t.pin_hash, t.pin_salt, t.pin_temp, t.fails, t.locked_until, t.stopped_at, n.row.id, K),
+    env.SDB.prepare(`UPDATE reg_admin SET person_id=? WHERE person_id=? AND ${moved}`).bind(N, K, t.id, n.row.id),
+    env.SDB.prepare(`UPDATE reg_staff SET person_id=? WHERE person_id=? AND ${moved}`).bind(N, K, t.id, n.row.id),
+    env.SDB.prepare(`UPDATE reg_device SET kind=?,person=? WHERE kind=? AND person=? AND ended_at IS NULL AND ${moved}`).bind(n.kind, n.row.id, kind, t.id, t.id, n.row.id),
+    trimDevices(env, n.kind, n.row.id, max, 'role', moved, [t.id, n.row.id])]);
+  return out[0].meta.changes > 0;
+}
+// 一人多场 on the settings page: a role of someone who signs in with another shows that sign-in (their link, password
+// state, phones and limit), and each person how many other events they work in. Nothing changes before migration 0028.
+async function personsIn(env, kind, rows) {
+  let att = [];
+  try {
+    for (const k of ['admin', 'staff'])
+      for (const r of (await env.SDB.prepare(`SELECT id,event,person_id${k === 'admin' ? ',perms' : ''} FROM ${TABLE[k]} WHERE person_id IS NOT NULL AND disabled_at IS NULL`).all()).results || []) att.push({ kind: k, ...r });
+  } catch (e) { if (noColumn(e)) return rows.map(() => null); throw e; }
+  if (!att.length) return rows.map(() => null);
+  const by = {}; for (const a of att) (by[a.person_id] = by[a.person_id] || []).push(a);
+  const want = { admin: new Set(), staff: new Set() };
+  for (const k of Object.keys(by)) { const h = pkeyOf(k); if (h) want[h.kind].add(h.id); }
+  const homes = {};
+  for (const k of ['admin', 'staff']) for (let ids = [...want[k]], i = 0; i < ids.length; i += 50) {
+    const part = ids.slice(i, i + 50);
+    for (const x of (await env.SDB.prepare(`SELECT x.id,x.event,${k === 'admin' ? 'x.perms' : "'' perms"},x.link_hash,x.pin_temp,x.locked_until,x.stopped_at,${LIVE_DEVICES(k)} FROM ${TABLE[k]} x WHERE x.id IN (${part.map(() => '?')}) AND x.disabled_at IS NULL AND x.person_id IS NULL`).bind(...part).all()).results || []) homes[pkey(k, x.id)] = { kind: k, ...x };
+  }
+  return rows.map(x => {
+    const own = x.person_id || pkey(kind, x.id), home = homes[own], more = by[own];
+    if (!more) return null;                        // one role only: shown as before
+    if (!home) return { home: null, others: 0 };   // its sign-in row is gone: a reset gives it one
+    const all = [home, ...more];
+    return { home: x.person_id ? home : undefined, others: all.length - 1, max: Math.max(...all.map(r => DEVICES[roleOfRow(r.kind, r)] || 1)) };
+  });
+}
+// person_id of one event's rows, when there is such a column (migration 0028)
+async function withPersonIds(env, kind, evId, rows) {
+  if (!rows.length) return rows;
+  let m;
+  try { m = new Map(((await env.SDB.prepare(`SELECT id,person_id FROM ${TABLE[kind]} WHERE event=? AND person_id IS NOT NULL`).bind(evId).all()).results || []).map(r => [r.id, r.person_id])); }
+  catch (e) { if (noColumn(e)) return rows; throw e; }
+  return rows.map(x => m.has(x.id) ? { ...x, person_id: m.get(x.id) } : x);
 }
 // One try. It is counted before the digits are compared, so tries sent together cannot get round the lock.
 async function checkPin(env, kind, id, pin, linkHash) {
@@ -1370,7 +1618,7 @@ async function byLink(env, key) {
   const h = await sha256(String(key));
   for (const kind of ['admin', 'staff']) {
     const row = await env.SDB.prepare(`SELECT * FROM ${TABLE[kind]} WHERE link_hash=? AND disabled_at IS NULL`).bind(h).first();
-    if (row) return { kind, row };
+    if (row && !row.person_id) return { kind, row };   // only a sign-in row has a link
   }
   return null;
 }
@@ -1388,13 +1636,15 @@ export async function regLogin(req, env, url, b, json) {
     return json({ ok: true });
   }
   const found = await byLink(env, b && b.key);
-  const ev = found && await getEvent(env, found.row.event);
-  if (!found || !ev) return json({ error: 'not_found' }, 404);   // reset, deleted, or never was
-  const { kind, row } = found, role = roleOfRow(kind, row);
-  const base = { name: row.name, role, event: ev.id, event_name: ev.name.zh, devices: DEVICES[role] || 1 };
+  const list = found ? await withEvents(env, await rolesOf(env, found.kind, found.row)) : [];
+  // 一人多场: the role in the event the page names, else the current one; roles lists them all when there are several
+  const at = (b && typeof b.event === 'string' && pickRole(list, b.event)) || pickRole(list);
+  if (!at) return json({ error: 'not_found' }, 404);   // reset, deleted, or never was
+  const { kind, row } = found, { role, ev } = at;
+  const base = { name: at.row.name, role, event: ev.id, event_name: ev.name.zh, devices: devicesFor(list), roles: rolesShown(list) };
   if (p === '/hello') {   // opening the link shows whose it is (Shiao, 2026-11-23); nothing else without the password
     const now = nowIso(), state = over(role, ev) ? 'ended' : row.stopped_at ? 'stopped' : row.locked_until && row.locked_until > now ? 'locked' : !row.pin_hash ? 'none' : row.pin_temp ? 'new' : 'ok';
-    const mail_ok = b.m ? await mailOk(env, kind, row, b.m) : undefined;
+    const mail_ok = b.m ? await mailOk(env, list, b.m) : undefined;
     // a new link (重寄任命信) opened on a phone already signed in as the same person: no need to sign out first
     const c = bearer(req).startsWith('dev:') ? await deviceWho(req, env, { again: true }) : {};
     const same = c.who && c.who.kind === kind && c.who.id === row.id ? true : undefined;
@@ -1418,7 +1668,7 @@ export async function regLogin(req, env, url, b, json) {
   const tok = rndHex(32), now = nowIso();
   const out = await env.SDB.batch([
     env.SDB.prepare(`INSERT INTO reg_device(kind,person,event,token_hash,created_at,auth_at) SELECT ?,?,?,?,?,? WHERE EXISTS (SELECT 1 FROM ${TABLE[kind]} WHERE id=? AND link_hash=? AND stopped_at IS NULL AND disabled_at IS NULL)`)
-      .bind(kind, cur.id, cur.event, await sha256(tok), now, now, cur.id, cur.link_hash),
+      .bind(kind, cur.id, ev.id, await sha256(tok), now, now, cur.id, cur.link_hash),
     env.SDB.prepare("UPDATE reg_device SET ended_at=?,why='replaced' WHERE kind=? AND person=? AND ended_at IS NULL AND changes()>0 AND id NOT IN (SELECT id FROM reg_device WHERE kind=? AND person=? AND ended_at IS NULL ORDER BY id DESC LIMIT ?)")
       .bind(now, kind, cur.id, kind, cur.id, base.devices)]);
   if (!out[0].meta.changes) return json({ error: 'changed' }, 409);
@@ -1434,29 +1684,38 @@ async function doorWho(req, env) {
 async function staffAdd(env, ev, b, json) {
   const name = str(b && b.name, 40); if (!name) return json({ error: 'need_name' }, 400);
   if (reserved(env, name)) return json({ error: 'name_reserved' }, 409);
-  const c = await freshCredentials(env);
-  const r = await env.SDB.prepare('INSERT INTO reg_staff(event,name,created_at,link_hash,pin_hash,pin_salt,pin_temp) SELECT ?,?,?,?,?,?,1 WHERE ' + NAME_FREE)
-    .bind(ev.id, name, nowIso(), c.link_hash, c.pin_hash, c.pin_salt, ev.id, name, ev.id, name).run();
+  // 一人多场: an email TP already has makes this a role of that person (no new link, no new password)
+  const same = await samePerson(env, b && b.email); if (same.error) return sameRefused(same, json);
+  if (same.home) {
+    const a = await addRole(env, ev, 'staff', name, null, same);
+    return a.error ? json(a, 409) : json({ ok: true, id: a.id, name, same_person: true, known_as: a.known_as });
+  }
+  const c = await freshCredentials(env), em = same.email ? [same.email] : [];
+  const r = await env.SDB.prepare(`INSERT INTO reg_staff(event,name,created_at,link_hash,pin_hash,pin_salt,pin_temp${em.length ? ',email' : ''}) SELECT ?,?,?,?,?,?,1${em.length ? ',?' : ''} WHERE ` + NAME_FREE)
+    .bind(ev.id, name, nowIso(), c.link_hash, c.pin_hash, c.pin_salt, ...em, ev.id, name, ev.id, name).run();
   if (!r.meta.changes) return json({ error: 'name_taken' }, 409);
   return json({ ok: true, id: r.meta.last_row_id, name, link: personLink(env, c.key, null, ev), pin: c.pin });
 }
 // 「重设」: a new link and a new temporary password; the old ones and the phone stop at once. Of two resets at once, one wins.
-async function staffReset(env, ev, b, json) {
-  const st = await env.SDB.prepare('SELECT id,name,link_hash FROM reg_staff WHERE id=? AND event=? AND disabled_at IS NULL').bind(Number(b && b.id) || 0, ev.id).first(); if (!st) return json({ error: 'not_found' }, 404);
-  if (b.v != null && b.v !== verOf(st.link_hash)) return json({ error: 'changed' }, 409);
+// They are the person's (一人多场): someone working in other events too is reset by whoever is above them in each.
+async function staffReset(env, ev, b, json, who) {
+  const st = await env.SDB.prepare('SELECT * FROM reg_staff WHERE id=? AND event=? AND disabled_at IS NULL').bind(Number(b && b.id) || 0, ev.id).first(); if (!st) return json({ error: 'not_found' }, 404);
+  const h = await homeOf(env, 'staff', st);
+  if (b.v != null && b.v !== verOf((h ? h.row : st).link_hash)) return json({ error: 'changed' }, 409);
+  if (h && !outranksAll(who, await withEvents(env, await rolesOf(env, h.kind, h.row)))) return json({ error: 'other_events' }, 403);
   const c = await freshCredentials(env);
-  const out = await env.SDB.batch([
-    env.SDB.prepare("UPDATE reg_staff SET link_hash=?,pin_hash=?,pin_salt=?,pin_temp=1,fails=0,locked_until=NULL,stopped_at=NULL WHERE id=? AND COALESCE(link_hash,'')=? AND disabled_at IS NULL")
-      .bind(c.link_hash, c.pin_hash, c.pin_salt, st.id, st.link_hash || ''),
-    endDevices(env, 'staff', st.id, 'reset')]);
+  const out = await env.SDB.batch([resetStmt(env, 'staff', st, h, c, '', []), endDevices(env, h ? h.kind : 'staff', h ? h.row.id : st.id, 'reset')]);
   if (!out[0].meta.changes) return json({ error: 'changed' }, 409);
   return json({ ok: true, id: st.id, name: st.name, link: personLink(env, c.key, null, ev), pin: c.pin });
 }
 // Deleting is final: no history and no undo. What they checked in stays, under their name.
+// 一人多场: someone who still works in other events keeps their sign-in there (see dropRole).
 async function staffDelete(env, ev, b, json) {
   const id = Number(b && b.id) || 0;
-  const out = await env.SDB.batch([env.SDB.prepare('DELETE FROM reg_staff WHERE id=? AND event=?').bind(id, ev.id), endDevices(env, 'staff', id, 'deleted')]);
-  return out[0].meta.changes ? json({ ok: true }) : json({ error: 'not_found' }, 404);
+  const st = await env.SDB.prepare('SELECT * FROM reg_staff WHERE id=? AND event=?').bind(id, ev.id).first();
+  if (!st) return json({ error: 'not_found' }, 404);
+  if (await dropRole(env, 'staff', st, ' AND event=?', [ev.id])) return json({ ok: true });
+  return (await env.SDB.prepare('SELECT 1 x FROM reg_staff WHERE id=?').bind(id).first()) ? json({ error: 'changed' }, 409) : json({ error: 'not_found' }, 404);
 }
 export async function regDoor(req, env, url, b, json) {
   const p = url.pathname.slice('/social/reg/door'.length);
@@ -1480,7 +1739,8 @@ async function passContext(env, raw) {
 }
 export async function regPassInfo(env, raw, json, who) {
   const x = await passContext(env, raw); if (x.error) return json(x, 404);
-  if (who && who.event && who.event !== x.reg.event) return json({ error: 'bad_pass' }, 404);
+  const w = whoAt(who, x.reg.event); if (w.err) return json(w.err, 401); who = w.who;
+  if (w.none || (who && who.event && who.event !== x.reg.event)) return json({ error: 'bad_pass' }, 404);
   const ins = ((await env.SDB.prepare('SELECT item,at,staff FROM reg_checkin WHERE reg_id=? AND person=?').bind(x.reg.id, x.p.idx).all()).results) || [];
   // Amounts: whoever may collect, and a site manager only the rest to take now (the other payments are not their account).
   let collect;
@@ -1495,7 +1755,8 @@ export async function regPassInfo(env, raw, json, who) {
 }
 export async function regCheckin(env, b, json, who) {
   const x = await passContext(env, b && b.p); if (x.error) return json(x, 404);
-  if (who && who.event && who.event !== x.reg.event) return json({ error: 'bad_pass' }, 404);
+  const w = whoAt(who, x.reg.event); if (w.err) return json(w.err, 401); who = w.who;
+  if (w.none || (who && who.event && who.event !== x.reg.event)) return json({ error: 'bad_pass' }, 404);
   const item = String(b.item || '');
   if (!PAID.includes(x.reg.status)) return json({ error: 'not_paid', status: x.reg.status }, 409);
   if (!x.person.items.includes(item)) return json({ error: 'not_registered', item }, 409);
