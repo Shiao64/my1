@@ -99,6 +99,8 @@ tr.sel{background:#fff4d6}
 #mailto .chk input{width:20px;height:20px;margin:0}
 #mailto .state{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:2px 0 4px}
 #mailto .ok{color:#1f6b35;font-weight:700}
+#mailto .at{white-space:nowrap}
+#mailto #mEvent{flex:1;min-width:0;font-size:16px}
 #mailto .no{color:#8a5a00;font-weight:700}
 .once{background:#fff8e6;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-bottom:10px}
 .once input{width:100%;margin:6px 0}
@@ -251,6 +253,11 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
       <label class="lab" for="mCopy">副本邮箱（可不填）</label>
       <div class="bar"><input id="mCopy" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="不填就不寄"><button class="p" id="mCopySave" data-mail="copy">保存</button></div>
       <p class="muted">填好就寄一封简短通知到这个邮箱（不附链接）。任命总管时，这里也会收到一封简短通知。</p>
+      <label class="lab" for="mEvent">活动专属邮箱（收报名者的回信）</label>
+      <div class="bar"><input id="mEvent" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="例如 bstw2027"><span class="at">@<span id="mDomain">tangoweekend.org</span></span><button class="p" id="mEventSave">绑定</button></div>
+      <div class="state" id="mEvState" hidden><span id="mEvText"></span><button id="mEvTest">再测一次</button></div>
+      <p class="why" id="mCf" hidden>后台还没有 Cloudflare 钥匙（CF_MAIL_TOKEN），暂时不能绑定。</p>
+      <p class="muted">绑定后，报名信的「回复」改寄到这个地址。报名者寄来的信（连同截图）转给上面的总管邮箱、副本邮箱、管理员；你们直接按「回复」，就以活动名义寄回给报名者，报名者看不到你们的邮箱。不是报名者寄来的信只转给管理员。按「绑定」后系统自己在 Cloudflare 加规则，再寄一封测试信，收到了才算「已绑定」。</p>
     </div>
     <div class="card" id="qr">
       <h2>收款码（报名页和确认信里会显示）</h2>
@@ -714,20 +721,33 @@ function mailBox(){
   var x=liveChief();$('mState').hidden=!m.chief;
   $('mStateText').className=m.verified?'ok':'no';
   $('mStateText').textContent=m.verified?'已验证（北京时间 '+bj(m.verified_at).slice(5)+'）':x?'还没验证：等总管打开任命信里的链接':'还没任命总管：任命时寄任命信';
-  $('mResend').hidden=!own||!m.chief||!x}
-function mailClear(){$('mailto').hidden=true;Object.keys(MBOX).forEach(function(k){$(MBOX[k]).value='';$(MBOX[k]).dataset.base=''});$('mAdmin').textContent=''}
+  $('mResend').hidden=!own||!m.chief||!x;
+  var ev=$('mEvent'),local=(m.event_mail||'').split('@')[0];
+  if(ev.value===(ev.dataset.base||''))ev.value=local;ev.dataset.base=local;
+  ev.disabled=!own||!m.cf_ready;$('mEventSave').hidden=!own;$('mEventSave').disabled=!m.cf_ready;$('mDomain').textContent=m.domain||'tangoweekend.org';
+  $('mCf').hidden=!own||!!m.cf_ready;
+  $('mEvState').hidden=!m.event_mail;$('mEvText').className=m.event_mail_ok?'ok':'no';
+  $('mEvText').textContent=m.event_mail_ok?'已绑定 '+m.event_mail+'（北京时间 '+bj(m.event_mail_at).slice(5)+'）':'绑定中：等测试信回来（通常一分钟内，按「刷新」看看）';
+  $('mEvTest').hidden=!own||!m.event_mail||!!m.event_mail_ok}
+function mailClear(){$('mEvent').value='';$('mEvent').dataset.base='';$('mailto').hidden=true;Object.keys(MBOX).forEach(function(k){$(MBOX[k]).value='';$(MBOX[k]).dataset.base=''});$('mAdmin').textContent=''}
 var SENT={copy:{sent:'已保存，通知已寄出',failed:'已保存，但通知没寄出',cleared:'已清空副本邮箱'},
   chief:{sent:'任命信已寄出（只有链接，没有密码）',failed:'任命信没寄出：总管原来的链接照常能用',wait:'已保存。还没有总管：任命总管时会寄任命信',
-    need_reset:'总管现在登入不了（没有链接或已停用）：请在总管一栏按「重设」，新链接会寄到总管邮箱',changed:'总管刚被别人改过，任命信没寄：请刷新后再试',cleared:'已清空总管邮箱',no_mail:'还没填总管邮箱'}};
+    need_reset:'总管现在登入不了（没有链接或已停用）：请在总管一栏按「重设」，新链接会寄到总管邮箱',changed:'总管刚被别人改过，任命信没寄：请刷新后再试',cleared:'已清空总管邮箱',no_mail:'还没填总管邮箱'},
+  event:{testing:'已在 Cloudflare 加好规则，测试信已寄出：收到就显示「已绑定」',test_failed:'规则已加好，但测试信没寄出：请按「再测一次」',cleared:'已清空：Cloudflare 上的规则已删除，报名信的「回复」改回 info@',
+    same:'没有改',bad:'名称不对：只能用小写英文字母、数字和 -，3 到 32 个字',reserved:'这个名称留给网站自己用，请换一个',taken:'别的活动已经用了这个地址',exists:'Cloudflare 上这个地址已经另有用途，请换一个',
+    cf_not_ready:'后台还没有 Cloudflare 钥匙，暂时不能绑定',cf_error:'Cloudflare 暂时连不上，什么都没改，请稍后再试',no_mail:'还没设活动专属邮箱'}};
 function mailSave(body,b,k){
   b.disabled=true;
   return act('/mailto',body).then(function(d){b.disabled=false;
     if(!d.ok){toast(d.error==='bad_email'?'邮箱格式不对':d.error==='not_ready'?'后台还没准备好：资料库还没更新':errText(d),7000);return d}
     Object.keys(MBOX).forEach(function(n){var i=$(MBOX[n]);if(i.value===(i.dataset.base||''))i.value=d.mailto[n]||'';i.dataset.base=d.mailto[n]||''});
-    if(k){var i=$(MBOX[k]);i.value=i.dataset.base=d.mailto[k]||''}
+    if(k&&MBOX[k]){var i=$(MBOX[k]);i.value=i.dataset.base=d.mailto[k]||''}
+    if(k==='event'){var e=$('mEvent');e.value=e.dataset.base=(d.mailto.event_mail||'').split('@')[0]}
     DATA.mailto=d.mailto;mailBox();
-    var s=k&&(d.sent||{})[k];
-    toast(s?((SENT[k]||{})[s]||'已保存')+(s==='sent'&&!d.mailto.live?'（测试阶段：寄到测试信箱）':''):'已保存',8000);load();return d})}
+    var s=k&&(d.sent||{})[k==='event'?'event_mail':k];
+    toast(s?((SENT[k]||{})[s]||'已保存')+(s==='sent'&&!d.mailto.live?'（测试阶段：寄到测试信箱）':''):'已保存',8000);load();
+    if(s==='testing')setTimeout(function(){if(DATA&&DATA.mailto&&!DATA.mailto.event_mail_ok)load()},8000);   // the test letter usually comes back within seconds
+    return d})}
 $('mailto').addEventListener('click',function(e){
   var b=e.target.closest('button[data-mail]');if(!b||!DATA||!DATA.mailto)return;
   var k=b.dataset.mail,i=$(MBOX[k]),v=i.value.trim().toLowerCase(),cur=DATA.mailto[k]||'',x=liveChief(),ask;
@@ -739,6 +759,13 @@ $('mailto').addEventListener('click',function(e){
   else ask='把总管邮箱设为 '+v+'？\n\n现在还没有总管：任命总管时，任命信会寄到这个邮箱（只附链接，不附密码）。';
   if(!confirm(ask))return;
   var body={};body[k]=v;mailSave(body,b,k)});
+$('mEventSave').addEventListener('click',function(){var m=DATA&&DATA.mailto;if(!m)return;
+  var i=$('mEvent'),v=i.value.trim().toLowerCase().replace(/@.*$/,''),cur=m.event_mail||'',dom=m.domain||'tangoweekend.org';
+  if(v===cur.split('@')[0]){i.value=v;return toast('没有改')}
+  if(v&&!/^[a-z0-9](?:[a-z0-9-]{1,30}[a-z0-9])$/.test(v))return toast(SENT.event.bad,6000);
+  if(!confirm(v?'把活动专属邮箱设为 '+v+'@'+dom+'？\n\n系统会在 Cloudflare 加一条规则，把寄到这个地址的信交给 TP，再寄一封测试信，收到才算绑定。'+(cur?'\n原来的 '+cur+' 会停用，规则会删除。':''):'清空活动专属邮箱？\n\nCloudflare 上的规则会删除，寄到 '+cur+' 的信不再转寄；报名信的「回复」改回 info@tangoweekend.org。'))return;
+  mailSave({event_mail:v},this,'event')});
+$('mEvTest').addEventListener('click',function(){mailSave({event_mail_test:true},this,'event')});
 $('mResend').addEventListener('click',function(){var x=liveChief(),m=DATA&&DATA.mailto;if(!x||!m)return;
   if(!confirm('重寄任命信给「'+x.name+'」（'+m.chief+'）？\n\n信里是新的专属登入链接，旧链接马上失效；密码和已登入的手机不变。'))return;
   mailSave({resend:'chief'},this,'chief')});

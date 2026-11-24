@@ -125,7 +125,7 @@ export function parseMime(bin, out, depth) {
   if (/^image\/(jpe?g|png|webp|gif|heic)$/.test(type) || type === 'application/pdf' || /\.(jpe?g|png|webp|pdf)$/i.test(name)) out.files.push({ name: name || 'file', type, bytes });
   return out;
 }
-function htmlText(s) {
+export function htmlText(s) {
   return s.replace(/<(script|style)[\s\S]*?<\/\1>/gi, '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|tr|li|h\d)>/gi, '\n')
     .replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#(\d+);/g, (m, n) => String.fromCodePoint(+n));
 }

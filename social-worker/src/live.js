@@ -1,6 +1,6 @@
 // LIVE: tango-subscribe Worker (api.tangoweekend.org). Subscribe/confirm/push from subscribe-worker, plus /social/* (likes, email confirm, WeChat flow v3). The WeChat tab stays disabled.
 import SUB from '../../subscribe-worker/src/index.js';
-import { social, wxExpireSweep, generateGoingStats, runGoingNotices } from './social.js';
+import { social, wxExpireSweep, generateGoingStats, runGoingNotices, regInboundMail } from './social.js';
 import { unsubscribe as unsub2 } from './unsub.js';
 import { monthlyRoster } from './roster.js';
 import { inboundMail } from './inmail.js';
@@ -43,8 +43,12 @@ export default {
     }
     return SUB.fetch(req, env, ctx);
   },
-  // huodong@tangoweekend.org (Cloudflare Email Routing -> this Worker). inmail.js
+  // Cloudflare Email Routing -> this Worker: a TP 活动专属邮箱 (register.js regInbound), else huodong@tangoweekend.org (inmail.js)
   async email(message, env, ctx) {
+    const to = String(message.to || '').trim().toLowerCase();
+    if (to !== 'huodong@tangoweekend.org') {
+      try { if (await regInboundMail(message, env)) return; } catch (e) { console.log('tp inbound', String(e && e.message || e).slice(0, 160)); return; }
+    }
     try { await inboundMail(message, env, ctx, ackMail); } catch (e) { console.log('inmail', String(e && e.message || e).slice(0, 160)); }
   },
   async scheduled(event, env, ctx) {
