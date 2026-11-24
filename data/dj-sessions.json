@@ -289,6 +289,33 @@
  },
  {
   "date": "2026-11-22",
+  "dj": "Wei",
+  "event": "DFBKYdPX",
+  "name": "Kai's Milonga",
+  "name_en": "Kai's Milonga",
+  "city": "Shanghai",
+  "src": "events.json poster DFBKYdPX.png"
+ },
+ {
+  "date": "2026-11-22",
+  "dj": "王为",
+  "event": "DFBKYdPX",
+  "name": "Kai's Milonga",
+  "name_en": "Kai's Milonga",
+  "city": "Shanghai",
+  "src": "events.json poster DFBKYdPX.png"
+ },
+ {
+  "date": "2026-11-22",
+  "dj": "海鸥",
+  "event": "NmkWjMxo",
+  "name": "Milonga Los Vinos",
+  "name_en": "Milonga Los Vinos",
+  "city": "Beijing",
+  "src": "events.json poster NmkWjMxo.jpg"
+ },
+ {
+  "date": "2026-11-22",
   "dj": "Federico",
   "event": "WExJslMr",
   "name": "More than Tango Marathon & Festival & Cup",
@@ -322,6 +349,15 @@
   "name_en": "Milonga X",
   "city": "Hong Kong",
   "src": "events.json poster Q0Dhqqdr.jpg"
+ },
+ {
+  "date": "2026-11-28",
+  "dj": "旦",
+  "event": "EDPSh1eZ",
+  "name": "Milonga Cadencia",
+  "name_en": "Milonga Cadencia",
+  "city": "Guangzhou",
+  "src": "events.json weekly dj"
  },
  {
   "date": "2026-12-03",
