@@ -25,6 +25,9 @@ header b{font-size:15px}
 header .r{display:flex;gap:6px}
 header button{background:transparent;color:var(--soft);border-color:#a66;padding:4px 10px}
 header a.hb{border:1px solid #a66;border-radius:8px;padding:4px 10px;color:var(--soft);text-decoration:none;white-space:nowrap}
+/* 2026-11-24 Shiao: scanning is for phones (the check-in page only scans with the camera); computers with a mouse don't get the scan buttons */
+.pc-note{display:none}
+@media (hover:hover) and (pointer:fine){#toScan,#toDoorBar{display:none!important}.pc-note{display:block}}
 nav{position:sticky;top:0;z-index:3;display:flex;background:#fff;border-bottom:1px solid var(--line);padding:0 8px}
 nav button{border:0;border-bottom:3px solid transparent;border-radius:0;background:none;padding:12px 16px;height:46px}
 nav button.on{border-color:var(--red);color:var(--red);font-weight:700}
@@ -134,7 +137,8 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
 <nav id="nav" hidden></nav>
 <main id="app" hidden>
   <section id="v-site" hidden>
-    <div class="bar"><a class="btn" id="toDoor" href="../checkin/">打开签到页，扫码</a></div>
+    <div class="bar" id="toDoorBar"><a class="btn" id="toDoor" href="../checkin/">打开签到页，扫码</a></div>
+    <p class="muted pc-note">扫码签到请用手机：在手机上打开管理页，按右上角「扫码签到」。电脑上的名单里看得到谁已签到。</p>
     <p class="muted">扫到谁，处理谁。这里只有你自己收的账；审核、批准到场付款找经理或总管，退款找总管。</p>
     <div class="cards" id="siteCards"></div>
     <table><thead><tr><th>时间</th><th>报名者</th><th>方式</th><th class="n">金额</th></tr></thead><tbody id="siteList"></tbody></table>

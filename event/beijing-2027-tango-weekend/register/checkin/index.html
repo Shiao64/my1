@@ -17,6 +17,10 @@ body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 system-ui,-
 header{background:var(--deep);color:#f6e3b4;padding:10px 14px calc(10px);padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;justify-content:space-between;position:sticky;top:0;z-index:5}
 header b{font-size:1rem;line-height:1.2}
 header small{display:block;font-weight:400;font-size:.75rem;color:var(--gold)}
+header .ttl{display:flex;align-items:center;gap:10px;min-width:0}
+header .nw{white-space:nowrap}
+@media (max-width:380px){header{gap:6px}header .ttl{gap:6px}#toAdmin{padding:4px 6px;font-size:.78rem}#item{max-width:38vw;padding:8px 6px;font-size:.88rem}}
+#toAdmin{color:#f6e3b4;text-decoration:none;border:1px solid rgba(246,227,180,.45);border-radius:8px;padding:5px 9px;font-size:.85rem;white-space:nowrap;flex:none}
 select,input,button{font:inherit}
 select,input{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff}
 main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
@@ -53,7 +57,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
 </style>
 </head>
 <body>
-<header><b>入场签到<small id="me"></small></b><select id="item" hidden aria-label="现在这一场">
+<header><div class="ttl"><a id="toAdmin" href="../admin/" hidden>‹ 管理页</a><b><span class="nw">入场签到</span><small id="me"></small></b></div><select id="item" hidden aria-label="现在这一场">
   <option value="MV">周五 欢迎舞会</option><option value="T1">周五 一日游</option>
   <option value="M1">周六 下午场</option><option value="M2">周六 晚场</option>
   <option value="M3">周日 下午场</option><option value="M4">周日 晚场</option>
@@ -154,7 +158,9 @@ function ready(name,collect,role){var adm=role!=='desk',badge=document.createEle
   myRole=WHO[role]||'经理';
   badge.className='badge';badge.textContent=adm?myRole:'前台';$('me').textContent='';$('me').appendChild(badge);
   $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
-  $('swap').hidden=false;$('swap').textContent='退出'+(adm?myRole:'前台');$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false}
+  $('swap').hidden=false;$('swap').textContent='退出'+(adm?myRole:'前台');$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false;
+  $('toAdmin').hidden=!adm}   // 2026-11-24 Shiao: 经理、总管、管理员 can go back to the admin page; 前台 has no admin page
+$('toAdmin').addEventListener('click',function(){this.href='../admin/'+location.search});   // keep ?api= and the sign-in key, like the admin page's link here
 function lost(d){
   if(d&&d.error==='reauth'){res('warn','要再输一次密码才能继续');return}
   var owner=!!TP.owner()&&!TP.dev();
