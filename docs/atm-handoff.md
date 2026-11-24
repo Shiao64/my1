@@ -76,7 +76,7 @@
   - `atm-data.js`：读活动资料（R2 优先，失败用仓库里的）；**中文页面在这里把时间里的 `late` 换成「尽兴」**（#157）；
   - `atm-i18n.js`：多语言取字段；`atm-ko.js`：韩文层，按英文原句精确对照翻译，**新增英文界面文字要在这里加韩文**；
   - `asia-subscribe.js`：订阅、登录、验证码；`atm-star.js`：收藏、要参加／感兴趣面板、收藏第 3 个时的订阅提示；
-  - `atm-google.js`（11/24 用户定，给国外用户）：订阅框和「要参加／感兴趣」面板里的 Google 登录按钮，两个地图页各自引用（改了要一起加版本号）。大陆载不进 Google 就不出现，微信、KakaoTalk、LINE 等 App 内浏览器也不出现；后台 `/social/going/google` 和 TP 报名页共用（Client ID 在 `going.js`）。在订阅框用 Google 登录＝同时加入全站订阅（和邮箱流程默认打勾一样，不寄信）；在面板里登录后，资料齐全的人直接记录，缺城市／角色的先补。用邮箱的人照旧要手机末 4 码。韩文在 `atm-ko.js`。紧急关掉：Cloudflare 变量 `GOOGLE_CLIENT_ID` 设成 `off`。隐私说明 `/privacy/`、服务条款 `/terms/` 是 Google 要求的。
+  - `atm-google.js`（11/24 用户定，给国外用户）：订阅框和「要参加／感兴趣」面板里的 Google 登录按钮，两个地图页各自引用（改了要一起加版本号）。大陆载不进 Google 就不出现，微信、KakaoTalk、LINE 等 App 内浏览器也不出现；后台 `/social/going/google` 和 TP 报名页共用（Client ID 在 `going.js`）。在订阅框用 Google 登录＝同时加入全站订阅（和邮箱流程默认打勾一样，不寄信）；在面板里登录后，资料齐全的人直接记录，缺城市／角色的先补。用邮箱的人照旧要手机末 4 码。韩文、西班牙文、俄文在 `atm-ko.js`、`atm-es.js`、`atm-ru.js`，按钮也跟着页面语言。紧急关掉：Cloudflare 变量 `GOOGLE_CLIENT_ID` 设成 `off`。隐私说明 `/privacy/`、服务条款 `/terms/` 是 Google 要求的。
   - `atm-addr.js`：地址、交通、地图链接、放大给司机看、路线图；
   - `atm-ui2.js`：`?ui=2` 视觉测试层；
   - `atm-later.js`：**打包文件**，由 `tools/build_asia_assets.mjs` 从 `atm-menu.js` 等源文件生成。改源文件后要重新打包，不要直接改打包文件（打包时 `atm-critical.css`、`atm-early.js` 也会被重写，若只是工具版本差异就还原）。`atm-critical.css` 也是打包产物（来源 `css/atm-map-page.css`、`css/style.css`、`asia/cardB.css`、`asia/atm-theme.css`）；只想盖掉旧样式时，在 `atm-home.js` 的新版 CSS 里加覆盖规则比较安全（#160 这样做）。

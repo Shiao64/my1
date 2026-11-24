@@ -7,7 +7,7 @@
 (function () {
   var R = document.documentElement;
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || (document.body && document.body.getAttribute('data-lang')) || R.lang || '') || location.pathname.indexOf('/zh/') === 0;
-  var ko = !zh && /^ko/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
+  var ui = zh ? 'zh_CN' : (/^(ko|es|ru)/i.exec(R.getAttribute('data-asia-lang') || R.lang || '') || ['en'])[0].toLowerCase(); // Google button language
   var INAPP = /MicroMessenger|WeChat|wxwork|QQ\/|MQQBrowser|Weibo|DingTalk|AlipayClient|Lark|Feishu|KAKAOTALK|NAVER\(inapp|Line\/|FBAN|FBAV|FB_IAB|Instagram|Twitter|Snapchat|TikTok|musical_ly|Bytedance|Telegram|Zalo|; wv\)/i;
   function apiBase() {
     var host = location.hostname;
@@ -71,7 +71,7 @@
       box.hidden = false;
       slot.innerHTML = '';
       var w = Math.max(200, Math.min(400, Math.round(slot.getBoundingClientRect().width) || 300));
-      try { window.google.accounts.id.renderButton(slot, { type: 'standard', theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill', logo_alignment: 'center', width: w, locale: zh ? 'zh_CN' : ko ? 'ko' : 'en' }); }
+      try { window.google.accounts.id.renderButton(slot, { type: 'standard', theme: 'outline', size: 'large', text: 'continue_with', shape: 'pill', logo_alignment: 'center', width: w, locale: ui }); }
       catch (e) { box.hidden = true; }
     });
   }
