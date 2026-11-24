@@ -71,7 +71,7 @@ const save = body => call('POST', '/admin/reg/mailto', { event: 'bstw2027', ...b
 const idOf = async code => (await list(ADMIN)).rows.find(r => r.code === code).id;
 const logs = (code, like) => db.prepare("SELECT l.action,l.detail FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.code=? AND l.action LIKE ? ORDER BY l.id").all(code, like);
 const CHIEF = 'chief@example.com', CHIEF2 = 'chief2@example.com', COPY = 'copy@example.com';
-const T = to => '[TEST → ' + to + '] ';
+const T = to => '[TEST → ' + to + '] ', O = '[测试] ';   // test stage: a registrant off the 测试名单 → test inbox; organizers straight, marked
 // who got a copy of this letter (by the subject's tail), test stage or live
 const whom = m => m.subject.startsWith('[TEST → ') ? m.subject.slice(8, m.subject.indexOf(']')) : m.to;
 const copyTo = (ms, tail) => ms.filter(m => m.subject.endsWith('[副本] ' + tail)).map(whom).sort();
@@ -103,7 +103,7 @@ take();
 // --- 副本邮箱: a short notice, no link, to the test inbox only
 d = await save({ copy: ' Copy@Example.com ' }); ms = take();
 check('copy saved (trimmed, lower case), notice sent', d.ok && d.mailto.copy === COPY && d.sent.copy === 'sent', d);
-check('copy notice: one letter, test inbox, says for whom', ms.length === 1 && ms[0].to === INBOX && ms[0].subject === T(COPY) + '探戈通：副本邮箱已设定（北京精选探戈周末 2027）', subs(ms));
+check('copy notice: one letter, straight to it, marked [测试]', ms.length === 1 && ms[0].to === COPY && ms[0].subject === O + '探戈通：副本邮箱已设定（北京精选探戈周末 2027）', subs(ms));
 check('copy notice: from 探戈通, replies to info@, no link', ms[0] && ms[0].from === '探戈通 Tango Pass' && ms[0].replyTo === 'info@tangoweekend.org' && !/https?:/.test(ms[0].body), ms[0]);
 check('copy notice: explains', ms[0] && ms[0].body.includes('副本邮箱') && ms[0].body.includes('报名者看不到'), ms[0] && ms[0].body);
 d = await save({ copy: COPY }); ms = take();
@@ -119,13 +119,13 @@ ms = take();
 check('appointed, letter sent', chief.ok && chief.letter === 'sent' && keyOf(chief.link) && /^\d{6}$/.test(chief.pin) && !chief.link.includes('?m='), chief);
 const appoint = ms.find(m => m.subject.includes('你被任命为总管'));
 const m1 = appoint && mOf(appoint.body);
-check('任命信 to the test inbox, for the 总管邮箱', appoint && appoint.to === INBOX && appoint.subject === T(CHIEF) + '探戈通：你被任命为总管（北京精选探戈周末 2027）', subs(ms));
+check('任命信 straight to the 总管邮箱, marked [测试]', appoint && appoint.to === CHIEF && appoint.subject === O + '探戈通：你被任命为总管（北京精选探戈周末 2027）', subs(ms));
 check('任命信: the same link as the page, plus a token', appoint && keyOf(appoint.body) === keyOf(chief.link) && m1, appoint && appoint.body);
 check('任命信: no password anywhere', ms.every(m => !m.body.includes(chief.pin)), chief.pin);
 check('任命信: password by WeChat or phone; opening the link checks the mailbox', appoint && appoint.body.includes('微信或电话') && appoint.body.includes('这封信里没有密码') && appoint.body.includes('确认了这个邮箱'), appoint && appoint.body);
 const told = ms.find(m => m.subject.includes('总管已任命'));
-check('副本邮箱 told, without a link', told && told.subject === T(COPY) + '探戈通：总管已任命（北京精选探戈周末 2027）' && told.body.includes('李总') && told.body.includes(CHIEF) && !told.body.includes('/register/in/'), told);
-check('appointment: two letters, test inbox only, no Cc', ms.length === 2 && ms.every(m => m.to === INBOX && !m.cc), subs(ms));
+check('副本邮箱 told, without a link', told && told.to === COPY && told.subject === O + '探戈通：总管已任命（北京精选探戈周末 2027）' && told.body.includes('李总') && told.body.includes(CHIEF) && !told.body.includes('/register/in/'), told);
+check('appointment: two letters, straight, marked, no Cc', ms.length === 2 && ms.every(m => [CHIEF, COPY].includes(m.to) && m.subject.startsWith(O) && !m.cc), subs(ms));
 const chiefTok = await signIn(chief, '730195');
 d = await mailto(); check('signed in with the page link: not verified', d.verified === false, d);
 d = await call('POST', '/reg/login/hello', { key: keyOf(chief.link), m: 'f'.repeat(32) }); check('a wrong token verifies nothing', d.ok && !d.mail_ok, d);
@@ -144,13 +144,13 @@ const bobCode = d.code; ms = take();
 const own = ms.find(m => m.subject === T('bob@example.com') + 'Registration received · ' + bobCode);
 check('received: copies to 总管, 副本 and 管理员', same(copyTo(ms, 'Registration received · ' + bobCode), [BOSS, CHIEF, COPY]), subs(ms));
 check('新报名 notice: to 总管, 副本 and 管理员', same(notified(ms, bobCode), [BOSS, CHIEF, COPY]), subs(ms));
-check('test stage: 总管 and 副本 only in the test inbox; the 管理员 straight', ms.filter(m => m.to !== BOSS).every(m => m.to === INBOX) && ms.filter(m => m.to === BOSS).length === 2, subs(ms));
+check('test stage: registrant (off the list) in the test inbox; 总管, 副本, 管理员 straight, marked', ms.filter(m => m.to === INBOX).length === 1 && ms.filter(m => m.to !== INBOX).every(m => m.subject.startsWith(O)) && [BOSS, CHIEF, COPY].every(a => ms.filter(m => m.to === a).length === 2), subs(ms));
 check('7 letters, none with Cc', ms.length === 7 && ms.every(m => !m.cc), subs(ms));
 check('registrant letter names none of them', own && ![CHIEF, COPY, BOSS].some(a => own.body.includes(a)), own && own.body);
-const cc1 = ms.find(m => m.subject === T(CHIEF) + '[副本] Registration received · ' + bobCode);
+const cc1 = ms.find(m => m.to === CHIEF && m.subject === O + '[副本] Registration received · ' + bobCode);
 check('copy says whose letter it is and carries it', cc1 && cc1.body.startsWith('副本：这是寄给报名者 bob@example.com（' + bobCode + '）那封信的副本') && cc1.body.includes('Bob Kim'), cc1 && cc1.body.slice(0, 90));
 check('copies reply to info@ like the letter', ms.filter(m => m.subject.includes('[副本]')).every(m => m.replyTo === 'info@tangoweekend.org'));
-const n1 = ms.find(m => m.subject === T(CHIEF) + '新报名 ' + bobCode), nb = ms.find(m => m.to === BOSS && m.subject === '新报名 ' + bobCode);
+const n1 = ms.find(m => m.to === CHIEF && m.subject === O + '新报名 ' + bobCode), nb = ms.find(m => m.to === BOSS && m.subject === O + '新报名 ' + bobCode);
 check('新报名 notice to the 总管: same text as the 管理员\'s', n1 && nb && n1.body === nb.body && n1.body.includes('bob@example.com'), n1);
 check('log: copies recorded without addresses', logs(bobCode, 'copy%').map(x => x.action + '=' + x.detail).join(' ') === 'copy:recv=chief,copy,admin copy:notify=chief,copy', logs(bobCode, 'copy%'));
 const bobId = await idOf(bobCode);
@@ -170,7 +170,7 @@ const oldKey = keyOf(chief.link);
 d = await save({ chief: CHIEF2 }); ms = take();
 const re = ms.find(m => m.subject.includes('你被任命为总管'));
 const newKey = re && keyOf(re.body), m2 = re && mOf(re.body);
-check('relink: letter to the new address', d.ok && d.sent.chief === 'sent' && re && re.subject.startsWith(T(CHIEF2)) && d.mailto.verified === false, [d, subs(ms)]);
+check('relink: letter to the new address', d.ok && d.sent.chief === 'sent' && re && re.to === CHIEF2 && re.subject.startsWith(O) && d.mailto.verified === false, [d, subs(ms)]);
 check('relink: a new link, not the old one', newKey && newKey !== oldKey && m2 && m2 !== m1, [newKey, oldKey]);
 check('relink: says the password stays (already their own)', re && re.body.includes('密码不变') && !re.body.includes('730195'), re && re.body);
 check('relink: 副本邮箱 told, with the new address', ms.some(m => m.subject.includes('总管已任命') && m.body.includes(CHIEF2)), subs(ms));
@@ -188,7 +188,11 @@ check('verified again: the 管理员 off again', same(copyTo(ms, 'Payment receiv
 
 // --- live: a letter read in the test inbox does not count; everyone gets their own letter, never an entry code in a copy
 env.REG_LIVE = '1';
-d = await mailto(); check('live: the test-stage verification does not count', d.live === true && d.verified === false, d);
+d = await mailto(); check('live: a verification made at the 总管\'s own mailbox still counts', d.live === true && d.verified === true, d);
+const vrow = db.prepare("SELECT value FROM reg_setting WHERE key='chief_verified'").get().value;
+check('the verification is marked direct', /\|direct\|/.test(vrow), vrow);
+db.prepare("UPDATE reg_setting SET value=? WHERE key='chief_verified'").run(vrow.replace('|direct|', '|test|'));
+d = await mailto(); check('live: one read in the test inbox (before 1225) does not count', d.verified === false, d);
 d = await call('POST', '/admin/reg/act', { id: bobId, action: 'confirm' }, ADMIN); ms = take();
 check('live: confirm → registrant, 总管, 副本 and (not verified) 管理员, each straight', ms.length === 4 && ['bob@example.com', CHIEF2, COPY, BOSS].every(a => ms.some(m => m.to === a && !m.cc && !m.subject.startsWith('[TEST'))), subs(ms));
 check('live: copy html has the copy line on top', ms.filter(m => m.to !== 'bob@example.com').every(m => /<body[^>]*><div[^>]*>副本：/.test(m.body)), ms.map(m => m.body.slice(-300)));
@@ -234,7 +238,7 @@ take();
 let chiefRow = (await list(ADMIN)).admins.find(x => x.name === '李总');
 d = await call('POST', '/admin/reg/admins/reset', { event: 'bstw2027', id: chiefRow.id, v: chiefRow.v }, ADMIN); ms = take();
 check('reset: letter sent, only to the 总管', d.ok && d.letter === 'sent' && ms.length === 1, [d, subs(ms)]);
-check('reset: new link with a token, not the password', ms[0] && ms[0].subject === T(CHIEF2) + '探戈通：你的总管登入已重设（北京精选探戈周末 2027）' && keyOf(ms[0].body) === keyOf(d.link) && mOf(ms[0].body) && !ms[0].body.includes(d.pin), ms[0]);
+check('reset: new link with a token, not the password', ms[0] && ms[0].to === CHIEF2 && ms[0].subject === O + '探戈通：你的总管登入已重设（北京精选探戈周末 2027）' && keyOf(ms[0].body) === keyOf(d.link) && mOf(ms[0].body) && !ms[0].body.includes(d.pin), ms[0]);
 // sent again while the password is a temporary one: it comes another way
 d = await save({ resend: 'chief' }); ms = take();
 check('resend with a temporary password: says it comes by WeChat or phone', d.sent.chief === 'sent' && ms[0] && ms[0].body.includes('这封信里没有密码') && !ms[0].body.includes('密码不变'), ms[0] && ms[0].body);
@@ -272,6 +276,26 @@ db.prepare("INSERT INTO reg(event,code,email,lang,status,people,data,amount,crea
 const rr = await regCron(env); ms = take();
 const remind = ms.find(m => m.subject.startsWith(T('late@example.com')));
 check('reminder: letter + copies', rr.sent === 1 && remind && same(copyTo(ms, remind.subject.slice(T('late@example.com').length)), [BOSS, COPY]), subs(ms));
+
+// --- 测试名单 (plan 1225): while testing, a registrant on it gets their letters straight; anyone else's stay in the test inbox
+d = await save({ test_list: 'not-an-email, a@example.com' }); check('测试名单: a bad address refused, named', d._s === 400 && d.error === 'bad_email' && d.which === 'test_list' && d.bad === 'not-an-email', d);
+d = await save({ test_list: Array.from({ length: 11 }, (_, i) => `t${i}@example.com`).join(',') }); check('测试名单: at most 10', d._s === 400 && d.error === 'too_many' && d.max === 10, d);
+d = await save({ test_list: ' Tess@Example.com，tess@example.com\nzed@example.com ' }); ms = take();
+check('测试名单: saved trimmed, lower case, once each; no letter', d.ok && d.sent.test_list === 'saved' && d.mailto.test_list.join() === 'tess@example.com,zed@example.com' && ms.length === 0, [d, ms]);
+d = await save({ test_list: 'zed@example.com tess@example.com' }); check('测试名单: same addresses again → saved (order is what was typed)', d.sent.test_list === 'saved');
+d = await save({ test_list: 'zed@example.com tess@example.com' }); check('测试名单: unchanged → nothing', !d.sent.test_list, d);
+const tess = subscriber('tess@example.com', 'Tess');
+d = await call('POST', '/reg', form({ people: [person({ name: 'Tess' })] }), tess); const tessCode = d.code; ms = take();
+check('on the list: her letter straight to her, marked [测试]', ms.some(m => m.to === 'tess@example.com' && m.subject === O + 'Registration received · ' + tessCode) && !ms.some(m => m.to === INBOX), subs(ms));
+const ned = subscriber('ned@example.com', 'Ned');
+d = await call('POST', '/reg', form({ people: [person({ name: 'Ned' })] }), ned); const nedCode = d.code; ms = take();
+check('off the list: only the test inbox, never to him', ms.some(m => m.to === INBOX && m.subject === T('ned@example.com') + 'Registration received · ' + nedCode) && !ms.some(m => m.to === 'ned@example.com'), subs(ms));
+env.REG_LIVE = '1';
+d = await call('POST', '/admin/reg/act', { id: await idOf(nedCode), action: 'decline' }, ADMIN); ms = take();
+check('live: the list no longer matters, no [测试]', ms.some(m => m.to === 'ned@example.com' && m.subject.endsWith(nedCode) && !m.subject.startsWith('[')) && ms.every(m => !m.subject.startsWith(O)), subs(ms));
+delete env.REG_LIVE;
+d = await save({ test_list: '' }); check('测试名单 cleared', d.sent.test_list === 'saved' && d.mailto.test_list.length === 0, d);
+take();
 
 // --- cleared: no notice, no more copies to it; the 管理员's address comes from REG_NOTIFY, else the test inbox's
 d = await save({ copy: '' }); ms = take();

@@ -15,12 +15,12 @@
 //   POST /social/admin/reg/admins[/role|/reset|/delete], /staff[/reset|/delete] {…, pin}   appointments
 //   POST /social/admin/reg/export {what: regs|payments, pin}   CSV
 //   POST /social/admin/reg/asset {name, mime, b64}         upload a payment QR
-//   POST /social/admin/reg/mailto {chief?, copy?, admin_on?, resend?, event_mail?, event_mail_test?}  管理员 only: 活动邮箱 ('' clears)
+//   POST /social/admin/reg/mailto {chief?, copy?, admin_on?, resend?, event_mail?, event_mail_test?, test_list?}  管理员 only: 活动邮箱 ('' clears)
 //   Mail to a 活动专属邮箱 (Cloudflare Email Routing → live.js email → regInbound) is relayed: see 「活动专属邮箱」 below
 //   Organizer page: /event/beijing-2027-tango-weekend/register/admin/ (static, asks for the token)
 //
-// Safety: until REG_LIVE=1, every letter to a registrant, a 总管邮箱 or a 副本邮箱 goes to REG_TEST_INBOX
-// (default selecttango@gmail.com). The 管理员's own copies and 新报名 notices go to REG_NOTIFY in both stages.
+// Safety: until REG_LIVE=1, a letter to a registrant goes to REG_TEST_INBOX (default selecttango@gmail.com) unless they are
+// on the 测试名单; the 管理员 (REG_NOTIFY), 总管邮箱 and 副本邮箱 get theirs straight, marked [测试].
 
 export const EVENTS = {
   bstw2027: {
@@ -352,9 +352,18 @@ async function payNames(env, reg) {
   const have = new Set((((await env.SDB.prepare('SELECT name FROM reg_asset').all()).results) || []).map(x => x.name));
   return want.filter(n => have.has(n));
 }
-// Test stage: every letter to a registrant, a 总管 or a 副本邮箱 goes to the test inbox until REG_LIVE=1, its subject
-// saying whom it was for. The 管理员's own mail goes straight to them in both stages, as the 新报名 notice always did.
-const testTo = (env, to) => env.REG_LIVE === '1' ? { to, pre: '' } : { to: env.REG_TEST_INBOX || 'selecttango@gmail.com', pre: '[TEST → ' + to + '] ' };
+// Test stage (no REG_LIVE=1; plan 「1225」, Shiao 2026-11-24):
+//   the organizers (管理员, 总管邮箱, 副本邮箱) get their own mail straight, the subject marked [测试];
+//   a registrant on the 测试名单 gets theirs straight, marked [测试]; any other registrant's goes only to the test inbox,
+//   its subject saying whom it was for, so nobody outside the list ever gets a test letter.
+const TEST_TAG = '[测试] ';
+const testInbox = env => env.REG_TEST_INBOX || 'selecttango@gmail.com';
+const toOrganizer = (env, to) => ({ to, pre: env.REG_LIVE === '1' ? '' : TEST_TAG });
+function toRegistrant(env, t, to) {
+  if (env.REG_LIVE === '1') return { to, pre: '' };
+  if (t && (t.test_list || []).includes(String(to || '').toLowerCase())) return { to, pre: TEST_TAG };
+  return { to: testInbox(env), pre: '[TEST → ' + to + '] ' };
+}
 const replyTo = env => env.REG_REPLY_TO || 'info@tangoweekend.org';
 const stageOf = env => env.REG_LIVE === '1' ? 'live' : 'test';
 const adminMail = env => String(env.REG_NOTIFY || 'selecttango@gmail.com').trim().toLowerCase();
@@ -366,7 +375,7 @@ async function send(env, kit, reg, action) {
   const rest = kind === 'cash' || kind === 'rem' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
   const shown = rest == null ? reg : { ...reg, rest };
   const m = letter(kind, shown, env, passes, qrs);
-  const dest = testTo(env, reg.email), t = await mailTo(env, reg.event);
+  const t = await mailTo(env, reg.event), dest = toRegistrant(env, t, reg.email);
   try { await kit.deliver(env, dest.to, dest.pre + m.subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: replyFor(env, t) }); await log(env, reg.id, 'mail:' + action, dest.to); }
   catch (e) { await log(env, reg.id, 'mail_failed:' + action, String(e && e.message || e)); return 'failed'; }
   await sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t);
@@ -378,7 +387,8 @@ async function send(env, kit, reg, action) {
 // address is fixed. Every registration letter and the 新报名 notice go to each of them as a separate letter, never Cc or
 // Bcc, so the registrant sees none of them. The 管理员 may turn their own off (「管理员也收信」), but still gets them
 // while the 总管邮箱 is empty or not verified: verified = the 总管 opened the link in the 任命信, in this same stage.
-const SETTINGS = ['chief_email', 'copy_email', 'admin_copy', 'chief_token', 'chief_verified', 'event_mail', 'event_mail_rule', 'event_mail_token', 'event_mail_ok'];
+const SETTINGS = ['chief_email', 'copy_email', 'admin_copy', 'chief_token', 'chief_verified', 'event_mail', 'event_mail_rule', 'event_mail_token', 'event_mail_ok', 'test_list'];
+const TEST_LIST_MAX = 10;
 const noTable = e => /no such table/i.test(String(e && e.message));
 async function settingsOf(env, evId) {
   const s = {};
@@ -393,10 +403,11 @@ async function setSetting(env, evId, key, value, by) {
 // what the settings page shows (never the token)
 async function mailTo(env, evId) {
   const s = await settingsOf(env, evId), chief = s.chief_email || '', v = String(s.chief_verified || '').split('|');
-  const verified = !!chief && v[0] === chief && v[1] === stageOf(env);
+  const verified = !!chief && v[0] === chief && (v[1] === 'direct' || v[1] === stageOf(env));
   const event_mail = s.event_mail || '', ok = String(s.event_mail_ok || '').split('|'), bound = !!event_mail && ok[0] === event_mail;
   return { chief, copy: s.copy_email || '', admin: adminMail(env), admin_on: s.admin_copy !== '0', verified, verified_at: verified ? v[2] : undefined, live: env.REG_LIVE === '1',
-    event_mail, event_mail_ok: bound, event_mail_at: bound ? ok[1] : undefined, domain: mailDomain(env), cf_ready: !!env.CF_MAIL_TOKEN };
+    event_mail, event_mail_ok: bound, event_mail_at: bound ? ok[1] : undefined, domain: mailDomain(env), cf_ready: !!env.CF_MAIL_TOKEN,
+    test_list: String(s.test_list || '').split(',').filter(Boolean) };
 }
 // replies to a registration letter: the 活动专属邮箱 once it is bound (its test letter came back), else info@
 const replyFor = (env, t) => t && t.event_mail && t.event_mail_ok ? t.event_mail : replyTo(env);
@@ -407,7 +418,7 @@ function recipients(t, skip) {
   if (t.admin_on || !t.verified) add(t.admin, 'admin');
   return out;
 }
-const route = (env, x) => x.who === 'admin' ? { to: x.addr, pre: '' } : testTo(env, x.addr);
+const route = (env, x) => toOrganizer(env, x.addr);
 // The copy is the same letter with a line on top. Entry codes belong to the registrant alone: never in a copy.
 async function sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t) {
   t = t || await mailTo(env, reg.event);
@@ -447,7 +458,7 @@ async function notifyOwner(env, kit, reg) {
 // Letters about the people who run an event: the system's own name, never a password in them.
 const TP_SIGN = '\n\n探戈通 Tango Pass · tangoweekend.org\n（有问题请直接回信）';
 async function tpMail(env, kit, to, subject, text) {
-  const dest = testTo(env, to);
+  const dest = toOrganizer(env, to);   // 任命信 and notices go to the 总管邮箱 / 副本邮箱 only
   try { await kit.deliver(env, dest.to, dest.pre + subject, text + TP_SIGN, undefined, undefined, { fromName: '探戈通 Tango Pass', replyTo: replyTo(env) }); return 'sent'; }
   catch (e) { console.log('tp mail', String(e && e.message || e).slice(0, 120)); return 'failed'; }
 }
@@ -480,7 +491,8 @@ export function copyLetter(ev, mode, o = {}) {
 async function mailChief(env, kit, ev, name, mode, key, temp, tell) {
   const t = await mailTo(env, ev.id); if (!t.chief) return undefined;
   const m = rndHex(16);
-  await setSetting(env, ev.id, 'chief_token', `${await sha256(m)}|${t.chief}|${stageOf(env)}`, name);
+  // the letter goes straight to the 总管邮箱 in both stages now, so opening it proves that address: 'direct'
+  await setSetting(env, ev.id, 'chief_token', `${await sha256(m)}|${t.chief}|direct`, name);
   const l = chiefLetter(ev, name, mode, personLink(env, key, m), temp);
   const r = await tpMail(env, kit, t.chief, l.subject, l.text);
   if (r === 'sent' && tell && t.copy && t.copy !== t.chief) { const o = copyLetter(ev, 'chief', { name, chief: t.chief }); await tpMail(env, kit, t.copy, o.subject, o.text); }
@@ -505,7 +517,7 @@ async function relinkChief(env, kit, ev, mode, tell) {
 async function mailOk(env, kind, row, m) {
   if (kind !== 'admin' || roleOf(row.perms) !== 'chief' || !/^[0-9a-f]{32}$/.test(String(m || ''))) return undefined;
   const s = await settingsOf(env, row.event), [h, addr, stage] = String(s.chief_token || '').split('|');
-  if (!s.chief_email || addr !== s.chief_email || stage !== stageOf(env) || h !== await sha256(String(m))) return undefined;
+  if (!s.chief_email || addr !== s.chief_email || (stage !== 'direct' && stage !== stageOf(env)) || h !== await sha256(String(m))) return undefined;
   await setSetting(env, row.event, 'chief_verified', `${addr}|${stage}|${nowIso()}`, row.name);
   return true;
 }
@@ -610,7 +622,7 @@ const nameOf = reg => { try { return (JSON.parse(reg.data).people[0] || {}).name
 // and a tag only they see (HMAC of the code), so an answer to it can go back to that registrant and nothing else can.
 async function relayKey(env, code) { return env.REG_PASS_SECRET ? (await hmac(env.REG_PASS_SECRET, 'relay:' + code)).slice(0, 10) : ''; }
 const tagOf = (code, k) => `[回信 ${code} #${k}]`;
-const cleanSubject = s => String(s || '').replace(/\[TEST → [^\]]*\]\s*/g, '').replace(/\[(回信 [A-Z0-9]+-\d{4}(?: #[0-9a-f]+)?|副本(?: #[0-9a-f]+)?|来信)\]\s*/g, '').replace(/^((re|回复|答复|fw|fwd|转发)\s*[:：]\s*)+/i, '').trim();
+const cleanSubject = s => String(s || '').replace(/\[TEST → [^\]]*\]\s*/g, '').replace(/\[(回信 [A-Z0-9]+-\d{4}(?: #[0-9a-f]+)?|副本(?: #[0-9a-f]+)?|来信|测试)\]\s*/g, '').replace(/^((re|回复|答复|fw|fwd|转发)\s*[:：]\s*)+/i, '').trim();
 // files that fit in one letter; the rest are named in the text
 function filesOut(parsed) {
   const keep = [], left = []; let size = 0;
@@ -654,7 +666,7 @@ export async function regInbound(message, env, kit) {
   if (role && keyed) {
     // an organizer answers a letter TP sent them: to the registrant in the event's name; the others get a copy
     const subj = 'Re: ' + cleanSubject(subject).replace(new RegExp('\\s*·?\\s*' + reg.code + '\\s*'), ' ').trim() + ' · ' + reg.code;
-    const d = testTo(env, reg.email);
+    const d = toRegistrant(env, t, reg.email);
     try { await kit.deliver(env, d.to, d.pre + subj, body, undefined, { 'X-TP-Relay': 'out' }, { fromName: 'Beijing Select Tango Weekend', replyTo: to, attachments: files.keep }); }
     catch (e) {
       await log(env, reg.id, 'reply_failed:out', String(e && e.message || e));
@@ -945,8 +957,17 @@ export async function regAdmin(req, env, url, b, json, kit) {
       if (v && !EMAIL_STRICT.test(v)) return json({ error: 'bad_email', which: k }, 400);
       want[k] = v;
     }
+    // 测试名单: addresses whose registration letters go straight to them while testing (comma, space or newline)
+    let list = null;
+    if (b && b.test_list != null) {
+      list = [...new Set((Array.isArray(b.test_list) ? b.test_list : String(b.test_list).split(/[\s,;，；、]+/)).map(x => str(x, 254).toLowerCase()).filter(Boolean))];
+      const bad = list.find(x => !EMAIL_STRICT.test(x));
+      if (bad) return json({ error: 'bad_email', which: 'test_list', bad }, 400);
+      if (list.length > TEST_LIST_MAX) return json({ error: 'too_many', which: 'test_list', max: TEST_LIST_MAX }, 400);
+    }
     const cur = await mailTo(env, ev.id), sent = {};
     try {
+      if (list && list.join(',') !== cur.test_list.join(',')) { await setSetting(env, ev.id, 'test_list', list.join(','), who.name); sent.test_list = 'saved'; }
       if (b.admin_on != null && !!b.admin_on !== cur.admin_on) await setSetting(env, ev.id, 'admin_copy', b.admin_on ? '1' : '0', who.name);
       for (const k of Object.keys(want)) {
         if (want[k] === cur[k]) continue;
