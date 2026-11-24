@@ -67,7 +67,7 @@ const save = body => call('POST', '/admin/reg/mailto', { event: 'bstw2027', ...b
 const idOf = async code => (await list()).rows.find(r => r.code === code).id;
 const regLog = (code, like) => db.prepare("SELECT l.action,l.detail FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.code=? AND l.action LIKE ? ORDER BY l.id").all(code, like);
 const CHIEF = 'chief@example.com', COPY = 'copy@example.com', EV = 'bstw2027@tangoweekend.org';
-const T = to => '[TEST → ' + to + '] ';
+const T = to => '[TEST → ' + to + '] ', O = '[测试] ';   // test stage (plan 1225): organizers straight, marked [测试]; a registrant off the 测试名单 → test inbox
 const keyOf = code => crypto.createHmac('sha256', 'regpass:' + env.REG_PASS_SECRET).update('relay:' + code).digest('hex').slice(0, 10);
 
 // --- a fake Cloudflare API: rules by id; every call recorded
@@ -149,27 +149,35 @@ d = await save({ copy: COPY }); take();
 const r1 = await regInboundMail(inbound({ from: 'Shiao <selecttango@gmail.com>', subject: 'Re: ' + own.subject, text: 'Paid, screenshot attached.', png: true }), env); ms = take();
 const k = keyOf(amyCode), tag = `[回信 ${amyCode} #${k}]`;
 check('test stage: reply to a registrant letter → to the 总管, 副本 and 管理员', r1 === true && ms.length === 3 && ms.every(m => m.subject.endsWith(tag + ' Payment received · ' + amyCode)), subs(ms));
-check('forwarded: 总管 and 副本 via the test inbox, 管理员 straight', ms.filter(m => m.to === INBOX).length === 2 && ms.some(m => m.to === BOSS && !m.subject.startsWith('[TEST')), subs(ms));
+check('forwarded: 总管, 副本 and 管理员 straight, marked [测试], nothing to the test inbox', [CHIEF, COPY, BOSS].every(a => ms.some(m => m.to === a && m.subject.startsWith(O + tag))) && !ms.some(m => m.to === INBOX), subs(ms));
 check('forwarded: replies go back to the 活动专属邮箱, the screenshot is attached', ms.every(m => m.replyTo === EV && m.atts.join() === 'pay.png' && m.headers['X-TP-Relay'] === 'in'), ms.map(m => [m.replyTo, m.atts]));
 check('forwarded: says who wrote and how to answer', ms[0].body.includes('报名者 Amy Lee（amy@example.com，' + amyCode + '，已付款）') && ms[0].body.includes('Paid, screenshot attached.') && ms[0].body.includes('报名者看不到你的邮箱'), ms[0].body.slice(0, 300));
 check('log: reply in', regLog(amyCode, 'reply%').map(x => x.action + '=' + x.detail).join() === 'reply:in=chief,copy,admin +1', regLog(amyCode, 'reply%'));
 
 // --- the 总管 answers that letter: to the registrant, in the event's name; the others get a copy
-const fwd = ms.find(m => m.subject.startsWith(T(CHIEF)));
+const fwd = ms.find(m => m.to === CHIEF);
 const r2 = await regInboundMail(inbound({ from: '李总 <' + CHIEF + '>', subject: 'Re: ' + fwd.subject, text: 'Thanks Amy, received!', png: true }), env); ms = take();
 const out = ms.find(m => m.subject.startsWith(T('amy@example.com')));
 check('总管 answers: to the registrant (test inbox in the test stage)', r2 === true && out && out.subject === T('amy@example.com') + 'Re: Payment received · ' + amyCode && out.to === INBOX, subs(ms));
-check('to the registrant: event name, replies to the 活动专属邮箱, no tag, no 总管 address', out.from === 'Beijing Select Tango Weekend' && out.replyTo === EV && !out.subject.includes('#') && !out.body.includes(CHIEF) && out.body.includes('Thanks Amy') && out.atts.join() === 'pay.png', out);
+check('to the registrant: event name, replies to the 活动专属邮箱, no tag, no 总管 address', out.from === 'Beijing Select Tango Weekend' && out.replyTo === EV && !out.subject.includes('#') && !out.subject.includes('[测试]') && !out.body.includes(CHIEF) && out.body.includes('Thanks Amy') && out.atts.join() === 'pay.png', out);
 const outCopies = ms.filter(m => m.subject.includes('[副本 #' + k + ']'));
-check('copies of the answer: 副本 and 管理员, not back to the 总管', outCopies.length === 2 && !outCopies.some(m => m.subject.startsWith(T(CHIEF))) && outCopies.every(m => m.body.startsWith('副本：总管（' + CHIEF + '）以「北京精选探戈周末 2027」的名义回给报名者')), subs(ms));
+check('copies of the answer: 副本 and 管理员, not back to the 总管', outCopies.length === 2 && !outCopies.some(m => m.to === CHIEF) && outCopies.every(m => m.body.startsWith('副本：总管（' + CHIEF + '）以「北京精选探戈周末 2027」的名义回给报名者')), subs(ms));
 check('log: reply out', regLog(amyCode, 'reply:out%').map(x => x.detail).join() === 'chief +1', regLog(amyCode, 'reply:out%'));
 // the 管理员 answers a copy of a registrant letter (tag in the copy) → also to the registrant
 d = await regInboundMail(inbound({ from: BOSS, subject: 'Re: [副本 #' + k + '] Payment received · ' + amyCode, text: 'From the admin.' }), env); ms = take();
 check('管理员 answers a tagged copy → to the registrant, copies to 总管 and 副本', ms.some(m => m.subject === T('amy@example.com') + 'Re: Payment received · ' + amyCode && m.body.includes('From the admin.')) && ms.filter(m => m.subject.includes('[副本 #')).length === 2, subs(ms));
 
+// --- a registrant on the 测试名单 (plan 1225): the answer reaches her own inbox while testing, [测试] once, never doubled
+d = await save({ test_list: 'amy@example.com' }); take();
+d = await regInboundMail(inbound({ from: '李总 <' + CHIEF + '>', subject: 'Re: ' + fwd.subject, text: 'Second answer.' }), env); ms = take();
+check('on the 测试名单: the 总管\'s answer goes straight to her, marked once', ms.some(m => m.to === 'amy@example.com' && m.subject === O + 'Re: Payment received · ' + amyCode && m.body.includes('Second answer.')) && !ms.some(m => m.to === INBOX), subs(ms));
+d = await regInboundMail(inbound({ from: 'Amy Lee <amy@example.com>', subject: 'Re: ' + O + 'Re: Payment received · ' + amyCode, text: 'From my own inbox.' }), env); ms = take();
+check('on the 测试名单: her reply from her own inbox → the three organizers, [测试] not doubled', ms.length === 3 && ms.every(m => m.subject === O + tag + ' Payment received · ' + amyCode && m.body.includes('From my own inbox.')), subs(ms));
+d = await save({ test_list: '' }); take();
+
 // --- nothing goes to a registrant without the tag
 d = await regInboundMail(inbound({ from: CHIEF, subject: 'About ' + amyCode, text: 'Fresh mail with only the number.' }), env); ms = take();
-check('总管 writes fresh (no tag): not sent; told how', ms.length === 1 && ms[0].subject === T(CHIEF) + '探戈通：没寄出' && ms[0].body.includes('直接回复系统转来的信'), subs(ms));
+check('总管 writes fresh (no tag): not sent; told how', ms.length === 1 && ms[0].to === CHIEF && ms[0].subject === O + '探戈通：没寄出' && ms[0].body.includes('直接回复系统转来的信'), subs(ms));
 d = await regInboundMail(inbound({ from: CHIEF, subject: `Re: [回信 ${amyCode} #0123456789] hi`, text: 'Wrong tag.' }), env); ms = take();
 check('wrong tag: not sent', !ms.some(m => m.subject.startsWith(T('amy@example.com'))), subs(ms));
 const bob = subscriber('bob@example.com', 'Bob');
@@ -177,7 +185,7 @@ d = await call('POST', '/reg', form({ people: [person({ name: 'Bob Kim' })] }), 
 d = await regInboundMail(inbound({ from: CHIEF, subject: `Re: [回信 ${bobCode} #${k}] hi`, text: 'Amy\'s tag on Bob\'s number.' }), env); ms = take();
 check('another registration\'s tag: not sent to Bob', !ms.some(m => m.subject.startsWith(T('bob@example.com'))), subs(ms));
 d = await regInboundMail(inbound({ from: 'Mallory <mallory@evil.example>', subject: 'Re: ' + fwd.subject, text: 'I am not an organizer.' }), env); ms = take();
-check('someone else with the tag: not to the registrant, only the 管理员 sees it', ms.length === 1 && ms[0].to === BOSS && ms[0].subject.startsWith('[来信]') && ms[0].replyTo === 'mallory@evil.example', subs(ms));
+check('someone else with the tag: not to the registrant, only the 管理员 sees it', ms.length === 1 && ms[0].to === BOSS && ms[0].subject.startsWith(O + '[来信]') && ms[0].replyTo === 'mallory@evil.example', subs(ms));
 
 // --- dropped
 const n0 = mails.length;

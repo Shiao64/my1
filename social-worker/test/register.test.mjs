@@ -43,7 +43,7 @@ const fail = []; let passed = 0;
 const check = (n, ok, info) => { if (ok) passed++; else fail.push(n + (info !== undefined ? ' — ' + JSON.stringify(info) : '')); };
 const mails = [];
 // since 2026-11-24 each letter also goes as a copy to the 活动邮箱 (the 管理员 by default): counted apart
-const isCopy = m => / subject=(\[TEST → [^\]]*\] )?\[副本\]/.test(m);
+const isCopy = m => / subject=(\[TEST → [^\]]*\] |\[测试\] )?\[副本( #[0-9a-f]+)?\]/.test(m);
 const letters = () => mails.filter(m => !isCopy(m)), copies = () => mails.filter(isCopy);
 const orig = console.log;
 console.log = (...a) => { const s = a.map(String).join(' '); if (s.startsWith('[mail:log]')) mails.push(s); else orig(...a); };
