@@ -45,7 +45,6 @@
 - Cheongju：Milonga Urquiza（R180）：缺本地语言地址
 - Kuala Lumpur：KL Tango Intensivo with Iara Duerte & Jesús Páez（E127）：缺本地语言地址
 - Kuala Lumpur：Swango Tango Weekend with Roxana Suárez & Sebastián Arrúa（E125）：缺本地语言地址
-- Kuala Lumpur：The Return 2026 · Javier Rodríguez in Kuala Lumpur（E042）：缺本地语言地址
 - Miaoli：台湾探戈马拉松（jtzZIdAx）：缺本地语言地址
 - Seoul：Daytime Practica（R085）：缺本地语言地址
 - Seoul：Juni&Eugene's Practica（R090）：缺本地语言地址
