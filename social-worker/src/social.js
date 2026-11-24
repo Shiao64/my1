@@ -65,6 +65,7 @@ function ccList(raw, to) {
   }
   return out;
 }
+function b64of(bytes) { let s = ''; const u = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes || []); for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s); }
 async function deliver(env, to, subject, text, html, headers, opt) {
   opt = opt || {};
   const list = ccList(opt.cc, to);
@@ -85,16 +86,19 @@ async function deliver(env, to, subject, text, html, headers, opt) {
   if (cc && !viaBinding) hdrs.Cc = cc;
   if (replyTo && !viaBinding) hdrs['Reply-To'] = replyTo;
   const hasH = Object.keys(hdrs).length ? hdrs : undefined;
+  // files [{name, type, bytes}] (the 活动专属邮箱 relay): Cloudflare's send() and Resend both take base64
+  const atts = (opt.attachments || []).map(a => ({ filename: String(a.name || 'file').replace(/[\r\n"]/g, ' ').slice(0, 120), type: a.type || 'application/octet-stream', content: b64of(a.bytes) }));
   if (p === 'resend') { const r = await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: resendFrom(env, fromName), to: [to], subject, text, ...(html ? { html } : {}), ...(list.length ? { cc: list } : {}), ...(replyTo ? { reply_to: replyTo } : {}), ...(hasH ? { headers: hasH } : {}) }) });
+      body: JSON.stringify({ from: resendFrom(env, fromName), to: [to], subject, text, ...(html ? { html } : {}), ...(list.length ? { cc: list } : {}), ...(replyTo ? { reply_to: replyTo } : {}), ...(hasH ? { headers: hasH } : {}), ...(atts.length ? { attachments: atts.map(a => ({ filename: a.filename, content: a.content })) } : {}) }) });
     if (!r.ok) throw new Error('resend ' + r.status + ' ' + (await r.text()).slice(0, 150)); }
   else if (p === 'gmail') await gmailSend({ user: env.GMAIL_USER, pass: env.GMAIL_APP_PASSWORD, fromName, to, cc, replyTo, subject, text, html, headers: hasH });
   else if (p === 'sub_mail' || p === 'cloudflare') {
     const binding = env.SUB_MAIL;
     if (!binding || typeof binding.send !== 'function') throw new Error('SUB_MAIL binding missing');
-    await binding.send({ from: { email: env.SENDER || 'subscribe@tangoweekend.org', name: fromName }, to, ...(list.length ? { cc: list } : {}), ...(replyTo ? { replyTo } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}) });
+    await binding.send({ from: { email: env.SENDER || 'subscribe@tangoweekend.org', name: fromName }, to, ...(list.length ? { cc: list } : {}), ...(replyTo ? { replyTo } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}),
+      ...(atts.length ? { attachments: atts.map(a => ({ ...a, disposition: 'attachment' })) } : {}) });
   }
-  else console.log(`[mail:log] from=${fromName} to=${to}${cc ? ' cc=' + cc : ''}${replyTo ? ' reply-to=' + replyTo : ''} subject=${subject}${hasH ? ' ' + JSON.stringify(hasH) : ''}\n${text}${html ? '\n' + html : ''}`);
+  else console.log(`[mail:log] from=${fromName} to=${to}${cc ? ' cc=' + cc : ''}${replyTo ? ' reply-to=' + replyTo : ''} subject=${subject}${hasH ? ' ' + JSON.stringify(hasH) : ''}\n${text}${html ? '\n' + html : ''}${atts.length ? '\n[attachments] ' + atts.map(a => a.filename + ' ' + a.type + ' ' + a.content.length).join(' | ') : ''}`);
   return p;
 }
 async function sendCode(env, to, name, code, lang) {
@@ -270,6 +274,8 @@ async function confirmLink(req, env, url) {
 }
 
 function regKit() { return { ...goingKit(), user }; }
+// Mail to a 活动专属邮箱 (live.js email). false: not one, the caller handles it as before (huodong@).
+export function regInboundMail(message, env) { return REG().then(m => m.regInbound(message, env, regKit())).catch(e => { if (/no such table/i.test(String(e && e.message))) return false; throw e; }); }
 export function regCron(env) { return REG().then(m => m.regRemind(env, regKit())).catch(e => { if (/no such table/i.test(String(e && e.message))) return { sent: 0 }; throw e; }); }   // quiet until migration 0020 runs
 function goingKit() { return { sha, he, clean, now, rnd, turnstile, humanCheck: HUMAN_CHECK, deliver, safeNext, emailParam, confirmPage, confirmFields, issueSession, applyList, EMAIL_RE, ID_RE, DEV_RE }; }
 export async function social(req, env, url, json) {
