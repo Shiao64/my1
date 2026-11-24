@@ -42,6 +42,9 @@ const json = (d, s = 200) => new Response(JSON.stringify(d), { status: s });
 const fail = []; let passed = 0;
 const check = (n, ok, info) => { if (ok) passed++; else fail.push(n + (info !== undefined ? ' — ' + JSON.stringify(info) : '')); };
 const mails = [];
+// since 2026-11-24 each letter also goes as a copy to the 活动邮箱 (the 管理员 by default): counted apart
+const isCopy = m => / subject=(\[TEST → [^\]]*\] )?\[副本\]/.test(m);
+const letters = () => mails.filter(m => !isCopy(m)), copies = () => mails.filter(isCopy);
 const orig = console.log;
 console.log = (...a) => { const s = a.map(String).join(' '); if (s.startsWith('[mail:log]')) mails.push(s); else orig(...a); };
 
@@ -458,7 +461,7 @@ check('QR hidden without key', q2.status === 404);
   for (const [action, from, o, crew] of [['confirm', 'pending', {}, team], ['waitlist', 'pending', {}, team], ['decline', 'pending', {}, team], ['cash', 'confirmed', {}, team], ['pay', 'confirmed', {}, team], ['cancel', 'paid', { paid: 1000 }, team.slice(0, 2)], ['refund', 'cancelled', { paid: 1000, refund: 950 }, team.slice(0, 2)],
     // same kind of caller = same timing, so these really read before either has written
     ['pay', 'confirmed', {}, deps.map(x => x.tok)], ['cash', 'confirmed', {}, deps.map(x => x.tok)], ['cancel', 'paid', { paid: 1000 }, [boss.tok, boss.tok]], ['refund', 'cancelled', { paid: 1000, refund: 950 }, [boss.tok, boss.tok]]]) {
-    const x = await seed(from, o), before = mails.length;
+    const x = await seed(from, o), before = letters().length, beforeCopies = copies().length;
     readLag = 25;
     const out = await Promise.all(crew.map(t => post('/act', { id: x.id, action, from, pay: { method: 'alipay' } }, t)));
     readLag = 0;
@@ -466,7 +469,8 @@ check('QR hidden without key', q2.status === 404);
     check(`at once: ${action} → one wins`, won.length === 1, out);
     check(`at once: ${action} → the others see who`, out.filter(r => !r.ok).every(r => r._s === 409 && r.last && r.last.by === won[0] && r.last.at), out);
     check(`at once: ${action} → one log line`, db.prepare('SELECT COUNT(*) c FROM reg_log WHERE reg_id=? AND action=?').get(x.id, action).c === 1);
-    check(`at once: ${action} → one letter at most`, mails.length - before === (action === 'refund' ? 0 : 1), mails.length - before);
+    check(`at once: ${action} → one letter at most`, letters().length - before === (action === 'refund' ? 0 : 1), letters().length - before);
+    check(`at once: ${action} → one copy at most`, copies().length - beforeCopies === (action === 'refund' ? 0 : 1), copies().length - beforeCopies);
     if (action === 'pay' || action === 'refund') check(`at once: ${action} → one amount`, db.prepare('SELECT COUNT(*) c FROM reg_payment WHERE reg_id=? AND by_admin<>?').get(x.id, 'Earlier').c === 1);
   }
   const st = await seed('pending');
@@ -583,7 +587,7 @@ check('QR hidden without key', q2.status === 404);
   mails.length = 0; readLag = 20;
   await Promise.all([regCron(env), regCron(env), regCron(env)]);
   readLag = 0;
-  check('overlapping timers: one reminder each', ids.every((_, i) => mails.filter(m => m.includes('BJ27-840' + i)).length === 1), mails.length);
+  check('overlapping timers: one reminder each', ids.every((_, i) => letters().filter(m => m.includes('BJ27-840' + i)).length === 1 && copies().filter(m => m.includes('BJ27-840' + i)).length === 1), mails.length);
   db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,'2026-11-23','mail_failed:paid','SMTP secret detail')").run(ids[0]);
   db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,'2026-11-23','mail_failed:remind','x'),(?,'2026-11-24','mail:remind','to')").run(ids[1], ids[1]);
   const list = await call('GET', '/admin/reg', null, ADMIN), row = i => list.rows.find(r => r.id === ids[i]);
