@@ -76,12 +76,16 @@ const sessionsOf = email => db.prepare('SELECT COUNT(*) n FROM sessions s JOIN u
 // 1) config hands the page the Client ID; without one the button stays hidden
 let c = await call('GET', '/going/config');
 check('config gives the Client ID', c.google === CID);
+c = await call('GET', '/going/config', null, {}, { ...env, GOOGLE_CLIENT_ID: undefined });
+check('no Cloudflare variable -> the built-in Client ID', /^481674560823-[0-9a-z]+\.apps\.googleusercontent\.com$/.test(c.google));
+c = await call('GET', '/going/config', null, {}, { ...env, GOOGLE_CLIENT_ID: 'off' });
+check('kill switch (variable = off) -> config gives none', c.google === '');
 c = await call('GET', '/going/config', null, {}, { ...env, GOOGLE_CLIENT_ID: '' });
-check('no Client ID -> config gives none', c.google === '');
+check('variable empty -> config gives none', c.google === '');
 c = await call('GET', '/going/config', null, {}, { ...env, GOOGLE_CLIENT_ID: 'not a client id' });
 check('malformed Client ID -> config gives none', c.google === '');
-let r = await call('POST', '/going/google', { credential: await idToken() }, {}, { ...env, GOOGLE_CLIENT_ID: '' });
-check('no Client ID -> sign-in refused (google_off)', r._s === 503 && r.error === 'google_off');
+let r = await call('POST', '/going/google', { credential: await idToken() }, {}, { ...env, GOOGLE_CLIENT_ID: 'off' });
+check('kill switch -> sign-in refused (google_off)', r._s === 503 && r.error === 'google_off');
 check('refused sign-in creates nobody', !userOf('kim@gmail.com'));
 
 // 2) a good token signs a new person in, no mail, no subscription

@@ -286,15 +286,16 @@ export async function goingCode(req, env, b, json, kit) {
 // 2026-11-24 Shiao: people outside mainland China may sign in with Google instead of the email code
 // (registration page). The page gets the Client ID from /social/going/config and shows Google's own button;
 // Google hands the page a signed ID token, which is checked here against Google's public keys.
-// The Client ID is public (the page carries it anyway). Empty = no Google button anywhere.
+// The Client ID is public (the page carries it anyway). Shiao made it 2026-11-24 (Google Cloud project quiet-terra-100706).
+// Kill switch without a code change: set the Cloudflare variable GOOGLE_CLIENT_ID to off (or empty) = no Google button anywhere.
 // Google sign-in only signs in: no subscription change, no staged phone, no pending Going/Interested.
-const GOOGLE_CLIENT_ID = '';
+const GOOGLE_CLIENT_ID = '481674560823-3s7hri2nlnktdrj8d8amnktbdbjn6umb.apps.googleusercontent.com';
 const GOOGLE_CERTS = 'https://www.googleapis.com/oauth2/v3/certs';
 const GOOGLE_ISS = new Set(['accounts.google.com', 'https://accounts.google.com']);
 const GOOGLE_FRESH_S = 600; // the page sends the token right after sign-in; older tokens are refused
 let googleCerts = { at: 0, ttl: 0, keys: [] };
 export function googleClientId(env) {
-  const id = String(env && env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID).trim();
+  const id = String(env && env.GOOGLE_CLIENT_ID != null ? env.GOOGLE_CLIENT_ID : GOOGLE_CLIENT_ID).trim();
   return /^\d+-[0-9a-z]+\.apps\.googleusercontent\.com$/.test(id) ? id : '';
 }
 function b64urlBytes(s) {
