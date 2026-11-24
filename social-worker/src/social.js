@@ -2,7 +2,7 @@ import { gmailSend } from './smtp.js';
 // Registration module is loaded only when a /reg route is used, so older tests that copy social.js alone keep working.
 const REG = () => import('./register.js');
 import { updateFooter } from './unsub.js';
-import { goingConfirm, goingAwait, goingCode, goingEnter, goingPass, goingPhone, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
+import { goingConfirm, goingAwait, goingCode, goingGoogle, googleClientId, goingEnter, goingPass, goingPhone, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
 export { generateGoingStats, runGoingNotices };
 // Asia Tango Map likes API, plus email confirm for the update list. Mounted under /social/* .
 // GET  /social/likes?ids=A,B&dev=D        -> {counts:{A:n}, mine:[A]}
@@ -275,7 +275,7 @@ function goingKit() { return { sha, he, clean, now, rnd, turnstile, humanCheck: 
 export async function social(req, env, url, json) {
   const p = url.pathname.slice('/social'.length), ip = req.headers.get('CF-Connecting-IP') || '', iph = (await sha(ip + 'atm')).slice(0, 16);
   if (p === '/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return confirmLink(req, env, url);
-  if (p === '/going/config' && req.method === 'GET') return json({ sitekey: HUMAN_CHECK ? env.TURNSTILE_SITEKEY || '' : '', sub_lite: 1, code: 1 });
+  if (p === '/going/config' && req.method === 'GET') return json({ sitekey: HUMAN_CHECK ? env.TURNSTILE_SITEKEY || '' : '', sub_lite: 1, code: 1, google: googleClientId(env) });
   if (p === '/going/confirm' && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingConfirm(req, env, url, goingKit());
   if ((p === '/going/enter' || /^\/going\/enter\/[0-9a-f]{64}$/.test(p)) && (req.method === 'GET' || req.method === 'HEAD' || req.method === 'POST')) return goingEnter(req, env, url, goingKit());
   if (p === '/going/pass' && req.method === 'GET') return goingPass(req, env, {}, json, goingKit());
@@ -298,6 +298,7 @@ export async function social(req, env, url, json) {
   if (p === '/going/phone' && req.method === 'POST') return goingPhone(req, env, b, iph, json, goingKit());
   if (p === '/going/await' && req.method === 'POST') return goingAwait(req, env, b, json, goingKit());
   if (p === '/going/code' && req.method === 'POST') return goingCode(req, env, b, json, goingKit());
+  if (p === '/going/google' && req.method === 'POST') return goingGoogle(req, env, b, iph, json, goingKit());
   if (p === '/going' && req.method === 'POST') return goingSubmit(req, env, b, ip, iph, json, goingKit());
   if (p === '/going/cancel' && req.method === 'POST') return goingCancel(req, env, b, json, goingKit());
   if (p === '/going/unfav' && req.method === 'POST') return goingUnfav(req, env, b, json, goingKit());
