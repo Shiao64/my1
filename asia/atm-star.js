@@ -39,6 +39,7 @@
     needName: '请填写姓名。', needEmail: '请填写邮箱。', needCity: '请填写城市。', needRole: '请选择角色：引带（Leader）、跟随（follower）或两者皆可（both）。',
     returnHint: '已经订阅过？请输入邮箱和手机末 4 码，不必再等确认信。',
     gateHelp: '第一次：填邮箱和手机末 4 码，再点确认信里的链接。以后：同样两项直接登录，不用再等信。',
+    gNote: '用 Google 登录，不用填手机末 4 码，也不用等确认信。', gOr: '或用邮箱和手机末 4 码', gFail: 'Google 登录没有成功，请再试一次，或改用邮箱。',
     regHelp: '请补全资料并发送确认邮件。点信里的链接就完成了。',
     phone: '手机', last4: '手机末 4 码', signIn: '登录', gate: '注册／登录', send: '发送确认邮件',
     needPhone: '请填写手机。', badPhone: '手机号码不正确。', needLast4: '请输入手机末 4 码。', badLogin: '邮箱或手机末 4 码不正确。',
@@ -108,6 +109,7 @@
     needName: 'Please enter your name.', needEmail: 'Please enter your email.', needCity: 'Please enter your city.', needRole: 'Please choose Leader, follower, or both.',
     returnHint: 'Already subscribed? Enter your email and the last 4 digits of your mobile. You don\u2019t need another confirmation email.',
     gateHelp: 'First time: enter your email and the last 4 digits of your mobile, then tap the link in the confirmation email. After that, the same two fields sign you in.',
+    gNote: 'With Google you skip the mobile digits and the confirmation email.', gOr: 'or use your email and mobile last 4 digits', gFail: 'Google sign-in did not work. Please try again, or use your email.',
     regHelp: 'Complete your details and send the confirmation email. Tap the link in it and you\u2019re done.',
     phone: 'Phone', last4: 'Mobile last 4 digits', signIn: 'Sign in', gate: 'Register / sign in', send: 'Send confirmation email',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your mobile.', badLogin: 'The email or the mobile last 4 digits did not match.',
@@ -684,10 +686,12 @@
     if (phase === 'saved') {
       html += '<div class="asg-okbox"><p>' + (opt.line || loggedLine(draft.intent)) + '</p></div>';
     } else if (phase === 'start') {
+      html += '<div class="atm-g" id="asg-g" hidden><div class="atm-g-btn"></div><p class="atm-g-note">' + L.gNote + '</p><p class="atm-g-err" hidden></p><div class="atm-g-or"><span>' + L.gOr + '</span></div></div>';
       html += '<p class="asg-need" id="asg-mailnote">' + L.gateHelp + '</p>';
       html += field(L.email, 'asg-email', 'email', 80, true);
       html += last4Field(true);
     } else if (phase === 'register') {
+      html += '<div class="atm-g" id="asg-g" hidden><div class="atm-g-btn"></div><p class="atm-g-note">' + L.gNote + '</p><p class="atm-g-err" hidden></p><div class="atm-g-or"><span>' + L.gOr + '</span></div></div>';
       html += '<p class="asg-need" id="asg-mailnote">' + L.regHelp + '</p>';
       html += field(L.email, 'asg-email', 'email', 80, true);
       html += last4Field(true);
@@ -844,6 +848,22 @@
     lockFields();
     paintResend();
     box.hidden = false;
+    // 2026-11-24 Shiao: Google sign-in (asia/atm-google.js) instead of email + mobile last 4
+    var gb = body().querySelector('#asg-g');
+    if (gb && window.ATM_GOOGLE) window.ATM_GOOGLE.mount(gb, { done: function () { googleIn(b, draft); }, fail: function () { var x = gb.querySelector('.atm-g-err'); if (x) { x.textContent = L.gFail; x.hidden = false; } } });
+    // signed in with Google and the profile is complete: save the choice at once, as the email sign-in does
+    if (opt.google && phase === 'in' && !needProfile && go) go.click();
+  }
+  // after Google sign-in: keep what the person picked, then reopen signed in (asks name, city, role if missing)
+  function googleIn(b, draft) {
+    var dateEl = body().querySelector('#asg-date'), note = body().querySelector('#asg-notify'), dir = body().querySelector('#asg-dir');
+    if (draft.intent === 'going' && dateEl) { draft.date = dateEl.value; draft.anchor = dateEl.value; }
+    draft.notify = draft.intent !== 'absent' && !!(note && note.checked);
+    draft.transport = draft.intent === 'going' && !!(dir && dir.checked);
+    refreshMine().then(function () {
+      if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub();
+      open(b, { phase: 'in', draft: draft, google: true });
+    });
   }
   function gate(ev, draft, btn) {
     var err = body().querySelector('#asg-err');

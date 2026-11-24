@@ -102,6 +102,13 @@
     'Going is not a ticket or a formal registration.': '«Voy» no es una entrada ni una inscripción formal.',
     'Get early-bird, deadline and organizer notices for this event': 'Recibir avisos de preventa, cierres y del organizador de este evento',
     'First time: enter your email and the last 4 digits of your mobile, then tap the link in the confirmation email. After that, the same two fields sign you in.': 'La primera vez: escribe tu correo y los últimos 4 dígitos de tu móvil, y toca el enlace del correo de confirmación. Después, con esos mismos dos datos inicias sesión.',
+    /* 2026-11-24: Google sign-in (atm-google.js) */
+    'Continuing with Google also joins the ATM site-wide subscription. You can unsubscribe anytime.': 'Si continúas con Google, también te suscribes a las noticias de todo ATM. Puedes darte de baja cuando quieras.',
+    'or use your email and mobile last 4 digits': 'o usa tu email y los últimos 4 dígitos de tu móvil',
+    'Signed in with Google and joined the ATM site-wide subscription.': 'Has entrado con Google y te has suscrito a las noticias de todo ATM.',
+    'Signed in with Google.': 'Has entrado con Google.',
+    'Google sign-in did not work. Please try again, or use your email.': 'No se pudo entrar con Google. Inténtalo de nuevo o usa tu email.',
+    'With Google you skip the mobile digits and the confirmation email.': 'Con Google no necesitas los dígitos del móvil ni el email de confirmación.',
     'Complete your details and send the confirmation email. Tap the link in it and you’re done.': 'Completa tus datos y envía el correo de confirmación. Toca el enlace del correo y listo.',
     'Event news': 'Novedades de eventos',
     'The confirmation link may open in another browser. After confirming, come back here (e.g. WeChat) and sign in with the same email and last 4 digits.': 'El enlace de confirmación puede abrirse en otro navegador. Después de confirmar, vuelve aquí (por ejemplo, a WeChat) e inicia sesión con el mismo correo y los últimos 4 dígitos.',

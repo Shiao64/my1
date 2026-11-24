@@ -42,6 +42,8 @@
 - GitHub 授权码：Cloudflare secret `ATM_GITHUB_TOKEN`（GitHub 上叫 huodong-mail，只能动 my1 的 Contents / Pull requests，一年后过期，到期要换）。
 - 信里所有邮箱地址都隐藏，md 只写称呼；原始邮件不存。名单外、冒名、自动回复：不收、不回信。
 - **公众号文章链接（11/21 用户定）**：答复（来信或探戈助理）里有 mp.weixin.qq.com 文章链接时，inbox.yml 在 Claude 处理前先跑 `tools/wechat_article.py`：打开文章，把正文加进答复的「## 公众号文章（自动读取）」（邮箱、电话隐藏），图片（最多 8 张、去掉小图标和 gif）存成 `<答复名>-wx<k>-<n>.jpg`，当附件用。读不到（微信要验证、文章删了）就在答复里写「读取失败」，PR 等 Shiao 看。测试 `python3 tools/test_wechat_article.py`。只寄链接也行，但微信偶尔挡 GitHub 的机器，重要的最好附海报。
+- **「等 Shiao 看」要 @Shiao64（11/24 用户定）**：自动处理的 PR 是 claude[bot] 开的，`inbox.yml` 留的「这次没有自动上线」留言原本不会通知 Shiao（#425 Shiao 没收到）。现在留言开头加 `@Shiao64`，GitHub 会寄信、手机 GitHub App 会推送。以后别的自动流程要 Shiao 决定时，也要在留言里 @Shiao64。
+- **微信摘要交仓库（11/23 起）**：Shiao 的 Mac（Peggy的MacBook Air）上有两个 Claude 任务：「微信群摘要」每天 8:54、11:54、20:54 用 Computer use 读 5 个微信群，摘要存在 Mac 的 `Documents/微信摘要/`（只给 Shiao 看，不碰仓库）；「微信摘要交仓库」不定时、手动跑，把摘要里中国大陆和香港的新活动、变更照 `data/inbox/README.md` 交进 `data/inbox/`（分支 `answer/wechat-…-mba`，PR 标题「微信摘要交仓库：…」，例 #424、#427）。和探戈助理的「探戈雷达」可能交到同一件事，交之前要查重。
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
@@ -74,6 +76,7 @@
   - `atm-data.js`：读活动资料（R2 优先，失败用仓库里的）；**中文页面在这里把时间里的 `late` 换成「尽兴」**（#157）；
   - `atm-i18n.js`：多语言取字段；`atm-ko.js`：韩文层，按英文原句精确对照翻译，**新增英文界面文字要在这里加韩文**；
   - `asia-subscribe.js`：订阅、登录、验证码；`atm-star.js`：收藏、要参加／感兴趣面板、收藏第 3 个时的订阅提示；
+  - `atm-google.js`（11/24 用户定，给国外用户）：订阅框和「要参加／感兴趣」面板里的 Google 登录按钮，两个地图页各自引用（改了要一起加版本号）。大陆载不进 Google 就不出现，微信、KakaoTalk、LINE 等 App 内浏览器也不出现；后台 `/social/going/google` 和 TP 报名页共用（Client ID 在 `going.js`）。在订阅框用 Google 登录＝同时加入全站订阅（和邮箱流程默认打勾一样，不寄信）；在面板里登录后，资料齐全的人直接记录，缺城市／角色的先补。用邮箱的人照旧要手机末 4 码。韩文、西班牙文、俄文在 `atm-ko.js`、`atm-es.js`、`atm-ru.js`，按钮也跟着页面语言。紧急关掉：Cloudflare 变量 `GOOGLE_CLIENT_ID` 设成 `off`。隐私说明 `/privacy/`、服务条款 `/terms/` 是 Google 要求的。
   - `atm-addr.js`：地址、交通、地图链接、放大给司机看、路线图；
   - `atm-ui2.js`：`?ui=2` 视觉测试层；
   - `atm-later.js`：**打包文件**，由 `tools/build_asia_assets.mjs` 从 `atm-menu.js` 等源文件生成。改源文件后要重新打包，不要直接改打包文件（打包时 `atm-critical.css`、`atm-early.js` 也会被重写，若只是工具版本差异就还原）。`atm-critical.css` 也是打包产物（来源 `css/atm-map-page.css`、`css/style.css`、`asia/cardB.css`、`asia/atm-theme.css`）；只想盖掉旧样式时，在 `atm-home.js` 的新版 CSS 里加覆盖规则比较安全（#160 这样做）。
