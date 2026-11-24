@@ -42,6 +42,8 @@
 - GitHub 授权码：Cloudflare secret `ATM_GITHUB_TOKEN`（GitHub 上叫 huodong-mail，只能动 my1 的 Contents / Pull requests，一年后过期，到期要换）。
 - 信里所有邮箱地址都隐藏，md 只写称呼；原始邮件不存。名单外、冒名、自动回复：不收、不回信。
 - **公众号文章链接（11/21 用户定）**：答复（来信或探戈助理）里有 mp.weixin.qq.com 文章链接时，inbox.yml 在 Claude 处理前先跑 `tools/wechat_article.py`：打开文章，把正文加进答复的「## 公众号文章（自动读取）」（邮箱、电话隐藏），图片（最多 8 张、去掉小图标和 gif）存成 `<答复名>-wx<k>-<n>.jpg`，当附件用。读不到（微信要验证、文章删了）就在答复里写「读取失败」，PR 等 Shiao 看。测试 `python3 tools/test_wechat_article.py`。只寄链接也行，但微信偶尔挡 GitHub 的机器，重要的最好附海报。
+- **「等 Shiao 看」要 @Shiao64（11/24 用户定）**：自动处理的 PR 是 claude[bot] 开的，`inbox.yml` 留的「这次没有自动上线」留言原本不会通知 Shiao（#425 Shiao 没收到）。现在留言开头加 `@Shiao64`，GitHub 会寄信、手机 GitHub App 会推送。以后别的自动流程要 Shiao 决定时，也要在留言里 @Shiao64。
+- **微信摘要交仓库（11/23 起）**：Shiao 的 Mac（Peggy的MacBook Air）上有两个 Claude 任务：「微信群摘要」每天 8:54、11:54、20:54 用 Computer use 读 5 个微信群，摘要存在 Mac 的 `Documents/微信摘要/`（只给 Shiao 看，不碰仓库）；「微信摘要交仓库」不定时、手动跑，把摘要里中国大陆和香港的新活动、变更照 `data/inbox/README.md` 交进 `data/inbox/`（分支 `answer/wechat-…-mba`，PR 标题「微信摘要交仓库：…」，例 #424、#427）。和探戈助理的「探戈雷达」可能交到同一件事，交之前要查重。
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
