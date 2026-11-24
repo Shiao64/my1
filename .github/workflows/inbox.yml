@@ -191,7 +191,7 @@ jobs:
             python3 - <<'PY' > /tmp/msg.md
           import json
           d = json.load(open('/tmp/check.json'))
-          print('这次没有自动上线，等 Shiao 看过再合并。原因：')
+          print('@Shiao64 这次没有自动上线，等 Shiao 看过再合并。原因：')
           for r in d.get('reasons') or ['检查没有通过']:
               print('- ' + r)
           PY
