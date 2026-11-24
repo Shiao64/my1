@@ -283,6 +283,85 @@ export async function goingCode(req, env, b, json, kit) {
   const applied = await applyConfirm(env, kit, row, email);
   return json({ ok: true, confirmed: true, session: applied.session });
 }
+// 2026-11-24 Shiao: people outside mainland China may sign in with Google instead of the email code
+// (registration page). The page gets the Client ID from /social/going/config and shows Google's own button;
+// Google hands the page a signed ID token, which is checked here against Google's public keys.
+// The Client ID is public (the page carries it anyway). Empty = no Google button anywhere.
+// Google sign-in only signs in: no subscription change, no staged phone, no pending Going/Interested.
+const GOOGLE_CLIENT_ID = '';
+const GOOGLE_CERTS = 'https://www.googleapis.com/oauth2/v3/certs';
+const GOOGLE_ISS = new Set(['accounts.google.com', 'https://accounts.google.com']);
+const GOOGLE_FRESH_S = 600; // the page sends the token right after sign-in; older tokens are refused
+let googleCerts = { at: 0, ttl: 0, keys: [] };
+export function googleClientId(env) {
+  const id = String(env && env.GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID).trim();
+  return /^\d+-[0-9a-z]+\.apps\.googleusercontent\.com$/.test(id) ? id : '';
+}
+function b64urlBytes(s) {
+  const t = String(s).replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(t + '='.repeat((4 - t.length % 4) % 4));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function b64urlJson(s) { return JSON.parse(new TextDecoder().decode(b64urlBytes(s))); }
+async function googleCertList(force) {
+  const now = Date.now();
+  if (!force && googleCerts.keys.length && now - googleCerts.at < googleCerts.ttl) return googleCerts.keys;
+  const r = await fetch(GOOGLE_CERTS, { headers: { Accept: 'application/json' } });
+  if (!r.ok) throw new Error('google certs ' + r.status);
+  const d = await r.json();
+  const age = Number((/max-age=(\d+)/.exec(r.headers.get('Cache-Control') || '') || [])[1]) || 3600;
+  googleCerts = { at: now, ttl: Math.min(Math.max(age, 300), 86400) * 1000, keys: Array.isArray(d && d.keys) ? d.keys : [] };
+  return googleCerts.keys;
+}
+async function googleKey(kid) {
+  let k = (await googleCertList(false)).find(x => x && x.kid === kid);
+  // Google rotates its keys: an unknown key id fetches the list again, at most once a minute
+  if (!k && Date.now() - googleCerts.at > 60e3) k = (await googleCertList(true)).find(x => x && x.kid === kid);
+  return k || null;
+}
+// Returns the token's claims when it is a fresh, Google-signed ID token for this Client ID with a verified email; else null.
+export async function verifyGoogleToken(token, clientId, nowMs = Date.now()) {
+  const raw = String(token || '');
+  const parts = raw.split('.');
+  if (!clientId || raw.length > 4096 || parts.length !== 3) return null;
+  let head, body;
+  try { head = b64urlJson(parts[0]); body = b64urlJson(parts[1]); } catch { return null; }
+  if (!head || head.alg !== 'RS256' || typeof head.kid !== 'string' || !head.kid) return null;
+  if (!body || !GOOGLE_ISS.has(body.iss) || body.aud !== clientId) return null;
+  const now = Math.floor(nowMs / 1000);
+  if (!(Number(body.exp) > now) || !(Number(body.iat) <= now + 300) || !(Number(body.iat) >= now - GOOGLE_FRESH_S)) return null;
+  if (body.email_verified !== true && body.email_verified !== 'true') return null;
+  const jwk = await googleKey(head.kid);
+  if (!jwk || jwk.kty !== 'RSA' || !jwk.n || !jwk.e) return null;
+  let sig;
+  try { sig = b64urlBytes(parts[2]); } catch { return null; }
+  const key = await crypto.subtle.importKey('jwk', { kty: 'RSA', n: jwk.n, e: jwk.e, alg: 'RS256', ext: true }, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']);
+  const ok = await crypto.subtle.verify('RSASSA-PKCS1-v1_5', key, sig, new TextEncoder().encode(parts[0] + '.' + parts[1]));
+  return ok ? body : null;
+}
+export async function goingGoogle(req, env, b, iph, json, kit) {
+  const clientId = googleClientId(env);
+  if (!clientId) return json({ error: 'google_off' }, 503);
+  let claims = null;
+  try { claims = await verifyGoogleToken(b && b.credential, clientId); }
+  catch (e) { console.log('going google', String(e && e.message || e).slice(0, 120)); return json({ error: 'google_down' }, 502); }
+  const email = claims ? kit.clean(claims.email, 254).toLowerCase() : '';
+  if (!claims || !kit.EMAIL_RE.test(email)) return json({ error: 'google_bad' }, 400);
+  const lang = b.lang === 'zh' ? 'zh' : 'en';
+  const name = oneLine(kit.clean, claims.name, 80);
+  const known = await env.SDB.prepare('SELECT id FROM users WHERE email=?').bind(email).first();
+  if (!known) {
+    // same cap as the email-code route: at most 8 new people per network per hour
+    const ipCount = await env.SDB.prepare('SELECT COUNT(*) n FROM users WHERE ip_hash=? AND created_at>?').bind(iph, new Date(Date.now() - 3600e3).toISOString()).first('n');
+    if ((ipCount || 0) >= 8) return json({ error: 'rate_limited' }, 429);
+    await upsertUser(env, kit, email, { name, city: '', role: '', lang, iph });
+  }
+  const user = await fillBlanks(env, kit, email, { name, city: '', role: '', lang, iph: '' });
+  const session = await kit.issueSession(env, { ...user, lang }, { keepCode: true });
+  return json({ ok: true, confirmed: true, session });
+}
 async function saveVerify(env, kit, row) {
   const mag = kit.rnd(32);
   const hash = await kit.sha(row.email + ':' + mag);
