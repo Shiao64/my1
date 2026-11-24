@@ -28,6 +28,7 @@
     need: '请填写邮箱。', bad: '邮箱格式不正确', sendfail: '验证邮件发送失败，请检查邮箱或稍后再试。',
     returnHint: '已经订阅过？请输入邮箱和手机末 4 码，不必再等确认信。',
     gateHelp: '第一次：填邮箱和手机末 4 码，再点确认信里的链接。以后：同样两项直接登录，不用再等信。',
+    gNote: '用 Google 登录会同时加入 ATM 全站订阅，随时可以退订。', gOr: '或用邮箱和手机末 4 码', gSubbed: '已用 Google 登录，并加入 ATM 全站订阅。', gSigned: '已用 Google 登录。', gFail: 'Google 登录没有成功，请再试一次，或改用邮箱。',
     regHelp: '请补全资料并发送确认邮件。点信里的链接就完成了。',
     phone: '手机', phonePh: '手机号', last4: '手机末 4 码', signIn: '登录', signing: '登录中…', gate: '注册／登录', send: '发送确认邮件',
     needPhone: '请填写手机。', badPhone: '手机号码不正确。', needLast4: '请输入手机末 4 码。', badLogin: '邮箱或手机末 4 码不正确。',
@@ -42,6 +43,7 @@
     need: 'Please enter your email.', sendfail: 'We couldn’t send the verification email. Check the address or try again.', bad: 'Please check your email address.',
     returnHint: 'Already subscribed? Enter your email and the last 4 digits of your mobile. You don\u2019t need another confirmation email.',
     gateHelp: 'First time: enter your email and the last 4 digits of your mobile, then tap the link in the confirmation email. After that, the same two fields sign you in.',
+    gNote: 'Continuing with Google also joins the ATM site-wide subscription. You can unsubscribe anytime.', gOr: 'or use your email and mobile last 4 digits', gSubbed: 'Signed in with Google and joined the ATM site-wide subscription.', gSigned: 'Signed in with Google.', gFail: 'Google sign-in did not work. Please try again, or use your email.',
     regHelp: 'Complete your details and send the confirmation email. Tap the link in it and you\u2019re done.',
     phone: 'Phone', phonePh: 'Mobile number', last4: 'Mobile last 4 digits', signIn: 'Sign in', signing: 'Signing in…', gate: 'Register / sign in', send: 'Send confirmation email',
     needPhone: 'Please enter your phone number.', badPhone: 'That phone number does not look valid.', needLast4: 'Enter the last 4 digits of your mobile.', badLogin: 'The email or the mobile last 4 digits did not match.',
@@ -111,7 +113,8 @@
   function EM() { return '<label class="tsub-lbl" for="tsub-e">' + L.email + '<span class="tsub-star" id="tsub-email-star">*</span></label><input type="email" class="tsub-in tsub-must" id="tsub-e" autocomplete="email" required aria-required="true" maxlength="80" placeholder="' + L.emailPh + '">'; }
   var m = document.createElement('div'); m.id = 'tsub-modal'; m.hidden = true;
   m.innerHTML = '<div class="tsub-bg" data-x></div><div class="tsub-dlg" role="dialog" aria-modal="true" aria-labelledby="tsub-t">' +
-    '<div class="tsub-hd"><div class="tsub-titles"><h2 id="tsub-t">' + L.title + '</h2><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></div><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-desc" id="tsub-desc">' + L.desc + '</p><p class="tsub-need" id="tsub-need">' + L.gateHelp + '</p>' +
+    '<div class="tsub-hd"><div class="tsub-titles"><h2 id="tsub-t">' + L.title + '</h2><p class="tsub-ok" id="tsub-ok" aria-live="polite" hidden></p></div><button type="button" class="tsub-x" data-x aria-label="' + L.close + '">&times;</button></div><div class="tsub-body"><p class="tsub-desc" id="tsub-desc">' + L.desc + '</p>' +
+    '<div class="atm-g" id="tsub-g" hidden><div class="atm-g-btn"></div><p class="atm-g-note">' + L.gNote + '</p><p class="atm-g-err" id="tsub-g-err" hidden></p><div class="atm-g-or"><span>' + L.gOr + '</span></div></div>' + '<p class="tsub-need" id="tsub-need">' + L.gateHelp + '</p>' +
     '<form id="tsub-f" novalidate data-m="em">' +
     EM() +
     '<label class="tsub-lbl" for="tsub-last4">' + L.last4 + '<span class="tsub-star" id="tsub-tail-star">*</span></label><input type="text" class="tsub-in tsub-must" id="tsub-last4" inputmode="numeric" autocomplete="off" maxlength="4">' +
@@ -311,6 +314,23 @@
     var emailStar = $('tsub-email-star'); if (emailStar) emailStar.hidden = !!on;
     var tail = $('tsub-last4'); if (tail) tail.classList.toggle('tsub-must', !on);
     if (!on && $('tsub-pass')) $('tsub-pass').hidden = true;
+    var gb = $('tsub-g');
+    if (gb) { if (on || !window.ATM_GOOGLE) gb.hidden = true; else window.ATM_GOOGLE.mount(gb, { done: googleDone, fail: googleFail }); }
+  }
+  // 2026-11-24 Shiao: Google sign-in (asia/atm-google.js). Signing in here also joins the site-wide subscription,
+  // like the email path with its box ticked; the signed-in profile save does that without any email.
+  function googleFail() { var e = $('tsub-g-err'); if (e) { e.textContent = L.gFail; e.hidden = false; } }
+  function googleDone(session) {
+    var e = $('tsub-g-err'); if (e) e.hidden = true;
+    claimDrop(''); claimed();
+    var hd = { 'Content-Type': 'application/json', Authorization: 'Bearer ' + session };
+    var said = function (txt) { var ok = $('tsub-ok'); if (ok) { ok.textContent = txt; ok.hidden = false; } };
+    fetch(API + '/social/going/mine', { headers: { Authorization: 'Bearer ' + session } }).then(function (r) { return r.json(); }).then(function (me) {
+      if (!me || !me.email) { open(); said(L.gSigned); return; }
+      return fetch(API + '/social/profile', { method: 'POST', credentials: 'include', headers: hd, body: JSON.stringify({ name: '', email: me.email, city: '', role: '', lang: zh ? 'zh' : 'en', alert: 1, sub: 1, ret: pageRet() }) })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { open(); said(d && d.ok ? L.gSubbed : L.gSigned); if (window.ATM_MENU && window.ATM_MENU.paintSub) window.ATM_MENU.paintSub(); });
+    }).catch(function () { open(); said(L.gSigned); });
   }
   var LITE = false;
   function markLite() {
@@ -350,7 +370,7 @@
   }
   function showWait(c) {
     var w = $('tsub-wait'); if (!w || !c) return;
-    ['tsub-f', 'tsub-desc', 'tsub-need'].forEach(function (id) { if ($(id)) $(id).hidden = true; });
+    ['tsub-f', 'tsub-desc', 'tsub-need', 'tsub-g'].forEach(function (id) { if ($(id)) $(id).hidden = true; });
     $('tsub-t').textContent = L.waitTitle;
     var h = '<p class="tsub-wait-to">' + L.waitTo + ' <b id="tsub-wait-e"></b></p><ol><li>' + L.w1 + '</li><li>' + (c.code ? L.w2code : L.w2) + '</li><li>' + L.w3 + '</li></ol>';
     if (c.code) h += '<label class="tsub-lbl" for="tsub-code">' + L.codeLbl + '</label><div class="tsub-coderow"><input class="tsub-in" id="tsub-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*"><button type="button" id="tsub-code-go">' + L.codeGo + '</button></div>';

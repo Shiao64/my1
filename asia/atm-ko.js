@@ -98,6 +98,13 @@
     'Going is not a ticket or a formal registration.': '참석은 티켓이나 정식 등록이 아닙니다.',
     'Get early-bird, deadline and organizer notices for this event': '이 이벤트의 얼리버드·마감·주최자 소식 받기',
     'First time: enter your email and the last 4 digits of your mobile, then tap the link in the confirmation email. After that, the same two fields sign you in.': '처음: 이메일과 휴대폰 끝 4자리를 입력하고 확인 메일의 링크를 누르세요. 이후에는 같은 두 항목으로 바로 로그인됩니다.',
+    /* 2026-11-24: Google sign-in (atm-google.js) */
+    'Continuing with Google also joins the ATM site-wide subscription. You can unsubscribe anytime.': 'Google로 계속하면 ATM 전체 소식 구독에도 함께 가입됩니다. 언제든 구독을 취소할 수 있습니다.',
+    'or use your email and mobile last 4 digits': '또는 이메일과 휴대폰 끝 4자리로',
+    'Signed in with Google and joined the ATM site-wide subscription.': 'Google로 로그인하고 ATM 전체 소식 구독에 가입했습니다.',
+    'Signed in with Google.': 'Google로 로그인했습니다.',
+    'Google sign-in did not work. Please try again, or use your email.': 'Google 로그인이 되지 않았습니다. 다시 시도하거나 이메일을 사용해 주세요.',
+    'With Google you skip the mobile digits and the confirmation email.': 'Google을 사용하면 휴대폰 끝 4자리와 확인 메일이 필요 없습니다.',
     'Complete your details and send the confirmation email. Tap the link in it and you\u2019re done.': '정보를 입력하고 확인 메일을 보내 주세요. 메일의 링크를 누르면 완료됩니다.',
     'Event news': '이벤트 소식',
     'The confirmation link may open in another browser. After confirming, come back here (e.g. WeChat) and sign in with the same email and last 4 digits.': '확인 링크는 다른 브라우저에서 열릴 수 있습니다. 확인 후 이곳(예: 위챗)으로 돌아와 같은 이메일과 휴대폰 끝 4자리로 로그인하세요.',
