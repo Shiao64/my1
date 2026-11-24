@@ -6,7 +6,7 @@
 //   POST /social/reg (Bearer subscriber)      -> {ok, code, total}   new form, or update of a still-pending one
 //   GET  /social/reg/qr/<name>?k=KEY          -> payment QR image used inside the confirmation letter
 // Management (Bearer REG_ADMIN_TOKEN / ADMIN_TOKEN = platform admin, or dev:<key> = one signed-in phone). Rules: docs/tangopass.md.
-//   POST /social/reg/login/hello {key}            -> {name, role, state}   the personal link opened
+//   POST /social/reg/login/hello {key, m?}        -> {name, role, state, mail_ok?, same?}   the personal link opened
 //   POST /social/reg/login {key, pin, new_pin?}   -> {token:'dev:…', role, home}   link + six-digit password
 //   POST /social/reg/login/again {pin}  (dev:)     password again when it is due;  /out  signs this phone out
 //   GET  /social/admin/reg?event=bstw2027[&format=csv] -> only what that role may see
@@ -15,9 +15,11 @@
 //   POST /social/admin/reg/admins[/role|/reset|/delete], /staff[/reset|/delete] {…, pin}   appointments
 //   POST /social/admin/reg/export {what: regs|payments, pin}   CSV
 //   POST /social/admin/reg/asset {name, mime, b64}         upload a payment QR
+//   POST /social/admin/reg/mailto {chief?, copy?, admin_on?, resend?}  管理员 only: 活动邮箱 ('' clears); every letter is also sent there
 //   Organizer page: /event/beijing-2027-tango-weekend/register/admin/ (static, asks for the token)
 //
-// Safety: until REG_LIVE=1, every registration letter goes to REG_TEST_INBOX (default selecttango@gmail.com).
+// Safety: until REG_LIVE=1, every letter to a registrant, a 总管邮箱 or a 副本邮箱 goes to REG_TEST_INBOX
+// (default selecttango@gmail.com). The 管理员's own copies and 新报名 notices go to REG_NOTIFY in both stages.
 
 export const EVENTS = {
   bstw2027: {
@@ -349,23 +351,160 @@ async function payNames(env, reg) {
   const have = new Set((((await env.SDB.prepare('SELECT name FROM reg_asset').all()).results) || []).map(x => x.name));
   return want.filter(n => have.has(n));
 }
+// Test stage: every letter to a registrant, a 总管 or a 副本邮箱 goes to the test inbox until REG_LIVE=1, its subject
+// saying whom it was for. The 管理员's own mail goes straight to them in both stages, as the 新报名 notice always did.
+const testTo = (env, to) => env.REG_LIVE === '1' ? { to, pre: '' } : { to: env.REG_TEST_INBOX || 'selecttango@gmail.com', pre: '[TEST → ' + to + '] ' };
+const replyTo = env => env.REG_REPLY_TO || 'info@tangoweekend.org';
+const stageOf = env => env.REG_LIVE === '1' ? 'live' : 'test';
+const adminMail = env => String(env.REG_NOTIFY || 'selecttango@gmail.com').trim().toLowerCase();
 // 'sent' or 'failed'; what was saved stays saved either way
 async function send(env, kit, reg, action) {
   const kind = KIND[action]; if (!kind) return undefined;
   const passes = (action === 'paid' || action === 'cash') ? await passesOf(env, reg) : null;
   const qrs = ['conf', 'upd', 'rem'].includes(kind) ? await payNames(env, reg) : [];
   const rest = kind === 'cash' || kind === 'rem' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
-  const m = letter(kind, rest == null ? reg : { ...reg, rest }, env, passes, qrs);
-  // Test stage: every registration letter goes to the test inbox until REG_LIVE=1.
-  const live = env.REG_LIVE === '1', to = live ? reg.email : (env.REG_TEST_INBOX || 'selecttango@gmail.com');
-  const subject = (live ? '' : '[TEST → ' + reg.email + '] ') + m.subject;
-  try { await kit.deliver(env, to, subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: env.REG_REPLY_TO || 'info@tangoweekend.org' }); await log(env, reg.id, 'mail:' + action, to); return 'sent'; }
+  const shown = rest == null ? reg : { ...reg, rest };
+  const m = letter(kind, shown, env, passes, qrs);
+  const dest = testTo(env, reg.email);
+  try { await kit.deliver(env, dest.to, dest.pre + m.subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: replyTo(env) }); await log(env, reg.id, 'mail:' + action, dest.to); }
   catch (e) { await log(env, reg.id, 'mail_failed:' + action, String(e && e.message || e)); return 'failed'; }
+  await sendCopies(env, kit, reg, action, kind, shown, qrs, passes);
+  return 'sent';
 }
+
+// ---------- 活动邮箱 (Shiao, 2026-11-24; rules in docs/tangopass.md) ----------
+// Per event, changed by the 管理员 only, seen by the 总管: the 总管邮箱 and a 副本邮箱 (may be empty); the 管理员's own
+// address is fixed. Every registration letter and the 新报名 notice go to each of them as a separate letter, never Cc or
+// Bcc, so the registrant sees none of them. The 管理员 may turn their own off (「管理员也收信」), but still gets them
+// while the 总管邮箱 is empty or not verified: verified = the 总管 opened the link in the 任命信, in this same stage.
+const SETTINGS = ['chief_email', 'copy_email', 'admin_copy', 'chief_token', 'chief_verified'];
+const noTable = e => /no such table/i.test(String(e && e.message));
+async function settingsOf(env, evId) {
+  const s = {};
+  try { for (const r of ((await env.SDB.prepare(`SELECT key,value FROM reg_setting WHERE event=? AND key IN (${SETTINGS.map(() => '?')})`).bind(evId, ...SETTINGS).all()).results || [])) s[r.key] = r.value || ''; }
+  catch (e) { if (!noTable(e)) throw e; }   // before migration 0026: nothing set, so the 管理员 gets everything
+  return s;
+}
+async function setSetting(env, evId, key, value, by) {
+  await env.SDB.prepare('INSERT INTO reg_setting(event,key,value,updated_at,updated_by) VALUES(?,?,?,?,?) ON CONFLICT(event,key) DO UPDATE SET value=excluded.value,updated_at=excluded.updated_at,updated_by=excluded.updated_by')
+    .bind(evId, key, value, nowIso(), by).run();
+}
+// what the settings page shows (never the token)
+async function mailTo(env, evId) {
+  const s = await settingsOf(env, evId), chief = s.chief_email || '', v = String(s.chief_verified || '').split('|');
+  const verified = !!chief && v[0] === chief && v[1] === stageOf(env);
+  return { chief, copy: s.copy_email || '', admin: adminMail(env), admin_on: s.admin_copy !== '0', verified, verified_at: verified ? v[2] : undefined, live: env.REG_LIVE === '1' };
+}
+// who gets a copy, each address once; skip = the registrant, who has the letter itself
+function recipients(t, skip) {
+  const out = [], add = (addr, who) => { if (addr && addr !== skip && !out.some(x => x.addr === addr)) out.push({ addr, who }); };
+  add(t.chief, 'chief'); add(t.copy, 'copy');
+  if (t.admin_on || !t.verified) add(t.admin, 'admin');
+  return out;
+}
+const route = (env, x) => x.who === 'admin' ? { to: x.addr, pre: '' } : testTo(env, x.addr);
+// The copy is the same letter with a line on top. Entry codes belong to the registrant alone: never in a copy.
+async function sendCopies(env, kit, reg, action, kind, shown, qrs, passes) {
+  const list = recipients(await mailTo(env, reg.event), String(reg.email || '').toLowerCase());
+  if (!list.length) return;
+  const m = letter(kind, shown, env, null, qrs);
+  const head = `副本：这是寄给报名者 ${reg.email}（${reg.code}）那封信的副本，报名者看不到这个副本。` + (passes && passes.length ? '入场码只寄给报名者本人，副本里没有。' : '');
+  const html = m.html ? m.html.replace(/(<body[^>]*>)/, `$1<div style="max-width:560px;margin:0 auto 12px;font-family:sans-serif;font-size:14px;color:#7a6255">${he(head)}</div>`) : undefined;
+  const done = [], failed = [];
+  for (const x of list) {
+    const dest = route(env, x);
+    try { await kit.deliver(env, dest.to, dest.pre + '[副本] ' + m.subject, head + '\n\n' + m.text, html, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: replyTo(env) }); done.push(x.who); }
+    catch (e) { failed.push(x.who + ': ' + String(e && e.message || e).slice(0, 200)); }
+  }
+  if (done.length) await log(env, reg.id, 'copy:' + action, done.join(','));
+  if (failed.length) await log(env, reg.id, 'copy_failed:' + action, failed.join(' | '));
+}
+// The 新报名 notice: to the same people, each their own. A failure to the 管理员 shows on the page, as before.
 async function notifyOwner(env, kit, reg) {
-  const to = env.REG_NOTIFY || 'selecttango@gmail.com', d = JSON.parse(reg.data);
+  const d = JSON.parse(reg.data);
   const text = [`New registration ${reg.code} (${reg.people} people${reg.domestic ? ', domestic' : ''})`, `${reg.email} · ${reg.lang}`, ...detailLines(d, 'zh'), `合计 ${fmt(reg.amount)}`, d.promo && d.promo.code ? `码 ${d.promo.code}${d.promo.dj ? ' (' + d.promo.dj + ')' : ''}` : '', d.msg ? '留言：' + d.msg : ''].filter(Boolean).join('\n');
-  try { await kit.deliver(env, to, '新报名 ' + reg.code, text, undefined, undefined, { fromName: 'Registration' }); } catch (e) { console.log('reg owner mail', String(e && e.message || e).slice(0, 120)); await log(env, reg.id, 'mail_failed:notify', String(e && e.message || e)); }
+  const done = [], failed = [];
+  for (const x of recipients(await mailTo(env, reg.event))) {
+    const dest = route(env, x);
+    try { await kit.deliver(env, dest.to, dest.pre + '新报名 ' + reg.code, text, undefined, undefined, { fromName: 'Registration' }); if (x.who !== 'admin') done.push(x.who); }
+    catch (e) {
+      const why = String(e && e.message || e);
+      if (x.who === 'admin') { console.log('reg owner mail', why.slice(0, 120)); await log(env, reg.id, 'mail_failed:notify', why); }
+      else failed.push(x.who + ': ' + why.slice(0, 200));
+    }
+  }
+  if (done.length) await log(env, reg.id, 'copy:notify', done.join(','));
+  if (failed.length) await log(env, reg.id, 'copy_failed:notify', failed.join(' | '));
+}
+// Letters about the people who run an event: the system's own name, never a password in them.
+const TP_SIGN = '\n\n探戈通 Tango Pass · tangoweekend.org\n（有问题请直接回信）';
+async function tpMail(env, kit, to, subject, text) {
+  const dest = testTo(env, to);
+  try { await kit.deliver(env, dest.to, dest.pre + subject, text + TP_SIGN, undefined, undefined, { fromName: '探戈通 Tango Pass', replyTo: replyTo(env) }); return 'sent'; }
+  catch (e) { console.log('tp mail', String(e && e.message || e).slice(0, 120)); return 'failed'; }
+}
+const OPEN_LINK = '请用 Safari 或 Chrome 打开（在微信里按右上角 ··· 选「在浏览器打开」）。打开这个链接，也就确认了这个邮箱收得到信。';
+const NO_PIN = '六位临时密码管理员会用微信或电话另外告诉你，这封信里没有密码。第一次登入要换成自己的密码。';
+const CHIEF_DOES = '总管有这场活动报名系统的全部权限：审核、收款、退款、看护照姓名、导出，并任免经理和前台。';
+const COPIES = '此后，这场活动每封报名相关的信，都会另外寄一份到这个邮箱（报名者看不到）。';
+// mode: new = just appointed (temporary password); reset = new link and temporary password;
+//       relink = a new link for the 总管 already there (the 总管邮箱 set or changed, or sent again): same password, phones stay;
+//       promoted = a 经理 made 总管: a new link, same password, the phones were signed out by the change.
+export function chiefLetter(ev, name, mode, link, temp) {
+  const e = ev.name.zh, top = name + '，你好：\n\n', linkPart = `你的专属登入链接（登入后进管理页）：\n${link}\n\n${OPEN_LINK}`;
+  const pin = mode !== 'new' && mode !== 'reset' && !temp ? '密码不变：输入你自己的六位密码。' : NO_PIN;
+  if (mode === 'reset') return { subject: `探戈通：你的总管登入已重设（${e}）`,
+    text: top + `管理员重设了你在「${e}」的登入：旧链接、旧密码都已失效，所有手机都已退出。\n\n${linkPart}\n${pin}\n\n链接和密码都不要转发。` };
+  const first = mode === 'relink' ? `你是「${e}」的总管。下面是你新的专属登入链接，旧链接已失效；已登入的手机不受影响。`
+    : `管理员任命你为「${e}」的总管。${CHIEF_DOES}` + (mode === 'promoted' ? '职务改了，手机要用下面的新链接重新登入，旧链接已失效。' : '');
+  return { subject: `探戈通：你被任命为总管（${e}）`, text: top + first + '\n\n' + linkPart + '\n' + pin + '\n\n' + COPIES + '\n\n链接和密码都不要转发。不是你本人，或没想到会收到这封信，请回信告诉我们。' };
+}
+// to the 副本邮箱: short, never a link
+export function copyLetter(ev, mode, o = {}) {
+  const e = ev.name.zh;
+  if (mode === 'set') return { subject: `探戈通：副本邮箱已设定（${e}）`,
+    text: `你好：\n\n管理员把这个邮箱设为「${e}」的副本邮箱。${COPIES}\n\n不是你的邮箱，或不想再收，请回信告诉我们。` };
+  return { subject: `探戈通：总管已任命（${e}）`,
+    text: `你好：\n\n「${o.name}」是「${e}」的总管，任命信已寄到总管邮箱 ${o.chief}（信里只有专属登入链接，没有密码）。` };
+}
+// The 任命信 to the 总管邮箱. Its link carries a token of its own (?m=): opening it verifies the address.
+// 'sent' | 'failed', or undefined when no 总管邮箱 is set. tell: the 副本邮箱 hears of it (not of a reset or a resend).
+async function mailChief(env, kit, ev, name, mode, key, temp, tell) {
+  const t = await mailTo(env, ev.id); if (!t.chief) return undefined;
+  const m = rndHex(16);
+  await setSetting(env, ev.id, 'chief_token', `${await sha256(m)}|${t.chief}|${stageOf(env)}`, name);
+  const l = chiefLetter(ev, name, mode, personLink(env, key, m), temp);
+  const r = await tpMail(env, kit, t.chief, l.subject, l.text);
+  if (r === 'sent' && tell && t.copy && t.copy !== t.chief) { const o = copyLetter(ev, 'chief', { name, chief: t.chief }); await tpMail(env, kit, t.copy, o.subject, o.text); }
+  return r;
+}
+// A link for the 总管 already there: only its hash is kept, so a new one is made and mailed. The password and the
+// phones signed in stay. If the letter cannot go out, the old link is put back.
+async function relinkChief(env, kit, ev, mode, tell) {
+  if (!(await mailTo(env, ev.id)).chief) return undefined;
+  const row = await env.SDB.prepare("SELECT * FROM reg_admin WHERE event=? AND perms='chief' AND disabled_at IS NULL ORDER BY id LIMIT 1").bind(ev.id).first();
+  if (!row) return 'wait';   // sent when a 总管 is appointed
+  if (!row.pin_hash || row.stopped_at) return 'need_reset';
+  const key = rndHex(24), h = await sha256(key), old = row.link_hash || '';
+  const ch = await env.SDB.prepare("UPDATE reg_admin SET link_hash=? WHERE id=? AND perms='chief' AND COALESCE(link_hash,'')=? AND disabled_at IS NULL").bind(h, row.id, old).run();
+  if (!ch.meta.changes) return 'changed';
+  const r = await mailChief(env, kit, ev, row.name, mode, key, !!row.pin_temp, tell);
+  if (r !== 'sent') await env.SDB.prepare('UPDATE reg_admin SET link_hash=? WHERE id=? AND link_hash=?').bind(old || null, row.id, h).run();
+  return r || 'failed';
+}
+// Opening the 任命信's link: only the 总管's own link with the token of the latest letter, to the address set now,
+// in the stage it was sent in (a letter read in the test inbox does not count once live).
+async function mailOk(env, kind, row, m) {
+  if (kind !== 'admin' || roleOf(row.perms) !== 'chief' || !/^[0-9a-f]{32}$/.test(String(m || ''))) return undefined;
+  const s = await settingsOf(env, row.event), [h, addr, stage] = String(s.chief_token || '').split('|');
+  if (!s.chief_email || addr !== s.chief_email || stage !== stageOf(env) || h !== await sha256(String(m))) return undefined;
+  await setSetting(env, row.event, 'chief_verified', `${addr}|${stage}|${nowIso()}`, row.name);
+  return true;
+}
+// A 总管 deleted or no longer 总管 stops getting copies.
+async function dropChiefMail(env, ev, by) {
+  try { const t = await mailTo(env, ev.id); if (!t.chief) return false; await setSetting(env, ev.id, 'chief_email', '', by); return true; }
+  catch (e) { if (noTable(e)) return false; throw e; }
 }
 
 // ---------- public handlers ----------
@@ -611,7 +750,34 @@ export async function regAdmin(req, env, url, b, json, kit) {
       .map(x => { const { perms, link_hash, pin_temp, locked_until, stopped_at, devices, ...y } = x, role = roleOf(perms), manage = mayAppoint(who, role);
         return { ...y, role, manage, v: manage ? verOf(link_hash) : undefined, login: manage ? loginOf(x, role) : undefined }; })
       .sort((x, y) => RANK[y.role] - RANK[x.role] || x.id - y.id);
-    return json({ event: ev.id, me: meOf(who, ev), chief: ev.chief === 'owner' ? ownerName(env) : '', left, caps, roles, counts, overdue, checked, staff, ledger: byCollector, admins, rows });
+    // 活动邮箱: the 管理员 changes them, the 总管 sees them, nobody else is sent them
+    const mailto = who.role === 'owner' || who.role === 'chief' ? await mailTo(env, ev.id) : undefined;
+    return json({ event: ev.id, me: meOf(who, ev), chief: ev.chief === 'owner' ? ownerName(env) : '', left, caps, roles, counts, overdue, checked, staff, ledger: byCollector, admins, mailto, rows });
+  }
+  // 活动邮箱 {chief?, copy?, admin_on?, resend?:'chief'}: only the 管理员 (Shiao, 2026-11-24)
+  if (p === '/mailto' && req.method === 'POST') {
+    if (who.role !== 'owner') return deny();
+    const want = {};
+    for (const k of ['copy', 'chief']) {   // the 副本邮箱 first, so an appointment in the same save is told to the new one
+      if (!b || b[k] == null) continue;
+      const v = str(b[k], 254).toLowerCase();
+      if (v && !EMAIL_STRICT.test(v)) return json({ error: 'bad_email', which: k }, 400);
+      want[k] = v;
+    }
+    const cur = await mailTo(env, ev.id), sent = {};
+    try {
+      if (b.admin_on != null && !!b.admin_on !== cur.admin_on) await setSetting(env, ev.id, 'admin_copy', b.admin_on ? '1' : '0', who.name);
+      for (const k of Object.keys(want)) {
+        if (want[k] === cur[k]) continue;
+        await setSetting(env, ev.id, k + '_email', want[k], who.name);
+        if (!want[k]) { sent[k] = 'cleared'; continue; }
+        if (k === 'copy') { const o = copyLetter(ev, 'set'); sent.copy = await tpMail(env, kit, want.copy, o.subject, o.text); }
+        else sent.chief = await relinkChief(env, kit, ev, 'relink', true);   // sent | failed | wait (no 总管 yet) | need_reset | changed
+      }
+      // 重寄任命信: lost, or read in the test inbox before going live
+      if (b.resend === 'chief' && !sent.chief) sent.chief = (await relinkChief(env, kit, ev, 'relink', false)) || 'no_mail';
+    } catch (e) { if (noTable(e)) return json({ error: 'not_ready' }, 503); throw e; }
+    return json({ ok: true, mailto: await mailTo(env, ev.id), sent });
   }
   if (p === '/payments' && req.method === 'GET') {
     if (!can(who, 'export')) return deny();
@@ -639,10 +805,13 @@ export async function regAdmin(req, env, url, b, json, kit) {
       const r = await env.SDB.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at,link_hash,pin_hash,pin_salt,pin_temp) SELECT ?,?,'-',?,?,?,?,?,1 WHERE " + NAME_FREE + room)
         .bind(ev.id, name, want, nowIso(), c.link_hash, c.pin_hash, c.pin_salt, ev.id, name, ev.id, name, ...roomArgs).run();
       if (!r.meta.changes) return (await nameFree(env, ev.id, name)) ? noRoom() : json({ error: 'name_taken' }, 409);
-      return json({ ok: true, id: r.meta.last_row_id, name, role: want, link: personLink(env, c.key), pin: c.pin });
+      const link = personLink(env, c.key);
+      // a new 总管 gets the 任命信 at the 总管邮箱: the link only, the password is given another way
+      const letter = want === 'chief' ? await mailChief(env, kit, ev, name, 'new', c.key, true, true) : undefined;
+      return json({ ok: true, id: r.meta.last_row_id, name, role: want, link, pin: c.pin, letter });
     }
     const id = Number(b && b.id) || 0;
-    const t = await env.SDB.prepare('SELECT id,perms,link_hash,disabled_at FROM reg_admin WHERE id=? AND event=?').bind(id, ev.id).first();
+    const t = await env.SDB.prepare('SELECT id,name,perms,link_hash,disabled_at FROM reg_admin WHERE id=? AND event=?').bind(id, ev.id).first();
     if (!t) return json({ error: 'not_found' }, 404);
     const had = roleOf(t.perms);
     if (!mayAppoint(who, had)) return deny();   // peers, anyone above, and oneself
@@ -656,7 +825,9 @@ export async function regAdmin(req, env, url, b, json, kit) {
     if (p === '/admins/role') {
       if (t.disabled_at) return changed();
       if (await write(env.SDB.prepare('UPDATE reg_admin SET perms=? WHERE id=? AND perms=? AND disabled_at IS NULL' + room).bind(want, id, t.perms, ...roomArgs), 'role'))
-        return json({ ok: true, role: want, check: had === 'deputy' && RANK[want] < RANK.deputy });
+        return json({ ok: true, role: want, check: had === 'deputy' && RANK[want] < RANK.deputy,
+          letter: want === 'chief' ? await relinkChief(env, kit, ev, 'promoted', true) : undefined,
+          mail_cleared: had === 'chief' ? await dropChiefMail(env, ev, who.name) : undefined });
       const now = await env.SDB.prepare('SELECT perms FROM reg_admin WHERE id=? AND disabled_at IS NULL').bind(id).first();
       return now && now.perms === t.perms && room ? noRoom() : changed();
     }
@@ -665,11 +836,14 @@ export async function regAdmin(req, env, url, b, json, kit) {
       const c = await freshCredentials(env);
       const ok = await write(env.SDB.prepare("UPDATE reg_admin SET link_hash=?,pin_hash=?,pin_salt=?,pin_temp=1,fails=0,locked_until=NULL,stopped_at=NULL WHERE id=? AND perms=? AND COALESCE(link_hash,'')=? AND disabled_at IS NULL")
         .bind(c.link_hash, c.pin_hash, c.pin_salt, id, t.perms, t.link_hash || ''), 'reset');
-      return ok ? json({ ok: true, link: personLink(env, c.key), pin: c.pin }) : changed();
+      if (!ok) return changed();
+      const link = personLink(env, c.key);
+      return json({ ok: true, link, pin: c.pin, letter: had === 'chief' ? await mailChief(env, kit, ev, t.name, 'reset', c.key, true, false) : undefined });
     }
     if (p === '/admins/delete') {
       // check: a removed deputy knows the links they handed out, and may have seen temporary passwords
-      return (await write(env.SDB.prepare('DELETE FROM reg_admin WHERE id=? AND perms=?').bind(id, t.perms), 'deleted')) ? json({ ok: true, check: had === 'deputy' && !t.disabled_at }) : changed();
+      if (!(await write(env.SDB.prepare('DELETE FROM reg_admin WHERE id=? AND perms=?').bind(id, t.perms), 'deleted'))) return changed();
+      return json({ ok: true, check: had === 'deputy' && !t.disabled_at, mail_cleared: had === 'chief' ? await dropChiefMail(env, ev, who.name) : undefined });
     }
     return json({ error: 'not_found' }, 404);
   }
@@ -849,7 +1023,8 @@ export async function regRemind(env, kit) {
 const rndHex = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.toString(16).padStart(2, '0')).join('');
 async function sha256(s) { return [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join(''); }
 const bearer = req => (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
-const personLink = (env, key) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/in/#' + key;
+// m: only in the link mailed to the 总管邮箱, so opening that one verifies the address
+const personLink = (env, key, m) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/in/' + (m ? '?m=' + m : '') + '#' + key;
 const TABLE = { admin: 'reg_admin', staff: 'reg_staff' };
 const DEVICES = { chief: 2, deputy: 2, manager: 1, desk: 1 };   // over the limit, the phone that signed in first is signed out
 const LOCK_AT = 5, STOP_AT = 10, LOCK_MS = 15 * 60e3, AGAIN_MS = 12 * 3600e3;
@@ -957,7 +1132,11 @@ export async function regLogin(req, env, url, b, json) {
   const base = { name: row.name, role, event: ev.id, event_name: ev.name.zh, devices: DEVICES[role] || 1 };
   if (p === '/hello') {   // opening the link shows whose it is (Shiao, 2026-11-23); nothing else without the password
     const now = nowIso(), state = over(role, ev) ? 'ended' : row.stopped_at ? 'stopped' : row.locked_until && row.locked_until > now ? 'locked' : !row.pin_hash ? 'none' : row.pin_temp ? 'new' : 'ok';
-    return json({ ok: true, ...base, state, until: state === 'locked' ? row.locked_until : state === 'ended' ? ev.deskEnds : undefined });
+    const mail_ok = b.m ? await mailOk(env, kind, row, b.m) : undefined;
+    // a new link (重寄任命信) opened on a phone already signed in as the same person: no need to sign out first
+    const c = bearer(req).startsWith('dev:') ? await deviceWho(req, env, { again: true }) : {};
+    const same = c.who && c.who.kind === kind && c.who.id === row.id ? true : undefined;
+    return json({ ok: true, ...base, state, until: state === 'locked' ? row.locked_until : state === 'ended' ? ev.deskEnds : undefined, mail_ok, same });
   }
   if (p !== '') return json({ error: 'not_found' }, 404);
   if (over(role, ev)) return json({ error: 'ended', until: ev.deskEnds }, 403);

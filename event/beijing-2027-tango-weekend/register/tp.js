@@ -8,13 +8,15 @@
   var UP = { chief: '管理员', deputy: '总管', manager: '经理或总管', desk: '经理或总管' };
   function bjTime(iso) { return iso ? new Date(Date.parse(iso) + 288e5).toISOString().slice(11, 16) : ''; }
   function bjDay(iso) { return iso ? new Date(Date.parse(iso) + 288e5).toISOString().slice(0, 16).replace('T', ' ').replace(/-/g, '/') : ''; }
+  if (/^dev:/.test(get('bstw_admin'))) put('bstw_admin', '');   // left by the 管理页 before 2026-11-24
   function who() { try { return JSON.parse(get('tp_who') || 'null'); } catch (e) { return null; } }
   var TP = {
     ROLE: ROLE,
     dev: function () { return get('tp_dev'); },
     key: function () { return get('tp_key'); },
     who: who,
-    owner: function () { return get('bstw_admin'); },
+    // the long password only: a phone's own key (dev:…) is never the 管理员 (the 管理页 put it here until 2026-11-24)
+    owner: function () { var v = get('bstw_admin'); return /^dev:/.test(v) ? '' : v; },
     signedIn: function (d, key) { put('tp_dev', d.token); put('tp_key', key); put('tp_who', JSON.stringify({ name: d.name, role: d.role })); put('bstw_staff', ''); },
     // leaving keeps the link's key on this phone, so the same person can come back with the password alone
     out: function (forget) { put('tp_dev', ''); if (forget) { put('tp_key', ''); put('tp_who', ''); } },
