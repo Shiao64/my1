@@ -58,7 +58,8 @@ function phoneFor(kind, id, event, pin = '730195', authAt = new Date().toISOStri
   db.prepare('INSERT INTO reg_device(kind,person,event,token_hash,created_at,auth_at) VALUES(?,?,?,?,?,?)').run(kind, id, event, sha(key), authAt, authAt);
   PIN.set('dev:' + key, pin); return 'dev:' + key;
 }
-const keyOf = link => (/\/register\/in\/#([0-9a-f]{48})$/.exec(link || '') || [])[1];
+// the personal link, on the shared sign-in page since platform step 3: /tp/in/?event=<id>[&m=…]#<key>
+const keyOf = link => (/\/tp\/in\/\?event=[a-z0-9]+(?:&m=[0-9a-f]{32})?#([0-9a-f]{48})$/.exec(link || '') || [])[1];
 // through the real pages' calls: link + temporary password, then one's own
 async function signIn(made, own = '730195') {
   const key = keyOf(made.link);
@@ -270,7 +271,7 @@ check('QR hidden without key', q2.status === 404);
   let d = await call('GET', '/admin/reg/me', null, ADMIN);
   check('BSTW: the 管理员 is offered the 总管 seat', seat === undefined && d.role === 'owner' && d.seat === 'owner' && d.appoint.join() === 'chief,deputy,desk' && d.perms.includes('asset'), d);
   d = await post('/admins', { name: 'T-Seat1', role: 'chief' }, ADMIN);
-  check('BSTW: the 管理员 appoints a 总管 (link + temporary password)', d.ok && d.role === 'chief' && /\/register\/in\/#[0-9a-f]{48}$/.test(d.link) && /^\d{6}$/.test(d.pin), d);
+  check('BSTW: the 管理员 appoints a 总管 (link + temporary password)', d.ok && d.role === 'chief' && /\/tp\/in\/\?event=bstw2027#[0-9a-f]{48}$/.test(d.link) && /^\d{6}$/.test(d.pin), d);
   const listed = await call('GET', '/admin/reg?event=bstw2027', null, ADMIN);
   check('BSTW: the 总管 shows in the settings, the seat is no longer the 管理员', listed.chief === '' && listed.admins.some(x => x.name === 'T-Seat1' && x.role === 'chief'), [listed.chief, listed.admins]);
   d = await post('/admins', { name: 'T-Seat2', role: 'chief' }, ADMIN);
@@ -767,7 +768,7 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const legacy = async name => { const id = Number(db.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at) VALUES('bstw2027',?,'-','manager','2026-11-01')").run(name).lastInsertRowid);
     return { ...(await call('POST', '/admin/reg/admins/reset', { id }, ADMIN)), id, name }; };
   const m = await legacy('L-mgr'), key = keyOf(m.link);
-  check('login: link holds no password', key && !m.link.includes(m.pin) && m.link.startsWith('https://tangoweekend.org/event/beijing-2027-tango-weekend/register/in/#'), m);
+  check('login: link holds no password', key && !m.link.includes(m.pin) && m.link.startsWith('https://tangoweekend.org/tp/in/?event=bstw2027#'), m);
   let d = await L('/hello', { key });
   check('login: opening the link says whose it is, and nothing else', d.ok && d.name === 'L-mgr' && d.role === 'manager' && d.state === 'new' && d.devices === 1 && Object.keys(d).sort().join() === '_s,devices,event,event_name,name,ok,role,state', d);
   check('login: unknown link', (await L('/hello', { key: 'a'.repeat(48) }))._s === 404 && (await L('/hello', { key: 'x' }))._s === 404);

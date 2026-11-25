@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="入场签到">
+<meta name="theme-color" content="#4a0609">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<title>入场签到 · 探戈通</title>
+<style>
+:root{--red:#b3121b;--deep:#4a0609;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--ok:#1f7a3a;--warn:#b26b00}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif}
+header{background:var(--deep);color:#f6e3b4;padding:10px 14px calc(10px);padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;justify-content:space-between;position:sticky;top:0;z-index:5}
+header b{font-size:1rem;line-height:1.2}
+header small{display:block;font-weight:400;font-size:.75rem;color:var(--gold)}
+header .ttl{display:flex;align-items:center;gap:10px;min-width:0}
+header .nw{white-space:nowrap}
+#evBand b{font-size:20px}
+@media (max-width:380px){header{gap:6px}header .ttl{gap:6px}#toAdmin{padding:4px 6px;font-size:.78rem}#item{max-width:38vw;padding:8px 6px;font-size:.88rem}}
+#toAdmin{color:#f6e3b4;text-decoration:none;border:1px solid rgba(246,227,180,.45);border-radius:8px;padding:5px 9px;font-size:.85rem;white-space:nowrap;flex:none}
+select,input,button{font:inherit}
+select,input{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff}
+main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.big{font-size:1.6rem;font-weight:800;line-height:1.2}
+.muted{color:var(--muted);font-size:.9rem}
+.res{border-radius:14px;padding:18px;text-align:center;font-size:1.3rem;font-weight:800;margin-bottom:12px;color:#fff}
+.res.ok{background:var(--ok)}.res.warn{background:var(--warn)}.res.no{background:var(--red)}
+.items{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.it{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.88rem;background:var(--cream)}
+.it.on{background:#d9f2df;border-color:var(--ok);color:var(--ok);font-weight:700}
+.it.cur{outline:2px solid var(--deep)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:1.15rem;font-weight:800;background:var(--red);color:#fff;cursor:pointer;margin-top:10px}
+.btn.scan{background:var(--deep)}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:1rem;padding:11px}
+.cash{background:#fff1cc;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-top:10px;font-weight:700}
+#cam{position:relative;border-radius:14px;overflow:hidden;background:#000;margin-bottom:12px}
+#cam video{display:block;width:100%;max-height:60vh;object-fit:cover}
+#cam .frame{position:absolute;inset:18%;border:3px solid rgba(232,192,106,.9);border-radius:14px;pointer-events:none}
+.steps{margin:8px 0 0;padding-left:20px}
+.methods{display:flex;gap:6px;margin:10px 0}
+.methods button{flex:1;padding:11px 4px;border:1px solid var(--line);border-radius:10px;background:#fff;font:inherit}
+.methods button[aria-pressed=true]{background:var(--deep);color:#f6e3b4;font-weight:700}
+.money{display:block;font-size:1.9rem}
+.arrived{display:flex;gap:10px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.arrived input{width:22px;height:22px;flex:none}
+.btn:disabled{background:#d8d2c8;color:#777;cursor:default}
+.go-other{display:block;margin-top:5px;font-weight:500}
+.roles .card h2{font-size:1.2rem;margin:0}
+.roles .can{margin:6px 0 10px}
+.roles label{display:block;font-size:.9rem;margin-bottom:4px}
+.badge{display:inline-block;margin-right:6px;padding:1px 8px;border-radius:999px;background:var(--gold);color:var(--deep);font-weight:700}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="ttl"><a id="toAdmin" href="../admin/" hidden>‹ 管理页</a><b><span class="nw">入场签到</span><small id="me"></small></b></div><select id="item" hidden aria-label="现在这一场">
+  <option value="MV">周五 欢迎舞会</option><option value="T1">周五 一日游</option>
+  <option value="M1">周六 下午场</option><option value="M2">周六 晚场</option>
+  <option value="M3">周日 下午场</option><option value="M4">周日 晚场</option>
+  <option value="S1">周一 探戈小院</option><option value="T2">周二 城市漫步</option><option value="MF">周二 告别舞会</option>
+</select></header>
+<div id="evBand" hidden></div>
+<main>
+  <div class="card" id="oldLink" hidden>
+    <div class="big">这个前台连结已经停用</div>
+    <p>前台改成「专属链接＋六位密码」了（2026-11-23）。请找经理或总管按「重设」，拿新的链接和临时密码。</p>
+  </div>
+  <div class="roles" id="nokey" hidden>
+    <div class="card">
+      <h2>请用你的专属链接登入</h2>
+      <p class="muted can">打开上级发给你的链接，或用手机相机扫二维码，再输入六位密码。总管、经理、前台都一样。</p>
+      <a class="btn" id="toIn" hidden>用这台的链接登入</a>
+    </div>
+    <details class="card" id="ownerBox"><summary class="muted">管理员</summary>
+      <form id="login"><label for="tok">长密码</label><input id="tok" type="password" autocomplete="current-password" style="width:100%">
+        <button class="btn" id="save">登入</button></form></details>
+  </div>
+  <div class="card" id="welcome" hidden>
+    <div class="big" id="wName"></div>
+    <p>这支手机已经可以签到了。到北京时间 <b id="wUntil"></b>（活动结束）前不用再输密码。</p>
+    <p class="cash" id="badgeNote">请用自己的手机，不和别人共用。链接和密码都不要转发。</p>
+    <p style="margin-bottom:4px"><b>把它加到手机桌面，当天点图标就能用：</b></p>
+    <ol class="steps"><li>iPhone（Safari）：按下方「分享」→「加入主屏幕」</li><li>Android（Chrome）：按右上角 ⋮ →「添加到主屏幕」</li></ol>
+    <p class="muted">iPhone 从桌面图标第一次打开时，要再输一次密码（这支手机还是只算 1 台）。不要清除浏览资料；换手机就在新手机用链接重新登入。</p>
+  </div>
+  <div id="res" class="res" hidden></div>
+  <div id="cam" hidden><video id="video" playsinline muted></video><div class="frame"></div></div>
+  <button class="btn scan" id="scanBtn" hidden>📷 扫描入场码</button>
+  <button class="btn sec" id="stopBtn" hidden>关闭相机</button>
+  <div class="card" id="who" hidden style="margin-top:12px">
+    <div class="big" id="name"></div>
+    <div class="muted" id="meta"></div>
+    <div class="items" id="items"></div>
+    <div class="cash" id="cash" hidden></div>
+    <div id="collect" hidden>
+      <p style="margin:12px 0 0">收款方式（必选）</p>
+      <div class="methods"><button type="button" data-m="alipay">支付宝</button><button type="button" data-m="wechat">微信</button><button type="button" data-m="cash">现金</button></div>
+      <label class="arrived"><input type="checkbox" id="arrived">我已看到钱到账</label>
+      <button class="btn" id="take" disabled></button>
+    </div>
+    <div class="muted" id="note" style="margin-top:8px"></div>
+    <button class="btn" id="go" hidden></button>
+    <p class="muted" id="undoHelp" hidden>按错了？请找经理或总管撤销。</p>
+    <button class="btn sec" id="undo" hidden>撤销这一场的签到</button>
+  </div>
+  <button class="btn sec" id="swap" hidden></button>
+</main>
+<script src="../tp.js?v=4"></script>
+<script>
+(function(){
+var Q=new URLSearchParams(location.search);
+var API=(function(){var a=Q.get('api');if(a&&/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(a))return a;return 'https://api.tangoweekend.org'})();
+var $=function(i){return document.getElementById(i)};
+// platform step 3 (2026-11-25): one page for every event; the event is in the address (?event=) and in every request,
+// and a pass of another event is refused here, saying whose it is
+var EV=TP.event();
+function withEv(path){return EV&&!/[?&]event=/.test(path)?path+(path.indexOf('?')<0?'?':'&')+'event='+encodeURIComponent(EV):path}
+function itemKey(){return !EV||EV==='bstw2027'?'bstw_item':'tp_item:'+EV}
+var NAME={MV:'周五 欢迎舞会',T1:'周五 一日游',M1:'周六 下午场',M2:'周六 晚场',M3:'周日 下午场',M4:'周日 晚场',S1:'周一 探戈小院',T2:'周二 城市漫步',MF:'周二 告别舞会'};
+var ROLE={leader:'Leader',follower:'Follower',both:'都可以'},ST={paid:'已付款',cash:'到场付款（未付）',confirmed:'已确认（未付款）',pending:'待审核',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
+function get(k){try{return localStorage.getItem(k)||''}catch(e){return ''}}
+function put(k,v){try{if(v)localStorage.setItem(k,v);else localStorage.removeItem(k)}catch(e){}}
+// The phone key: this phone's sign-in (dev:…, from the personal link + password) or the platform admin's long password.
+// On iPhone the home-screen icon keeps its own storage, so the personal link's key also sits in this page's address (?k=…):
+// opening the icon then asks only for the password. The key alone does not sign anyone in (docs/tangopass.md, step 2).
+// One phone, one identity: a front-desk phone only checks in.
+function asAdmin(){var w=TP.who();return !(TP.dev()&&w&&w.role==='desk')}
+function key(){return TP.owner()||TP.dev()}
+function keepUrl(extra){var u=new URLSearchParams();if(EV)u.set('event',EV);if(TP.dev()&&TP.key())u.set('k',TP.key());if(Q.get('api'))u.set('api',Q.get('api'));if(extra)for(var k in extra)u.set(k,extra[k]);history.replaceState(null,'','?'+u.toString())}
+put('bstw_staff','');   // the one-time desk keys ended 2026-11-23
+(function(){var k=TP.keyFromUrl();if(k&&!TP.dev()&&!TP.owner())put('tp_key',k)})();
+var pass=Q.get('p')||'',info=null,flash='',flashKind='ok';
+if(get(itemKey()))$('item').value=get(itemKey());
+$('item').addEventListener('change',function(){put(itemKey(),$('item').value);show()});
+// this event's sessions, from the server (北京's are written above until it answers)
+function items(list){var keep=get(itemKey());NAME={};$('item').innerHTML='';
+  list.forEach(function(x){NAME[x[0]]=x[1];var o=document.createElement('option');o.value=x[0];o.textContent=x[1];$('item').appendChild(o)});
+  if(keep&&NAME[keep])$('item').value=keep}
+var WAIT=20000;
+function within(ms){if(!window.AbortController)return undefined;var c=new AbortController();setTimeout(function(){c.abort()},ms);return c.signal}   // a lost network must not wait for ever
+function raw(path,opt){opt=opt||{};return fetch(API+withEv(path),{signal:within(WAIT),method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(opt.noAuth?'':key())},body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){return r.json().then(function(d){d._s=r.status;return d})})}
+// a manager's password once a day (06:00 Beijing), a 总管／经理's every 12 hours: asked here, then the same request goes on
+var againP=null;
+function again(role){
+  if(againP)return againP;
+  againP=TP.pin({title:'请再输一次密码',note:role==='manager'?'现场经理每天第一次用要输一次（北京时间早上 6 点换天）。':'总管、经理每 12 小时要再输一次。',check:function(pin){
+    return raw('/social/reg/login/again',{method:'POST',body:{pin:pin}}).then(function(d){
+      if(d.ok)return {value:true};if(d.error==='signed_out'){setTimeout(function(){lost(d)},0);return {value:false}}
+      return {msg:TP.pinText(d)||'没成功',stop:d.error==='stopped'}})}}).then(function(v){againP=null;return !!v});
+  return againP}
+function call(path,opt){return raw(path,opt).then(function(d){
+  if(d._s!==401||!TP.dev()||TP.owner()||d.error!=='reauth')return d;
+  return again(d.role).then(function(ok){return ok?raw(path,opt):d})})}
+function res(kind,text){var r=$('res');r.className='res '+kind;r.textContent=text;r.hidden=!text}
+var GO={"zh": {"go": "请先到经理处付款，再入场"}, "en": {"go": "Please pay the event manager first, then come in"}, "ko": {"go": "먼저 행사 매니저에게 결제한 뒤 입장해 주세요"}, "es": {"go": "Primero paga al responsable del evento y después entra"}, "ru": {"go": "Сначала оплатите у менеджера мероприятия, затем проходите"}};
+var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'},method='',taking=false;
+function yen(n){return '¥'+Number(n).toLocaleString('en-US')}
+function hm(iso){return new Date(iso).toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',timeZone:'Asia/Shanghai'})}
+function when(iso){return new Date(Date.parse(iso)+288e5).toISOString().slice(5,16).replace('T',' ')}
+function late(text){flash=text;flashKind='warn';load()}
+function takeState(){$('take').disabled=taking||!method||!$('arrived').checked;[].forEach.call(document.querySelectorAll('[data-m]'),function(b){b.setAttribute('aria-pressed',b.dataset.m===method)})}
+var WHO={owner:'管理员',chief:'总管',deputy:'经理',manager:'现场经理'},myRole='';   // manager: only a role from before 2026-11-23
+function ready(name,collect,role){var adm=role!=='desk',badge=document.createElement('span'),org=adm&&role==='owner';
+  myRole=WHO[role]||'经理';
+  badge.className='badge';badge.textContent=adm?myRole:'前台';$('me').textContent='';$('me').appendChild(badge);
+  $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
+  $('swap').hidden=false;$('swap').textContent='退出'+(adm?myRole:'前台');$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false;
+  $('toAdmin').hidden=!adm}   // 2026-11-24 Shiao: 经理、总管、管理员 can go back to the admin page; 前台 has no admin page
+$('toAdmin').addEventListener('click',function(){this.href='../admin/'+location.search});   // keep ?api= and the sign-in key, like the admin page's link here
+function lost(d){
+  if(d&&d.error==='reauth'){res('warn','要再输一次密码才能继续');return}
+  var owner=!!TP.owner()&&!TP.dev();
+  if(owner)put('bstw_admin','');else TP.out(!!d&&/^(reset|deleted|stopped|ended)$/.test(d.why||''));
+  choose();res('no',d&&d.error==='signed_out'?TP.gone(d):owner?'密码已经失效，请重新输入':'这台已经退出，请用链接重新登入')}
+function choose(){stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('nokey').hidden=false;
+  $('toIn').hidden=!TP.key();$('toIn').href=TP.loginUrl(TP.key(),Q.get('api')||'',EV);}
+function show(){
+  if(!info)return;var cur=$('item').value,p=info.person,did={},by={};info.checkins.forEach(function(c){did[c.item]=c.at;by[c.item]=c.staff});
+  $('who').hidden=false;$('name').textContent=p.name+(p.nick?'（'+p.nick+'）':'');
+  $('meta').textContent=info.pass+' · '+ROLE[p.role]+' · '+p.city+' '+p.country+' · '+(ST[info.status]||info.status);
+  $('items').innerHTML='';p.items.forEach(function(c){var s=document.createElement('span');s.className='it'+(did[c]?' on':'')+(c===cur?' cur':'');s.textContent=(did[c]?'✓ ':'')+NAME[c];$('items').appendChild(s)});
+  var box=$('cash'),c=info.collect,due=info.pay_first||info.cash_due>0,line=function(tag,text,cls){var e=document.createElement(tag);e.textContent=text;if(cls)e.className=cls;box.appendChild(e)};
+  box.textContent='';box.hidden=true;$('collect').hidden=true;
+  if(due&&c&&c.rest>0){box.hidden=false;line('span','待收款（整份报名 '+info.people+' 人合计）');line('b',yen(c.rest),'money');line('span',(c.paid!==undefined?'已收 '+yen(c.paid)+' · ':'')+'收一次即可');
+    $('collect').hidden=false;$('take').textContent='确认收款 '+yen(c.rest);takeState()}
+  else if(due){box.hidden=false;line('span',GO.zh.go);if(info.lang!=='zh'&&GO[info.lang])line('span',GO[info.lang].go,'go-other')}
+  else if(c&&c.last){box.hidden=false;box.style.background='#d9f2df';line('span','已付款：'+c.last.collector+' '+when(c.last.at)+' 收'+(c.last.method?'（'+(METHOD[c.last.method]||c.last.method)+'）':''))}
+  if(due||!c||!c.last)box.style.background='';
+  $('note').textContent=info.note?'备注：'+info.note:'';
+  var go=$('go');$('undo').hidden=!did[cur]||!asAdmin();$('undoHelp').hidden=!did[cur]||asAdmin();go.hidden=true;
+  if(info.status==='cancelled'||info.status==='declined')return res('no','✕ '+ST[info.status]+'，不能入场');
+  if(!info.valid)return res('no','✕ 未完成付款，不能入场。如要到场付款，请找经理或总管批准');
+  if(due){go.hidden=false;go.disabled=true;go.textContent='签到（付款后才能按）';return res('warn',c&&c.rest>0?'待收款':'待付款 · 请带到经理处')}
+  go.disabled=false;
+  if(p.items.indexOf(cur)<0)return res('no','✕ 没有报名「'+NAME[cur]+'」');
+  if(did[cur])return res('warn','⚠ 已经签到过 '+hm(did[cur])+(by[cur]?'（'+by[cur]+'）':''));
+  res('','');go.hidden=false;go.textContent='签到 · '+NAME[cur];
+}
+function load(){if(!pass)return;
+  call('/social/reg/door/pass?p='+encodeURIComponent(pass)).then(function(d){
+    if(d._s===401){lost(d);return}
+    if(d.error==='other_event'){$('who').hidden=true;res('no','✕ 这是「'+d.event_name+'」的入场码，不是这一场的');return}
+    if(!d.ok){$('who').hidden=true;res('no','✕ 无效的入场码');return}
+    info=d;method='';taking=false;$('arrived').checked=false;show();if(flash){res(flashKind,flash);flash='';flashKind='ok'}
+  }).catch(function(){res('no','连不上后台，请检查网络')})}
+$('go').addEventListener('click',function(){var cur=$('item').value;$('go').disabled=true;
+  call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur}}).then(function(d){$('go').disabled=false;
+    if(d.ok){info.checkins.push({item:cur,at:d.at,staff:d.by});show();res('ok','✓ 签到成功 · '+NAME[cur]);return}
+    if(d.error==='already'){info.checkins.push({item:cur,at:d.at,staff:d.by});show();return}
+    if(d._s===401){lost(d);return}
+    if(d.error==='other_event'){res('no','✕ 这是「'+d.event_name+'」的入场码，不是这一场的');return}
+    res('no','✕ '+(d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
+$('undo').addEventListener('click',function(){var cur=$('item').value;if(!confirm('撤销「'+NAME[cur]+'」的签到？'))return;
+  var seen=info.checkins.filter(function(c){return c.item===cur})[0];
+  call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur,undo:1,at:seen&&seen.at}}).then(function(d){
+    if(d.ok){info.checkins=info.checkins.filter(function(c){return c.item!==cur});show();return}
+    if(d._s===401)return lost(d);
+    if(d.error==='already_undone')return late(d.last&&d.last.action==='checkin'?'刚刚已由 '+d.last.by+' '+when(d.last.at)+' 重新签到，这次没有撤销':d.last?'已经由 '+d.last.by+' '+when(d.last.at)+' 撤销过，这次没有再改':'刚刚有人改过，这次没有再改');
+    res('no',d.error==='manager_only'?'只有经理或总管能撤销':'✕ 没撤销成功：'+d.error)}).catch(function(){res('no','连不上后台，不确定有没有撤销：请重扫一次看看')})});
+$('login').addEventListener('submit',function(e){e.preventDefault();var v=$('tok').value.trim();if(!v){$('tok').focus();return}
+  if(TP.dev()){res('no','这台已经是「'+((TP.who()||{}).name||'')+'」的：一支手机一种身份');return}
+  put('bstw_admin',v);$('tok').value='';res('','');whoami()});
+$('swap').addEventListener('click',function(){var adm=asAdmin(),dev=!!TP.dev()&&!TP.owner();
+  if(!confirm(adm?'退出'+myRole+'？再进来要'+(dev?'用链接和密码':'重新输入长密码')+'。':'退出前台？这支手机就不能签到了，再用要用链接和密码重新登入。'))return;
+  stopScan();info=null;pass='';res('','');
+  if(dev)raw('/social/reg/login/out',{method:'POST',body:{}}).catch(function(){});
+  TP.out(false);put('bstw_admin','');
+  keepUrl(null);
+  choose()});
+$('collect').addEventListener('click',function(e){var b=e.target.closest('[data-m]');if(b){method=b.dataset.m;takeState()}});
+$('arrived').addEventListener('change',takeState);
+$('take').addEventListener('click',function(){var c=info&&info.collect;if(!c||!method||!$('arrived').checked||taking)return;
+  taking=true;takeState();
+  call('/social/admin/reg/act',{method:'POST',body:{event:c.event,id:c.id,p:pass,action:'pay',from:info.status,pay:{amount:c.rest,seen:c.rest,method:method}}}).then(function(d){taking=false;
+    if(d.ok){flash='✓ 已收款 '+yen(c.rest)+'，现在可以签到'+(d.mail==='failed'?'。付款确认信没寄出，请告诉对方':'');if(d.mail==='failed')flashKind='warn';load();return}
+    if(d._s===401)return lost(d);
+    if(d.error==='already_paid')return late(d.last?'刚刚已由 '+d.last.by+' '+when(d.last.at)+' 记过收款，这次没有再记':'已经收齐，这次没有再记');
+    if(d.error==='bad_state')return late(d.last?'刚刚已由 '+d.last.by+' '+when(d.last.at)+' 处理过，这次没有记':'这笔刚被改过，这次没有记');
+    if(d.error==='bad_amount')return late('金额刚刚有变动，请看最新金额');
+    takeState();res('no','✕ '+(d.error==='no_permission'?'不能收：你的身份刚被改过，或码不对。请重扫或找总管':'没记上：'+d.error))
+  }).catch(function(){taking=false;takeState();res('no','连不上后台：不确定有没有记上。请有网络后重扫一次再收，不要重复收钱')})});
+
+// ---------- in-page scanner (camera stays inside this page, so the phone key is always here) ----------
+var video=$('video'),stream=null,scanning=false,det=null,cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+try{if('BarcodeDetector' in window)det=new BarcodeDetector({formats:['qr_code']})}catch(e){det=null}
+function loadJsQR(cb){if(window.jsQR)return cb();var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';s.onload=cb;s.onerror=function(){res('no','扫码工具载入失败，请检查网络')};document.head.appendChild(s)}
+function stopScan(){scanning=false;if(stream)stream.getTracks().forEach(function(t){t.stop()});stream=null;$('cam').hidden=true;$('stopBtn').hidden=true;$('scanBtn').hidden=false}
+function found(text){var m=/[?&]p=([^&#\s]+)/.exec(text||'');stopScan();if(navigator.vibrate)navigator.vibrate(60);
+  if(!m){res('no','✕ 这不是入场码');return}pass=decodeURIComponent(m[1]);keepUrl({p:pass});info=null;res('','');load()}
+function tick(){if(!scanning)return;if(video.readyState<2){requestAnimationFrame(tick);return}
+  if(det){det.detect(video).then(function(r){if(r&&r[0])found(r[0].rawValue);else setTimeout(tick,120)}).catch(function(){det=null;tick()});return}
+  if(!window.jsQR){loadJsQR(tick);return}
+  var w=video.videoWidth,h=video.videoHeight,sc=Math.min(1,640/Math.max(w,h));cv.width=w*sc;cv.height=h*sc;cx.drawImage(video,0,0,cv.width,cv.height);
+  var img=cx.getImageData(0,0,cv.width,cv.height),r=window.jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
+  if(r&&r.data)found(r.data);else setTimeout(tick,120)}
+$('scanBtn').addEventListener('click',function(){res('','');$('who').hidden=true;$('welcome').hidden=true;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){res('no','这个浏览器不能用相机，请改用 Safari 或 Chrome');return}
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}).then(function(s){stream=s;video.srcObject=s;video.play();scanning=true;$('cam').hidden=false;$('scanBtn').hidden=true;$('stopBtn').hidden=false;if(!det)loadJsQR(function(){});tick()})
+    .catch(function(){res('no','打不开相机：请在浏览器设定里允许使用相机')})});
+$('stopBtn').addEventListener('click',stopScan);
+
+// ---------- start ----------
+function whoami(){if(!key()){choose();return}
+  call('/social/reg/door/me').then(function(d){
+    if(d.ok&&!EV&&d.event){EV=d.event;TP.setEvent(EV);if(get(itemKey()))$('item').value=get(itemKey())}
+    if(d.ok){TP.band($('evBand'),d);if(d.event_info)document.title='入场签到 · '+d.event_info.name;if(d.names)items(d.names.items);
+      ready(d.name,d.collect,d.role);
+      if(Q.get('new')==='1'&&d.role==='desk'){$('welcome').hidden=false;$('wName').textContent=d.name+'，你好';$('wUntil').textContent=TP.bjDay(d.until);keepUrl(pass?{p:pass}:null)}
+      load();return}
+    if(d._s===401){lost(d);return}
+    if(d.error==='no_role'){choose();res('no','你在这一场活动没有职务，不能在这里签到');return}
+    res('no','连不上后台，请检查网络')})
+  .catch(function(){res('no','连不上后台，请检查网络')})}
+put('bstw_role','');
+if(TP.dev())put('bstw_admin','');
+if(Q.get('act')){$('oldLink').hidden=false;$('item').hidden=true;keepUrl(null)}
+else{if(TP.dev())keepUrl(pass?{p:pass}:Q.get('new')?{new:Q.get('new')}:null);whoami()}
+})();
+</script>
+</body>
+</html>

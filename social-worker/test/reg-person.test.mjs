@@ -92,11 +92,11 @@ check('the new role points to the sign-in row and holds none itself', row.person
 let ms = take();
 const letter = ms.find(m => m.to === 'liu@example.com' && /任命/.test(m.subject));
 check('任命信: the same password, a new link, the phones stay', letter && /同一个密码/.test(letter.body) && /密码不变/.test(letter.body) && !/临时密码/.test(letter.body)
-  && /已登入的手机不受影响/.test(letter.body) && /\/event\/yearend-2027\/register\/in\/\?m=[0-9a-f]{32}#[0-9a-f]{48}/.test(letter.body), ms);
+  && /已登入的手机不受影响/.test(letter.body) && /\/tp\/in\/\?event=ye2027&m=[0-9a-f]{32}#[0-9a-f]{48}/.test(letter.body), ms);
 const newLink = (/(https:\S+#[0-9a-f]{48})/.exec(letter ? letter.body : '') || [])[1];
 d = await call('POST', '/reg/login/hello', { key: keyOf(liuBj.link) });
 check('one link per person: the one before stops', d._s === 404, d);
-d = await call('POST', '/reg/login/hello', { key: keyOf(newLink), m: (/\?m=([0-9a-f]{32})/.exec(newLink || '') || [])[1] }, liu);
+d = await call('POST', '/reg/login/hello', { key: keyOf(newLink), m: (/[?&]m=([0-9a-f]{32})/.exec(newLink || '') || [])[1] }, liu);
 check('the new link: whose, both roles, the current event first', d.ok && d.name === '刘峥' && d.event === 'bstw2027' && d.state === 'ok' && d.same === true
   && (d.roles || []).map(r => r.event + ':' + r.role).join() === 'bstw2027:chief,ye2027:chief', d);
 check('opening it verifies 跨年\'s 总管邮箱', d.mail_ok === true && /^liu@example\.com\|/.test((db.prepare("SELECT value FROM reg_setting WHERE event='ye2027' AND key='chief_verified'").get() || {}).value || ''), d);
@@ -177,7 +177,7 @@ check('no hash and no email in the lists', !/pin_hash|pin_salt|link_hash|example
 
 // --- 「重设」 is the person's
 d = await adm('/staff/reset', { event: 'ye2027', id: kaiYe, v: kYe.v, pin: PIN }, liu);
-check('总管 of both events resets: one new link and password for both', d.ok && keyOf(d.link) && /^\d{6}$/.test(d.pin) && /yearend-2027/.test(d.link), d);
+check('总管 of both events resets: one new link and password for both', d.ok && keyOf(d.link) && /^\d{6}$/.test(d.pin) && /\/tp\/in\/\?event=ye2027#/.test(d.link), d);
 const kaiNew = d;
 d = await call('GET', '/reg/door/me', null, kai); check('reset: the phone is signed out', d._s === 401 && d.error === 'signed_out' && d.why === 'reset', d);
 d = await call('POST', '/reg/login/hello', { key: keyOf(kaiBj.link) }); check('reset: the link from 北京 has stopped too', d._s === 404, d);

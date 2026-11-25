@@ -50,8 +50,8 @@ function parse(s) {   // the log line ends the subject with any extra headers as
 const take = () => mails.splice(0, mails.length);
 const subs = ms => ms.map(m => m.to + ' | ' + m.subject);
 const sha = s => crypto.createHash('sha256').update(s).digest('hex');
-const keyOf = link => (/\/register\/in\/(?:\?m=[0-9a-f]{32})?#([0-9a-f]{48})/.exec(link || '') || [])[1];
-const mOf = text => (/\/register\/in\/\?m=([0-9a-f]{32})#/.exec(text || '') || [])[1];
+const keyOf = link => (/\/tp\/in\/\?event=[a-z0-9]+(?:&m=[0-9a-f]{32})?#([0-9a-f]{48})/.exec(link || '') || [])[1];
+const mOf = text => (/\/tp\/in\/\?event=[a-z0-9]+&m=([0-9a-f]{32})#/.exec(text || '') || [])[1];
 function subscriber(email, name) {
   const r = db.prepare('INSERT INTO users(email,name,lang,verified_at,created_at) VALUES(?,?,?,?,?)').run(email, name, 'en', '2026-11-01', '2026-11-01');
   const tok = crypto.randomBytes(32).toString('hex');
@@ -74,7 +74,7 @@ const CHIEF = 'chief@example.com', CHIEF2 = 'chief2@example.com', COPY = 'copy@e
 const T = to => '[TEST → ' + to + '] ', O = '[测试] ';   // test stage: a registrant off the 测试名单 → test inbox; organizers straight, marked
 // who got a copy of this letter (by the subject's tail), test stage or live
 const whom = m => m.subject.startsWith('[TEST → ') ? m.subject.slice(8, m.subject.indexOf(']')) : m.to;
-const copyTo = (ms, tail) => ms.filter(m => m.subject.endsWith('[副本] ' + tail)).map(whom).sort();
+const copyTo = (ms, tail) => ms.filter(m => m.subject.endsWith('[副本][北京] ' + tail)).map(whom).sort();
 const notified = (ms, code) => ms.filter(m => m.subject.endsWith('新报名 ' + code)).map(whom).sort();
 const same = (a, b) => JSON.stringify(a) === JSON.stringify([...b].sort());
 
@@ -116,7 +116,7 @@ check('chief address saved, waits for a 总管', d.ok && d.mailto.chief === CHIE
 // --- appointing the 总管: 任命信 with the link (and its own token), never the password; the 副本邮箱 told, no link
 const chief = await call('POST', '/admin/reg/admins', { event: 'bstw2027', name: '李总', role: 'chief' }, ADMIN);
 ms = take();
-check('appointed, letter sent', chief.ok && chief.letter === 'sent' && keyOf(chief.link) && /^\d{6}$/.test(chief.pin) && !chief.link.includes('?m='), chief);
+check('appointed, letter sent', chief.ok && chief.letter === 'sent' && keyOf(chief.link) && /^\d{6}$/.test(chief.pin) && !/[?&]m=/.test(chief.link), chief);
 const appoint = ms.find(m => m.subject.includes('你被任命为总管'));
 const m1 = appoint && mOf(appoint.body);
 check('任命信 straight to the 总管邮箱, marked [测试]', appoint && appoint.to === CHIEF && appoint.subject === O + '探戈通：你被任命为总管（北京精选探戈周末 2027）', subs(ms));
@@ -147,10 +147,10 @@ check('新报名 notice: to 总管, 副本 and 管理员', same(notified(ms, bob
 check('test stage: registrant (off the list) in the test inbox; 总管, 副本, 管理员 straight, marked', ms.filter(m => m.to === INBOX).length === 1 && ms.filter(m => m.to !== INBOX).every(m => m.subject.startsWith(O)) && [BOSS, CHIEF, COPY].every(a => ms.filter(m => m.to === a).length === 2), subs(ms));
 check('7 letters, none with Cc', ms.length === 7 && ms.every(m => !m.cc), subs(ms));
 check('registrant letter names none of them', own && ![CHIEF, COPY, BOSS].some(a => own.body.includes(a)), own && own.body);
-const cc1 = ms.find(m => m.to === CHIEF && m.subject === O + '[副本] Registration received · ' + bobCode);
+const cc1 = ms.find(m => m.to === CHIEF && m.subject === O + '[副本][北京] Registration received · ' + bobCode);
 check('copy says whose letter it is and carries it', cc1 && cc1.body.startsWith('副本：这是寄给报名者 bob@example.com（' + bobCode + '）那封信的副本') && cc1.body.includes('Bob Kim'), cc1 && cc1.body.slice(0, 90));
 check('copies reply to info@ like the letter', ms.filter(m => m.subject.includes('[副本]')).every(m => m.replyTo === 'info@tangoweekend.org'));
-const n1 = ms.find(m => m.to === CHIEF && m.subject === O + '新报名 ' + bobCode), nb = ms.find(m => m.to === BOSS && m.subject === O + '新报名 ' + bobCode);
+const n1 = ms.find(m => m.to === CHIEF && m.subject === O + '[北京] 新报名 ' + bobCode), nb = ms.find(m => m.to === BOSS && m.subject === O + '[北京] 新报名 ' + bobCode);
 check('新报名 notice to the 总管: same text as the 管理员\'s', n1 && nb && n1.body === nb.body && n1.body.includes('bob@example.com'), n1);
 check('log: copies recorded without addresses', logs(bobCode, 'copy%').map(x => x.action + '=' + x.detail).join(' ') === 'copy:recv=chief,copy,admin copy:notify=chief,copy', logs(bobCode, 'copy%'));
 const bobId = await idOf(bobCode);
