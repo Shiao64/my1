@@ -232,6 +232,46 @@ class T(unittest.TestCase):
         open('images/asia/posters/E001.png', 'w').write('x')
         self.assertFalse(self.run_check(self.poster_cards())[0])
 
+    # 2026-11-25 (#466): the tool overwrote <id>.jpg in place; the poster path did not change.
+    def same_path_setup(self, log=True):
+        c = self.cards()
+        c[0]['poster'] = '/images/asia/posters/R001.jpg'
+        self.write(c); open('images/asia/posters/R001.jpg', 'w').write('old')
+        self.git('add', '-A'); self.git('commit', '-qm', 'old poster')
+        c = self.cards()
+        c[0]['poster'] = '/images/asia/posters/R001.jpg?v=20261125'
+        c[0]['poster_date'] = '2026-11-25'
+        c[0]['poster_dates'] = {'/images/asia/posters/R001.jpg': '2026-11-25'}
+        c[0]['posters_past'] = ['/images/asia/posters/past/R001-20261125T063950Z.jpg']
+        open('images/asia/posters/R001.jpg', 'w').write('new')
+        os.makedirs('images/asia/posters/past', exist_ok=True)
+        open('images/asia/posters/past/R001-20261125T063950Z.jpg', 'w').write('old')
+        for d in ('images/thumb/images/asia/posters/past', 'images/thumb800/images/asia/posters/past'):
+            os.makedirs(d, exist_ok=True)
+            open(d + '/R001-20261125T063950Z.webp', 'w').write('t')
+        if log:
+            with open('tools/radar-poster-log.jsonl', 'a') as fh:
+                fh.write('{"action":"replaced","id":"R001"}\n')
+        return c
+
+    def test_poster_same_path_by_tool_goes_live(self):
+        ok, why, _ = self.run_check(self.same_path_setup())
+        self.assertTrue(ok, why)
+
+    def test_poster_same_path_without_log_waits(self):
+        self.assertFalse(self.run_check(self.same_path_setup(log=False))[0])
+
+    def test_poster_dated_name_goes_live(self):
+        c = self.cards()
+        c[0]['poster'] = '/images/asia/posters/R001_2026-11-24.jpg'
+        open('images/asia/posters/R001_2026-11-24.jpg', 'w').write('jpg')
+        os.makedirs('images/thumb/images/asia/posters', exist_ok=True)
+        open('images/thumb/images/asia/posters/R001_2026-11-24.webp', 'w').write('t')
+        with open('tools/radar-poster-log.jsonl', 'a') as fh:
+            fh.write('{"action":"replaced","id":"R001"}\n')
+        ok, why, _ = self.run_check(c)
+        self.assertTrue(ok, why)
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=1)

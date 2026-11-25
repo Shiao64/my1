@@ -737,8 +737,9 @@ def pick_poster_path(root, events, event, ext, date=None):
 
     2026-11-21 (Shiao): the tool always wrote <id>.<ext>. On rccbKIYP that name was the
     11/07 poster kept in posters_past (the current one was rccbKIYP_2026-11-14.jpg), so it
-    was overwritten. <id>.<ext> is used only when no card refers to it and no file is there,
-    or when it is this card's own current poster (backed up before it is replaced).
+    was overwritten. <id>.<ext> is used only
+    when no card refers to it and no file is there. The card's own current file is never
+    overwritten (2026-11-25): a new poster always gets a new name, so the URL changes.
     Otherwise <id>_<date>.<ext> (date of the new poster), then -2, -3 ..."""
     cur = (event.get('poster') or '').split('?', 1)[0]
     taken = set()
@@ -749,9 +750,11 @@ def pick_poster_path(root, events, event, ext, date=None):
         taken |= refs
 
     def free(web):
-        if web in taken:
+        # 2026-11-25 (Shiao, #466): never write over the card's current file. Same URL meant
+        # browsers and Cloudflare kept the old poster, and the live check could not see the swap.
+        if web in taken or web == cur:
             return False
-        return web == cur or not os.path.exists(os.path.join(root, web.lstrip('/')))
+        return not os.path.exists(os.path.join(root, web.lstrip('/')))
 
     first = '/%s/%s.%s' % (POSTER_DIR, event['id'], ext)
     if free(first):

@@ -264,6 +264,8 @@ def main():
         e004 = [e for e in P.load_events(tmp) if e['id'] == 'E004'][0]
         check('name clash: orphan file kept', P.pick_poster_path(tmp, P.load_events(tmp), e004, 'jpg', '2026-10-31') == '/images/asia/posters/E004_2026-10-31.jpg')
         check('name clash: free plain name used', P.pick_poster_path(tmp, P.load_events(tmp), dict(e004, id='NEW1'), 'jpg', '2026-10-31') == '/images/asia/posters/NEW1.jpg')
+        # 2026-11-25 (#466): the card's own current <id>.jpg is never written over; the new poster gets a new URL
+        check('own current poster not overwritten', P.pick_poster_path(tmp, P.load_events(tmp), dict(e004, poster='/images/asia/posters/E004.jpg?v=1'), 'jpg', '2026-11-25') == '/images/asia/posters/E004_2026-11-25.jpg')
         bak = os.path.join(tmp, P.BACKUP_REL, 'keep-me.jpg')
         os.makedirs(os.path.dirname(bak), exist_ok=True)
         jpeg(bak, (9, 9, 9), (80, 80))
