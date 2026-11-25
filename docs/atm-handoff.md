@@ -28,6 +28,25 @@
 - **11/25 现状（用户定）**：探戈助理（Grok Bot「探戈雷达」）的微信资讯收集**全部暂停**。现在微信群资讯由 MBA 上的 Claude 定时任务「读微信」（旧名「微信群摘要」；computer use，每次运行要 Shiao 批准一次）写成摘要，再由「交收件箱」任务（旧名「微信摘要交仓库」）交进 data/inbox/（分支 answer/wechat-…-mba）。交收件箱只读 Mac 上 /Users/shiao/Documents/微信摘要/ 的摘要和海报，已处理的记在 已交仓库.md。下面 11/20 的安排留作记录。
 - **整条线的名字（11/25 Shiao 定）**：**读微信 → 交收件箱 → 资料更新 → 上线检查**。读微信、交收件箱是 MBA 上的 Claude 任务（名字要在 MBA 上改；文件夹 `Documents/微信摘要/`、`已交仓库.md` 是实际文件名，不改）；资料更新是 GitHub 上的 Claude（`inbox.yml`，PR 标题「资料更新：…」，旧称「探戈助理答复」）；上线检查是 `tools/inbox_autocheck.py`（Python，不是 AI）。交收件箱开的 PR 标题用「交收件箱：…」（11/25 前是「微信摘要交仓库：…」）。
 
+### 读微信以后怎么更新 ATM（整条线总览，11/25 写给 Shiao 看的版本）
+
+四步：**读微信 → 交收件箱 → 资料更新 → 上线检查**。前两步在 Shiao 的 Mac（Peggy的MacBook Air），后两步在 GitHub。
+
+1. **读微信**（Mac 上的 Claude 定时任务，旧名「微信群摘要」）：每天北京时间 8:54、11:54、20:54，用 Computer use 打开微信，只看 5 个探戈群（Tango Ideal 理想探戈群、探戈会 VTango、ATAC 中阿探戈联盟、BTMI、Leilei Tango 公开群），只读不发。摘要和海报原图存在 Mac 的 `Documents/微信摘要/`，摘要也发给 Shiao。每次运行要 Shiao 在 Mac 上批准一次。
+2. **交收件箱**（Mac 上的另一个 Claude 任务，旧名「微信摘要交仓库」）：不定时，Shiao 手动跑。读还没交过的摘要（记在 `已交仓库.md`），挑出中国大陆和香港的新活动和变更，一件事一个文件、附海报，开分支 `answer/wechat-…-mba`，只在 `data/inbox/` 加文件，开 PR「交收件箱：…」。只写群名和主办，不写一般群友的名字、电话、微信号。
+3. **资料更新**（GitHub 上的 Claude）：`inbox-guard.yml` 检查 PR 只改了 `data/inbox/`，通过就自动合并；`inbox.yml` 让 Claude 照 `data/inbox/README.md` 改活动资料，开「资料更新：…」PR（分支 `inbox-run-*`），用完的答复移到 `done/`。常见处理：
+   - 新一期海报用换海报工具换；主办自己发的，连大型活动也换（`--from-organizer`）。新海报一律用新文件名，不覆盖旧文件（11/25 #473）。
+   - 某一天的变动写成那天的「新通知 · M/D」（`temp_notices`），不改整张卡的固定资料。
+   - 新卡：有联络方式的，有名称、城市、日期、来源就建；没公布的场地留空。
+   - 两个来源对不上：不自己判断，把新说法写成「新通知」，注明来源和日期。
+4. **上线检查**（`tools/inbox_autocheck.py`，程序不是 AI）：补空着的资料、单场通知、换新一期海报、资料齐全的新卡，而且 PR 说明写「需要确认：无」→ 自动合并，几分钟后网站更新，图片随后由 R2 sync 传到 data.tangoweekend.org。改固定资料、删除或隐藏、Claude 有疑问 → 等 Shiao；PR 留言开头 `@Shiao64`，Shiao 会收到邮件和手机推送（11/24 #432）。
+
+**Shiao 怎么参与**：在「资料更新」PR 留言、开头写 `@claude`，GitHub 上的 Claude 在同一个 PR 照着改；写「以后都这样」会记进 `data/inbox/README.md` 第八节。合并自己按，或跟 Claude 说「合并」。
+
+**还不是全自动的地方**：读微信每次要 Shiao 批准；交收件箱要 Shiao 手动跑，不跑的话摘要只停在 Mac 上。huodong@ 来信（0.7 节）也走第 3、4 步。
+
+**以前的安排（留作记录）**
+
 - **11/20 改回**：当天原本计划停掉 Grok Bot、改由 MBA（MacBook Air）上的 Claude 用 Computer use 定时抓微信，但那边**每次都要用户人工点一下才能跑，没法自动**，所以交回给 Grok Bot。**Grok Bot 只执行「探戈雷达」（它在 Cursor 里的任务名称）：微信群的探戈活动收集，交答复进 `data/inbox/`**（用户 11/20 定）：不写邮件、不私信主办，也不做每月名单核对（每月核对改由 Claude 做，见第 2 节「每月快过期名单」）。规则在协作须知第七节。
 - **交法不变**：按 `data/inbox/README.md` 的格式，一件事一个 md（海报同名 .jpg），分支 `answer/…` 开 PR，只改 `data/inbox/`，走自动检查和上线流程；不直接改网站资料（除非用户说「你直接改」）。11/20 的 #318（`answer/2026-11-20-wechat-poster-1945`）就是这样交的。
 - **帐号和机器**：探戈助理的微信号登录在 MBA 上；MBP（设备名 x-2-local）是用户日常用的。**Claude 不要在 MBP 上抓微信**（11/20 曾误开，用户纠正）。
