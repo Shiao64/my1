@@ -6,9 +6,9 @@
     python3 tools/gen_organizer_profiles.py --check  # only report; exit 1 if something would change
 
 A person in data/entities-draft/organizers.json (groups are in groups.json, not there) with
-`min_cards` or more cards that are not hidden and whose `region` is in `regions` (Shiao 2026-11-25:
-mainland China only for now, not Hong Kong / Taiwan / Korea), and not listed in data/organizer-pages.json
-`skip`, gets:
+`min_cards` or more cards that are not hidden, at different time slots (distinct_slots(); Shiao
+2026-11-25: 不同时段的 2 场以上), and whose `region` is in `regions` (Shiao 2026-11-25: mainland China
+only for now, not Hong Kong / Taiwan / Korea), and not listed in data/organizer-pages.json `skip`, gets:
   - an entry in asia/organizers.json: name, name_zh, match; photo / bio / links empty; "auto": true
   - /organizer/<id>/ and /zh/organizer/<id>/ (same shell as the hand-made pages)
 Cards then link the organizer's name to that page (cardB.js orgNamesHtml), and the page lists the
@@ -23,7 +23,7 @@ Photo and bio start empty; the page shows 照片待补充 / 介绍待补充 unti
 Before writing, it checks that the page's own name matching (dj-page.js matches()) finds exactly the
 person's cards; a person where it does not is skipped and reported.
 """
-import html, json, os, re, sys
+import datetime, html, json, os, re, sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 P = lambda *a: os.path.join(ROOT, *a)
@@ -56,6 +56,51 @@ def load(rel):
 def slug_of(name):
     s = re.sub(r'[^a-z0-9]+', '-', str(name or '').lower()).strip('-')
     return s
+
+
+# 2026-11-25 (Shiao): the 2+ must be at different times (不同时段的 2 场以上). Two cards for the same
+# time slot count once: a weekly card's slot is weekday + start time; a one-off's is date + start time;
+# a one-off that is a theme night of the person's own weekly (theme_of, or same weekday and start time)
+# adds nothing. One weekly card on two weekdays is still one card.
+_T0 = re.compile(r'(\d{1,2})[:：](\d{2})')
+
+
+def _start_time(e):
+    m = _T0.search(str(e.get('time') or ''))
+    return '%02d:%s' % (int(m.group(1)), m.group(2)) if m else ''
+
+
+def _weekdays(e):
+    w = e.get('weekdays')
+    if w:
+        return list(w)
+    return [e['weekday']] if e.get('weekday') is not None else []
+
+
+def distinct_slots(cards):
+    """How many of these cards (event dicts) are at different time slots."""
+    weekly = [e for e in cards if e.get('kind') == 'weekly']
+    weekly_ids = {e.get('id') for e in weekly}
+    weekly_slots = {('w', w, _start_time(e)) for e in weekly for w in _weekdays(e)}
+    used, n = set(), 0
+    for e in weekly + sorted((e for e in cards if e.get('kind') != 'weekly'), key=lambda e: e.get('start') or ''):
+        if e.get('kind') == 'weekly':
+            slots = {('w', w, _start_time(e)) for w in _weekdays(e)} or {('id', e.get('id'))}
+        else:
+            if e.get('theme_of') in weekly_ids:
+                continue
+            day = e.get('start') or ''
+            try:
+                wd = datetime.date.fromisoformat(day).isoweekday() % 7  # Sunday = 0, as in the JSON
+            except ValueError:
+                wd = None
+            if wd is not None and ('w', wd, _start_time(e)) in weekly_slots:
+                continue
+            slots = {('d', day, _start_time(e))} if day else {('id', e.get('id'))}
+        if slots - used:
+            n += 1
+            used |= slots
+    return n
 
 
 def shell_bits():
@@ -152,7 +197,7 @@ def plan():
     add, kept, warn, fill = [], [], [], []
     for o in sorted(draft, key=lambda o: o['id']):
         cards = sorted(i for i in o.get('events', []) if i in byid and not byid[i].get('hidden'))
-        if len([i for i in cards if not regions or byid[i].get('region') in regions]) < need:
+        if distinct_slots([byid[i] for i in cards if not regions or byid[i].get('region') in regions]) < need:
             continue
         names = [n for n in (o.get('name_en'), o.get('name_local')) if n]
         if {key(n) for n in names} & skip:
