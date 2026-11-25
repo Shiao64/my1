@@ -13,7 +13,7 @@
 
 （**2026-11-21 更新**：答复里附微信公众号文章链接（mp.weixin.qq.com），处理前会自动打开文章、读文字和图片（tools/wechat_article.py）；活动资料只在公众号文章里时，写上链接就好，不用自己抄全文。）
 
-（**2026-11-25 Shiao：探戈助理（Grok Bot「探戈雷达」）的微信资讯收集**全部暂停**。现在微信群资讯由 MBA 上的 Claude 定时任务「MBA 读微信」（computer use，每次运行要 Shiao 批准一次）写成摘要，再由「交仓库」任务交进 data/inbox/（分支 answer/wechat-…-mba）。**）
+（**2026-11-25 Shiao：探戈助理（Grok Bot「探戈雷达」）的微信资讯收集**全部暂停**。现在微信群资讯由 MBA 上的 Claude 定时任务「读微信」（computer use，每次运行要 Shiao 批准一次）写成摘要，再由「交收件箱」任务交进 data/inbox/（分支 answer/wechat-…-mba，PR 标题「交收件箱：…」）。整条线叫：读微信 → 交收件箱 → 资料更新（GitHub 上的 Claude）→ 上线检查（tools/inbox_autocheck.py）。**）
 
 （**2026-11-20 更新**：探戈助理**只做一件事：执行「探戈雷达」（它在 Cursor 里的任务名称），在微信群收集探戈活动资料**，交进 data/inbox/，规则见第七节。不再写邮件、私信问主办，也不做每月名单核对，改由 Claude 每月在公开网页核对（Shiao 11/20 定）。）
 

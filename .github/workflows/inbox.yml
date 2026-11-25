@@ -83,7 +83,7 @@ jobs:
             --max-turns 40
             --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git:*),Bash(python3:*),Bash(python3 tools/radar_poster_update.py:*),Bash(node --check:*),Bash(gh pr create:*),Bash(gh pr comment:*),Bash(mkdir:*),Bash(ls:*)"
           prompt: |
-            你在 Shiao64/my1 仓库里处理交进 data/inbox/ 的答复（来源：Mac 上的「微信摘要交仓库」、huodong@ 活动来信，或 Shiao 自己交的；探戈助理 Grok Bot 11/25 起暂停）。全程用中文写说明。
+            你在 Shiao64/my1 仓库里处理交进 data/inbox/ 的答复（来源：MBA 上的「交收件箱」、huodong@ 活动来信，或 Shiao 自己交的；探戈助理 Grok Bot 11/25 起暂停）。全程用中文写说明。
 
             先读 data/inbox/README.md（协作须知）和 data/entities-draft/PLAN.md（资料结构方案），照里面的规则做。
 
