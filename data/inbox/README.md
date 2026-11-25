@@ -111,7 +111,6 @@ GitHub 仓库 Shiao64/my1 的 data/inbox/ 文件夹，一件事一个文件。
 
 | 活动 | 要问什么 |
 |---|---|
-| 上海 2027 新年假期（E164） | 三个场地和每天的安排（见上面的信） |
 | 青岛 Tango La Vida 周六舞会（R252）、周三练习（R253） | 场地地址 |
 | 香港 La Milongaza（kOcru3n3），场地 SDF | 场地地址 |
 | 北京 Diego y Aldana 交流论坛（E131） | 场地定了没有 |

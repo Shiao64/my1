@@ -91,5 +91,9 @@
    "Nam",
    "Wing"
   ]
- }
+ },
+ "no_ask": [
+  "E164"
+ ],
+ "_note_no_ask": "Cards not to ask organizers about (Shiao 2026-11-25): E164 Shanghai New Year — the 7 milongas, dates and venues are on the organizer registration form (link on the card); we do not provide them."
 }
