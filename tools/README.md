@@ -75,6 +75,10 @@ A city's 常规 list (home city view, and the legacy regular filter) includes `r
 
 `tools/ensure_posters.py` fills any visible (`hidden != true`) card in `asia/events*.json` that has no `poster`: newest `posters_past[0]` first, else a generated text poster `images/asia/posters/generated/<id>.png` (1080×1350, same style) with thumbs + ATM_TH. `--check` exits 1 if any remain. It runs automatically after `radar_yidong.py`, at the end of `oti_weekly_update.sh`, in CI (`.github/workflows/poster-guard.yml`), and in the local pre-push hook.
 
+## Organizer pages — everyone with 2+ cards
+
+`tools/gen_organizer_profiles.py` (Shiao 2026-11-25): every person in `data/entities-draft/organizers.json` (run `tools/draft_entities.py` first; it decides who is the same person) with 2 or more cards that are not hidden gets an entry in `asia/organizers.json` (`"auto": true`, photo / bio / links empty) and the pages `/organizer/<id>/` + `/zh/organizer/<id>/`. Cards then link the name to that page. Hand-made entries and existing page files are never overwritten; nothing is deleted. Groups and brands go in `data/organizer-pages.json` `skip`. Before writing it checks that the page's own name matching finds exactly that person's cards. `--check` only reports (exit 1 if something would change).
+
 ## Route photo copies (指路图)
 
 Route photos live in `images/asia/directions/` (longest side ≤ 1600px, no EXIF). The page never loads them directly; like posters (thumb + thumb800) there are two WebP copies:

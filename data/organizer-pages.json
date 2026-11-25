@@ -1,0 +1,7 @@
+{
+  "_note": "tools/gen_organizer_profiles.py 的设定。skip：不做个人介绍页的名字（团体、活动品牌）。min_cards：几张以上没隐藏的活动卡才做页面。",
+  "min_cards": 2,
+  "skip": {
+    "Cheek to Cheek": "台中的活动品牌（Cheek to Cheek Práctica），不是个人（Claude 2026-11-25 判断，待 Shiao 确认）"
+  }
+}

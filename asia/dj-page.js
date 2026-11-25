@@ -18,7 +18,8 @@
     } catch (e) {}
     return '';
   }
-  function key(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, ''); }
+  /* 2026-11-25: keep Hangul too, so a Korean name (\uc2a4\ud14c\uc774\uc2dc) can match a profile. Same as cardB.js djKey(). */
+  function key(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff\uac00-\ud7a3]/g, ''); }
   function setText(elId, text) { var el = document.getElementById(elId); if (el) el.textContent = text || ''; }
   function setPhoto(url, alt) {
     var el = document.getElementById('pf-photo'); if (!el) return; el.textContent = ''; if (!url) return;
@@ -43,7 +44,7 @@
   }
   function when(e) { return e.kind === 'weekly' ? (zh ? '每周' : 'Weekly') : (e.start || ''); }
   function isPast(e, day) { if (e.kind === 'weekly') return false; var end = e.end || e.start || ''; return !!(end && end < day); }
-  var file = (kind === 'organizer' || kind === 'group') ? '/asia/organizers.json?v=o8' : '/asia/djs.json?v=d1';
+  var file = (kind === 'organizer' || kind === 'group') ? '/asia/organizers.json?v=o11' : '/asia/djs.json?v=d1';
   fetch(file).then(function (r) { return r.json(); }).then(function (list) {
     var profile = (list || []).filter(function (p) { return p.id === id; })[0];
     if (!profile) return;
@@ -77,6 +78,7 @@
     return fetch('/asia/events.json?v=e233').then(function (r) { return r.json(); }).then(function (events) {
       var day = today(), up = [], past = [];
       (events || []).forEach(function (e) { if (!e || e.hidden || !matches(profile, e)) return; (isPast(e, day) ? past : up).push(e); });
+      past.sort(function (a, b) { var x = a.end || a.start || '', y = b.end || b.start || ''; return x < y ? 1 : x > y ? -1 : 0; });
       /* 2026-11-20 (Shiao): organizer / group pages list their events first, one rich row each:
          small poster, name, "每周五 21:00–01:00 · 下次 11/20", venue, and a star (same local favorites as the map, atm_fav_v1). */
       var WD = zh ? ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -102,13 +104,25 @@
           r = r.filter(function (x) { return x !== id; }); if (!on) r.push(id); localStorage.setItem('atm_fav_removed_v1', JSON.stringify(r));
         } catch (x) {}
       }
+      function thumb(e) { var p = String(e.poster || '').split('?')[0]; return p ? '/images/thumb/' + p.replace(/^\//, '').replace(/\.(jpe?g|png|webp)$/i, '') + '.webp?v=t360' : ''; }
+      /* 2026-11-25 (Shiao): organizer pages also list past events, newest first, same row without the star.
+         Not a link: an ended card only opens the map's "活动已结束" notice, so the row itself shows the poster, date and venue. */
+      function ymdTxt(k) { return k ? k.slice(0, 4) + '/' + md(k) : ''; }
+      function pastRow(e) {
+        var title = (zh && e.name_zh) || e.name || '', s = e.start || '', t = e.end || '';
+        var line = ymdTxt(s) + (t && t !== s ? '–' + (t.slice(0, 4) === s.slice(0, 4) ? md(t) : ymdTxt(t)) : '');
+        var ven = zh ? (e.venue || e.venue_en || '') : (e.venue_en || e.venue || ''), th = thumb(e);
+        return '<div class="pf-ev pf-ev-past"><a class="pf-ev-a">' +
+          (th ? '<img class="pf-ev-img" src="' + esc(th) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : '<span class="pf-ev-img"></span>') +
+          '<span class="pf-ev-t"><b>' + esc(title) + '</b><span class="pf-ev-w">' + esc(line) + '</span>' + (ven ? '<span class="pf-ev-v">' + esc(ven) + '</span>' : '') + '</span></a></div>';
+      }
       function rich(e) {
         var title = (zh && e.name_zh) || e.name || '', nx = nextDate(e);
         var line = e.kind === 'weekly'
           ? (zh ? '每' : 'Every ') + (e.weekdays || [e.weekday]).map(function (x) { return WD[x]; }).join(zh ? '、' : ', ') + (e.time ? ' ' + e.time : '') + (nx ? (zh ? ' · 下次 ' : ' · Next ') + md(nx) : '')
           : md(e.start) + (e.end && e.end !== e.start ? '–' + md(e.end) : '') + (e.time ? ' · ' + e.time : '');
         var ven = zh ? (e.venue || e.venue_en || '') : (e.venue_en || e.venue || '');
-        var p = String(e.poster || '').split('?')[0], th = p ? '/images/thumb/' + p.replace(/^\//, '').replace(/\.(jpe?g|png|webp)$/i, '') + '.webp?v=t360' : '';
+        var th = thumb(e);
         var on = favs().indexOf(e.id) >= 0;
         return '<div class="pf-ev"><a class="pf-ev-a" href="' + (zh ? '/zh/asia/' : '/asia/') + '?card=' + encodeURIComponent(e.id) + '">' +
           (th ? '<img class="pf-ev-img" src="' + esc(th) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : '<span class="pf-ev-img"></span>') +
@@ -142,7 +156,15 @@
         }
       }
       draw(document.getElementById('pf-up'), up, zh ? '暂无' : 'None yet', richOn);
-      draw(document.getElementById('pf-past'), past, zh ? '暂无' : 'None yet');
+      var pastN = document.getElementById('pf-past'), pastS = pastN && pastN.parentNode;
+      if (pastN && richOn) {
+        if (!past.length) { if (pastS && pastS.tagName === 'SECTION') pastS.hidden = true; }
+        else {
+          var upB = document.getElementById('pf-up');
+          if (pastS && pastS.tagName === 'SECTION' && upB && upB.parentNode) { upB.parentNode.insertBefore(pastS, upB.nextSibling); }
+          pastN.innerHTML = past.map(pastRow).join('');
+        }
+      } else draw(pastN, past, zh ? '暂无' : 'None yet');
     });
   }).catch(function () {});
 })();
