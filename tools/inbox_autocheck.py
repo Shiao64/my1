@@ -28,7 +28,7 @@ FILES = ['asia/events.json', 'asia/events-core.json', 'asia/events-more.json']
 ALLOWED_PATHS = re.compile(r'^(asia/events(-core|-more)?\.json|data/inbox/.+|data/entities-draft/.+)$')
 POSTER_FIELDS = {'poster', 'poster_date', 'poster_dates', 'poster_djs', 'posters_past'}
 POSTER_LOG = 'tools/radar-poster-log.jsonl'
-IMG = re.compile(r'^images/(asia/posters/(_backup/|past/)?|thumb/images/asia/posters/|thumb800/images/asia/posters/)([^/]+)$')
+IMG = re.compile(r'^images/(asia/posters/(_backup/|past/)?|thumb/images/asia/posters/(?:past/)?|thumb800/images/asia/posters/(?:past/)?)([^/]+)$')
 # 2026-11-25: a session poster on a fixed-poster card lives in that day's notice (images/asia/posters/notices/<id>-<date>.*)
 NOTICE_IMG = re.compile(r'^images/(thumb/|thumb800/)?images/asia/posters/notices/([^/]+)$|^images/asia/posters/notices/([^/]+)$')
 CACHE_FILES = {'asia/index.html', 'zh/asia/index.html', 'asia/asia-map.js', 'asia/atm-home.js', 'asia/cardB.js'}
@@ -201,7 +201,12 @@ def check(base, head, body, today):
         o = old[i]
         fields = sorted(k for k in set(o) | set(e) if o.get(k) != e.get(k))
         changes.append(f'{i} 改了：{"、".join(fields)}')
-        new_poster = o.get('poster') != e.get('poster')
+        # 2026-11-25 (Shiao, #466): the tool may overwrite <id>.jpg in place, so the poster path can stay the
+        # same. A replace line in the poster log also counts as a new poster.
+        new_poster = (str(o.get('poster') or '').split('?')[0] != str(e.get('poster') or '').split('?')[0]
+                      or logged(base, head, i))
+        if not new_poster and o.get('poster') != e.get('poster'):
+            new_poster = True  # only the ?v= cache tag changed
         if new_poster:
             poster_ids.add(i)
             if not logged(base, head, i):
@@ -237,7 +242,7 @@ def check(base, head, body, today):
                 reasons.append(f'改了不属于任何新通知的图片：{f}')
             continue
         stem = IMG.match(f).group(3)
-        if not any(stem == pid or stem.startswith(pid + '.') or stem.startswith(pid + '-') for pid in poster_ids):
+        if not any(stem == pid or stem.startswith((pid + '.', pid + '-', pid + '_')) for pid in poster_ids):
             reasons.append(f'改了不属于换海报卡片的图片：{f}')
     if cache_files and not poster_ids:
         reasons.append('改了网页的缓存版本号，但没有换海报')
