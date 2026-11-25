@@ -10,7 +10,7 @@ var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
 /* First view reads events-core (window._chinaData). events-more / events.json and the DJ/organizer profiles wait until scroll, search, expand, or a card that is not in core. */
 var EV=null, REG=zh?{}:null, DJPROF=[], ORGPROF=[], profP=null, fullP=null;
 var tradHold=zh&&!/[?&](card|mode|city|k)=/.test(location.search);
-var FULL='/asia/events.json?v=e249';
+var FULL='/asia/events.json?v=e250';
 function loadEv(u){ return (window.atmDataJson ? window.atmDataJson(u) : fetch(u).then(function(r){ return r.json(); })); }
 function indexList(list){ if(!list) return; if(!EV) EV={}; list.forEach(function(e){ if(!e||!e.id) return; EV[e.id]=e; if(REG) REG[e.id]=e.region; }); }
 function indexNow(){ indexList(window._chinaData); indexList(window._atmMore); if(!EV) return; document.querySelectorAll('.ev-card.b-card').forEach(dj); p10mount(); if(zh) trad(); }
@@ -186,10 +186,10 @@ function p10nextDate(e){ var today=p10shToday(), p=today.split('-'), now=new Dat
   var ds=e.weekdays||(e.weekday!=null?[e.weekday]:[]); if(!ds.length) return ''; var best=null;
   ds.forEach(function(wd){ wd=wd%7; var n=new Date(now.getFullYear(),now.getMonth(),now.getDate()+((wd-now.getDay()+7)%7)); if(e.nth){ var g=0; while(g++<8){ var k=Math.floor((n.getDate()-1)/7)+1, last=new Date(n.getFullYear(),n.getMonth(),n.getDate()+7).getMonth()!==n.getMonth(); if([].concat(e.nth).some(function(x){return x===-1?last:k===x;})) break; n=new Date(n.getFullYear(),n.getMonth(),n.getDate()+7); } } if(!best||n<best) best=n; });
   return best?best.getFullYear()+'-'+p10pad(best.getMonth()+1)+'-'+p10pad(best.getDate()):''; }
-/* temp_notices: visible while Asia/Shanghai today is within date, or start–end. Hidden after the end date. */
+/* temp_notices: a plain notice is visible from now until its end/date (Asia/Shanghai); changed/cancelled ones only inside start–end here (p10change shows those earlier). Hidden after the end date. */
 function p10noticeSpan(o){ var date=p10normDate(o.date), start=p10normDate(o.start)||date, end=p10normDate(o.end)||date||start; if(!start) start=end; if(!end) end=start; if(!start||!end) return null; if(end<start){ var t=start; start=end; end=t; } return {start:start, end:end}; }
 function p10notices(e){ var list=e.temp_notices; if(!Array.isArray(list)) return []; var today=p10shToday(), out=[];
-  for(var i=0;i<list.length;i++){ var o=list[i]; if(!o) continue; var w=p10noticeSpan(o); if(!w||today<w.start||today>w.end) continue; out.push(o); } return out; }
+  for(var i=0;i<list.length;i++){ var o=list[i]; if(!o) continue; var w=p10noticeSpan(o); if(!w||today>w.end) continue; if(today<w.start&&(o.status==='changed'||o.status==='cancelled')) continue; out.push(o); } return out; } /* 2026-11-25 (Shiao): a plain notice shows from now until its date passes, labelled 新通知 · M/D */
 /* temp change v1: a temp_notices item with status "changed"|"cancelled" overrides one date (date or start–end). Fields: time, venue, venue_en, address, address_en, fee, fee_en, dj. Expires after its end date (Asia/Shanghai). */
 function p10change(e){ var l=e.temp_notices, today=p10shToday(), best=null; if(!Array.isArray(l)) return null; for(var i=0;i<l.length;i++){ var o=l[i]; if(!o||(o.status!=='changed'&&o.status!=='cancelled')) continue; var w=p10noticeSpan(o); if(!w||today>w.end) continue; if(!best||w.start<p10noticeSpan(best).start) best=o; } return best; } /* shown from now until the changed date passes */
 function p10apply(e,c){ var x={}; for(var k in e) x[k]=e[k]; if(c.time) x.time=c.time; if(c.venue||c.venue_en){ x.venue=c.venue||c.venue_en; x.venue_en=c.venue_en||c.venue; } if(c.address||c.address_en){ x.venue_address=c.address||c.address_en; x.venue_address_en=c.address_en||c.address; } if(c.fee||c.fee_en){ x.fee=c.fee_en||c.fee; x.fee_zh=c.fee||c.fee_en; } if(c.dj){ x.dj=c.dj; x.dj_en=c.dj; } return x; }
@@ -255,8 +255,9 @@ function p10noticeUI(e, notices){ if(!notices||!notices.length) return null; var
     var img=p10safeImg(o.image); if(img){ var pic=document.createElement('div'); pic.className='p10-ovpic'; var im=document.createElement('img'); im.src=img; im.alt=zh?'临时通知':'Notice'; pic.appendChild(im); block.appendChild(pic); }
     if(block.childNodes.length) panel.appendChild(block); });
   if(!panel.childNodes.length) return null;
+  var nd=''; notices.forEach(function(o){ var w=p10noticeSpan(o); if(w&&(!nd||w.end<nd)) nd=w.end; }); if(nd){ var q=nd.split('-'); nd=(+q[1])+'/'+(+q[2]); }
   var less=document.createElement('button'); less.type='button'; less.className='p10-ncollapse'; less.textContent=zh?'收起 ⌃':'Collapse ⌃'; panel.appendChild(less);
-  function setOpen(on){ panel.hidden=!on; btn.setAttribute('aria-expanded', on?'true':'false'); btn.textContent=(zh?'临时通知':'Notice')+(on?' ⌃':' ›'); }
+  function setOpen(on){ panel.hidden=!on; btn.setAttribute('aria-expanded', on?'true':'false'); btn.textContent=(zh?'新通知':'New notice')+(nd?' · '+nd:'')+(on?' ⌃':' ›'); }
   setOpen(false);
   btn.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); setOpen(panel.hidden); });
   less.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); setOpen(false); });
