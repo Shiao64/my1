@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decide whether a 「探戈助理答复」 PR may go live without a human look.
+"""Decide whether a 「收件箱处理」 (formerly 「探戈助理答复」) PR may go live without a human look.
 
 Shiao's rule (2026-11-16): safe changes go live by themselves; anything doubtful waits.
 

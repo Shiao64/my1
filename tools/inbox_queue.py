@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Let 「探戈助理答复」 PRs run side by side instead of one at a time (Shiao 2026-11-18).
+"""Let 「收件箱处理」 (formerly 「探戈助理答复」) PRs run side by side instead of one at a time (Shiao 2026-11-18).
 
 Before: while one inbox-run-* PR waited for Shiao, every new answer waited behind it.
 Now a new run handles only the answers no open PR has taken, safe PRs still go live,
