@@ -26,14 +26,14 @@
 ## 0.6 微信资讯收集（11/20 交给 Grok Bot；**11/25 起 Grok Bot 全部暂停**）
 
 - **11/25 现状（用户定）**：探戈助理（Grok Bot「探戈雷达」）的微信资讯收集**全部暂停**。现在微信群资讯由 MBA 上的 Claude 定时任务「读微信」（旧名「微信群摘要」；computer use，每次运行要 Shiao 批准一次）写成摘要，再由「交收件箱」任务（旧名「微信摘要交仓库」）交进 data/inbox/（分支 answer/wechat-…-mba）。交收件箱只读 Mac 上 /Users/shiao/Documents/微信摘要/ 的摘要和海报，已处理的记在 已交仓库.md。下面 11/20 的安排留作记录。
-- **整条线的名字（11/25 Shiao 定）**：**读微信 → 交收件箱 → 资料更新 → 上线检查**。读微信、交收件箱是 MBA 上的 Claude 任务（名字要在 MBA 上改；文件夹 `Documents/微信摘要/`、`已交仓库.md` 是实际文件名，不改）；资料更新是 GitHub 上的 Claude（`inbox.yml`，PR 标题「资料更新：…」，旧称「探戈助理答复」）；上线检查是 `tools/inbox_autocheck.py`（Python，不是 AI）。交收件箱开的 PR 标题用「交收件箱：…」（11/25 前是「微信摘要交仓库：…」）。
+- **整条线的名字（11/25 Shiao 定）**：**读微信 → 交收件箱 → 资料更新 → 上线检查**。读微信、交收件箱是 MBA 上的 Claude 任务（名字要在 MBA 上改；文件夹 `Documents/微信摘要/`、`已交仓库.md` 是实际文件名，不改）；资料更新是 GitHub 上的 Claude（`inbox.yml`，PR 标题「资料更新：…」，旧称「探戈助理答复」）；上线检查是 `tools/inbox_autocheck.py`（Python，不是 AI）。交收件箱开的 PR 标题定为「交收件箱：…」，但 MBA 上的任务指令还写「微信摘要交仓库：…」，目前实际是后者。
 
 ### 读微信以后怎么更新 ATM（整条线总览，11/25 写给 Shiao 看的版本）
 
 四步：**读微信 → 交收件箱 → 资料更新 → 上线检查**。前两步在 Shiao 的 Mac（Peggy的MacBook Air），后两步在 GitHub。
 
-1. **读微信**（Mac 上的 Claude 定时任务，旧名「微信群摘要」）：每天北京时间 8:54、11:54、20:54，用 Computer use 打开微信，只看 5 个探戈群（Tango Ideal 理想探戈群、探戈会 VTango、ATAC 中阿探戈联盟、BTMI、Leilei Tango 公开群），只读不发。摘要和海报原图存在 Mac 的 `Documents/微信摘要/`，摘要也发给 Shiao。每次运行要 Shiao 在 Mac 上批准一次。
-2. **交收件箱**（Mac 上的另一个 Claude 任务，旧名「微信摘要交仓库」）：不定时，Shiao 手动跑。读还没交过的摘要（记在 `已交仓库.md`），挑出中国大陆和香港的新活动和变更，一件事一个文件、附海报，开分支 `answer/wechat-…-mba`，只在 `data/inbox/` 加文件，开 PR「交收件箱：…」。只写群名和主办，不写一般群友的名字、电话、微信号。
+1. **读微信**（Mac 上的 Claude 定时任务，旧名「微信群摘要」）：每天北京时间 9:54、21:54（11/25 起；有时额外加跑），用 Computer use 打开微信，只看 5 个探戈群（Tango Ideal 理想探戈群、探戈会 VTango、ATAC 中阿探戈联盟、BTMI、Leilei Tango 公开群），只读不发。摘要和海报原图存在 Mac 的 `Documents/微信摘要/`，摘要也发给 Shiao。每次运行要 Shiao 在 Mac 上批准一次。
+2. **交收件箱**（Mac 上的另一个 Claude 任务，旧名「微信摘要交仓库」）：没有排程，**读微信写完摘要后最后一步会自动启动它**（`fire_trigger`；启动失败会叫 Shiao 手动跑），Shiao 也可以手动启动。摘要最后一节是「## 其他简讯」才算写完。30 分钟内已有新摘要时，读微信不重读群，只检查有没有写完但没交的摘要，有才启动交收件箱。读还没交过的摘要（记在 `已交仓库.md`），挑出中国大陆和香港的新活动和变更，一件事一个文件、附海报，开分支 `answer/wechat-…-mba`，只在 `data/inbox/` 加文件，开 PR「交收件箱：…」。只写群名和主办，不写一般群友的名字、电话、微信号。
 3. **资料更新**（GitHub 上的 Claude）：`inbox-guard.yml` 检查 PR 只改了 `data/inbox/`，通过就自动合并；`inbox.yml` 让 Claude 照 `data/inbox/README.md` 改活动资料，开「资料更新：…」PR（分支 `inbox-run-*`），用完的答复移到 `done/`。常见处理：
    - 新一期海报用换海报工具换；主办自己发的，连大型活动也换（`--from-organizer`）。新海报一律用新文件名，不覆盖旧文件（11/25 #473）。
    - 某一天的变动写成那天的「新通知 · M/D」（`temp_notices`），不改整张卡的固定资料。
@@ -43,7 +43,7 @@
 
 **Shiao 怎么参与**：在「资料更新」PR 留言、开头写 `@claude`，GitHub 上的 Claude 在同一个 PR 照着改；写「以后都这样」会记进 `data/inbox/README.md` 第八节。合并自己按，或跟 Claude 说「合并」。
 
-**还不是全自动的地方**：读微信每次要 Shiao 批准；交收件箱要 Shiao 手动跑，不跑的话摘要只停在 Mac 上。huodong@ 来信（0.7 节）也走第 3、4 步。
+**还不是全自动的地方**：读微信每次要 Shiao 批准微信的访问权限（批准可能晚几分钟到几小时）；交收件箱跟着读微信跑，所以批准晚了，交仓库也跟着晚。huodong@ 来信（0.7 节）也走第 3、4 步。
 
 **以前的安排（留作记录）**
 
@@ -65,7 +65,7 @@
 - 信里所有邮箱地址都隐藏，md 只写称呼；原始邮件不存。名单外、冒名、自动回复：不收、不回信。
 - **公众号文章链接（11/21 用户定）**：答复（来信或探戈助理）里有 mp.weixin.qq.com 文章链接时，inbox.yml 在 Claude 处理前先跑 `tools/wechat_article.py`：打开文章，把正文加进答复的「## 公众号文章（自动读取）」（邮箱、电话隐藏），图片（最多 8 张、去掉小图标和 gif）存成 `<答复名>-wx<k>-<n>.jpg`，当附件用。读不到（微信要验证、文章删了）就在答复里写「读取失败」，PR 等 Shiao 看。测试 `python3 tools/test_wechat_article.py`。只寄链接也行，但微信偶尔挡 GitHub 的机器，重要的最好附海报。
 - **「等 Shiao 看」要 @Shiao64（11/24 用户定）**：自动处理的 PR 是 claude[bot] 开的，`inbox.yml` 留的「这次没有自动上线」留言原本不会通知 Shiao（#425 Shiao 没收到）。现在留言开头加 `@Shiao64`，GitHub 会寄信、手机 GitHub App 会推送。以后别的自动流程要 Shiao 决定时，也要在留言里 @Shiao64。
-- **交收件箱（11/23 起，旧名「微信摘要交仓库」）**：Shiao 的 Mac（Peggy的MacBook Air）上有两个 Claude 任务：「读微信」每天 8:54、11:54、20:54 用 Computer use 读 5 个微信群，摘要存在 Mac 的 `Documents/微信摘要/`（只给 Shiao 看，不碰仓库）；「交收件箱」不定时、手动跑，把摘要里中国大陆和香港的新活动、变更照 `data/inbox/README.md` 交进 `data/inbox/`（分支 `answer/wechat-…-mba`，PR 标题「交收件箱：…」，11/25 前是「微信摘要交仓库：…」，例 #424、#427）。和探戈助理的「探戈雷达」可能交到同一件事，交之前要查重。
+- **交收件箱（11/23 起，旧名「微信摘要交仓库」）**：Shiao 的 Mac（Peggy的MacBook Air）上有两个 Claude 任务：「读微信」每天 9:54、21:54（11/25 起）用 Computer use 读 5 个微信群，摘要存在 Mac 的 `Documents/微信摘要/`（只给 Shiao 看，不碰仓库）；「交收件箱」由读微信写完摘要后自动启动（也可手动），把摘要里中国大陆和香港的新活动、变更照 `data/inbox/README.md` 交进 `data/inbox/`（分支 `answer/wechat-…-mba`，PR 标题目前仍是「微信摘要交仓库：…」（任务指令没改；文件里定名为「交收件箱：…」），例 #424、#427、#465）。和探戈助理的「探戈雷达」可能交到同一件事，交之前要查重。
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
