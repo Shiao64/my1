@@ -958,6 +958,12 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
                 new_d = None
                 if isinstance(item, dict):
                     new_d = text_iso_date(item.get('date') or item.get('start') or item.get('on') or '') or note_event_date(item.get('note') or '')
+                # 2026-11-25 Shiao: poster_reuse = the organizer keeps using one poster (no 上期海报 badge).
+                # item reuse:true sets it; a new poster for one dated session clears it.
+                if isinstance(item, dict) and item.get('reuse') is True:
+                    event['poster_reuse'] = True
+                elif new_d:
+                    event.pop('poster_reuse', None)
                 new_d = new_d or poster_event_date(dest_web)
                 if new_d:
                     dates[dest_web] = new_d

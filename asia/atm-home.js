@@ -154,7 +154,7 @@
   /* v11.10: honor eager — first strip / LCP thumbs set src immediately (was void eager, so hydrate waited). */
   function img(e, cls, eager) {
     if (!e.poster) return '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>';
-    var u = posterUrls(e.poster), pv = e.kind === 'weekly' && e.poster_date && e.poster_date < SHT;
+    var u = posterUrls(e.poster), pv = e.kind === 'weekly' && !e.poster_reuse && e.poster_date && e.poster_date < SHT; /* 2026-11-25 Shiao: poster_reuse = organizer keeps using this poster, never 上期海报 */
     var srcset = eager ? ' srcset="' + esc(u.webp) + '"' : '';
     var src = eager ? ' src="' + esc(u.jpg) + '" data-atm-on="1"' : '';
     var pri = eager ? ' fetchpriority="high"' : '';
@@ -819,7 +819,7 @@
     var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { /* v11.7 H3: header 🔍 removed (route #h-search kept) */ void bS; /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
-  var FULL = '/asia/events.json?v=e251'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
+  var FULL = '/asia/events.json?v=e252'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
   function asList(d) { return Array.isArray(d) ? d : (d && d.events) || []; }
   function favMissing(list) {
     var m = {}, ids = [];
@@ -836,7 +836,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china587';
+    var coreUrl = '/asia/events-core.json?v=china588';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {
