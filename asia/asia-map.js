@@ -823,7 +823,7 @@
             '#atm-single .atm-recap-cr{margin:8px 0 0;font-size:.8rem;color:#8a7a6a}' +
             '.atm-rv{position:fixed;inset:0;z-index:10060;background:rgba(6,20,24,.94)}.atm-rv>button{position:absolute;top:10px;right:12px;z-index:2;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;font-size:28px}.atm-rv-s{display:flex;height:100%;overflow-x:auto;scroll-snap-type:x mandatory}.atm-rv-s img{flex:0 0 100%;width:100%;height:100%;object-fit:contain;scroll-snap-align:center}' +
             '#atm-single .atm-nf{padding:28px 6px 4px;text-align:center;color:#2a1a14;font-size:1.05rem;line-height:1.6}' +
-            '#atm-single .atm-nf-card{background:linear-gradient(180deg,#fff8ec,#fff);border:1px solid #ecdcbc;border-radius:22px;padding:26px 20px 22px;text-align:center;box-shadow:0 8px 26px rgba(60,30,10,.10);margin-top:6px}#atm-single .atm-nf-ico{width:92px;height:92px;display:block;margin:0 auto 10px}#atm-single .atm-nf-card h2{margin:0 0 8px;text-wrap:balance;font-size:1.4rem;color:#2a1a14;font-weight:800}#atm-single .atm-nf-card p{margin:0 0 4px;color:#6b5a4e;font-size:1rem;line-height:1.6}' +
+            '#atm-single .atm-nf-card{background:linear-gradient(180deg,#fff8ec,#fff);border:1px solid #ecdcbc;border-radius:22px;padding:26px 20px 22px;text-align:center;box-shadow:0 8px 26px rgba(60,30,10,.10);margin-top:6px}#atm-single .atm-nf-ico{width:92px;height:92px;display:block;margin:0 auto 10px}#atm-single .atm-nf-card h2{margin:0 0 8px;text-wrap:balance;font-size:1.4rem;color:#2a1a14;font-weight:800}#atm-single .atm-nf-card p{margin:0 0 4px;color:#6b5a4e;font-size:1rem;line-height:1.6}.atm-nf-card p.atm-nf-org{margin:10px 0 2px;color:#5f6f66;font-weight:800}.atm-nf-org a{color:#0E6E78;font-weight:800;text-decoration:underline;text-underline-offset:2px}' +
             '#atm-single .atm-nf-card h2+.atm-all{margin-top:16px}#atm-single .atm-nf-feat{display:inline-block;margin:14px 0 0;color:#9a6a00;font-weight:800;text-decoration:none;border-bottom:2px solid rgba(154,106,0,.35);padding-bottom:2px}#atm-single .atm-nf-h{margin:26px 4px 10px;font-size:1.08rem;color:#0e6e78;font-weight:800}#atm-single .atm-nf-list{display:flex;flex-direction:column;gap:10px}' +
             '#atm-single .atm-nf-mini{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid #ecdcbc;border-radius:14px;padding:8px;text-decoration:none;color:#2a1a14;box-shadow:0 3px 10px rgba(60,30,10,.06)}#atm-single .atm-nf-mini img,#atm-single .atm-nf-noimg{width:62px;height:82px;object-fit:cover;object-position:center 20%;border-radius:10px;flex:none;background:#f3e6cc;display:flex;align-items:center;justify-content:center;color:#9a6a00;font-size:1.6rem}#atm-single .atm-nf-mini span{display:flex;flex-direction:column;gap:4px;min-width:0}#atm-single .atm-nf-mini strong{font-size:.98rem;line-height:1.35}#atm-single .atm-nf-mini em{font-style:normal;color:#6b5a4e;font-size:.88rem}';
     document.head.appendChild(st);
@@ -906,6 +906,17 @@
         var allT = cn ? (isZh ? '查看' + cn + '近期活动' : 'See upcoming events in ' + cn) : allTxt;
         box.innerHTML = '<div class="atm-nf-card">' + ico + '<h2>' + (isZh ? '活动已结束' : 'This event has ended') + '</h2>' + (isZh ? '<p>这个活动已经结束或下架，看看近期其他活动吧</p>' : '') +
           '<a class="atm-all" href="' + esc(allH) + '">' + esc(allT) + ' <span aria-hidden="true">→</span></a><a class="atm-nf-feat" href="' + esc(base + '?mode=featured' + kr + '&via=card') + '">' + (isZh ? '★ 大型活动' : '★ Special events') + '</a></div>' + mini;
+        /* 2026-11-25 (Shiao): an ended card still links to its organizer's profile page (/organizer/<id>/), above the main button. */
+        (function(cardEl){ var names = [].concat(r && r.organizers || [], r && r.organizers_en || []); if (!cardEl || !names.length) return;
+          fetch('/asia/organizers.json?v=o13').then(function(res){ return res.json(); }).then(function(list){
+            var k = function(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff\uac00-\ud7a3]/g, ''); }, seen = {}, out = [];
+            names.forEach(function(n){ String(n).split(/\s*(?:、|\+|＆|&|\/|,|;)\s*/).forEach(function(x){ var kx = k(x); if (!kx) return; (list || []).forEach(function(p){ if (!p || p.kind === 'group' || seen[p.id]) return; if ([p.name, p.name_zh].concat(p.match || []).some(function(y){ return k(y) === kx; })) { seen[p.id] = 1; out.push(p); } }); }); });
+            if (!out.length) return;
+            var el = document.createElement('p'); el.className = 'atm-nf-org';
+            el.innerHTML = (isZh ? '主办：' : 'Organizer: ') + out.map(function(p){ return '<a href="' + esc((isZh ? '/zh' : '') + '/organizer/' + encodeURIComponent(p.id) + '/') + '">' + esc(isZh ? (p.name_zh || p.name) : (p.name || p.name_zh)) + '</a>'; }).join(isZh ? '、' : ', ');
+            cardEl.insertBefore(el, cardEl.querySelector('.atm-all'));
+          }).catch(function(){});
+        })(box.querySelector('.atm-nf-card'));
         try { document.title = (isZh ? '活动已结束 · ' : 'Event ended · ') + document.title; } catch(e){}
         keepLang(); setTimeout(keepLang, 1500); return; }
       var feat = r.kind === 'event' && !r.regular_oneoff;
