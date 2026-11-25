@@ -239,16 +239,30 @@ async function full(env, ev, data, id, json) {
 
 async function log(env, id, action, detail) { await env.SDB.prepare('INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)').bind(id, nowIso(), action, detail ? String(detail).slice(0, 1000) : null).run(); }
 // One statement takes the next number and refuses a second live form of the same email, so any number of people can send at once.
-async function addReg(env, r, userId, email, data, ts) {
-  const pre = r.ev.prefix + '-';
-  const ins = await env.SDB.prepare(`INSERT INTO reg(event,code,user_id,email,lang,status,domestic,people,data,amount,hotel_amount,promo,promo_dj,created_at,updated_at)
-    SELECT ?,(SELECT ? || printf('%04d', COALESCE(MAX(CAST(substr(code,?) AS INTEGER)),0)+1) FROM reg WHERE code LIKE ?),?,?,?,'pending',?,?,?,?,?,?,?,?,?
-    WHERE NOT EXISTS (SELECT 1 FROM reg WHERE event=? AND email=? AND status<>'cancelled')`)
-    .bind(r.ev.id, pre, pre.length + 1, pre + '%', userId, email, r.lang, r.domestic, r.data.people.length, data, r.total, r.hotel, r.promo.code || null, r.promo.dj || null, ts, ts, r.ev.id, email).run();
+// 实习 (platform step 5, 《TP 实习方案（v2）》): its own numbers (<prefix>P-0001), up to 5 per person and the event's cap in all,
+// in that same statement. stage: 'practice' | 'test' | null (see regStage).
+const PRACTICE_MINE = 5;
+const regStage = ev => ev && ev.mode === 'practice' ? 'practice' : ev && ev.mode === 'test' ? 'test' : null;   // 北京 before moving in: never marked
+// the 实习 link's code and the cap in all (5–30, 10 unless the 管理员 set it), from the setting 'practice' = code|cap|since
+function practiceOf(s) { const [code, cap, at] = String((s && s.practice) || '').split('|'); return /^[A-Z0-9]{6}$/.test(code || '') ? { code, cap: Math.min(30, Math.max(5, +cap || 10)), at } : null; }
+async function addReg(env, r, userId, email, data, ts, stage, pr) {
+  const pre = r.ev.prefix + (stage === 'practice' ? 'P' : '') + '-';
+  const [guard, gargs] = stage === 'practice'
+    ? ["(SELECT COUNT(*) FROM reg WHERE event=? AND stage='practice' AND (email=? OR (user_id IS NOT NULL AND user_id=?)))<? AND (SELECT COUNT(*) FROM reg WHERE event=? AND stage='practice')<?", [r.ev.id, email, userId, PRACTICE_MINE, r.ev.id, pr.cap]]
+    : ["NOT EXISTS (SELECT 1 FROM reg WHERE event=? AND email=? AND status<>'cancelled')", [r.ev.id, email]];
+  const run = marked => env.SDB.prepare(`INSERT INTO reg(event,code,user_id,email,lang,status,domestic,people,data,amount,hotel_amount,promo,promo_dj,created_at,updated_at${marked ? ',stage' : ''})
+    SELECT ?,(SELECT ? || printf('%04d', COALESCE(MAX(CAST(substr(code,?) AS INTEGER)),0)+1) FROM reg WHERE code LIKE ?),?,?,?,'pending',?,?,?,?,?,?,?,?,?${marked ? ',?' : ''}
+    WHERE ${guard}`)
+    .bind(r.ev.id, pre, pre.length + 1, pre + '%', userId, email, r.lang, r.domestic, r.data.people.length, data, r.total, r.hotel, r.promo.code || null, r.promo.dj || null, ts, ts, ...(marked ? [stage] : []), ...gargs).run();
+  let ins;
+  try { ins = await run(!!stage); }
+  catch (e) { if (stage !== 'test' || !noColumn(e)) throw e; ins = await run(false); }   // before migration 0029 a test registration is simply not marked
   return ins.meta.changes ? env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(ins.meta.last_row_id).first() : null;
 }
 
 // ---------- letters ----------
+// 实习 (platform step 5): instead of how to pay — nobody pays, the organizers press 「记收款」 to practise
+const PRACTICE_PAY = { zh: '实习用：不要付款。组织者会在管理页按「记收款」练习收款。', en: 'Practice: please do not pay. The organizers will record a payment in their admin page to practise.' };
 const T = {
   en: { viewPay: 'View registration and payment QR', viewPass: 'View registration and entry QR', passT: 'Your entry QR codes (one per person) are below. Show them at the door. You can also see them on the registration page after signing in. Tip: take a screenshot of your QR code now, in case there is no internet at the door.', hi: 'Hi {n},', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'nights', details: 'Your registration',
     recvS: 'Registration received · {c}', recv: 'We have received your registration {c}. We will review it and reply within 10 days.',
@@ -377,7 +391,7 @@ export function letter(kind, reg, env, passes, qrs = [], evIn) {
   if (['recv', 'conf', 'upd'].includes(kind)) { const colon = lang === 'zh' ? '：' : ': ';
     body.push('', L.details + colon.trim(), ...detailLines(d, lang, ev).map(s => '· ' + s));
     if (reg.fee) body.push('· ' + (lang === 'zh' ? '手续费' : 'Fee') + ' — ' + fmt(reg.fee)); body.push(L.total + colon + fmt(reg.amount)); }
-  if (kind === 'conf' || kind === 'upd' || kind === 'rem') body.push('', fill(L.pay, v), L.noApp);
+  if (kind === 'conf' || kind === 'upd' || kind === 'rem') body.push('', ...(ev && ev.mode === 'practice' ? [PRACTICE_PAY[lang] || PRACTICE_PAY.en] : [fill(L.pay, v), L.noApp]));
   if (kind === 'conf' || kind === 'upd') body.push('', L.rules);
   if ((kind === 'paid' || kind === 'cash') && passes && passes.length) body.push('', fill(L.passT, v));
   const toPay = kind === 'conf' || kind === 'upd' || kind === 'rem', toPass = kind === 'paid' || kind === 'cash';
@@ -411,6 +425,7 @@ const assetName = (ev, name) => !ev || ev.id === 'bstw2027' ? name : ev.id + '-'
 async function payNames(env, reg) {
   if (!env.REG_QR_KEY) return [];
   const ev = await getEvent(env, reg.event);
+  if (ev && ev.mode === 'practice') return [];   // 实习: never the real payment QR (《TP 实习方案（v2）》)
   const want = String((reg.domestic ? env.REG_QR_CN : env.REG_QR_INTL) || (reg.domestic ? 'cn-alipay,cn-wechat' : 'intl-alipay,intl-wechat')).split(',').map(x => x.trim()).filter(Boolean).map(n => assetName(ev, n));
   const have = new Set((((await env.SDB.prepare('SELECT name FROM reg_asset').all()).results) || []).map(x => x.name));
   return want.filter(n => have.has(n));
@@ -421,9 +436,11 @@ async function payNames(env, reg) {
 //   its subject saying whom it was for, so nobody outside the list ever gets a test letter.
 const TEST_TAG = '[测试] ';
 const testInbox = env => env.REG_TEST_INBOX || 'selecttango@gmail.com';
-const toOrganizer = (t, to) => ({ to, pre: t && t.live ? '' : TEST_TAG });
+const PRACTICE_TAG = '[实习] ';
+const toOrganizer = (t, to) => ({ to, pre: t && t.live ? '' : t && t.practice ? PRACTICE_TAG : TEST_TAG });
 function toRegistrant(env, t, to) {
   if (t && t.live) return { to, pre: '' };
+  if (t && t.practice) return { to, pre: PRACTICE_TAG };   // 实习: those who practise are our own people, letters straight
   if (t && (t.test_list || []).includes(String(to || '').toLowerCase())) return { to, pre: TEST_TAG };
   return { to: testInbox(env), pre: '[TEST → ' + to + '] ' };
 }
@@ -450,7 +467,7 @@ async function send(env, kit, reg, action) {
 // address is fixed. Every registration letter and the 新报名 notice go to each of them as a separate letter, never Cc or
 // Bcc, so the registrant sees none of them. The 管理员 may turn their own off (「管理员也收信」), but still gets them
 // while the 总管邮箱 is empty or not verified: verified = the 总管 opened the link in the 任命信, in this same stage.
-const SETTINGS = ['chief_email', 'copy_email', 'admin_copy', 'chief_token', 'chief_verified', 'event_mail', 'event_mail_rule', 'event_mail_token', 'event_mail_ok', 'test_list', 'practice_cleared'];
+const SETTINGS = ['chief_email', 'copy_email', 'admin_copy', 'chief_token', 'chief_verified', 'event_mail', 'event_mail_rule', 'event_mail_token', 'event_mail_ok', 'test_list', 'practice_cleared', 'practice'];
 const TEST_LIST_MAX = 10;
 const noTable = e => /no such table/i.test(String(e && e.message));
 async function settingsOf(env, evId) {
@@ -465,13 +482,13 @@ async function setSetting(env, evId, key, value, by) {
 }
 // what the settings page shows (never the token)
 async function mailTo(env, evId, evIn) {
-  const live = isLive(env, evIn || await getEvent(env, evId));
+  const ev_ = evIn || await getEvent(env, evId), live = isLive(env, ev_), practice = !!ev_ && ev_.mode === 'practice';
   const s = await settingsOf(env, evId), chief = s.chief_email || '', v = String(s.chief_verified || '').split('|');
   const verified = !!chief && v[0] === chief && (v[1] === 'direct' || v[1] === stageOf(live));
   const event_mail = s.event_mail || '', ok = String(s.event_mail_ok || '').split('|'), bound = !!event_mail && ok[0] === event_mail;
   return { chief, copy: s.copy_email || '', admin: adminMail(env), admin_on: s.admin_copy !== '0', verified, verified_at: verified ? v[2] : undefined, live,
     event_mail, event_mail_ok: bound, event_mail_at: bound ? ok[1] : undefined, domain: mailDomain(env), cf_ready: !!env.CF_MAIL_TOKEN,
-    test_list: String(s.test_list || '').split(',').filter(Boolean) };
+    test_list: String(s.test_list || '').split(',').filter(Boolean), practice };
 }
 // replies to a registration letter: the 活动专属邮箱 once it is bound (its test letter came back), else info@
 const replyFor = (env, t) => t && t.event_mail && t.event_mail_ok ? t.event_mail : replyTo(env);
@@ -703,7 +720,7 @@ async function relayKey(env, code) { return env.REG_PASS_SECRET ? (await hmac(en
 const tagOf = (code, k) => `[回信 ${code} #${k}]`;
 function cleanSubject(s, ev) {
   let x = String(s || ''); const tg = evTag(ev).trim(); if (tg) x = x.split(tg).join(' ');   // the event's [北京] in organizers' subjects
-  return x.replace(/\[TEST → [^\]]*\]\s*/g, '').replace(/\[(回信 [A-Z0-9]+-\d{4}(?: #[0-9a-f]+)?|副本(?: #[0-9a-f]+)?|来信|测试)\]\s*/g, '').replace(/^((re|回复|答复|fw|fwd|转发)\s*[:：]\s*)+/i, '').trim();
+  return x.replace(/\[TEST → [^\]]*\]\s*/g, '').replace(/\[(回信 [A-Z0-9]+-\d{4}(?: #[0-9a-f]+)?|副本(?: #[0-9a-f]+)?|来信|测试|实习)\]\s*/g, '').replace(/^((re|回复|答复|fw|fwd|转发)\s*[:：]\s*)+/i, '').trim();
 }
 // files that fit in one letter; the rest are named in the text
 function filesOut(parsed) {
@@ -728,13 +745,13 @@ export async function regInbound(message, env, kit) {
   const from = addrOf(h.get('from')) || String(message.from || '').toLowerCase();
   const t = await mailTo(env, ev.id, ev), orgs = { [t.chief]: 'chief', [t.copy]: 'copy', [t.admin]: 'admin' };
   delete orgs['']; const role = Object.hasOwn(orgs, from) ? orgs[from] : '';
-  const code = (new RegExp(ev.prefix + '-\\d{4}').exec(subject) || [])[0];
+  const code = (new RegExp(ev.prefix + 'P?-\\d{4}').exec(subject) || [])[0];   // a practice number too (实习, P)
   const reg = code ? await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND code=?').bind(ev.id, code).first() : null;
   const k = reg ? await relayKey(env, reg.code) : '', keyed = !!k && subject.includes('#' + k);
   let mine = reg && emailsOf(reg).includes(from) ? reg : null;
   if (!mine && !role) mine = await env.SDB.prepare("SELECT * FROM reg WHERE event=? AND (email=? OR instr(lower(data),?)>0) ORDER BY (status='cancelled'), id DESC LIMIT 1").bind(ev.id, from, '"email":"' + from + '"').first();
   // test stage: the registrant's letters land in the test inbox, so a reply from there to one of them stands for that registrant
-  const testReply = !t.live && reg && from === String(env.REG_TEST_INBOX || 'selecttango@gmail.com').toLowerCase() && /\[TEST → [^\]]+\]/.test(subject) && !keyed;
+  const testReply = !t.live && !t.practice && reg && from === String(env.REG_TEST_INBOX || 'selecttango@gmail.com').toLowerCase() && /\[TEST → [^\]]+\]/.test(subject) && !keyed;
   if (message.rawSize > 25 * 1024 * 1024) {
     const x = { addr: t.admin, who: 'admin' }, d = route(t, x);
     await kit.deliver(env, d.to, d.pre + '[来信太大] ' + subject, `${from} 寄到 ${to} 的信超过 25MB，没有转寄。请直接联系寄件人。`, undefined, { 'X-TP-Relay': 'big' }, { fromName: '探戈通 Tango Pass', replyTo: from }).catch(() => {});
@@ -791,19 +808,28 @@ export async function regLeft(url, env, json) {
 export async function regMe(req, env, url, json, kit) {
   const u = await kit.user(req, env); if (!u) return json({ error: 'auth' }, 401);
   const ev = await getEvent(env, url.searchParams.get('event') || 'bstw2027'); if (!ev) return json({ error: 'bad_event' }, 400);
-  const r = await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND email=? ORDER BY (status=\'cancelled\'), id DESC LIMIT 1').bind(ev.id, String(u.email).toLowerCase()).first();
-  if (!r) return json({ email: u.email, name: u.name, reg: null });
-  const passes = (await passesOf(env, r)).map(x => ({ name: x.name, items: x.items, pass: x.pass, img: passImg(env, x.pass) }));
-  // Payment QR codes only for a confirmed, unpaid registration, and only those the organizer uploaded.
-  let pay = [];
-  if (r.status === 'confirmed' && env.REG_QR_KEY) {
-    const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
-    pay = (await payNames(env, r)).map(n => ({ name: n, img: base + '/social/reg/qr/' + encodeURIComponent(n) + '?k=' + encodeURIComponent(env.REG_QR_KEY) }));
-  }
-  const d = JSON.parse(r.data);
-  const rest = r.status === 'confirmed' || r.status === 'cash' ? Math.max(0, r.amount - await paidSum(env, r.id)) : 0;
-  return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
-    updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang, ev), pay, passes } });
+  const email = String(u.email).toLowerCase(), practice = ev.mode === 'practice';
+  // 实习 (platform step 5): 「我的实习报名（n/5）」, each with its number, state and entry codes; otherwise the one registration
+  const rows = practice ? ((await env.SDB.prepare("SELECT * FROM reg WHERE event=? AND email=? AND stage='practice' ORDER BY id").bind(ev.id, email).all()).results || [])
+    : [await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND email=? ORDER BY (status=\'cancelled\'), id DESC LIMIT 1').bind(ev.id, email).first()].filter(Boolean);
+  const more = practice ? { practice: { mine: rows.length, max: PRACTICE_MINE } } : {};
+  if (!rows.length) return json({ email: u.email, name: u.name, reg: null, ...more, ...(practice ? { regs: [] } : {}) });
+  const one = async r => {
+    const passes = (await passesOf(env, r)).map(x => ({ name: x.name, items: x.items, pass: x.pass, img: passImg(env, x.pass) }));
+    // Payment QR codes only for a confirmed, unpaid registration, and only those the organizer uploaded (never in 实习).
+    let pay = [];
+    if (r.status === 'confirmed' && env.REG_QR_KEY) {
+      const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+      pay = (await payNames(env, r)).map(n => ({ name: n, img: base + '/social/reg/qr/' + encodeURIComponent(n) + '?k=' + encodeURIComponent(env.REG_QR_KEY) }));
+    }
+    const d = JSON.parse(r.data);
+    const rest = r.status === 'confirmed' || r.status === 'cash' ? Math.max(0, r.amount - await paidSum(env, r.id)) : 0;
+    return { code: r.code, lang: r.lang, people: r.people, rest, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
+      updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang, ev), pay, passes };
+  };
+  if (!practice) return json({ email: u.email, name: u.name, reg: await one(rows[0]) });
+  const regs = []; for (const r of rows) regs.push(await one(r));
+  return json({ email: u.email, name: u.name, reg: regs[regs.length - 1], regs, ...more });
 }
 export async function regSubmit(req, env, b, json, kit) {
   const u = await kit.user(req, env);
@@ -813,12 +839,27 @@ export async function regSubmit(req, env, b, json, kit) {
   if (b && b.website) return json({ ok: true });   // honeypot
   const r = evaluate(b, env, Date.now(), await getEvent(env, b && b.event));
   if (r.error) return json(r, 400);
+  // 实习: only with the 实习报名链接's code; without it the page says 「即将开放」 (《TP 实习方案（v2）》)
+  const stage = regStage(r.ev);
+  let pr = null;
+  if (b && b.practice && stage !== 'practice') return json({ error: 'practice_over' }, 403);   // the 实习 link ends with the 实习
+  if (stage === 'practice') {
+    pr = practiceOf(await settingsOf(env, r.ev.id));
+    if (!pr || String((b && b.practice) || '') !== pr.code) return json({ error: 'not_open', practice: true }, 403);
+  }
   const ts = nowIso(), data = JSON.stringify(r.data);
-  const live = () => env.SDB.prepare("SELECT * FROM reg WHERE event=? AND email=? AND status<>'cancelled' ORDER BY id DESC LIMIT 1").bind(r.ev.id, email).first();
+  // 实习: the latest of one's practice registrations, or none when 「再报一笔」 asks for another (up to 5)
+  const live = () => stage === 'practice'
+    ? (b.another ? Promise.resolve(null) : env.SDB.prepare("SELECT * FROM reg WHERE event=? AND email=? AND stage='practice' ORDER BY id DESC LIMIT 1").bind(r.ev.id, email).first())
+    : env.SDB.prepare("SELECT * FROM reg WHERE event=? AND email=? AND status<>'cancelled' ORDER BY id DESC LIMIT 1").bind(r.ev.id, email).first();
   let reg = null, ex = await live();
   if (!ex) {
-    reg = await addReg(env, r, u.id, email, data, ts);
+    reg = await addReg(env, r, u.id, email, data, ts, stage, pr);
     if (reg) await log(env, reg.id, 'submit');
+    else if (stage === 'practice') {
+      const mine = (await env.SDB.prepare("SELECT COUNT(*) n FROM reg WHERE event=? AND stage='practice' AND (email=? OR user_id=?)").bind(r.ev.id, email, u.id).first()).n;
+      return json(mine >= PRACTICE_MINE ? { error: 'practice_mine_full', max: PRACTICE_MINE } : { error: 'practice_full', cap: pr.cap }, 409);
+    }
     else if (!(ex = await live())) return json({ error: 'busy' }, 409);
   }
   if (ex) {
@@ -1384,7 +1425,7 @@ const trimDevices = (env, kind, id, max, why, guard, args = []) => env.SDB.prepa
 // Before migration 0028 there is no person_id: everyone has one role, exactly as before.
 const pkey = (kind, id) => kind + ':' + id;
 const pkeyOf = s => { const m = /^(admin|staff):(\d+)$/.exec(String(s || '')); return m ? { kind: m[1], id: +m[2] } : null; };
-const noColumn = e => /no such column/i.test(String(e && e.message));
+const noColumn = e => /no such column|has no column named/i.test(String(e && e.message));   // reading / writing a column a migration adds
 // every role of the person whose sign-in row this is: that row first, then the others in the order they were given
 async function rolesOf(env, kind, home) {
   const out = [{ kind, row: home }];
@@ -1434,7 +1475,7 @@ function namesFor(ev) {
   for (const c of Object.keys(ev.items || {})) if (!order.includes(c)) order.push(c);
   return { items: order.map(c => [c, N[c] || c]), pkgs: Object.fromEntries(Object.keys(ev.pkgs || {}).map(k => [k, N[k] || k])) };
 }
-const evInfo = ev => { const d = evDays(ev) || {}; return { id: ev.id, name: ev.name.zh, name_en: ev.name.en, short: evShort(ev), starts: d.from, ends: d.to, color: evColor(ev), desk_ends: ev.deskEnds }; };
+const evInfo = ev => { const d = evDays(ev) || {}; return { id: ev.id, name: ev.name.zh, name_en: ev.name.en, short: evShort(ev), starts: d.from, ends: d.to, color: evColor(ev), desk_ends: ev.deskEnds, mode: ev.mode || undefined }; };
 const evEnds = ev => Date.parse((ev && ev.deskEnds) || '') || (evDays(ev) ? Date.parse(evDays(ev).to + 'T23:59:59+08:00') : 0) || Infinity;
 function pickRole(list, evId) {
   if (evId) return list.find(r => r.ev.id === evId) || null;
@@ -1877,13 +1918,24 @@ async function platformEvent(env, ev) {
   const qr = await qrHave(env, ev), page = await pageLive(env, ev);
   const hasForm = Object.keys(ev.items || {}).length > 0 && Object.keys(ev.pkgs || {}).length > 0;
   const locked = row ? !!row.locked_at : code;   // 北京's form is written in the code (open since 12/1)
-  const practice = !!s.practice_cleared, ended = !!days && days.to < todayBj();
+  const mode = ev.mode || (live ? 'live' : 'test'), practicing = mode === 'practice', pr = practiceOf(s);
+  const practice = !!s.practice_cleared && !practicing, ended = !!days && days.to < todayBj();
+  // 实习 and 测试 data waiting to be cleared (before migration 0029 nothing is marked, and there is no 实习)
+  const marked = { practice: 0, test: 0 }; let hasStage = true;
+  try { for (const x of (await env.SDB.prepare("SELECT stage,COUNT(*) n FROM reg WHERE event=? AND stage IN ('practice','test') GROUP BY stage").bind(ev.id).all()).results || []) marked[x.stage] = x.n; }
+  catch (e) { if (!noColumn(e)) throw e; hasStage = false; }
+  // 测试 → 实习 needs ①–④ (spec v0.6: a step only after the ones before it)
+  const practiceGate = [
+    { key: 'page', ok: page, text: '活动网页已上线' },
+    { key: 'form', ok: locked, text: '报名表已定案' },
+    { key: 'chief', ok: !!chief && t.verified, text: '总管已验证' },
+    { key: 'event_mail', ok: !!t.event_mail_ok, text: '活动专属邮箱已绑定' }];
   const steps = [
     { n: 1, done: true, todo: '' },
     { n: 2, done: page, todo: '活动网页还没上线（/event/' + ev.slug + '/）' },
     { n: 3, done: locked, todo: hasForm ? '报名表还没定案' : '报名表还没填（场次、套餐）' },
     { n: 4, done: !!chief && t.verified && t.event_mail_ok, todo: !chief ? '还没任命总管' : !t.chief ? '总管邮箱还没填' : !t.verified ? '总管邮箱还没验证' : '活动专属邮箱还没绑定' },
-    { n: 5, done: practice, todo: !row && code ? '按「搬进平台」（1225 实测算作实习）' : '还没实习（第 5 步做好后才能实习）' },
+    { n: 5, done: practice, todo: practicing ? '实习中（练完按「结束实习并清空」）' : !row && code ? '按「搬进平台」（1225 实测算作实习）' : '还没实习（①到④完成后，在设定里按「切到实习」）' },
     { n: 6, done: live, todo: '还没切正式' },
     { n: 7, done: ended, todo: '活动结束后自动完成' }];
   const first = steps.find(x => !x.done && x.n < 7);
@@ -1892,16 +1944,19 @@ async function platformEvent(env, ev) {
     { key: 'form', ok: locked, text: '报名表已定案' },
     { key: 'qr', ok: qr.length > 0, text: '收款码已上传' },
     { key: 'chief', ok: !!chief && t.verified, text: '总管已验证' },
-    { key: 'practice', ok: practice, text: '实习已清空' }];
+    { key: 'practice', ok: practice && !marked.practice && !marked.test, text: practice && marked.test ? `实习已清空（之后又有 ${marked.test} 笔测试报名，先「清空测试资料」）` : '实习已清空' }];
   return { ...evInfo(ev), card: (row && row.card) || ev.card || '', slug: ev.slug, prefix: ev.prefix, city: ev.city || '',
-    mode: ev.mode || (live ? 'live' : 'test'), mode_from: row && row.mode ? 'platform' : 'REG_LIVE', in_platform: !!row, adoptable: !row && code, status: row ? row.status : 'open',
+    mode, mode_from: row && row.mode ? 'platform' : 'REG_LIVE', in_platform: !!row, adoptable: !row && code, status: row ? row.status : 'open',
     locked_at: (row && row.locked_at) || undefined, chief: chief ? { name: chief.name, email: t.chief, verified: t.verified } : null,
     event_mail: t.event_mail ? { addr: t.event_mail, ok: t.event_mail_ok } : null,
     counts: { total: Object.values(counts).reduce((a, x) => a + x, 0), people, ...counts }, overdue, mail_failed: mailFailed, qr,
     page: { url: siteBase(env) + '/event/' + ev.slug + '/', live: page },
     steps: steps.map(x => ({ n: x.n, done: x.done, text: x.done ? '' : x.todo })),
     next: first ? '下一步：' + STEP_MARK[first.n - 1] + ' ' + first.todo : live && !ended ? '报名进行中' : '',
-    gate, can_live: !live && !!row && gate.every(g => g.ok), form: formOf(env, ev), sign: (ev.letters && ev.letters.zh && ev.letters.zh.sign) || '' };
+    gate, can_live: !live && !!row && !practicing && gate.every(g => g.ok), form: formOf(env, ev), sign: (ev.letters && ev.letters.zh && ev.letters.zh.sign) || '',
+    practice_gate: practiceGate, can_practice: !!row && mode === 'test' && hasStage && practiceGate.every(g => g.ok), has_stage: hasStage, marked,
+    practice: practicing && pr ? { code: pr.code, cap: pr.cap, at: pr.at, count: marked.practice, mine: PRACTICE_MINE, link: siteBase(env) + '/event/' + ev.slug + '/register/?practice=' + pr.code } : null,
+    can_clear: hasStage && !live && (practicing || marked.practice + marked.test > 0) };
 }
 // letters TP sent today (Beijing date) about registrations: to registrants, and each copy and notice
 async function mailsToday(env) {
@@ -1916,7 +1971,7 @@ function cardFacts(b) {
   const name = { zh: str(b.name && b.name.zh, 80), en: str(b.name && b.name.en, 120) }, starts = str(b.starts, 10), ends = str(b.ends, 10) || starts;
   return { name: { zh: name.zh || name.en, en: name.en || name.zh }, starts, ends, city: str(b.city, 60) };
 }
-export async function regPlatform(req, env, url, b, json) {
+export async function regPlatform(req, env, url, b, json, kit) {
   const p = url.pathname.slice('/social/admin/tp'.length);
   if (!adminOK(req, env)) return json({ error: bearer(req).startsWith('dev:') ? 'owner_only' : 'auth' }, bearer(req).startsWith('dev:') ? 403 : 401);
   const who = ownerName(env);
@@ -1994,13 +2049,115 @@ export async function regPlatform(req, env, url, b, json) {
     return u.meta.changes ? json({ ok: true, locked_at: at }) : json({ error: 'changed' }, 409);
   }
   // 测试 → 正式 only, with the five checks; the order is fixed and 正式 never goes back (spec v0.6 「模式」)
+  if (p === '/mode' && b.mode === 'practice') {
+    if (row.mode === 'practice') return json({ ok: true, mode: 'practice' });
+    if (row.mode === 'live') return json({ error: 'live' }, 409);   // 正式期间不开实习
+    const pe = await platformEvent(env, ev);
+    if (!pe.has_stage) return json({ error: 'not_ready' }, 503);
+    if (!pe.practice_gate.every(g => g.ok)) return json({ error: 'not_ready', gate: pe.practice_gate }, 409);
+    const code = practiceCode(), cap = Math.min(30, Math.max(5, Number(b.cap) || 10)), at = nowIso();
+    const u = await env.SDB.prepare("UPDATE reg_event SET mode='practice',updated_at=?,updated_by=? WHERE id=? AND (mode IS NULL OR mode='test')").bind(at, who, ev.id).run();
+    if (!u.meta.changes) return json({ error: 'changed' }, 409);
+    await setSetting(env, ev.id, 'practice', `${code}|${cap}|${at}`, who);
+    await setSetting(env, ev.id, 'practice_cleared', '', who);   // a new round: ⑤ again only once it is cleared
+    const now = await getEvent(env, ev.id), link = siteBase(env) + '/event/' + now.slug + '/register/?practice=' + code;
+    return json({ ok: true, mode: 'practice', code, cap, link, letter: await practiceLetter(env, kit, now, link, cap) });
+  }
+  // the cap in all while practising (5–30)
+  if (p === '/practice') {
+    const pr = practiceOf(await settingsOf(env, ev.id));
+    if (row.mode !== 'practice' || !pr) return json({ error: 'not_practising' }, 409);
+    const cap = Math.min(30, Math.max(5, Number(b.cap) || 0));
+    if (!Number(b.cap) || cap !== Number(b.cap)) return bad('cap');
+    await setSetting(env, ev.id, 'practice', `${pr.code}|${cap}|${pr.at}`, who);
+    return json({ ok: true, cap });
+  }
+  // 「结束实习并清空」 (or 「清空测试资料」): first what goes and who is thanked, then, confirmed, only that
+  if (p === '/clear') return clearMarked(env, kit, ev, row, b, json, who);
   if (p === '/mode') {
     if (b.mode !== 'live') return json({ error: 'bad_mode' }, 400);
     if (row.mode === 'live') return json({ ok: true, mode: 'live' });
+    if (row.mode === 'practice') return json({ error: 'practising' }, 409);   // clear first: 测试 → 实习 → 清空 → 正式
     const pe = await platformEvent(env, ev);
     if (!pe.gate.every(g => g.ok)) return json({ error: 'not_ready', gate: pe.gate }, 409);
     const at = nowIso(), u = await env.SDB.prepare("UPDATE reg_event SET mode='live',status='open',updated_at=?,updated_by=? WHERE id=? AND (mode IS NULL OR mode='test')").bind(at, who, ev.id).run();
     return u.meta.changes ? json({ ok: true, mode: 'live' }) : json({ error: 'changed' }, 409);
   }
   return json({ error: 'not_found' }, 404);
+}
+
+// ---------- 实习 (platform step 5; Drive 《TP 实习方案（v2）》, spec v0.6 「模式」「清空与感谢信」, Shiao 2026-11-24/25) ----------
+// 测试 → 实习 → 结束实习并清空 → 正式. The real 总管、经理、前台 practise on the usual pages with practice registrations
+// (numbered <prefix>P-0001, at most the cap in all and 5 per person, made only with the 实习报名链接); then the 管理员
+// clears them, the helpers are thanked, the organizers get a summary, and the event is back in 测试, ready for 正式.
+// The registration page's own practice screens come with the shared registration page (Shiao 2026-11-25).
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // no 0/O, 1/I
+const practiceCode = () => [...crypto.getRandomValues(new Uint8Array(6))].map(x => CODE_CHARS[x % CODE_CHARS.length]).join('');
+// addresses that only exist in tests and examples: no thank-you there
+const fakeAddr = a => /@(?:example\.(?:com|org|net)|(?:[^@]+\.)?(?:test|invalid|example|localhost))$/i.test(String(a || ''));
+const PRACTICE_PLAN = ['1 甲：确认，一次付清，门口签到（经理、前台）', '2 甲带 1 位同行者：确认，付清，两人各自扫码签到（经理、前台）', '3 甲：确认，分两次付（经理）',
+  '4 乙：确认后改成到场付款；门口前台扫码被挡，经理扫码收款，再签到（经理、前台）', '5 乙：先候补，再确认（经理）', '6 乙：婉拒（经理）',
+  '7 丙：确认，付清，取消，记退款（总管）', '8 丙：回复确认信并附截图（寄到活动专属邮箱）；总管从转来的信回信（总管）', '9 丙只报一个场次：门口扫到没报的场次，被挡下（前台）', '10 备用：自由练习'];
+// when 实习 starts: the link and the plan to the organizers (总管邮箱, 副本邮箱, 管理员), marked [实习]
+async function practiceLetter(env, kit, ev, link, cap) {
+  const t = await mailTo(env, ev.id, ev), name = ev.name.zh;
+  const text = `你好：\n\n管理员已把「${name}」切到实习。真的总管、经理、前台用平常的管理页和签到页练习；画面顶上会有黄色横幅，资料在实习结束后清空。\n\n` +
+    `实习报名链接（只发给参加实习的人，各用自己的邮箱和手机）：\n${link}\n全场最多 ${cap} 笔，每人最多 ${PRACTICE_MINE} 笔；编号带 P（例如 ${ev.prefix}P-0001）。实习报名不付款，信里不会有真的收款码。\n\n` +
+    `建议的 10 笔分配（3 个人：甲、乙、丙）：\n${PRACTICE_PLAN.join('\n')}\n\n各职务练什么：\n` +
+    `总管：审核、记收款、批准到场付款、取消与退款、看护照姓名、导出、以活动名义回信、任免经理和前台。\n经理：确认、候补、婉拒、分两次收款、批准到场付款、名单和备注、签到页扫码收款、撤销签到。\n前台：登入签到页、选场次、扫码签到、同一个码扫两次、扫到没付清的、扫到没报的场次。\n\n` +
+    `练完由管理员按「结束实习并清空」：实习报名和它们的收款、签到、纪录全部删除，团队帐号、登入的手机和设定都留着；清空后才能切正式。`;
+  let n = 0;
+  for (const x of recipients(t)) { const d = route(t, x); try { await kit.deliver(env, d.to, d.pre + `实习开始：${name}`, text, undefined, undefined, { fromName: '探戈通 Tango Pass', replyTo: replyFor(env, t) }); n++; } catch (e) { console.log('practice letter', String(e && e.message || e).slice(0, 120)); } }
+  return n;
+}
+// the thank-you after clearing: zh and en, straight to the helper, replies to the event mailbox (spec v0.6)
+function thankLetter(env, ev, row, what, codes) {
+  const zh = what === 'practice' ? '实习' : '测试', en = what === 'practice' ? 'practice' : 'test', open = row && row.open_at ? bjDate(row.open_at) : '';
+  const page = regPage(env, ev), sign = (ev.letters && ev.letters.zh && ev.letters.zh.sign) || evFrom(ev);
+  return { subject: `${ev.name.zh}：${zh}完成，谢谢帮忙 · ${what === 'practice' ? 'Practice' : 'Test'} finished, thank you`,
+    text: `你好：\n\n「${ev.name.zh}」的${zh}已经完成，谢谢你帮忙！你的${zh}报名（${codes.join('、')}）和入场码已经清空、失效，请不要拿来入场。` +
+      (open ? `正式报名 ${open} 开放：${page}` : '正式报名开放时会另外公告。') + `有问题直接回这封信。\n\n` +
+      `Hello,\n\nThe ${en} for "${ev.name.en}" is finished. Thank you for helping! Your ${en} registration (${codes.join(', ')}) and its entry codes have been cleared and no longer work: please do not use them at the door. ` +
+      (open ? `Registration opens on ${open}: ${page}` : 'We will announce when registration opens.') + ` If you have a question, just reply to this email.\n\n${sign}` };
+}
+async function clearMarked(env, kit, ev, row, b, json, who) {
+  if (row.mode === 'live') return json({ error: 'live' }, 409);
+  const what = row.mode === 'practice' ? 'practice' : 'test';
+  let regs;
+  try { regs = (await env.SDB.prepare("SELECT id,code,email,people,stage FROM reg WHERE event=? AND stage IN ('practice','test') ORDER BY id").bind(ev.id).all()).results || []; }
+  catch (e) { if (noColumn(e) || noTable(e)) return json({ error: 'not_ready' }, 503); throw e; }
+  const sub = "SELECT id FROM reg WHERE event=? AND stage IN ('practice','test')";
+  const n = async sql => (await env.SDB.prepare(sql).bind(ev.id).first()).n;
+  const counts = { regs: regs.length, people: regs.reduce((a, r) => a + (r.people || 0), 0),
+    payments: await n(`SELECT COUNT(*) n FROM reg_payment WHERE reg_id IN (${sub})`), checkins: await n(`SELECT COUNT(*) n FROM reg_checkin WHERE reg_id IN (${sub})`),
+    records: await n(`SELECT COUNT(*) n FROM reg_log WHERE reg_id IN (${sub}) AND substr(action,1,4)<>'mail' AND substr(action,1,4)<>'copy'`),
+    mails: await n(`SELECT COUNT(*) n FROM reg_log WHERE reg_id IN (${sub}) AND (substr(action,1,4)='mail' OR substr(action,1,4)='copy')`) };
+  // who is thanked: in 实习 everyone who made a practice registration; in 测试 those on the 测试名单 who registered
+  const t = await mailTo(env, ev.id, ev), list = new Set(t.test_list), by = new Map();
+  for (const r of regs) { const a = String(r.email || '').toLowerCase(); if (!a || (what === 'test' && !list.has(a))) continue; if (!by.has(a)) by.set(a, []); by.get(a).push(r.code); }
+  const thank = [...by].filter(([a]) => !fakeAddr(a)).map(([email, codes]) => ({ email, codes })), skipped = [...by.keys()].filter(fakeAddr);
+  if (b.confirm !== true) return json({ ok: true, preview: true, what, mode: row.mode, counts, thank, skipped });
+  const want = new Set((Array.isArray(b.thank) ? b.thank : []).map(x => String(x).toLowerCase()));
+  const out = await env.SDB.batch([
+    env.SDB.prepare(`DELETE FROM reg_checkin WHERE reg_id IN (${sub})`).bind(ev.id),
+    env.SDB.prepare(`DELETE FROM reg_payment WHERE reg_id IN (${sub})`).bind(ev.id),
+    env.SDB.prepare(`DELETE FROM reg_log WHERE reg_id IN (${sub})`).bind(ev.id),
+    env.SDB.prepare("DELETE FROM reg WHERE event=? AND stage IN ('practice','test')").bind(ev.id)]);
+  const cleared = { regs: out[3].meta.changes, payments: out[1].meta.changes, checkins: out[0].meta.changes, logs: out[2].meta.changes }, at = nowIso();
+  if (what === 'practice') {   // back to 测试, ⑤ done, the link gone
+    await env.SDB.prepare("UPDATE reg_event SET mode='test',updated_at=?,updated_by=? WHERE id=? AND mode='practice'").bind(at, who, ev.id).run();
+    await setSetting(env, ev.id, 'practice', '', who);
+    await setSetting(env, ev.id, 'practice_cleared', `${at}|${cleared.regs}`, who);
+  }
+  let thanked = 0, failed = 0;
+  for (const x of thank.filter(x => want.has(x.email))) {
+    const l = thankLetter(env, ev, row, what, x.codes);
+    try { await kit.deliver(env, x.email, l.subject, l.text, undefined, undefined, { fromName: evFrom(ev), replyTo: replyFor(env, t) }); thanked++; }
+    catch (e) { failed++; console.log('thank-you', String(e && e.message || e).slice(0, 120)); }
+  }
+  const zh = what === 'practice' ? '实习' : '测试';
+  const sum = `你好：\n\n管理员（${who}）已清空「${ev.name.zh}」的${zh}资料：${cleared.regs} 笔报名（${counts.people} 人）、${cleared.payments} 笔收款、${cleared.checkins} 次签到、${cleared.logs} 条纪录；` +
+    `寄了 ${thanked} 封感谢信${failed ? `（${failed} 封没寄出）` : ''}。活动设定、报名表、收款码、邮箱、团队帐号都留着。` + (what === 'practice' ? '\n\n实习已完成，现在回到测试；五项把关都完成后，管理员就可以切正式。' : '');
+  for (const x of recipients(t)) { const d = toOrganizer(t, x.addr); try { await kit.deliver(env, d.to, d.pre + `${zh}资料已清空：${ev.name.zh}`, sum, undefined, undefined, { fromName: '探戈通 Tango Pass', replyTo: replyFor(env, t) }); } catch (e) { console.log('clear summary', String(e && e.message || e).slice(0, 120)); } }
+  return json({ ok: true, what, cleared, thanked, failed, mode: what === 'practice' ? 'test' : row.mode });
 }
