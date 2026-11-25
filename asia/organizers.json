@@ -113,5 +113,444 @@
     "classes_note": "Structured classes 5 days a week. Ask TangoBang on WeChat for times and levels.",
     "classes_note_zh": "每周 5 天系统教学，具体时间和级别请向探戈帮询问。",
     "classes": []
+  },
+  {
+    "id": "allen-ma",
+    "name": "Allen Ma",
+    "name_zh": "大马",
+    "city": "Beijing",
+    "city_zh": "北京",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Allen Ma",
+      "大马"
+    ],
+    "auto": true
+  },
+  {
+    "id": "gou-chen",
+    "name": "Gou Chen",
+    "name_zh": "勾陳",
+    "city": "Beijing",
+    "city_zh": "北京",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Gou Chen",
+      "勾陳"
+    ],
+    "auto": true
+  },
+  {
+    "id": "simona-wu",
+    "name": "Simona Wu",
+    "name_zh": "思萌",
+    "city": "Beijing",
+    "city_zh": "北京",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Simona Wu",
+      "思萌"
+    ],
+    "auto": true
+  },
+  {
+    "id": "tayfun",
+    "name": "Tayfun",
+    "name_zh": "台风",
+    "city": "Beijing",
+    "city_zh": "北京",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Tayfun",
+      "台风"
+    ],
+    "auto": true
+  },
+  {
+    "id": "xiao-wu",
+    "name": "Xiao Wu",
+    "name_zh": "小舞",
+    "city": "Beijing",
+    "city_zh": "北京",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Xiao Wu",
+      "小舞"
+    ],
+    "auto": true
+  },
+  {
+    "id": "lei-lei",
+    "name": "Lei Lei",
+    "name_zh": "雷雷",
+    "city": "Chengdu",
+    "city_zh": "成都",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Lei Lei",
+      "雷雷"
+    ],
+    "auto": true
+  },
+  {
+    "id": "pop",
+    "name": "POP",
+    "name_zh": "POP",
+    "city": "Guangzhou",
+    "city_zh": "广州",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "POP",
+      "POP"
+    ],
+    "auto": true
+  },
+  {
+    "id": "emily",
+    "name": "Emily",
+    "name_zh": "Emily",
+    "city": "Hangzhou",
+    "city_zh": "杭州",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Emily",
+      "Emily"
+    ],
+    "auto": true
+  },
+  {
+    "id": "benny-leung",
+    "name": "Benny Leung",
+    "name_zh": "Benny Leung",
+    "city": "Hong Kong",
+    "city_zh": "香港",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Benny Leung",
+      "Benny Leung"
+    ],
+    "auto": true
+  },
+  {
+    "id": "carly-chiu",
+    "name": "Carly Chiu",
+    "name_zh": "Carly Chiu",
+    "city": "Hong Kong",
+    "city_zh": "香港",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Carly Chiu",
+      "carly"
+    ],
+    "auto": true
+  },
+  {
+    "id": "liang-yili",
+    "name": "Liang Yili",
+    "name_zh": "梁毅力",
+    "city": "Hong Kong",
+    "city_zh": "香港",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Liang Yili",
+      "梁毅力"
+    ],
+    "auto": true
+  },
+  {
+    "id": "ray-rudowski",
+    "name": "Ray Rudowski",
+    "name_zh": "Ray Rudowski",
+    "city": "Hong Kong",
+    "city_zh": "香港",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Ray Rudowski",
+      "Ray Rudowski"
+    ],
+    "auto": true
+  },
+  {
+    "id": "stacy",
+    "name": "Stacy",
+    "name_zh": "스테이시",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Stacy",
+      "스테이시"
+    ],
+    "auto": true
+  },
+  {
+    "id": "gaby",
+    "name": "Gaby",
+    "name_zh": "Gaby",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Gaby",
+      "Gaby"
+    ],
+    "auto": true
+  },
+  {
+    "id": "nam",
+    "name": "Nam",
+    "name_zh": "Nam",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Nam",
+      "Nam"
+    ],
+    "auto": true
+  },
+  {
+    "id": "shelley-hou",
+    "name": "Shelley Hou",
+    "name_zh": "Shelley Hou",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Shelley Hou",
+      "Shelley Hou"
+    ],
+    "auto": true
+  },
+  {
+    "id": "sissi-zheng",
+    "name": "Sissi Zheng",
+    "name_zh": "Sissi Zheng",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Sissi Zheng",
+      "Sissi Zheng"
+    ],
+    "auto": true
+  },
+  {
+    "id": "wing",
+    "name": "Wing",
+    "name_zh": "Wing",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Wing",
+      "Wing"
+    ],
+    "auto": true
+  },
+  {
+    "id": "zhengzhong",
+    "name": "Zhengzhong",
+    "name_zh": "正中",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Zhengzhong",
+      "正中"
+    ],
+    "auto": true
+  },
+  {
+    "id": "aykut",
+    "name": "Aykut",
+    "name_zh": "Aykut",
+    "city": "Shenzhen",
+    "city_zh": "深圳",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Aykut",
+      "Aykut"
+    ],
+    "auto": true
+  },
+  {
+    "id": "miranda",
+    "name": "Miranda",
+    "name_zh": "Miranda",
+    "city": "Shenzhen",
+    "city_zh": "深圳",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "instagram": "",
+      "facebook": "",
+      "wechat": "",
+      "soundcloud": ""
+    },
+    "match": [
+      "Miranda",
+      "Miranda"
+    ],
+    "auto": true
   }
 ]

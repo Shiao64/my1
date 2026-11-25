@@ -45,7 +45,7 @@ def dates(s, e, zh):
 # else a person (not a group) in asia/organizers.json -> /organizer/<id>/ (e.g. 刘峥 is organizer and DJ).
 # Same name matching as cardB.js profileOf(): name, name_zh, match[], ignoring case, spaces and punctuation.
 _PROF = None
-def _pkey(n): return re.sub(r'[^a-z0-9\u4e00-\u9fff]', '', str(n or '').lower())
+def _pkey(n): return re.sub(r'[^a-z0-9\u4e00-\u9fff\uac00-\ud7a3]', '', str(n or '').lower())
 def profile_href(name, zh):
     global _PROF
     if _PROF is None:
