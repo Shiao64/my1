@@ -25,7 +25,8 @@
 
 ## 0.6 微信资讯收集（11/20 交给 Grok Bot；**11/25 起 Grok Bot 全部暂停**）
 
-- **11/25 现状（用户定）**：探戈助理（Grok Bot「探戈雷达」）的微信资讯收集**全部暂停**。现在微信群资讯由 MBA 上的 Claude 定时任务「MBA 读微信」（computer use，每次运行要 Shiao 批准一次）写成摘要，再由「交仓库」任务交进 data/inbox/（分支 answer/wechat-…-mba）。交仓库只读 Mac 上 /Users/shiao/Documents/微信摘要/ 的摘要和海报，已处理的记在 已交仓库.md。下面 11/20 的安排留作记录。
+- **11/25 现状（用户定）**：探戈助理（Grok Bot「探戈雷达」）的微信资讯收集**全部暂停**。现在微信群资讯由 MBA 上的 Claude 定时任务「读微信」（旧名「微信群摘要」；computer use，每次运行要 Shiao 批准一次）写成摘要，再由「交收件箱」任务（旧名「微信摘要交仓库」）交进 data/inbox/（分支 answer/wechat-…-mba）。交收件箱只读 Mac 上 /Users/shiao/Documents/微信摘要/ 的摘要和海报，已处理的记在 已交仓库.md。下面 11/20 的安排留作记录。
+- **整条线的名字（11/25 Shiao 定）**：**读微信 → 交收件箱 → 资料更新 → 上线检查**。读微信、交收件箱是 MBA 上的 Claude 任务（名字要在 MBA 上改；文件夹 `Documents/微信摘要/`、`已交仓库.md` 是实际文件名，不改）；资料更新是 GitHub 上的 Claude（`inbox.yml`，PR 标题「资料更新：…」，旧称「探戈助理答复」）；上线检查是 `tools/inbox_autocheck.py`（Python，不是 AI）。交收件箱开的 PR 标题用「交收件箱：…」（11/25 前是「微信摘要交仓库：…」）。
 
 - **11/20 改回**：当天原本计划停掉 Grok Bot、改由 MBA（MacBook Air）上的 Claude 用 Computer use 定时抓微信，但那边**每次都要用户人工点一下才能跑，没法自动**，所以交回给 Grok Bot。**Grok Bot 只执行「探戈雷达」（它在 Cursor 里的任务名称）：微信群的探戈活动收集，交答复进 `data/inbox/`**（用户 11/20 定）：不写邮件、不私信主办，也不做每月名单核对（每月核对改由 Claude 做，见第 2 节「每月快过期名单」）。规则在协作须知第七节。
 - **交法不变**：按 `data/inbox/README.md` 的格式，一件事一个 md（海报同名 .jpg），分支 `answer/…` 开 PR，只改 `data/inbox/`，走自动检查和上线流程；不直接改网站资料（除非用户说「你直接改」）。11/20 的 #318（`answer/2026-11-20-wechat-poster-1945`）就是这样交的。
@@ -45,7 +46,7 @@
 - 信里所有邮箱地址都隐藏，md 只写称呼；原始邮件不存。名单外、冒名、自动回复：不收、不回信。
 - **公众号文章链接（11/21 用户定）**：答复（来信或探戈助理）里有 mp.weixin.qq.com 文章链接时，inbox.yml 在 Claude 处理前先跑 `tools/wechat_article.py`：打开文章，把正文加进答复的「## 公众号文章（自动读取）」（邮箱、电话隐藏），图片（最多 8 张、去掉小图标和 gif）存成 `<答复名>-wx<k>-<n>.jpg`，当附件用。读不到（微信要验证、文章删了）就在答复里写「读取失败」，PR 等 Shiao 看。测试 `python3 tools/test_wechat_article.py`。只寄链接也行，但微信偶尔挡 GitHub 的机器，重要的最好附海报。
 - **「等 Shiao 看」要 @Shiao64（11/24 用户定）**：自动处理的 PR 是 claude[bot] 开的，`inbox.yml` 留的「这次没有自动上线」留言原本不会通知 Shiao（#425 Shiao 没收到）。现在留言开头加 `@Shiao64`，GitHub 会寄信、手机 GitHub App 会推送。以后别的自动流程要 Shiao 决定时，也要在留言里 @Shiao64。
-- **微信摘要交仓库（11/23 起）**：Shiao 的 Mac（Peggy的MacBook Air）上有两个 Claude 任务：「微信群摘要」每天 8:54、11:54、20:54 用 Computer use 读 5 个微信群，摘要存在 Mac 的 `Documents/微信摘要/`（只给 Shiao 看，不碰仓库）；「微信摘要交仓库」不定时、手动跑，把摘要里中国大陆和香港的新活动、变更照 `data/inbox/README.md` 交进 `data/inbox/`（分支 `answer/wechat-…-mba`，PR 标题「微信摘要交仓库：…」，例 #424、#427）。和探戈助理的「探戈雷达」可能交到同一件事，交之前要查重。
+- **交收件箱（11/23 起，旧名「微信摘要交仓库」）**：Shiao 的 Mac（Peggy的MacBook Air）上有两个 Claude 任务：「读微信」每天 8:54、11:54、20:54 用 Computer use 读 5 个微信群，摘要存在 Mac 的 `Documents/微信摘要/`（只给 Shiao 看，不碰仓库）；「交收件箱」不定时、手动跑，把摘要里中国大陆和香港的新活动、变更照 `data/inbox/README.md` 交进 `data/inbox/`（分支 `answer/wechat-…-mba`，PR 标题「交收件箱：…」，11/25 前是「微信摘要交仓库：…」，例 #424、#427）。和探戈助理的「探戈雷达」可能交到同一件事，交之前要查重。
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
@@ -125,7 +126,7 @@
 
 - **新会话先接仓库**：本环境默认连不到 `Shiao64/my1`（gh 会回 403）。先调用 `add_repo`（owner `Shiao64`、repo `my1`、access `push`），再 `git clone --depth 1 https://github.com/Shiao64/my1 /home/claude/my1`（给长一点的超时），然后 `register_repo_root`。
 - 开分支 → commit → `git -c push.negotiate=true push` → `gh api repos/Shiao64/my1/pulls …` 开 PR → `gh api -X PUT …/pulls/N/merge -f merge_method=merge`（偶尔回 connection reset，再查一次 PR 状态，通常已合并）。
-- 要改「探戈助理答复」PR 的内容：`git fetch origin +refs/heads/inbox-run-<n>:refs/remotes/origin/inbox-run-<n>`，在上面 commit，`git push origin <本地分支>:inbox-run-<n>`，再合并（#151 这样做过）。
+- 要改「资料更新」（旧称「探戈助理答复」）PR 的内容：`git fetch origin +refs/heads/inbox-run-<n>:refs/remotes/origin/inbox-run-<n>`，在上面 commit，`git push origin <本地分支>:inbox-run-<n>`，再合并（#151 这样做过）。
 - 接上仓库后，gh **可以**读 Actions 记录：`gh api "repos/Shiao64/my1/actions/runs?per_page=10"`。不能删分支（仓库里留着已合并的旧分支，无害）。详细 log 还是要用内置浏览器（用户的 GitHub 已登录），原始记录用「View raw logs」。
 - 本环境的终端和 WebFetch 都连不到 `data.tangoweekend.org`（R2）；确认上传是否完成，看 Actions 里「R2 sync」的结果，或用内置浏览器打开正式网站（tangoweekend.org 要先 `request_access`；内置浏览器的 navigate／javascript 有时会被自动安全检查挡下，挡下就改用本地 Playwright 验证）。
 - 仓库里有一个已合并的旧分支叫 `inbox`，所以**分支名不能用 `inbox/` 开头**（探戈助理用 `answer/`）。
@@ -141,7 +142,8 @@
 
 （11/16–11/17 的状态记录、各个 PR 的经过已移到 `docs/atm-log.md`。）
 
-- 流程：探戈助理把答复放在 `answer/...` 分支开 PR → `inbox-guard.yml` 只准改 `data/inbox/`，通过就自动合并并启动 `inbox.yml` → Claude Code Action（秘密 `CLAUDE_CODE_OAUTH_TOKEN`，用户的 Pro 方案，约 2027-11 到期）处理答复，开「探戈助理答复：…」PR → `tools/inbox_autocheck.py` 判断能不能自动上线。
+- 流程：答复（MBA「交收件箱」、huodong@ 来信、Shiao 交的；11/25 前是探戈助理）放在 `answer/...` 分支开 PR → `inbox-guard.yml` 只准改 `data/inbox/`，通过就自动合并并启动 `inbox.yml` → Claude Code Action（秘密 `CLAUDE_CODE_OAUTH_TOKEN`，用户的 Pro 方案，约 2027-11 到期）处理答复，开「资料更新：…」PR（11/25 改名，旧称「探戈助理答复」；程序只认分支 `inbox-run-*`，不认标题）→ `tools/inbox_autocheck.py`（「上线检查」）判断能不能自动上线。
+- **在 PR 留言教「资料更新」（11/25 Shiao 定）**：`.github/workflows/inbox-comment.yml`。Shiao64 在 `inbox-run-*` PR 留言、开头写 `@claude`，Claude 在同一个分支照留言改，回复改前→改后（开头 @Shiao64），不合并。留言写「以后都这样」，规则一起写进 `data/inbox/README.md` 第八节「Shiao 定的规则」，跟这个 PR 一起合并生效。别人留言（仓库公开）、不是 `@claude` 开头的、别的 PR 都不理。留言内容存成文件给 Claude 读，不直接放进流程设定。Shiao 本人说的，可以删除、隐藏、改固定资料；仍不能改 .github、程序、寄信。收到留言会先按 👀。
 - **探戈助理用的是用户自己的 GitHub 帐号 `Shiao64`**（#143、#145、#150、#153 都是这个帐号开的），不用加 `allowed_bots`。
 - **单场的变动用 `temp_notices` 写在那一天**，不改整张周常卡的固定字段（11/16 用户定；换海报时按海报改 `dj` 是例外，见第 2 节）。
   - **活动前的通知（11/25 Shiao 定）**：主办在活动前发的加场内容（加表演、换 DJ、改时间、票价）一律加到**当天那张卡**的 `temp_notices`，不另建卡。改了 DJ／时间／费用的写 `status:"changed"` 加 `dj`、`time`、`fee`、`fee_en`（卡上当天字段会换掉）；只是文字的不写 status。两种的标签一律是「新通知 · M/D」（11/25 Shiao：不用「临时变更」「通知」等别的字）。两种都从现在起显示到那一天：活动卡（cardB.js）和日常列表（atm-home.js 的 `noticeTag`）都有标签。临时**多出来的一场**才建一次性活动卡（例：11/28 Tango Palace Martin y Mauge E202）。

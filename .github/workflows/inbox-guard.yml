@@ -1,6 +1,6 @@
-name: Inbox guard (探戈助理)
+name: Inbox guard
 
-# 探戈助理 (Grok bot) sends organizer answers as a PR from a branch named answer/...
+# Answers (Mac WeChat-summary task, huodong@ mail, Shiao) arrive as a PR from a branch named answer/...
 # This check lets that PR through only if it touches data/inbox/ and nothing else.
 # If it passes, the PR is merged and the "Inbox process" workflow is started.
 # If it fails, nothing is merged and a comment explains why.
@@ -30,7 +30,7 @@ jobs:
           echo "$files"
           bad=$(echo "$files" | grep -v '^data/inbox/' || true)
           if [ -n "$bad" ]; then
-            printf '探戈助理的 PR 只能改 data/inbox/。这些文件不在里面，所以没有合并：\n\n%s\n' "$bad" > msg.txt
+            printf '交答复的 PR 只能改 data/inbox/。这些文件不在里面，所以没有合并：\n\n%s\n' "$bad" > msg.txt
             gh pr comment "$PR" -R "${{ github.repository }}" -F msg.txt
             echo "::error::PR touches files outside data/inbox/"
             exit 1

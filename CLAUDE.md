@@ -14,7 +14,7 @@
 - 不要把密码、token、订阅者名单、主办个人联络方式放进仓库（仓库是公开的）。
 
 ## 同时有几方在改这个仓库
-- claude.ai「ATM」项目里的 Claude（云端对话）、本机的 Claude Code、GitHub 上自动处理答复的 Claude（分支 `inbox-run-*`）。还有**探戈助理（Grok Bot，在 Cursor 里跑）**：**11/25 起微信资讯收集全部暂停**（Shiao 定）；它以前交到 `data/inbox/`（分支 `answer/…`），`cursor/…` 分支也是它开的。现在微信群资讯改由 MBA 上的 Claude 定时任务「MBA 读微信」写摘要，「交仓库」任务交进 `data/inbox/`（分支 `answer/wechat-…-mba`）。邮件入口改为 huodong@tangoweekend.org（见交接说明 0.6、0.7 节）。
+- claude.ai「ATM」项目里的 Claude（云端对话）、本机的 Claude Code、GitHub 上自动处理答复的 Claude「资料更新」（分支 `inbox-run-*`）。还有**探戈助理（Grok Bot，在 Cursor 里跑）**：**11/25 起微信资讯收集全部暂停**（Shiao 定）；它以前交到 `data/inbox/`（分支 `answer/…`），`cursor/…` 分支也是它开的。现在整条线叫 **读微信 → 交收件箱 → 资料更新 → 上线检查**（11/25 Shiao 定名）：MBA 上的 Claude 任务「读微信」写摘要、「交收件箱」交进 `data/inbox/`（分支 `answer/wechat-…-mba`），GitHub 上的 Claude「资料更新」改资料开 PR，`tools/inbox_autocheck.py`「上线检查」决定能不能自动上线。邮件入口改为 huodong@tangoweekend.org（见交接说明 0.6、0.7 节）。
 - 开工先 `git fetch`，看 `git log origin/main` 和开着的 PR；**不要直接推 main**，用分支 + PR。
 - 分支名不能以 `inbox/` 开头。
 - 重要改动写进 `docs/atm-handoff.md`（claude.ai 项目里有一份副本，由云端那边的 Claude 同步）。
