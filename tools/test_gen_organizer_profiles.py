@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for tools/gen_organizer_profiles.py distinct_slots() (Shiao 2026-11-25: 不同时段的 2 场以上).
+"""Tests for tools/gen_organizer_profiles.py distinct_types() (Shiao 2026-11-25: 举办 2 种（含）以上不同活动).
 
     python3 tools/test_gen_organizer_profiles.py
 """
@@ -7,36 +7,29 @@ import os, sys
 
 sys.dont_write_bytecode = True
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from gen_organizer_profiles import distinct_slots  # noqa: E402
+from gen_organizer_profiles import distinct_types  # noqa: E402
 
 
-def W(i, days, time='20:00–24:00'):
-    return {'id': i, 'kind': 'weekly', 'weekdays': days, 'time': time}
-
-
-def D(i, day, time='20:00–24:00', **kw):
-    return dict({'id': i, 'kind': 'event', 'start': day, 'end': day, 'time': time}, **kw)
+def C(t, **kw):
+    return dict({'type': t}, **kw)
 
 
 CASES = [
-    ('两个每周活动，不同星期几', [W('a', [6]), W('b', [3])], 2),
-    ('两张卡同一个每周时段（重复卡）', [W('a', [6]), W('b', [6])], 1),
-    ('同一天、不同时间（下午、晚上）', [W('a', [6], '15:30–18:30'), W('b', [6], '21:00–02:00')], 2),
-    ('一张每周卡开两天，仍算一张', [W('a', [3, 0])], 1),
-    ('单场是自己每周舞会的主题夜（theme_of）', [W('a', [2]), D('b', '2026-11-10', theme_of='a')], 1),
-    ('单场和自己每周舞会同一星期几、同一开始时间', [W('a', [6]), D('b', '2026-11-28')], 1),  # 11/28 是周六
-    ('单场在别的日子', [W('a', [6]), D('b', '2026-11-26')], 2),
-    ('两个单场，不同日期', [D('a', '2026-11-14'), D('b', '2026-11-21')], 2),
-    ('两个单场，同日同时间（重复卡）', [D('a', '2026-11-14'), D('b', '2026-11-14')], 1),
-    ('两届周末活动，不同年份', [D('a', '2026-10-23', time=''), D('b', '2027-10-22', time='')], 2),
-    ('没有日期也没有时间的卡各算一张', [{'id': 'a', 'kind': 'event'}, {'id': 'b', 'kind': 'event'}], 2),
+    ('舞会 + 练习', [C('milonga'), C('practica')], 2),
+    ('舞会 + 组团', [C('milonga'), C('grouptrip')], 2),
+    ('几场舞会只算一种', [C('milonga'), C('milonga'), C('milonga'), C('milonga')], 1),
+    ('同一个探戈节两届只算一种', [C('festival', start='2026-10-23'), C('festival', start='2027-10-22')], 1),
+    ('探戈节两届 + 每周舞会', [C('festival'), C('festival'), C('milonga', kind='weekly')], 2),
+    ('舞会 + practilonga', [C('milonga'), C('practilonga'), C('milonga')], 2),
+    ('大小写、空格不算不同', [C('Milonga'), C(' milonga ')], 1),
+    ('没有 type 的卡不算', [C('milonga'), {'id': 'x'}], 1),
 ]
 
 
 def main():
     bad = 0
     for name, cards, want in CASES:
-        got = distinct_slots(cards)
+        got = distinct_types(cards)
         ok = got == want
         bad += not ok
         print('%s  %s：%d（应为 %d）' % ('ok  ' if ok else 'FAIL', name, got, want))

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Organizer profile pages for everyone who runs 2+ events (Shiao 2026-11-25).
+"""Organizer profile pages for everyone who runs 2+ kinds of activity (Shiao 2026-11-25).
 
     python3 tools/draft_entities.py                  # first: it decides who is the same person
     python3 tools/gen_organizer_profiles.py          # write
@@ -7,10 +7,11 @@
 
 Runs every day at 03:17 Beijing in .github/workflows/poster-prune.yml (Shiao 2026-11-25).
 
-A person in data/entities-draft/organizers.json (groups are in groups.json, not there) with
-`min_cards` or more cards that are not hidden, at different time slots (distinct_slots(); Shiao
-2026-11-25: 不同时段的 2 场以上), and whose `region` is in `regions` (Shiao 2026-11-25: mainland China
-only for now, not Hong Kong / Taiwan / Korea), and not listed in data/organizer-pages.json `skip`, gets:
+A person in data/entities-draft/organizers.json (groups are in groups.json, not there) whose cards that
+are not hidden and whose `region` is in `regions` (Shiao 2026-11-25: mainland China only for now, not
+Hong Kong / Taiwan / Korea) have `min_types` or more different activity types (distinct_types(); Shiao
+2026-11-25: 举办 2 种（含）以上不同活动, e.g. a milonga and a practica), and who is not listed in
+data/organizer-pages.json `skip`, gets:
   - an entry in asia/organizers.json: name, name_zh, match; photo / bio / links empty; "auto": true
   - /organizer/<id>/ and /zh/organizer/<id>/ (same shell as the hand-made pages)
 Cards then link the organizer's name to that page (cardB.js orgNamesHtml), and the page lists the
@@ -25,7 +26,7 @@ Photo and bio start empty; the page shows 照片待补充 / 介绍待补充 unti
 Before writing, it checks that the page's own name matching (dj-page.js matches()) finds exactly the
 person's cards; a person where it does not is skipped and reported.
 """
-import datetime, html, json, os, re, sys
+import html, json, os, re, sys
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 P = lambda *a: os.path.join(ROOT, *a)
@@ -60,49 +61,12 @@ def slug_of(name):
     return s
 
 
-# 2026-11-25 (Shiao): the 2+ must be at different times (不同时段的 2 场以上). Two cards for the same
-# time slot count once: a weekly card's slot is weekday + start time; a one-off's is date + start time;
-# a one-off that is a theme night of the person's own weekly (theme_of, or same weekday and start time)
-# adds nothing. One weekly card on two weekdays is still one card.
-_T0 = re.compile(r'(\d{1,2})[:：](\d{2})')
-
-
-def _start_time(e):
-    m = _T0.search(str(e.get('time') or ''))
-    return '%02d:%s' % (int(m.group(1)), m.group(2)) if m else ''
-
-
-def _weekdays(e):
-    w = e.get('weekdays')
-    if w:
-        return list(w)
-    return [e['weekday']] if e.get('weekday') is not None else []
-
-
-def distinct_slots(cards):
-    """How many of these cards (event dicts) are at different time slots."""
-    weekly = [e for e in cards if e.get('kind') == 'weekly']
-    weekly_ids = {e.get('id') for e in weekly}
-    weekly_slots = {('w', w, _start_time(e)) for e in weekly for w in _weekdays(e)}
-    used, n = set(), 0
-    for e in weekly + sorted((e for e in cards if e.get('kind') != 'weekly'), key=lambda e: e.get('start') or ''):
-        if e.get('kind') == 'weekly':
-            slots = {('w', w, _start_time(e)) for w in _weekdays(e)} or {('id', e.get('id'))}
-        else:
-            if e.get('theme_of') in weekly_ids:
-                continue
-            day = e.get('start') or ''
-            try:
-                wd = datetime.date.fromisoformat(day).isoweekday() % 7  # Sunday = 0, as in the JSON
-            except ValueError:
-                wd = None
-            if wd is not None and ('w', wd, _start_time(e)) in weekly_slots:
-                continue
-            slots = {('d', day, _start_time(e))} if day else {('id', e.get('id'))}
-        if slots - used:
-            n += 1
-            used |= slots
-    return n
+# 2026-11-25 (Shiao): 举办 2 种（含）以上不同活动 — at least two different kinds of activity, by the card's
+# `type` (milonga, practica, practilonga, festival, marathon, grouptrip, workshop, event, ...). Several milongas,
+# or two editions of the same festival, are one kind. (This replaced the earlier "2 cards at different times".)
+def distinct_types(cards):
+    """How many different activity types (card `type`) these cards (event dicts) have."""
+    return len({str(e.get('type')).strip().lower() for e in cards if e.get('type')})
 
 
 def shell_bits():
@@ -162,7 +126,7 @@ def add_past(path, lang):
 
 def plan():
     cfg = load('data/organizer-pages.json')
-    need, skip = int(cfg.get('min_cards', 2)), {key(k) for k in cfg.get('skip', {})}
+    need, skip = int(cfg.get('min_types', 2)), {key(k) for k in cfg.get('skip', {})}
     regions = set(cfg.get('regions') or [])
     events = load('asia/events.json')
     byid = {e['id']: e for e in events}
@@ -199,7 +163,7 @@ def plan():
     add, kept, warn, fill = [], [], [], []
     for o in sorted(draft, key=lambda o: o['id']):
         cards = sorted(i for i in o.get('events', []) if i in byid and not byid[i].get('hidden'))
-        if distinct_slots([byid[i] for i in cards if not regions or byid[i].get('region') in regions]) < need:
+        if distinct_types([byid[i] for i in cards if not regions or byid[i].get('region') in regions]) < need:
             continue
         names = [n for n in (o.get('name_en'), o.get('name_local')) if n]
         if {key(n) for n in names} & skip:

@@ -908,7 +908,7 @@
           '<a class="atm-all" href="' + esc(allH) + '">' + esc(allT) + ' <span aria-hidden="true">→</span></a><a class="atm-nf-feat" href="' + esc(base + '?mode=featured' + kr + '&via=card') + '">' + (isZh ? '★ 大型活动' : '★ Special events') + '</a></div>' + mini;
         /* 2026-11-25 (Shiao): an ended card still links to its organizer's profile page (/organizer/<id>/), above the main button. */
         (function(cardEl){ var names = [].concat(r && r.organizers || [], r && r.organizers_en || []); if (!cardEl || !names.length) return;
-          fetch('/asia/organizers.json?v=o13').then(function(res){ return res.json(); }).then(function(list){
+          fetch('/asia/organizers.json?v=o14').then(function(res){ return res.json(); }).then(function(list){
             var k = function(s){ return String(s || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff\uac00-\ud7a3]/g, ''); }, seen = {}, out = [];
             names.forEach(function(n){ String(n).split(/\s*(?:、|\+|＆|&|\/|,|;)\s*/).forEach(function(x){ var kx = k(x); if (!kx) return; (list || []).forEach(function(p){ if (!p || p.kind === 'group' || seen[p.id]) return; if ([p.name, p.name_zh].concat(p.match || []).some(function(y){ return k(y) === kx; })) { seen[p.id] = 1; out.push(p); } }); }); });
             if (!out.length) return;
