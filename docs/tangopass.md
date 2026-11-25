@@ -160,7 +160,7 @@
 
 | 部分 | 位置 |
 |---|---|
-| 报名页 | `event/beijing-2027-tango-weekend/register/draft/`（12/1 搬到 `register/`）；5 种语言 `?lang=en/ko/es/ru/zh`；`?demo=1` 不连后台；`?api=http://localhost:8787` 连本机 |
+| 报名页 | `event/beijing-2027-tango-weekend/register/`（12/1 起；北京时间 12/1 00:00 以前显示开放时间；旧的 `draft/` 和中文预告页 `zh/register/` 转到这里）；5 种语言 `?lang=en/ko/es/ru/zh`；`?demo=1` 不连后台；`?api=http://localhost:8787` 连本机 |
 | 管理页 | `…/register/admin/`（各自的密码；按职务显示） |
 | 签到页 | `…/register/checkin/`（前台专属连结，或管理密码） |
 | 地图首页提醒条 + 点 LOGO 入场码 | `asia/reg-notice.js`（`asia/index.html`、`zh/asia/index.html` 一起改 `?v=`） |
@@ -252,7 +252,7 @@
 - 11/24 info@ 回信已实测 OK（Shiao，有截图）：报名信按「回复」会寄到 info@tangoweekend.org，Shiao 收得到。
 - 11/24 活动专属邮箱 bstw2027@tangoweekend.org 已绑定（北京时间 21:24，测试信 2 秒回来）。实测：管理员回复副本 → 以活动名义寄给报名者（含截图）成功；报名者回信转给组织者那一步还没测成（那封回信没有寄到 bstw2027@，待查）。
 - 待办：测试阶段新规则（方案 1225）11/24 已上线（第十三次部署）；照 Google 文件《1225》实测（填副本邮箱、测试名单，刘峥在自己邮箱打开任命信验证）；决定国内微信码；境外卡手续费与限额；B5（看码须验证码登录，Year End 后定）；韩西俄文校对；管理页「修改」画面；Chris 的 3 个问题（Shiao：先不回答）；Year End 资料（刘峥）；实地测试（Google《实地测试计划》）。
-- 12/1 上线清单：报名页搬到 `register/`（`reg-notice.js` 的 `PAGE`、`register.js` 的 `regPage` 一起改，`draft/` 留转址并保留 ?lang 和 #pay／#passes，免得已寄出的信点错）；设 `REG_LIVE=1`；清掉测试资料（报名、收款、签到、测试副总管、现场经理与前台）；检查活动页按钮、DJ 信与付款信的连结；设置页「活动邮箱」看总管邮箱是不是「已验证」：总管在自己邮箱打开过任命信的就不用再做，只有当初在测试信箱代点的才要按「重寄任命信」（验证前管理员照收）；清空测试名单。
+- 12/1 上线：照下面「12/1 切换步骤」（11/30 白天做，00:00 自己打开）。
 
 ## 测试模式和正式的差别（2026-11-23 整理）
 
@@ -284,14 +284,27 @@
 
 **测试工具**：`…/register/draft/?demo=1` 只看画面、不连后台、什么都不寄；`?api=http://localhost:…` 连本机后台。
 
-**12/1 切换清单**（11/30 先问 Shiao；改后端、Cloudflare 都要先问）
-1. 记 D1 书签。
-2. 清测试资料：列出测试报名、收款、签到、处理纪录，以及测试用的副总管、现场经理、前台和登入的手机，Shiao 确认后才删。保留收款码、正式工作人员、网站会员账号。
-3. 报名页搬到 `register/`，拿掉测试横幅，`draft/` 转址；改 `reg-notice.js` 的 `PAGE`、`register.js` 的 `regPage`；部署后台、合并网页（地图页换 `?v=`）。
-4. Cloudflare 设 `REG_LIVE=1`。
-4a. 设置页「活动邮箱」：确认总管邮箱、副本邮箱；总管邮箱显示「已验证」就好（总管在自己邮箱打开过任命信的，上线后照样算）。只有当初在测试信箱代点的，才按「重寄任命信」请总管打开新信，验证前管理员照收。清空测试名单。之后再决定要不要关「管理员也收信」。
-5. 检查：活动页报名按钮、DJ 信、确认信、付款信里的连结都到 `register/`；报名页没有测试横幅。
-6. 用自己的邮箱报一笔：信寄到本人、标题没有 [TEST]；看完取消、删掉。
+**12/1 切换步骤**（2026-11-25 Shiao 定；11/30 北京时间白天做，每一步做之前先问 Shiao；改后端、Cloudflare 都要先问）
+做法：11/30 白天就把东西都放上去，报名页和活动页的按钮到**北京时间 12/1 00:00 自己打开**，后台在正式模式下也挡 00:00 以前的报名；半夜不用有人守。中国大陆的舞者 12/1 起也能报名，系统不拦，团队人工审核（Shiao 11/25）。
+1. 开工：`git fetch`，确认 main 的 worker 程序没有别人新改；把上线 PR 接到最新的 main。
+2. 记 D1 书签：`subscribe-worker/` 里 `npx wrangler@3 d1 time-travel info tango-subscribe`。
+3. 清测试资料。Shiao 11/25 确认：线上 27 笔报名（BJ27-0001 到 0027）**全是测试**。先数一次（11/25 是 27 笔报名、6 笔收款、2 次签到、114 条纪录；之后又多的测试报名先列给 Shiao 看），对得上才删：
+   ```sql
+   DELETE FROM reg_checkin WHERE reg_id IN (SELECT id FROM reg WHERE event='bstw2027');
+   DELETE FROM reg_payment WHERE reg_id IN (SELECT id FROM reg WHERE event='bstw2027');
+   DELETE FROM reg_log WHERE reg_id IN (SELECT id FROM reg WHERE event='bstw2027');
+   DELETE FROM reg WHERE event='bstw2027';
+   ```
+   留着：3 张收款码、张竟文和刘峥的账号和手机、活动邮箱设定、网站会员账号。没有测试用的工作人员要删（11/25 查过）。删完正式编号从 BJ27-0001 开始。
+4. 部署 worker（上线 PR 的后台：信里「回到报名页」改成 `register/`；正式模式下 12/1 00:00 以前回 `not_open_yet`）。
+5. Cloudflare 设 `REG_LIVE=1`（Shiao 同意）。从这时起：信直接寄报名者本人、不加「[TEST]」「[测试]」，测试名单不起作用；00:00 以前没人报得进来。
+6. 合并上线 PR（网页）：报名页搬到 `register/`（拿掉测试横幅、可被搜寻；00:00 前显示开放时间，时间到自己打开报名表）；`draft/` 转到 `register/`（保留 `?lang`、`#pay`／`#passes`）；中文预告页 `zh/register/` 转到 `register/?lang=zh`；中英文活动页的报名按钮 00:00 自己打开；地图提醒条 `reg-notice.js` 指向 `register/`（两张地图页 `?v=rn10`）。等网页发布完，先看 HTML 里是 `?v=rn10` 再抓 JS（不然 CDN 会把旧档按新版本号缓存一年）。
+7. 设置页「活动邮箱」：总管邮箱（刘峥）11/25 查时**还没验证**，按「重寄任命信」，请刘峥在自己的 QQ 邮箱打开新信（验证前管理员照收所有信）。测试名单已经是空的。之后再决定要不要关「管理员也收信」。
+8. 00:00 以前检查：报名页显示开放时间、没有测试横幅；`draft/`、中文预告页转得过去；活动页按钮还是「即将开放」。
+9. 00:00 以后检查：活动页按钮变「立即报名」「Register now」；用自己的邮箱报一笔：信寄到本人、标题没有 [TEST]、信里连结到 `register/`；看完在管理页取消、再删掉。
+10. 写部署纪录（这一节下面）。
+回退：worker 退回上一版（`npx wrangler@3 rollback`）、拿掉 `REG_LIVE`、网页 revert 上线 PR；删掉的测试资料可以用第 2 步的书签还原（`d1 time-travel restore`）。
+待 Shiao 决定：报名页上饭店写「A.C. Art Museum Hotel」（中文名「奥加美术馆酒店」直译），活动页和 ATM 活动卡写「AC Embassy Hotel」，要不要统一。
 
 ## 部署
 

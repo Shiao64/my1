@@ -357,8 +357,15 @@
 // Countdown to registration opening: Dec 1, 2026 00:00 Beijing time (UTC+8)
 (function(){
   var target = new Date('2026-12-01T00:00:00+08:00').getTime();
+  // 12/1 (Shiao 2026-11-25): at the opening time the button opens by itself, nobody has to change the page at midnight
+  function openReg(){
+    var b = document.getElementById('register-btn'); if (!b || b.dataset.open) return;
+    b.dataset.open = '1'; b.className = 'btn btn-gold'; b.removeAttribute('aria-disabled'); b.setAttribute('href', 'register/'); b.textContent = 'Register now';
+    var l = document.querySelector('.cd-label'); if (l) l.textContent = 'Registration is open';
+  }
   function tick(){
     var diff = target - Date.now();
+    if (diff <= 0) openReg();
     document.querySelectorAll('[data-countdown]').forEach(function(el){
       if (diff <= 0){ el.innerHTML = '<div><b>✓</b><span>Open</span></div>'; return; }
       var d = Math.floor(diff/864e5), h = Math.floor(diff%864e5/36e5), m = Math.floor(diff%36e5/6e4);

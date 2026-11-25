@@ -5,7 +5,7 @@
 (function () {
   var API = 'https://api.tangoweekend.org';
   try { var qa = new URLSearchParams(location.search).get('api'); if (qa && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(qa)) API = qa; } catch (e) {}   // local test only
-  var PAGE = '/event/beijing-2027-tango-weekend/register/draft/';   // 12/1: change to /register/ when the form moves there
+  var PAGE = '/event/beijing-2027-tango-weekend/register/';   // the form since 12/1 (draft/ forwards here)
   var tok = ''; try { tok = localStorage.getItem('atm_session') || ''; } catch (e) {}
   if (!/^[0-9a-f]{64}$/.test(tok)) return;
   var D = document, zh = (D.documentElement.getAttribute('data-asia-lang') || D.documentElement.lang || '').indexOf('zh') === 0;
