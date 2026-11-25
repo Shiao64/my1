@@ -305,14 +305,17 @@ def assess(events, item):
     """Return (event, checks). Raise Refuse when the item must not replace a poster."""
     if not isinstance(item, dict):
         raise Refuse('poster item is not an object')
-    if is_class_ad(item):
+    # 2026-11-25 Shiao: a poster the organizer posted themselves is that event's poster update, so workshops,
+    # festivals and other non-regular events may be replaced too (item from_organizer: true / --from-organizer).
+    from_org = item.get('from_organizer') is True
+    if is_class_ad(item) and not from_org:
         raise Refuse('class ad skipped (课系/大师课/工作坊/workshop)')
     src = str(item.get('image') or item.get('url') or item.get('path') or '').strip()
     if not src:
         raise Refuse('missing image')
     by_id = {e.get('id'): e for e in events if isinstance(e, dict) and e.get('id')}
     event = resolve_event(by_id, item)
-    if not is_regular(event):
+    if not is_regular(event) and not (from_org and not event.get('hidden') and event.get('type') != 'class'):
         why = 'hidden' if event.get('hidden') else 'not a regular milonga/practica/dated one-off'
         raise Refuse('%s (%s %s)' % (why, event.get('id'), event.get('kind')))
     conflict = filename_conflict(src, event['id'], by_id)
@@ -1037,6 +1040,7 @@ def main(argv):
     p.add_argument('--note', default='')
     p.add_argument('--dry-run', action='store_true')
     p.add_argument('--bump-caches', action='store_true')
+    p.add_argument('--from-organizer', action='store_true', help='the organizer posted this poster themselves (allows workshops/festivals)')
     p.add_argument('--today')
     args = p.parse_args(argv)
     items = []
@@ -1048,6 +1052,8 @@ def main(argv):
         if not args.image or not (args.event_id or args.radar_id):
             p.error('a single item needs --image and --event-id or --radar-id')
         one = {'image': args.image, 'note': args.note}
+        if args.from_organizer:
+            one['from_organizer'] = True
         if args.event_id:
             one['event_id'] = args.event_id
         if args.radar_id:

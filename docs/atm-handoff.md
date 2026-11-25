@@ -146,6 +146,7 @@
   - **沿用海报（11/25 Shiao 定，Claude 设计）**：有的周常活动一直用同一张海报。卡上加 `poster_reuse: true`，网站就不标「上期海报」（atm-home.js、cardB.js）。什么时候加：主办这一场又发了**同一张**海报，或海报上只印「每周X」、没印某一场的日期。这一场有别的事（DJ、表演）照「新通知」写 `temp_notices`，海报不动。换海报工具：`radar_yidong.py --reuse` 会设上；换成印着某一场日期的新海报（给了 `--date` 或说明里有日期）会自动拿掉。自动检查把 `poster_reuse` 当安全改动，可以自动上线。
   - **资料互相矛盾**（2026-11-25 Shiao 定）两个来源互相矛盾（例：广州探戈节群文写 880、12/1 截止，网站写 888、12/12）时，**不自己判断哪个对、也不改卡上原来的资料**：把新来源的说法写成那张卡的「新通知」（`temp_notices`，不写 status），文字里写明来源和日期；`date`／`end` 用这件事相关的日子（截止日，或活动第一天），`start` 用今天。这样可以自动上线，不算「要 Shiao 确认」。
   - **有联络方式就先建卡（11/25 Shiao 定）**：新活动有组织者联络方式（contacts）时，只要有名称、城市、日期或每周几、来源就建卡并可自动上线；时间、场地、地址没公布的空着，note 写「详情请直接联络组织者」，不拿别的活动的资料来填。没有联络方式的照旧要资料齐全（inbox_autocheck.check_new）。
+  - **主办自己发的海报就是海报更新（11/25 Shiao 定）**：连工作坊、节、马拉松这些大型活动也照换，可以自动上线。换海报工具加 `--from-organizer`（`radar_poster_update.py`／`radar_yidong.py`；item `from_organizer: true`）。不是主办发的大型活动海报，照旧不换、等 Shiao。
 - ~~**#148**：只要还有没合并的 `inbox-run-*` PR，新的处理就先等，并在那个 PR 下留言；那个 PR 合并后会自动再跑一次。~~ **11/18 改成不排队（用户要求）**：`tools/inbox_queue.py` 找出还没被开着的 `inbox-run-*` PR 处理过的答复，只处理那些；能自动上线的照样上线。改到同一张卡的，后来的 PR 不自动上线，留言等前一个。`inbox-refresh.yml`：main 的活动资料一变（或自动合并后、每日清理后），把还开着的答复 PR 和 main 接上，活动 JSON 按卡合并（PR 自己改的卡用 PR 的，其他用 main 的），草稿名单重新产生；有别的冲突就在 PR 下留言要 Claude 处理。测试：`python3 tools/test_inbox_queue.py`。
 - **#149 + #152 自动上线**（用户 11/16 决定）：`tools/inbox_autocheck.py` 比较 PR 和 main，决定能不能自动合并（不靠处理的 Claude 自己说）。可以自动：
   - PR 说明最后一行「需要确认：无」；只改 `asia/events*.json`、`data/inbox/`、`data/entities-draft/`，或换海报工具产生的文件；

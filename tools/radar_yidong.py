@@ -124,6 +124,7 @@ def main(argv=None):
     p.add_argument('--weekday')
     p.add_argument('--date', dest='event_date')
     p.add_argument('--note', default='')
+    p.add_argument('--from-organizer', action='store_true', help='the organizer posted this poster themselves (allows workshops/festivals)')
     p.add_argument('--reuse', action='store_true', help='organizer keeps using this poster (sets poster_reuse; no 上期海报 badge)')
     p.add_argument('--source', default='radar')
     p.add_argument('--today', default=datetime.date.today().isoformat())
@@ -155,6 +156,8 @@ def main(argv=None):
             one['date'] = args.event_date
         if args.reuse:
             one['reuse'] = True
+        if args.from_organizer:
+            one['from_organizer'] = True
         items.append(one)
     if not args.notes and not items:
         p.error('pass --notes (posters may be []) or one --event-id/--image item')
