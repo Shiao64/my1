@@ -43,7 +43,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          # Answers an open 「收件箱处理」 PR already took are still in data/inbox/ on main until that PR
+          # Answers an open 「资料更新」 PR already took are still in data/inbox/ on main until that PR
           # is merged. Skip those (processing them twice made #144 / #146) and do only the rest, so one
           # PR waiting for Shiao no longer holds up the others.
           git fetch -q origin '+refs/heads/inbox-run-*:refs/remotes/origin/inbox-run-*' || true
@@ -89,7 +89,7 @@ jobs:
 
             这次只处理下面这几份答复（和它们的附件）：
             ${{ steps.new.outputs.files }}
-            data/inbox/ 里其他的 .md 已经由别的「收件箱处理」PR 处理、正在等 Shiao 看，不要处理、不要移动；done/ 里的也不要碰。
+            data/inbox/ 里其他的 .md 已经由别的「资料更新」PR 处理、正在等 Shiao 看，不要处理、不要移动；done/ 里的也不要碰。
 
             你开的 PR 会被 tools/inbox_autocheck.py 检查。只有「补资料、单场提示、齐全的中国大陆／香港新卡」
             而且你在 PR 说明最后写「需要确认：无」时，才会自动上线；其他的会等 Shiao 看。所以照下面做，不要为了自动上线而少写疑问。
@@ -154,7 +154,7 @@ jobs:
             - 把这次处理的答复用 git mv 移到 data/inbox/done/（附件一起移；别的答复不要移）。
             - 跑 python3 tools/draft_entities.py 更新草稿名单。
             - 用 python3 -c "import json;[json.load(open(f)) for f in ['asia/events.json','asia/events-core.json','asia/events-more.json']]" 确认 JSON 没坏。
-            - 新开分支 inbox-run-${{ github.run_id }}，commit，push，然后用 gh pr create 开 PR 到 main，标题以「收件箱处理：」开头。
+            - 新开分支 inbox-run-${{ github.run_id }}，commit，push，然后用 gh pr create 开 PR 到 main，标题以「资料更新：」开头。
               PR 说明写：处理了哪几份答复、每张卡改了什么（改前→改后）、新建了哪些卡、要 Shiao 确认的事。
               说明的最后一行单独写「需要确认：无」或「需要确认：有」（有任何要 Shiao 确认、或没建的卡，就写「有」）。
             - 不要合并 PR。
