@@ -34,7 +34,7 @@ NOTICE_IMG = re.compile(r'^images/(thumb/|thumb800/)?images/asia/posters/notices
 CACHE_FILES = {'asia/index.html', 'zh/asia/index.html', 'asia/asia-map.js', 'asia/atm-home.js', 'asia/cardB.js'}
 NEW_REGIONS = {'China', 'Hong Kong'}
 TYPES = {'milonga', 'practilonga', 'practica', 'festival', 'marathon', 'weekend',
-         'anniversary', 'workshop', 'encuentro'}
+         'anniversary', 'workshop', 'encuentro', 'grouptrip'}  # grouptrip 探戈组团 (Shiao 11/26)
 ALWAYS_OK = {'updated', 'source', 'poster_reuse'}  # poster_reuse only hides the 上期海报 badge (Shiao 11/25)
 ADD_ONLY_LIST = {'temp_notices', 'cancelled_dates'}
 ADD_ONLY_DICT = {'contacts', 'links'}
@@ -303,6 +303,9 @@ def check_new(i, e, old, core, today, reasons):
         reasons.append(f'{tag} 的类型「{e.get("type")}」不在分类里')
     if e.get('hidden') is True:
         reasons.append(f'{tag} 是隐藏的')
+    # 2026-11-26: 探戈组团 is a new, paid kind of card; new ones wait for Shiao
+    if e.get('type') == 'grouptrip':
+        reasons.append(f'{tag} 是探戈组团（新类别），要 Shiao 看过')
     # 2026-11-20 (Shiao): a new card needs at least one way to reach the organizer or check the source
     c = e.get('contacts') or {}
     has_c = bool(c) if isinstance(c, list) else any(not blank(v) for v in c.values())

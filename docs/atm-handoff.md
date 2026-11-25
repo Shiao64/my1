@@ -95,7 +95,7 @@
 - **大活动专页 `/event/<slug>/`（11/20）**：多数由 `tools/gen_detail_pages.py` 从 `asia/events.json` 生成（`SLUGS` 表；`HANDWRITTEN` 里的和不在表里的是手写页，不要用工具覆盖）。只重做某几页：`python3 tools/gen_detail_pages.py E039`，跑完 `git checkout asia/` 把它顺手改的 JSON 还原（`detail` 早已写好）。模板 11/20 改过：日程按天分组成卡片（时间｜场次・DJ，不再用 5 栏表格，手机放得下），过夜场次中文写「次日结束」；场地有多处时（`venue` 用「／」分、地址用「；」分，数目一样）每处单独一块；有日程时说明段标题叫「说明」；英文页用 `venue_en`；`TBC` 场地写「场地待公布」；中文页不输出脸书链接（style.css 本来就隐藏）；主海报不在仓库时改用 data.tangoweekend.org，载不到就整块隐藏。
 - **打开某张卡**：网址加 `?card=<id>`（例 `/zh/asia/?card=E186`）。
 - **主要前端文件**（`asia/`）：
-  - `atm-home.js`：首页（城市胶囊、日常／大型页签、分类、收纳盒、招牌；大型页签底部的订阅卡片）；分类由 `catOf()` 决定（名称优先，其次 type；`encuentro` 算探戈周末，#155）。新版（`html.atm-v2` / `atm-t3`）的标题栏、配色 CSS 也在这里用 `css.textContent +=` 注入；
+  - `atm-home.js`：首页（城市胶囊、日常／大型页签、分类、收纳盒、招牌；大型页签底部的订阅卡片）；分类由 `catOf()` 决定（名称优先，其次 type；`encuentro` 算探戈周末，#155；**`type: "grouptrip"` 一律是「探戈组团」，不看名称**，11/26 Shiao 定，定义见 data/inbox/README.md 第八节）。新版（`html.atm-v2` / `atm-t3`）的标题栏、配色 CSS 也在这里用 `css.textContent +=` 注入；
   - `cardB.js`：活动卡和详情页（类型标签 `P10TN`，`practilonga` 显示「练习舞会」）；`asia-map.js`：列表卡，里面的 `ATM_TH` 是海报缩图尺寸表；
   - `atm-data.js`：读活动资料（R2 优先，失败用仓库里的）；**中文页面在这里把时间里的 `late` 换成「尽兴」**（#157）；
   - `atm-i18n.js`：多语言取字段；`atm-ko.js`：韩文层，按英文原句精确对照翻译，**新增英文界面文字要在这里加韩文**；
