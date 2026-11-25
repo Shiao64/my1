@@ -1,4 +1,4 @@
-/* v11.34 (2026-11-25): 近期大型 strip — up to 6 cards (was 3), poster thumb on the left, scroll-snap with the next card peeking. v11.26 (2026-11-15): fileteado sign in the v2 header instead of the title text. v11.25 (2026-11-15): v2 layout on by default (?v2=0 opts out). v11.22 (2026-11-14): review fixes (overflow, applied-type label, header handoff, a11y). v11.21 (2026-11-14): v2 frozen bar — tabs lay over the scrolled header. v11.20 (2026-11-14): v2 「筛选 ▾」 button instead of long-press / tap-again; tabs + menu stick under the header. v11.15 (2026-11-14): v2 layout test page behind ?v2=1. v11.14 (2026-11-14): CAT_FIX per-event overrides (E123 → workshop). v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
+/* v11.35 (2026-11-26): 探戈组团 (type "grouptrip") is a 大型 category; its list card reads "date · 北京 出发" then "→ destination" (fields destination / destination_en, venue stays empty). v11.34 (2026-11-25): 近期大型 strip — up to 6 cards (was 3), poster thumb on the left, scroll-snap with the next card peeking. v11.26 (2026-11-15): fileteado sign in the v2 header instead of the title text. v11.25 (2026-11-15): v2 layout on by default (?v2=0 opts out). v11.22 (2026-11-14): review fixes (overflow, applied-type label, header handoff, a11y). v11.21 (2026-11-14): v2 frozen bar — tabs lay over the scrolled header. v11.20 (2026-11-14): v2 「筛选 ▾」 button instead of long-press / tap-again; tabs + menu stick under the header. v11.15 (2026-11-14): v2 layout test page behind ?v2=1. v11.14 (2026-11-14): CAT_FIX per-event overrides (E123 → workshop). v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
    search page / favorites layer. Hash routes: '' home, #h-feat, #h-city-<City>, #h-search. Query-string views
    (?card, ?mode, ?city, ?via ...) keep the old list untouched. Cards open the single-card layer (?card=ID). */
 (function () {
@@ -825,7 +825,7 @@
     var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { /* v11.7 H3: header 🔍 removed (route #h-search kept) */ void bS; /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
-  var FULL = '/asia/events.json?v=e259'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
+  var FULL = '/asia/events.json?v=e260'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
   function asList(d) { return Array.isArray(d) ? d : (d && d.events) || []; }
   function favMissing(list) {
     var m = {}, ids = [];
@@ -842,7 +842,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china602';
+    var coreUrl = '/asia/events-core.json?v=china603';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {
