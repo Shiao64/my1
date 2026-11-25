@@ -168,8 +168,13 @@ class T(unittest.TestCase):
         self.assertFalse(self.run_check(self.cards() + [n], core_extra={'E900'})[0])
 
     def test_new_card_missing_address_waits(self):
-        n = self.new_card(venue_address='')
+        n = self.new_card(venue_address='', contacts={}, links={'other': 'https://example.com'})
         self.assertFalse(self.run_check(self.cards() + [n], core_extra={'E900'})[0])
+
+    def test_new_card_with_contact_blank_time_address_goes_live(self):
+        n = self.new_card(venue_address='', time='', venue='STP')
+        ok, why, _ = self.run_check(self.cards() + [n], core_extra={'E900'})
+        self.assertTrue(ok, why)
 
     def test_new_past_card_waits(self):
         n = self.new_card(start='2026-11-10', end='2026-11-10')

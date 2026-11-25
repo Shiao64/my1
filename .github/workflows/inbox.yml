@@ -121,6 +121,7 @@ jobs:
                文章里的二维码、群友照片、个人联络方式不要放进卡片。
             3. 线上没有这张卡：
                - 中国大陆或香港的活动，资料齐全（名称、城市、日期或每周几、开始结束时间、场地名、完整地址（路名门牌或查得到的场地）、来源，加上至少一种联络方式或链接，Shiao 11/20）就新建卡；缺联络方式和链接的不建卡，写进「要 Shiao 确认」。
+               - 有组织者联络方式（contacts）的新活动（Shiao 11/25）：只要有名称、城市、日期或每周几、来源，就先建卡；时间、场地、地址没公布的就空着（time/venue/venue_address 写空字符串），不拿别的活动的资料来填；note_zh 写「某某未公布，详情请直接联络组织者。」（note 写英文）。这不算资料不齐。
                  照现有同类卡的写法：单次活动 id 用下一个 E 编号（kind "event"；日常类的舞会／练习加
                  "regular_oneoff":true,"oneoff_kind":"oneoff"），每周活动用下一个 R 编号（kind "weekly"，weekday/weekdays，0＝周日）。
                  type 只能用 milonga / practilonga / practica / festival / marathon / weekend / anniversary / workshop / encuentro。
@@ -131,7 +132,7 @@ jobs:
                  没写结束时间：time 写「开始时间–late」（例 "20:30–late"，中文页面会显示「20:30–尽兴」），不算资料不齐。
                  海报没印场地名、但地址和已有的卡相同：场地名用那个场地／主办常用的名称（例 杭州凤起路75号303室 → "inTango HangZhou"），不算资料不齐。
                  练习舞会 type 用 "practilonga"。
-               - 资料不齐、看起来可能和现有的卡是同一个活动、或是中国大陆和香港以外的地区：不建卡，写进「要 Shiao 确认」。
+               - 资料不齐又没有组织者联络方式、看起来可能和现有的卡是同一个活动、或是中国大陆和香港以外的地区：不建卡，写进「要 Shiao 确认」。
             4. 同一张卡要在 asia/events.json、asia/events-core.json、asia/events-more.json 里出现的地方都改，
                保持原来的写法（紧凑 JSON，events-more.json 结尾有换行）。
                中国大陆写简体，香港、台湾写繁体；英文地址放 venue_address_en。地址里不要写交通，交通放 directions / directions_en。

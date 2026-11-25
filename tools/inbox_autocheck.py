@@ -286,16 +286,20 @@ def check_new(i, e, old, core, today, reasons):
         reasons.append(f'{tag} 的类型「{e.get("type")}」不在分类里')
     if e.get('hidden') is True:
         reasons.append(f'{tag} 是隐藏的')
-    need = ['name', 'city', 'venue', 'venue_address', 'source']
-    if not (multi_day(e) or e.get('schedule')):
-        need.append('time')  # a festival's times live in its schedule
-    for k in need:
-        if blank(e.get(k)):
-            reasons.append(f'{tag} 缺「{k}」')
     # 2026-11-20 (Shiao): a new card needs at least one way to reach the organizer or check the source
     c = e.get('contacts') or {}
     has_c = bool(c) if isinstance(c, list) else any(not blank(v) for v in c.values())
     has_l = any(not blank(v) for v in (e.get('links') or {}).values())
+    need = ['name', 'city', 'source']
+    # 2026-11-25 (Shiao): with an organizer contact the card can go up first; time, venue and address may stay blank
+    # (visitors ask the organizer). Without a contact they are still required.
+    if not has_c:
+        need += ['venue', 'venue_address']
+        if not (multi_day(e) or e.get('schedule')):
+            need.append('time')  # a festival's times live in its schedule
+    for k in need:
+        if blank(e.get(k)):
+            reasons.append(f'{tag} 缺「{k}」')
     if not (has_c or has_l):
         reasons.append(f'{tag} 没有联络方式也没有链接（至少要一种）')
     if e.get('kind') == 'weekly':
