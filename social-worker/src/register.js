@@ -51,6 +51,7 @@ export const EVENTS = {
     deskEnds: '2027-06-22T22:00:00.000Z',   // 前台 sign-ins end 2027-06-23 06:00 Beijing, after the farewell milonga
     starts: '2027-06-18', ends: '2027-06-22',   // its days (Beijing dates), as on its ATM card E093: 一人多场 never at the same time
     short: { zh: '北京', en: 'Beijing' }, color: '#b3121b',   // in the organizers' subjects, and its band on the shared /tp/ pages
+    card: 'E093',   // its ATM card (平台管理页)
     itemOrder: ['MV', 'T1', 'M1', 'M2', 'M3', 'M4', 'S1', 'T2', 'MF'],   // as the 管理页 lists them: by day
     // where its pages are, what the letters say it is from, and a 单场 needs one of the four weekend milongas
     slug: 'beijing-2027-tango-weekend', regPath: 'register/draft/', from: 'Beijing Select Tango Weekend', singleNeeds: ['M1', 'M2', 'M3', 'M4']
@@ -77,6 +78,7 @@ function eventOfRow(row) {
   const ev = { maxPeople: 6, fee: 0, payDays: 14, remindDay: 10, ...(base || {}), ...cfg, id: row.id };
   if (row.slug) ev.slug = row.slug;
   if (row.mode) ev.mode = row.mode;
+  if (row.card) ev.card = row.card;
   if (typeof ev.earlyEnd === 'string') ev.earlyEnd = Date.parse(ev.earlyEnd);
   if (!EV_NEEDS.every(k => ev[k] && typeof ev[k] === 'object' || k === 'prefix') || !/^[A-Z0-9]{2,6}$/.test(String(ev.prefix || ''))) {
     console.log('reg_event: missing settings', row.id); return base;
@@ -403,10 +405,13 @@ export function letter(kind, reg, env, passes, qrs = [], evIn) {
 }
 const KIND = { recv: 'recv', confirm: 'conf', waitlist: 'wait', decline: 'decl', remind: 'rem', paid: 'paid', cash: 'cash', cancel: 'canc', modify: 'upd' };
 
+// 收款码 per event (platform step 4, spec v0.6): 北京 keeps the names it has; another event's are '<event id>-<name>'.
+const assetName = (ev, name) => !ev || ev.id === 'bstw2027' ? name : ev.id + '-' + name;
 // The payment QR codes for this registration that the organizer uploaded, Alipay first.
 async function payNames(env, reg) {
   if (!env.REG_QR_KEY) return [];
-  const want = String((reg.domestic ? env.REG_QR_CN : env.REG_QR_INTL) || (reg.domestic ? 'cn-alipay,cn-wechat' : 'intl-alipay,intl-wechat')).split(',').map(x => x.trim()).filter(Boolean);
+  const ev = await getEvent(env, reg.event);
+  const want = String((reg.domestic ? env.REG_QR_CN : env.REG_QR_INTL) || (reg.domestic ? 'cn-alipay,cn-wechat' : 'intl-alipay,intl-wechat')).split(',').map(x => x.trim()).filter(Boolean).map(n => assetName(ev, n));
   const have = new Set((((await env.SDB.prepare('SELECT name FROM reg_asset').all()).results) || []).map(x => x.name));
   return want.filter(n => have.has(n));
 }
@@ -445,7 +450,7 @@ async function send(env, kit, reg, action) {
 // address is fixed. Every registration letter and the 新报名 notice go to each of them as a separate letter, never Cc or
 // Bcc, so the registrant sees none of them. The 管理员 may turn their own off (「管理员也收信」), but still gets them
 // while the 总管邮箱 is empty or not verified: verified = the 总管 opened the link in the 任命信, in this same stage.
-const SETTINGS = ['chief_email', 'copy_email', 'admin_copy', 'chief_token', 'chief_verified', 'event_mail', 'event_mail_rule', 'event_mail_token', 'event_mail_ok', 'test_list'];
+const SETTINGS = ['chief_email', 'copy_email', 'admin_copy', 'chief_token', 'chief_verified', 'event_mail', 'event_mail_rule', 'event_mail_token', 'event_mail_ok', 'test_list', 'practice_cleared'];
 const TEST_LIST_MAX = 10;
 const noTable = e => /no such table/i.test(String(e && e.message));
 async function settingsOf(env, evId) {
@@ -1153,8 +1158,9 @@ export async function regAdmin(req, env, url, b, json, kit) {
     if (!can(who, 'asset')) return deny();
     const name = str(b.name, 40), mime = str(b.mime, 40), data = String(b.b64 || '').replace(/^data:[^,]+,/, '');
     if (!/^[a-z0-9-]{2,40}$/.test(name) || !/^image\/(png|jpeg|webp|gif)$/.test(mime) || !data || data.length > 1.4e6) return json({ error: 'bad_asset' }, 400);
-    await env.SDB.prepare('INSERT INTO reg_asset(name,mime,data,updated_at) VALUES(?,?,?,?) ON CONFLICT(name) DO UPDATE SET mime=excluded.mime,data=excluded.data,updated_at=excluded.updated_at').bind(name, mime, data, nowIso()).run();
-    return json({ ok: true, name });
+    const stored = assetName(ev, name);   // this event's own (北京: the name as it is)
+    await env.SDB.prepare('INSERT INTO reg_asset(name,mime,data,updated_at) VALUES(?,?,?,?) ON CONFLICT(name) DO UPDATE SET mime=excluded.mime,data=excluded.data,updated_at=excluded.updated_at').bind(stored, mime, data, nowIso()).run();
+    return json({ ok: true, name: stored });
   }
   if (p === '/act' && req.method === 'POST') {
     const a = String(b.action || '');
@@ -1407,9 +1413,11 @@ async function homeOf(env, kind, row) {
 // The current event: the soonest one not over yet (the events are not at the same time, Shiao 2026-11-24); all over, the last.
 // An event's days (Beijing dates, both ends counted). Shiao 2026-11-25: one person never works two events at the same time.
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
+// a real calendar day (2027-13-01 or 2027-02-30 are not)
+const realDay = v => DAY.test(String(v || '')) && (t => !isNaN(t) && new Date(t).toISOString().slice(0, 10) === v)(Date.parse(v + 'T00:00:00Z'));
 function evDays(ev) {
   const from = ev && ev.starts, to = ev && (ev.ends || ev.starts);
-  return DAY.test(String(from || '')) && DAY.test(String(to || '')) && from <= to ? { from, to } : null;
+  return realDay(from) && realDay(to) && from <= to ? { from, to } : null;
 }
 // what the shared /tp/ pages show of an event: name, short name, days, color, when 前台 sign-ins end
 const PALETTE = ['#1f5fa8', '#1f7a3a', '#7a3fa0', '#b8660a', '#0f7c80', '#a0335a'];
@@ -1821,4 +1829,178 @@ export async function regCheckin(env, b, json, who, asked) {
   if (!fresh) { const had = await env.SDB.prepare('SELECT at,staff FROM reg_checkin WHERE reg_id=? AND person=? AND item=?').bind(x.reg.id, x.p.idx, item).first();
     return json({ error: 'already', at: had && had.at, by: had && had.staff }, 409); }
   return json({ ok: true, at, by });
+}
+
+// ---------- 平台管理页 /tp/ (platform step 4; spec v0.6 「平台管理页」「TP 开通流程」「模式」, Shiao 2026-11-25) ----------
+// Only the 管理员 (the long password). Every event's seven steps and what comes next, the five checks before 正式,
+// events made from an ATM card, 定案 (the form locked for good), 测试 → 正式, 北京 moving in (from then on its mode is
+// the platform's, not REG_LIVE's), and the totals across events. The form itself is filled in by Claude until the
+// 设定页 of phase 2 (spec v0.6, 时程).
+const QR_NAMES = env => [...new Set([env.REG_QR_INTL || 'intl-alipay,intl-wechat', env.REG_QR_CN || 'cn-alipay,cn-wechat'].join(',').split(',').map(x => x.trim()).filter(Boolean))];
+async function qrHave(env, ev) {
+  const want = QR_NAMES(env).map(n => assetName(ev, n));
+  try { return ((await env.SDB.prepare(`SELECT name FROM reg_asset WHERE name IN (${want.map(() => '?')})`).bind(...want).all()).results || []).map(x => x.name); }
+  catch (e) { if (noTable(e)) return []; throw e; }
+}
+// its 活动网页 is up: one look at /event/<slug>/ (a page that is not there answers 404)
+async function pageLive(env, ev) {
+  if (!ev || !ev.slug) return false;
+  try { const r = await fetch(siteBase(env) + '/event/' + ev.slug + '/', { method: 'HEAD', signal: AbortSignal.timeout(6000) }); return r.ok; } catch { return false; }
+}
+async function eventRow(env, id) {
+  try { return await env.SDB.prepare('SELECT * FROM reg_event WHERE id=?').bind(id).first(); } catch (e) { if (noSuchTable(e)) return null; throw e; }
+}
+const todayBj = () => new Date(Date.now() + 288e5).toISOString().slice(0, 10);
+// the form as the 管理员 reads it: sessions, packages, rules (a friend code is never shown, only how many)
+function formOf(env, ev) {
+  const n = namesFor(ev);
+  let codes = 0; try { codes = Object.keys(ev.codes || JSON.parse(env.REG_CODES || '{}')).length; } catch { codes = 0; }
+  return { items: n.items.map(([c, name]) => ({ code: c, name, price: ev.items[c].price, cap: ev.items[c].cap || null })),
+    pkgs: Object.entries(ev.pkgs || {}).map(([k, x]) => ({ key: k, name: n.pkgs[k], price: x.price, covers: x.covers || [] })),
+    rules: { fee: ev.fee || 0, payDays: ev.payDays, remindDay: ev.remindDay, maxPeople: ev.maxPeople, hotel: !!ev.rooms,
+      earlyEnd: ev.earlyEnd ? new Date(ev.earlyEnd).toISOString() : undefined, earlyPrice: ev.earlyPrice, friendPrice: ev.friendPrice, codes } };
+}
+const STEP_MARK = '①②③④⑤⑥⑦';
+async function platformEvent(env, ev) {
+  const row = await eventRow(env, ev.id), code = !!own(EVENTS, ev.id), s = await settingsOf(env, ev.id), t = await mailTo(env, ev.id, ev);
+  const live = isLive(env, ev), days = evDays(ev), now = nowIso();
+  const counts = {}; let people = 0;
+  for (const r of (await env.SDB.prepare('SELECT status,COUNT(*) n,SUM(people) p FROM reg WHERE event=? GROUP BY status').bind(ev.id).all()).results || []) { counts[r.status] = r.n; if (SEATED.includes(r.status)) people += r.p || 0; }
+  const overdue = (await env.SDB.prepare("SELECT COUNT(*) n FROM reg WHERE event=? AND status='confirmed' AND due_at IS NOT NULL AND due_at<?").bind(ev.id, now).first()).n;
+  const unsent = {};   // letters that did not go out, unless the same kind went out later (as on the 管理页)
+  for (const l of (await env.SDB.prepare("SELECT l.reg_id,l.action FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND substr(l.action,1,4)='mail' ORDER BY l.id").bind(ev.id).all()).results || []) {
+    const [state, kind] = l.action.split(':'), m = unsent[l.reg_id] = unsent[l.reg_id] || {};
+    if (state === 'mail_failed') m[kind] = 1; else delete m[kind];
+  }
+  const mailFailed = Object.values(unsent).filter(m => Object.keys(m).length).length;
+  const chief = await env.SDB.prepare("SELECT name FROM reg_admin WHERE event=? AND perms='chief' AND disabled_at IS NULL ORDER BY id LIMIT 1").bind(ev.id).first();
+  const qr = await qrHave(env, ev), page = await pageLive(env, ev);
+  const hasForm = Object.keys(ev.items || {}).length > 0 && Object.keys(ev.pkgs || {}).length > 0;
+  const locked = row ? !!row.locked_at : code;   // 北京's form is written in the code (open since 12/1)
+  const practice = !!s.practice_cleared, ended = !!days && days.to < todayBj();
+  const steps = [
+    { n: 1, done: true, todo: '' },
+    { n: 2, done: page, todo: '活动网页还没上线（/event/' + ev.slug + '/）' },
+    { n: 3, done: locked, todo: hasForm ? '报名表还没定案' : '报名表还没填（场次、套餐）' },
+    { n: 4, done: !!chief && t.verified && t.event_mail_ok, todo: !chief ? '还没任命总管' : !t.chief ? '总管邮箱还没填' : !t.verified ? '总管邮箱还没验证' : '活动专属邮箱还没绑定' },
+    { n: 5, done: practice, todo: !row && code ? '按「搬进平台」（1225 实测算作实习）' : '还没实习（第 5 步做好后才能实习）' },
+    { n: 6, done: live, todo: '还没切正式' },
+    { n: 7, done: ended, todo: '活动结束后自动完成' }];
+  const first = steps.find(x => !x.done && x.n < 7);
+  const gate = [
+    { key: 'page', ok: page, text: '活动网页已上线' },
+    { key: 'form', ok: locked, text: '报名表已定案' },
+    { key: 'qr', ok: qr.length > 0, text: '收款码已上传' },
+    { key: 'chief', ok: !!chief && t.verified, text: '总管已验证' },
+    { key: 'practice', ok: practice, text: '实习已清空' }];
+  return { ...evInfo(ev), card: (row && row.card) || ev.card || '', slug: ev.slug, prefix: ev.prefix, city: ev.city || '',
+    mode: ev.mode || (live ? 'live' : 'test'), mode_from: row && row.mode ? 'platform' : 'REG_LIVE', in_platform: !!row, adoptable: !row && code, status: row ? row.status : 'open',
+    locked_at: (row && row.locked_at) || undefined, chief: chief ? { name: chief.name, email: t.chief, verified: t.verified } : null,
+    event_mail: t.event_mail ? { addr: t.event_mail, ok: t.event_mail_ok } : null,
+    counts: { total: Object.values(counts).reduce((a, x) => a + x, 0), people, ...counts }, overdue, mail_failed: mailFailed, qr,
+    page: { url: siteBase(env) + '/event/' + ev.slug + '/', live: page },
+    steps: steps.map(x => ({ n: x.n, done: x.done, text: x.done ? '' : x.todo })),
+    next: first ? '下一步：' + STEP_MARK[first.n - 1] + ' ' + first.todo : live && !ended ? '报名进行中' : '',
+    gate, can_live: !live && !!row && gate.every(g => g.ok), form: formOf(env, ev), sign: (ev.letters && ev.letters.zh && ev.letters.zh.sign) || '' };
+}
+// letters TP sent today (Beijing date) about registrations: to registrants, and each copy and notice
+async function mailsToday(env) {
+  const from = new Date(Date.parse(todayBj() + 'T00:00:00+08:00')).toISOString();
+  let n = 0;
+  for (const l of (await env.SDB.prepare("SELECT action,detail FROM reg_log WHERE at>=? AND (substr(action,1,5)='mail:' OR substr(action,1,5)='copy:')").bind(from).all()).results || [])
+    n += l.action.startsWith('mail:') ? 1 : String(l.detail || '').split(',').filter(Boolean).length;
+  return n;
+}
+// what an event is called and when, from its ATM card (the page reads the card and sends it)
+function cardFacts(b) {
+  const name = { zh: str(b.name && b.name.zh, 80), en: str(b.name && b.name.en, 120) }, starts = str(b.starts, 10), ends = str(b.ends, 10) || starts;
+  return { name: { zh: name.zh || name.en, en: name.en || name.zh }, starts, ends, city: str(b.city, 60) };
+}
+export async function regPlatform(req, env, url, b, json) {
+  const p = url.pathname.slice('/social/admin/tp'.length);
+  if (!adminOK(req, env)) return json({ error: bearer(req).startsWith('dev:') ? 'owner_only' : 'auth' }, bearer(req).startsWith('dev:') ? 403 : 401);
+  const who = ownerName(env);
+  b = b || {};
+  if (p === '' && req.method === 'GET') {
+    const events = [];
+    try { for (const ev of await listEvents(env)) events.push(await platformEvent(env, ev)); }
+    catch (e) { if (noTable(e)) return json({ error: 'not_ready' }, 503); throw e; }
+    events.sort((x, y) => String(x.starts || '9999').localeCompare(String(y.starts || '9999')) || x.id.localeCompare(y.id));
+    const sum = k => events.reduce((a, e) => a + (k === 'pending' ? e.counts.pending || 0 : e[k] || 0), 0);
+    return json({ ok: true, owner: who, events, totals: { pending: sum('pending'), overdue: sum('overdue'), mail_failed: sum('mail_failed') }, today: { mails: await mailsToday(env) } });
+  }
+  if (req.method !== 'POST') return json({ error: 'not_found' }, 404);
+  const bad = which => json({ error: 'bad_field', which }, 400);
+  // 「从 ATM 卡建立」: ① done, 测试, not open; the form is filled in afterwards
+  if (p === '/events') {
+    // checked as typed: cutting a long one short would let a wrong one through
+    const typed = v => String(v == null ? '' : v).trim();
+    const id = typed(b.id).toLowerCase(), slug = typed(b.slug).toLowerCase(), prefix = typed(b.prefix).toUpperCase(), card = typed(b.card);
+    const f = cardFacts(b), sign = String(b.sign == null ? '' : b.sign).replace(/\r/g, '').trim().slice(0, 300), short = str(b.short, 12) || f.name.zh;
+    if (!/^[a-z0-9]{3,40}$/.test(id)) return bad('id');
+    if (!/^[a-z0-9](?:[a-z0-9-]{1,58}[a-z0-9])$/.test(slug)) return bad('slug');
+    if (!/^[A-Z0-9]{2,6}$/.test(prefix)) return bad('prefix');
+    if (!/^[A-Za-z0-9_-]{1,20}$/.test(card)) return bad('card');
+    if (!f.name.zh) return bad('name');
+    if (!evDays(f)) return bad('dates');
+    const all = await listEvents(env);
+    for (const [k, v] of [['id', id], ['slug', slug], ['prefix', prefix], ['card', card]]) if (all.some(e => e[k] === v)) return json({ error: 'taken', which: k }, 409);
+    const config = { prefix, name: f.name, short: { zh: short }, starts: f.starts, ends: f.ends, city: f.city, from: f.name.en,
+      ...(sign ? { letters: { zh: { sign }, en: { sign } } } : {}), items: {}, pkgs: {} };
+    const now = nowIso();
+    try { await env.SDB.prepare("INSERT INTO reg_event(id,card,slug,mode,status,config,created_at,updated_at,updated_by) VALUES(?,?,?,'test','prep',?,?,?,?)").bind(id, card, slug, JSON.stringify(config), now, now, who).run(); }
+    catch (e) { if (noSuchTable(e)) return json({ error: 'not_ready' }, 503); if (/UNIQUE/i.test(String(e && e.message))) return json({ error: 'taken' }, 409); throw e; }
+    return json({ ok: true, id });
+  }
+  const ev = await getEvent(env, b.event); if (!ev) return json({ error: 'bad_event' }, 400);
+  // 北京 moves in as it is: a row with its card and address, its mode as REG_LIVE has it now, the form taken as 定案,
+  // and the 1225 test with the real team counted as its practice (spec v0.6). Everything else stays in the code.
+  if (p === '/adopt') {
+    if (!own(EVENTS, ev.id)) return json({ error: 'not_code_event' }, 409);
+    if (await eventRow(env, ev.id)) return json({ error: 'already' }, 409);
+    const now = nowIso(), mode = isLive(env, ev) ? 'live' : 'test';
+    try { await env.SDB.prepare("INSERT INTO reg_event(id,card,slug,mode,status,config,locked_at,created_at,updated_at,updated_by) VALUES(?,?,?,?,'open','{}',?,?,?,?)").bind(ev.id, ev.card || null, ev.slug, mode, now, now, now, who).run(); }
+    catch (e) { if (noSuchTable(e)) return json({ error: 'not_ready' }, 503); if (/UNIQUE/i.test(String(e && e.message))) return json({ error: 'already' }, 409); throw e; }
+    await setSetting(env, ev.id, 'practice_cleared', 'migrated|' + now, who);
+    return json({ ok: true, mode });
+  }
+  const row = await eventRow(env, ev.id);
+  if (!row) return json({ error: 'not_in_platform' }, 409);
+  // name and days again from its ATM card; new days must not put anyone working here at two events at once
+  if (p === '/card') {
+    const f = cardFacts(b); if (!f.name.zh) return bad('name'); if (!evDays(f)) return bad('dates');
+    const was = evDays(ev) || {}, next = { ...ev, starts: f.starts, ends: f.ends };
+    if (f.starts !== was.from || f.ends !== was.to) {
+      const clash = [];
+      for (const k of ['admin', 'staff'])
+        for (const r of (await env.SDB.prepare(`SELECT * FROM ${TABLE[k]} WHERE event=? AND disabled_at IS NULL`).bind(ev.id).all()).results || []) {
+          const h = await homeOf(env, k, r); if (!h) continue;
+          const c = sameTime(next, await withEvents(env, await rolesOf(env, h.kind, h.row)));
+          if (c) clash.push({ name: r.name, ...c });
+        }
+      if (clash.length) return json({ error: 'same_time_people', people: clash }, 409);
+    }
+    let cfg = {}; try { cfg = JSON.parse(row.config || '{}'); } catch { cfg = {}; }
+    cfg = { ...cfg, name: f.name, starts: f.starts, ends: f.ends, ...(f.city ? { city: f.city } : {}) };
+    const u = await env.SDB.prepare('UPDATE reg_event SET config=?,updated_at=?,updated_by=? WHERE id=? AND updated_at=?').bind(JSON.stringify(cfg), nowIso(), who, ev.id, row.updated_at).run();
+    return u.meta.changes ? json({ ok: true }) : json({ error: 'changed' }, 409);
+  }
+  // 定案: sessions, prices and packages are locked for good (spec v0.6: what was paid must match the letters)
+  if (p === '/lock') {
+    if (row.locked_at) return json({ error: 'locked', at: row.locked_at }, 409);
+    if (!Object.keys(ev.items || {}).length || !Object.keys(ev.pkgs || {}).length) return json({ error: 'no_form' }, 409);
+    if (!(await pageLive(env, ev))) return json({ error: 'no_page' }, 409);
+    const at = nowIso(), u = await env.SDB.prepare('UPDATE reg_event SET locked_at=?,updated_at=?,updated_by=? WHERE id=? AND locked_at IS NULL').bind(at, at, who, ev.id).run();
+    return u.meta.changes ? json({ ok: true, locked_at: at }) : json({ error: 'changed' }, 409);
+  }
+  // 测试 → 正式 only, with the five checks; the order is fixed and 正式 never goes back (spec v0.6 「模式」)
+  if (p === '/mode') {
+    if (b.mode !== 'live') return json({ error: 'bad_mode' }, 400);
+    if (row.mode === 'live') return json({ ok: true, mode: 'live' });
+    const pe = await platformEvent(env, ev);
+    if (!pe.gate.every(g => g.ok)) return json({ error: 'not_ready', gate: pe.gate }, 409);
+    const at = nowIso(), u = await env.SDB.prepare("UPDATE reg_event SET mode='live',status='open',updated_at=?,updated_by=? WHERE id=? AND (mode IS NULL OR mode='test')").bind(at, who, ev.id).run();
+    return u.meta.changes ? json({ ok: true, mode: 'live' }) : json({ error: 'changed' }, 409);
+  }
+  return json({ error: 'not_found' }, 404);
 }
