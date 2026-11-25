@@ -45,7 +45,6 @@
 21. Qingdao：Wednesday práctica（R253）：缺本地语言地址
 22. Qingdao：青岛周六 Milonga · Tango La Vida（R252）：缺本地语言地址
 23. Shanghai：2026 Milonga 集训营｜周末提升训练营（E203）：缺本地语言地址
-24. Shanghai：iTango 练习舞会（juGlRrW2）：海报最新一期是 2026-10-22，超过 4 周
 
 # 第二部分：其他地区（暂缓）
 
