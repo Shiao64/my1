@@ -33,7 +33,7 @@ CACHE_FILES = {'asia/index.html', 'zh/asia/index.html', 'asia/asia-map.js', 'asi
 NEW_REGIONS = {'China', 'Hong Kong'}
 TYPES = {'milonga', 'practilonga', 'practica', 'festival', 'marathon', 'weekend',
          'anniversary', 'workshop', 'encuentro'}
-ALWAYS_OK = {'updated', 'source'}
+ALWAYS_OK = {'updated', 'source', 'poster_reuse'}  # poster_reuse only hides the 上期海报 badge (Shiao 11/25)
 ADD_ONLY_LIST = {'temp_notices', 'cancelled_dates'}
 ADD_ONLY_DICT = {'contacts', 'links'}
 FILL_IF_EMPTY = {'venue_address', 'venue_address_en', 'directions', 'directions_en', 'note_es', 'directions_es', 'note_ru', 'directions_ru'}  # *_es / *_ru: Spanish, Russian for mainland cards (Shiao 11/18)
