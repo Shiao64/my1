@@ -5,6 +5,8 @@
     python3 tools/gen_organizer_profiles.py          # write
     python3 tools/gen_organizer_profiles.py --check  # only report; exit 1 if something would change
 
+Runs every day at 03:17 Beijing in .github/workflows/poster-prune.yml (Shiao 2026-11-25).
+
 A person in data/entities-draft/organizers.json (groups are in groups.json, not there) with
 `min_cards` or more cards that are not hidden, at different time slots (distinct_slots(); Shiao
 2026-11-25: 不同时段的 2 场以上), and whose `region` is in `regions` (Shiao 2026-11-25: mainland China

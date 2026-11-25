@@ -57,6 +57,9 @@
    "E124",
    "R073"
   ],
+  "profile": [
+   "organizer:tayfun"
+  ],
   "also_organizer": [
    "O019"
   ]
@@ -449,6 +452,9 @@
   ],
   "events": [
    "E039"
+  ],
+  "profile": [
+   "organizer:zhengzhong"
   ],
   "also_organizer": [
    "O087"
@@ -1252,6 +1258,9 @@
   ],
   "events": [
    "E157"
+  ],
+  "profile": [
+   "organizer:aykut"
   ],
   "also_organizer": [
    "O089"
