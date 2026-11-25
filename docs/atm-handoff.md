@@ -125,7 +125,7 @@
 
 - **新会话先接仓库**：本环境默认连不到 `Shiao64/my1`（gh 会回 403）。先调用 `add_repo`（owner `Shiao64`、repo `my1`、access `push`），再 `git clone --depth 1 https://github.com/Shiao64/my1 /home/claude/my1`（给长一点的超时），然后 `register_repo_root`。
 - 开分支 → commit → `git -c push.negotiate=true push` → `gh api repos/Shiao64/my1/pulls …` 开 PR → `gh api -X PUT …/pulls/N/merge -f merge_method=merge`（偶尔回 connection reset，再查一次 PR 状态，通常已合并）。
-- 要改「探戈助理答复」PR 的内容：`git fetch origin +refs/heads/inbox-run-<n>:refs/remotes/origin/inbox-run-<n>`，在上面 commit，`git push origin <本地分支>:inbox-run-<n>`，再合并（#151 这样做过）。
+- 要改「资料更新」（旧称「探戈助理答复」）PR 的内容：`git fetch origin +refs/heads/inbox-run-<n>:refs/remotes/origin/inbox-run-<n>`，在上面 commit，`git push origin <本地分支>:inbox-run-<n>`，再合并（#151 这样做过）。
 - 接上仓库后，gh **可以**读 Actions 记录：`gh api "repos/Shiao64/my1/actions/runs?per_page=10"`。不能删分支（仓库里留着已合并的旧分支，无害）。详细 log 还是要用内置浏览器（用户的 GitHub 已登录），原始记录用「View raw logs」。
 - 本环境的终端和 WebFetch 都连不到 `data.tangoweekend.org`（R2）；确认上传是否完成，看 Actions 里「R2 sync」的结果，或用内置浏览器打开正式网站（tangoweekend.org 要先 `request_access`；内置浏览器的 navigate／javascript 有时会被自动安全检查挡下，挡下就改用本地 Playwright 验证）。
 - 仓库里有一个已合并的旧分支叫 `inbox`，所以**分支名不能用 `inbox/` 开头**（探戈助理用 `answer/`）。
@@ -141,7 +141,7 @@
 
 （11/16–11/17 的状态记录、各个 PR 的经过已移到 `docs/atm-log.md`。）
 
-- 流程：探戈助理把答复放在 `answer/...` 分支开 PR → `inbox-guard.yml` 只准改 `data/inbox/`，通过就自动合并并启动 `inbox.yml` → Claude Code Action（秘密 `CLAUDE_CODE_OAUTH_TOKEN`，用户的 Pro 方案，约 2027-11 到期）处理答复，开「探戈助理答复：…」PR → `tools/inbox_autocheck.py` 判断能不能自动上线。
+- 流程：答复（Mac「微信摘要交仓库」、huodong@ 来信、Shiao 交的；11/25 前是探戈助理）放在 `answer/...` 分支开 PR → `inbox-guard.yml` 只准改 `data/inbox/`，通过就自动合并并启动 `inbox.yml` → Claude Code Action（秘密 `CLAUDE_CODE_OAUTH_TOKEN`，用户的 Pro 方案，约 2027-11 到期）处理答复，开「资料更新：…」PR（11/25 改名，旧称「探戈助理答复」；程序只认分支 `inbox-run-*`，不认标题）→ `tools/inbox_autocheck.py` 判断能不能自动上线。
 - **探戈助理用的是用户自己的 GitHub 帐号 `Shiao64`**（#143、#145、#150、#153 都是这个帐号开的），不用加 `allowed_bots`。
 - **单场的变动用 `temp_notices` 写在那一天**，不改整张周常卡的固定字段（11/16 用户定；换海报时按海报改 `dj` 是例外，见第 2 节）。
   - **活动前的通知（11/25 Shiao 定）**：主办在活动前发的加场内容（加表演、换 DJ、改时间、票价）一律加到**当天那张卡**的 `temp_notices`，不另建卡。改了 DJ／时间／费用的写 `status:"changed"` 加 `dj`、`time`、`fee`、`fee_en`（卡上当天字段会换掉）；只是文字的不写 status。两种的标签一律是「新通知 · M/D」（11/25 Shiao：不用「临时变更」「通知」等别的字）。两种都从现在起显示到那一天：活动卡（cardB.js）和日常列表（atm-home.js 的 `noticeTag`）都有标签。临时**多出来的一场**才建一次性活动卡（例：11/28 Tango Palace Martin y Mauge E202）。
