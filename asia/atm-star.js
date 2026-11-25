@@ -53,7 +53,7 @@
     scope: '',
     transport: '交通指引（可选）',
     noPromise: '',
-    optin: '勾选后，可接收早鸟报名及截止时间、场地交通指引、临时通知和主办方消息。',
+    optin: '勾选后，可接收早鸟报名及截止时间、场地交通指引、新通知和主办方消息。',
     submit: '确认', needIntent: '请选择要参加、感兴趣或去不了。',
     profileTitle: '',
     profileDesc: '先确认邮箱。确认后会记下意向。',

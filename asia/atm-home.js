@@ -198,7 +198,7 @@
     if (Array.isArray(list)) for (var i = 0; i < list.length; i++) { if (noticeHits(list[i], iso)) return 'week'; }
     return '';
   }
-  /* 2026-11-25 (Shiao): list tag for a notice on this row's date: 新通知 · M/D (plain) or 临时变更 · M/D (changed). Cancelled keeps the red bar. Shown until that date passes. */
+  /* 2026-11-25 (Shiao): list tag for a notice on this row's date: 新通知 · M/D for every notice (plain or changed; 11/25 Shiao: one label only). Cancelled keeps the red bar. Shown until that date passes. */
   function noticeTag(e) {
     var list = e.temp_notices; if (!Array.isArray(list) || weekCx(e)) return '';
     var a = CX_ISO || (e.kind === 'weekly' ? occOf(e) : (e.start || '')), b = (e.kind === 'weekly' || CX_ISO) ? a : (e.end || a);
@@ -207,7 +207,7 @@
       var o = list[i]; if (!o || o.status === 'cancelled') continue;
       var d = normISO(o.date) || normISO(o.end) || normISO(o.start); if (!d || d < SHT || d < a || d > b) continue;
       var p = d.split('-'), md = (+p[1]) + '/' + (+p[2]);
-      var t = o.status === 'changed' ? (zh ? '临时变更' : 'Changed') : (zh ? '新通知' : 'New notice');
+      var t = zh ? '新通知' : 'New notice';
       return '<em class="ah-ctag ah-ntag">' + esc(t + ' · ' + md) + '</em>';
     }
     return '';
@@ -819,7 +819,7 @@
     var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { /* v11.7 H3: header 🔍 removed (route #h-search kept) */ void bS; /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
-  var FULL = '/asia/events.json?v=e250'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
+  var FULL = '/asia/events.json?v=e251'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
   function asList(d) { return Array.isArray(d) ? d : (d && d.events) || []; }
   function favMissing(list) {
     var m = {}, ids = [];
@@ -836,7 +836,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china586';
+    var coreUrl = '/asia/events-core.json?v=china587';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {

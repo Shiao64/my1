@@ -67,7 +67,7 @@
     'Links': 'Enlaces', 'Website': 'Sitio web', 'Event website': 'Sitio del evento', 'Video': 'Video', 'Register': 'Inscribirse',
     'Details': 'Detalles', 'Event details': 'Detalles del evento', 'Phone': 'Teléfono', 'Email': 'Correo', 'WeChat': 'WeChat',
     'WeChat ID:': 'ID de WeChat:', 'Phone:': 'Teléfono:', 'Email:': 'Correo:', 'Phone/WeChat:': 'Teléfono/WeChat:',
-    'WeChat Article': 'Artículo de WeChat', 'WeChat article': 'Artículo de WeChat', 'Temporarily changed': 'Cambio temporal',
+    'WeChat Article': 'Artículo de WeChat', 'WeChat article': 'Artículo de WeChat', 'Temporarily changed': 'Cambio temporal', 'New notice': 'Aviso nuevo',
     'Same venue': 'Mismo lugar', 'Weekly classes too ›': 'También clases semanales ›',
     'Newer poster': 'Afiche más nuevo', 'Older poster': 'Afiche anterior', 'Past poster': 'Afiche pasado', 'Previous poster': 'Afiche anterior', 'Next poster': 'Afiche siguiente',
     'ENDED': 'TERMINADO', 'This event has ended': 'Este evento ya terminó', 'View all events': 'Ver todos los eventos', 'Next edition:': 'Próxima edición:',
@@ -200,6 +200,7 @@
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   var P = [
+    [/^New notice · (\d{1,2}\/\d{1,2})( [›⌃])?$/, function (m) { return 'Aviso nuevo · ' + dm(m[1]) + (m[2] || ''); }],
     [/^More from (.+)$/, function (m) { return 'Más de ' + m[1]; }],
     [/^All of (.+) ›$/, function (m) { return 'Todo de ' + m[1] + ' ›'; }],
     [/^Updated (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { return 'Actualizado ' + (m[1] === 'today' ? 'hoy' : m[1] === 'yesterday' ? 'ayer' : m[2] ? 'hace ' + m[2] + ' días' : 'el ' + m[3]); }],
