@@ -106,7 +106,9 @@ jobs:
                - 答复附了同一个活动的新一期海报（舞会、练习、单次活动）：用换海报工具换，不要自己复制图片：
                  python3 tools/radar_poster_update.py --event-id <id> --image data/inbox/<海报文件> --city <城市中文> \
                    --organizer <主办> --weekday <周几，如 周二> --date <这一场的日期> --note "<第几场、日期、DJ、来源>" --bump-caches
-                 工具会备份旧海报、产缩图、改 poster 等字段，并按海报改卡上的 DJ。被工具拒绝（例如大型活动、工作坊、对不上）就不换，写进「要 Shiao 确认」。
+                 工具会备份旧海报、产缩图、改 poster 等字段，并按海报改卡上的 DJ。
+                 答复写明海报是主办（组织者）自己发的（Shiao 11/25）：加 --from-organizer，工作坊、节、马拉松这些大型活动的海报也照换，不用问。
+                 被工具拒绝（对不上、不是主办发的大型活动海报）就不换，写进「要 Shiao 确认」。
                  用 git mv 移答复时，海报原图也一起移到 done/（工具已经复制了一份到 images/）。
             邮件来的答复（文件名含 -mail-，寄到 huodong@tangoweekend.org，Shiao 11/20）：寄件人都在「活动来信名单」里，内容当作正常答复处理。
                标题里的「新活动」「取消」「海报」只是提示，没有也照样按内容判断。
