@@ -3,8 +3,8 @@
 (function(){
   if (window.ATM_PUSH_UI !== 1 && window.ATM_PUSH_UI !== '1') return;
   var zh=location.pathname.indexOf('/zh/')===0, API=window.TANGO_SUB_API||'https://api.tangoweekend.org';
-  var L=zh?{on:'🔔 开启推送通知',off:'🔕 关闭推送通知',busy:'处理中…',ok:'已开启推送：有新活动或临时变更时会通知您。',bye:'已关闭推送通知。',deny:'浏览器已拒绝通知权限，请在浏览器设置里允许本站通知。',ios:'iPhone/iPad 需要先点「分享」→「添加到主屏幕」，再从主屏幕打开本站，才能开启推送（iOS 16.4 及以上）。',na:'这个浏览器不支持推送通知。',fail:'开启失败，请稍后再试。'}
-          :{on:'🔔 Turn on push alerts',off:'🔕 Turn off push alerts',busy:'Working…',ok:'Push alerts are on. We\'ll notify you about new events and temporary changes.',bye:'Push alerts are off.',deny:'Notifications are blocked. Please allow them for this site in your browser settings.',ios:'On iPhone/iPad, tap Share → Add to Home Screen, then open the site from your home screen to turn on push alerts (iOS 16.4+).',na:'This browser does not support push notifications.',fail:'Could not turn on push alerts. Please try again later.'};
+  var L=zh?{on:'🔔 开启推送通知',off:'🔕 关闭推送通知',busy:'处理中…',ok:'已开启推送：有新活动或新通知时会通知您。',bye:'已关闭推送通知。',deny:'浏览器已拒绝通知权限，请在浏览器设置里允许本站通知。',ios:'iPhone/iPad 需要先点「分享」→「添加到主屏幕」，再从主屏幕打开本站，才能开启推送（iOS 16.4 及以上）。',na:'这个浏览器不支持推送通知。',fail:'开启失败，请稍后再试。'}
+          :{on:'🔔 Turn on push alerts',off:'🔕 Turn off push alerts',busy:'Working…',ok:'Push alerts are on. We\'ll notify you about new events and new notices.',bye:'Push alerts are off.',deny:'Notifications are blocked. Please allow them for this site in your browser settings.',ios:'On iPhone/iPad, tap Share → Add to Home Screen, then open the site from your home screen to turn on push alerts (iOS 16.4+).',na:'This browser does not support push notifications.',fail:'Could not turn on push alerts. Please try again later.'};
   var ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
   var standalone=window.matchMedia&&matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
   var supported='serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window;

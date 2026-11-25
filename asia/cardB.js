@@ -10,7 +10,7 @@ var NOTE=/<b>(备注|備註|Notes?)<\/b>/;
 /* First view reads events-core (window._chinaData). events-more / events.json and the DJ/organizer profiles wait until scroll, search, expand, or a card that is not in core. */
 var EV=null, REG=zh?{}:null, DJPROF=[], ORGPROF=[], profP=null, fullP=null;
 var tradHold=zh&&!/[?&](card|mode|city|k)=/.test(location.search);
-var FULL='/asia/events.json?v=e250';
+var FULL='/asia/events.json?v=e251';
 function loadEv(u){ return (window.atmDataJson ? window.atmDataJson(u) : fetch(u).then(function(r){ return r.json(); })); }
 function indexList(list){ if(!list) return; if(!EV) EV={}; list.forEach(function(e){ if(!e||!e.id) return; EV[e.id]=e; if(REG) REG[e.id]=e.region; }); }
 function indexNow(){ indexList(window._chinaData); indexList(window._atmMore); if(!EV) return; document.querySelectorAll('.ev-card.b-card').forEach(dj); p10mount(); if(zh) trad(); }
@@ -194,7 +194,7 @@ function p10notices(e){ var list=e.temp_notices; if(!Array.isArray(list)) return
 function p10change(e){ var l=e.temp_notices, today=p10shToday(), best=null; if(!Array.isArray(l)) return null; for(var i=0;i<l.length;i++){ var o=l[i]; if(!o||(o.status!=='changed'&&o.status!=='cancelled')) continue; var w=p10noticeSpan(o); if(!w||today>w.end) continue; if(!best||w.start<p10noticeSpan(best).start) best=o; } return best; } /* shown from now until the changed date passes */
 function p10apply(e,c){ var x={}; for(var k in e) x[k]=e[k]; if(c.time) x.time=c.time; if(c.venue||c.venue_en){ x.venue=c.venue||c.venue_en; x.venue_en=c.venue_en||c.venue; } if(c.address||c.address_en){ x.venue_address=c.address||c.address_en; x.venue_address_en=c.address_en||c.address; } if(c.fee||c.fee_en){ x.fee=c.fee_en||c.fee; x.fee_zh=c.fee||c.fee_en; } if(c.dj){ x.dj=c.dj; x.dj_en=c.dj; } return x; }
 function p10chDate(c){ var w=p10noticeSpan(c); if(!w) return ''; var f=function(d){ var p=d.split('-'); return (+p[1])+'/'+(+p[2]); }; return w.start===w.end?f(w.start):f(w.start)+'–'+f(w.end); }
-function p10chBadge(c){ var b=document.createElement('span'); var cx=c.status==='cancelled'; b.className='atm-chg '+(cx?'atm-chg-x':'atm-chg-c'); b.textContent=(cx?(zh?'已取消':'Cancelled'):(zh?'临时变更':'Temporarily changed'))+' · '+p10chDate(c); return b; }
+function p10chBadge(c){ var b=document.createElement('span'); var cx=c.status==='cancelled'; b.className='atm-chg '+(cx?'atm-chg-x':'atm-chg-c'); b.textContent=(cx?(zh?'已取消':'Cancelled'):(zh?'新通知':'New notice'))+' · '+p10chDate(c); return b; }
 function p10noticeBody(o){ return String(zh?(o.text!=null&&o.text!==''?o.text:(o.text_en||'')):(o.text_en!=null&&o.text_en!==''?o.text_en:(o.text||''))); }
 function p10safeImg(u){ u=String(u||'').trim(); if(/^\/(?!\/)/.test(u)||/^https?:\/\//i.test(u)) return u; return ''; }
 function p10when(e){ if(e.kind!=='weekly'){ if(!e.start) return ''; var p=String(e.start).split('-'), s=(+p[1])+'/'+(+p[2]); if(e.end&&e.end!==e.start){ var q=String(e.end).split('-'); s+='–'+(p[0]===q[0]&&p[1]===q[1]?(+q[2]):(+q[1])+'/'+(+q[2])); } return s; }
@@ -252,7 +252,7 @@ function p10noticeUI(e, notices){ if(!notices||!notices.length) return null; var
     var nal=addrLines({venue_address:o.address,venue_address_en:o.address_en,country:e.country,region:e.region,addr_en_zh:e.addr_en_zh});
     if(vn&&!bad(vn)){ var v=document.createElement('div'); v.className='p10-nven'; v.textContent=vn; block.appendChild(v); }
     if(nal.lines.length){ var a=document.createElement('a'); a.className='p10-ndir'; a.href=mapHref(e, nal.mapQuery); if(/^https?:/.test(a.href)){ a.target='_blank'; a.rel='noopener'; } a.innerHTML=nal.lines.map(H).join('<br>'); block.appendChild(a); }
-    var img=p10safeImg(o.image); if(img){ var pic=document.createElement('div'); pic.className='p10-ovpic'; var im=document.createElement('img'); im.src=img; im.alt=zh?'临时通知':'Notice'; pic.appendChild(im); block.appendChild(pic); }
+    var img=p10safeImg(o.image); if(img){ var pic=document.createElement('div'); pic.className='p10-ovpic'; var im=document.createElement('img'); im.src=img; im.alt=zh?'新通知':'New notice'; pic.appendChild(im); block.appendChild(pic); }
     if(block.childNodes.length) panel.appendChild(block); });
   if(!panel.childNodes.length) return null;
   var nd=''; notices.forEach(function(o){ var w=p10noticeSpan(o); if(w&&(!nd||w.end<nd)) nd=w.end; }); if(nd){ var q=nd.split('-'); nd=(+q[1])+'/'+(+q[2]); }
