@@ -22,13 +22,15 @@ Auto only when ALL of these hold:
     and does not look like a card that is already there (same city + day + venue or name);
   * at most MAX_CARDS cards change in one PR.
 """
-import argparse, datetime, json, re, subprocess, sys, unicodedata
+import argparse, datetime, json, os, re, subprocess, sys, unicodedata
 
 FILES = ['asia/events.json', 'asia/events-core.json', 'asia/events-more.json']
 ALLOWED_PATHS = re.compile(r'^(asia/events(-core|-more)?\.json|data/inbox/.+|data/entities-draft/.+)$')
 POSTER_FIELDS = {'poster', 'poster_date', 'poster_dates', 'poster_djs', 'posters_past'}
 POSTER_LOG = 'tools/radar-poster-log.jsonl'
 IMG = re.compile(r'^images/(asia/posters/(_backup/|past/)?|thumb/images/asia/posters/|thumb800/images/asia/posters/)([^/]+)$')
+# 2026-11-25: a session poster on a fixed-poster card lives in that day's notice (images/asia/posters/notices/<id>-<date>.*)
+NOTICE_IMG = re.compile(r'^images/(thumb/|thumb800/)?images/asia/posters/notices/([^/]+)$|^images/asia/posters/notices/([^/]+)$')
 CACHE_FILES = {'asia/index.html', 'zh/asia/index.html', 'asia/asia-map.js', 'asia/atm-home.js', 'asia/cardB.js'}
 NEW_REGIONS = {'China', 'Hong Kong'}
 TYPES = {'milonga', 'practilonga', 'practica', 'festival', 'marathon', 'weekend',
@@ -128,7 +130,7 @@ def check(base, head, body, today):
         for f in st[1:]:
             if ALLOWED_PATHS.match(f):
                 continue
-            if IMG.match(f) and not st[0].startswith('D'):
+            if (IMG.match(f) or NOTICE_IMG.match(f)) and not st[0].startswith('D'):
                 img_files.append(f)
             elif f in CACHE_FILES and st[0] == 'M':
                 cache_files.append(f)
@@ -223,7 +225,17 @@ def check(base, head, body, today):
                 reasons.append(f'卡 {i} 改了显示／隐藏')
                 continue
             reasons.append(f'卡 {i} 改了「{k}」（不是补资料或单场提示）')
+    notice_imgs = set()
+    for i in touched:
+        for o in (new[i].get('temp_notices') or []):
+            if isinstance(o, dict) and str(o.get('image') or '').startswith('/images/asia/posters/notices/'):
+                notice_imgs.add(os.path.splitext(o['image'].split('/')[-1])[0])
     for f in img_files:
+        nm = NOTICE_IMG.match(f)
+        if nm:
+            if os.path.splitext(nm.group(2) or nm.group(3))[0] not in notice_imgs:
+                reasons.append(f'改了不属于任何新通知的图片：{f}')
+            continue
         stem = IMG.match(f).group(3)
         if not any(stem == pid or stem.startswith(pid + '.') or stem.startswith(pid + '-') for pid in poster_ids):
             reasons.append(f'改了不属于换海报卡片的图片：{f}')
