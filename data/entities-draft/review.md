@@ -43,8 +43,7 @@
 19. Beijing：北京精选探戈周末（E093）：缺本地语言地址
 20. Qingdao：Wednesday práctica（R253）：缺本地语言地址
 21. Qingdao：青岛周六 Milonga · Tango La Vida（R252）：缺本地语言地址
-22. Shanghai：2027上海探戈（新年）假期（E164）：缺本地语言地址
-23. Shanghai：iTango 练习舞会（juGlRrW2）：海报最新一期是 2026-10-22，超过 4 周
+22. Shanghai：iTango 练习舞会（juGlRrW2）：海报最新一期是 2026-10-22，超过 4 周
 
 # 第二部分：其他地区（暂缓）
 

@@ -268,7 +268,8 @@ for e in EV:
     loc = loc if isinstance(loc, list) else ([loc] if loc else [])
     en = en if isinstance(en, list) else ([en] if en else [])
     pairs = [(loc[i], en[i] if i < len(en) else '') for i in range(len(loc))]
-    pairs += [(v, '') for v in (e.get('poster_djs') or {}).values() if v]
+    for v in (e.get('poster_djs') or {}).values():  # a value can be a list (E202 generated poster)
+        pairs += [(x, '') for x in (v if isinstance(v, list) else [v]) if x]
     for l, n in pairs:
         lb, lp = strip_paren(l); nb, np_ = strip_paren(n)
         if re.fullmatch(r'[\u4e00-\u9fff]+', lb) and np_ == lb: nb, np_ = nb, ''
@@ -333,10 +334,11 @@ for e in EV:
     if e['kind'] == 'event' and (e.get('end') or e.get('start') or '9999') < TODAY: continue
     nm = '%s（%s）' % (e.get('name_zh') or e['name'], e['id'])
     probs = []
-    if (e.get('venue') or e.get('venue_en')) and not e.get('venue_address') and not PLACEHOLDER.match((e.get('venue_en') or '').strip()): probs.append('缺本地语言地址')
+    # 2026-11-25 Shiao: decisions.json no_ask lists cards whose details live in the organizer's own form (E164).
+    if e['id'] not in set(DEC.get('no_ask') or []) and (e.get('venue') or e.get('venue_en')) and not e.get('venue_address') and not PLACEHOLDER.match((e.get('venue_en') or '').strip()): probs.append('缺本地语言地址')
     pz = e.get('poster') or ''
     # 2026-11-15 Shiao: a poster is not required for every event, so a generated image is not a gap.
-    if e['kind'] == 'weekly' and e.get('poster_dates'):
+    if e['kind'] == 'weekly' and e.get('poster_dates') and not e.get('poster_reuse'):  # poster_reuse: the organizer keeps one poster (11/25)
         last = max(e['poster_dates'].values())
         if last < (__import__('datetime').date.today() - __import__('datetime').timedelta(days=28)).isoformat(): probs.append('海报最新一期是 %s，超过 4 周' % last)
     if probs: put('F', e['city'], nm + '：' + '；'.join(probs))
