@@ -835,6 +835,18 @@
  },
  {
   "id": "G060",
+  "name_en": "T.A Tango",
+  "name_local": "T.A Tango",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "E202"
+  ],
+  "organizers": []
+ },
+ {
+  "id": "G061",
   "name_en": "Tango Palace",
   "name_local": "Tango Palace",
   "cities": [
@@ -846,7 +858,22 @@
   "organizers": []
  },
  {
-  "id": "G061",
+  "id": "G062",
+  "name_en": "TangoBang",
+  "name_local": "探戈帮 TangoBang",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "E202"
+  ],
+  "organizers": [],
+  "profile": [
+   "organizer:tangobang"
+  ]
+ },
+ {
+  "id": "G063",
   "name_en": "Tangocool",
   "name_local": "Tangocool",
   "cities": [
@@ -859,7 +886,7 @@
   "organizers": []
  },
  {
-  "id": "G062",
+  "id": "G064",
   "name_en": "Luna Tango",
   "name_local": "Luna Tango",
   "cities": [
@@ -871,7 +898,7 @@
   "organizers": []
  },
  {
-  "id": "G063",
+  "id": "G065",
   "name_en": "La Mirada Singapura Tango Club",
   "name_local": "La Mirada Singapura Tango Club",
   "cities": [
@@ -883,7 +910,7 @@
   "organizers": []
  },
  {
-  "id": "G064",
+  "id": "G066",
   "name_en": "Tango.FelipeH",
   "name_local": "Tango.FelipeH 菲利佩探戈教室",
   "cities": [
@@ -896,7 +923,7 @@
   "organizers": []
  },
  {
-  "id": "G065",
+  "id": "G067",
   "name_en": "Tango.two",
   "name_local": "Tango.two 兩兩阿根廷探戈",
   "cities": [
@@ -910,7 +937,7 @@
   "organizers": []
  },
  {
-  "id": "G066",
+  "id": "G068",
   "name_en": "TTA Taichung Tango Academy",
   "name_local": "台中探戈學院",
   "cities": [
@@ -923,7 +950,7 @@
   "organizers": []
  },
  {
-  "id": "G067",
+  "id": "G069",
   "name_en": "Tainan Tango Gang",
   "name_local": "台南探戈幫",
   "cities": [
@@ -936,7 +963,7 @@
   "organizers": []
  },
  {
-  "id": "G068",
+  "id": "G070",
   "name_en": "TangoFriendly",
   "name_local": "友善的探戈",
   "cities": [
@@ -948,7 +975,7 @@
   "organizers": []
  },
  {
-  "id": "G069",
+  "id": "G071",
   "name_en": "A Practilonga",
   "name_local": "A Practilonga",
   "cities": [
@@ -960,7 +987,7 @@
   "organizers": []
  },
  {
-  "id": "G070",
+  "id": "G072",
   "name_en": "Bailemos",
   "name_local": "Bailemos",
   "cities": [
@@ -972,7 +999,7 @@
   "organizers": []
  },
  {
-  "id": "G071",
+  "id": "G073",
   "name_en": "Bailemos tango school",
   "name_local": "Bailemos tango school",
   "cities": [
@@ -984,7 +1011,7 @@
   "organizers": []
  },
  {
-  "id": "G072",
+  "id": "G074",
   "name_en": "Corazon Tango School",
   "name_local": "Corazon Tango School",
   "cities": [
@@ -996,7 +1023,7 @@
   "organizers": []
  },
  {
-  "id": "G073",
+  "id": "G075",
   "name_en": "Corazon Tango Studio",
   "name_local": "Corazon Tango Studio",
   "cities": [
@@ -1008,7 +1035,7 @@
   "organizers": []
  },
  {
-  "id": "G074",
+  "id": "G076",
   "name_en": "Taichung Tango Academy",
   "name_local": "Taichung Tango Academy",
   "cities": [
@@ -1020,7 +1047,7 @@
   "organizers": []
  },
  {
-  "id": "G075",
+  "id": "G077",
   "name_en": "Tanguisimo Tango Space",
   "name_local": "Tanguisimo Tango Space",
   "cities": [
@@ -1032,7 +1059,7 @@
   "organizers": []
  },
  {
-  "id": "G076",
+  "id": "G078",
   "name_en": "Tanguísimo",
   "name_local": "Tanguísimo",
   "cities": [
@@ -1046,7 +1073,7 @@
   "organizers": []
  },
  {
-  "id": "G077",
+  "id": "G079",
   "name_en": "D'Arienzo Cup Executive Committee",
   "name_local": "ダリエンソカップ実行委員会",
   "cities": [
@@ -1058,7 +1085,7 @@
   "organizers": []
  },
  {
-  "id": "G078",
+  "id": "G080",
   "name_en": "Nippon Tango Festival",
   "name_local": "Nippon Tango Festival",
   "cities": [
@@ -1070,7 +1097,7 @@
   "organizers": []
  },
  {
-  "id": "G079",
+  "id": "G081",
   "name_en": "Rada",
   "name_local": "Rada",
   "cities": [
@@ -1082,7 +1109,7 @@
   "organizers": []
  },
  {
-  "id": "G080",
+  "id": "G082",
   "name_en": "Ulsan Tango Sociedad",
   "name_local": "Ulsan Tango Sociedad",
   "cities": [
@@ -1094,7 +1121,7 @@
   "organizers": []
  },
  {
-  "id": "G081",
+  "id": "G083",
   "name_en": "One Last Tango Wuhan",
   "name_local": "One Last Tango 武汉 (静先生)",
   "cities": [
@@ -1108,7 +1135,7 @@
   ]
  },
  {
-  "id": "G082",
+  "id": "G084",
   "name_en": "TangoSang",
   "name_local": "TangoSang",
   "cities": [
@@ -1120,7 +1147,7 @@
   "organizers": []
  },
  {
-  "id": "G083",
+  "id": "G085",
   "name_en": "M.A.T.D.A. Macau Argentine Tango Dance Association",
   "name_local": "澳门阿根廷探戈舞蹈协会 M.A.T.D.A.",
   "cities": [
@@ -1132,7 +1159,7 @@
   "organizers": []
  },
  {
-  "id": "G084",
+  "id": "G086",
   "name_en": "Vstar Tango",
   "name_local": "",
   "cities": [
