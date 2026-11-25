@@ -6,7 +6,9 @@
     python3 tools/gen_organizer_profiles.py --check  # only report; exit 1 if something would change
 
 A person in data/entities-draft/organizers.json (groups are in groups.json, not there) with
-`min_cards` or more cards that are not hidden, and not listed in data/organizer-pages.json `skip`, gets:
+`min_cards` or more cards that are not hidden and whose `region` is in `regions` (Shiao 2026-11-25:
+mainland China only for now, not Hong Kong / Taiwan / Korea), and not listed in data/organizer-pages.json
+`skip`, gets:
   - an entry in asia/organizers.json: name, name_zh, match; photo / bio / links empty; "auto": true
   - /organizer/<id>/ and /zh/organizer/<id>/ (same shell as the hand-made pages)
 Cards then link the organizer's name to that page (cardB.js orgNamesHtml), and the page lists the
@@ -16,6 +18,7 @@ Never overwrites: an entry that already matches the person (hand-made, e.g. 刘�
 existing page file is not rewritten. Bios, photos and links are added by hand later. Nothing is
 deleted when someone drops below the minimum. Every organizer page gets the "past events" section
 if it lacks one.
+Photo and bio start empty; the page shows 照片待补充 / 介绍待补充 until they are filled in (dj-page.js).
 Before writing, it checks that the page's own name matching (dj-page.js matches()) finds exactly the
 person's cards; a person where it does not is skipped and reported.
 """
@@ -96,7 +99,7 @@ def page_html(p, lang):
     ) % ('zh-CN' if zh else 'en', E(name), '亚洲探戈地图' if zh else 'Asia Tango Map', css, E(p['id']), lang,
          '/zh/asia/' if zh else '/asia/', '返回' if zh else 'Back', E(name),
          ''.join('    <div><dt>%s</dt><dd id="%s"></dd></div>\n' % r for r in rows),
-         '近期主办' if zh else 'Upcoming', past_section(lang), js)
+         '目前的活动' if zh else 'Current events', past_section(lang), js)
 
 
 def add_past(path, lang):
@@ -112,6 +115,7 @@ def add_past(path, lang):
 def plan():
     cfg = load('data/organizer-pages.json')
     need, skip = int(cfg.get('min_cards', 2)), {key(k) for k in cfg.get('skip', {})}
+    regions = set(cfg.get('regions') or [])
     events = load('asia/events.json')
     byid = {e['id']: e for e in events}
     shown = [e for e in events if not e.get('hidden')]
@@ -130,7 +134,7 @@ def plan():
     add, kept, warn = [], [], []
     for o in sorted(draft, key=lambda o: o['id']):
         cards = sorted(i for i in o.get('events', []) if i in byid and not byid[i].get('hidden'))
-        if len(cards) < need:
+        if len([i for i in cards if not regions or byid[i].get('region') in regions]) < need:
             continue
         names = [n for n in (o.get('name_en'), o.get('name_local')) if n]
         if {key(n) for n in names} & skip:
