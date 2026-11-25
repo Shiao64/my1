@@ -30,9 +30,10 @@
     if (!/^https?:\/\//i.test(url)) { el.textContent = url; return; }
     var a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = url; el.appendChild(a);
   }
-  function matches(profile, e) {
+  /* asDj: match the card's DJ even on an organizer page (2026-11-25, 近期担任 DJ). */
+  function matches(profile, e, asDj) {
     var names = [profile.name, profile.name_zh].concat(profile.match || [], profile.members || []).map(key).filter(Boolean), got = [];
-    if (kind === 'organizer' || kind === 'group') (e.organizers || []).concat(e.organizers_en || []).forEach(function (n) { if (n) got.push(n); });
+    if (!asDj && (kind === 'organizer' || kind === 'group')) (e.organizers || []).concat(e.organizers_en || []).forEach(function (n) { if (n) got.push(n); });
     else {
       /* 2026-11-21: only nights still to come. Past nights are in the "recent DJ sets" list (dj-recent.json).
          Weekly card: its dj is the current poster's, so only while poster_date is today or later. */
@@ -58,12 +59,16 @@
     /* 2026-11-25 (Shiao): organizer pages keep a place for the photo too, filled in later in asia/organizers.json.
        Same layout as 刘峥 / 王凯: photo left, intro beside it, under the event list. */
     if (!profile.photo && kind === 'organizer') { var pz = document.getElementById('pf-photo'); if (pz) { var ph = document.createElement('div'); ph.className = 'pf-photo-wait'; ph.textContent = zh ? '照片待补充' : 'Photo coming soon'; ph.style.cssText = 'aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border:1.5px dashed #c9b89a;border-radius:12px;background:#EFE6D3;color:#8a7a66;font-size:14px;font-weight:600;text-align:center;padding:8px;box-sizing:border-box'; pz.appendChild(ph); } }
+    /* 2026-11-25 (Shiao): an organizer who also DJs gets 近期担任 DJ (cards where they are the DJ, from events.json)
+       and 最近担任 DJ 的场次 (the DJ log), side by side above the photo + intro. Both stay hidden when empty. */
+    var djUpS = null, djRecS = null;
+    if (kind === 'organizer') { var st0 = document.querySelector('.dj-story'); if (st0) { djUpS = document.createElement('section'); djUpS.id = 'pf-djup'; djUpS.hidden = true; djRecS = document.createElement('section'); djRecS.id = 'pf-djrec'; djRecS.hidden = true; djUpS.style.marginBottom = djRecS.style.marginBottom = '18px'; st0.parentNode.insertBefore(djUpS, st0); st0.parentNode.insertBefore(djRecS, st0); } }
     fetch('/asia/dj-recent.json?v=r1').then(function (r) { return r.json(); }).then(function (all) {
       var rec = all && all[id], list = rec && rec.recent || [];
       if (!list.length) return;
       var main = document.querySelector('.dj-main'), story = document.querySelector('.dj-story'); if (!main) return;
       var CZ = { Shanghai: '上海', Beijing: '北京', Shenzhen: '深圳', Guangzhou: '广州', Hangzhou: '杭州', Chengdu: '成都', Wuhan: '武汉', Nanjing: '南京', Suzhou: '苏州', Xiamen: '厦门', Tianjin: '天津', Chongqing: '重庆', "Xi'an": '西安', 'Hong Kong': '香港', Taipei: '台北', Macau: '澳门', Seoul: '首尔', Daegu: '大邱', Busan: '釜山', Tokyo: '东京', 'Da Nang': '岘港', 'Kuala Lumpur': '吉隆坡' };
-      var home = zh ? '/zh/asia/' : '/asia/', sec = document.createElement('section'); sec.className = 'dj-recent';
+      var home = zh ? '/zh/asia/' : '/asia/', sec = djRecS || document.createElement('section'); sec.className = 'dj-recent'; sec.hidden = false;
       var h = document.createElement('h2'); h.textContent = zh ? '最近担任 DJ 的场次' : 'Recent DJ sets'; sec.appendChild(h);
       var box = document.createElement('div'); box.className = 'dj-events'; sec.appendChild(box);
       list.forEach(function (x) {
@@ -74,7 +79,7 @@
         box.appendChild(a);
       });
       if (rec.n > list.length) { var m = document.createElement('p'); m.className = 'dj-empty'; m.textContent = zh ? ('地图上共记录 ' + rec.n + ' 场') : (rec.n + ' sets recorded on the map'); sec.appendChild(m); }
-      if (story && story.nextSibling) main.insertBefore(sec, story.nextSibling); else main.appendChild(sec);
+      if (!djRecS) { if (story && story.nextSibling) main.insertBefore(sec, story.nextSibling); else main.appendChild(sec); }
     }).catch(function () {});
     var links = profile.links || {};
     setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || ''); setLink('pf-web', links.website || '');
@@ -169,6 +174,19 @@
           pastN.innerHTML = past.map(pastRow).join('');
         }
       } else draw(pastN, past, zh ? '暂无' : 'None yet');
+      /* 近期担任 DJ: cards still to come where this organizer is the DJ, minus the ones already under 近期主办.
+         A weekly card counts only for its current poster's night (poster_date today or later), shown with that date. */
+      if (djUpS) {
+        var mine = {}; up.forEach(function (e) { mine[e.id] = 1; });
+        var djDay = function (e) { return e.kind === 'weekly' ? (e.poster_date || '') : (e.start || ''); };
+        var djUp = (events || []).filter(function (e) { return e && !e.hidden && !mine[e.id] && !isPast(e, day) && matches(profile, e, true); });
+        djUp.sort(function (a, b) { var x = djDay(a), y = djDay(b); return x < y ? -1 : x > y ? 1 : 0; });
+        if (djUp.length) {
+          djUpS.innerHTML = '<h2>' + (zh ? '近期担任 DJ' : 'Upcoming DJ sets') + '</h2><div class="dj-events">' + djUp.map(function (e) { return rich(e.kind === 'weekly' ? Object.assign({}, e, { kind: 'event', start: e.poster_date, end: e.poster_date }) : e); }).join('') + '</div>';
+          djUpS.hidden = false;
+          djUpS.addEventListener('click', function (ev) { var b = ev.target.closest && ev.target.closest('.pf-star'); if (!b) return; var on = b.getAttribute('aria-pressed') !== 'true'; setFav(b.getAttribute('data-id'), on); b.setAttribute('aria-pressed', on); b.textContent = on ? '★' : '☆'; });
+        }
+      }
     });
   }).catch(function () {});
 })();

@@ -28,12 +28,48 @@
  },
  {
   "date": "2026-10-31",
+  "dj": "Bubbleti",
+  "event": "E118",
+  "name": "The Pista Halloween Milonga",
+  "name_en": "The Pista Halloween Milonga",
+  "city": "Seoul",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-10-31",
   "dj": "张羽",
   "event": "R202",
   "name": "MILONGAGA",
   "name_en": "MILONGAGA",
   "city": "Beijing",
   "src": "events.json poster R202-no44-20261031.jpg"
+ },
+ {
+  "date": "2026-11-01",
+  "dj": "Tayfun",
+  "event": "E124",
+  "name": "ATer「鬼魅丽影」传统 cosplay 化妆舞会",
+  "name_en": "ATer Halloween Cosplay Milonga",
+  "city": "Beijing",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-01",
+  "dj": "Alan",
+  "event": "E133",
+  "name": "Kai's Milonga 第995期",
+  "name_en": "Kai's Milonga #995",
+  "city": "Shanghai",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-01",
+  "dj": "Oscar",
+  "event": "U11",
+  "name": "小善的下午茶 Milonga 万圣节化妆舞会",
+  "name_en": "Xiaoshan's Afternoon Tea Milonga · Halloween Costume Ball (小善的下午茶)",
+  "city": "Nanjing",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2026-11-03",
@@ -61,6 +97,60 @@
   "name_en": "Milonga Nuevo",
   "city": "Hong Kong",
   "src": "events.json poster yhBU2qgt.jpg"
+ },
+ {
+  "date": "2026-11-06",
+  "dj": "Bobby Moon",
+  "event": "E134",
+  "name": "珍友米隆加",
+  "name_en": "Wanso Milonga",
+  "city": "Shanghai",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-07",
+  "dj": "TJ",
+  "event": "E046",
+  "name": "Birthday Milonga",
+  "name_en": "Birthday Milonga",
+  "city": "Taichung",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-07",
+  "dj": "Alu",
+  "event": "E121",
+  "name": "ESSA 中韩联合双场大舞会",
+  "name_en": "Double Milonga",
+  "city": "Shanghai",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-07",
+  "dj": "Lucila",
+  "event": "E121",
+  "name": "ESSA 中韩联合双场大舞会",
+  "name_en": "Double Milonga",
+  "city": "Shanghai",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-07",
+  "dj": "Teo",
+  "event": "E121",
+  "name": "ESSA 中韩联合双场大舞会",
+  "name_en": "Double Milonga",
+  "city": "Shanghai",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-07",
+  "dj": "Aykut",
+  "event": "E157",
+  "name": "Milongueando en El Luna",
+  "name_en": "Milongueando en El Luna",
+  "city": "Shenzhen",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2026-11-07",
@@ -91,6 +181,24 @@
  },
  {
   "date": "2026-11-08",
+  "dj": "Sam Tsang",
+  "event": "E150",
+  "name": "Milonga Soul Tango",
+  "name_en": "Milonga Soul Tango",
+  "city": "Hong Kong",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-08",
+  "dj": "思哲（Sizhe）",
+  "event": "E159",
+  "name": "Milonga Musea",
+  "name_en": "Milonga Musea",
+  "city": "Shenzhen",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-08",
   "dj": "Cris",
   "event": "NmkWjMxo",
   "name": "Milonga Los Vinos",
@@ -100,12 +208,30 @@
  },
  {
   "date": "2026-11-09",
+  "dj": "增歌",
+  "event": "E161",
+  "name": "红舞馨阿根廷探戈舞会 新场地体验",
+  "name_en": "Hongwuxin (红舞馨) Argentine Tango Milonga · New Venue Preview",
+  "city": "Beijing",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-09",
   "dj": "艺侨",
   "event": "UiQphCjS",
   "name": "练习舞会",
   "name_en": "Práctica del Paraíso",
   "city": "Beijing",
   "src": "events.json weekly dj"
+ },
+ {
+  "date": "2026-11-10",
+  "dj": "Kostas",
+  "event": "E154",
+  "name": "Milonga X at Sole Mio · DJ Kostas",
+  "name_en": "Milonga X at Sole Mio · DJ Kostas",
+  "city": "Hong Kong",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2026-11-10",
@@ -124,6 +250,78 @@
   "name_en": "Kai's Milonga",
   "city": "Shanghai",
   "src": "events.json poster 2tbfzeS7_998_2026-11-11.jpg"
+ },
+ {
+  "date": "2026-11-11",
+  "dj": "增歌",
+  "event": "E166",
+  "name": "红舞馨晚间探戈舞会（新场地）",
+  "name_en": "红舞馨晚间探戈舞会（新场地）",
+  "city": "Beijing",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-13",
+  "dj": "Fiona Szeto",
+  "event": "E151",
+  "name": "Milonga Manzana Hong Kong（舞會經驗尚淺版）",
+  "name_en": "Milonga Manzana Hong Kong – Green Edition",
+  "city": "Hong Kong",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-13",
+  "dj": "Béatrice (YuYu)",
+  "event": "E168",
+  "name": "Milonga Hola",
+  "name_en": "Milonga Hola",
+  "city": "Chongqing",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-14",
+  "dj": "Huy Q Nguyen",
+  "event": "E155",
+  "name": "Milonga Mascarita · HuyQ 告別舞會",
+  "name_en": "Milonga Mascarita · HuyQ's Farewell Milonga",
+  "city": "Hong Kong",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-14",
+  "dj": "Han",
+  "event": "E169",
+  "name": "Milonga PERFECT DAY",
+  "name_en": "Milonga PERFECT DAY",
+  "city": "Shenzhen",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-14",
+  "dj": "El Puntazo (Riccardo)",
+  "event": "E174",
+  "name": "Saturday Milonga #32",
+  "name_en": "Saturday Milonga #32",
+  "city": "Singapore",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-14",
+  "dj": "Nico Zhang",
+  "event": "E176",
+  "name": "Pamper Tango 14周年庆",
+  "name_en": "Pamper Tango 14th Anniversary",
+  "city": "Beijing",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-14",
+  "dj": "YuJing",
+  "event": "E179",
+  "name": "Milonga INTANGO",
+  "name_en": "Milonga INTANGO",
+  "city": "Hangzhou",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2026-11-14",
@@ -163,12 +361,57 @@
  },
  {
   "date": "2026-11-15",
+  "dj": "修行",
+  "event": "E171",
+  "name": "初冬温暖拥抱 · 天津 Vida tango milonga 舞会",
+  "name_en": "Vida Tango Milonga · Early-Winter Warm Embrace",
+  "city": "Tianjin",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-15",
+  "dj": "Kathy Chan",
+  "event": "E173",
+  "name": "HTM · High Tea Milonga",
+  "name_en": "HTM · High Tea Milonga",
+  "city": "Hong Kong",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-15",
+  "dj": "Khanh Nguyen",
+  "event": "E177",
+  "name": "Tango Buscandote",
+  "name_en": "Tango Buscandote",
+  "city": "Da Nang",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-15",
+  "dj": "Maggie Ho（澳门）",
+  "event": "E183",
+  "name": "珠澳联合舞会 Milonga Perla NO.7",
+  "name_en": "Zhuhai–Macau Joint Milonga Perla NO.7",
+  "city": "Zhuhai",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-15",
   "dj": "艺侨",
   "event": "NmkWjMxo",
   "name": "Milonga Los Vinos",
   "name_en": "Milonga Los Vinos",
   "city": "Beijing",
   "src": "events.json poster NmkWjMxo.jpg"
+ },
+ {
+  "date": "2026-11-17",
+  "dj": "Fiona Szeto",
+  "event": "E172",
+  "name": "Sole Mio · DJ Fiona Szeto",
+  "name_en": "Sole Mio · DJ Fiona Szeto",
+  "city": "Hong Kong",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2026-11-17",
@@ -187,6 +430,15 @@
   "name_en": "Kai's Milonga",
   "city": "Shanghai",
   "src": "events.json poster 2tbfzeS7-1000-20261118.jpg"
+ },
+ {
+  "date": "2026-11-18",
+  "dj": "Mia",
+  "event": "E187",
+  "name": "inTango 周三练习舞会",
+  "name_en": "inTango Wednesday Practilonga",
+  "city": "Hangzhou",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2026-11-19",
@@ -214,6 +466,15 @@
   "name_en": "Milonga Manzana Hong Kong",
   "city": "Hong Kong",
   "src": "events.json poster E152.jpg"
+ },
+ {
+  "date": "2026-11-20",
+  "dj": "Hanlin",
+  "event": "E193",
+  "name": "Milongueando en El Luna",
+  "name_en": "Milongueando en El Luna",
+  "city": "Shenzhen",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2026-11-20",
@@ -250,6 +511,15 @@
   "name_en": "Hong Kong Tango Weekend · Horacio Godoy & Maricel Giacomini",
   "city": "Hong Kong",
   "src": "events.json schedule"
+ },
+ {
+  "date": "2026-11-21",
+  "dj": "YuJing",
+  "event": "E197",
+  "name": "Milonga INTANGO",
+  "name_en": "Milonga INTANGO",
+  "city": "Hangzhou",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2026-11-21",
@@ -307,6 +577,15 @@
  },
  {
   "date": "2026-11-22",
+  "dj": "Stark",
+  "event": "E156",
+  "name": "新竹探戈舞會 · 吳詠隆四重奏現場音樂",
+  "name_en": "Hsinchu Tango Milonga · Wu Yonglong Quartet (Live)",
+  "city": "Hsinchu",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-22",
   "dj": "海鸥",
   "event": "NmkWjMxo",
   "name": "Milonga Los Vinos",
@@ -360,6 +639,42 @@
   "src": "events.json poster Q0Dhqqdr.jpg"
  },
  {
+  "date": "2026-11-25",
+  "dj": "Anton（符拉迪沃斯托克）",
+  "event": "E199",
+  "name": "SANG'S MILONGA（Sergiy 舞友团来访）",
+  "name_en": "SANG'S MILONGA (Sergiy and friends visit Xi'an)",
+  "city": "Xi'an",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-11-26",
+  "dj": "Danger",
+  "event": "manual-cd-ezequiel-2026",
+  "name": "Ezequiel Workshop & 成都探戈小周末",
+  "name_en": "Ezequiel Workshop & Tango Weekend",
+  "city": "Chengdu",
+  "src": "events.json poster manual-cd-ezequiel-2026.jpg"
+ },
+ {
+  "date": "2026-11-26",
+  "dj": "昊天",
+  "event": "manual-cd-ezequiel-2026",
+  "name": "Ezequiel Workshop & 成都探戈小周末",
+  "name_en": "Ezequiel Workshop & Tango Weekend",
+  "city": "Chengdu",
+  "src": "events.json poster manual-cd-ezequiel-2026.jpg"
+ },
+ {
+  "date": "2026-11-26",
+  "dj": "王为",
+  "event": "manual-cd-ezequiel-2026",
+  "name": "Ezequiel Workshop & 成都探戈小周末",
+  "name_en": "Ezequiel Workshop & Tango Weekend",
+  "city": "Chengdu",
+  "src": "events.json poster manual-cd-ezequiel-2026.jpg"
+ },
+ {
   "date": "2026-11-28",
   "dj": "Marco",
   "event": "E202",
@@ -376,6 +691,33 @@
   "name_en": "Milonga Cadencia",
   "city": "Guangzhou",
   "src": "events.json weekly dj"
+ },
+ {
+  "date": "2026-11-28",
+  "dj": "Monica",
+  "event": "R034",
+  "name": "Milonga de Ensueños",
+  "name_en": "Milonga de Ensueños",
+  "city": "Shanghai",
+  "src": "events.json poster R034.jpg"
+ },
+ {
+  "date": "2026-11-28",
+  "dj": "TJ Fabio",
+  "event": "rccbKIYP",
+  "name": "探戈极限",
+  "name_en": "Infinity Tango",
+  "city": "Shanghai",
+  "src": "events.json poster rccbKIYP_2026-11-28.jpg"
+ },
+ {
+  "date": "2026-12-01",
+  "dj": "Ken Wong",
+  "event": "Q0Dhqqdr",
+  "name": "Milonga X",
+  "name_en": "Milonga X",
+  "city": "Hong Kong",
+  "src": "events.json poster Q0Dhqqdr.jpg"
  },
  {
   "date": "2026-12-03",
@@ -460,6 +802,15 @@
  },
  {
   "date": "2026-12-05",
+  "dj": "Mantisa",
+  "event": "E153",
+  "name": "Milonga Artística 3 探戈舞藝會",
+  "name_en": "Milonga Artística 3",
+  "city": "Hong Kong",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-12-05",
   "dj": "Zhang Yu",
   "event": "E165",
   "name": "Milonga del sol 月度舞会",
@@ -495,6 +846,24 @@
   "src": "events.json schedule"
  },
  {
+  "date": "2026-12-12",
+  "dj": "Maggie Ho（澳门）",
+  "event": "E200",
+  "name": "珠澳联合舞会 Milonga Perla NO.8",
+  "name_en": "Zhuhai–Macau Joint Milonga Perla NO.8",
+  "city": "Zhuhai",
+  "src": "events.json one-off dj"
+ },
+ {
+  "date": "2026-12-31",
+  "dj": "XIAOXIN",
+  "event": "E194",
+  "name": "跨年舞会",
+  "name_en": "Milongueando Nochevieja 2027",
+  "city": "Shenzhen",
+  "src": "events.json one-off dj"
+ },
+ {
   "date": "2026-12-31",
   "dj": "Bella",
   "event": "ONKkPuWH",
@@ -520,6 +889,15 @@
   "name_en": "Guangzhou Tango Festival 2027",
   "city": "Guangzhou",
   "src": "events.json schedule"
+ },
+ {
+  "date": "2027-01-02",
+  "dj": "BAN A LEE (Korea)",
+  "event": "E195",
+  "name": "艺术家舞会及表演",
+  "name_en": "Milongueando con Artistas",
+  "city": "Shenzhen",
+  "src": "events.json one-off dj"
  },
  {
   "date": "2027-01-02",

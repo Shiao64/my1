@@ -24,6 +24,13 @@ check('rows: dated posters + weekly dj + schedule, deduped, undated skipped',
       got == [('2026-10-27', 'Bob', 'X'), ('2026-11-03', 'Ann', 'X'), ('2027-05-02', '刘峥', 'F')])
 check('add is idempotent', D.add(log, D.rows_from(ev, 't')) == 0)
 check('one night counts once', len(D.nights([{'date': '2026-01-01', 'event': 'A'}, {'date': '2026-01-01', 'event': 'A'}, {'date': '2026-01-08', 'event': 'A'}])) == 2)
+one = [{'id': 'O', 'kind': 'event', 'name': 'Halloween', 'city': 'Beijing', 'start': '2026-11-01', 'end': '2026-11-01', 'dj': 'Tayfun'},
+       {'id': 'M', 'kind': 'event', 'name': 'Weekend', 'city': 'Beijing', 'start': '2026-12-03', 'end': '2026-12-07', 'dj': ['A', 'B']},
+       {'id': 'R', 'kind': 'event', 'name': 'Res', 'city': 'Hong Kong', 'start': '2026-11-02', 'dj': 'Resident DJ（Ken Wong, SC Lee）'},
+       {'id': 'P', 'kind': 'event', 'name': 'Posters', 'city': 'Beijing', 'start': '2026-11-08', 'dj': 'Cat', 'poster_djs': {'/p/P-20261108.jpg': 'Cat'}}]
+got = sorted((r['date'], r['dj'], r['event'], r['src'].split()[-1]) for r in D.rows_from(one, 't'))
+check('one-day one-off dj = one night on its date; multi-day without schedule skipped; poster DJs win',
+      got == [('2026-11-01', 'Tayfun', 'O', 'dj'), ('2026-11-08', 'Cat', 'P', 'P-20261108.jpg')])
 p = D.People(); p.join(['刘峥', 'Liu Zheng'])
 check('aliases joined', p.find(D.key('Liu Zheng')) == p.find(D.key('刘峥')))
 print('FAILED %d' % bad if bad else 'all ok'); sys.exit(1 if bad else 0)
