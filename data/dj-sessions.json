@@ -343,12 +343,30 @@
  },
  {
   "date": "2026-11-24",
+  "dj": "艺侨 Yiqiao",
+  "event": "GqufXmMX",
+  "name": "探戈会",
+  "name_en": "Milonga V",
+  "city": "Beijing",
+  "src": "events.json poster GqufXmMX_2026-11-24.jpg"
+ },
+ {
+  "date": "2026-11-24",
   "dj": "Kirill",
   "event": "Q0Dhqqdr",
   "name": "Milonga X",
   "name_en": "Milonga X",
   "city": "Hong Kong",
   "src": "events.json poster Q0Dhqqdr.jpg"
+ },
+ {
+  "date": "2026-11-28",
+  "dj": "Marco",
+  "event": "E202",
+  "name": "Martin y Mauge SHOW 特别企划舞会",
+  "name_en": "Martin y Mauge Show Milonga",
+  "city": "Shanghai",
+  "src": "events.json poster E202.jpg"
  },
  {
   "date": "2026-11-28",
@@ -439,6 +457,15 @@
   "name_en": "DANANG TANGO MARATHON & DANANG METROPOLITAN TANGO CHAMPIONSHIP",
   "city": "Da Nang",
   "src": "git 60a56816 2026-11-01 schedule"
+ },
+ {
+  "date": "2026-12-05",
+  "dj": "Zhang Yu",
+  "event": "E165",
+  "name": "Milonga del sol 月度舞会",
+  "name_en": "Milonga del sol",
+  "city": "Beijing",
+  "src": "events.json poster E165.jpg"
  },
  {
   "date": "2026-12-06",
