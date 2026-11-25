@@ -15,7 +15,8 @@ Cards then link the organizer's name to that page (cardB.js orgNamesHtml), and t
 cards: current ones first, then past ones (asia/dj-page.js).
 
 Never overwrites: an entry that already matches the person (hand-made, e.g. 刘峥) is left alone, and an
-existing page file is not rewritten. Bios, photos and links are added by hand later. Nothing is
+existing page file is not rewritten. Bios, photos and links are added by hand later. The line under the name (affiliation) comes
+from the one confirmed group in data/entities-draft/checked-groups.json, if any (filled on "auto" entries only). Nothing is
 deleted when someone drops below the minimum. Every organizer page gets the "past events" section
 if it lacks one.
 Photo and bio start empty; the page shows 照片待补充 / 介绍待补充 until they are filled in (dj-page.js).
@@ -99,7 +100,7 @@ def page_html(p, lang):
     ) % ('zh-CN' if zh else 'en', E(name), '亚洲探戈地图' if zh else 'Asia Tango Map', css, E(p['id']), lang,
          '/zh/asia/' if zh else '/asia/', '返回' if zh else 'Back', E(name),
          ''.join('    <div><dt>%s</dt><dd id="%s"></dd></div>\n' % r for r in rows),
-         '目前的活动' if zh else 'Current events', past_section(lang), js)
+         '近期主办' if zh else 'Upcoming', past_section(lang), js)
 
 
 def add_past(path, lang):
@@ -123,6 +124,23 @@ def plan():
     same = [d['names'] for d in load('data/entities-draft/decisions.json').get('host_same', [])]
     profiles = load(PROFILES)
     taken = {p['id'] for p in profiles}
+    # The line under the name (affiliation), as on 刘峥 / 王凯's pages: the one group that the hand-checked
+    # sheet (checked-groups.json, Shiao / Sam) confirms the person belongs to. None or several: left empty.
+    confirmed = [g for g in load('data/entities-draft/checked-groups.json').get('groups', []) if g.get('status') == 'confirmed']
+
+    def group_of(names):
+        ks = {key(n) for n in names if key(n)}
+        hits = [g for g in confirmed if ks & {key(m) for m in g.get('members') or []}]
+        return hits[0] if len(hits) == 1 else None
+
+    def with_aff(entry, g):
+        out = {}
+        for k, v in entry.items():
+            if k in ('photo', 'bio') and 'affiliation' not in out:
+                out['affiliation'] = g.get('name_en') or g['name_local']
+                out['affiliation_zh'] = g['name_local']
+            out[k] = v
+        return out
 
     def owner(names):
         ks = {key(n) for n in names if key(n)}
@@ -131,7 +149,7 @@ def plan():
                 return p
         return None
 
-    add, kept, warn = [], [], []
+    add, kept, warn, fill = [], [], [], []
     for o in sorted(draft, key=lambda o: o['id']):
         cards = sorted(i for i in o.get('events', []) if i in byid and not byid[i].get('hidden'))
         if len([i for i in cards if not regions or byid[i].get('region') in regions]) < need:
@@ -145,6 +163,11 @@ def plan():
         hit = owner(names)
         if hit:
             kept.append((hit['id'], names[0], cards))
+            g = group_of(names)
+            if hit.get('auto') and not hit.get('affiliation') and g:  # only entries this tool made, never hand-made ones
+                i = profiles.index(hit)
+                profiles[i] = with_aff(hit, g)
+                fill.append((hit['id'], g['name_local']))
             continue
         found = sorted(e['id'] for e in shown if page_matches(names, e))
         if found != cards:
@@ -163,13 +186,16 @@ def plan():
         entry.update({'photo': '', 'bio': '', 'bio_zh': '',
                       'links': {'instagram': '', 'facebook': '', 'wechat': '', 'soundcloud': ''},
                       'match': names, 'auto': True})
+        g = group_of(names)
+        if g:
+            entry = with_aff(entry, g)
         add.append((entry, cards))
-    return profiles, add, kept, warn
+    return profiles, add, kept, warn, fill
 
 
 def main(argv):
     check = '--check' in argv
-    profiles, add, kept, warn = plan()
+    profiles, add, kept, warn, fill = plan()
     pages = []
     for entry, _ in add:
         for lang, base in (('en', 'organizer'), ('zh', 'zh/organizer')):
@@ -187,12 +213,14 @@ def main(argv):
         print('已有介绍页：%s（%s）%d 张卡' % (name, pid, len(cards)))
     for entry, cards in add:
         print('新加：%s／%s → /organizer/%s/ ，%d 张卡 %s' % (entry['name_zh'], entry['name'], entry['id'], len(cards), ' '.join(cards)))
+    for pid, gname in fill:
+        print('补所属：%s → %s' % (pid, gname))
     for w in warn:
         print('注意：' + w)
-    print('要新加 %d 位、新页面 %d 个、旧页面补「过去的活动」%d 个' % (len(add), len(pages), len(old)))
+    print('要新加 %d 位、新页面 %d 个、旧页面补「过去的活动」%d 个、补所属 %d 位' % (len(add), len(pages), len(old), len(fill)))
     if check:
-        return 1 if (add or pages or old) else 0
-    if add:
+        return 1 if (add or pages or old or fill) else 0
+    if add or fill:
         profiles = profiles + [e for e, _ in add]
         with open(P(PROFILES), 'w', encoding='utf-8') as fh:
             fh.write(json.dumps(profiles, ensure_ascii=False, indent=2) + '\n')
