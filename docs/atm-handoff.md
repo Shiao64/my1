@@ -142,6 +142,7 @@
 - 流程：探戈助理把答复放在 `answer/...` 分支开 PR → `inbox-guard.yml` 只准改 `data/inbox/`，通过就自动合并并启动 `inbox.yml` → Claude Code Action（秘密 `CLAUDE_CODE_OAUTH_TOKEN`，用户的 Pro 方案，约 2027-11 到期）处理答复，开「探戈助理答复：…」PR → `tools/inbox_autocheck.py` 判断能不能自动上线。
 - **探戈助理用的是用户自己的 GitHub 帐号 `Shiao64`**（#143、#145、#150、#153 都是这个帐号开的），不用加 `allowed_bots`。
 - **单场的变动用 `temp_notices` 写在那一天**，不改整张周常卡的固定字段（11/16 用户定；换海报时按海报改 `dj` 是例外，见第 2 节）。
+  - **活动前的通知（11/25 Shiao 定）**：主办在活动前发的加场内容（加表演、换 DJ、改时间、票价）一律加到**当天那张卡**的 `temp_notices`，不另建卡。改了 DJ／时间／费用的写 `status:"changed"` 加 `dj`、`time`、`fee`、`fee_en`（卡上当天字段会换掉，标「临时变更 · M/D」）；只是文字的不写 status（标「新通知 · M/D」）。两种都从现在起显示到那一天：活动卡（cardB.js）和日常列表（atm-home.js 的 `noticeTag`）都有标签。临时**多出来的一场**才建一次性活动卡（例：11/28 Tango Palace Martin y Mauge E202）。
 - ~~**#148**：只要还有没合并的 `inbox-run-*` PR，新的处理就先等，并在那个 PR 下留言；那个 PR 合并后会自动再跑一次。~~ **11/18 改成不排队（用户要求）**：`tools/inbox_queue.py` 找出还没被开着的 `inbox-run-*` PR 处理过的答复，只处理那些；能自动上线的照样上线。改到同一张卡的，后来的 PR 不自动上线，留言等前一个。`inbox-refresh.yml`：main 的活动资料一变（或自动合并后、每日清理后），把还开着的答复 PR 和 main 接上，活动 JSON 按卡合并（PR 自己改的卡用 PR 的，其他用 main 的），草稿名单重新产生；有别的冲突就在 PR 下留言要 Claude 处理。测试：`python3 tools/test_inbox_queue.py`。
 - **#149 + #152 自动上线**（用户 11/16 决定）：`tools/inbox_autocheck.py` 比较 PR 和 main，决定能不能自动合并（不靠处理的 Claude 自己说）。可以自动：
   - PR 说明最后一行「需要确认：无」；只改 `asia/events*.json`、`data/inbox/`、`data/entities-draft/`，或换海报工具产生的文件；

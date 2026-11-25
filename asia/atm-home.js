@@ -198,6 +198,20 @@
     if (Array.isArray(list)) for (var i = 0; i < list.length; i++) { if (noticeHits(list[i], iso)) return 'week'; }
     return '';
   }
+  /* 2026-11-25 (Shiao): list tag for a notice on this row's date: 新通知 · M/D (plain) or 临时变更 · M/D (changed). Cancelled keeps the red bar. Shown until that date passes. */
+  function noticeTag(e) {
+    var list = e.temp_notices; if (!Array.isArray(list) || weekCx(e)) return '';
+    var a = CX_ISO || (e.kind === 'weekly' ? occOf(e) : (e.start || '')), b = (e.kind === 'weekly' || CX_ISO) ? a : (e.end || a);
+    if (!a) return '';
+    for (var i = 0; i < list.length; i++) {
+      var o = list[i]; if (!o || o.status === 'cancelled') continue;
+      var d = normISO(o.date) || normISO(o.end) || normISO(o.start); if (!d || d < SHT || d < a || d > b) continue;
+      var p = d.split('-'), md = (+p[1]) + '/' + (+p[2]);
+      var t = o.status === 'changed' ? (zh ? '临时变更' : 'Changed') : (zh ? '新通知' : 'New notice');
+      return '<em class="ah-ctag ah-ntag">' + esc(t + ' · ' + md) + '</em>';
+    }
+    return '';
+  }
   function cxBar(e) {
     var k = weekCx(e); if (!k) return '';
     var ui = window.CHINA_UI || {};
@@ -237,7 +251,7 @@
     var kt = oneTag(e), bar = cxBar(e), ck = catOf(e);
     var ct = big && isBig(e) ? '<em class="ah-ctag">' + esc(T.cat1[cat(e)]) + '</em>' : (!big && ck === 'anniversary' ? '<em class="ah-kind ah-anniv">' + esc(T.cat1[3]) + '</em>' : (!big && ck !== 'milonga' && REGK.indexOf(ck) >= 0 ? '<em class="ah-ctag ah-rtag">' + esc(T.tc[ck]) + '</em>' : ''));
     var pv = e.preview ? '<em class="ah-ctag ah-pv">' + (zh ? '活动预告' : 'Preview') + '</em>' : '';
-    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + pv + ct + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (e.preview ? '' : (v ? '<span>' + esc(v) + '</span>' : '')) + grpTag(e) + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
+    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + pv + ct + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + noticeTag(e) + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (e.preview ? '' : (v ? '<span>' + esc(v) + '</span>' : '')) + grpTag(e) + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
@@ -253,7 +267,7 @@
     '#atm-home{display:none;box-sizing:border-box;padding:4px 12px 40px;max-width:952px;margin:0 auto;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}html.atm-h-on #atm-home{display:block}#atm-home picture{display:contents}img[data-atm-src]:not([src]){background:#f3e6cc}' +
     '.ah-ban{display:block;width:100%;text-align:left;margin:8px 0;padding:14px;border:0;border-radius:16px;background:linear-gradient(160deg,#0E6E78,#06333A);box-shadow:0 4px 14px rgba(6,51,58,.25);cursor:pointer;color:#F6D58E}' +
     '.ah-ban-h{display:flex;justify-content:space-between;align-items:center;gap:8px}.ah-ban-copy{flex:1;min-width:0}.ah-ban-t{display:block;font:700 19px/1.3 "Noto Serif SC",serif;white-space:normal;overflow-wrap:break-word}.ah-ban-t i{font-style:normal;color:#fff}.ah-ban-s{display:block;font:600 13px system-ui;color:#cfe3e3;margin-top:2px}.ah-ban-a{font:700 30px system-ui;flex:0 0 auto;line-height:1}' +
-    '.ah-pv{background:#F2B51C;color:#0B2440}.ah-strip{display:flex;gap:8px;margin-top:12px;overflow:hidden}.ah-strip img,.ah-strip .ah-noimg{width:64px;height:86px;object-fit:cover;border-radius:8px;flex:0 0 auto;border:2px solid rgba(246,213,142,.6)}@media(min-width:700px){.ah-strip img,.ah-strip .ah-noimg{width:90px;height:120px}.ah-ban-t{font-size:22px}}' +
+    '.ah-ntag{background:#9E1020!important;color:#fff!important}.ah-pv{background:#F2B51C;color:#0B2440}.ah-strip{display:flex;gap:8px;margin-top:12px;overflow:hidden}.ah-strip img,.ah-strip .ah-noimg{width:64px;height:86px;object-fit:cover;border-radius:8px;flex:0 0 auto;border:2px solid rgba(246,213,142,.6)}@media(min-width:700px){.ah-strip img,.ah-strip .ah-noimg{width:90px;height:120px}.ah-ban-t{font-size:22px}}' +
     '.ah-div{margin:18px 0 0;height:0;border-top:2px solid #EAD7A4}.ah-h{margin:16px 0 8px;padding-bottom:6px;border-bottom:2px solid #F6D58E;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.ah-h b{font:700 18px "Noto Serif SC",serif;color:#0A4F57}.ah-h span{font:600 12px system-ui;color:#5f6f66}' +
     '.ah-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@media(min-width:700px){.ah-grid{grid-template-columns:repeat(5,1fr)}}' +
     '.ah-city{height:58px;border-radius:12px;background:#fff;border:1.5px solid #0E6E78;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#0E6E78;cursor:pointer;font:inherit;padding:0}.ah-city b{font:700 16px system-ui}.ah-city span{font:600 12px system-ui;color:#5f6f66}' +
@@ -805,7 +819,7 @@
     var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { /* v11.7 H3: header 🔍 removed (route #h-search kept) */ void bS; /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
-  var FULL = '/asia/events.json?v=e249'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
+  var FULL = '/asia/events.json?v=e250'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
   function asList(d) { return Array.isArray(d) ? d : (d && d.events) || []; }
   function favMissing(list) {
     var m = {}, ids = [];
@@ -822,7 +836,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china584';
+    var coreUrl = '/asia/events-core.json?v=china585';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {
