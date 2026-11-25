@@ -86,7 +86,7 @@
   /* 2026-11-14 ATM categories (see claude/ATM-活动分类规则.md in the ATM project):
      日常 regular = milonga | practilonga | practica; 大型 special = festival | marathon | weekend | anniversary | workshop | grouptrip.
      grouptrip 探戈组团 (Shiao, 2026-11-26): a local organizer leads a group to a festival elsewhere. Only type/cat 'grouptrip' makes one (never guessed from the name);
-     city = where the group leaves from, venue = destination.
+     city = where the group leaves from; the destination is in destination / destination_en (venue stays empty).
      An explicit e.cat in the data wins; otherwise catOf() derives it from type + name keywords.
      Workshops: only multi-day visiting-teacher workshops are listed (local single classes are not collected).
      Anniversary: one record, shown under 大型 (tag 周年庆) AND in its city's 日常 list as a milonga with a 周年庆 badge. */
@@ -251,8 +251,9 @@
   }
   function card(e, sub, tag, eager, big) {
     var kt = oneTag(e), bar = cxBar(e), ck = catOf(e), gt = ck === 'grouptrip';
-    /* 探戈组团: "date · 北京 出发" then "→ destination" (venue holds the destination) */
-    var v = (e.kind === 'weekly' || e.theme_of) ? (evVenue(e) || '') : (gt && evVenue(e) ? '→ ' + evVenue(e) : '');
+    /* 探戈组团: "date · 北京 出发" then "→ destination" (own fields destination / destination_en; venue stays empty) */
+    var dest = gt ? ((!zh && e.destination_en) || e.destination || e.destination_en || '') : '';
+    var v = (e.kind === 'weekly' || e.theme_of) ? (evVenue(e) || '') : (dest ? '→ ' + dest : '');
     var ct = big && isBig(e) ? '<em class="ah-ctag">' + esc(T.cat1[cat(e)]) + '</em>' : (!big && ck === 'anniversary' ? '<em class="ah-kind ah-anniv">' + esc(T.cat1[3]) + '</em>' : (!big && ck !== 'milonga' && REGK.indexOf(ck) >= 0 ? '<em class="ah-ctag ah-rtag">' + esc(T.tc[ck]) + '</em>' : ''));
     var pv = e.preview ? '<em class="ah-ctag ah-pv">' + (zh ? '活动预告' : 'Preview') + '</em>' : '';
     return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + pv + ct + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + noticeTag(e) + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + (gt ? (zh ? ' 出发' : ' departure') : '') + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (e.preview ? '' : (v ? '<span>' + esc(v) + '</span>' : '')) + grpTag(e) + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
