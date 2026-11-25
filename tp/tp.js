@@ -12,6 +12,12 @@
   function bjDay(iso) { return iso ? new Date(Date.parse(iso) + 288e5).toISOString().slice(0, 16).replace('T', ' ').replace(/-/g, '/') : ''; }
   if (/^dev:/.test(get('bstw_admin'))) put('bstw_admin', '');   // left by the 管理页 before 2026-11-24
   function who() { try { return JSON.parse(get('tp_who') || 'null'); } catch (e) { return null; } }
+  // 实习 (platform step 5, 《TP 实习方案（v2）》): a yellow line under the band on every page while the event practises
+  function practiceNote(box, on) {
+    var n = document.getElementById('tpPractice');
+    if (on && !n) { n = document.createElement('div'); n.id = 'tpPractice'; n.className = 'tp-practice'; n.setAttribute('role', 'note'); n.textContent = '实习中：资料会在实习结束后清空'; box.insertAdjacentElement('afterend', n); }
+    if (n) n.hidden = !on;
+  }
   // an event's days as people write them: 6/18–6/22 (one day: 6/18)
   function days(e) { var f = function (v) { return +v.slice(5, 7) + '/' + (+v.slice(8, 10)); }; return e && e.starts ? f(e.starts) + (e.ends && e.ends !== e.starts ? '–' + f(e.ends) : '') : ''; }
   var TP = {
@@ -40,6 +46,7 @@
     // events (一人多场, or the 管理员), a list to switch to another. d: {event_info, events, role} from the server.
     band: function (box, d) {
       var e = d && d.event_info; if (!box) return;
+      practiceNote(box, e && e.mode === 'practice');
       if (!e) { box.hidden = true; return; }
       var list = (d.events || []).filter(function (x) { return x && x.id; }), one = list.length < 2;
       box.hidden = false; box.className = 'tp-band'; box.style.setProperty('--ev', e.color || '#4a0609');
@@ -118,6 +125,7 @@
     '.tp-acts .tp-ok{background:#4a0609;color:#fff}.tp-acts button:disabled{opacity:.5}' +
     '.tp-band{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 12px;background:var(--ev);color:#fff;padding:6px 14px;font-size:14px;line-height:1.4}' +
     '.tp-band b{font-size:15px}.tp-evd{opacity:.92}.tp-sw{display:flex;align-items:center;gap:6px;font-size:13px}' +
+    '.tp-practice{background:#ffe066;color:#4a3500;font-weight:700;text-align:center;padding:6px 12px;font-size:14px}' +
     '.tp-sw select{font-size:16px;max-width:62vw;padding:3px 6px;border-radius:8px;border:1px solid rgba(255,255,255,.7);background:#fff;color:#2a1a14}';
   document.head.appendChild(css);
   window.TP = TP;

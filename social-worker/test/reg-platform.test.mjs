@@ -102,7 +102,7 @@ check('its row: card, address, 测试, not open, the facts from the card, empty 
   && ycfg.prefix === 'YE27' && ycfg.name.zh === '跨年 2027' && ycfg.starts === '2027-12-31' && ycfg.letters.zh.sign === '刘峥\nMilonga V' && ycfg.short.zh === '跨年' && Object.keys(ycfg.items).length === 0, yrow);
 d = await tp(''); let ye = ev(d, 'yearend2027');
 check('new event: ①② done (its page is up), next ③ the form is not filled', ye.steps.map(s => +s.done).join('') === '1100000' && ye.next === '下一步：③ 报名表还没填（场次、套餐）' && ye.mode === 'test' && ye.short === '跨年', ye);
-check('...and its 实习 cannot be done before step 5', ye.steps[4].text === '还没实习（第 5 步做好后才能实习）' && !ye.gate.find(g => g.key === 'practice').ok, ye.steps);
+check('...and its 实习 waits for ①–④', ye.steps[4].text === '还没实习（①到④完成后，在设定里按「切到实习」）' && !ye.gate.find(g => g.key === 'practice').ok && ye.can_practice === false, ye.steps);
 d = await call('GET', '/reg/door/me?event=yearend2027', null, ADMIN); check('the shared pages know it at once', d.ok && d.event_info.name === '跨年 2027' && d.event_info.short === '跨年', d.event_info);
 
 // --- 定案

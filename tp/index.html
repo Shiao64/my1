@@ -112,13 +112,13 @@ td.n,th.n{text-align:right}
   </div>
 </main>
 <div id="msg" role="status"></div>
-<script src="tp.js?v=4"></script>
+<script src="tp.js?v=5"></script>
 <script>
 (function(){
 var Q=new URLSearchParams(location.search);
 var API=(function(){var a=Q.get('api');if(a&&/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(a))return a;return 'https://api.tangoweekend.org'})();
 var apiQ=Q.get('api')?'&api='+encodeURIComponent(Q.get('api')):'';
-var $=function(i){return document.getElementById(i)},TOKEN='',DATA=null,OPEN={},CARDS=null;
+var $=function(i){return document.getElementById(i)},TOKEN='',DATA=null,OPEN={},CARDS=null,CLEAR={};
 var MODE={test:'测试',practice:'实习',live:'正式'},MARK='①②③④⑤⑥⑦';
 var BIG=['festival','marathon','event','encuentro','weekend'];   // the ATM map's 大型活动
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -171,15 +171,50 @@ function settings(e){
     h.push('<div class="bar"><button class="p" data-lock="'+esc(e.id)+'"'+(why?' disabled':'')+'>定案（锁定报名表）</button>'+(why?'<span class="muted">'+esc(why)+'</span>':'<span class="muted">定案以后谁都不能再改场次、价格、套餐。</span>')+'</div>')}
   h.push('<h3>收款码</h3><p>'+(e.qr.length?'已上传：'+esc(e.qr.join('、')):'<b style="color:var(--red)">还没上传</b>')+' · <a href="'+esc(adm)+'">到管理页上传</a></p>');
   h.push('<h3>模式</h3><p>现在是 <b>'+esc(MODE[e.mode]||e.mode)+'</b>'+(e.mode_from==='REG_LIVE'?'<span class="muted">（还跟着 Cloudflare 的 REG_LIVE；按「搬进平台」以后由这里管）</span>':'')+'</p>');
-  if(e.mode!=='live'){
+  h.push(practice(e));
+  if(e.mode!=='live'&&e.mode!=='practice'){
     h.push('<p class="muted">切到正式要这五项都完成：</p><ul class="gate">'+e.gate.map(function(g){return '<li class="'+(g.ok?'y':'x')+'">'+(g.ok?'✓ ':'✗ ')+esc(g.text)+'</li>'}).join('')+'</ul>');
     h.push('<div class="bar"><button class="p" data-live="'+esc(e.id)+'"'+(e.can_live?'':' disabled')+'>切到正式</button><span class="muted">'+(e.in_platform?'正式以后不能切回测试。':'先按「搬进平台」。')+'</span></div>')}
+  if(CLEAR[e.id])h.push(clearBox(e,CLEAR[e.id]));
   h.push('<h3>团队与邮箱</h3><p class="muted">总管、活动邮箱、活动专属邮箱、测试名单：<a href="'+esc(adm)+'">到这场管理页的「设置」</a>。</p></div>');
   return h.join('')}
+// --- 实习 (platform step 5): 测试 → 实习 → 结束实习并清空 → 正式
+function practice(e){var h=[];
+  if(e.mode==='practice'&&e.practice){var p=e.practice;
+    h.push('<div class="why"><b>实习中</b>：真的总管、经理、前台用平常的管理页和签到页练习；资料在实习结束后清空。</div>'+
+      '<p>实习报名链接（只发给参加实习的人）：</p><div class="bar"><input readonly value="'+esc(p.link)+'" style="flex:1;min-width:0"><button data-copy="'+esc(p.link)+'">复制</button></div>'+
+      '<p>已报 <b>'+p.count+'</b> / '+p.cap+' 笔 · 每人最多 '+p.mine+' 笔 · 编号带 P（'+esc(e.prefix)+'P-0001）</p>'+
+      '<div class="bar"><label>全场上限 <input type="number" min="5" max="30" value="'+p.cap+'" id="cap-'+esc(e.id)+'" style="width:5em"></label><button data-cap="'+esc(e.id)+'">保存上限</button></div>'+
+      '<div class="bar"><button class="p" data-clear="'+esc(e.id)+'">结束实习并清空</button><span class="muted">先列出会删什么，确认后才删。</span></div>');
+    return h.join('')}
+  if(e.mode==='live'||!e.in_platform)return '';
+  h.push('<p class="muted">切到实习要先完成：</p><ul class="gate">'+(e.practice_gate||[]).map(function(g){return '<li class="'+(g.ok?'y':'x')+'">'+(g.ok?'✓ ':'✗ ')+esc(g.text)+'</li>'}).join('')+'</ul>');
+  h.push('<div class="bar"><label>全场上限 <input type="number" min="5" max="30" value="10" id="cap-'+esc(e.id)+'" style="width:5em"></label><button class="p" data-practice="'+esc(e.id)+'"'+(e.can_practice?'':' disabled')+'>切到实习</button>'+(e.has_stage===false?'<span class="muted">资料库还没更新（迁移 0029）</span>':'')+'</div>');
+  if(e.can_clear&&(e.marked||{}).test)h.push('<div class="bar"><button data-clear="'+esc(e.id)+'">清空测试资料（'+e.marked.test+' 笔）</button></div>');
+  return h.join('')}
+function clearBox(e,c){var k=c.counts||{},w=c.what==='practice'?'实习':'测试';
+  return '<div class="card" style="margin-top:10px;border-color:var(--red)"><h3 style="margin-top:0">'+(c.what==='practice'?'结束实习并清空':'清空测试资料')+'：会删除</h3>'+
+    '<p>'+k.regs+' 笔'+w+'报名（'+k.people+' 人）、'+k.payments+' 笔收款、'+k.checkins+' 次签到、'+k.records+' 条处理纪录、'+k.mails+' 条寄信纪录。删了不能恢复。</p>'+
+    '<p class="muted">会留：活动设定、报名表、收款码、活动邮箱、团队帐号和登入的手机。'+(c.what==='practice'?'清空后回到测试，五项把关都完成就能切正式。':'')+'</p>'+
+    '<h3>感谢信（中英文，每个邮箱一封；不寄的请勾掉）</h3>'+(c.thank.length?c.thank.map(function(x){return '<label style="display:block"><input type="checkbox" data-thank="'+esc(x.email)+'" checked> '+esc(x.email)+' <span class="muted">'+esc(x.codes.join('、'))+'</span></label>'}).join(''):'<p class="muted">没有要寄的。</p>')+
+    (c.skipped.length?'<p class="muted">不寄（假地址）：'+esc(c.skipped.join('、'))+'</p>':'')+
+    '<div class="bar" style="margin-top:8px"><button class="p" data-clear-go="'+esc(e.id)+'">确认清空</button><button data-clear-no="'+esc(e.id)+'">取消</button></div></div>'}
 // --- actions
 $('events').addEventListener('click',function(ev){
   var b=ev.target.closest('button');if(!b)return;
   if(b.dataset.set){OPEN[b.dataset.set]=!OPEN[b.dataset.set];render();return}
+  if(b.dataset.copy){var t=b.dataset.copy;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('已复制实习报名链接')},function(){toast('没复制成功，请长按手动复制')});return}
+  if(b.dataset.clearNo){CLEAR[b.dataset.clearNo]=null;render();return}
+  var pid=b.dataset.practice||b.dataset.cap||b.dataset.clear||b.dataset.clearGo,pe=pid&&DATA.events.filter(function(x){return x.id===pid})[0];
+  if(pe){var cap=+(($('cap-'+pid)||{}).value||10);
+    if(b.dataset.practice){if(!confirm('把「'+pe.name+'」切到实习？\n\n系统产生实习报名链接（全场最多 '+cap+' 笔，每人最多 5 笔），并把实习计划寄给总管邮箱、副本邮箱和管理员。实习报名不付款；实习完要按「结束实习并清空」，才能切正式。'))return;
+      return act(b,'/mode',{event:pid,mode:'practice',cap:cap},'已切到实习')}
+    if(b.dataset.cap)return act(b,'/practice',{event:pid,cap:cap},'已改上限：'+cap+' 笔');
+    if(b.dataset.clear){b.disabled=true;return call('/social/admin/tp/clear',{event:pid}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d),9000);CLEAR[pid]=d;OPEN[pid]=true;render()})}
+    if(b.dataset.clearGo){var c=CLEAR[pid],thank=[].map.call(document.querySelectorAll('[data-ev="'+pid+'"] [data-thank]:checked'),function(i){return i.dataset.thank});
+      if(!confirm('确定清空「'+pe.name+'」的'+(c.what==='practice'?'实习':'测试')+'资料？\n\n删除 '+c.counts.regs+' 笔报名和它们的收款、签到、纪录，不能恢复；寄 '+thank.length+' 封感谢信。'))return;
+      b.disabled=true;return call('/social/admin/tp/clear',{event:pid,confirm:true,thank:thank}).then(function(d){b.disabled=false;
+        if(!d.ok)return toast(errText(d),9000);CLEAR[pid]=null;toast('已清空：'+d.cleared.regs+' 笔报名；寄了 '+d.thanked+' 封感谢信'+(d.failed?'，'+d.failed+' 封没寄出':''),9000);load()})}}
   var id=b.dataset.adopt||b.dataset.lock||b.dataset.live||b.dataset.card,e=DATA.events.filter(function(x){return x.id===id})[0];if(!e)return;
   if(b.dataset.adopt){
     if(!confirm('把「'+e.name+'」搬进平台？\n\n照现在的状态建一笔资料：模式＝现在的'+(MODE[e.mode]||e.mode)+'，报名表算已定案，1225 实测算作实习已清空。之后这场的模式由平台管，不再看 Cloudflare 的 REG_LIVE。报名和信件照旧。'))return;
@@ -203,7 +238,12 @@ function act(b,path,body,done){b.disabled=true;
     toast(errText(d),9000);if(d.error==='changed')load()})}
 function errText(d){var e=d.error;
   if(e==='network')return '连不上后台：不确定有没有成功，请先刷新看看';
-  if(e==='not_ready'&&d.gate)return '还不能切正式，还差：'+d.gate.filter(function(g){return !g.ok}).map(function(g){return g.text}).join('、');
+  if(e==='not_ready'&&d.gate)return '还不能切，还差：'+d.gate.filter(function(g){return !g.ok}).map(function(g){return g.text}).join('、');
+  if(e==='not_ready')return '资料库还没更新，暂时不能用';
+  if(e==='practising')return '实习中：先「结束实习并清空」，才能切正式';
+  if(e==='live')return '正式期间不能切实习、也不能清空';
+  if(e==='not_practising')return '现在不是实习';
+  if(e==='bad_field'&&d.which==='cap')return '实习上限要 5 到 30 笔';
   if(e==='same_time_people')return '没有更新：日期改了以后，这些人会同时在两场活动任职：\n'+d.people.map(function(p){return '「'+p.name+'」'+(p.error==='no_dates'?'：「'+p.event_name+'」没有日期':'也在「'+p.event_name+'」（'+TP.days(p)+'）')}).join('\n');
   if(e==='taken')return '没有建立：这个'+({id:'活动代号',slug:'网址代号',prefix:'编号前缀',card:'活动卡'}[d.which]||'')+'已经有活动用了';
   if(e==='bad_field')return '没有建立：'+({id:'活动代号要 3 到 40 个小写英文字母或数字',slug:'网址代号只能用小写英文字母、数字和 -',prefix:'编号前缀要 2 到 6 个大写英文字母或数字',card:'请选一张活动卡',name:'活动卡没有名称',dates:'活动卡没有日期'}[d.which]||d.which);
