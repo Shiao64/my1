@@ -24,7 +24,7 @@
   var TYPE = {
     'Milonga': '밀롱가', 'Práctica': '쁘락띠까', 'Practica': '쁘락띠까', 'Práctilonga': '쁘락띠롱가', 'Practilonga': '쁘락띠롱가',
     'Festival': '페스티벌', 'Marathon': '마라톤', 'Encuentro': '엔쿠엔트로', 'Weekend': '위켄드',
-    'Encuentro / Weekend': '엔쿠엔트로 / 위켄드', 'Anniversary': '애니버서리 밀롱가', 'Workshop': '워크숍',
+    'Encuentro / Weekend': '엔쿠엔트로 / 위켄드', 'Anniversary': '애니버서리 밀롱가', 'Workshop': '워크숍', 'Group Trip': '탱고 단체 여행',
     'Championship': '챔피언십', 'Event': '이벤트', 'Class': '클래스', 'One-off': '단발',
     'Weekly': '매주', 'Monthly': '매월', 'Biweekly': '격주'
   };
@@ -48,7 +48,7 @@
     'Tap ☆ on an event to save it here': '이벤트의 ☆를 누르면 여기에 저장됩니다',
     'After you verify your email, this list restores on your other devices': '이메일 인증 후에는 다른 기기에서도 이 목록이 복원됩니다',
     'Festivals': '페스티벌', 'Marathons': '마라톤', 'Encuentros / Weekends': '엔쿠엔트로 / 위켄드', 'Anniversaries': '애니버서리 밀롱가',
-    'Workshops': '워크숍', 'Last': '마지막', 'Cancelled': '취소됨', 'Paused this week': '이번 주 휴무',
+    'Workshops': '워크숍', 'Group Trips': '탱고 단체 여행', 'Last': '마지막', 'Cancelled': '취소됨', 'Paused this week': '이번 주 휴무',
     'Remove from favorites': '저장 취소', 'Add to favorites': '저장', 'Save': '저장', 'Next': '다음',
     'Saved events': '저장한 이벤트', 'Choose city': '도시 선택', 'Choose a city': '도시 선택', 'Select a city': '도시 선택',
     'Later dates are projected from the weekly schedule and may change. Please confirm with the organizer.': '이후 날짜는 정기 일정으로 추정한 것이며 바뀔 수 있습니다. 주최자에게 확인해 주세요.',
@@ -205,6 +205,7 @@
     [new RegExp('^((?:1st|2nd|3rd|4th|5th|Last)(?:(?: & |, | and )(?:1st|2nd|3rd|4th|5th|Last))*) (' + WDLK + ')(?: of the month)?( .*)?$'), function (m) {
       return '매월 ' + m[1].split(/ & |, | and /).map(function (x) { return NTH[x]; }).join('·') + ' ' + WDL[m[2]] + (m[3] ? ' ' + type(m[3].trim()) : ''); }],
     [/^(Weekly|Monthly|Biweekly|One-off) · (.+)$/, function (m) { return TYPE[m[1]] + ' · ' + type(m[2]); }],
+    [/^([\d/–:\- ]+) · (.+) departure$/, function (m) { return m[1] + ' · ' + city(m[2]) + ' 출발'; }],
     [/^([\d/–:\- ]+) · (.+)$/, function (m) { return m[1] + ' · ' + tail(m[2]).split(' · ').map(type).join(' · '); }],
     [/^Upcoming special · (.+)$/, function (m) { return '다가오는 스페셜 이벤트 · ' + city(m[1]); }],
     [/^(.+) ▾$/, function (m) { return CITY[m[1]] ? CITY[m[1]] + ' ▾' : null; }],
@@ -213,7 +214,7 @@
     [/^(.+): back to top to change city$/, function (m) { return city(m[1]) + ': 위로 가서 도시 바꾸기'; }],
     [/^☆ (\d+) saved events?$/, function (m) { return '☆ 저장한 이벤트 ' + m[1] + '개'; }],
     [/^(\d+) saved events?$/, function (m) { return '저장한 이벤트 ' + m[1] + '개'; }],
-    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
+    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary|Group Trip) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
     [/^WeChat Official Account: (.+)$/, function (m) { return '위챗 공식계정: ' + m[1]; }],
     [/^WeChat Channels: (.+)$/, function (m) { return '위챗 채널: ' + m[1]; }],
     [/^See upcoming events in (.+)$/, function (m) { return city(m[1]) + '의 다가오는 이벤트 보기'; }],

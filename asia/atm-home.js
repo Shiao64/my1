@@ -51,8 +51,8 @@
   if (/[?&](card|mode|city|via|date|q|type)=/.test(location.search)) return;
   try { if (sessionStorage.getItem('atm_legacy_list') === '1') return; } catch (e) {} /* regression hook: old full list for the pre-v11.6 test suite */
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
-  var T = zh ? { subT: '订阅大型活动消息', subD: '新的探戈节、马拉松、报名截止，不定时寄给你', feat: '大型活动', reg: '日常活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '日常活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。点活动上的星星即可收藏。', favnote: '验证邮箱后可在其他设备恢复', back: '返回', theme: '每周舞会 · 本周专题', cats: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '日常活动'], cat1: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊'], allBig: '全部大型', allReg: '全部日常', tc: { milonga: '舞会', practilonga: '练习舞会', practica: '练习场' }, up: '近期大型', seeall: '全部大型 ›', allCity: '全部城市', today: '今天', mview: '月历', wview: '周视图', noev: '没有活动', proj: '较远的日期按每周固定时间推算，可能有变动，请向主办方确认。', WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
-    : { subT: 'Get special-event news', subD: 'New festivals, marathons and registration deadlines, sent now and then', feat: 'Special events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'regular event', fav: 'My saved events', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No saved events yet. Tap the star on an event to save it.', favnote: 'After you verify your email, this list restores on your other devices', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Festivals', 'Marathons', 'Encuentros / Weekends', 'Anniversaries', 'Workshops', 'Regular events'], cat1: ['Festival', 'Marathon', 'Encuentro / Weekend', 'Anniversary', 'Workshop'], allBig: 'All special', allReg: 'All regular', tc: { milonga: 'Milonga', practilonga: 'Práctilonga', practica: 'Práctica' }, up: 'Upcoming special', seeall: 'See all ›', allCity: 'All cities', today: 'Today', mview: 'Month', wview: 'Week', noev: 'No events', proj: 'Later dates are projected from the weekly schedule and may change. Please confirm with the organizer.', WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
+  var T = zh ? { subT: '订阅大型活动消息', subD: '新的探戈节、马拉松、报名截止，不定时寄给你', feat: '大型活动', reg: '日常活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '日常活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。点活动上的星星即可收藏。', favnote: '验证邮箱后可在其他设备恢复', back: '返回', theme: '每周舞会 · 本周专题', cats: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '探戈组团', '日常活动'], cat1: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '探戈组团'], allBig: '全部大型', allReg: '全部日常', tc: { milonga: '舞会', practilonga: '练习舞会', practica: '练习场' }, up: '近期大型', seeall: '全部大型 ›', allCity: '全部城市', today: '今天', mview: '月历', wview: '周视图', noev: '没有活动', proj: '较远的日期按每周固定时间推算，可能有变动，请向主办方确认。', WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
+    : { subT: 'Get special-event news', subD: 'New festivals, marathons and registration deadlines, sent now and then', feat: 'Special events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'regular event', fav: 'My saved events', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No saved events yet. Tap the star on an event to save it.', favnote: 'After you verify your email, this list restores on your other devices', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Festivals', 'Marathons', 'Encuentros / Weekends', 'Anniversaries', 'Workshops', 'Group Trips', 'Regular events'], cat1: ['Festival', 'Marathon', 'Encuentro / Weekend', 'Anniversary', 'Workshop', 'Group Trip'], allBig: 'All special', allReg: 'All regular', tc: { milonga: 'Milonga', practilonga: 'Práctilonga', practica: 'Práctica' }, up: 'Upcoming special', seeall: 'See all ›', allCity: 'All cities', today: 'Today', mview: 'Month', wview: 'Week', noev: 'No events', proj: 'Later dates are projected from the weekly schedule and may change. Please confirm with the organizer.', WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
   /* v2 layout (2026-11-14): city chips + ★收藏 | 日常 | 大型 tabs.
      v11.25 (2026-11-15): v2 is the default for everyone. ?v2=0 switches this device back to the old home (remembered), ?v2=1 clears that. */
   var V2 = true;
@@ -84,11 +84,13 @@
   var TAIL = [{ k: 'Hong Kong', zh: '香港', en: 'Hong Kong', region: 'Hong Kong' }, { k: 'Taiwan', zh: '台湾', en: 'Taiwan', region: 'Taiwan' }], MRUK = 'atm_city_mru_v1', TAILS = [];
   function tailOf(reg) { for (var i = 0; i < TAIL.length; i++) if (TAIL[i].region === reg) return TAIL[i]; return null; }
   /* 2026-11-14 ATM categories (see claude/ATM-活动分类规则.md in the ATM project):
-     日常 regular = milonga | practilonga | practica; 大型 special = festival | marathon | weekend | anniversary | workshop.
+     日常 regular = milonga | practilonga | practica; 大型 special = festival | marathon | weekend | anniversary | workshop | grouptrip.
+     grouptrip 探戈组团 (Shiao, 2026-11-26): a local organizer leads a group to a festival elsewhere. Only type/cat 'grouptrip' makes one (never guessed from the name);
+     city = where the group leaves from, venue = destination.
      An explicit e.cat in the data wins; otherwise catOf() derives it from type + name keywords.
      Workshops: only multi-day visiting-teacher workshops are listed (local single classes are not collected).
      Anniversary: one record, shown under 大型 (tag 周年庆) AND in its city's 日常 list as a milonga with a 周年庆 badge. */
-  var BIG = ['festival', 'marathon', 'weekend', 'anniversary', 'workshop'], REGK = ['milonga', 'practilonga', 'practica'];
+  var BIG = ['festival', 'marathon', 'weekend', 'anniversary', 'workshop', 'grouptrip'], RI = BIG.length /* search tab index of 日常活动 */, REGK = ['milonga', 'practilonga', 'practica'];
   function nmAll(e) { return ((e.name || '') + ' ' + (e.name_zh || '') + ' ' + (e.name_en || '')).toLowerCase(); }
   function regCat(e, s) { if (/practilonga|pr[aá]ctica[ -]milonga|练习舞会|練習舞會/.test(s)) return 'practilonga'; return e.type === 'practica' ? 'practica' : 'milonga'; }
   /* Per-event decisions made in code (no R2 upload needed). Prefer e.cat in the data when the data is next published. */
@@ -96,6 +98,7 @@
   function catOf(e) {
     if (e.cat && (BIG.indexOf(e.cat) >= 0 || REGK.indexOf(e.cat) >= 0)) return e.cat;
     if (CAT_FIX[e.id]) return CAT_FIX[e.id];
+    if (e.type === 'grouptrip') return 'grouptrip'; /* before the name keywords: a trip to a festival is not a festival */
     var s = nmAll(e);
     if (e.kind === 'weekly') return regCat(e, s);
     if (/周年|週年|aniversario|anniversary/.test(s)) return 'anniversary';
@@ -118,7 +121,7 @@
   function isPreview(e) { return !!(e && e.preview === true && e.kind === 'event' && !e.hidden); }
   /* A preview card is a dated placeholder. It stays in 大型 even when type was not given (Moganshan stop 3). */
   function isFeat(e) { return e.kind === 'event' && !e.hidden && (e.end || e.start || '9') >= TODAY && (isPreview(e) || (isBig(e) && (!e.regular_oneoff || catOf(e) === 'anniversary'))); }
-  function cat(e) { var b = BIG.indexOf(catOf(e)); return b >= 0 ? b : 5; }
+  function cat(e) { var b = BIG.indexOf(catOf(e)); return b >= 0 ? b : RI; }
   function prep(d) {
     DATA = d.filter(function (e) { return !e.hidden; });
     FEAT = DATA.filter(isFeat).sort(function (a, b) { return (a.start || '9') < (b.start || '9') ? -1 : (a.start || '9') > (b.start || '9') ? 1 : 0; });
@@ -247,11 +250,12 @@
     }).join('');
   }
   function card(e, sub, tag, eager, big) {
-    var v = (e.kind === 'weekly' || e.theme_of) ? (evVenue(e) || '') : '';
-    var kt = oneTag(e), bar = cxBar(e), ck = catOf(e);
+    var kt = oneTag(e), bar = cxBar(e), ck = catOf(e), gt = ck === 'grouptrip';
+    /* 探戈组团: "date · 北京 出发" then "→ destination" (venue holds the destination) */
+    var v = (e.kind === 'weekly' || e.theme_of) ? (evVenue(e) || '') : (gt && evVenue(e) ? '→ ' + evVenue(e) : '');
     var ct = big && isBig(e) ? '<em class="ah-ctag">' + esc(T.cat1[cat(e)]) + '</em>' : (!big && ck === 'anniversary' ? '<em class="ah-kind ah-anniv">' + esc(T.cat1[3]) + '</em>' : (!big && ck !== 'milonga' && REGK.indexOf(ck) >= 0 ? '<em class="ah-ctag ah-rtag">' + esc(T.tc[ck]) + '</em>' : ''));
     var pv = e.preview ? '<em class="ah-ctag ah-pv">' + (zh ? '活动预告' : 'Preview') + '</em>' : '';
-    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + pv + ct + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + noticeTag(e) + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (e.preview ? '' : (v ? '<span>' + esc(v) + '</span>' : '')) + grpTag(e) + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
+    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + pv + ct + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + noticeTag(e) + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + (gt ? (zh ? ' 出发' : ' departure') : '') + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (e.preview ? '' : (v ? '<span>' + esc(v) + '</span>' : '')) + grpTag(e) + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
@@ -514,14 +518,14 @@
     if (bodyOnly) { V2MENU = tchips; V2TC = tc; return upBlock(c) + nav + rail + proj + '<div class="ah-list" style="margin-top:6px">' + out + '</div>'; }
     return top(esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + total + '</i> ' + T.items : enUnit(total, T.weekly))) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + upBlock(c) + nav + rail + tchips + proj + '<div class="ah-list" style="margin-top:6px">' + out + '</div>';
   }
-  function srchSet(a) { if (a === 5) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
+  function srchSet(a) { if (a === RI) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
   function search() {
     var base = srchSet(S.a), cc = {}, cl = [];
     base.forEach(function (e) { if (!cc[e.city]) { cc[e.city] = 0; cl.push(e.city); } cc[e.city]++; });
     cl.sort(function (a, b) { return cc[b] - cc[a] || (a < b ? -1 : 1); });
     if (S.c && !cc[S.c]) S.c = '';
     var res = base.filter(function (e) { return !S.c || e.city === S.c; });
-    if (S.a === 5) res.sort(function (a, b) { return rel(wdOf(a)) - rel(wdOf(b)); });
+    if (S.a === RI) res.sort(function (a, b) { return rel(wdOf(a)) - rel(wdOf(b)); });
     var an = S.a < 0 ? T.allA : T.cats[S.a], ctn = S.c ? cn(S.c) : T.allC;
     var h = top(T.search) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(an) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(ctn) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>';
     if (S.open) {
