@@ -45,6 +45,8 @@
 
 **还不是全自动的地方**：读微信每次要 Shiao 批准微信的访问权限（批准可能晚几分钟到几小时）；交收件箱跟着读微信跑，所以批准晚了，交仓库也跟着晚。huodong@ 来信（0.7 节）也走第 3、4 步。
 
+**「整条线还活着吗」检查（11/25 Shiao 定）**：`.github/workflows/pipeline-health.yml` 每 2 小时跑 `tools/pipeline_health.py`。超过 18 小时没有新的交收件箱 PR（分支 `answer/wechat-…-mba`），或「资料更新」PR（`inbox-run-*`）等 Shiao 超过 10 小时（从「这次没有自动上线」留言起算），就开 issue「整条线提醒（自动）」并 @Shiao64；同样的问题不重复提醒，问题有变才再 @，全部恢复就自动关 issue。注意：群里真的没有新活动时交收件箱不开 PR，也会触发第一种提醒。测试 `python3 tools/test_pipeline_health.py`。
+
 **以前的安排（留作记录）**
 
 - **11/20 改回**：当天原本计划停掉 Grok Bot、改由 MBA（MacBook Air）上的 Claude 用 Computer use 定时抓微信，但那边**每次都要用户人工点一下才能跑，没法自动**，所以交回给 Grok Bot。**Grok Bot 只执行「探戈雷达」（它在 Cursor 里的任务名称）：微信群的探戈活动收集，交答复进 `data/inbox/`**（用户 11/20 定）：不写邮件、不私信主办，也不做每月名单核对（每月核对改由 Claude 做，见第 2 节「每月快过期名单」）。规则在协作须知第七节。
