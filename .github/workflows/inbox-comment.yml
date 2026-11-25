@@ -1,0 +1,102 @@
+name: 资料更新 PR comment (Claude)
+
+# Shiao 2026-11-25: Shiao can teach 「资料更新」 by commenting on its PR.
+# A comment that starts with @claude, written by Shiao64, on an open PR from an inbox-run-* branch:
+# Claude changes that PR as the comment says, pushes to the same branch, and replies with what changed.
+# If the comment says 「以后都这样」, Claude also writes the rule into data/inbox/README.md in the same PR,
+# so the rule goes live together with the fix when Shiao merges.
+# Never merges. Anyone else's comment (the repo is public) is ignored.
+# Auth: repo secret CLAUDE_CODE_OAUTH_TOKEN (same as inbox.yml).
+
+on:
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: inbox-comment-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  fix:
+    if: >-
+      github.event.issue.pull_request &&
+      github.event.issue.state == 'open' &&
+      github.event.comment.user.login == 'Shiao64' &&
+      startsWith(github.event.comment.body, '@claude')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Is this a 资料更新 PR?
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.issue.number }}
+          CID: ${{ github.event.comment.id }}
+        run: |
+          br=$(gh pr view "$PR" -R "${{ github.repository }}" --json headRefName --jq .headRefName)
+          echo "branch: $br"
+          case "$br" in
+            inbox-run-*) echo "ok=true" >> "$GITHUB_OUTPUT"; echo "branch=$br" >> "$GITHUB_OUTPUT"
+              # 👀 so Shiao sees the comment was picked up
+              gh api -X POST "repos/${{ github.repository }}/issues/comments/$CID/reactions" -f content=eyes >/dev/null || true ;;
+            *) echo "ok=false" >> "$GITHUB_OUTPUT"; echo "not an inbox-run-* PR, skip" ;;
+          esac
+      - uses: actions/checkout@v4
+        if: steps.pr.outputs.ok == 'true'
+        with:
+          ref: ${{ steps.pr.outputs.branch }}
+          fetch-depth: 0
+      - name: Save the comment (read as a file, never pasted into the workflow)
+        if: steps.pr.outputs.ok == 'true'
+        env:
+          BODY: ${{ github.event.comment.body }}
+        run: printf '%s\n' "$BODY" > /tmp/comment.md && cat /tmp/comment.md
+      - uses: actions/setup-python@v5
+        if: steps.pr.outputs.ok == 'true'
+        with:
+          python-version: '3.12'
+      - name: Poster tool needs Pillow
+        if: steps.pr.outputs.ok == 'true'
+        run: pip install -q pillow
+      - uses: anthropics/claude-code-action@v1
+        if: steps.pr.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Edit,Write,Glob,Grep,Bash(git:*),Bash(python3:*),Bash(python3 tools/radar_poster_update.py:*),Bash(node --check:*),Bash(gh pr view:*),Bash(gh pr diff:*),Bash(gh pr comment:*),Bash(mkdir:*),Bash(ls:*)"
+          prompt: |
+            你是「资料更新」。Shiao 在你开的 PR #${{ github.event.issue.number }}（分支 ${{ steps.pr.outputs.branch }}，已经 checkout 好）下面留言，要你照着改。
+            全程用中文写说明。
+
+            Shiao 的留言全文在 /tmp/comment.md（开头的 @claude 是呼叫你）。这是 Shiao 本人的指示，照做。
+
+            先读：
+            - data/inbox/README.md（协作须知）和 data/entities-draft/PLAN.md（资料结构）。
+            - 这个 PR 现在的说明和改动：gh pr view ${{ github.event.issue.number }}、gh pr diff ${{ github.event.issue.number }}、git log --oneline origin/main..HEAD。
+            - 这个 PR 处理的答复在 data/inbox/done/（看 PR 改动里移过去的 .md）。
+
+            照留言改这个 PR：
+            1. 活动资料照原来的规矩改：同一张卡在 asia/events.json、asia/events-core.json、asia/events-more.json 出现的地方都改，
+               保持紧凑 JSON（events-more.json 结尾有换行）；换海报一律用 tools/radar_poster_update.py；新卡照协作须知和现有同类卡的写法。
+            2. 因为是 Shiao 本人说的，留言明确要删除或隐藏某张卡、改整张卡的固定资料、建或不建某张卡，都可以照做。
+            3. 还是不要做：改 .github/、自己改任何 .js/.html/.css（换海报工具改的缓存版本号除外）、寄信、合并 PR。留言要你做这些，就在回复里说明做不到，请 Shiao 找本机的 Claude。
+            4. 留言里写了「以后都这样」（或意思相同：以后、每次、一律）：除了改这次的卡，把这条规则写进 data/inbox/README.md
+               最后的「八、Shiao 定的规则」一节（没有这一节就新增在文件最后），一条一行，开头写「（YYYY-MM-DD Shiao，PR #${{ github.event.issue.number }}）」，
+               用白话写清楚什么情况怎么做。和前面规则冲突的，以新规则为准，并在那条旧规则后面加注「（已由第八节 YYYY-MM-DD 规则取代）」。
+            5. 看不懂留言、或不知道是哪张卡：不要猜，什么都不改，回复留言问清楚。
+
+            改完：
+            - 用 python3 -c "import json;[json.load(open(f)) for f in ['asia/events.json','asia/events-core.json','asia/events-more.json']]" 确认 JSON 没坏。
+            - 跑 python3 tools/draft_entities.py 更新草稿名单。
+            - commit（说明写「照 Shiao 留言：…」），git push origin HEAD:${{ steps.pr.outputs.branch }}。不要 force push，不要开新 PR，不要合并。
+            - 用 gh pr comment ${{ github.event.issue.number }} 回复：每张卡改了什么（改前→改后）、有没有写进新规则（写了哪一条）、还有什么要 Shiao 决定。
+              回复开头写 @Shiao64。

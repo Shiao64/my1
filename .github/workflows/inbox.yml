@@ -85,7 +85,7 @@ jobs:
           prompt: |
             你在 Shiao64/my1 仓库里处理交进 data/inbox/ 的答复（来源：MBA 上的「交收件箱」、huodong@ 活动来信，或 Shiao 自己交的；探戈助理 Grok Bot 11/25 起暂停）。全程用中文写说明。
 
-            先读 data/inbox/README.md（协作须知）和 data/entities-draft/PLAN.md（资料结构方案），照里面的规则做。
+            先读 data/inbox/README.md（协作须知；最后的第八节「Shiao 定的规则」最新，和前面冲突时以它为准）和 data/entities-draft/PLAN.md（资料结构方案），照里面的规则做。
 
             这次只处理下面这几份答复（和它们的附件）：
             ${{ steps.new.outputs.files }}
