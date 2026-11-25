@@ -287,7 +287,10 @@
       var dir = window.ATM_ADDR ? window.ATM_ADDR.dir(r) : ''; /* 2026-11-15: directions kept apart from the address */
       body.push(line(UI.venue || 'Venue', esc(vName) + addr + addrEn + (dir ? '<div class="china-addr-dir">\uD83D\uDE87 ' + esc(dir) + '</div>' : '')));
     }
-    else if (r.type === 'grouptrip' && (r.destination || r.destination_en)) body.push(line(UI.venue || 'Venue', esc((!isZh && r.destination_en) || r.destination || r.destination_en))); /* 探戈组团: destination, not a venue */
+    if (r.type === 'grouptrip') { /* 探戈组团: where the group leaves from (the card's city), and the destination (not a venue) */
+      body.push('<div class="ev-line atm-dep"><span class="ev-k">' + (isZh ? '出发地' : 'Departure') + '</span> ' + cityLabel(r) + '</div>');
+      if (!r.venue && !evVenue(r) && (r.destination || r.destination_en)) body.push('<div class="ev-line atm-dest"><span class="ev-k">' + (isZh ? '目的地' : 'Destination') + '</span> ' + esc((!isZh && r.destination_en) || r.destination || r.destination_en) + '</div>');
+    }
     if (r.kind === 'event') body.push(line(UI.city || 'City', cityLabel(r)));
     if (r.organizers && r.organizers.length) { var oe = (!UI.keepOrganizerZh && r.organizers_en && r.organizers_en.length) ? r.organizers_en.join(', ') : organizersText(r.organizers); /* v11.4+: optional organizers_en */ if (oe) body.push(line(UI.organizer || 'Organizer', esc(oe))); }
     if (r.note) body.push('<div class="ev-line china-announce atm-note-c' + (r.status === 'paused' ? ' china-announce-paused' : '') + '"><span class="ev-k">' + (UI.note || 'Note') + '</span> <span class="atm-note-t">' + esc((isZh && r.note_zh) || (i18nLang() === 'ko' && r.note_ko) || (i18nLang() === 'es' && r.note_es) || (i18nLang() === 'ru' && r.note_ru) || r.note) + '</span><button type="button" class="atm-note-tg" hidden>' + (isZh ? '更多' : 'More') + '</button></div>');
