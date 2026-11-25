@@ -129,7 +129,7 @@ check('bind: one list, one new rule, nothing deleted', cfCalls.map(c => c.m).joi
 const bindMail = ms.find(m => /\[TP-BIND [0-9a-f]{32}\]/.test(m.subject));
 check('bind: test letter straight to the address (not the test inbox)', ms.length === 1 && bindMail && bindMail.to === EV && bindMail.headers['X-TP-Relay'] === 'bind', subs(ms));
 d = await call('POST', '/admin/reg/act', { id: amyId, action: 'confirm' }, ADMIN); ms = take();
-check('not bound yet: Reply-To info@, copies without the tag', ms.every(m => m.replyTo === 'info@tangoweekend.org') && ms.some(m => m.subject.includes('[副本] Registration confirmed')), subs(ms));
+check('not bound yet: Reply-To info@, copies without the tag', ms.every(m => m.replyTo === 'info@tangoweekend.org') && ms.some(m => m.subject.includes('[副本][北京] Registration confirmed')), subs(ms));
 // a wrong token does nothing; the real one binds
 check('wrong bind token: not bound', await regInboundMail(inbound({ from: 'subscribe@tangoweekend.org', subject: '探戈通：活动专属邮箱绑定测试 [TP-BIND ' + 'f'.repeat(32) + ']' }), env) === true && (await list()).mailto.event_mail_ok === false);
 await regInboundMail(inbound({ from: 'subscribe@tangoweekend.org', subject: bindMail.subject }), env); ms = take();
@@ -166,6 +166,10 @@ check('log: reply out', regLog(amyCode, 'reply:out%').map(x => x.detail).join() 
 // the 管理员 answers a copy of a registrant letter (tag in the copy) → also to the registrant
 d = await regInboundMail(inbound({ from: BOSS, subject: 'Re: [副本 #' + k + '] Payment received · ' + amyCode, text: 'From the admin.' }), env); ms = take();
 check('管理员 answers a tagged copy → to the registrant, copies to 总管 and 副本', ms.some(m => m.subject === T('amy@example.com') + 'Re: Payment received · ' + amyCode && m.body.includes('From the admin.')) && ms.filter(m => m.subject.includes('[副本 #')).length === 2, subs(ms));
+
+// platform step 3: copies carry the event's short name ([北京]); answering one as it really arrives, it never reaches the registrant
+d = await regInboundMail(inbound({ from: BOSS, subject: 'Re: ' + O + '[副本 #' + k + '][北京] Payment received · ' + amyCode, text: 'With the event tag.' }), env); ms = take();
+check('answer to a copy with [北京]: to the registrant, the tag gone', ms.some(m => m.subject === T('amy@example.com') + 'Re: Payment received · ' + amyCode && m.body.includes('With the event tag.')), subs(ms));
 
 // --- a registrant on the 测试名单 (plan 1225): the answer reaches her own inbox while testing, [测试] once, never doubled
 d = await save({ test_list: 'amy@example.com' }); take();
