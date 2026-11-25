@@ -207,7 +207,7 @@
  },
  {
   "id": "D018",
-  "name_en": "Haotian",
+  "name_en": "昊天",
   "name_local": "昊天",
   "cities": [
    "Chengdu"
@@ -218,14 +218,13 @@
  },
  {
   "id": "D019",
-  "name_en": "Wang Wei",
+  "name_en": "王为",
   "name_local": "王为",
   "cities": [
    "Chengdu",
    "Shanghai"
   ],
   "events": [
-   "R030",
    "manual-cd-ezequiel-2026",
    "rccbKIYP"
   ]
@@ -1138,6 +1137,18 @@
  },
  {
   "id": "D099",
+  "name_en": "Wang Wei",
+  "name_local": "",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "R030",
+   "rccbKIYP"
+  ]
+ },
+ {
+  "id": "D100",
   "name_en": "Xeniya",
   "name_local": "",
   "cities": [
@@ -1149,7 +1160,7 @@
   "from": "Kazakhstan"
  },
  {
-  "id": "D100",
+  "id": "D101",
   "name_en": "Xiaobei",
   "name_local": "小北",
   "cities": [
@@ -1160,7 +1171,7 @@
   ]
  },
  {
-  "id": "D101",
+  "id": "D102",
   "name_en": "Yuan Long",
   "name_local": "",
   "cities": [
@@ -1172,7 +1183,7 @@
   "from": "Shanghai"
  },
  {
-  "id": "D102",
+  "id": "D103",
   "name_en": "Yutan; Stone; Cris; Robin; Jessi; Pampamia Yuko; Kwon",
   "name_local": "",
   "cities": [
@@ -1180,17 +1191,6 @@
   ],
   "events": [
    "E164"
-  ]
- },
- {
-  "id": "D103",
-  "name_en": "王为",
-  "name_local": "王为",
-  "cities": [
-   "Shanghai"
-  ],
-  "events": [
-   "rccbKIYP"
   ]
  },
  {

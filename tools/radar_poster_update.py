@@ -159,7 +159,9 @@ def save_events(root, events):
                     or row.get('poster_date') != ev.get('poster_date')
                     or row.get('dj') != ev.get('dj')
                     or (dates is not None and row.get('poster_dates') != dates)
-                    or (djs is not None and row.get('poster_djs') != djs)):
+                    or (djs is not None and row.get('poster_djs') != djs)
+                    or row.get('poster_reuse') != ev.get('poster_reuse')
+                    or ('temp_notices' in ev and row.get('temp_notices') != ev.get('temp_notices'))):
                 row['poster'] = ev.get('poster')
                 row['updated'] = ev.get('updated')
                 if past is not None:
@@ -176,6 +178,13 @@ def save_events(root, events):
                     row.pop('dj', None)
                 if djs is not None:
                     row['poster_djs'] = dict(djs)
+                # 2026-11-25: fixed-poster flag and session-poster notices must reach every file too
+                if ev.get('poster_reuse'):
+                    row['poster_reuse'] = True
+                else:
+                    row.pop('poster_reuse', None)
+                if 'temp_notices' in ev:
+                    row['temp_notices'] = json.loads(json.dumps(ev['temp_notices']))
                 changed = True
         if changed:
             raw = open(path, 'rb').read()
@@ -856,6 +865,7 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
     today = today or datetime.date.today().isoformat()
     result = {'replaced': [], 'unchanged': [], 'refused': [], 'caches': None, 'dry_run': dry_run}
     replaced_events = []
+    noticed_events = []  # fixed-poster cards that got a session poster as a notice (JSON only, no cache bump)
     for item in items:
         try:
             event, checks, src = assess(events, item)
@@ -879,6 +889,37 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
             name_d = None
             if isinstance(item, dict):
                 name_d = text_iso_date(item.get('date') or item.get('start') or item.get('on') or '') or note_event_date(item.get('note') or '')
+            # 2026-11-25 Shiao: a card with a fixed poster (poster_reuse) keeps it. A poster made for one
+            # dated session goes into that day's 新通知 (temp_notices image) and drops off after the date.
+            # Only an explicit date (--date / item date) marks a session poster; a posting date in the note does not.
+            sess_d = text_iso_date(item.get('date') or item.get('start') or item.get('on') or '') if isinstance(item, dict) else None
+            if event.get('poster_reuse') and sess_d and not item.get('reuse'):
+                name_d = sess_d
+                web = '/images/asia/posters/notices/%s-%s.%s' % (event['id'], name_d, ext.lstrip('.'))
+                note_txt = str(item.get('note') or '').strip()
+                notice = {'start': today if today <= name_d else name_d, 'end': name_d, 'date': name_d,
+                          'text': note_txt or '这一场的海报', 'text_en': str(item.get('note_en') or '').strip() or 'Poster for this session',
+                          'image': web}
+                row = {'action': 'noticed', 'id': event['id'], 'name': event.get('name'), 'date': name_d,
+                       'image': web, 'checks': checks, 'note': note_txt}
+                if name_d < today:
+                    raise Refuse('fixed-poster card %s: session %s already passed' % (event['id'], name_d))
+                if not dry_run:
+                    fs = os.path.join(root, web.lstrip('/'))
+                    os.makedirs(os.path.dirname(fs), exist_ok=True)
+                    with open(fs, 'wb') as fh:
+                        fh.write(data)
+                    write_thumbs(root, web)
+                    lst = event.get('temp_notices') if isinstance(event.get('temp_notices'), list) else []
+                    lst = [o for o in lst if not (isinstance(o, dict) and o.get('image') == web)]
+                    lst.append(notice)
+                    event['temp_notices'] = lst
+                    event['updated'] = today
+                    noticed_events.append(event['id'])
+                    if log:
+                        append_log(root, dict(row, ts=_stamp()))
+                result.setdefault('noticed', []).append(row)
+                continue
             dest_web = pick_poster_path(root, events, event, ext, name_d)
             dest_rel = dest_web.lstrip('/')
             shared_old = poster_used_by_others(events, event['id'], old)
@@ -1018,8 +1059,9 @@ def apply_items(root, items, *, dry_run=False, bump_caches=False, today=None, lo
             result['refused'].append(row)
             if log and not dry_run:
                 append_log(root, dict(row, ts=_stamp()))
-    if replaced_events and not dry_run:
+    if (replaced_events or noticed_events) and not dry_run:
         save_events(root, events)
+    if replaced_events and not dry_run:
         if bump_caches:
             result['caches'] = bump_live_caches(root)
     return result
@@ -1041,6 +1083,7 @@ def main(argv):
     p.add_argument('--dry-run', action='store_true')
     p.add_argument('--bump-caches', action='store_true')
     p.add_argument('--from-organizer', action='store_true', help='the organizer posted this poster themselves (allows workshops/festivals)')
+    p.add_argument('--reuse', action='store_true', help='make this undated poster the card\'s fixed poster (poster_reuse)')
     p.add_argument('--today')
     args = p.parse_args(argv)
     items = []
@@ -1054,6 +1097,8 @@ def main(argv):
         one = {'image': args.image, 'note': args.note}
         if args.from_organizer:
             one['from_organizer'] = True
+        if args.reuse:
+            one['reuse'] = True
         if args.event_id:
             one['event_id'] = args.event_id
         if args.radar_id:
