@@ -207,27 +207,6 @@
     "auto": true
   },
   {
-    "id": "xiao-wu",
-    "name": "Xiao Wu",
-    "name_zh": "小舞",
-    "city": "Beijing",
-    "city_zh": "北京",
-    "photo": "",
-    "bio": "",
-    "bio_zh": "",
-    "links": {
-      "instagram": "",
-      "facebook": "",
-      "wechat": "",
-      "soundcloud": ""
-    },
-    "match": [
-      "Xiao Wu",
-      "小舞"
-    ],
-    "auto": true
-  },
-  {
     "id": "lei-lei",
     "name": "Lei Lei",
     "name_zh": "雷雷",
@@ -360,29 +339,6 @@
     "auto": true
   },
   {
-    "id": "sissi-zheng",
-    "name": "Sissi Zheng",
-    "name_zh": "Sissi Zheng",
-    "city": "Shanghai",
-    "city_zh": "上海",
-    "affiliation": "Milonga 1758",
-    "affiliation_zh": "Milonga 1758",
-    "photo": "",
-    "bio": "",
-    "bio_zh": "",
-    "links": {
-      "instagram": "",
-      "facebook": "",
-      "wechat": "",
-      "soundcloud": ""
-    },
-    "match": [
-      "Sissi Zheng",
-      "Sissi Zheng"
-    ],
-    "auto": true
-  },
-  {
     "id": "wing",
     "name": "Wing",
     "name_zh": "Wing",
@@ -425,48 +381,6 @@
     "match": [
       "Zhengzhong",
       "正中"
-    ],
-    "auto": true
-  },
-  {
-    "id": "aykut",
-    "name": "Aykut",
-    "name_zh": "Aykut",
-    "city": "Shenzhen",
-    "city_zh": "深圳",
-    "photo": "",
-    "bio": "",
-    "bio_zh": "",
-    "links": {
-      "instagram": "",
-      "facebook": "",
-      "wechat": "",
-      "soundcloud": ""
-    },
-    "match": [
-      "Aykut",
-      "Aykut"
-    ],
-    "auto": true
-  },
-  {
-    "id": "miranda",
-    "name": "Miranda",
-    "name_zh": "Miranda",
-    "city": "Shenzhen",
-    "city_zh": "深圳",
-    "photo": "",
-    "bio": "",
-    "bio_zh": "",
-    "links": {
-      "instagram": "",
-      "facebook": "",
-      "wechat": "",
-      "soundcloud": ""
-    },
-    "match": [
-      "Miranda",
-      "Miranda"
     ],
     "auto": true
   }
