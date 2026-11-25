@@ -304,7 +304,7 @@
 9. 00:00 以后检查：活动页按钮变「立即报名」「Register now」；用自己的邮箱报一笔：信寄到本人、标题没有 [TEST]、信里连结到 `register/`；看完在管理页取消、再删掉。
 10. 写部署纪录（这一节下面）。
 回退：worker 退回上一版（`npx wrangler@3 rollback`）、拿掉 `REG_LIVE`、网页 revert 上线 PR；删掉的测试资料可以用第 2 步的书签还原（`d1 time-travel restore`）。
-待 Shiao 决定：报名页上饭店写「A.C. Art Museum Hotel」（中文名「奥加美术馆酒店」直译），活动页和 ATM 活动卡写「AC Embassy Hotel」，要不要统一。
+饭店名（Shiao 11/25 定）：英文一律「AC Embassy Hotel」，中文「奥加美术馆酒店」；报名页原本的「A.C. Art Museum Hotel」（韩文「A.C. 아트 뮤지엄 호텔」）已经改掉。
 
 ## 部署
 
