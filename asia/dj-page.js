@@ -44,7 +44,7 @@
   }
   function when(e) { return e.kind === 'weekly' ? (zh ? '每周' : 'Weekly') : (e.start || ''); }
   function isPast(e, day) { if (e.kind === 'weekly') return false; var end = e.end || e.start || ''; return !!(end && end < day); }
-  var file = (kind === 'organizer' || kind === 'group') ? '/asia/organizers.json?v=o12' : '/asia/djs.json?v=d1';
+  var file = (kind === 'organizer' || kind === 'group') ? '/asia/organizers.json?v=o13' : '/asia/djs.json?v=d1';
   fetch(file).then(function (r) { return r.json(); }).then(function (list) {
     var profile = (list || []).filter(function (p) { return p.id === id; })[0];
     if (!profile) return;
@@ -56,8 +56,7 @@
     /* 2026-11-21 (Shiao): DJ pages keep a place for the intro, and list the last 5 nights from the DJ session log (asia/dj-recent.json, tools/dj_sessions.py). */
     if (!bio && (kind === 'dj' || kind === 'organizer')) { var bz = document.getElementById('pf-bio'); if (bz) { bz.textContent = zh ? '介绍待补充。' : 'Profile coming soon.'; bz.classList.add('dj-bio-wait'); bz.style.color = '#8a7a66'; bz.style.fontStyle = 'italic'; } }
     /* 2026-11-25 (Shiao): organizer pages keep a place for the photo too, filled in later in asia/organizers.json.
-       A heading keeps photo + bio apart from the event lists above them. */
-    if (kind === 'organizer') { var sty = document.querySelector('.dj-story'); if (sty && !document.getElementById('pf-about-h')) { var ah = document.createElement('h2'); ah.id = 'pf-about-h'; ah.textContent = zh ? '个人介绍' : 'About'; sty.parentNode.insertBefore(ah, sty); } }
+       Same layout as 刘峥 / 王凯: photo left, intro beside it, under the event list. */
     if (!profile.photo && kind === 'organizer') { var pz = document.getElementById('pf-photo'); if (pz) { var ph = document.createElement('div'); ph.className = 'pf-photo-wait'; ph.textContent = zh ? '照片待补充' : 'Photo coming soon'; ph.style.cssText = 'aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border:1.5px dashed #c9b89a;border-radius:12px;background:#EFE6D3;color:#8a7a66;font-size:14px;font-weight:600;text-align:center;padding:8px;box-sizing:border-box'; pz.appendChild(ph); } }
     fetch('/asia/dj-recent.json?v=r1').then(function (r) { return r.json(); }).then(function (all) {
       var rec = all && all[id], list = rec && rec.recent || [];
@@ -154,7 +153,7 @@
       if (richOn) {
         var upN = document.getElementById('pf-up'), main = document.querySelector('.dj-main'), h2 = upN && upN.previousElementSibling;
         if (upN && main) {
-          if (h2 && h2.tagName === 'H2') { if (kind === 'group') h2.textContent = zh ? name + '的活动' : 'Events by ' + name; else if (kind === 'organizer') h2.textContent = zh ? '目前的活动' : 'Current events'; main.insertBefore(h2, main.firstChild); main.insertBefore(upN, h2.nextSibling); h2.classList.add('pf-ev-h'); }
+          if (h2 && h2.tagName === 'H2') { if (kind === 'group') h2.textContent = zh ? name + '的活动' : 'Events by ' + name; main.insertBefore(h2, main.firstChild); main.insertBefore(upN, h2.nextSibling); h2.classList.add('pf-ev-h'); }
           else main.insertBefore(upN, main.firstChild);
           var st = document.createElement('style'); st.textContent = '.pf-ev-h{margin:4px 0 10px!important}.dj-events .pf-ev{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px;background:#fff;border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}.dj-events a.pf-ev-a{display:flex!important;align-items:center;gap:12px;flex:1;min-width:0;margin:0;padding:0;background:none;box-shadow:none;border-radius:0;text-decoration:none;color:#0A4F57}.dj-events .pf-ev-img{display:block;width:64px;height:64px;flex:none;object-fit:cover;border-radius:8px;background:#EFE6D3}.dj-events a.pf-ev-a .pf-ev-t{display:block;flex:1;min-width:0;margin:0;color:#0A4F57}.dj-events .pf-ev-t b{display:block;font-size:16px;color:#0A4F57}.dj-events a.pf-ev-a .pf-ev-w{display:block;margin-top:2px;font-size:13px;font-weight:600;color:#0E6E78}.dj-events a.pf-ev-a .pf-ev-v{display:block;margin-top:1px;font-size:13px;font-weight:600;color:#5f6f66;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pf-star{flex:none;width:44px;height:44px;border:1.5px solid #0E6E78;border-radius:50%;background:#fff;color:#0E6E78;font-size:20px;line-height:1;cursor:pointer}.pf-star[aria-pressed="true"]{background:#0E6E78;color:#F2CF7F}.dj-events a.pf-ev-all{display:block;text-align:center;margin:4px 0 22px;padding:11px;border:1.5px solid #0E6E78;border-radius:999px;background:none;box-shadow:none;color:#0E6E78;font-weight:700;text-decoration:none}'; document.head.appendChild(st);
         }
@@ -162,10 +161,13 @@
       draw(document.getElementById('pf-up'), up, zh ? '暂无' : 'None yet', richOn);
       var pastN = document.getElementById('pf-past'), pastS = pastN && pastN.parentNode;
       if (pastN && richOn) {
-        /* Both lists always show (Shiao 11/25: 目前／过去的活动); an empty one says 暂无. */
+        /* Same layout as 刘峥 / 王凯 (Shiao 11/25): 近期主办 list, then 过去的活动 only when there are any, then photo + intro. */
         var upB = document.getElementById('pf-up');
-        if (pastS && pastS.tagName === 'SECTION' && upB && upB.parentNode) { upB.parentNode.insertBefore(pastS, upB.nextSibling); }
-        pastN.innerHTML = past.length ? past.map(pastRow).join('') : '<p class="dj-empty">' + (zh ? '暂无' : 'None yet') + '</p>';
+        if (!past.length) { if (pastS && pastS.tagName === 'SECTION') pastS.hidden = true; }
+        else {
+          if (pastS && pastS.tagName === 'SECTION' && upB && upB.parentNode) { upB.parentNode.insertBefore(pastS, upB.nextSibling); }
+          pastN.innerHTML = past.map(pastRow).join('');
+        }
       } else draw(pastN, past, zh ? '暂无' : 'None yet');
     });
   }).catch(function () {});
