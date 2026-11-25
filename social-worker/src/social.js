@@ -299,6 +299,7 @@ export async function social(req, env, url, json) {
   if (p.startsWith('/reg/door/')) return (await REG()).regDoor(req, env, url, b, json);
   if (p === '/reg/login' || p.startsWith('/reg/login/')) return (await REG()).regLogin(req, env, url, b, json);
   if (p === '/admin/reg' || p.startsWith('/admin/reg/')) return (await REG()).regAdmin(req, env, url, b, json, regKit());
+  if (p === '/admin/tp' || p.startsWith('/admin/tp/')) return (await REG()).regPlatform(req, env, url, b, json);   // 平台管理页 (管理员 only)
   if (p === '/profile' && req.method === 'POST') return goingProfile(req, env, b, ip, iph, json, goingKit());
   if (p === '/going/pass' && req.method === 'POST') return goingPass(req, env, b, json, goingKit());
   if (p === '/going/phone' && req.method === 'POST') return goingPhone(req, env, b, iph, json, goingKit());
