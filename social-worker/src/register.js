@@ -75,7 +75,7 @@ export function promoOf(raw, env, ev, at) {
   return dj ? { code: c, kind: 'friend', dj } : { code: c, kind: 'unknown' };
 }
 // ---------- entry passes: one per person, signed, issued once paid ----------
-const PASS_RE = /^([A-Z0-9]+-\d{4})-(\d)\.([0-9a-f]{20})$/;
+const PASS_RE = /^([A-Z0-9]+-\d{4})-([1-9]\d?)\.([0-9a-f]{20})$/;
 async function hmac(secret, msg) {
   const k = await crypto.subtle.importKey('raw', new TextEncoder().encode('regpass:' + secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   return [...new Uint8Array(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(msg)))].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -89,7 +89,7 @@ export async function readPass(env, p) {
 const PAID = ['paid', 'cash'];
 async function passesOf(env, reg) { const d = typeof reg.data === 'string' ? JSON.parse(reg.data) : reg.data;
   if (!PAID.includes(reg.status)) return [];
-  return Promise.all(d.people.map(async (p, i) => ({ name: p.name, items: p.items || [], pass: await passFor(env, reg.code, i) }))).then(a => a.filter(x => x.pass)); }
+  return Promise.all(d.people.map(async (p, i) => (p.gone ? null : { name: p.name, items: p.items || [], pass: await passFor(env, reg.code, i) }))).then(a => a.filter(x => x && x.pass)); }
 const passImg = (env, pass) => String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '') + '/social/reg/pass/' + encodeURIComponent(pass) + '.png';
 const checkinUrl = (env, pass) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/checkin/?p=' + encodeURIComponent(pass);
 const bjDate = iso => new Date(Date.parse(iso) + 8 * 36e5).toISOString().slice(0, 10);   // Beijing date, as on the page
@@ -98,19 +98,24 @@ const regPage = env => String(env.REG_SITE || 'https://tangoweekend.org').replac
 function nights(ci, co) { const n = Math.round((Date.parse(co + 'T00:00:00Z') - Date.parse(ci + 'T00:00:00Z')) / 864e5); return n > 0 ? n : 0; }
 
 // Validate a submitted form and compute every amount. Returns {error} or {data, total, hotel, domestic, promo}.
-export function evaluate(b, env, at = Date.now()) {
+// slots (修改报名): a person taken off arrives as {gone: true} and stays in their place, so everyone after them keeps their
+// entry code (codes go by place); the registrant (the first) is never taken off that way, and gone ones count for nothing.
+export function evaluate(b, env, at = Date.now(), { slots = false, promo: kept = null } = {}) {
   const ev = own(EVENTS, str(b && b.event, 20));
   if (!ev) return { error: 'bad_event' };
   const k2c = KEY2CODE(ev);
   const people = Array.isArray(b.people) ? b.people : [];
-  if (people.length < 1 || people.length > ev.maxPeople) return { error: 'bad_people' };
-  const promo = promoOf(b.code, env, ev, at);
+  const gone = i => slots && i > 0 && !!(people[i] && people[i].gone), active = people.filter((_, i) => !gone(i)).length;
+  if (slots && people[0] && people[0].gone) return { error: 'bad_people' };
+  if (active < 1 || active > ev.maxPeople || people.length > ev.maxPeople * 2) return { error: 'bad_people' };
+  const promo = kept || promoOf(b.code, env, ev, at);
   const fullPrice = promo.kind === 'friend' ? ev.friendPrice : promo.kind === 'early' ? ev.earlyPrice : ev.pkgs.full.price;
   const outPeople = [];
   for (let i = 0; i < people.length; i++) {
     const p = people[i] || {};
     const q = { name: str(p.name, 80), nick: str(p.nick, 60), email: str(p.email, 254).toLowerCase(), wechat: str(p.wechat, 64), facebook: str(p.facebook, 120),
       country: str(p.country, 8).toUpperCase(), city: str(p.city, 80), role: ROLES.includes(p.role) ? p.role : '' };
+    if (gone(i)) { outPeople.push({ ...q, gone: true, pkg: '', items: [], extra: [], amount: 0 }); continue; }
     if (!q.name) return { error: 'need_name', person: i };
     if (!/^[A-Z]{2,5}$/.test(q.country)) return { error: 'need_country', person: i };
     if (!q.city) return { error: 'need_city', person: i };
@@ -137,13 +142,14 @@ export function evaluate(b, env, at = Date.now()) {
       const guests = (Array.isArray(r && r.guests) ? r.guests : []).map(Number).filter(g => Number.isInteger(g) && g >= 0 && g < outPeople.length);
       if (!type) return { error: 'bad_room_type' };
       if (!DATE.test(ci) || !DATE.test(co) || ci < ev.ciMin || ci > ev.ciMax || co < ev.coMin || co > ev.coMax || !nights(ci, co)) return { error: 'bad_dates' };
-      if (guests.length < 1 || guests.length > 2 || new Set(guests).size !== guests.length) return { error: 'bad_guests' };
+      if (guests.length < 1 || guests.length > 2 || new Set(guests).size !== guests.length || guests.some(g => outPeople[g].gone)) return { error: 'bad_guests' };
       for (const g of guests) { if (used.has(g)) return { error: 'guest_twice' }; used.add(g); }
       const n = nights(ci, co), amount = ev.rooms[type] * n;
       rooms.push({ type, ci, co, nights: n, guests, amount }); hotel += amount;
     }
     const pp = Array.isArray(b.passports) ? b.passports : [];
     for (let i = 0; i < outPeople.length; i++) {
+      if (outPeople[i].gone) { passports.push({ s: '', g: '' }); continue; }
       const s = str(pp[i] && pp[i].s, 60).toUpperCase(), g = str(pp[i] && pp[i].g, 60).toUpperCase();
       if (!PASSPORT.test(s) || !PASSPORT.test(g)) return { error: 'bad_passport', person: i };
       passports.push({ s, g });
@@ -152,8 +158,19 @@ export function evaluate(b, env, at = Date.now()) {
   const total = outPeople.reduce((s, p) => s + p.amount, 0) + hotel;
   const lang = LANGS.includes(b.lang) ? b.lang : 'en';
   const data = { event: ev.id, lang, people: outPeople, hotel: b.hotel === 'yes', rooms, passports, src: str(b.src, 20), msg: str(b.msg, 2000), promo };
-  return { ev, data, total, hotel, domestic: outPeople.some(p => p.country === 'CN') ? 1 : 0, promo, lang };
+  return { ev, data, total, hotel, domestic: outPeople.some(p => !p.gone && p.country === 'CN') ? 1 : 0, promo, lang };
 }
+
+// Before the entry codes are out, a person taken off simply leaves: the places after them move up, rooms follow.
+function dropGone(d) {
+  if (!d.people.some(p => p.gone)) return d;
+  const keep = d.people.map((p, i) => (p.gone ? -1 : i)).filter(i => i >= 0), at = new Map(keep.map((o, n) => [o, n]));
+  return { ...d, people: keep.map(i => d.people[i]), passports: d.hotel ? keep.map(i => d.passports[i]) : d.passports, rooms: d.rooms.map(r => ({ ...r, guests: r.guests.map(g => at.get(g)) })) };
+}
+const activeOf = d => d.people.filter(p => !p.gone);
+const KEEP_WHY = '依报名规则，6/11 之后改少不退差价 · No refund of the difference after June 11, 2027';
+const UNKEEP_WHY = '改回原项目，撤回之前保留的差价 · Earlier kept difference withdrawn';
+const HOTEL_WHY = '住宿改动，原来住宿的加减收随之调整 · Hotel adjustment follows the new hotel';
 
 // Seats used per capped item by registrations that hold a place. Pass skipId to leave one registration out.
 export async function usedSeats(env, evId, skipId) {
@@ -186,11 +203,11 @@ async function log(env, id, action, detail) { await env.SDB.prepare('INSERT INTO
 // (and reg.hotel_amount for the hotel part) already include them. A new total worked out from the form again (the
 // registrant editing a pending one, or 修改报名) adds them back, so an adjustment is never lost on the way.
 async function adjOf(env, regId) {
-  const out = { all: 0, hotel: 0, list: [] };
+  const out = { all: 0, hotel: 0, keep: 0, list: [] };
   for (const l of ((await env.SDB.prepare("SELECT at,detail FROM reg_log WHERE reg_id=? AND action='adjust' ORDER BY id").bind(regId).all()).results) || []) {
     let x = null; try { const o = JSON.parse(l.detail || ''); x = JSON.parse(o.text || ''); x.by = o.by; } catch { continue; }
     const d = Math.round(Number(x.d)) || 0; if (!d) continue;
-    out.all += d; if (x.part === 'hotel') out.hotel += d;
+    out.all += d; if (x.part === 'hotel') out.hotel += d; if (x.auto === 'keep') out.keep += d;
     out.list.push({ at: l.at, d, part: x.part === 'hotel' ? 'hotel' : 'reg', why: String(x.why || ''), note: String(x.note || ''), by: String(x.by || ''), was: Number(x.was) || 0 });
   }
   return out;
@@ -224,7 +241,7 @@ const T = {
     paidS: 'Payment received · {c}', paid: 'We have received your payment for {c}. Your registration is complete. See you in Beijing!',
     cashS: 'Pay at the event · {c}', cash: 'We have received your flight ticket for {c}. Please pay {t} when you arrive (Alipay, WeChat Pay or cash).',
     cancS: 'Registration cancelled · {c}', canc: 'Your registration {c} has been cancelled.', refund: 'Refund: {r}.', noRefund: 'Under the registration rules, cancellations after June 11, 2027 are not refunded.',
-    updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated.', updFee: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.',
+    updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated.', updFee: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.', chgT: 'What changed:', chgDelPlain: 'Removed: {n}', chgRole: '{n}: {o} → {w}', chgPass: 'Passport names for the hotel updated', roles: { leader: 'Leader', follower: 'Follower', both: 'Both' }, chgAdd: 'Added: {n} ({w})', chgDel: 'Removed: {n} (their entry code no longer works)', chgName: 'Name: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Hotel: {o} → {w}', none: 'none', keepDiff: 'Under the registration rules, a change after June 11, 2027 that lowers the total is not refunded.',
     adjS: 'Amount changed · {c}', adj: 'The amount of your registration {c} has changed: {x}.', up: 'an extra charge of {m}', down: 'a reduction of {m}', why: 'Note from the organizers: {w}',
     adjT: 'Previous total {o}, new total {a}, paid so far {p}.', adjLater: 'The payment email you get once your registration is confirmed will use the new amount.',
     adjCash: '{t} is still to pay: please pay it when you arrive (Alipay, WeChat Pay or cash), before going in. To pay earlier, just reply to this email. Your entry QR codes stay the same.',
@@ -245,7 +262,7 @@ const T = {
     paidS: '已收到付款 · {c}', paid: '已收到报名 {c} 的付款，报名完成。北京见！',
     cashS: '到场付款 · {c}', cash: '已收到报名 {c} 的机票截图，请到场时支付 {t}（支付宝、微信或现金）。',
     cancS: '报名已取消 · {c}', canc: '你的报名 {c} 已取消。', refund: '退款：{r}。', noRefund: '依报名规则，2027年6月11日之后取消不退费。',
-    updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新。', updFee: '你的报名 {c} 已更新，合计已含手续费 ¥50。',
+    updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新。', updFee: '你的报名 {c} 已更新，合计已含手续费 ¥50。', chgT: '改了什么：', chgDelPlain: '删除：{n}', chgRole: '{n}：{o} → {w}', chgPass: '订房用的护照姓名已更新', roles: { leader: '领舞', follower: '跟舞', both: '都可以' }, chgAdd: '新增：{n}（{w}）', chgDel: '删除：{n}（这位的入场码已作废）', chgName: '名字：{o} → {n}', chgItems: '{n}：{o} → {w}', chgHotel: '住宿：{o} → {w}', none: '无', keepDiff: '依报名规则，2027年6月11日之后改少，差价不退。',
     adjS: '金额调整 · {c}', adj: '你的报名 {c} 的金额有调整：{x}。', up: '加收 {m}', down: '减收 {m}', why: '说明：{w}',
     adjT: '原来合计 {o}，现在合计 {a}，已付 {p}。', adjLater: '报名确认后寄出的付款信，会用新的金额。',
     adjCash: '还差 {t}，请到场时支付（支付宝、微信或现金），付清后入场；想先付的，直接回复本邮件。入场码不变。',
@@ -266,7 +283,7 @@ const T = {
     paidS: '결제 확인 · {c}', paid: '신청 {c}의 결제를 확인했습니다. 신청이 완료되었습니다. 베이징에서 만나요!',
     cashS: '현장 결제 · {c}', cash: '신청 {c}의 항공권을 확인했습니다. 도착 시 {t}을(를) 결제해 주세요(알리페이, 위챗페이 또는 현금).',
     cancS: '신청 취소 · {c}', canc: '신청 {c}이(가) 취소되었습니다.', refund: '환불: {r}.', noRefund: '신청 규정에 따라 2027년 6월 11일 후에 취소하면 환불되지 않습니다.',
-    updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다.', updFee: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.',
+    updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다.', updFee: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.', chgT: '변경 내용:', chgDelPlain: '삭제: {n}', chgRole: '{n}: {o} → {w}', chgPass: '호텔 예약용 여권 이름이 수정되었습니다', roles: { leader: '리더', follower: '팔로워', both: '둘 다' }, chgAdd: '추가: {n} ({w})', chgDel: '삭제: {n} (이분의 입장 코드는 더 이상 사용할 수 없습니다)', chgName: '이름: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: '호텔: {o} → {w}', none: '없음', keepDiff: '신청 규정에 따라 2027년 6월 11일 후에 금액이 줄어드는 변경은 차액을 환불하지 않습니다.',
     adjS: '금액 변경 · {c}', adj: '신청 {c}의 금액이 변경되었습니다: {x}.', up: '추가 요금 {m}', down: '{m} 할인', why: '주최 측 안내: {w}',
     adjT: '이전 합계 {o}, 새 합계 {a}, 지금까지 결제 {p}.', adjLater: '신청이 확정되면 받는 결제 안내 메일에 새 금액이 적용됩니다.',
     adjCash: '남은 금액 {t}은(는) 도착해서 입장 전에 결제해 주세요(알리페이, 위챗페이 또는 현금). 미리 결제하려면 이 메일에 회신해 주세요. 입장 QR 코드는 그대로입니다.',
@@ -287,7 +304,7 @@ const T = {
     paidS: 'Pago recibido · {c}', paid: 'Hemos recibido el pago de {c}. Tu inscripción está completa. ¡Nos vemos en Pekín!',
     cashS: 'Pago en el evento · {c}', cash: 'Hemos recibido tu billete de avión para {c}. Paga {t} al llegar (Alipay, WeChat Pay o efectivo).',
     cancS: 'Inscripción cancelada · {c}', canc: 'Tu inscripción {c} ha sido cancelada.', refund: 'Reembolso: {r}.', noRefund: 'Según las normas de inscripción, las cancelaciones después del 11 de junio de 2027 no se reembolsan.',
-    updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada.', updFee: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.',
+    updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada.', updFee: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.', chgT: 'Qué cambió:', chgDelPlain: 'Quitado: {n}', chgRole: '{n}: {o} → {w}', chgPass: 'Nombres de pasaporte para el hotel actualizados', roles: { leader: 'Líder', follower: 'Follower', both: 'Ambos' }, chgAdd: 'Añadido: {n} ({w})', chgDel: 'Quitado: {n} (su código de entrada ya no sirve)', chgName: 'Nombre: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Hotel: {o} → {w}', none: 'nada', keepDiff: 'Según las normas de inscripción, después del 11 de junio de 2027 no se devuelve la diferencia cuando un cambio baja el total.',
     adjS: 'Cambio de importe · {c}', adj: 'El importe de tu inscripción {c} ha cambiado: {x}.', up: 'un cargo adicional de {m}', down: 'un descuento de {m}', why: 'Nota de los organizadores: {w}',
     adjT: 'Total anterior {o}, nuevo total {a}, pagado hasta ahora {p}.', adjLater: 'El email de pago que recibirás cuando se confirme tu inscripción usará el nuevo importe.',
     adjCash: 'Quedan {t} por pagar: págalos al llegar, antes de entrar (Alipay, WeChat Pay o efectivo). Si prefieres pagar antes, responde a este email. Tus códigos QR de entrada no cambian.',
@@ -308,7 +325,7 @@ const T = {
     paidS: 'Оплата получена · {c}', paid: 'Мы получили оплату {c}. Регистрация завершена. До встречи в Пекине!',
     cashS: 'Оплата на месте · {c}', cash: 'Мы получили авиабилет для {c}. Оплатите {t} по прибытии (Alipay, WeChat Pay или наличные).',
     cancS: 'Регистрация отменена · {c}', canc: 'Ваша регистрация {c} отменена.', refund: 'Возврат: {r}.', noRefund: 'По правилам регистрации при отмене после 11 июня 2027 года деньги не возвращаются.',
-    updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена.', updFee: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.',
+    updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена.', updFee: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.', chgT: 'Что изменилось:', chgDelPlain: 'Удалён(а): {n}', chgRole: '{n}: {o} → {w}', chgPass: 'Паспортные имена для отеля обновлены', roles: { leader: 'ведущий', follower: 'ведомый', both: 'оба' }, chgAdd: 'Добавлен(а): {n} ({w})', chgDel: 'Удалён(а): {n} (входной код больше не действует)', chgName: 'Имя: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Отель: {o} → {w}', none: 'нет', keepDiff: 'По правилам регистрации после 11 июня 2027 года разница при уменьшении суммы не возвращается.',
     adjS: 'Изменение суммы · {c}', adj: 'Сумма вашей регистрации {c} изменилась: {x}.', up: 'доплата {m}', down: 'скидка {m}', why: 'Комментарий организаторов: {w}',
     adjT: 'Было {o}, стало {a}, уже оплачено {p}.', adjLater: 'В письме об оплате после подтверждения регистрации будет новая сумма.',
     adjCash: 'Осталось оплатить {t}: оплатите по прибытии, до входа (Alipay, WeChat Pay или наличные). Чтобы оплатить заранее, просто ответьте на это письмо. Входные QR-коды остаются прежними.',
@@ -354,22 +371,44 @@ const fmt = n => '¥' + Number(n || 0).toLocaleString('en-US');
 const fill = (s, v) => s.replace(/\{(\w)\}/g, (_, k) => v[k] == null ? '' : v[k]);
 const he = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
+const whatOf = (p, N) => [p.pkg && p.pkg !== 'single' ? N[p.pkg] : '', ...(p.pkg && p.pkg !== 'single' ? p.extra : p.items).map(c => N[c])].filter(Boolean).join(' + ');
 export function detailLines(d, lang) {
   const N = NAMES[lang] || NAMES.en, L = T[lang] || T.en, out = [];
-  for (const p of d.people) {
-    const what = [p.pkg && p.pkg !== 'single' ? N[p.pkg] : '', ...(p.pkg && p.pkg !== 'single' ? p.extra : p.items).map(c => N[c])].filter(Boolean).join(' + ');
-    out.push(`${p.name}: ${what} — ${fmt(p.amount)}`);
-  }
+  for (const p of d.people) if (!p.gone) out.push(`${p.name}: ${whatOf(p, N)} — ${fmt(p.amount)}`);
   if (d.hotel) d.rooms.forEach(r => out.push(`${L.hotel}: ${N[r.type]} ${r.ci} → ${r.co} (${r.nights} ${L.nights}), ${r.guests.map(g => d.people[g] && d.people[g].name).join(', ')} — ${fmt(r.amount)}`));
+  return out;
+}
+// 修改报名: what changed, place by place (added, taken off, renamed, items), and the hotel, in the reader's language
+export function changeLines(was, now, lang, coded = true) {
+  const N = NAMES[lang] || NAMES.en, L = T[lang] || T.en, out = [];
+  now.people.forEach((p, i) => {
+    const o = was.people[i];
+    if (!o) { if (!p.gone) out.push(fill(L.chgAdd, { n: p.name, w: whatOf(p, N) })); return; }
+    if (p.gone) { if (!o.gone) out.push(fill(coded ? L.chgDel : L.chgDelPlain, { n: o.name })); return; }
+    if (o.gone) return;
+    if (o.name !== p.name) out.push(fill(L.chgName, { o: o.name, n: p.name }));
+    const a = whatOf(o, N), z = whatOf(p, N);
+    if (a !== z) out.push(fill(L.chgItems, { n: p.name, o: a, w: z }));
+    if (o.role !== p.role) out.push(fill(L.chgRole, { n: p.name, o: L.roles[o.role] || o.role, w: L.roles[p.role] || p.role }));
+  });
+  was.people.slice(now.people.length).forEach(o => { if (!o.gone) out.push(fill(coded ? L.chgDel : L.chgDelPlain, { n: o.name })); });   // a shorter list (not paid yet)
+  // the hotel: compared by room, dates and which places sleep there (a rename alone is no hotel change)
+  const key = d => (d.hotel ? d.rooms.map(r => `${r.type} ${r.ci} ${r.co} ${[...(r.guests || [])].sort((x, y) => x - y)}`).join('; ') : '');
+  const rooms = d => (d.hotel ? d.rooms.map(r => `${N[r.type]} ${r.ci} → ${r.co} (${(r.guests || []).map(g => d.people[g] && d.people[g].name).filter(Boolean).join(', ')})`).join('; ') : '');
+  if (key(was) !== key(now)) out.push(fill(L.chgHotel, { o: rooms(was) || L.none, w: rooms(now) || L.none }));
+  const pp = (d, i) => { const q = (d.passports || [])[i] || {}; return d.hotel ? `${q.s || ''} ${q.g || ''}` : ''; };
+  if (was.hotel && now.hotel && now.people.some((p, i) => !p.gone && was.people[i] && !was.people[i].gone && pp(was, i) !== pp(now, i))) out.push(L.chgPass);
   return out;
 }
 // qrs: names of the payment QR images that are really uploaded (a missing one would be a broken image).
 export function letter(kind, reg, env, passes, qrs = []) {
   const d = typeof reg.data === 'string' ? JSON.parse(reg.data) : reg.data;
   const lang = T[reg.lang] ? reg.lang : 'en', L = T[lang];
-  const v = { n: d.people[0] && d.people[0].name, c: reg.code, t: fmt(reg.rest == null ? reg.amount : reg.rest), d: reg.due_at ? bjDate(reg.due_at) : '', r: fmt(reg.refund || 0) };
+  const v = { n: d.people[0] && d.people[0].name, c: reg.code, t: fmt(reg.rest == null ? reg.amount : reg.rest), d: reg.due_at ? bjDate(reg.due_at) : '', r: fmt((reg.refundLeft != null ? reg.refundLeft : reg.refund) || 0) };
   // 金额调整: reg.adj = {d, why, was, paid, over}; what follows depends on where the registration stands now
   const a = kind === 'adj' && reg.adj ? reg.adj : null, adjPay = !!a && reg.status === 'confirmed' && reg.rest > 0;
+  // 修改确认信: reg.upd = {was, slots, why, over, keep}; it asks for money only while 待付款 and something is owed
+  const u = kind === 'upd' ? reg.upd || {} : null, owe = reg.rest == null ? reg.amount : reg.rest, updPay = !!u && reg.status === 'confirmed' && owe > 0;
   if (a) Object.assign(v, { x: fill(a.d > 0 ? L.up : L.down, { m: fmt(Math.abs(a.d)) }), w: a.why, o: fmt(a.was), a: fmt(reg.amount), p: fmt(a.paid), r: fmt(a.over) });
   // 付款步骤 (Shiao, 2026-11-26): name only the apps whose payment code is attached (none uploaded yet: both)
   const ali = qrs.some(n => /alipay/.test(n)), wx = qrs.some(n => /wechat/.test(n));
@@ -377,7 +416,7 @@ export function letter(kind, reg, env, passes, qrs = []) {
   const body = [fill(L.hi, v), '', fill(kind === 'upd' && reg.fee > 0 ? L.updFee : L[kind], v)];   // 修改确认信 names the fee only when the total holds it
   // one refund date for everything, hotel included (Shiao, 2026-11-26): cancelled after it, the letter says why nothing comes back
   const ev0 = own(EVENTS, reg.event), late = !!ev0 && !!reg.cancelled_at && bjDate(reg.cancelled_at) > ev0.refundBy;
-  if (kind === 'canc' && reg.refund != null) body.push(reg.refund === 0 && late ? L.noRefund : fill(L.refund, v));
+  if (kind === 'canc' && reg.refund != null) body.push((reg.refundLeft != null ? reg.refundLeft : reg.refund) === 0 && late ? L.noRefund : fill(L.refund, v));
   if (a) {
     if (a.why) body.push(fill(L.why, v));
     body.push('', fill(L.adjT, v));
@@ -385,40 +424,51 @@ export function letter(kind, reg, env, passes, qrs = []) {
     else if (reg.status === 'cash' && reg.rest > 0) body.push(fill(L.adjCash, v));
     else if (reg.status === 'paid') body.push(a.over > 0 ? fill(L.adjOver, v) : L.adjPaid);
   }
+  if (u) {   // the organizers' note and what changed
+    if (u.why) body.push(fill(L.why, { w: u.why }));
+    const chg = u.was ? changeLines(u.was, u.slots || d, lang, u.coded !== false) : [];
+    if (chg.length) body.push('', L.chgT, ...chg.map(s => '· ' + s));
+  }
   if (['recv', 'conf', 'upd'].includes(kind)) { const colon = lang === 'zh' ? '：' : ': ';
     body.push('', L.details + colon.trim(), ...detailLines(d, lang).map(s => '· ' + s));
     if (reg.fee) body.push('· ' + (lang === 'zh' ? '手续费' : 'Fee') + ' — ' + fmt(reg.fee)); body.push(L.total + colon + fmt(reg.amount)); }
+  if (u) {   // what the change means for the money now, said as 金额调整 says it
+    if (reg.status === 'pending' || reg.status === 'waitlist') body.push('', L.adjLater);
+    else if (reg.status === 'cash' && owe > 0) body.push('', fill(L.adjCash, v));
+    else if (reg.status === 'paid') body.push('', u.over > 0 ? fill(L.adjOver, { r: fmt(u.over) }) : L.adjPaid);
+    if (u.keep > 0) body.push(L.keepDiff);
+  }
   // The steps, whenever codes are attached: in the text right after the pay line, in the html right above the codes.
   // Step 2 only for the codes attached; first-timers from abroad bind a card first; the note carries the number.
   const STEPS = {}, steps = [];
-  if ((kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) && qrs.length) {
+  if ((kind === 'conf' || updPay || kind === 'rem' || adjPay) && qrs.length) {
     steps.push(L.stepsH); if (ali && wx) steps.push(L.one);
     steps.push(L.st1, '② ' + [ali ? L.st2a : '', wx ? L.st2w : ''].filter(Boolean).join(L.st2j) + (reg.domestic ? '' : L.stBank),
       fill(L.st3, { c: reg.code }), L.st4, L.key, fill(L.noImg, { b: L.viewPay }));
   }
-  if (kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) body.push('', fill(L.pay, v), STEPS, fill(L.noApp, v));
+  if (kind === 'conf' || updPay || kind === 'rem' || adjPay) body.push('', fill(L.pay, v), STEPS, fill(L.noApp, v));
   if (kind === 'conf' || kind === 'upd') body.push('', L.rules);
-  if ((kind === 'paid' || kind === 'cash') && passes && passes.length) body.push('', fill(L.passT, v));
-  const toPay = kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay, toPass = kind === 'paid' || kind === 'cash';
-  const plain = !!a && !toPay && !PAID.includes(reg.status);   // an adjusted one not yet confirmed: the page, no codes yet
+  if ((kind === 'paid' || kind === 'cash' || kind === 'upd') && passes && passes.length) body.push('', fill(L.passT, v));
+  const toPay = kind === 'conf' || updPay || kind === 'rem' || adjPay, toPass = kind === 'paid' || kind === 'cash' || (kind === 'upd' && !!(passes && passes.length));
+  const plain = (!!a || !!u) && !toPay && !PAID.includes(reg.status);   // an adjusted one not yet confirmed: the page, no codes yet
   const view = toPay ? L.viewPay : plain ? L.viewReg : L.viewPass, href = regPage(env) + '?lang=' + lang + (toPay ? '#pay' : plain ? '' : '#passes');
   const button = `<p style="margin:18px 0 6px"><a href="${he(href)}" style="display:inline-block;background:#4a0609;color:#f6e3b4;padding:11px 22px;border-radius:999px;text-decoration:none;font-weight:700">${he(view)}</a></p>`;
-  const capK = toPay ? 'pay' : kind === 'cash' ? 'cash' : 'pass';
+  const capK = toPay ? 'pay' : kind === 'cash' || (u && reg.status === 'cash') ? 'cash' : 'pass';
   if ((toPay && qrs.length) || (toPass && passes && passes.length)) body.push('', ...caption(lang, capK));
   const capHtml = caption(lang, capK).map(x => `<div style="max-width:220px;margin:5px auto 0;font-size:13px;line-height:1.4">${he(x)}</div>`).join('');
-  if (toPay || toPass || a) body.push('', view + (lang === 'zh' ? '：' : ': '), href);
+  if (toPay || toPass || a || u) body.push('', view + (lang === 'zh' ? '：' : ': '), href);
   body.push('', L.sign);
   const text = body.flatMap(x => x === STEPS ? (steps.length ? ['', ...steps, ''] : []) : [x]).join('\n');
   const htext = body.filter(x => x !== STEPS).join('\n');   // the html shows the steps by the codes instead
   let html = '';
-  if (kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) {
+  if (kind === 'conf' || updPay || kind === 'rem' || adjPay) {
     const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
     const box = steps.length ? `<div style="margin:16px 0 4px;padding:12px 14px;background:#fbf5e9;border:1px solid #e7d3b0;border-radius:10px;line-height:1.7">${steps.map(x => x === L.stepsH || x === L.key ? `<b>${he(x)}</b>` : he(x)).join('<br>')}</div>` : '';
     const imgs = qrs.map(n => `<div style="display:inline-block;text-align:center;margin:6px"><div style="font-weight:700">${/alipay/.test(n) ? 'Alipay 支付宝' : 'WeChat Pay 微信支付'}</div><img src="${he(base)}/social/reg/qr/${encodeURIComponent(n)}?k=${encodeURIComponent(env.REG_QR_KEY || '')}" alt="${he(n)}" width="220" style="border:1px solid #e7d3b0;border-radius:8px">${capHtml}</div>`).join('');
     html = `<!doctype html><html><body style="font-family:Georgia,serif;color:#2a1a14;background:#fbf5e9;padding:20px"><div style="max-width:560px;margin:auto;background:#fff;border:1px solid #e7d3b0;border-radius:12px;padding:20px">` +
       he(htext).replace(/\n/g, '<br>') + button + box + `<div style="margin-top:14px">${imgs}</div></div></body></html>`;
   }
-  if ((kind === 'paid' || kind === 'cash') && passes && passes.length) {
+  if (toPass && passes && passes.length) {
     const cards = passes.map(x => `<div style="display:inline-block;text-align:center;margin:8px"><img src="${he(passImg(env, x.pass))}" alt="QR" width="200" height="200" style="border:1px solid #e7d3b0;border-radius:8px"><div style="font-weight:700">${he(x.name)}</div><div style="font-size:12px;color:#7a6255">${he(x.pass.split('.')[0])}</div>${capHtml}</div>`).join('');
     html = `<!doctype html><html><body style="font-family:Georgia,serif;color:#2a1a14;background:#fbf5e9;padding:20px"><div style="max-width:560px;margin:auto;background:#fff;border:1px solid #e7d3b0;border-radius:12px;padding:20px">` +
       he(text).replace(/\n/g, '<br>') + button + `<div style="margin-top:14px;text-align:center">${cards}</div></div></body></html>`;
@@ -452,9 +502,9 @@ const adminMail = env => String(env.REG_NOTIFY || 'selecttango@gmail.com').trim(
 // 'sent' or 'failed'; what was saved stays saved either way
 async function send(env, kit, reg, action, extra) {
   const kind = KIND[action]; if (!kind) return undefined;
-  const passes = (action === 'paid' || action === 'cash') ? await passesOf(env, reg) : null;
-  const qrs = ['conf', 'upd', 'rem'].includes(kind) || (kind === 'adj' && reg.status === 'confirmed') ? await payNames(env, reg) : [];
-  const rest = kind === 'cash' || kind === 'rem' || kind === 'adj' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
+  const passes = (action === 'paid' || action === 'cash' || (action === 'modify' && PAID.includes(reg.status))) ? await passesOf(env, reg) : null;   // 修改报名: new people get theirs
+  const qrs = ['conf', 'rem'].includes(kind) || ((kind === 'adj' || kind === 'upd') && reg.status === 'confirmed') ? await payNames(env, reg) : [];
+  const rest = kind === 'cash' || kind === 'rem' || kind === 'adj' || kind === 'upd' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
   const shown = { ...reg, ...(rest == null ? {} : { rest }), ...(extra || {}) };
   const m = letter(kind, shown, env, passes, qrs);
   const t = await mailTo(env, reg.event), dest = toRegistrant(env, t, reg.email);
@@ -804,7 +854,7 @@ export async function regMe(req, env, url, json, kit) {
   // a paid one that owes again only after 修改报名 raised it (调整金额 turns it into 到场付款); one marked paid before the ledger owes nothing
   const rest = r.status === 'confirmed' || r.status === 'cash' || (r.status === 'paid' && got.n) ? Math.max(0, r.amount - got.sum) : 0;
   const over = r.status === 'paid' && got.n ? Math.max(0, got.sum - r.amount) : 0;   // paid more than a total that 调整金额 lowered
-  return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, over, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
+  return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, over, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund == null ? null : Math.max(0, r.refund - got.out), due: r.due_at, domestic: !!r.domestic,
     updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang), pay, passes,
     adjust: adj.list.map(x => ({ at: x.at, d: x.d, part: x.part, why: x.why })) } });   // never the internal note, nor who
 }
@@ -847,8 +897,9 @@ export async function regSubmit(req, env, b, json, kit) {
 export async function regPassPng(url, env) {
   const p = await readPass(env, decodeURIComponent(url.pathname.split('/').pop() || '').replace(/\.png$/, ''));
   if (!p) return new Response('not found', { status: 404 });
-  const reg = await env.SDB.prepare('SELECT status,people FROM reg WHERE code=?').bind(p.code).first();
-  if (!reg || !PAID.includes(reg.status) || p.idx >= reg.people) return new Response('not found', { status: 404 });
+  const reg = await env.SDB.prepare('SELECT status,data FROM reg WHERE code=?').bind(p.code).first();
+  const one = reg && (JSON.parse(reg.data).people || [])[p.idx];   // by place: a person taken off has no code
+  if (!reg || !PAID.includes(reg.status) || !one || one.gone) return new Response('not found', { status: 404 });
   const { qrPng } = await import('./qrpng.js');
   return new Response(await qrPng(checkinUrl(env, p.pass), 8), { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'private, max-age=86400' } });
 }
@@ -1001,7 +1052,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
     const left = await seatsLeft(env, ev), roles = { leader: 0, follower: 0, both: 0 }, counts = {};
     let overdue = 0; const t = Date.now();
     for (const r of rows) { counts[r.status] = (counts[r.status] || 0) + 1;
-      if (SEATED.includes(r.status)) r.data.people.forEach(pp => roles[pp.role]++);
+      if (SEATED.includes(r.status)) r.data.people.forEach(pp => { if (!pp.gone) roles[pp.role]++; });
       if (r.status === 'confirmed' && r.due_at && Date.parse(r.due_at) < t) { r.overdue = true; overdue++; } }
     const caps = Object.fromEntries(Object.entries(ev.items).filter(([, it]) => it.cap).map(([c, it]) => [c, it.cap]));
     const checked = {}, inRows = {};
@@ -1016,7 +1067,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
         if (m) (undone[raw.reg_id] = undone[raw.reg_id] || []).push({ at: l.at, person: +m[1], item: m[2], by: l.by });
       } else if (l.action === 'adjust') {   // 调整金额 with its amount, part, reason and internal note (only those who see the list)
         try { const x = JSON.parse(l.text); (adjusts[raw.reg_id] = adjusts[raw.reg_id] || []).push({ at: l.at, by: l.by, d: Number(x.d) || 0, part: x.part === 'hotel' ? 'hotel' : 'reg', why: String(x.why || ''), note: String(x.note || '') }); } catch { /* unreadable: left out */ }
-      } else if (l.action !== 'pay' && l.action !== 'refund') (history[raw.reg_id] = history[raw.reg_id] || []).push({ action: l.action, at: l.at, by: l.by }); }   // money is shown from reg_payment
+      } else if (l.action !== 'pay' && l.action !== 'refund') (history[raw.reg_id] = history[raw.reg_id] || []).push({ action: l.action, at: l.at, by: l.by, ...(l.action === 'modify' && l.text ? { text: l.text } : {}) }); }   // money is shown from reg_payment
     // letters that did not go out, unless the same kind went out later. Never the error text or the address.
     const unsent = {};
     for (const l of ((await env.SDB.prepare("SELECT l.reg_id,l.action,l.at FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND substr(l.action,1,4)='mail' ORDER BY l.id").bind(ev.id).all()).results || [])) {
@@ -1153,11 +1204,14 @@ export async function regAdmin(req, env, url, b, json, kit) {
     return json({ ok: true, name });
   }
   if (p === '/act' && req.method === 'POST') {
+    // the 修改报名 preview has its own action name: a backend that does not know it refuses, instead of writing the change
+    const preview = b.action === 'modify_preview';
+    b.preview = preview ? 1 : 0; if (preview) b.action = 'modify';
     const a = String(b.action || '');
     if (can(who, 'list')) {
       if (!Object.hasOwn(ACT_NEEDS, a)) return json({ error: 'bad_action' }, 400);
       if (!can(who, ACT_NEEDS[a])) return deny();
-      if (a === 'refund' || a === 'adjust') { const no = await stepUp(); if (no) return no; }   // 调整金额 like a refund: the password again
+      if (a === 'refund' || a === 'adjust' || (a === 'modify' && b.preview !== 1)) { const no = await stepUp(); if (no) return no; }   // 调整金额 like a refund: the password again
       return regAct(env, b, json, kit, ev, who);
     }
     // A site manager only takes money, for the code just scanned, of someone approved to pay on arrival.
@@ -1186,6 +1240,7 @@ async function regsCsv(env, ev) {
   }
   const lines = [CSV_COLS.join(',')];
   for (const r of rows) r.data.people.forEach((pp, i) => {
+    if (pp.gone) return;   // taken off by 修改报名
     const ri = r.data.rooms.findIndex(x => x.guests.includes(i)), room = ri >= 0 ? r.data.rooms[ri] : null, pass = r.data.passports[i] || {}, a = adj[r.id];
     lines.push([r.code, r.status, bjTime(r.created_at), r.email, r.lang, i + 1, pp.name, pp.nick, pp.role, pp.country, pp.city, pp.country === 'CN' ? 1 : 0, pp.wechat, pp.facebook, pp.pkg, pp.items.join(' '), pp.amount,
       room ? ri + 1 : '', room ? room.type : '', room ? room.ci : '', room ? room.co : '', room ? room.nights : '', pass.s, pass.g, r.promo, r.promo_dj, i ? '' : r.amount, i ? '' : r.fee, i ? '' : r.refund, i ? '' : bjTime(r.due_at), i ? '' : bjTime(r.paid_at), i ? '' : r.note,
@@ -1216,7 +1271,7 @@ export async function regAct(env, b, json, kit, ev, who) {
     const clash = async () => json({ error: 'note_changed', note: ((await db.prepare('SELECT note FROM reg WHERE id=?').bind(reg.id).first()) || {}).note || '', last: await lastHandled(env, reg.id, ['note']) }, 409);
     if (b.was != null && str(b.was, 2000) !== str(cur, 2000)) return clash();
     if (text === cur) return json({ ok: true, note: cur });
-    if (!(await done(db.prepare("UPDATE reg SET note=?,updated_at=? WHERE id=? AND COALESCE(note,'')=?").bind(text, ts, reg.id, cur)))) return clash();
+    if (!(await done(db.prepare("UPDATE reg SET note=? WHERE id=? AND COALESCE(note,'')=?").bind(text, reg.id, cur)))) return clash();
     return json({ ok: true, note: text });
   }
   if (a === 'pay') {
@@ -1290,8 +1345,8 @@ export async function regAct(env, b, json, kit, ev, who) {
     let text = JSON.stringify({ d: delta, part, why, note, was: reg.amount });
     if (text.length > 700) text = JSON.stringify({ d: delta, part, why: why.slice(0, 120), note: '', was: reg.amount });   // the log keeps 700
     const ok = await done(
-      db.prepare(`UPDATE reg SET amount=?,hotel_amount=?,status=?,paid_at=${nowPaid ? 'COALESCE(paid_at,?)' : 'paid_at'},updated_at=? WHERE id=? AND status=? AND amount=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?`)
-        .bind(amount, hotel, status, ...(nowPaid ? [ts] : []), ts, reg.id, reg.status, reg.amount, reg.id, got.n),
+      db.prepare(`UPDATE reg SET amount=?,hotel_amount=?,status=?,paid_at=${nowPaid ? 'COALESCE(paid_at,?)' : 'paid_at'},updated_at=? WHERE id=? AND status=? AND amount=? AND data=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?`)
+        .bind(amount, hotel, status, ...(nowPaid ? [ts] : []), ts, reg.id, reg.status, reg.amount, reg.data, reg.id, got.n),
       text);
     if (!ok) return late();
     const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
@@ -1304,38 +1359,115 @@ export async function regAct(env, b, json, kit, ev, who) {
     return json({ ok: true, status: after.status, amount: after.amount, paid: got.sum, rest: Math.max(0, after.amount - got.sum), over: info.over, mail });
   }
   // The rest change the registration itself, and only from the status it was read in.
-  let change;
+  let change, refundLeft = null;
   let seats = null;   // the seats this change takes, checked inside the write
   if (a === 'confirm') {
     const no = await full(env, ev, d, reg.id, json); if (no) return no;
     const due = new Date(Date.now() + ev.payDays * 864e5).toISOString();
     seats = d;
-    change = db.prepare("UPDATE reg SET status='confirmed',confirmed_at=?,due_at=?,reminded_at=NULL,updated_at=? WHERE id=? AND status=?" + ROOM_SQL).bind(ts, due, ts, reg.id, reg.status, ...roomArgs(ev, d, reg.id));
+    change = db.prepare("UPDATE reg SET status='confirmed',confirmed_at=?,due_at=?,reminded_at=NULL,updated_at=? WHERE id=? AND status=? AND data=?" + ROOM_SQL).bind(ts, due, ts, reg.id, reg.status, reg.data, ...roomArgs(ev, d, reg.id));
   } else if (a === 'waitlist' || a === 'decline' || a === 'cash') {
     change = db.prepare('UPDATE reg SET status=?,updated_at=? WHERE id=? AND status=?').bind({ waitlist: 'waitlist', decline: 'declined', cash: 'cash' }[a], ts, reg.id, reg.status);
   } else if (a === 'cancel') {
     // Refund only what was paid: everything minus the ¥50 fee (once). After the refund date (Beijing) nothing at all, hotel
     // included: one date for every part (Shiao, 2026-11-26; before that, only the hotel stopped on 6/11).
+    // reg.refund is what all refunds together should reach (the 记退款 button asks for the rest), so money already paid
+    // back counts in it. After the date nothing more is refunded, but a refund already owed (paid above the total) stays owed.
     let refund = null;
-    const got = await moneyOf(env, reg.id), paid = got.sum, took = reg.status === 'paid' ? Math.max(paid, paid ? 0 : reg.amount) : paid;
-    if (took > 0) refund = bjDate(ts) > ev.refundBy ? 0 : Math.max(0, took - ev.fee);   // the ¥50 fee is kept once, whether or not a change already charged it
+    const got = await moneyOf(env, reg.id), paid = got.sum, took = reg.status === 'paid' ? Math.max(paid, got.n ? 0 : reg.amount) : paid;
+    const owed = reg.status === 'paid' && got.n ? Math.max(0, paid - reg.amount) : 0;
+    if (took > 0) refund = got.out + (bjDate(ts) > ev.refundBy ? owed : Math.max(0, took - ev.fee));   // the ¥50 fee is kept once, whether or not a change already charged it
+    refundLeft = refund == null ? null : refund - got.out;
     // the refund is worked out from the payments read just now; if one is recorded before this lands, the cancel is refused (S09)
     change = db.prepare("UPDATE reg SET status='cancelled',cancelled_at=?,refund=?,fee=CASE WHEN fee>0 THEN fee ELSE ? END,updated_at=? WHERE id=? AND status=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?")
       .bind(ts, refund, took > 0 ? ev.fee : 0, ts, reg.id, reg.status, reg.id, got.n);
   } else if (a === 'modify') {
-    const r = evaluate({ ...b.data, event: ev.id, lang: reg.lang }, env, Date.parse(reg.created_at));   // promo judged at the original submit time
-    if (r.error) return json(r, 400);
+    // 修改报名 (Shiao, 2026-11-26): the 总管 (or 管理员) changes what a registration holds — items, people, hotel — after
+    // a preview (preview: 1 writes nothing, needs no password). Prices as at the original registration time (promo kept);
+    // ¥50 once money was received (nofee: 1 waives it this time); a full item needs over: 1; what someone already checked
+    // in for stays. Before the entry codes are out a person taken off simply leaves; after, they keep their place as gone
+    // (codes go by place) and their code stops working. After the refund date a total lowered below what was paid keeps
+    // the difference: an automatic 加收 line, so it is never refunded.
+    if (b.seen != null && String(b.seen) !== String(reg.updated_at)) return late();   // the screen showed an older version
+    const inp = { ...(b.data && typeof b.data === 'object' ? b.data : {}), event: ev.id, lang: reg.lang };
+    if (inp.code == null) inp.code = (d.promo && d.promo.code) || '';
+    if (inp.src == null) inp.src = d.src || '';
+    if (inp.msg == null) inp.msg = d.msg || '';
+    const ins = ((await db.prepare('SELECT person,item FROM reg_checkin WHERE reg_id=?').bind(reg.id).all()).results) || [];
+    const coded = PAID.includes(reg.status) || ins.length > 0;
+    // once the codes are out nobody comes back and no place is dropped (a person taken off stays in the list, gone)
+    if (coded && Array.isArray(inp.people) && (inp.people.length < d.people.length || d.people.some((p, i) => p.gone && !(inp.people[i] && inp.people[i].gone)))) return json({ error: 'bad_people' }, 400);
+    // the same code as before: the price basis it was charged with (a friend code since removed still counts); a new one is judged at the original submit time
+    const kept = d.promo && String(inp.code || '').trim().toLowerCase() === (d.promo.code || '') ? d.promo : null;
+    const rs = evaluate(inp, env, Date.parse(reg.created_at), { slots: true, promo: kept });
+    if (rs.error) return json(rs, 400);
+    const slots = rs.data;
+    for (const c of ins) {   // what someone already checked in for stays (a stray row for something no longer held does not lock the registration)
+      const o = d.people[c.person]; if (!o || o.gone || !(o.items || []).includes(c.item)) continue;
+      const p = slots.people[c.person];
+      if (!p || p.gone || !p.items.includes(c.item)) return json({ error: 'checked_in', person: (d.people[c.person] || {}).name || '', item: c.item }, 409);
+    }
+    const data = coded ? slots : dropGone(slots);
     // ¥50 only once money was received (Shiao, 2026-11-26): before payment (待审核, 候补, 已确认 or 到场付款 not yet paid) a
     // change is free; after it (paid, or paid in part) the first change carries the fee, once per registration.
+    const same = JSON.stringify(data) === reg.data;   // nothing changed: nothing to charge, keep or send
     const got = await moneyOf(env, reg.id), took = reg.status === 'paid' ? Math.max(got.sum, got.sum ? 0 : reg.amount) : got.sum;
-    const fee = reg.fee > 0 ? reg.fee : took > 0 ? ev.fee : 0;
+    const fee = reg.fee > 0 ? reg.fee : !same && took > 0 && b.nofee !== 1 ? ev.fee : 0;
+    const feeWhy = reg.fee > 0 ? 'had' : took > 0 ? (b.nofee === 1 ? 'waived' : 'first') : 'unpaid';
     const seated = SEATED.includes(reg.status);
-    if (seated) { const no = await full(env, ev, r.data, reg.id, json); if (no) return no; seats = r.data; }
-    const m = withAdj(r.total + fee, r.hotel, await adjOf(env, reg.id));   // a 调整金额 made before stays
-    // a paid one raised above what it paid: 到场付款, so the page and the door show the rest (the entry codes stay)
-    const st = reg.status === 'paid' && got.n && got.sum < m.amount ? 'cash' : reg.status;
-    change = db.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,status=?,updated_at=? WHERE id=? AND status=? AND data=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?' + (seated ? ROOM_SQL : ''))
-      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, m.amount, m.hotel, fee, r.promo.code || null, r.promo.dj || null, st, ts, reg.id, reg.status, reg.data, reg.id, got.n, ...(seated ? roomArgs(ev, r.data, reg.id) : []));
+    // only what this change adds has to fit (removing someone, or renaming, never needs a free seat)
+    const shorts = [], grow = [];
+    if (seated) {
+      const left = await seatsLeft(env, ev, reg.id), before = need(d), now = need(data);
+      for (const [c, k] of Object.entries(now)) { if (k <= (before[c] || 0)) continue; if (left[c] != null && k > left[c]) shorts.push({ item: c, left: left[c], need: k }); else grow.push([c, k]); }
+    }
+    const short = shorts[0] || null;
+    // 调整金额 made before stay. A hotel one belongs to the hotel: with no hotel left it goes, and a hotel discount never
+    // exceeds the new hotel charge. The 6/11 「kept difference」 is worked out anew each time, never added on top.
+    const adj = await adjOf(env, reg.id);
+    const hotelAdj = rs.hotel > 0 ? Math.max(adj.hotel, -rs.hotel) : 0, hotelFix = hotelAdj - adj.hotel;
+    const base = rs.total + fee + adj.all - adj.keep + hotelFix;
+    // a discount bigger than the new registration price would eat into the hotel: take part of it back (加收) first
+    const short_ = (rs.hotel > 0 ? rs.hotel + hotelAdj : 0) - base;
+    if (!same && short_ > 0) return json({ error: 'discount_too_big', over: short_ }, 409);
+    // after the refund date this change refunds nothing it lowers; a refund already owed (paid above the total) stays owed
+    const keepAll = bjDate(ts) > ev.refundBy && took > 0 ? Math.max(0, Math.min(took, reg.amount) - base) : 0;
+    const keepDelta = same ? 0 : keepAll - adj.keep, keep = Math.max(0, keepDelta);
+    const amount = same ? reg.amount : base + keepAll, hotel = same ? reg.hotel_amount : Math.max(0, rs.hotel + hotelAdj);
+    // marked paid with no payment records: a total raised from ¥0 is simply owed; otherwise record the money first
+    if (!same && reg.status === 'paid' && !got.n && reg.amount > 0 && amount !== reg.amount) return json({ error: 'no_payments' }, 409);
+    // paid and raised: 到场付款 (codes stay, the rest shows); 待付款 / 到场付款 now covered: paid
+    const st = same ? reg.status : reg.status === 'paid' && (got.n || reg.amount <= 0) && got.sum < amount ? 'cash' : (reg.status === 'confirmed' || reg.status === 'cash') && (amount <= 0 || (got.n && got.sum >= amount)) ? 'paid' : reg.status;
+    const nowPaid = st === 'paid' && reg.status !== 'paid';
+    const over = st === 'paid' && got.n ? Math.max(0, got.sum - amount) : 0, rest = st === 'confirmed' || st === 'cash' ? Math.max(0, amount - got.sum) : 0;
+    const zh = changeLines(d, slots, 'zh', coded);
+    if (b.preview === 1) return json({ ok: true, preview: true, was: reg.amount, amount, fee: same ? reg.fee : fee, feeWhy, keep, paid: got.sum, rest, over, status: st, full: same ? null : short, fulls: same ? [] : shorts, changes: zh, same, people: activeOf(data).length });
+    if (same) return json({ error: 'no_change' }, 400);
+    const agreed = b.over !== 1 ? [] : Array.isArray(b.overItems) ? b.overItems : shorts.map(x => x.item);
+    const unseen = shorts.find(x => !agreed.includes(x.item));
+    if (unseen) return json({ error: 'full', ...unseen }, 409);
+    const why = str(b.why, 200);
+    const text = [...zh, `合计 ${fmt(reg.amount)} → ${fmt(amount)}`, fee && !reg.fee ? `手续费 ${fmt(fee)}` : feeWhy === 'waived' ? '这次不收手续费' : '',
+      keep ? `6/11 之后改少，差价 ${fmt(keep)} 不退` : '', hotelFix ? `住宿原来的加减收随住宿调整 ${hotelFix > 0 ? '+' : '−'}${fmt(Math.abs(hotelFix))}` : '',
+      shorts.length ? `超额：${shorts.map(x => NAMES.zh[x.item] || x.item).join('、')}` : '', why ? `说明：${why}` : ''].filter(Boolean).join('；');
+    const line = (d2, part, w, auto) => db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) SELECT ?,?,'adjust',? WHERE changes()>0")
+      .bind(reg.id, ts, JSON.stringify({ by: who.name, text: JSON.stringify({ d: d2, part, why: w, note: '', was: reg.amount, auto }) }));
+    // each line is written only if the one before it was (changes() carries on)
+    const lines = [...(hotelFix ? [line(hotelFix, 'hotel', HOTEL_WHY, 'hotel')] : []), ...(keepDelta ? [line(keepDelta, 'reg', keepDelta > 0 ? KEEP_WHY : UNKEEP_WHY, 'keep')] : [])];
+    // the seat check written into the UPDATE covers what grows (items the 总管 chose to overbook are left out)
+    const guarded = seated && grow.length ? { people: grow.flatMap(([c, k]) => Array.from({ length: k }, () => ({ items: [c] }))) } : null;
+    const ok = await done(
+      db.prepare(`UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,status=?,paid_at=${nowPaid ? 'COALESCE(paid_at,?)' : 'paid_at'},updated_at=? WHERE id=? AND status=? AND amount=? AND updated_at=? AND data=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=? AND (SELECT COUNT(*) FROM reg_checkin WHERE reg_id=?)=?` + (guarded ? ROOM_SQL : ''))
+        .bind(JSON.stringify(data), activeOf(data).length, rs.domestic, amount, hotel, fee, rs.promo.code || null, rs.promo.dj || null, st, ...(nowPaid ? [ts] : []), ts, reg.id, reg.status, reg.amount, reg.updated_at, reg.data, reg.id, got.n, reg.id, ins.length, ...(guarded ? roomArgs(ev, guarded, reg.id) : [])),
+      text.slice(0, 700), ...lines);
+    if (!ok) {   // still as read: then what stopped it was the seats, taken a moment ago by someone else
+      const now = await db.prepare('SELECT status,data,updated_at FROM reg WHERE id=?').bind(reg.id).first();
+      if (guarded && now && now.status === reg.status && now.data === reg.data && now.updated_at === reg.updated_at) { const no = await full(env, ev, guarded, reg.id, json); if (no) return no; }
+      return late();
+    }
+    const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
+    const mail = b.silent !== 1 ? await send(env, kit, after, 'modify', { upd: { was: d, slots, why, over, keep, coded } }) : undefined;
+    return json({ ok: true, status: after.status, amount: after.amount, fee: after.fee, rest, over, keep, mail });
   }
   if (!(await done(change, b.note ? str(b.note, 500) : ''))) {   // and no letter from the one who was late
     // still as read: then what stopped it was the seats, taken a moment ago by someone else
@@ -1349,8 +1481,8 @@ export async function regAct(env, b, json, kit, ev, who) {
     await db.prepare("UPDATE reg SET status='paid',paid_at=COALESCE(paid_at,?),updated_at=? WHERE id=? AND status='confirmed' AND amount<=0").bind(ts, ts, reg.id).run();
     after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first(); if (after.status === 'paid') kind = 'paid';
   }
-  const mail = b.silent !== 1 ? await send(env, kit, after, kind) : undefined;
-  return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, due: after.due_at, mail });
+  const mail = b.silent !== 1 ? await send(env, kit, after, kind, refundLeft == null ? undefined : { refundLeft }) : undefined;
+  return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, ...(refundLeft == null ? {} : { refundLeft }), due: after.due_at, mail });
 }
 
 // Day-10 reminder for confirmed registrations that are still unpaid. Called from the 10-minute cron.
@@ -1566,6 +1698,7 @@ async function passContext(env, raw) {
   const reg = await env.SDB.prepare('SELECT * FROM reg WHERE code=?').bind(p.code).first();
   if (!reg) return { error: 'bad_pass' };
   const d = JSON.parse(reg.data), person = d.people[p.idx]; if (!person) return { error: 'bad_pass' };
+  if (person.gone) return { error: 'removed' };   // taken off the registration: the code no longer works
   return { p, reg, d, person };
 }
 export async function regPassInfo(env, raw, json, who) {

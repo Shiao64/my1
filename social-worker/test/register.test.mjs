@@ -612,7 +612,8 @@ Date.now = nowReal;
   const res = await social(new Request('https://api.tangoweekend.org/social/reg', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: 'https://tangoweekend.org', Authorization: 'Bearer ' + dan }, body: JSON.stringify(form()) }), benv, new URL('https://api.tangoweekend.org/social/reg'), json);
   check('binding mail goes out with replyTo field, no Reply-To header', (await res.json()).ok && sent.some(m => m.replyTo === 'info@tangoweekend.org' && /Registration received/.test(m.subject)), sent.map(m => m.subject)); }
 // letters: only uploaded QR codes, page link, Beijing date; 付款码 not 收款码 (the payment note with the number: 11/26, reg-paysteps.test.mjs)
-{ const reg = { code: 'BJ27-0777', lang: 'zh', amount: 1450, due_at: '2026-12-14T17:30:00.000Z', data: { people: [], rooms: [], hotel: false } };
+// (a 修改确认信 asks for money only while 待付款 and something is owed: 2026-11-26, reg-modify.test.mjs)
+{ const reg = { code: 'BJ27-0777', lang: 'zh', amount: 1450, due_at: '2026-12-14T17:30:00.000Z', status: 'confirmed', data: { people: [], rooms: [], hotel: false } };
   for (const lang of ['en', 'zh', 'ko', 'es', 'ru']) for (const kind of ['conf', 'upd', 'rem']) {
     const m = R.letter(kind, { ...reg, lang }, env, null, ['intl-alipay']);
     check(`${lang} ${kind}: date, link, only uploaded QR`, m.text.includes('2026-12-15') && !m.text.includes('2026-12-14') && m.html.includes(`?lang=${lang}#pay"`) && m.html.includes('intl-alipay') && !m.html.includes('intl-wechat'), m.text);
