@@ -23,7 +23,7 @@
   var TYPE = {
     'Milonga': 'Milonga', 'Práctica': 'Práctica', 'Practica': 'Práctica', 'Práctilonga': 'Practilonga', 'Practilonga': 'Practilonga',
     'Festival': 'Festival', 'Marathon': 'Maratón', 'Encuentro': 'Encuentro', 'Weekend': 'Fin de semana',
-    'Encuentro / Weekend': 'Encuentro / Fin de semana', 'Anniversary': 'Milonga aniversario', 'Workshop': 'Taller',
+    'Encuentro / Weekend': 'Encuentro / Fin de semana', 'Anniversary': 'Milonga aniversario', 'Workshop': 'Taller', 'Group Trip': 'Viaje en grupo',
     'Championship': 'Campeonato', 'Event': 'Evento', 'Class': 'Clase', 'One-off': 'Única vez',
     'Weekly': 'Semanal', 'Monthly': 'Mensual', 'Biweekly': 'Quincenal'
   };
@@ -52,7 +52,7 @@
     'Tap ☆ on an event to save it here': 'Toca ☆ en un evento para guardarlo aquí',
     'After you verify your email, this list restores on your other devices': 'Después de verificar tu correo, esta lista aparece también en tus otros dispositivos',
     'Festivals': 'Festivales', 'Marathons': 'Maratones', 'Encuentros / Weekends': 'Encuentros / Fines de semana', 'Anniversaries': 'Milongas aniversario',
-    'Workshops': 'Talleres', 'Last': 'Último', 'Cancelled': 'Cancelado', 'Paused this week': 'No hay esta semana',
+    'Workshops': 'Talleres', 'Group Trips': 'Viajes en grupo', 'Last': 'Último', 'Cancelled': 'Cancelado', 'Paused this week': 'No hay esta semana',
     'Remove from favorites': 'Quitar de guardados', 'Add to favorites': 'Guardar', 'Save': 'Guardar', 'Next': 'Siguiente',
     'Saved events': 'Eventos guardados', 'Choose city': 'Elegir ciudad', 'Choose a city': 'Elige una ciudad', 'Select a city': 'Elige una ciudad',
     'Later dates are projected from the weekly schedule and may change. Please confirm with the organizer.': 'Las fechas siguientes se calculan a partir del horario semanal y pueden cambiar. Confírmalas con el organizador.',
@@ -62,12 +62,12 @@
     'No listings match these filters.': 'No hay eventos con estos filtros.', 'All cities · Special events by start date': 'Todas las ciudades · Eventos especiales por fecha de inicio',
     'Weekly milonga · This week\'s theme': 'Milonga semanal · Tema de esta semana', 'TBA': 'Por confirmar',
     /* card */
-    'Preview': 'Anuncio', 'Details to be announced': 'Detalles por anunciar', 'Preview · Details to be announced': 'Anuncio · Detalles por anunciar', 'Venue to be announced': 'Lugar por anunciar', 'Venue': 'Lugar', 'ORG': 'ORG', 'Info': 'Información', 'please check with the organizer': 'confírmalo de nuevo con el organizador', 'Not updated for a long time; it may have stopped': 'Sin actualizar desde hace tiempo; puede que ya no se haga', 'Contact info not yet available; best to check with local dancers before going': 'Aún sin datos de contacto; mejor consulta con bailarines locales antes de ir', 'Organizer': 'Organizador', 'Address': 'Dirección', 'City': 'Ciudad', 'Time': 'Horario', 'Fee': 'Entrada',
+    'Preview': 'Anuncio', 'Details to be announced': 'Detalles por anunciar', 'Preview · Details to be announced': 'Anuncio · Detalles por anunciar', 'Venue to be announced': 'Lugar por anunciar', 'Venue': 'Lugar', 'Destination': 'Destino', 'Departure': 'Salida', 'ORG': 'ORG', 'Info': 'Información', 'please check with the organizer': 'confírmalo de nuevo con el organizador', 'Not updated for a long time; it may have stopped': 'Sin actualizar desde hace tiempo; puede que ya no se haga', 'Contact info not yet available; best to check with local dancers before going': 'Aún sin datos de contacto; mejor consulta con bailarines locales antes de ir', 'Organizer': 'Organizador', 'Address': 'Dirección', 'City': 'Ciudad', 'Time': 'Horario', 'Fee': 'Entrada',
     'Notes': 'Notas', 'Note': 'Nota', 'Notice': 'Aviso', 'Notice ›': 'Aviso ›', 'More': 'Más', 'Less': 'Menos', 'Collapse ⌃': 'Contraer ⌃',
     'Links': 'Enlaces', 'Website': 'Sitio web', 'Event website': 'Sitio del evento', 'Video': 'Video', 'Register': 'Inscribirse',
     'Details': 'Detalles', 'Event details': 'Detalles del evento', 'Phone': 'Teléfono', 'Email': 'Correo', 'WeChat': 'WeChat',
     'WeChat ID:': 'ID de WeChat:', 'Phone:': 'Teléfono:', 'Email:': 'Correo:', 'Phone/WeChat:': 'Teléfono/WeChat:',
-    'WeChat Article': 'Artículo de WeChat', 'WeChat article': 'Artículo de WeChat', 'Temporarily changed': 'Cambio temporal',
+    'WeChat Article': 'Artículo de WeChat', 'WeChat article': 'Artículo de WeChat', 'Temporarily changed': 'Cambio temporal', 'New notice': 'Aviso nuevo',
     'Same venue': 'Mismo lugar', 'Weekly classes too ›': 'También clases semanales ›',
     'Newer poster': 'Afiche más nuevo', 'Older poster': 'Afiche anterior', 'Past poster': 'Afiche pasado', 'Previous poster': 'Afiche anterior', 'Next poster': 'Afiche siguiente',
     'ENDED': 'TERMINADO', 'This event has ended': 'Este evento ya terminó', 'View all events': 'Ver todos los eventos', 'Next edition:': 'Próxima edición:',
@@ -181,7 +181,7 @@
     'Push alerts are off.': 'Las notificaciones están desactivadas.', 'This browser does not support push notifications.': 'Este navegador no admite notificaciones push.',
     'Could not turn on push alerts. Please try again later.': 'No se pudieron activar las notificaciones. Inténtalo más tarde.',
     /* lowercase type label on special-event cards */
-    'workshop': 'taller', 'marathon': 'maratón', 'festival': 'festival', 'weekend': 'fin de semana', 'anniversary': 'aniversario', 'championship': 'campeonato', 'practica': 'práctica',
+    'workshop': 'taller', 'group trip': 'viaje en grupo', 'marathon': 'maratón', 'festival': 'festival', 'weekend': 'fin de semana', 'anniversary': 'aniversario', 'championship': 'campeonato', 'practica': 'práctica',
     'None yet': 'Todavía no hay', 'prev': 'anterior', 'next': 'siguiente',
     'Sun': 'dom', 'Mon': 'lun', 'Tue': 'mar', 'Wed': 'mié', 'Thu': 'jue', 'Fri': 'vie', 'Sat': 'sáb',
     'Sunday': 'domingo', 'Monday': 'lunes', 'Tuesday': 'martes', 'Wednesday': 'miércoles', 'Thursday': 'jueves', 'Friday': 'viernes', 'Saturday': 'sábado'
@@ -200,6 +200,7 @@
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   var P = [
+    [/^New notice · (\d{1,2}\/\d{1,2})( [›⌃])?$/, function (m) { return 'Aviso nuevo · ' + dm(m[1]) + (m[2] || ''); }],
     [/^More from (.+)$/, function (m) { return 'Más de ' + m[1]; }],
     [/^All of (.+) ›$/, function (m) { return 'Todo de ' + m[1] + ' ›'; }],
     [/^Updated (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { return 'Actualizado ' + (m[1] === 'today' ? 'hoy' : m[1] === 'yesterday' ? 'ayer' : m[2] ? 'hace ' + m[2] + ' días' : 'el ' + m[3]); }],
@@ -211,6 +212,7 @@
     [new RegExp('^((?:1st|2nd|3rd|4th|5th|Last)(?:(?: & |, | and )(?:1st|2nd|3rd|4th|5th|Last))*) (' + WDLK + ')(?: of the month)?( .*)?$'), function (m) {
       return cap(m[1].split(/ & |, | and /).map(function (x) { return NTH[x]; }).join(' y ')) + ' ' + WDL[m[2]] + ' de cada mes' + (m[3] ? ' · ' + type(m[3].trim()) : ''); }],
     [/^(Weekly|Monthly|Biweekly|One-off) · (.+)$/, function (m) { return TYPE[m[1]] + ' · ' + type(m[2]); }],
+    [/^([\d/–:\- ]+) · (.+) departure$/, function (m) { return m[1] + ' · salida desde ' + city(m[2]); }],
     [/^([\d/–:\- ]+) · (.+)$/, function (m) { return m[1] + ' · ' + tail(m[2]).split(' · ').map(type).join(' · '); }],
     [/^Upcoming special · (.+)$/, function (m) { return 'Próximos eventos especiales · ' + city(m[1]); }],
     [/^(.+) ▾$/, function (m) { return CITY[m[1]] ? CITY[m[1]] + ' ▾' : null; }],
@@ -219,7 +221,7 @@
     [/^(.+): back to top to change city$/, function (m) { return city(m[1]) + ': vuelve arriba para cambiar de ciudad'; }],
     [/^☆ (\d+) saved events?$/, function (m) { return '☆ ' + m[1] + (m[1] === '1' ? ' evento guardado' : ' eventos guardados'); }],
     [/^(\d+) saved events?$/, function (m) { return m[1] + (m[1] === '1' ? ' evento guardado' : ' eventos guardados'); }],
-    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
+    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary|Group Trip) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
     [/^WeChat ID: (.+)$/, function (m) { return 'ID de WeChat: ' + m[1]; }],
     [/^WeChat Official Account: (.+)$/, function (m) { return 'Cuenta oficial de WeChat: ' + m[1]; }],
     [/^WeChat Channels: (.+)$/, function (m) { return 'Canales de WeChat: ' + m[1]; }],

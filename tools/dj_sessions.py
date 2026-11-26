@@ -101,6 +101,15 @@ def rows_from(events, src):
         for s in e.get('schedule') or []:
             if s.get('dj') and s.get('date'):
                 for x in split(s['dj']): out.append(dict(base, date=s['date'], dj=djz.get(x, x), src=src + ' schedule'))
+        # 2026-11-25 (Shiao, 担任 DJ on organizer pages): a one-day one-off card with a dj but no schedule and no
+        # poster DJs (e.g. E124 ATer Halloween, DJ Tayfun) is one night on its start date. Multi-day cards without a
+        # schedule are skipped: which night the DJ plays is not known.
+        day = e.get('start') or ''
+        if (e.get('kind') != 'weekly' and e.get('dj') and not e.get('schedule') and not e.get('poster_djs')
+                and re.fullmatch(r'\d{4}-\d{2}-\d{2}', day) and (e.get('end') or day) == day):
+            for x in split(e['dj']):
+                if x.count('(') + x.count('（') != x.count(')') + x.count('）'): continue  # "Resident DJ（Ken Wong, SC Lee）" split at the comma
+                out.append(dict(base, date=day, dj=x, src=src + ' one-off dj'))
     return out
 
 

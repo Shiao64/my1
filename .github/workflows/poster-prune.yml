@@ -8,6 +8,9 @@ name: Daily past-poster cleanup
 # If anything changed it commits to main and starts "R2 sync" (a push made with
 # GITHUB_TOKEN does not trigger other workflows by itself).
 # Also: tools/dj_sessions.py daily (DJ session log, DJ page candidates for Shiao).
+# Also (Shiao 2026-11-25): tools/draft_entities.py + tools/gen_organizer_profiles.py: an organizer who now has
+# 2+ cards at different times in mainland China gets a profile page (asia/organizers.json, /organizer/<id>/).
+# It never overwrites or deletes; the commit message lists who was added.
 # Manual run: Actions -> "Daily past-poster cleanup" -> Run workflow.
 
 on:
@@ -45,6 +48,9 @@ jobs:
           # change always conflicts. On a failed push, start again from the new main.
           for i in 1 2 3 4 5; do
             git fetch -q origin main && git reset -q --hard origin/main && git clean -fdq images/thumb images/thumb800
+            # 2026-11-25 (Shiao): organizer profile pages for 2+ cards at different times (before the DJ log, so it maps to them)
+            python3 tools/draft_entities.py > /dev/null
+            ORG=$(python3 tools/gen_organizer_profiles.py | grep -E '^(新加|补所属|注意)' || true)
             # 2026-11-21 (Shiao): log DJ nights before old posters are pruned (data/dj-sessions.json keeps them)
             python3 tools/dj_sessions.py daily
             python3 tools/prune_past_posters.py --apply --today=$TODAY
@@ -52,9 +58,9 @@ jobs:
             python3 tools/fix_past_posters.py --apply
             git checkout -- tools/__pycache__/ 2>/dev/null || true
             git clean -fdq tools/__pycache__/ 2>/dev/null || true
-            git add asia/events.json asia/events-core.json asia/events-more.json asia/asia-map.js images/thumb images/thumb800 data/dj-sessions.json data/dj-candidates.md asia/dj-recent.json
+            git add asia/events.json asia/events-core.json asia/events-more.json asia/asia-map.js images/thumb images/thumb800 data/dj-sessions.json data/dj-candidates.md asia/dj-recent.json asia/organizers.json organizer zh/organizer data/entities-draft
             if git diff --cached --quiet; then echo "nothing expired today"; exit 0; fi
-            git commit -qm "Daily cleanup: drop expired past posters"
+            if [ -n "$ORG" ]; then git commit -qm "Daily cleanup: drop expired past posters" -m "组织者介绍页：" -m "$ORG"; else git commit -qm "Daily cleanup: drop expired past posters"; fi
             if git push origin HEAD:main; then
               gh workflow run r2-sync.yml --ref main
               gh workflow run inbox-refresh.yml --ref main || true

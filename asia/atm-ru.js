@@ -23,7 +23,7 @@
   var TYPE = {
     'Milonga': 'Милонга', 'Práctica': 'Практика', 'Practica': 'Практика', 'Práctilonga': 'Практилонга', 'Practilonga': 'Практилонга',
     'Festival': 'Фестиваль', 'Marathon': 'Марафон', 'Encuentro': 'Энкуэнтро', 'Weekend': 'Уикенд',
-    'Encuentro / Weekend': 'Энкуэнтро / Уикенд', 'Anniversary': 'Юбилейная милонга', 'Workshop': 'Мастер-класс',
+    'Encuentro / Weekend': 'Энкуэнтро / Уикенд', 'Anniversary': 'Юбилейная милонга', 'Workshop': 'Мастер-класс', 'Group Trip': 'Групповая поездка',
     'Championship': 'Чемпионат', 'Event': 'Событие', 'Class': 'Урок', 'One-off': 'Разовое',
     'Weekly': 'Еженедельно', 'Monthly': 'Ежемесячно', 'Biweekly': 'Раз в две недели'
   };
@@ -60,7 +60,7 @@
     'Tap ☆ on an event to save it here': 'Нажмите ☆ у события, чтобы сохранить его здесь',
     'After you verify your email, this list restores on your other devices': 'После подтверждения почты этот список появится и на других ваших устройствах',
     'Festivals': 'Фестивали', 'Marathons': 'Марафоны', 'Encuentros / Weekends': 'Энкуэнтро / Уикенды', 'Anniversaries': 'Юбилейные милонги',
-    'Workshops': 'Мастер-классы', 'Last': 'Последний', 'Cancelled': 'Отменено', 'Paused this week': 'На этой неделе нет',
+    'Workshops': 'Мастер-классы', 'Group Trips': 'Групповые поездки', 'Last': 'Последний', 'Cancelled': 'Отменено', 'Paused this week': 'На этой неделе нет',
     'Remove from favorites': 'Убрать из избранного', 'Add to favorites': 'В избранное', 'Save': 'Сохранить', 'Next': 'Далее',
     'Saved events': 'Избранные события', 'Choose city': 'Выбрать город', 'Choose a city': 'Выберите город', 'Select a city': 'Выберите город',
     'Later dates are projected from the weekly schedule and may change. Please confirm with the organizer.': 'Следующие даты рассчитаны по еженедельному расписанию и могут измениться. Уточняйте у организатора.',
@@ -70,12 +70,12 @@
     'No listings match these filters.': 'Нет событий по этим фильтрам.', 'All cities · Special events by start date': 'Все города · Особые события по дате начала',
     'Weekly milonga · This week\'s theme': 'Еженедельная милонга · Тема недели', 'TBA': 'Уточняется',
     /* card */
-    'Preview': 'Анонс', 'Details to be announced': 'Подробности позже', 'Preview · Details to be announced': 'Анонс · Подробности позже', 'Venue to be announced': 'Место уточняется', 'Venue': 'Место', 'ORG': 'ОРГ', 'Info': 'Информация', 'please check with the organizer': 'уточните у организатора', 'Not updated for a long time; it may have stopped': 'Давно не обновлялось — возможно, больше не проводится', 'Contact info not yet available; best to check with local dancers before going': 'Контактов пока нет; перед поездкой лучше уточнить у местных танцоров', 'Organizer': 'Организатор', 'Address': 'Адрес', 'City': 'Город', 'Time': 'Время', 'Fee': 'Вход',
+    'Preview': 'Анонс', 'Details to be announced': 'Подробности позже', 'Preview · Details to be announced': 'Анонс · Подробности позже', 'Venue to be announced': 'Место уточняется', 'Venue': 'Место', 'Destination': 'Направление', 'Departure': 'Отправление', 'ORG': 'ОРГ', 'Info': 'Информация', 'please check with the organizer': 'уточните у организатора', 'Not updated for a long time; it may have stopped': 'Давно не обновлялось — возможно, больше не проводится', 'Contact info not yet available; best to check with local dancers before going': 'Контактов пока нет; перед поездкой лучше уточнить у местных танцоров', 'Organizer': 'Организатор', 'Address': 'Адрес', 'City': 'Город', 'Time': 'Время', 'Fee': 'Вход',
     'Notes': 'Примечания', 'Note': 'Примечание', 'Notice': 'Объявление', 'Notice ›': 'Объявление ›', 'More': 'Подробнее', 'Less': 'Свернуть', 'Collapse ⌃': 'Свернуть ⌃',
     'Links': 'Ссылки', 'Website': 'Сайт', 'Event website': 'Сайт события', 'Video': 'Видео', 'Register': 'Регистрация',
     'Details': 'Подробности', 'Event details': 'О событии', 'Phone': 'Телефон', 'Email': 'Почта', 'WeChat': 'WeChat',
     'WeChat ID:': 'WeChat ID:', 'Phone:': 'Телефон:', 'Email:': 'Почта:', 'Phone/WeChat:': 'Телефон/WeChat:',
-    'WeChat Article': 'Статья в WeChat', 'WeChat article': 'Статья в WeChat', 'Temporarily changed': 'Временно изменено',
+    'WeChat Article': 'Статья в WeChat', 'WeChat article': 'Статья в WeChat', 'Temporarily changed': 'Временно изменено', 'New notice': 'Новое объявление',
     'Same venue': 'То же место', 'Weekly classes too ›': 'Есть и еженедельные занятия ›',
     'Newer poster': 'Новее', 'Older poster': 'Предыдущая афиша', 'Past poster': 'Прошлая афиша', 'Previous poster': 'Предыдущая афиша', 'Next poster': 'Следующая афиша',
     'ENDED': 'ЗАВЕРШЕНО', 'This event has ended': 'Это событие завершилось', 'View all events': 'Все события', 'Next edition:': 'Следующий раз:',
@@ -189,7 +189,7 @@
     'Push alerts are off.': 'Уведомления выключены.', 'This browser does not support push notifications.': 'Этот браузер не поддерживает push-уведомления.',
     'Could not turn on push alerts. Please try again later.': 'Не удалось включить уведомления. Попробуйте позже.',
     /* lowercase type label on special-event cards */
-    'workshop': 'мастер-класс', 'marathon': 'марафон', 'festival': 'фестиваль', 'weekend': 'уикенд', 'anniversary': 'юбилей', 'championship': 'чемпионат', 'practica': 'практика', 'milonga': 'милонга', 'encuentro': 'энкуэнтро',
+    'workshop': 'мастер-класс', 'group trip': 'групповая поездка', 'marathon': 'марафон', 'festival': 'фестиваль', 'weekend': 'уикенд', 'anniversary': 'юбилей', 'championship': 'чемпионат', 'practica': 'практика', 'milonga': 'милонга', 'encuentro': 'энкуэнтро',
     'None yet': 'Пока нет', 'prev': 'назад', 'next': 'вперёд',
     'Sun': 'вс', 'Mon': 'пн', 'Tue': 'вт', 'Wed': 'ср', 'Thu': 'чт', 'Fri': 'пт', 'Sat': 'сб',
     'Sunday': 'воскресенье', 'Monday': 'понедельник', 'Tuesday': 'вторник', 'Wednesday': 'среда', 'Thursday': 'четверг', 'Friday': 'пятница', 'Saturday': 'суббота'
@@ -210,6 +210,7 @@
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 
   var P = [
+    [/^New notice · (\d{1,2}\/\d{1,2})( [›⌃])?$/, function (m) { return 'Новое объявление · ' + dm(m[1]) + (m[2] || ''); }],
     [/^More from (.+)$/, function (m) { return 'Ещё от ' + m[1]; }],
     [/^All of (.+) ›$/, function (m) { return 'Всё от ' + m[1] + ' ›'; }],
     [/^Updated (today|yesterday|(\d+) days ago|(\d{2}\/\d{2}|\d{4}\/\d{2}\/\d{2}))$/, function (m) { return 'Обновлено ' + (m[1] === 'today' ? 'сегодня' : m[1] === 'yesterday' ? 'вчера' : m[2] ? m[2] + ' дн. назад' : m[3]); }],
@@ -222,6 +223,7 @@
       var g = GEN[m[2]];
       return cap(m[1].split(/ & |, | and /).map(function (x) { return nth(x, g); }).join(' и ')) + ' ' + WDL[m[2]] + ' месяца' + (m[3] ? ' · ' + type(m[3].trim()) : ''); }],
     [/^(Weekly|Monthly|Biweekly|One-off) · (.+)$/, function (m) { return TYPE[m[1]] + ' · ' + type(m[2]); }],
+    [/^([\d/–:\- ]+) · (.+) departure$/, function (m) { return m[1] + ' · выезд из: ' + city(m[2]); }],
     [/^([\d/–:\- ]+) · (.+)$/, function (m) { return m[1] + ' · ' + tail(m[2]).split(' · ').map(type).join(' · '); }],
     [/^Upcoming special · (.+)$/, function (m) { return 'Ближайшие особые события · ' + city(m[1]); }],
     [/^(.+) ▾$/, function (m) { return CITY[m[1]] ? CITY[m[1]] + ' ▾' : null; }],
@@ -230,7 +232,7 @@
     [/^(.+): back to top to change city$/, function (m) { return city(m[1]) + ': вернитесь наверх, чтобы сменить город'; }],
     [/^☆ (\d+) saved events?$/, function (m) { return '☆ ' + m[1] + ' ' + plural(m[1], 'событие', 'события', 'событий') + ' в избранном'; }],
     [/^(\d+) saved events?$/, function (m) { return m[1] + ' ' + plural(m[1], 'событие', 'события', 'событий') + ' в избранном'; }],
-    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
+    [/^(Milonga|Práctica|Practica|Festival|Marathon|Event|Encuentro|Weekend|Workshop|Anniversary|Group Trip) (\d{4}\/\d{2}\/\d{2}(?:–(?:\d{4}\/)?\d{2}\/\d{2})?)$/, function (m) { return type(m[1]) + ' ' + m[2]; }],
     [/^WeChat ID: (.+)$/, function (m) { return 'WeChat ID: ' + m[1]; }],
     [/^WeChat Official Account: (.+)$/, function (m) { return 'Официальный аккаунт WeChat: ' + m[1]; }],
     [/^WeChat Channels: (.+)$/, function (m) { return 'Каналы WeChat: ' + m[1]; }],

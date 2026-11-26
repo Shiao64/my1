@@ -1,0 +1,35 @@
+name: Pipeline health (整条线还活着吗)
+
+# 2026-11-25 (Shiao): 读微信 → 交收件箱 → 资料更新 → 上线检查 can stop without anyone noticing.
+# Every 2 hours: no new 交收件箱 PR (answer/wechat-…-mba) for 18 hours, or a 资料更新 PR
+# (inbox-run-*) waiting for Shiao for more than 10 hours → open or update the issue
+# 「整条线提醒（自动）」 with @Shiao64 (mail + GitHub app push). Same problems are not repeated;
+# when everything is fine again the issue is closed. Logic: tools/pipeline_health.py.
+# Manual run: Actions -> "Pipeline health" -> Run workflow.
+
+on:
+  schedule:
+    - cron: '41 */2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+concurrency:
+  group: pipeline-health
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          sparse-checkout: tools
+      - name: Check the pipeline
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/pipeline_health.py

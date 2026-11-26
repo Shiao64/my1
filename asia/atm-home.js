@@ -1,4 +1,4 @@
-/* v11.26 (2026-11-15): fileteado sign in the v2 header instead of the title text. v11.25 (2026-11-15): v2 layout on by default (?v2=0 opts out). v11.22 (2026-11-14): review fixes (overflow, applied-type label, header handoff, a11y). v11.21 (2026-11-14): v2 frozen bar — tabs lay over the scrolled header. v11.20 (2026-11-14): v2 「筛选 ▾」 button instead of long-press / tap-again; tabs + menu stick under the header. v11.15 (2026-11-14): v2 layout test page behind ?v2=1. v11.14 (2026-11-14): CAT_FIX per-event overrides (E123 → workshop). v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
+/* v11.35 (2026-11-26): 探戈组团 (type "grouptrip") is a 大型 category; its list card reads "date · 北京 出发" then "→ destination" (fields destination / destination_en, venue stays empty). v11.34 (2026-11-25): 近期大型 strip — up to 6 cards (was 3), poster thumb on the left, scroll-snap with the next card peeking. v11.26 (2026-11-15): fileteado sign in the v2 header instead of the title text. v11.25 (2026-11-15): v2 layout on by default (?v2=0 opts out). v11.22 (2026-11-14): review fixes (overflow, applied-type label, header handoff, a11y). v11.21 (2026-11-14): v2 frozen bar — tabs lay over the scrolled header. v11.20 (2026-11-14): v2 「筛选 ▾」 button instead of long-press / tap-again; tabs + menu stick under the header. v11.15 (2026-11-14): v2 layout test page behind ?v2=1. v11.14 (2026-11-14): CAT_FIX per-event overrides (E123 → workshop). v11.13 (2026-11-14): nth may be a list (twice a month: [1,3] / [2,4]); every:2 without nth labelled 隔周. v11.12 (2026-11-14): city date rail (7 days, ‹ › weeks, month grid, tap a day to jump). v11.11 (2026-11-14): 日常/大型 categories (catOf), 大型 type chips, city 日常 type chips + 近期大型 strip. v11.10 (2026-11-06): LCP eager+preload for first featured thumbs. v11.6 (2026-11-01): list homepage = 特色活动 entry + 常规活动 city grid; featured list / city list / single-select
    search page / favorites layer. Hash routes: '' home, #h-feat, #h-city-<City>, #h-search. Query-string views
    (?card, ?mode, ?city, ?via ...) keep the old list untouched. Cards open the single-card layer (?card=ID). */
 (function () {
@@ -51,8 +51,8 @@
   if (/[?&](card|mode|city|via|date|q|type)=/.test(location.search)) return;
   try { if (sessionStorage.getItem('atm_legacy_list') === '1') return; } catch (e) {} /* regression hook: old full list for the pre-v11.6 test suite */
   var zh = /^zh/i.test(R.getAttribute('data-asia-lang') || R.lang || '');
-  var T = zh ? { subT: '订阅大型活动消息', subD: '新的探戈节、马拉松、报名截止，不定时寄给你', feat: '大型活动', reg: '日常活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '日常活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。点活动上的星星即可收藏。', favnote: '验证邮箱后可在其他设备恢复', back: '返回', theme: '每周舞会 · 本周专题', cats: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '日常活动'], cat1: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊'], allBig: '全部大型', allReg: '全部日常', tc: { milonga: '舞会', practilonga: '练习舞会', practica: '练习场' }, up: '近期大型', seeall: '全部大型 ›', allCity: '全部城市', today: '今天', mview: '月历', wview: '周视图', noev: '没有活动', proj: '较远的日期按每周固定时间推算，可能有变动，请向主办方确认。', WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
-    : { subT: 'Get special-event news', subD: 'New festivals, marathons and registration deadlines, sent now and then', feat: 'Special events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'regular event', fav: 'My saved events', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No saved events yet. Tap the star on an event to save it.', favnote: 'After you verify your email, this list restores on your other devices', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Festivals', 'Marathons', 'Encuentros / Weekends', 'Anniversaries', 'Workshops', 'Regular events'], cat1: ['Festival', 'Marathon', 'Encuentro / Weekend', 'Anniversary', 'Workshop'], allBig: 'All special', allReg: 'All regular', tc: { milonga: 'Milonga', practilonga: 'Práctilonga', practica: 'Práctica' }, up: 'Upcoming special', seeall: 'See all ›', allCity: 'All cities', today: 'Today', mview: 'Month', wview: 'Week', noev: 'No events', proj: 'Later dates are projected from the weekly schedule and may change. Please confirm with the organizer.', WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
+  var T = zh ? { subT: '订阅大型活动消息', subD: '新的探戈节、马拉松、报名截止，不定时寄给你', feat: '大型活动', reg: '日常活动', items: '项', from: '从今天起', sort: '按日期排序', regsub: '中国大陆 · 每周固定 · 选城市', weekly: '日常活动', fav: '我的收藏', close: '关闭', search: '选择要看的活动', allA: '全部活动', allC: '全部城市', act: '活动', city: '城市', fold: '收起', exp: '展开', none: '暂无活动', favnone: '还没有收藏。点活动上的星星即可收藏。', favnote: '验证邮箱后可在其他设备恢复', back: '返回', theme: '每周舞会 · 本周专题', cats: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '探戈组团', '日常活动'], cat1: ['探戈节', '马拉松', '探戈周末', '周年庆', '工作坊', '探戈组团'], allBig: '全部大型', allReg: '全部日常', tc: { milonga: '舞会', practilonga: '练习舞会', practica: '练习场' }, up: '近期大型', seeall: '全部大型 ›', allCity: '全部城市', today: '今天', mview: '月历', wview: '周视图', noev: '没有活动', proj: '较远的日期按每周固定时间推算，可能有变动，请向主办方确认。', WD: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'], every: '每' }
+    : { subT: 'Get special-event news', subD: 'New festivals, marathons and registration deadlines, sent now and then', feat: 'Special events', reg: 'Regular events', items: '', from: 'From today', sort: 'by date', regsub: 'Mainland China · weekly · pick a city', weekly: 'regular event', fav: 'My saved events', close: 'Close', search: 'Choose events', allA: 'All events', allC: 'All cities', act: 'Events', city: 'City', fold: 'Collapse', exp: 'Expand', none: 'No events', favnone: 'No saved events yet. Tap the star on an event to save it.', favnote: 'After you verify your email, this list restores on your other devices', back: 'Back', theme: 'Weekly milonga · This week\'s theme', cats: ['Festivals', 'Marathons', 'Encuentros / Weekends', 'Anniversaries', 'Workshops', 'Group Trips', 'Regular events'], cat1: ['Festival', 'Marathon', 'Encuentro / Weekend', 'Anniversary', 'Workshop', 'Group Trip'], allBig: 'All special', allReg: 'All regular', tc: { milonga: 'Milonga', practilonga: 'Práctilonga', practica: 'Práctica' }, up: 'Upcoming special', seeall: 'See all ›', allCity: 'All cities', today: 'Today', mview: 'Month', wview: 'Week', noev: 'No events', proj: 'Later dates are projected from the weekly schedule and may change. Please confirm with the organizer.', WD: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], every: 'Every ' };
   /* v2 layout (2026-11-14): city chips + ★收藏 | 日常 | 大型 tabs.
      v11.25 (2026-11-15): v2 is the default for everyone. ?v2=0 switches this device back to the old home (remembered), ?v2=1 clears that. */
   var V2 = true;
@@ -84,11 +84,13 @@
   var TAIL = [{ k: 'Hong Kong', zh: '香港', en: 'Hong Kong', region: 'Hong Kong' }, { k: 'Taiwan', zh: '台湾', en: 'Taiwan', region: 'Taiwan' }], MRUK = 'atm_city_mru_v1', TAILS = [];
   function tailOf(reg) { for (var i = 0; i < TAIL.length; i++) if (TAIL[i].region === reg) return TAIL[i]; return null; }
   /* 2026-11-14 ATM categories (see claude/ATM-活动分类规则.md in the ATM project):
-     日常 regular = milonga | practilonga | practica; 大型 special = festival | marathon | weekend | anniversary | workshop.
+     日常 regular = milonga | practilonga | practica; 大型 special = festival | marathon | weekend | anniversary | workshop | grouptrip.
+     grouptrip 探戈组团 (Shiao, 2026-11-26): a local organizer leads a group to a festival elsewhere. Only type/cat 'grouptrip' makes one (never guessed from the name);
+     city = where the group leaves from; the destination is in destination / destination_en (venue stays empty).
      An explicit e.cat in the data wins; otherwise catOf() derives it from type + name keywords.
      Workshops: only multi-day visiting-teacher workshops are listed (local single classes are not collected).
      Anniversary: one record, shown under 大型 (tag 周年庆) AND in its city's 日常 list as a milonga with a 周年庆 badge. */
-  var BIG = ['festival', 'marathon', 'weekend', 'anniversary', 'workshop'], REGK = ['milonga', 'practilonga', 'practica'];
+  var BIG = ['festival', 'marathon', 'weekend', 'anniversary', 'workshop', 'grouptrip'], RI = BIG.length /* search tab index of 日常活动 */, REGK = ['milonga', 'practilonga', 'practica'];
   function nmAll(e) { return ((e.name || '') + ' ' + (e.name_zh || '') + ' ' + (e.name_en || '')).toLowerCase(); }
   function regCat(e, s) { if (/practilonga|pr[aá]ctica[ -]milonga|练习舞会|練習舞會/.test(s)) return 'practilonga'; return e.type === 'practica' ? 'practica' : 'milonga'; }
   /* Per-event decisions made in code (no R2 upload needed). Prefer e.cat in the data when the data is next published. */
@@ -96,6 +98,7 @@
   function catOf(e) {
     if (e.cat && (BIG.indexOf(e.cat) >= 0 || REGK.indexOf(e.cat) >= 0)) return e.cat;
     if (CAT_FIX[e.id]) return CAT_FIX[e.id];
+    if (e.type === 'grouptrip') return 'grouptrip'; /* before the name keywords: a trip to a festival is not a festival */
     var s = nmAll(e);
     if (e.kind === 'weekly') return regCat(e, s);
     if (/周年|週年|aniversario|anniversary/.test(s)) return 'anniversary';
@@ -118,7 +121,7 @@
   function isPreview(e) { return !!(e && e.preview === true && e.kind === 'event' && !e.hidden); }
   /* A preview card is a dated placeholder. It stays in 大型 even when type was not given (Moganshan stop 3). */
   function isFeat(e) { return e.kind === 'event' && !e.hidden && (e.end || e.start || '9') >= TODAY && (isPreview(e) || (isBig(e) && (!e.regular_oneoff || catOf(e) === 'anniversary'))); }
-  function cat(e) { var b = BIG.indexOf(catOf(e)); return b >= 0 ? b : 5; }
+  function cat(e) { var b = BIG.indexOf(catOf(e)); return b >= 0 ? b : RI; }
   function prep(d) {
     DATA = d.filter(function (e) { return !e.hidden; });
     FEAT = DATA.filter(isFeat).sort(function (a, b) { return (a.start || '9') < (b.start || '9') ? -1 : (a.start || '9') > (b.start || '9') ? 1 : 0; });
@@ -154,7 +157,7 @@
   /* v11.10: honor eager — first strip / LCP thumbs set src immediately (was void eager, so hydrate waited). */
   function img(e, cls, eager) {
     if (!e.poster) return '<span class="' + cls + ' ah-noimg">' + esc(cn(e.city)) + '</span>';
-    var u = posterUrls(e.poster), pv = e.kind === 'weekly' && e.poster_date && e.poster_date < SHT;
+    var u = posterUrls(e.poster), pv = e.kind === 'weekly' && !e.poster_reuse && e.poster_date && e.poster_date < SHT; /* 2026-11-25 Shiao: poster_reuse = organizer keeps using this poster, never 上期海报 */
     var srcset = eager ? ' srcset="' + esc(u.webp) + '"' : '';
     var src = eager ? ' src="' + esc(u.jpg) + '" data-atm-on="1"' : '';
     var pri = eager ? ' fetchpriority="high"' : '';
@@ -198,6 +201,20 @@
     if (Array.isArray(list)) for (var i = 0; i < list.length; i++) { if (noticeHits(list[i], iso)) return 'week'; }
     return '';
   }
+  /* 2026-11-25 (Shiao): list tag for a notice on this row's date: 新通知 · M/D for every notice (plain or changed; 11/25 Shiao: one label only). Cancelled keeps the red bar. Shown until that date passes. */
+  function noticeTag(e) {
+    var list = e.temp_notices; if (!Array.isArray(list) || weekCx(e)) return '';
+    var a = CX_ISO || (e.kind === 'weekly' ? occOf(e) : (e.start || '')), b = (e.kind === 'weekly' || CX_ISO) ? a : (e.end || a);
+    if (!a) return '';
+    for (var i = 0; i < list.length; i++) {
+      var o = list[i]; if (!o || o.status === 'cancelled') continue;
+      var d = normISO(o.date) || normISO(o.end) || normISO(o.start); if (!d || d < SHT || d < a || d > b) continue;
+      var p = d.split('-'), md = (+p[1]) + '/' + (+p[2]);
+      var t = zh ? '新通知' : 'New notice';
+      return '<em class="ah-ctag ah-ntag">' + esc(t + ' · ' + md) + '</em>';
+    }
+    return '';
+  }
   function cxBar(e) {
     var k = weekCx(e); if (!k) return '';
     var ui = window.CHINA_UI || {};
@@ -233,11 +250,13 @@
     }).join('');
   }
   function card(e, sub, tag, eager, big) {
-    var v = (e.kind === 'weekly' || e.theme_of) ? (evVenue(e) || '') : '';
-    var kt = oneTag(e), bar = cxBar(e), ck = catOf(e);
+    var kt = oneTag(e), bar = cxBar(e), ck = catOf(e), gt = ck === 'grouptrip';
+    /* 探戈组团: "date · 北京 出发" then "→ destination" (own fields destination / destination_en; venue stays empty) */
+    var dest = gt ? ((!zh && e.destination_en) || e.destination || e.destination_en || '') : '';
+    var v = (e.kind === 'weekly' || e.theme_of) ? (evVenue(e) || '') : (dest ? '→ ' + dest : '');
     var ct = big && isBig(e) ? '<em class="ah-ctag">' + esc(T.cat1[cat(e)]) + '</em>' : (!big && ck === 'anniversary' ? '<em class="ah-kind ah-anniv">' + esc(T.cat1[3]) + '</em>' : (!big && ck !== 'milonga' && REGK.indexOf(ck) >= 0 ? '<em class="ah-ctag ah-rtag">' + esc(T.tc[ck]) + '</em>' : ''));
     var pv = e.preview ? '<em class="ah-ctag ah-pv">' + (zh ? '活动预告' : 'Preview') + '</em>' : '';
-    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + pv + ct + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (e.preview ? '' : (v ? '<span>' + esc(v) + '</span>' : '')) + grpTag(e) + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
+    return '<a class="ah-card' + (bar ? ' ah-cx' : '') + '" data-id="' + esc(e.id) + '" href="' + openHref(e) + '">' + bar + img(e, 'ah-th', eager) + '<span class="ah-tx">' + (tag ? '<em class="ah-sugt">' + tag + '</em>' : '') + pv + ct + (kt ? '<em class="ah-kind">' + kt + '</em>' : '') + (e.theme_of ? '<em class="ah-theme">' + T.theme + '</em>' : '') + noticeTag(e) + '<b>' + esc(evName(e)) + '</b><span>' + esc(sub || dt(e)) + ' · ' + esc(cn(e.city)) + (gt ? (zh ? ' 出发' : ' departure') : '') + '</span>' + (djOf(e) ? '<span class="ah-dj">DJ: ' + esc(djOf(e)) + '</span>' : '') + (e.preview ? '' : (v ? '<span>' + esc(v) + '</span>' : '')) + grpTag(e) + '</span>' + (tag ? '' : heart(e.id)) + '</a>';
   }
   /* v11.7: red heart toggle on every home card (hollow = not favorited, solid = favorited); data-fid -> asia-fav.js toggles */
   function isFav(id) { try { return JSON.parse(localStorage.getItem('atm_fav_v1') || '[]').indexOf(id) >= 0; } catch (x) { return false; } }
@@ -253,7 +272,7 @@
     '#atm-home{display:none;box-sizing:border-box;padding:4px 12px 40px;max-width:952px;margin:0 auto;font-family:system-ui,-apple-system,"PingFang SC","Noto Sans SC",sans-serif}html.atm-h-on #atm-home{display:block}#atm-home picture{display:contents}img[data-atm-src]:not([src]){background:#f3e6cc}' +
     '.ah-ban{display:block;width:100%;text-align:left;margin:8px 0;padding:14px;border:0;border-radius:16px;background:linear-gradient(160deg,#0E6E78,#06333A);box-shadow:0 4px 14px rgba(6,51,58,.25);cursor:pointer;color:#F6D58E}' +
     '.ah-ban-h{display:flex;justify-content:space-between;align-items:center;gap:8px}.ah-ban-copy{flex:1;min-width:0}.ah-ban-t{display:block;font:700 19px/1.3 "Noto Serif SC",serif;white-space:normal;overflow-wrap:break-word}.ah-ban-t i{font-style:normal;color:#fff}.ah-ban-s{display:block;font:600 13px system-ui;color:#cfe3e3;margin-top:2px}.ah-ban-a{font:700 30px system-ui;flex:0 0 auto;line-height:1}' +
-    '.ah-pv{background:#F2B51C;color:#0B2440}.ah-strip{display:flex;gap:8px;margin-top:12px;overflow:hidden}.ah-strip img,.ah-strip .ah-noimg{width:64px;height:86px;object-fit:cover;border-radius:8px;flex:0 0 auto;border:2px solid rgba(246,213,142,.6)}@media(min-width:700px){.ah-strip img,.ah-strip .ah-noimg{width:90px;height:120px}.ah-ban-t{font-size:22px}}' +
+    '.ah-ntag{background:#9E1020!important;color:#fff!important}.ah-pv{background:#F2B51C;color:#0B2440}.ah-strip{display:flex;gap:8px;margin-top:12px;overflow:hidden}.ah-strip img,.ah-strip .ah-noimg{width:64px;height:86px;object-fit:cover;border-radius:8px;flex:0 0 auto;border:2px solid rgba(246,213,142,.6)}@media(min-width:700px){.ah-strip img,.ah-strip .ah-noimg{width:90px;height:120px}.ah-ban-t{font-size:22px}}' +
     '.ah-div{margin:18px 0 0;height:0;border-top:2px solid #EAD7A4}.ah-h{margin:16px 0 8px;padding-bottom:6px;border-bottom:2px solid #F6D58E;display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.ah-h b{font:700 18px "Noto Serif SC",serif;color:#0A4F57}.ah-h span{font:600 12px system-ui;color:#5f6f66}' +
     '.ah-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}@media(min-width:700px){.ah-grid{grid-template-columns:repeat(5,1fr)}}' +
     '.ah-city{height:58px;border-radius:12px;background:#fff;border:1.5px solid #0E6E78;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#0E6E78;cursor:pointer;font:inherit;padding:0}.ah-city b{font:700 16px system-ui}.ah-city span{font:600 12px system-ui;color:#5f6f66}' +
@@ -279,7 +298,7 @@
   css.textContent += '#atm-home .ah-fchips,#atm-home .ah-tchips{margin:8px 0 4px}#atm-home .ah-tchips .ah-chip{border-radius:10px;height:36px;font-size:14px}#atm-home .ah-tchips .ah-chip[aria-pressed=true]{background:#0E6E78;color:#fff;border-color:#0E6E78}' +
     '#atm-home .ah-ctag{align-self:flex-start;font:700 11px system-ui;font-style:normal;color:#8a6500;background:#FBEFC9;border-radius:6px;padding:1px 7px}#atm-home .ah-rtag{color:#0E6E78;background:#E9F2F2}#atm-home .ah-anniv{background:#8a6500}' +
     '#atm-home .ah-up{margin:10px 0 4px;padding:10px 12px;border-radius:14px;background:#FBEFC9;border:1px solid #EAD7A4}#atm-home .ah-uph{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}#atm-home .ah-uph b{font:700 15px "Noto Serif SC",serif;color:#8a6500}#atm-home .ah-upall{border:0;background:none;color:#0E6E78;font:700 13px system-ui;cursor:pointer;min-height:36px;padding:0 4px}' +
-    '#atm-home .ah-upl{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}#atm-home .ah-upl::-webkit-scrollbar{display:none}#atm-home .ah-uc{flex:0 0 auto;width:210px;box-sizing:border-box;background:#fff;border-radius:10px;padding:8px 10px;text-decoration:none!important;box-shadow:0 1px 3px rgba(0,0,0,.08)}#atm-home .ah-ucd{display:block;font:600 12px system-ui;color:#8a6500}#atm-home .ah-uc b{font:700 14px/1.3 system-ui;color:#06333A;margin-top:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}';
+    '#atm-home .ah-upl{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scroll-padding-left:2px;padding:2px 2px 4px}#atm-home .ah-upl::-webkit-scrollbar{display:none}#atm-home .ah-uc{flex:0 0 auto;width:236px;box-sizing:border-box;display:flex;gap:8px;align-items:flex-start;background:#fff;border-radius:10px;padding:6px;text-decoration:none!important;box-shadow:0 1px 3px rgba(0,0,0,.08);scroll-snap-align:start}#atm-home .ah-uc img.ah-uci,#atm-home .ah-uc .ah-noimg{width:72px!important;height:96px!important;object-fit:cover;border-radius:8px;flex:0 0 auto;display:block;background:#0B5C64;border:1px solid rgba(242,207,127,.45)!important;box-sizing:border-box}#atm-home .ah-uct{display:block;min-width:0;flex:1 1 auto;padding:2px 2px 0 0}#atm-home .ah-ucd{display:block;font:600 12px system-ui;color:#8a6500}#atm-home .ah-uc b{display:-webkit-box;font:700 14px/1.3 system-ui;color:#06333A;margin-top:3px;overflow:hidden;-webkit-line-clamp:3;-webkit-box-orient:vertical}';
   css.textContent += '#atm-home .ah-rh,#atm-home .ah-mh{display:flex;align-items:center;gap:6px;margin:12px 0 6px}#atm-home .ah-rh b,#atm-home .ah-mh b{flex:1;text-align:center;font:700 15px system-ui;color:#0A4F57}#atm-home .ah-rn{width:40px;height:36px;border:1px solid #EAD7A4;border-radius:18px;background:#fff;color:#0E6E78;font:700 20px system-ui;cursor:pointer}#atm-home .ah-rn[disabled]{opacity:.3;cursor:default}#atm-home .ah-mv{height:36px;padding:0 12px;border:1px solid #0E6E78;border-radius:18px;background:#fff;color:#0E6E78;font:700 13px system-ui;cursor:pointer}' +
     '#atm-home .ah-rail{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:4px 0 6px}#atm-home .ah-day{border:1px solid #EAD7A4;border-radius:10px;background:#fff;padding:5px 0 4px;cursor:pointer;line-height:1.2;color:#0A4F57}#atm-home .ah-day span{display:block;font:600 11px system-ui;color:#5f6f66}#atm-home .ah-day b{display:block;font:700 18px Georgia,serif}#atm-home .ah-day i{display:block;font:600 11px system-ui;font-style:normal;color:#C0392B;min-height:14px}#atm-home .ah-day[aria-pressed=true]{background:#0E6E78;border-color:#0E6E78;color:#fff}#atm-home .ah-day[aria-pressed=true] span,#atm-home .ah-day[aria-pressed=true] i{color:#F6D58E}' +
     '#atm-home .ah-mg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px}#atm-home .ah-mw{text-align:center;font:600 11px system-ui;color:#5f6f66}#atm-home .ah-md{border:1px solid #EAD7A4;border-radius:8px;background:#fff;padding:3px 0;cursor:pointer;line-height:1.15;color:#0A4F57;text-align:center}#atm-home .ah-md b{display:block;font:700 15px Georgia,serif}#atm-home .ah-md i{display:block;font:600 10px system-ui;font-style:normal;color:#C0392B;min-height:12px}#atm-home .ah-md[aria-pressed=true]{background:#E9F2F2;border-color:#0E6E78}#atm-home .ah-off{opacity:.3;border-style:dashed}' +
@@ -443,10 +462,11 @@
     return top(ttl) + cityRow + chips + '<div class="ah-note">' + T.from + '</div><div class="ah-list ah-2">' + (L.map(function (e, i) { return card(e, null, null, i < 2, true); }).join('') || '<p>' + T.none + '</p>') + '</div>';
   }
   function upBlock(c) {
-    var ups = FEAT.filter(function (e) { return inCity(e, c); }).slice(0, 3);
+    /* v11.34: up to 6 (was 3) with the poster thumb; the card width leaves the next card peeking so the strip reads as swipeable. */
+    var ups = FEAT.filter(function (e) { return inCity(e, c); }).slice(0, 6);
     if (!ups.length) return '';
     return '<div class="ah-up"><div class="ah-uph"><b>' + T.up + ' · ' + esc(cn(c)) + '</b><button type="button" class="ah-upall" data-upall="' + esc(c) + '">' + T.seeall + '</button></div><div class="ah-upl">' +
-      ups.map(function (e) { return '<a class="ah-uc" href="' + esc(openHref(e)) + '" data-card="' + esc(e.id) + '"><span class="ah-ucd">' + esc(dt(e)) + ' · ' + esc(T.cat1[cat(e)]) + '</span><b>' + esc(evName(e)) + '</b></a>'; }).join('') + '</div></div>';
+      ups.map(function (e, i) { return '<a class="ah-uc" href="' + esc(openHref(e)) + '" data-card="' + esc(e.id) + '">' + img(e, 'ah-uci', i < 2) + '<span class="ah-uct"><span class="ah-ucd">' + esc(dt(e)) + ' · ' + esc(T.cat1[cat(e)]) + '</span><b>' + esc(evName(e)) + '</b></span></a>'; }).join('') + '</div></div>';
   }
   /* v11.12 city date rail: 7 days from S.st (days after today, 0..MAXD), ‹ › = ±7, month grid picks a start day,
      tapping a day in the rail scrolls to it. Weekly events are projected (weekdays, nth); one-offs by start..end. */
@@ -499,14 +519,14 @@
     if (bodyOnly) { V2MENU = tchips; V2TC = tc; return upBlock(c) + nav + rail + proj + '<div class="ah-list" style="margin-top:6px">' + out + '</div>'; }
     return top(esc(cn(c)) + ' · ' + (zh ? T.weekly + ' <i>' + total + '</i> ' + T.items : enUnit(total, T.weekly))) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(cn(c)) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>' + chips + upBlock(c) + nav + rail + tchips + proj + '<div class="ah-list" style="margin-top:6px">' + out + '</div>';
   }
-  function srchSet(a) { if (a === 5) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
+  function srchSet(a) { if (a === RI) { var r = []; CITIES.forEach(function (c) { r = r.concat(REG[c].filter(function (e) { return e.kind === 'weekly'; })); }); return r; } return FEAT.filter(function (e) { return a < 0 || cat(e) === a; }); }
   function search() {
     var base = srchSet(S.a), cc = {}, cl = [];
     base.forEach(function (e) { if (!cc[e.city]) { cc[e.city] = 0; cl.push(e.city); } cc[e.city]++; });
     cl.sort(function (a, b) { return cc[b] - cc[a] || (a < b ? -1 : 1); });
     if (S.c && !cc[S.c]) S.c = '';
     var res = base.filter(function (e) { return !S.c || e.city === S.c; });
-    if (S.a === 5) res.sort(function (a, b) { return rel(wdOf(a)) - rel(wdOf(b)); });
+    if (S.a === RI) res.sort(function (a, b) { return rel(wdOf(a)) - rel(wdOf(b)); });
     var an = S.a < 0 ? T.allA : T.cats[S.a], ctn = S.c ? cn(S.c) : T.allC;
     var h = top(T.search) + '<div class="ah-sels"><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(an) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button><button type="button" class="ah-sel" data-tog="1" aria-expanded="' + S.open + '">' + esc(ctn) + ' <i>' + (S.open ? '▴' : '▾') + '</i></button></div>';
     if (S.open) {
@@ -805,7 +825,7 @@
     var nav = D.querySelector('.china-hero-bar .top-lang'); if (nav && !bS.parentNode) { /* v11.7 H3: header 🔍 removed (route #h-search kept) */ void bS; /* v11.7: header ♥ removed (favorites via home 「全部 N 项 ›」) */ }
     var st = D.querySelector('.china-sticky-top'); if (st && !root.parentNode) st.parentNode.insertBefore(root, st.nextSibling);
   }
-  var FULL = '/asia/events.json?v=e248'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
+  var FULL = '/asia/events.json?v=e260'; /* kept versioned; fetched only when a favorite id is in neither core nor events-more */
   function asList(d) { return Array.isArray(d) ? d : (d && d.events) || []; }
   function favMissing(list) {
     var m = {}, ids = [];
@@ -822,7 +842,7 @@
       R.classList.add('atm-h-on');
       if (early !== 'search') R.classList.add('atm-h-home');
     }
-    var coreUrl = '/asia/events-core.json?v=china580';
+    var coreUrl = '/asia/events-core.json?v=china605';
     var loadEv = window.atmDataJson || function (u) { return fetch(u).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); }); };
     var coreWait = window._chinaData ? Promise.resolve(window._chinaData) : new Promise(function (resolve) {
       var n = 0, t = setInterval(function () {

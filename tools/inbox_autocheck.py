@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Decide whether a 「探戈助理答复」 PR may go live without a human look.
+"""Decide whether a 「资料更新」 (formerly 「探戈助理答复」) PR may go live without a human look (「上线检查」, Shiao 2026-11-25).
 
 Shiao's rule (2026-11-16): safe changes go live by themselves; anything doubtful waits.
 
@@ -20,25 +20,38 @@ Auto only when ALL of these hold:
   * a new card is in mainland China or Hong Kong, complete (name, city, time, venue,
     address, source; date not past or weekdays), sits in events.json + events-core.json,
     and does not look like a card that is already there (same city + day + venue or name);
-  * at most MAX_CARDS cards change in one PR.
+  * at most MAX_CARDS cards change in one PR;
+  * a profile (asia/organizers.json, images/asia/profiles/<id>.webp) changes only in a PR that holds an
+    organizer's own mail (huodong@), only that organizer's own entry (or a group they belong to), only
+    photo / bio / links and the like (tools/organizer_profile_update.py); a NEW profile waits for Shiao
+    the first time (Shiao 2026-11-26).
 """
-import argparse, datetime, json, re, subprocess, sys, unicodedata
+import argparse, datetime, json, os, re, subprocess, sys, unicodedata
 
 FILES = ['asia/events.json', 'asia/events-core.json', 'asia/events-more.json']
 ALLOWED_PATHS = re.compile(r'^(asia/events(-core|-more)?\.json|data/inbox/.+|data/entities-draft/.+)$')
 POSTER_FIELDS = {'poster', 'poster_date', 'poster_dates', 'poster_djs', 'posters_past'}
 POSTER_LOG = 'tools/radar-poster-log.jsonl'
-IMG = re.compile(r'^images/(asia/posters/(_backup/|past/)?|thumb/images/asia/posters/|thumb800/images/asia/posters/)([^/]+)$')
+IMG = re.compile(r'^images/(asia/posters/(_backup/|past/)?|thumb/images/asia/posters/(?:past/)?|thumb800/images/asia/posters/(?:past/)?)([^/]+)$')
+# 2026-11-25: a session poster on a fixed-poster card lives in that day's notice (images/asia/posters/notices/<id>-<date>.*)
+NOTICE_IMG = re.compile(r'^images/(thumb/|thumb800/)?images/asia/posters/notices/([^/]+)$|^images/asia/posters/notices/([^/]+)$')
 CACHE_FILES = {'asia/index.html', 'zh/asia/index.html', 'asia/asia-map.js', 'asia/atm-home.js', 'asia/cardB.js'}
 NEW_REGIONS = {'China', 'Hong Kong'}
 TYPES = {'milonga', 'practilonga', 'practica', 'festival', 'marathon', 'weekend',
-         'anniversary', 'workshop', 'encuentro'}
-ALWAYS_OK = {'updated', 'source'}
+         'anniversary', 'workshop', 'encuentro', 'grouptrip'}  # grouptrip 探戈组团 (Shiao 11/26)
+ALWAYS_OK = {'updated', 'source', 'poster_reuse'}  # poster_reuse only hides the 上期海报 badge (Shiao 11/25)
 ADD_ONLY_LIST = {'temp_notices', 'cancelled_dates'}
 ADD_ONLY_DICT = {'contacts', 'links'}
 FILL_IF_EMPTY = {'venue_address', 'venue_address_en', 'directions', 'directions_en', 'note_es', 'directions_es', 'note_ru', 'directions_ru'}  # *_es / *_ru: Spanish, Russian for mainland cards (Shiao 11/18)
 MAX_CARDS = 8
 MARK = re.compile(r'^\s*需要确认\s*[：:]\s*无\s*$', re.M)
+# 2026-11-26 (Shiao): organizer mail may fill in the organizer's own profile page (photo, intro).
+PROFILES = 'asia/organizers.json'
+PROFILE_IMG = re.compile(r'^images/asia/profiles/([^/]+)\.(webp|jpe?g|png)$')
+PROFILE_PAGE = re.compile(r'^(?:zh/)?(?:organizer|group)/([^/]+)/index\.html$')
+PROFILE_OK = {'photo', 'bio', 'bio_zh', 'affiliation', 'affiliation_zh', 'links', 'classes', 'classes_note',
+              'classes_note_zh', 'sources', 'auto'}
+NAME_SPLIT = re.compile(r'\s*(?:、|\+|＆|&|/|,|;)\s*')  # dj-page.js matches()
 
 
 def git(*a):
@@ -123,12 +136,17 @@ def check(base, head, body, today):
     status = [l.split('\t') for l in git('diff', '--name-status', '-M', f'{base}...{head}').splitlines() if l.strip()]
     files = [x[-1] for x in status]
     olds = [x[1] for x in status if x[0].startswith('R')]
-    img_files, cache_files = [], []
+    img_files, cache_files, prof_files = [], [], []
     for st in status:
         for f in st[1:]:
             if ALLOWED_PATHS.match(f):
                 continue
-            if IMG.match(f) and not st[0].startswith('D'):
+            if f == PROFILES or PROFILE_IMG.match(f) or PROFILE_PAGE.match(f):
+                if st[0].startswith('D'):
+                    reasons.append(f'删除了介绍页的文件：{f}')
+                else:
+                    prof_files.append(f)
+            elif (IMG.match(f) or NOTICE_IMG.match(f)) and not st[0].startswith('D'):
                 img_files.append(f)
             elif f in CACHE_FILES and st[0] == 'M':
                 cache_files.append(f)
@@ -199,7 +217,12 @@ def check(base, head, body, today):
         o = old[i]
         fields = sorted(k for k in set(o) | set(e) if o.get(k) != e.get(k))
         changes.append(f'{i} 改了：{"、".join(fields)}')
-        new_poster = o.get('poster') != e.get('poster')
+        # 2026-11-25 (Shiao, #466): the tool may overwrite <id>.jpg in place, so the poster path can stay the
+        # same. A replace line in the poster log also counts as a new poster.
+        new_poster = (str(o.get('poster') or '').split('?')[0] != str(e.get('poster') or '').split('?')[0]
+                      or logged(base, head, i))
+        if not new_poster and o.get('poster') != e.get('poster'):
+            new_poster = True  # only the ?v= cache tag changed
         if new_poster:
             poster_ids.add(i)
             if not logged(base, head, i):
@@ -223,13 +246,102 @@ def check(base, head, body, today):
                 reasons.append(f'卡 {i} 改了显示／隐藏')
                 continue
             reasons.append(f'卡 {i} 改了「{k}」（不是补资料或单场提示）')
+    notice_imgs = set()
+    for i in touched:
+        for o in (new[i].get('temp_notices') or []):
+            if isinstance(o, dict) and str(o.get('image') or '').startswith('/images/asia/posters/notices/'):
+                notice_imgs.add(os.path.splitext(o['image'].split('/')[-1])[0])
     for f in img_files:
+        nm = NOTICE_IMG.match(f)
+        if nm:
+            if os.path.splitext(nm.group(2) or nm.group(3))[0] not in notice_imgs:
+                reasons.append(f'改了不属于任何新通知的图片：{f}')
+            continue
         stem = IMG.match(f).group(3)
-        if not any(stem == pid or stem.startswith(pid + '.') or stem.startswith(pid + '-') for pid in poster_ids):
+        if not any(stem == pid or stem.startswith((pid + '.', pid + '-', pid + '_')) for pid in poster_ids):
             reasons.append(f'改了不属于换海报卡片的图片：{f}')
     if cache_files and not poster_ids:
         reasons.append('改了网页的缓存版本号，但没有换海报')
+    if prof_files:
+        check_profiles(base, head, prof_files, own, new, reasons, changes)
     return not reasons, reasons, changes
+
+
+def pkey(s):
+    """Same as dj-page.js key(): lower case, keep a-z 0-9, CJK and Hangul."""
+    return re.sub(r'[^a-z0-9一-鿿가-힣]', '', str(s or '').lower())
+
+
+def owned_profiles(profiles, own_cards, cards):
+    """Ids in organizers.json that belong to the organizer who owns `own_cards`: their own entry
+    (name / name_zh / match equal to a name on those cards) and groups they are a member of or
+    that those cards carry in `groups`."""
+    names, groups = set(), set()
+    for i in own_cards:
+        e = cards.get(i) or {}
+        for n in (e.get('organizers') or []) + (e.get('organizers_en') or []):
+            names.update(pkey(x) for x in NAME_SPLIT.split(str(n)) if pkey(x))
+        groups.update(str(g) for g in (e.get('groups') or []))
+    out = set()
+    for p in profiles:
+        mine = [p.get('name'), p.get('name_zh')] + list(p.get('match') or [])
+        if p.get('kind') == 'group':
+            mine = list(p.get('members') or [])
+            if p.get('id') in groups:
+                out.add(p['id'])
+        if any(pkey(n) in names for n in mine if pkey(n)):
+            out.add(p['id'])
+    return out
+
+
+def check_profiles(base, head, prof_files, own, cards, reasons, changes):
+    """2026-11-26 (Shiao): organizer mail fills in the organizer's own profile; the first profile waits."""
+    if own is None:
+        reasons.append('改了介绍页（organizers.json 或照片），但这不是组织者来信，要你确认')
+        return
+    raw_b, raw_h = show(base, PROFILES), show(head, PROFILES)
+    try:
+        before = {p['id']: p for p in json.loads(raw_b or '[]')}
+        after_list = json.loads(raw_h or '[]')
+        after = {p['id']: p for p in after_list}
+    except (ValueError, KeyError, TypeError):
+        reasons.append(f'{PROFILES} 不是正确的 JSON')
+        return
+    if raw_h is not None and raw_h != json.dumps(after_list, ensure_ascii=False, indent=2) + '\n':
+        reasons.append(f'{PROFILES} 的写法变了（不是原来的缩排格式）')
+    owned = owned_profiles(list(before.values()), own, cards)
+    added = set(after) - set(before)
+    for i in sorted(set(before) - set(after)):
+        reasons.append(f'删除了介绍页 {i}')
+    for i in sorted(added):
+        changes.append(f'新介绍页 {i} {after[i].get("name_zh") or after[i].get("name") or ""}')
+        reasons.append(f'新建了介绍页 {i}，第一次要你看过（Shiao 11/26）')
+    photo_ids = set(added)
+    for i in sorted(set(after) & set(before)):
+        a, b = before[i], after[i]
+        if a == b:
+            continue
+        fields = sorted(k for k in set(a) | set(b) if a.get(k) != b.get(k))
+        changes.append(f'介绍页 {i} 改了：{"、".join(fields)}')
+        if i not in owned:
+            reasons.append(f'组织者来信改到了别人的介绍页 {i}（他自己的：{"、".join(sorted(owned)) or "无"}），要你确认')
+            continue
+        for k in fields:
+            if k not in PROFILE_OK:
+                reasons.append(f'介绍页 {i} 改了「{k}」（不是照片、介绍或联络方式）')
+            elif k == 'auto' and b.get('auto') is not None:
+                reasons.append(f'介绍页 {i} 把「auto」加了回去')
+        if a.get('photo') != b.get('photo'):
+            photo_ids.add(i)
+    for f in prof_files:
+        m = PROFILE_IMG.match(f)
+        if m:
+            if m.group(1) not in photo_ids:
+                reasons.append(f'改了不属于这次介绍页更新的照片：{f}')
+            continue
+        m = PROFILE_PAGE.match(f)
+        if m and m.group(1) not in added:
+            reasons.append(f'改了已有介绍页的页面文件：{f}')
 
 
 MAIL_MD = re.compile(r'^data/inbox/(done/)?\d{4}-\d\d-\d\d-mail-[^/]+\.md$')
@@ -286,16 +398,23 @@ def check_new(i, e, old, core, today, reasons):
         reasons.append(f'{tag} 的类型「{e.get("type")}」不在分类里')
     if e.get('hidden') is True:
         reasons.append(f'{tag} 是隐藏的')
-    need = ['name', 'city', 'venue', 'venue_address', 'source']
-    if not (multi_day(e) or e.get('schedule')):
-        need.append('time')  # a festival's times live in its schedule
-    for k in need:
-        if blank(e.get(k)):
-            reasons.append(f'{tag} 缺「{k}」')
+    # 2026-11-26: 探戈组团 is a new, paid kind of card; new ones wait for Shiao
+    if e.get('type') == 'grouptrip':
+        reasons.append(f'{tag} 是探戈组团（新类别），要 Shiao 看过')
     # 2026-11-20 (Shiao): a new card needs at least one way to reach the organizer or check the source
     c = e.get('contacts') or {}
     has_c = bool(c) if isinstance(c, list) else any(not blank(v) for v in c.values())
     has_l = any(not blank(v) for v in (e.get('links') or {}).values())
+    need = ['name', 'city', 'source']
+    # 2026-11-25 (Shiao): with an organizer contact the card can go up first; time, venue and address may stay blank
+    # (visitors ask the organizer). Without a contact they are still required.
+    if not has_c:
+        need += ['venue', 'venue_address']
+        if not (multi_day(e) or e.get('schedule')):
+            need.append('time')  # a festival's times live in its schedule
+    for k in need:
+        if blank(e.get(k)):
+            reasons.append(f'{tag} 缺「{k}」')
     if not (has_c or has_l):
         reasons.append(f'{tag} 没有联络方式也没有链接（至少要一种）')
     if e.get('kind') == 'weekly':

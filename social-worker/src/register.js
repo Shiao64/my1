@@ -10,8 +10,9 @@
 //   POST /social/reg/login {key, pin, new_pin?}   -> {token:'dev:…', role, home}   link + six-digit password
 //   POST /social/reg/login/again {pin}  (dev:)     password again when it is due;  /out  signs this phone out
 //   GET  /social/admin/reg?event=bstw2027[&format=csv] -> only what that role may see
-//   POST /social/admin/reg/act {id, action, from?, note?, was?, pay?, data?, p?, pin?}
-//        confirm|waitlist|decline|pay|cash|refund|cancel|modify|note; from / was / pay.seen = what the caller's screen showed
+//   POST /social/admin/reg/act {id, action, from?, note?, was?, pay?, data?, p?, pin?, adjust?, seen?}
+//        confirm|waitlist|decline|pay|cash|refund|cancel|modify|adjust|note; from / was / pay.seen / seen = what the caller's screen showed
+//        adjust {d: +200 加收 | -200 减收, part: reg|hotel, why (the registrant sees it), note?}: 调整金额, see regAct
 //   POST /social/admin/reg/admins[/role|/reset|/delete], /staff[/reset|/delete] {…, pin}   appointments
 //   POST /social/admin/reg/export {what: regs|payments, pin}   CSV
 //   POST /social/admin/reg/asset {name, mime, b64}         upload a payment QR
@@ -181,6 +182,20 @@ async function full(env, ev, data, id, json) {
 }
 
 async function log(env, id, action, detail) { await env.SDB.prepare('INSERT INTO reg_log(reg_id,at,action,detail) VALUES(?,?,?,?)').bind(id, nowIso(), action, detail ? String(detail).slice(0, 1000) : null).run(); }
+// 调整金额 (Shiao, 2026-11-26): each one is a reg_log line 'adjust' whose text is {d, part, why, note, was}; reg.amount
+// (and reg.hotel_amount for the hotel part) already include them. A new total worked out from the form again (the
+// registrant editing a pending one, or 修改报名) adds them back, so an adjustment is never lost on the way.
+async function adjOf(env, regId) {
+  const out = { all: 0, hotel: 0, list: [] };
+  for (const l of ((await env.SDB.prepare("SELECT at,detail FROM reg_log WHERE reg_id=? AND action='adjust' ORDER BY id").bind(regId).all()).results) || []) {
+    let x = null; try { const o = JSON.parse(l.detail || ''); x = JSON.parse(o.text || ''); x.by = o.by; } catch { continue; }
+    const d = Math.round(Number(x.d)) || 0; if (!d) continue;
+    out.all += d; if (x.part === 'hotel') out.hotel += d;
+    out.list.push({ at: l.at, d, part: x.part === 'hotel' ? 'hotel' : 'reg', why: String(x.why || ''), note: String(x.note || ''), by: String(x.by || ''), was: Number(x.was) || 0 });
+  }
+  return out;
+}
+const withAdj = (total, hotel, adj) => ({ amount: Math.max(0, total + adj.all), hotel: Math.max(0, hotel + adj.hotel) });
 // One statement takes the next number and refuses a second live form of the same email, so any number of people can send at once.
 async function addReg(env, r, userId, email, data, ts) {
   const pre = r.ev.prefix + '-';
@@ -205,7 +220,11 @@ const T = {
     paidS: 'Payment received · {c}', paid: 'We have received your payment for {c}. Your registration is complete. See you in Beijing!',
     cashS: 'Pay at the event · {c}', cash: 'We have received your flight ticket for {c}. Please pay {t} when you arrive (Alipay, WeChat Pay or cash).',
     cancS: 'Registration cancelled · {c}', canc: 'Your registration {c} has been cancelled.', refund: 'Refund: {r}.',
-    updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.' },
+    updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.',
+    adjS: 'Amount changed · {c}', adj: 'The amount of your registration {c} has changed: {x}.', up: 'an extra charge of {m}', down: 'a reduction of {m}', why: 'Note from the organizers: {w}',
+    adjT: 'Previous total {o}, new total {a}, paid so far {p}.', adjLater: 'The payment email you get once your registration is confirmed will use the new amount.',
+    adjCash: '{t} is still to pay: please pay it when you arrive (Alipay, WeChat Pay or cash), before going in. To pay earlier, just reply to this email. Your entry QR codes stay the same.',
+    adjPaid: 'Everything is paid; there is nothing more to pay.', adjOver: 'You have paid {r} more than the new total. The organizers will refund it to you.', viewReg: 'View registration' },
   zh: { viewPay: '查看报名和付款码', viewPass: '查看报名和入场码', passT: '下方是每个人的入场二维码，请在入场时出示。登入报名页也看得到。建议先把入场码截图存在手机里，以免现场网络不好。', hi: '{n}，你好：', sign: '张孝、刘峥\n北京精选探戈周末', total: '合计', hotel: '住宿', nights: '晚', details: '你的报名',
     recvS: '已收到报名 · {c}', recv: '我们已收到你的报名 {c}，审核后会在 10 天内回复。',
     confS: '报名确认 · {c}', conf: '你的报名 {c} 已确认。',
@@ -218,7 +237,11 @@ const T = {
     paidS: '已收到付款 · {c}', paid: '已收到报名 {c} 的付款，报名完成。北京见！',
     cashS: '到场付款 · {c}', cash: '已收到报名 {c} 的机票截图，请到场时支付 {t}（支付宝、微信或现金）。',
     cancS: '报名已取消 · {c}', canc: '你的报名 {c} 已取消。', refund: '退款：{r}。',
-    updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新，合计已含手续费 ¥50。' },
+    updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新，合计已含手续费 ¥50。',
+    adjS: '金额调整 · {c}', adj: '你的报名 {c} 的金额有调整：{x}。', up: '加收 {m}', down: '减收 {m}', why: '说明：{w}',
+    adjT: '原来合计 {o}，现在合计 {a}，已付 {p}。', adjLater: '报名确认后寄出的付款信，会用新的金额。',
+    adjCash: '还差 {t}，请到场时支付（支付宝、微信或现金），付清后入场；想先付的，直接回复本邮件。入场码不变。',
+    adjPaid: '已经付清，不用再付款。', adjOver: '你多付了 {r}，组织者会退还给你。', viewReg: '查看报名' },
   ko: { viewPay: '신청 내역·결제 QR 보기', viewPass: '신청 내역·입장 QR 보기', passT: '아래는 1인당 하나씩인 입장 QR 코드입니다. 입장할 때 보여 주세요. 신청 페이지에 로그인해도 볼 수 있습니다. 현장에 인터넷이 약할 수 있으니 입장 QR 코드를 미리 캡처해 휴대폰에 저장해 두세요.', hi: '{n} 님, 안녕하세요.', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: '합계', hotel: '호텔', nights: '박', details: '신청 내역',
     recvS: '신청 접수 · {c}', recv: '신청 {c}이(가) 접수되었습니다. 검토 후 10일 이내에 답장드리겠습니다.',
     confS: '신청 확정 · {c}', conf: '신청 {c}이(가) 확정되었습니다.',
@@ -231,7 +254,11 @@ const T = {
     paidS: '결제 확인 · {c}', paid: '신청 {c}의 결제를 확인했습니다. 신청이 완료되었습니다. 베이징에서 만나요!',
     cashS: '현장 결제 · {c}', cash: '신청 {c}의 항공권을 확인했습니다. 도착 시 {t}을(를) 결제해 주세요(알리페이, 위챗페이 또는 현금).',
     cancS: '신청 취소 · {c}', canc: '신청 {c}이(가) 취소되었습니다.', refund: '환불: {r}.',
-    updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.' },
+    updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.',
+    adjS: '금액 변경 · {c}', adj: '신청 {c}의 금액이 변경되었습니다: {x}.', up: '추가 요금 {m}', down: '{m} 할인', why: '주최 측 안내: {w}',
+    adjT: '이전 합계 {o}, 새 합계 {a}, 지금까지 결제 {p}.', adjLater: '신청이 확정되면 받는 결제 안내 메일에 새 금액이 적용됩니다.',
+    adjCash: '남은 금액 {t}은(는) 도착해서 입장 전에 결제해 주세요(알리페이, 위챗페이 또는 현금). 미리 결제하려면 이 메일에 회신해 주세요. 입장 QR 코드는 그대로입니다.',
+    adjPaid: '모두 결제되었습니다. 더 결제할 금액이 없습니다.', adjOver: '새 합계보다 {r} 더 결제하셨습니다. 주최 측에서 환불해 드립니다.', viewReg: '신청 내역 보기' },
   es: { viewPay: 'Ver inscripción y QR de pago', viewPass: 'Ver inscripción y QR de entrada', passT: 'Abajo están los códigos QR de entrada (uno por persona). Muéstralos en la puerta. También puedes verlos en la página de inscripción al iniciar sesión. Consejo: haz ya una captura de tu código QR por si no hay internet en la puerta.', hi: 'Hola, {n}:', sign: 'Shiao Chang y Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'noches', details: 'Tu inscripción',
     recvS: 'Inscripción recibida · {c}', recv: 'Hemos recibido tu inscripción {c}. La revisaremos y te responderemos en 10 días.',
     confS: 'Inscripción confirmada · {c}', conf: 'Tu inscripción {c} está confirmada.',
@@ -244,7 +271,11 @@ const T = {
     paidS: 'Pago recibido · {c}', paid: 'Hemos recibido el pago de {c}. Tu inscripción está completa. ¡Nos vemos en Pekín!',
     cashS: 'Pago en el evento · {c}', cash: 'Hemos recibido tu billete de avión para {c}. Paga {t} al llegar (Alipay, WeChat Pay o efectivo).',
     cancS: 'Inscripción cancelada · {c}', canc: 'Tu inscripción {c} ha sido cancelada.', refund: 'Reembolso: {r}.',
-    updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.' },
+    updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.',
+    adjS: 'Cambio de importe · {c}', adj: 'El importe de tu inscripción {c} ha cambiado: {x}.', up: 'un cargo adicional de {m}', down: 'un descuento de {m}', why: 'Nota de los organizadores: {w}',
+    adjT: 'Total anterior {o}, nuevo total {a}, pagado hasta ahora {p}.', adjLater: 'El email de pago que recibirás cuando se confirme tu inscripción usará el nuevo importe.',
+    adjCash: 'Quedan {t} por pagar: págalos al llegar, antes de entrar (Alipay, WeChat Pay o efectivo). Si prefieres pagar antes, responde a este email. Tus códigos QR de entrada no cambian.',
+    adjPaid: 'Todo está pagado; no hay nada más que pagar.', adjOver: 'Has pagado {r} más que el nuevo total. Los organizadores te lo devolverán.', viewReg: 'Ver inscripción' },
   ru: { viewPay: 'Регистрация и QR для оплаты', viewPass: 'Регистрация и входной QR', passT: 'Ниже входные QR-коды (по одному на человека). Покажите их на входе. Их также видно на странице регистрации после входа. Совет: сохраните скриншот QR-кода заранее — на входе может не быть интернета.', hi: 'Здравствуйте, {n}!', sign: 'Shiao Chang и Liu Zheng\nBeijing Select Tango Weekend', total: 'Итого', hotel: 'Отель', nights: 'ноч.', details: 'Ваша регистрация',
     recvS: 'Регистрация получена · {c}', recv: 'Мы получили вашу регистрацию {c}. Проверим её и ответим в течение 10 дней.',
     confS: 'Регистрация подтверждена · {c}', conf: 'Ваша регистрация {c} подтверждена.',
@@ -257,7 +288,11 @@ const T = {
     paidS: 'Оплата получена · {c}', paid: 'Мы получили оплату {c}. Регистрация завершена. До встречи в Пекине!',
     cashS: 'Оплата на месте · {c}', cash: 'Мы получили авиабилет для {c}. Оплатите {t} по прибытии (Alipay, WeChat Pay или наличные).',
     cancS: 'Регистрация отменена · {c}', canc: 'Ваша регистрация {c} отменена.', refund: 'Возврат: {r}.',
-    updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.' }
+    updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.',
+    adjS: 'Изменение суммы · {c}', adj: 'Сумма вашей регистрации {c} изменилась: {x}.', up: 'доплата {m}', down: 'скидка {m}', why: 'Комментарий организаторов: {w}',
+    adjT: 'Было {o}, стало {a}, уже оплачено {p}.', adjLater: 'В письме об оплате после подтверждения регистрации будет новая сумма.',
+    adjCash: 'Осталось оплатить {t}: оплатите по прибытии, до входа (Alipay, WeChat Pay или наличные). Чтобы оплатить заранее, просто ответьте на это письмо. Входные QR-коды остаются прежними.',
+    adjPaid: 'Всё оплачено, больше ничего платить не нужно.', adjOver: 'Вы оплатили на {r} больше новой суммы. Организаторы вернут разницу.', viewReg: 'Посмотреть регистрацию' }
 };
 // Words that go with a QR code: always Chinese, plus the registrant's language.
 const CAP = {
@@ -313,25 +348,36 @@ export function letter(kind, reg, env, passes, qrs = []) {
   const d = typeof reg.data === 'string' ? JSON.parse(reg.data) : reg.data;
   const lang = T[reg.lang] ? reg.lang : 'en', L = T[lang];
   const v = { n: d.people[0] && d.people[0].name, c: reg.code, t: fmt(reg.rest == null ? reg.amount : reg.rest), d: reg.due_at ? bjDate(reg.due_at) : '', r: fmt(reg.refund || 0) };
+  // 金额调整: reg.adj = {d, why, was, paid, over}; what follows depends on where the registration stands now
+  const a = kind === 'adj' && reg.adj ? reg.adj : null, adjPay = !!a && reg.status === 'confirmed' && reg.rest > 0;
+  if (a) Object.assign(v, { x: fill(a.d > 0 ? L.up : L.down, { m: fmt(Math.abs(a.d)) }), w: a.why, o: fmt(a.was), a: fmt(reg.amount), p: fmt(a.paid), r: fmt(a.over) });
   const body = [fill(L.hi, v), '', fill(L[kind], v)];
   if (kind === 'canc' && reg.refund != null) body.push(fill(L.refund, v));
+  if (a) {
+    if (a.why) body.push(fill(L.why, v));
+    body.push('', fill(L.adjT, v));
+    if (reg.status === 'pending' || reg.status === 'waitlist') body.push(L.adjLater);
+    else if (reg.status === 'cash' && reg.rest > 0) body.push(fill(L.adjCash, v));
+    else if (reg.status === 'paid') body.push(a.over > 0 ? fill(L.adjOver, v) : L.adjPaid);
+  }
   if (['recv', 'conf', 'upd'].includes(kind)) { const colon = lang === 'zh' ? '：' : ': ';
     body.push('', L.details + colon.trim(), ...detailLines(d, lang).map(s => '· ' + s));
     if (reg.fee) body.push('· ' + (lang === 'zh' ? '手续费' : 'Fee') + ' — ' + fmt(reg.fee)); body.push(L.total + colon + fmt(reg.amount)); }
-  if (kind === 'conf' || kind === 'upd' || kind === 'rem') body.push('', fill(L.pay, v), L.noApp);
+  if (kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) body.push('', fill(L.pay, v), L.noApp);
   if (kind === 'conf' || kind === 'upd') body.push('', L.rules);
   if ((kind === 'paid' || kind === 'cash') && passes && passes.length) body.push('', fill(L.passT, v));
-  const toPay = kind === 'conf' || kind === 'upd' || kind === 'rem', toPass = kind === 'paid' || kind === 'cash';
-  const view = toPay ? L.viewPay : L.viewPass, href = regPage(env) + '?lang=' + lang + (toPay ? '#pay' : '#passes');
+  const toPay = kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay, toPass = kind === 'paid' || kind === 'cash';
+  const plain = !!a && !toPay && !PAID.includes(reg.status);   // an adjusted one not yet confirmed: the page, no codes yet
+  const view = toPay ? L.viewPay : plain ? L.viewReg : L.viewPass, href = regPage(env) + '?lang=' + lang + (toPay ? '#pay' : plain ? '' : '#passes');
   const button = `<p style="margin:18px 0 6px"><a href="${he(href)}" style="display:inline-block;background:#4a0609;color:#f6e3b4;padding:11px 22px;border-radius:999px;text-decoration:none;font-weight:700">${he(view)}</a></p>`;
   const capK = toPay ? 'pay' : kind === 'cash' ? 'cash' : 'pass';
   if ((toPay && qrs.length) || (toPass && passes && passes.length)) body.push('', ...caption(lang, capK));
   const capHtml = caption(lang, capK).map(x => `<div style="max-width:220px;margin:5px auto 0;font-size:13px;line-height:1.4">${he(x)}</div>`).join('');
-  if (toPay || toPass) body.push('', view + (lang === 'zh' ? '：' : ': '), href);
+  if (toPay || toPass || a) body.push('', view + (lang === 'zh' ? '：' : ': '), href);
   body.push('', L.sign);
   const text = body.join('\n');
   let html = '';
-  if (kind === 'conf' || kind === 'upd' || kind === 'rem') {
+  if (kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) {
     const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
     const imgs = qrs.map(n => `<div style="display:inline-block;text-align:center;margin:6px"><div style="font-weight:700">${/alipay/.test(n) ? 'Alipay 支付宝' : 'WeChat Pay 微信支付'}</div><img src="${he(base)}/social/reg/qr/${encodeURIComponent(n)}?k=${encodeURIComponent(env.REG_QR_KEY || '')}" alt="${he(n)}" width="220" style="border:1px solid #e7d3b0;border-radius:8px">${capHtml}</div>`).join('');
     html = `<!doctype html><html><body style="font-family:Georgia,serif;color:#2a1a14;background:#fbf5e9;padding:20px"><div style="max-width:560px;margin:auto;background:#fff;border:1px solid #e7d3b0;border-radius:12px;padding:20px">` +
@@ -344,7 +390,7 @@ export function letter(kind, reg, env, passes, qrs = []) {
   }
   return { subject: fill(L[kind + 'S'], v), text, html };
 }
-const KIND = { recv: 'recv', confirm: 'conf', waitlist: 'wait', decline: 'decl', remind: 'rem', paid: 'paid', cash: 'cash', cancel: 'canc', modify: 'upd' };
+const KIND = { recv: 'recv', confirm: 'conf', waitlist: 'wait', decline: 'decl', remind: 'rem', paid: 'paid', cash: 'cash', cancel: 'canc', modify: 'upd', adjust: 'adj' };
 
 // The payment QR codes for this registration that the organizer uploaded, Alipay first.
 async function payNames(env, reg) {
@@ -369,12 +415,12 @@ const replyTo = env => env.REG_REPLY_TO || 'info@tangoweekend.org';
 const stageOf = env => env.REG_LIVE === '1' ? 'live' : 'test';
 const adminMail = env => String(env.REG_NOTIFY || 'selecttango@gmail.com').trim().toLowerCase();
 // 'sent' or 'failed'; what was saved stays saved either way
-async function send(env, kit, reg, action) {
+async function send(env, kit, reg, action, extra) {
   const kind = KIND[action]; if (!kind) return undefined;
   const passes = (action === 'paid' || action === 'cash') ? await passesOf(env, reg) : null;
-  const qrs = ['conf', 'upd', 'rem'].includes(kind) ? await payNames(env, reg) : [];
-  const rest = kind === 'cash' || kind === 'rem' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
-  const shown = rest == null ? reg : { ...reg, rest };
+  const qrs = ['conf', 'upd', 'rem'].includes(kind) || (kind === 'adj' && reg.status === 'confirmed') ? await payNames(env, reg) : [];
+  const rest = kind === 'cash' || kind === 'rem' || kind === 'adj' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
+  const shown = { ...reg, ...(rest == null ? {} : { rest }), ...(extra || {}) };
   const m = letter(kind, shown, env, passes, qrs);
   const t = await mailTo(env, reg.event), dest = toRegistrant(env, t, reg.email);
   try { await kit.deliver(env, dest.to, dest.pre + m.subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: replyFor(env, t) }); await log(env, reg.id, 'mail:' + action, dest.to); }
@@ -719,10 +765,13 @@ export async function regMe(req, env, url, json, kit) {
     const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
     pay = (await payNames(env, r)).map(n => ({ name: n, img: base + '/social/reg/qr/' + encodeURIComponent(n) + '?k=' + encodeURIComponent(env.REG_QR_KEY) }));
   }
-  const d = JSON.parse(r.data);
-  const rest = r.status === 'confirmed' || r.status === 'cash' ? Math.max(0, r.amount - await paidSum(env, r.id)) : 0;
-  return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
-    updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang), pay, passes } });
+  const d = JSON.parse(r.data), got = await moneyOf(env, r.id), adj = await adjOf(env, r.id);
+  // a paid one that owes again only after 修改报名 raised it (调整金额 turns it into 到场付款); one marked paid before the ledger owes nothing
+  const rest = r.status === 'confirmed' || r.status === 'cash' || (r.status === 'paid' && got.n) ? Math.max(0, r.amount - got.sum) : 0;
+  const over = r.status === 'paid' && got.n ? Math.max(0, got.sum - r.amount) : 0;   // paid more than a total that 调整金额 lowered
+  return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, over, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
+    updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang), pay, passes,
+    adjust: adj.list.map(x => ({ at: x.at, d: x.d, part: x.part, why: x.why })) } });   // never the internal note, nor who
 }
 export async function regSubmit(req, env, b, json, kit) {
   const u = await kit.user(req, env);
@@ -744,13 +793,14 @@ export async function regSubmit(req, env, b, json, kit) {
   }
   if (ex) {
     if (ex.status !== 'pending') return json({ error: 'exists', code: ex.code, status: ex.status }, 409);
+    const m = withAdj(r.total, r.hotel, await adjOf(env, ex.id));   // an adjustment made while it waited stays
     // the same form again within two minutes is the same press of the button (or a retry after a lost answer): no second letter
-    if (ex.data === data && ex.amount === r.total && Date.parse(ts) - Date.parse(ex.updated_at) < 12e4) {
+    if (ex.data === data && ex.amount === m.amount && Date.parse(ts) - Date.parse(ex.updated_at) < 12e4) {
       const sent = await env.SDB.prepare("SELECT action FROM reg_log WHERE reg_id=? AND action IN ('mail:recv','mail_failed:recv') ORDER BY id DESC LIMIT 1").bind(ex.id).first();
       return json({ ok: true, code: ex.code, total: ex.amount, updated: true, mail: !sent ? undefined : sent.action === 'mail:recv' ? 'sent' : 'failed', promo: r.promo.kind });
     }
     const up = await env.SDB.prepare("UPDATE reg SET lang=?,domestic=?,people=?,data=?,amount=?,hotel_amount=?,promo=?,promo_dj=?,updated_at=? WHERE id=? AND status='pending'")
-      .bind(r.lang, r.domestic, r.data.people.length, data, r.total, r.hotel, r.promo.code || null, r.promo.dj || null, ts, ex.id).run();
+      .bind(r.lang, r.domestic, r.data.people.length, data, m.amount, m.hotel, r.promo.code || null, r.promo.dj || null, ts, ex.id).run();
     reg = await env.SDB.prepare('SELECT * FROM reg WHERE id=?').bind(ex.id).first();
     if (!up.meta.changes) return json({ error: 'exists', code: reg.code, status: reg.status }, 409);   // reviewed while they were editing: what was reviewed stands
     await log(env, reg.id, 'resubmit');
@@ -783,7 +833,7 @@ function adminOK(req, env) {
   if (a.length < 24) return false;
   return (!!env.REG_ADMIN_TOKEN && a === env.REG_ADMIN_TOKEN) || (!!env.ADMIN_TOKEN && a === env.ADMIN_TOKEN);
 }
-const CSV_COLS = ['code', 'status', 'created', 'email', 'lang', 'person', 'name', 'nick', 'role', 'country', 'city', 'domestic', 'wechat', 'facebook', 'package', 'items', 'person_amount', 'room', 'room_type', 'check_in', 'check_out', 'nights', 'passport_surname', 'passport_given', 'promo', 'promo_dj', 'total', 'fee', 'refund', 'due', 'paid_at', 'note'];
+const CSV_COLS = ['code', 'status', 'created', 'email', 'lang', 'person', 'name', 'nick', 'role', 'country', 'city', 'domestic', 'wechat', 'facebook', 'package', 'items', 'person_amount', 'room', 'room_type', 'check_in', 'check_out', 'nights', 'passport_surname', 'passport_given', 'promo', 'promo_dj', 'total', 'fee', 'refund', 'due', 'paid_at', 'note', 'adjust', 'adjust_why'];
 // Text typed by registrants must never run as a formula in Excel: such cells get a leading '. Real numbers stay numbers.
 const csvCell = v => { let s = String(v == null ? '' : v); if (typeof v !== 'number' && /^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
 const bjTime = iso => iso ? new Date(Date.parse(iso) + 8 * 36e5).toISOString().slice(0, 16).replace('T', ' ') : '';   // exports use Beijing time
@@ -799,7 +849,7 @@ const RANK = { desk: 0, manager: 1, deputy: 2, chief: 3, owner: 4 };
 const LIMIT = { chief: 1, deputy: 3 };
 const ALL = ['door', 'undo', 'collect', 'review', 'list', 'cancel', 'refund', 'modify', 'passport', 'export'];
 const GRANT = { owner: [...ALL, 'asset'], chief: ALL, deputy: ['door', 'undo', 'collect', 'review', 'list'], manager: ['door', 'undo', 'collect'], desk: ['door'] };
-const ACT_NEEDS = { confirm: 'review', waitlist: 'review', decline: 'review', cash: 'review', paid: 'review', pay: 'review', note: 'review', cancel: 'cancel', refund: 'refund', modify: 'modify' };
+const ACT_NEEDS = { confirm: 'review', waitlist: 'review', decline: 'review', cash: 'review', paid: 'review', pay: 'review', note: 'review', cancel: 'cancel', refund: 'refund', modify: 'modify', adjust: 'modify' };
 const roleOf = perms => perms === 'chief' || perms === 'deputy' ? perms : 'manager';
 const can = (who, perm) => !!who && GRANT[who.role].includes(perm);
 const mayAppoint = (who, role) => RANK[who.role] >= RANK.deputy && RANK[who.role] > RANK[role];
@@ -854,7 +904,7 @@ const doLogged = async (env, change, id, action, by, text = '', ...more) => (awa
   change,
   env.SDB.prepare('INSERT INTO reg_log(reg_id,at,action,detail) SELECT ?,?,?,? WHERE changes()>0').bind(id, nowIso(), action, JSON.stringify({ by, text: String(text).slice(0, 700) })),
   ...more]))[0].meta.changes > 0;
-const HANDLED = ['confirm', 'waitlist', 'decline', 'cash', 'pay', 'refund', 'cancel', 'modify', 'note', 'checkin_undo'];
+const HANDLED = ['confirm', 'waitlist', 'decline', 'cash', 'pay', 'refund', 'cancel', 'modify', 'adjust', 'note', 'checkin_undo'];
 function readLog(l) {
   const raw = String(l.detail || '');
   try { const d = JSON.parse(raw); if (d && typeof d.by === 'string') return { action: l.action, at: l.at, by: d.by, text: d.text || '' }; } catch { /* a line from before 2026-11-23 */ }
@@ -923,19 +973,21 @@ export async function regAdmin(req, env, url, b, json, kit) {
     for (const c of ((await env.SDB.prepare('SELECT c.reg_id,c.person,c.item,c.staff FROM reg_checkin c JOIN reg r ON r.id=c.reg_id WHERE r.event=?').bind(ev.id).all()).results || [])) {
       checked[c.item] = (checked[c.item] || 0) + 1;
       (inRows[c.reg_id] = inRows[c.reg_id] || []).push({ person: c.person, item: c.item, staff: c.staff }); }
-    const undone = {}, history = {};
+    const undone = {}, history = {}, adjusts = {};
     for (const raw of ((await env.SDB.prepare(`SELECT l.reg_id,l.action,l.at,l.detail FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND l.action IN (${HANDLED.map(() => '?')}) ORDER BY l.id`).bind(ev.id, ...HANDLED).all()).results || [])) {
       const l = readLog(raw);
       if (l.action === 'checkin_undo') {
         const m = /^(\d+):(\w+)/.exec(l.text);
         if (m) (undone[raw.reg_id] = undone[raw.reg_id] || []).push({ at: l.at, person: +m[1], item: m[2], by: l.by });
+      } else if (l.action === 'adjust') {   // 调整金额 with its amount, part, reason and internal note (only those who see the list)
+        try { const x = JSON.parse(l.text); (adjusts[raw.reg_id] = adjusts[raw.reg_id] || []).push({ at: l.at, by: l.by, d: Number(x.d) || 0, part: x.part === 'hotel' ? 'hotel' : 'reg', why: String(x.why || ''), note: String(x.note || '') }); } catch { /* unreadable: left out */ }
       } else if (l.action !== 'pay' && l.action !== 'refund') (history[raw.reg_id] = history[raw.reg_id] || []).push({ action: l.action, at: l.at, by: l.by }); }   // money is shown from reg_payment
     // letters that did not go out, unless the same kind went out later. Never the error text or the address.
     const unsent = {};
     for (const l of ((await env.SDB.prepare("SELECT l.reg_id,l.action,l.at FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND substr(l.action,1,4)='mail' ORDER BY l.id").bind(ev.id).all()).results || [])) {
       const [state, kind] = l.action.split(':'), m = unsent[l.reg_id] = unsent[l.reg_id] || {};
       if (state === 'mail_failed') m[kind] = { action: kind, at: l.at }; else delete m[kind]; }
-    rows.forEach(r => { r.mail_failed = Object.values(unsent[r.id] || {}); r.checkins = inRows[r.id] || []; r.undos = undone[r.id] || []; r.log = history[r.id] || [];
+    rows.forEach(r => { r.mail_failed = Object.values(unsent[r.id] || {}); r.checkins = inRows[r.id] || []; r.undos = undone[r.id] || []; r.log = history[r.id] || []; r.adjusts = adjusts[r.id] || [];
       if (!can(who, 'passport')) delete r.data.passports; });   // not sent at all, not just hidden
     const staff = await staffList(env, ev.id);
     const pays = ((await env.SDB.prepare('SELECT p.* FROM reg_payment p JOIN reg r ON r.id=p.reg_id WHERE r.event=? ORDER BY p.id').bind(ev.id).all()).results) || [];
@@ -1070,7 +1122,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
     if (can(who, 'list')) {
       if (!Object.hasOwn(ACT_NEEDS, a)) return json({ error: 'bad_action' }, 400);
       if (!can(who, ACT_NEEDS[a])) return deny();
-      if (a === 'refund') { const no = await stepUp(); if (no) return no; }
+      if (a === 'refund' || a === 'adjust') { const no = await stepUp(); if (no) return no; }   // 调整金额 like a refund: the password again
       return regAct(env, b, json, kit, ev, who);
     }
     // A site manager only takes money, for the code just scanned, of someone approved to pay on arrival.
@@ -1092,11 +1144,17 @@ export async function regAdmin(req, env, url, b, json, kit) {
 }
 async function regsCsv(env, ev) {
   const rows = ((await env.SDB.prepare('SELECT * FROM reg WHERE event=? ORDER BY id').bind(ev.id).all()).results || []).map(r => ({ ...r, data: JSON.parse(r.data) }));
+  // 调整金额: the sum (total already includes it) and the reasons, on the registration's first line
+  const adj = {};
+  for (const l of ((await env.SDB.prepare("SELECT l.reg_id,l.detail FROM reg_log l JOIN reg r ON r.id=l.reg_id WHERE r.event=? AND l.action='adjust' ORDER BY l.id").bind(ev.id).all()).results) || []) {
+    try { const x = JSON.parse(JSON.parse(l.detail).text), a = adj[l.reg_id] = adj[l.reg_id] || { sum: 0, why: [] }; a.sum += Number(x.d) || 0; a.why.push((x.d > 0 ? '加收 ' : '减收 ') + Math.abs(Number(x.d) || 0) + ' ' + (x.why || '')); } catch { /* unreadable: left out */ }
+  }
   const lines = [CSV_COLS.join(',')];
   for (const r of rows) r.data.people.forEach((pp, i) => {
-    const ri = r.data.rooms.findIndex(x => x.guests.includes(i)), room = ri >= 0 ? r.data.rooms[ri] : null, pass = r.data.passports[i] || {};
+    const ri = r.data.rooms.findIndex(x => x.guests.includes(i)), room = ri >= 0 ? r.data.rooms[ri] : null, pass = r.data.passports[i] || {}, a = adj[r.id];
     lines.push([r.code, r.status, bjTime(r.created_at), r.email, r.lang, i + 1, pp.name, pp.nick, pp.role, pp.country, pp.city, pp.country === 'CN' ? 1 : 0, pp.wechat, pp.facebook, pp.pkg, pp.items.join(' '), pp.amount,
-      room ? ri + 1 : '', room ? room.type : '', room ? room.ci : '', room ? room.co : '', room ? room.nights : '', pass.s, pass.g, r.promo, r.promo_dj, i ? '' : r.amount, i ? '' : r.fee, i ? '' : r.refund, i ? '' : bjTime(r.due_at), i ? '' : bjTime(r.paid_at), i ? '' : r.note].map(csvCell).join(','));
+      room ? ri + 1 : '', room ? room.type : '', room ? room.ci : '', room ? room.co : '', room ? room.nights : '', pass.s, pass.g, r.promo, r.promo_dj, i ? '' : r.amount, i ? '' : r.fee, i ? '' : r.refund, i ? '' : bjTime(r.due_at), i ? '' : bjTime(r.paid_at), i ? '' : r.note,
+      i || !a ? '' : a.sum, i || !a ? '' : a.why.join('; ')].map(csvCell).join(','));
   });
   return lines.join('\n');
 }
@@ -1104,7 +1162,7 @@ async function paymentsCsv(env, ev) {
   const rows = ((await env.SDB.prepare('SELECT p.*,r.code,r.email FROM reg_payment p JOIN reg r ON r.id=p.reg_id WHERE r.event=? ORDER BY p.id').bind(ev.id).all()).results) || [];
   return [['at', 'code', 'email', 'amount', 'method', 'collector', 'recorded_by', 'note'].join(',')].concat(rows.map(x => [bjTime(x.at), x.code, x.email, x.amount, x.method, x.collector, x.by_admin, x.note].map(csvCell).join(','))).join('\n');
 }
-const NEXT = { confirm: ['pending', 'waitlist'], waitlist: ['pending'], decline: ['pending', 'waitlist'], pay: ['confirmed', 'cash', 'paid'], refund: ['cancelled'], cash: ['confirmed'], cancel: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], modify: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], note: null };
+const NEXT = { confirm: ['pending', 'waitlist'], waitlist: ['pending'], decline: ['pending', 'waitlist'], pay: ['confirmed', 'cash', 'paid'], refund: ['cancelled', 'paid'], cash: ['confirmed'], cancel: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], modify: ['pending', 'confirmed', 'waitlist', 'paid', 'cash'], adjust: ['pending', 'waitlist', 'confirmed', 'cash', 'paid'], note: null };
 const METHODS = ['wechat', 'alipay', 'cash', 'other'];
 export async function regAct(env, b, json, kit, ev, who) {
   const reg = await env.SDB.prepare('SELECT * FROM reg WHERE id=? AND event=?').bind(Number(b.id) || 0, ev.id).first();
@@ -1157,19 +1215,58 @@ export async function regAct(env, b, json, kit, ev, who) {
   }
   if ((b.from && b.from !== reg.status) || !NEXT[a].includes(reg.status)) return late();
   if (a === 'refund') {
-    // all refunds together never exceed what is due, nor what is still held
-    const pay = b.pay || {}, got = await moneyOf(env, reg.id), due = Math.max(0, (reg.refund == null ? 0 : reg.refund) - got.out);
+    // all refunds together never exceed what is due, nor what is still held.
+    // A paid one (调整金额 took its total below what was paid, 2026-11-26): only what was paid above that total, while it stands.
+    const pay = b.pay || {}, got = await moneyOf(env, reg.id), over = reg.status === 'paid';
+    const due = over ? Math.max(0, got.sum - reg.amount) : Math.max(0, (reg.refund == null ? 0 : reg.refund) - got.out);
     const already = async () => json({ error: 'already_refunded', due, last: await lastPayment(env, reg.id, who, -1) }, 409);
-    if (got.out > 0 && (!due || (pay.seen != null && Number(pay.seen) !== due))) return already();
+    if ((over || got.out > 0) && (!due || (pay.seen != null && Number(pay.seen) !== due))) return already();
     const amount = pay.amount == null || pay.amount === '' ? due : Math.round(Number(pay.amount));
     if (!Number.isFinite(amount) || amount <= 0 || amount > due || amount > got.sum) return json({ error: 'bad_amount', due: Math.min(due, Math.max(0, got.sum)) }, 400);
     const method = METHODS.includes(pay.method) ? pay.method : 'wechat', collector = str(pay.collector, 40) || who.name;
     const ok = await done(
-      db.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) SELECT ?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?')
-        .bind(reg.id, ts, -amount, method, collector, str(pay.note, 300) || 'refund', who.name, reg.id, got.n),
+      db.prepare('INSERT INTO reg_payment(reg_id,at,amount,method,collector,note,by_admin) SELECT ?,?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?' + (over ? " AND EXISTS (SELECT 1 FROM reg WHERE id=? AND status='paid' AND amount=?)" : ''))
+        .bind(reg.id, ts, -amount, method, collector, str(pay.note, 300) || 'refund', who.name, reg.id, got.n, ...(over ? [reg.id, reg.amount] : [])),
       `${amount} ${method} by ${collector}`);
     if (!ok) return already();
     return json({ ok: true, refunded: got.out + amount, due: Math.max(0, due - amount) });
+  }
+  if (a === 'adjust') {
+    // 调整金额 (Shiao, 2026-11-26): the 总管 adds to or takes off this one registration's total. Money only: what they
+    // registered for stays (that is 修改报名), the price list stays locked, no handling fee. The reason (why) is told to
+    // the registrant, the note stays inside. A part (registration or hotel) never goes below ¥0. Afterwards:
+    //   paid, owing again        → 到场付款: the entry codes stay; the rest is paid before or at the door, as usual
+    //   待付款 / 到场付款 covered → paid (the first time: the letter with the entry codes)
+    //   paid above the new total → stays paid; the 总管 refunds the difference (refund, without cancelling)
+    // Written only if nothing moved since it was read (status, total, payments): otherwise who did, and nothing changes.
+    const x = b.adjust || {}, n = Math.round(Math.abs(Number(x.d))), delta = Number(x.d) < 0 ? -n : n;
+    const part = x.part === 'hotel' ? 'hotel' : 'reg', why = str(x.why, 200), note = str(x.note, 200);
+    if (!Number.isFinite(n) || n <= 0 || n > 1e6) return json({ error: 'bad_amount' }, 400);
+    if (!why) return json({ error: 'need_why' }, 400);
+    if (part === 'hotel' && !d.hotel) return json({ error: 'no_hotel' }, 400);
+    if (b.seen != null && Number(b.seen) !== reg.amount) return late();   // the screen showed another total
+    const base = part === 'hotel' ? reg.hotel_amount : reg.amount - reg.hotel_amount;
+    if (base + delta < 0) return json({ error: 'bad_amount', max: base }, 400);
+    const got = await moneyOf(env, reg.id);
+    if (reg.status === 'paid' && !got.n) return json({ error: 'no_payments' }, 409);   // marked paid before the ledger: record the money first
+    const amount = reg.amount + delta, hotel = reg.hotel_amount + (part === 'hotel' ? delta : 0);
+    const status = reg.status === 'paid' && got.sum < amount ? 'cash' : (reg.status === 'confirmed' || reg.status === 'cash') && got.sum >= amount ? 'paid' : reg.status;
+    const nowPaid = status === 'paid' && reg.status !== 'paid';
+    let text = JSON.stringify({ d: delta, part, why, note, was: reg.amount });
+    if (text.length > 700) text = JSON.stringify({ d: delta, part, why: why.slice(0, 120), note: '', was: reg.amount });   // the log keeps 700
+    const ok = await done(
+      db.prepare(`UPDATE reg SET amount=?,hotel_amount=?,status=?,paid_at=${nowPaid ? 'COALESCE(paid_at,?)' : 'paid_at'},updated_at=? WHERE id=? AND status=? AND amount=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?`)
+        .bind(amount, hotel, status, ...(nowPaid ? [ts] : []), ts, reg.id, reg.status, reg.amount, reg.id, got.n),
+      text);
+    if (!ok) return late();
+    const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
+    const info = { d: delta, why, was: reg.amount, paid: got.sum, over: Math.max(0, got.sum - after.amount) };
+    let mail;
+    if (b.silent !== 1) {
+      mail = await send(env, kit, after, 'adjust', { adj: info });
+      if (nowPaid && !reg.paid_at && (await send(env, kit, after, 'paid')) === 'failed') mail = 'failed';   // covered the first time: the entry codes
+    }
+    return json({ ok: true, status: after.status, amount: after.amount, paid: got.sum, rest: Math.max(0, after.amount - got.sum), over: info.over, mail });
   }
   // The rest change the registration itself, and only from the status it was read in.
   let change;
@@ -1198,8 +1295,11 @@ export async function regAct(env, b, json, kit, ev, who) {
     const fee = reg.status === 'pending' ? reg.fee : ev.fee;   // changes after review carry the ¥50 fee, once
     const seated = SEATED.includes(reg.status);
     if (seated) { const no = await full(env, ev, r.data, reg.id, json); if (no) return no; seats = r.data; }
-    change = db.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,updated_at=? WHERE id=? AND status=? AND data=?' + (seated ? ROOM_SQL : ''))
-      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, r.total + fee, r.hotel, fee, r.promo.code || null, r.promo.dj || null, ts, reg.id, reg.status, reg.data, ...(seated ? roomArgs(ev, r.data, reg.id) : []));
+    const m = withAdj(r.total + fee, r.hotel, await adjOf(env, reg.id));   // a 调整金额 made before stays
+    // a paid one raised above what it paid: 到场付款, so the page and the door show the rest (the entry codes stay)
+    const got = reg.status === 'paid' ? await moneyOf(env, reg.id) : null, st = got && got.n && got.sum < m.amount ? 'cash' : reg.status;
+    change = db.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,status=?,updated_at=? WHERE id=? AND status=? AND data=?' + (seated ? ROOM_SQL : ''))
+      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, m.amount, m.hotel, fee, r.promo.code || null, r.promo.dj || null, st, ts, reg.id, reg.status, reg.data, ...(seated ? roomArgs(ev, r.data, reg.id) : []));
   }
   if (!(await done(change, b.note ? str(b.note, 500) : ''))) {   // and no letter from the one who was late
     // still as read: then what stopped it was the seats, taken a moment ago by someone else
@@ -1207,8 +1307,13 @@ export async function regAct(env, b, json, kit, ev, who) {
     if (seats && now && now.status === reg.status && now.data === reg.data) { const no = await full(env, ev, seats, reg.id, json); if (no) return no; }
     return late();
   }
-  const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
-  const mail = b.silent !== 1 ? await send(env, kit, after, a) : undefined;
+  let after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first(), kind = a;
+  // nothing to pay (调整金额 took the total to ¥0 while it waited): confirmed is paid at once, with the entry codes
+  if (a === 'confirm' && after.status === 'confirmed' && after.amount <= 0) {
+    await db.prepare("UPDATE reg SET status='paid',paid_at=COALESCE(paid_at,?),updated_at=? WHERE id=? AND status='confirmed' AND amount<=0").bind(ts, ts, reg.id).run();
+    after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first(); if (after.status === 'paid') kind = 'paid';
+  }
+  const mail = b.silent !== 1 ? await send(env, kit, after, kind) : undefined;
   return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, due: after.due_at, mail });
 }
 

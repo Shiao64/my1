@@ -1,6 +1,6 @@
 name: Inbox PR refresh
 
-# Keeps 「探戈助理答复」 PRs that wait for Shiao mergeable when main moves on (Shiao 2026-11-18).
+# Keeps 「资料更新」 PRs (formerly 「探戈助理答复」) that wait for Shiao mergeable when main moves on (Shiao 2026-11-18).
 # The event JSON files are one line each, so any other change to main makes a waiting PR conflict.
 # This merges main into each open inbox-run-* branch and solves the event JSON card by card
 # (tools/inbox_queue.py refresh). Anything else that conflicts gets a PR comment and is left alone.

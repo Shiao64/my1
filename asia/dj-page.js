@@ -18,7 +18,8 @@
     } catch (e) {}
     return '';
   }
-  function key(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]/g, ''); }
+  /* 2026-11-25: keep Hangul too, so a Korean name (\uc2a4\ud14c\uc774\uc2dc) can match a profile. Same as cardB.js djKey(). */
+  function key(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff\uac00-\ud7a3]/g, ''); }
   function setText(elId, text) { var el = document.getElementById(elId); if (el) el.textContent = text || ''; }
   function setPhoto(url, alt) {
     var el = document.getElementById('pf-photo'); if (!el) return; el.textContent = ''; if (!url) return;
@@ -29,9 +30,10 @@
     if (!/^https?:\/\//i.test(url)) { el.textContent = url; return; }
     var a = document.createElement('a'); a.href = url; a.target = '_blank'; a.rel = 'noopener'; a.textContent = url; el.appendChild(a);
   }
-  function matches(profile, e) {
+  /* asDj: match the card's DJ even on an organizer page (2026-11-25, 近期担任 DJ). */
+  function matches(profile, e, asDj) {
     var names = [profile.name, profile.name_zh].concat(profile.match || [], profile.members || []).map(key).filter(Boolean), got = [];
-    if (kind === 'organizer' || kind === 'group') (e.organizers || []).concat(e.organizers_en || []).forEach(function (n) { if (n) got.push(n); });
+    if (!asDj && (kind === 'organizer' || kind === 'group')) (e.organizers || []).concat(e.organizers_en || []).forEach(function (n) { if (n) got.push(n); });
     else {
       /* 2026-11-21: only nights still to come. Past nights are in the "recent DJ sets" list (dj-recent.json).
          Weekly card: its dj is the current poster's, so only while poster_date is today or later. */
@@ -43,8 +45,13 @@
   }
   function when(e) { return e.kind === 'weekly' ? (zh ? '每周' : 'Weekly') : (e.start || ''); }
   function isPast(e, day) { if (e.kind === 'weekly') return false; var end = e.end || e.start || ''; return !!(end && end < day); }
-  var file = (kind === 'organizer' || kind === 'group') ? '/asia/organizers.json?v=o8' : '/asia/djs.json?v=d1';
-  fetch(file).then(function (r) { return r.json(); }).then(function (list) {
+  var file = (kind === 'organizer' || kind === 'group') ? '/asia/organizers.json?v=o14' : '/asia/djs.json?v=d1';
+  function loadList(u) { return fetch(u).then(function (r) { return r.json(); }); }
+  loadList(file).then(function (list) {
+    if ((list || []).some(function (p) { return p && p.id === id; })) return list;
+    /* 2026-11-25: the daily job (poster-prune.yml) can add a page that is newer than a cached list: ask once more, uncached. */
+    return loadList(file + '&t=' + Date.now()).catch(function () { return list; });
+  }).then(function (list) {
     var profile = (list || []).filter(function (p) { return p.id === id; })[0];
     if (!profile) return;
     var name = zh ? (profile.name_zh || profile.name || '') : (profile.name || profile.name_zh || '');
@@ -53,13 +60,20 @@
     var h1 = document.querySelector('.dj-bar h1'); if (h1 && name) h1.textContent = name;
     setText('pf-aff', aff); setText('pf-bio', bio); setPhoto(profile.photo || '', name);
     /* 2026-11-21 (Shiao): DJ pages keep a place for the intro, and list the last 5 nights from the DJ session log (asia/dj-recent.json, tools/dj_sessions.py). */
-    if (!bio && kind === 'dj') { var bz = document.getElementById('pf-bio'); if (bz) { bz.textContent = zh ? '介绍待补充。' : 'Profile coming soon.'; bz.classList.add('dj-bio-wait'); bz.style.color = '#8a7a66'; bz.style.fontStyle = 'italic'; } }
+    if (!bio && (kind === 'dj' || kind === 'organizer')) { var bz = document.getElementById('pf-bio'); if (bz) { bz.textContent = zh ? '介绍待补充。' : 'Profile coming soon.'; bz.classList.add('dj-bio-wait'); bz.style.color = '#8a7a66'; bz.style.fontStyle = 'italic'; } }
+    /* 2026-11-25 (Shiao): organizer pages keep a place for the photo too, filled in later in asia/organizers.json.
+       Same layout as 刘峥 / 王凯: photo left, intro beside it, under the event list. */
+    if (!profile.photo && kind === 'organizer') { var pz = document.getElementById('pf-photo'); if (pz) { var ph = document.createElement('div'); ph.className = 'pf-photo-wait'; ph.textContent = zh ? '照片待补充' : 'Photo coming soon'; ph.style.cssText = 'aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;border:1.5px dashed #c9b89a;border-radius:12px;background:#EFE6D3;color:#8a7a66;font-size:14px;font-weight:600;text-align:center;padding:8px;box-sizing:border-box'; pz.appendChild(ph); } }
+    /* 2026-11-25 (Shiao): an organizer who also DJs gets 近期担任 DJ (cards where they are the DJ, from events.json)
+       and 最近担任 DJ 的场次 (the DJ log), side by side above the photo + intro. Both stay hidden when empty. */
+    var djUpS = null, djRecS = null;
+    if (kind === 'organizer') { var st0 = document.querySelector('.dj-story'); if (st0) { djUpS = document.createElement('section'); djUpS.id = 'pf-djup'; djUpS.hidden = true; djRecS = document.createElement('section'); djRecS.id = 'pf-djrec'; djRecS.hidden = true; djUpS.style.marginBottom = djRecS.style.marginBottom = '18px'; st0.parentNode.insertBefore(djUpS, st0); st0.parentNode.insertBefore(djRecS, st0); } }
     fetch('/asia/dj-recent.json?v=r1').then(function (r) { return r.json(); }).then(function (all) {
       var rec = all && all[id], list = rec && rec.recent || [];
       if (!list.length) return;
       var main = document.querySelector('.dj-main'), story = document.querySelector('.dj-story'); if (!main) return;
       var CZ = { Shanghai: '上海', Beijing: '北京', Shenzhen: '深圳', Guangzhou: '广州', Hangzhou: '杭州', Chengdu: '成都', Wuhan: '武汉', Nanjing: '南京', Suzhou: '苏州', Xiamen: '厦门', Tianjin: '天津', Chongqing: '重庆', "Xi'an": '西安', 'Hong Kong': '香港', Taipei: '台北', Macau: '澳门', Seoul: '首尔', Daegu: '大邱', Busan: '釜山', Tokyo: '东京', 'Da Nang': '岘港', 'Kuala Lumpur': '吉隆坡' };
-      var home = zh ? '/zh/asia/' : '/asia/', sec = document.createElement('section'); sec.className = 'dj-recent';
+      var home = zh ? '/zh/asia/' : '/asia/', sec = djRecS || document.createElement('section'); sec.className = 'dj-recent'; sec.hidden = false;
       var h = document.createElement('h2'); h.textContent = zh ? '最近担任 DJ 的场次' : 'Recent DJ sets'; sec.appendChild(h);
       var box = document.createElement('div'); box.className = 'dj-events'; sec.appendChild(box);
       list.forEach(function (x) {
@@ -70,13 +84,14 @@
         box.appendChild(a);
       });
       if (rec.n > list.length) { var m = document.createElement('p'); m.className = 'dj-empty'; m.textContent = zh ? ('地图上共记录 ' + rec.n + ' 场') : (rec.n + ' sets recorded on the map'); sec.appendChild(m); }
-      if (story && story.nextSibling) main.insertBefore(sec, story.nextSibling); else main.appendChild(sec);
+      if (!djRecS) { if (story && story.nextSibling) main.insertBefore(sec, story.nextSibling); else main.appendChild(sec); }
     }).catch(function () {});
     var links = profile.links || {};
     setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || ''); setLink('pf-web', links.website || '');
     return fetch('/asia/events.json?v=e233').then(function (r) { return r.json(); }).then(function (events) {
       var day = today(), up = [], past = [];
       (events || []).forEach(function (e) { if (!e || e.hidden || !matches(profile, e)) return; (isPast(e, day) ? past : up).push(e); });
+      past.sort(function (a, b) { var x = a.end || a.start || '', y = b.end || b.start || ''; return x < y ? 1 : x > y ? -1 : 0; });
       /* 2026-11-20 (Shiao): organizer / group pages list their events first, one rich row each:
          small poster, name, "每周五 21:00–01:00 · 下次 11/20", venue, and a star (same local favorites as the map, atm_fav_v1). */
       var WD = zh ? ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -102,13 +117,25 @@
           r = r.filter(function (x) { return x !== id; }); if (!on) r.push(id); localStorage.setItem('atm_fav_removed_v1', JSON.stringify(r));
         } catch (x) {}
       }
+      function thumb(e) { var p = String(e.poster || '').split('?')[0]; return p ? '/images/thumb/' + p.replace(/^\//, '').replace(/\.(jpe?g|png|webp)$/i, '') + '.webp?v=t360' : ''; }
+      /* 2026-11-25 (Shiao): organizer pages also list past events, newest first, same row without the star.
+         Not a link: an ended card only opens the map's "活动已结束" notice, so the row itself shows the poster, date and venue. */
+      function ymdTxt(k) { return k ? k.slice(0, 4) + '/' + md(k) : ''; }
+      function pastRow(e) {
+        var title = (zh && e.name_zh) || e.name || '', s = e.start || '', t = e.end || '';
+        var line = ymdTxt(s) + (t && t !== s ? '–' + (t.slice(0, 4) === s.slice(0, 4) ? md(t) : ymdTxt(t)) : '');
+        var ven = zh ? (e.venue || e.venue_en || '') : (e.venue_en || e.venue || ''), th = thumb(e);
+        return '<div class="pf-ev pf-ev-past"><a class="pf-ev-a">' +
+          (th ? '<img class="pf-ev-img" src="' + esc(th) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : '<span class="pf-ev-img"></span>') +
+          '<span class="pf-ev-t"><b>' + esc(title) + '</b><span class="pf-ev-w">' + esc(line) + '</span>' + (ven ? '<span class="pf-ev-v">' + esc(ven) + '</span>' : '') + '</span></a></div>';
+      }
       function rich(e) {
         var title = (zh && e.name_zh) || e.name || '', nx = nextDate(e);
         var line = e.kind === 'weekly'
           ? (zh ? '每' : 'Every ') + (e.weekdays || [e.weekday]).map(function (x) { return WD[x]; }).join(zh ? '、' : ', ') + (e.time ? ' ' + e.time : '') + (nx ? (zh ? ' · 下次 ' : ' · Next ') + md(nx) : '')
           : md(e.start) + (e.end && e.end !== e.start ? '–' + md(e.end) : '') + (e.time ? ' · ' + e.time : '');
         var ven = zh ? (e.venue || e.venue_en || '') : (e.venue_en || e.venue || '');
-        var p = String(e.poster || '').split('?')[0], th = p ? '/images/thumb/' + p.replace(/^\//, '').replace(/\.(jpe?g|png|webp)$/i, '') + '.webp?v=t360' : '';
+        var th = thumb(e);
         var on = favs().indexOf(e.id) >= 0;
         return '<div class="pf-ev"><a class="pf-ev-a" href="' + (zh ? '/zh/asia/' : '/asia/') + '?card=' + encodeURIComponent(e.id) + '">' +
           (th ? '<img class="pf-ev-img" src="' + esc(th) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : '<span class="pf-ev-img"></span>') +
@@ -142,7 +169,29 @@
         }
       }
       draw(document.getElementById('pf-up'), up, zh ? '暂无' : 'None yet', richOn);
-      draw(document.getElementById('pf-past'), past, zh ? '暂无' : 'None yet');
+      var pastN = document.getElementById('pf-past'), pastS = pastN && pastN.parentNode;
+      if (pastN && richOn) {
+        /* Same layout as 刘峥 / 王凯 (Shiao 11/25): 近期主办 list, then 过去的活动 only when there are any, then photo + intro. */
+        var upB = document.getElementById('pf-up');
+        if (!past.length) { if (pastS && pastS.tagName === 'SECTION') pastS.hidden = true; }
+        else {
+          if (pastS && pastS.tagName === 'SECTION' && upB && upB.parentNode) { upB.parentNode.insertBefore(pastS, upB.nextSibling); }
+          pastN.innerHTML = past.map(pastRow).join('');
+        }
+      } else draw(pastN, past, zh ? '暂无' : 'None yet');
+      /* 近期担任 DJ: cards still to come where this organizer is the DJ, minus the ones already under 近期主办.
+         A weekly card counts only for its current poster's night (poster_date today or later), shown with that date. */
+      if (djUpS) {
+        var mine = {}; up.forEach(function (e) { mine[e.id] = 1; });
+        var djDay = function (e) { return e.kind === 'weekly' ? (e.poster_date || '') : (e.start || ''); };
+        var djUp = (events || []).filter(function (e) { return e && !e.hidden && !mine[e.id] && !isPast(e, day) && matches(profile, e, true); });
+        djUp.sort(function (a, b) { var x = djDay(a), y = djDay(b); return x < y ? -1 : x > y ? 1 : 0; });
+        if (djUp.length) {
+          djUpS.innerHTML = '<h2>' + (zh ? '近期担任 DJ' : 'Upcoming DJ sets') + '</h2><div class="dj-events">' + djUp.map(function (e) { return rich(e.kind === 'weekly' ? Object.assign({}, e, { kind: 'event', start: e.poster_date, end: e.poster_date }) : e); }).join('') + '</div>';
+          djUpS.hidden = false;
+          djUpS.addEventListener('click', function (ev) { var b = ev.target.closest && ev.target.closest('.pf-star'); if (!b) return; var on = b.getAttribute('aria-pressed') !== 'true'; setFav(b.getAttribute('data-id'), on); b.setAttribute('aria-pressed', on); b.textContent = on ? '★' : '☆'; });
+        }
+      }
     });
   }).catch(function () {});
 })();

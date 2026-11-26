@@ -1,0 +1,10 @@
+{
+  "_note": "tools/gen_organizer_profiles.py 的设定。min_types：在 regions 里、没隐藏的活动卡要有几种不同类型（卡的 type：舞会 milonga、练习 practica、探戈节 festival、组团 grouptrip…）才做页面；Shiao 11/25 定「举办 2 种（含）以上不同活动」，几场舞会、同一个探戈节的不同届都只算一种。regions：只算这些地区（卡的 region 栏）的卡；Shiao 11/25 定先只做中国大陆，香港、台湾、韩国等先不做。skip：不做个人介绍页的名字（团体、活动品牌）。",
+  "min_types": 2,
+  "regions": [
+    "China"
+  ],
+  "skip": {
+    "Cheek to Cheek": "台中的活动品牌（Cheek to Cheek Práctica），不是个人（Claude 2026-11-25 判断，待 Shiao 确认）"
+  }
+}
