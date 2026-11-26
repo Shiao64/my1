@@ -698,7 +698,7 @@ function modPayload(){
 function modBody(){return {id:MOD.id,action:'modify',from:MOD.from,seen:MOD.seen,data:modPayload(),nofee:MOD.nofee?1:0,over:MOD.over?1:0,why:MOD.why}}
 function modAsk(){clearTimeout(modT);modT=setTimeout(modPreview,300)}
 function modPreview(){if(!MOD||!$('modForm'))return;var n=++modN,r=rowOf(MOD.id);if(!r)return;
-  $('mGo').disabled=true;var body=modBody();body.preview=1;
+  $('mGo').disabled=true;var body=modBody();body.action='modify_preview';
   act('/act',body).then(function(d){
     if(n!==modN||!$('modForm'))return;   // a newer one is on its way
     var box=$('modPrev');

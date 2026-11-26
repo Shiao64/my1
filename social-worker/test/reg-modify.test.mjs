@@ -106,11 +106,13 @@ const DP = await signIn(depMade, '841726');
 check('team signed in', CH && DP);
 let x = await make('confirmed');
 const full = back(x.id, d => { d.people[0].pkg = 'full'; return d; });
-let d = await act({ id: x.id, action: 'modify', preview: 1, seen: row(x.id).updated_at, data: full }, DP);
+let d = await act({ id: x.id, action: 'modify_preview', seen: row(x.id).updated_at, data: full }, DP);
 check('经理 may not, not even the preview', d._s === 403 && d.error === 'no_permission', d);
-d = await act({ id: x.id, action: 'modify', preview: 1, seen: row(x.id).updated_at, data: full }, CH);
+d = await act({ id: x.id, action: 'modify_preview', seen: row(x.id).updated_at, data: full }, CH);
 check('总管 preview: no password asked', d.ok && d.preview && d.was === 700 && d.amount === 1450 && d.feeWhy === 'unpaid' && d.status === 'confirmed', d);
 check('preview says what changes', d.changes.length === 1 && d.changes[0] === 'Amy Lee：周末舞会（4 场） → 全程套餐', d.changes);
+d = await act({ id: x.id, action: 'modify', preview: 1, seen: row(x.id).updated_at, data: full }, CH);
+check('preview only through its own action: preview:1 on modify is not one (asks the password)', d._s === 401 && d.error === 'pin_needed', d);
 check('preview wrote nothing, sent nothing', row(x.id).amount === 700 && !db.prepare("SELECT 1 FROM reg_log WHERE reg_id=? AND action='modify'").get(x.id) && take().length === 0);
 d = await act({ id: x.id, action: 'modify', seen: row(x.id).updated_at, data: full }, CH);
 check('总管 saving: the password again', d._s === 401 && d.error === 'pin_needed', d);
@@ -198,7 +200,7 @@ const S1 = R.EVENTS.bstw2027.items.S1, cap = S1.cap; S1.cap = (await R.usedSeats
 const holder = await make('confirmed', 0, form({ people: [person({ items: ['yard'] })] }));
 x = await make('confirmed');
 const yard = back(x.id, f => { f.people[0].items = ['yard']; return f; });
-d = await act({ id: x.id, action: 'modify', preview: 1, seen: row(x.id).updated_at, data: yard });
+d = await act({ id: x.id, action: 'modify_preview', seen: row(x.id).updated_at, data: yard });
 check('preview: the yard is full, says so', d.ok && d.full && d.full.item === 'S1' && d.full.left === 0 && d.full.need === 1, d);
 d = await modify(x.id, yard);
 check('saving without over: refused as full', d._s === 409 && d.error === 'full' && d.item === 'S1', d);
@@ -209,7 +211,7 @@ S1.cap = cap; check('the holder is untouched', row(holder.id).status === 'confir
 // --- 7. the fee waived this once
 x = await make('paid', 700);
 const plusTour = back(x.id, f => { f.people[0].items = ['tour']; return f; });
-d = await act({ id: x.id, action: 'modify', preview: 1, seen: row(x.id).updated_at, data: plusTour, nofee: 1 });
+d = await act({ id: x.id, action: 'modify_preview', seen: row(x.id).updated_at, data: plusTour, nofee: 1 });
 check('preview with nofee: waived', d.ok && d.feeWhy === 'waived' && d.amount === 1150, d);
 d = await modify(x.id, plusTour, { nofee: 1 }); ms = take(); to = mine(ms, x.email);
 check('paid + 一日游, fee waived: ¥1,150, 到场付款 ¥450', d.ok && d.amount === 1150 && row(x.id).fee === 0 && d.status === 'cash' && d.rest === 450, d);

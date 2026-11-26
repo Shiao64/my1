@@ -1194,6 +1194,9 @@ export async function regAdmin(req, env, url, b, json, kit) {
     return json({ ok: true, name });
   }
   if (p === '/act' && req.method === 'POST') {
+    // the 修改报名 preview has its own action name: a backend that does not know it refuses, instead of writing the change
+    const preview = b.action === 'modify_preview';
+    b.preview = preview ? 1 : 0; if (preview) b.action = 'modify';
     const a = String(b.action || '');
     if (can(who, 'list')) {
       if (!Object.hasOwn(ACT_NEEDS, a)) return json({ error: 'bad_action' }, 400);
