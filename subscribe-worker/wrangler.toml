@@ -46,6 +46,8 @@ name = "SUB_MAIL"
 # 2026-11-26: me@tangoweekend.org sends the hand-written letters (social-worker/src/letter.js, POST /social/admin/letter).
 # Note: wrangler 3 (API deploy) ignores allowed_sender_addresses ("Unexpected fields") and shows SUB_MAIL as
 # "unrestricted", so today it limits nothing. Kept for wrangler 4, where it would allow only these two senders.
+# 2026-11-26: TP registration letters are sent from the bound 活动专属邮箱 (bstw2027@…). Under wrangler 4 add each such
+# address here, or those letters fall back to subscribe@ (deliver() in social.js).
 allowed_sender_addresses = ["subscribe@tangoweekend.org", "me@tangoweekend.org"]
 
 [ai]

@@ -507,7 +507,7 @@ async function send(env, kit, reg, action, extra) {
   const shown = { ...reg, ...(rest == null ? {} : { rest }), ...(extra || {}) };
   const m = letter(kind, shown, env, passes, qrs);
   const t = await mailTo(env, reg.event), dest = toRegistrant(env, t, reg.email);
-  try { await kit.deliver(env, dest.to, dest.pre + m.subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: replyFor(env, t) }); await log(env, reg.id, 'mail:' + action, dest.to); }
+  try { await kit.deliver(env, dest.to, dest.pre + m.subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', from: fromFor(t), replyTo: replyFor(env, t) }); await log(env, reg.id, 'mail:' + action, dest.to); }
   catch (e) { await log(env, reg.id, 'mail_failed:' + action, String(e && e.message || e)); return 'failed'; }
   await sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t);
   return 'sent';
@@ -542,6 +542,8 @@ async function mailTo(env, evId) {
 }
 // replies to a registration letter: the 活动专属邮箱 once it is bound (its test letter came back), else info@
 const replyFor = (env, t) => t && t.event_mail && t.event_mail_ok ? t.event_mail : replyTo(env);
+// … and the letters about a registration are then sent from it too (Shiao, 2026-11-26); undefined = the system's sender
+const fromFor = t => t && t.event_mail && t.event_mail_ok ? t.event_mail : undefined;
 // who gets a copy, each address once; skip = the registrant, who has the letter itself
 function recipients(t, skip) {
   const out = [], add = (addr, who) => { if (addr && addr !== skip && !out.some(x => x.addr === addr)) out.push({ addr, who }); };
@@ -563,20 +565,24 @@ async function sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t) {
   const done = [], failed = [];
   for (const x of list) {
     const dest = route(env, x);
-    try { await kit.deliver(env, dest.to, dest.pre + tag + m.subject, head + '\n\n' + m.text, html, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: replyFor(env, t) }); done.push(x.who); }
+    try { await kit.deliver(env, dest.to, dest.pre + tag + m.subject, head + '\n\n' + m.text, html, undefined, { fromName: 'Beijing Select Tango Weekend', from: fromFor(t), replyTo: replyFor(env, t) }); done.push(x.who); }
     catch (e) { failed.push(x.who + ': ' + String(e && e.message || e).slice(0, 200)); }
   }
   if (done.length) await log(env, reg.id, 'copy:' + action, done.join(','));
   if (failed.length) await log(env, reg.id, 'copy_failed:' + action, failed.join(' | '));
 }
 // The 新报名 notice: to the same people, each their own. A failure to the 管理员 shows on the page, as before.
+// Once the 活动专属邮箱 is bound it comes from there with the 回信 tag, so answering it reaches the registrant (regInbound).
 async function notifyOwner(env, kit, reg) {
   const d = JSON.parse(reg.data);
   const text = [`New registration ${reg.code} (${reg.people} people${reg.domestic ? ', domestic' : ''})`, `${reg.email} · ${reg.lang}`, ...detailLines(d, 'zh'), `合计 ${fmt(reg.amount)}`, d.promo && d.promo.code ? `码 ${d.promo.code}${d.promo.dj ? ' (' + d.promo.dj + ')' : ''}` : '', d.msg ? '留言：' + d.msg : ''].filter(Boolean).join('\n');
   const done = [], failed = [];
-  for (const x of recipients(await mailTo(env, reg.event))) {
+  const t = await mailTo(env, reg.event), box = fromFor(t), ev = own(EVENTS, reg.event);
+  const subject = (box ? tagOf(reg.code, await relayKey(env, reg.code)) + ' ' : '') + '新报名 ' + reg.code;
+  const head = box ? `直接回复这封通知，会以「${ev.name.zh}」的名义寄给报名者（报名者看不到你的邮箱），回信里引用的原文会一起寄出；其他组织者收到副本。\n\n` : '';
+  for (const x of recipients(t)) {
     const dest = route(env, x);
-    try { await kit.deliver(env, dest.to, dest.pre + '新报名 ' + reg.code, text, undefined, undefined, { fromName: 'Registration' }); if (x.who !== 'admin') done.push(x.who); }
+    try { await kit.deliver(env, dest.to, dest.pre + subject, head + text, undefined, undefined, { fromName: 'Registration', from: box, replyTo: box }); if (x.who !== 'admin') done.push(x.who); }
     catch (e) {
       const why = String(e && e.message || e);
       if (x.who === 'admin') { console.log('reg owner mail', why.slice(0, 120)); await log(env, reg.id, 'mail_failed:notify', why); }
@@ -754,6 +760,13 @@ const nameOf = reg => { try { return (JSON.parse(reg.data).people[0] || {}).name
 async function relayKey(env, code) { return env.REG_PASS_SECRET ? (await hmac(env.REG_PASS_SECRET, 'relay:' + code)).slice(0, 10) : ''; }
 const tagOf = (code, k) => `[回信 ${code} #${k}]`;
 const cleanSubject = s => String(s || '').replace(/\[TEST → [^\]]*\]\s*/g, '').replace(/\[(回信 [A-Z0-9]+-\d{4}(?: #[0-9a-f]+)?|副本(?: #[0-9a-f]+)?|来信|测试)\]\s*/g, '').replace(/^((re|回复|答复|fw|fwd|转发)\s*[:：]\s*)+/i, '').trim();
+// An organizer's answer usually quotes the letter it answers, header lines and all (QQ, 163, Outlook): before it goes to
+// the registrant, the 回信 tag and the organizers' own addresses are taken out of the text.
+function forRegistrant(body, k, addrs) {
+  let out = body.split('#' + k).join('');
+  for (const a of addrs) if (a) out = out.replace(new RegExp(a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '（组织者邮箱）');
+  return out;
+}
 // files that fit in one letter; the rest are named in the text
 function filesOut(parsed) {
   const keep = [], left = []; let size = 0;
@@ -775,6 +788,8 @@ export async function regInbound(message, env, kit) {
   if (!M.authPassed(h)) return drop('not authenticated');
   if (M.isAuto(h, subject)) return drop('automatic reply');
   const from = addrOf(h.get('from')) || String(message.from || '').toLowerCase();
+  // letters now leave from this address: one that comes back to it (it was also set as 总管 or 副本邮箱) goes nowhere
+  if (from === to) return drop('from the mailbox itself');
   const t = await mailTo(env, ev.id), orgs = { [t.chief]: 'chief', [t.copy]: 'copy', [t.admin]: 'admin' };
   delete orgs['']; const role = Object.hasOwn(orgs, from) ? orgs[from] : '';
   const code = (new RegExp(ev.prefix + '-\\d{4}').exec(subject) || [])[0];
@@ -786,19 +801,21 @@ export async function regInbound(message, env, kit) {
   const testReply = !t.live && reg && from === String(env.REG_TEST_INBOX || 'selecttango@gmail.com').toLowerCase() && /\[TEST → [^\]]+\]/.test(subject) && !keyed;
   if (message.rawSize > 25 * 1024 * 1024) {
     const x = { addr: t.admin, who: 'admin' }, d = route(env, x);
-    await kit.deliver(env, d.to, d.pre + '[来信太大] ' + subject, `${from} 寄到 ${to} 的信超过 25MB，没有转寄。请直接联系寄件人。`, undefined, { 'X-TP-Relay': 'big' }, { fromName: '探戈通 Tango Pass', replyTo: from }).catch(() => {});
+    await kit.deliver(env, d.to, d.pre + '[来信太大] ' + subject, `${from} 寄到 ${to} 的信超过 25MB，没有转寄。请直接联系寄件人。`, undefined, { 'X-TP-Relay': 'big' }, { fromName: '探戈通 Tango Pass', from: to, replyTo: from }).catch(() => {});
     return true;
   }
   const buf = new Uint8Array(await new Response(message.raw).arrayBuffer());
   let bin = ''; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
   const parsed = M.parseMime(bin), plain = parsed.texts.find(x => x.type === 'text/plain'), htm = parsed.texts.find(x => x.type === 'text/html');
   const body = (plain ? plain.text : htm ? M.htmlText(htm.text) : '').trim(), files = filesOut(parsed);
-  const relay = async (x, subj, text, opt) => { const d = route(env, x); await kit.deliver(env, d.to, d.pre + subj, text, undefined, { 'X-TP-Relay': opt.kind }, { fromName: opt.fromName, replyTo: opt.replyTo, attachments: files.keep }); };
+  const relay = async (x, subj, text, opt) => { const d = route(env, x); await kit.deliver(env, d.to, d.pre + subj, text, undefined, { 'X-TP-Relay': opt.kind }, { fromName: opt.fromName, from: to, replyTo: opt.replyTo, attachments: files.keep }); };
   if (role && keyed) {
     // an organizer answers a letter TP sent them: to the registrant in the event's name; the others get a copy
-    const subj = 'Re: ' + cleanSubject(subject).replace(new RegExp('\\s*·?\\s*' + reg.code + '\\s*'), ' ').trim() + ' · ' + reg.code;
+    const topic = cleanSubject(subject).replace(new RegExp('\\s*·?\\s*' + reg.code + '\\s*'), ' ').trim();
+    // an answer to the 新报名 notice: its Chinese title is the organizers', the registrant gets the event's name
+    const subj = 'Re: ' + (topic === '新报名' ? (reg.lang === 'zh' ? ev.name.zh : ev.name.en) : topic) + ' · ' + reg.code;
     const d = toRegistrant(env, t, reg.email);
-    try { await kit.deliver(env, d.to, d.pre + subj, body, undefined, { 'X-TP-Relay': 'out' }, { fromName: 'Beijing Select Tango Weekend', replyTo: to, attachments: files.keep }); }
+    try { await kit.deliver(env, d.to, d.pre + subj, forRegistrant(body, k, [from, t.chief, t.copy, t.admin]), undefined, { 'X-TP-Relay': 'out' }, { fromName: 'Beijing Select Tango Weekend', from: to, replyTo: to, attachments: files.keep }); }
     catch (e) {
       await log(env, reg.id, 'reply_failed:out', String(e && e.message || e));
       const x = { addr: from, who: role }; await relay(x, '探戈通：没寄出 ' + reg.code, `你回给报名者 ${reg.email}（${reg.code}）的信没有寄出，请稍后再回复一次。\n\n原信标题：${subject}`, { kind: 'notice', fromName: '探戈通 Tango Pass', replyTo: replyTo(env) }).catch(() => {});
