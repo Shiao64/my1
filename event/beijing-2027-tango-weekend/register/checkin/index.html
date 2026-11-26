@@ -193,7 +193,7 @@ function show(){
 function load(){if(!pass)return;
   call('/social/reg/door/pass?p='+encodeURIComponent(pass)).then(function(d){
     if(d._s===401){lost(d);return}
-    if(!d.ok){$('who').hidden=true;res('no','✕ 无效的入场码');return}
+    if(!d.ok){$('who').hidden=true;res('no',d.error==='removed'?'✕ 这位已从报名里删除，入场码已作废':'✕ 无效的入场码');return}
     info=d;method='';taking=false;$('arrived').checked=false;show();if(flash){res(flashKind,flash);flash='';flashKind='ok'}
   }).catch(function(){res('no','连不上后台，请检查网络')})}
 $('go').addEventListener('click',function(){var cur=$('item').value;$('go').disabled=true;
@@ -201,7 +201,7 @@ $('go').addEventListener('click',function(){var cur=$('item').value;$('go').disa
     if(d.ok){info.checkins.push({item:cur,at:d.at,staff:d.by});show();res('ok','✓ 签到成功 · '+NAME[cur]);return}
     if(d.error==='already'){info.checkins.push({item:cur,at:d.at,staff:d.by});show();return}
     if(d._s===401){lost(d);return}
-    res('no','✕ '+(d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
+    res('no','✕ '+(d.error==='removed'?'这位已从报名里删除，入场码已作废':d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
 $('undo').addEventListener('click',function(){var cur=$('item').value;if(!confirm('撤销「'+NAME[cur]+'」的签到？'))return;
   var seen=info.checkins.filter(function(c){return c.item===cur})[0];
   call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur,undo:1,at:seen&&seen.at}}).then(function(d){
