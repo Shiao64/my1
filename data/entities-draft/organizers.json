@@ -968,6 +968,20 @@
  },
  {
   "id": "O083",
+  "name_en": "Shirley Xu",
+  "name_local": "许暄宜",
+  "cities": [
+   "Shanghai"
+  ],
+  "events": [
+   "E205"
+  ],
+  "profile": [
+   "organizer:xu-xuanyi"
+  ]
+ },
+ {
+  "id": "O084",
   "name_en": "Sissi Zheng",
   "name_local": "Sissi Zheng",
   "cities": [
@@ -979,7 +993,7 @@
   ]
  },
  {
-  "id": "O084",
+  "id": "O085",
   "name_en": "Vivian Yeh",
   "name_local": "Vivian Yeh",
   "cities": [
@@ -995,7 +1009,7 @@
   ]
  },
  {
-  "id": "O085",
+  "id": "O086",
   "name_en": "Wing",
   "name_local": "Wing",
   "cities": [
@@ -1011,7 +1025,7 @@
   ]
  },
  {
-  "id": "O086",
+  "id": "O087",
   "name_en": "Zhang Zhenyi",
   "name_local": "张真艺",
   "cities": [
@@ -1022,7 +1036,7 @@
   ]
  },
  {
-  "id": "O087",
+  "id": "O088",
   "name_en": "Zhengzhong",
   "name_local": "正中",
   "cities": [
@@ -1037,7 +1051,7 @@
   ]
  },
  {
-  "id": "O088",
+  "id": "O089",
   "name_en": "CoCo",
   "name_local": "CoCo",
   "cities": [
@@ -1048,7 +1062,7 @@
   ]
  },
  {
-  "id": "O089",
+  "id": "O090",
   "name_en": "Aykut",
   "name_local": "Aykut",
   "cities": [
@@ -1065,7 +1079,7 @@
   ]
  },
  {
-  "id": "O090",
+  "id": "O091",
   "name_en": "Bes",
   "name_local": "Bes",
   "cities": [
@@ -1076,7 +1090,7 @@
   ]
  },
  {
-  "id": "O091",
+  "id": "O092",
   "name_en": "Jinrui Humphrey",
   "name_local": "金睿 Humphrey",
   "cities": [
@@ -1087,7 +1101,7 @@
   ]
  },
  {
-  "id": "O092",
+  "id": "O093",
   "name_en": "Ken Wong",
   "name_local": "Ken Wong",
   "cities": [
@@ -1098,7 +1112,7 @@
   ]
  },
  {
-  "id": "O093",
+  "id": "O094",
   "name_en": "Miranda",
   "name_local": "Miranda",
   "cities": [
@@ -1115,7 +1129,7 @@
   ]
  },
  {
-  "id": "O094",
+  "id": "O095",
   "name_en": "Sam",
   "name_local": "Sam",
   "cities": [
@@ -1126,7 +1140,7 @@
   ]
  },
  {
-  "id": "O095",
+  "id": "O096",
   "name_en": "Cheek to Cheek",
   "name_local": "Cheek to Cheek",
   "cities": [
@@ -1138,7 +1152,7 @@
   ]
  },
  {
-  "id": "O096",
+  "id": "O097",
   "name_en": "Brigette Yu",
   "name_local": "Brigette Yu",
   "cities": [
@@ -1149,7 +1163,7 @@
   ]
  },
  {
-  "id": "O097",
+  "id": "O098",
   "name_en": "Daniel Liu",
   "name_local": "Daniel Liu",
   "cities": [
@@ -1160,7 +1174,7 @@
   ]
  },
  {
-  "id": "O098",
+  "id": "O099",
   "name_en": "Rebecca Meow",
   "name_local": "Rebecca Meow",
   "cities": [
@@ -1171,7 +1185,7 @@
   ]
  },
  {
-  "id": "O099",
+  "id": "O100",
   "name_en": "Angel",
   "name_local": "安琪",
   "cities": [
@@ -1182,7 +1196,7 @@
   ]
  },
  {
-  "id": "O100",
+  "id": "O101",
   "name_en": "Chaoran",
   "name_local": "超然",
   "cities": [
@@ -1193,7 +1207,7 @@
   ]
  },
  {
-  "id": "O101",
+  "id": "O102",
   "name_en": "Firebird",
   "name_local": "Firebird",
   "cities": [
@@ -1204,7 +1218,7 @@
   ]
  },
  {
-  "id": "O102",
+  "id": "O103",
   "name_en": "Janisa",
   "name_local": "佳慧",
   "cities": [
@@ -1215,7 +1229,7 @@
   ]
  },
  {
-  "id": "O103",
+  "id": "O104",
   "name_en": "Kevin",
   "name_local": "Kevin小钲",
   "cities": [
@@ -1226,7 +1240,7 @@
   ]
  },
  {
-  "id": "O104",
+  "id": "O105",
   "name_en": "Maria",
   "name_local": "Maria",
   "cities": [
@@ -1237,7 +1251,7 @@
   ]
  },
  {
-  "id": "O105",
+  "id": "O106",
   "name_en": "Summer",
   "name_local": "Summer夏",
   "cities": [
@@ -1248,7 +1262,7 @@
   ]
  },
  {
-  "id": "O106",
+  "id": "O107",
   "name_en": "修老师 (Teacher Xiu)",
   "name_local": "修行",
   "cities": [
@@ -1259,7 +1273,7 @@
   ]
  },
  {
-  "id": "O107",
+  "id": "O108",
   "name_en": "Belén",
   "name_local": "",
   "cities": [
@@ -1270,7 +1284,7 @@
   ]
  },
  {
-  "id": "O108",
+  "id": "O109",
   "name_en": "David",
   "name_local": "",
   "cities": [
@@ -1281,7 +1295,7 @@
   ]
  },
  {
-  "id": "O109",
+  "id": "O110",
   "name_en": "Leonel",
   "name_local": "",
   "cities": [
@@ -1292,7 +1306,7 @@
   ]
  },
  {
-  "id": "O110",
+  "id": "O111",
   "name_en": "Natalia",
   "name_local": "",
   "cities": [
@@ -1303,7 +1317,7 @@
   ]
  },
  {
-  "id": "O111",
+  "id": "O112",
   "name_en": "Noriko",
   "name_local": "Noriko",
   "cities": [
@@ -1314,7 +1328,7 @@
   ]
  },
  {
-  "id": "O112",
+  "id": "O113",
   "name_en": "Takeshi Nakayama",
   "name_local": "Takeshi Nakayama",
   "cities": [
@@ -1325,7 +1339,7 @@
   ]
  },
  {
-  "id": "O113",
+  "id": "O114",
   "name_en": "Choi Ra-mi",
   "name_local": "최라미",
   "cities": [
@@ -1336,7 +1350,7 @@
   ]
  },
  {
-  "id": "O114",
+  "id": "O115",
   "name_en": "Forward",
   "name_local": "向前",
   "cities": [
@@ -1347,7 +1361,7 @@
   ]
  },
  {
-  "id": "O115",
+  "id": "O116",
   "name_en": "静先生 Mr. Jing",
   "name_local": "",
   "cities": [
@@ -1356,7 +1370,7 @@
   "events": []
  },
  {
-  "id": "O116",
+  "id": "O117",
   "name_en": "Jezebel",
   "name_local": "Jezebel",
   "cities": [
@@ -1367,7 +1381,7 @@
   ]
  },
  {
-  "id": "O117",
+  "id": "O118",
   "name_en": "牛静 (Niu Jing)",
   "name_local": "牛静",
   "cities": [
@@ -1378,7 +1392,7 @@
   ]
  },
  {
-  "id": "O118",
+  "id": "O119",
   "name_en": "王勇 (Wang Yong)",
   "name_local": "王勇",
   "cities": [
@@ -1389,7 +1403,7 @@
   ]
  },
  {
-  "id": "O119",
+  "id": "O120",
   "name_en": "Curtis Tsai",
   "name_local": "Curtis Tsai",
   "cities": [
@@ -1401,7 +1415,7 @@
   ]
  },
  {
-  "id": "O120",
+  "id": "O121",
   "name_en": "Nahuel",
   "name_local": "",
   "cities": [

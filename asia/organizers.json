@@ -383,5 +383,31 @@
       "正中"
     ],
     "auto": true
+  },
+  {
+    "id": "xu-xuanyi",
+    "name": "Shirley Xu",
+    "name_zh": "许暄宜",
+    "city": "Shanghai",
+    "city_zh": "上海",
+    "affiliation": "",
+    "affiliation_zh": "",
+    "photo": "",
+    "bio": "",
+    "bio_zh": "",
+    "links": {
+      "website": "",
+      "instagram": "",
+      "facebook": "",
+      "wechat": "xuanyitango",
+      "soundcloud": ""
+    },
+    "match": [
+      "Shirley Xu",
+      "许暄宜"
+    ],
+    "sources": [
+      "刘峥 2026-11-26 来信（huodong@）：E205 主办人改为许暄宜，中英文名照信里"
+    ]
   }
 ]

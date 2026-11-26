@@ -208,6 +208,45 @@ d = await regInboundMail(inbound({ from: 'Eve <eve@example.org>', subject: 'Big'
 check('too big: the 管理员 is told, nothing else', ms.length === 1 && ms[0].to === BOSS && ms[0].subject.startsWith('[来信太大]'), subs(ms));
 delete env.REG_LIVE;
 
+// --- 寄件人 and the 新报名 notice (Shiao, 2026-11-26), through the real send_email binding
+{ const got = []; let refuse = '';
+  env.SOCIAL_MAIL = 'sub_mail'; env.REG_LIVE = '1';
+  // live means after the opening (12/1 00:00 Beijing, reg-open.test.mjs): this part runs as if it were
+  const nowReal = Date.now; Date.now = () => Math.max(nowReal(), Date.parse('2026-12-01T00:00:00+08:00'));
+  env.SUB_MAIL = { async send(m) { if (refuse && m.from.email !== 'subscribe@tangoweekend.org') throw new Error(refuse); got.push(m); } };
+  const takeB = () => got.splice(0, got.length), who = ms => ms.map(m => m.from.email + ' > ' + m.to + ' | ' + m.subject + ' | rt=' + m.replyTo);
+  const dora = subscriber('dora@example.com', 'Dora');
+  d = await call('POST', '/reg', form({ people: [person({ name: 'Dora Wu' })] }), dora); const code = d.code; let ms = takeB();
+  const dk = keyOf(code), dtag = `[回信 ${code} #${dk}]`;
+  check('bound: registrant letter, copies and 新报名 all come from the 活动专属邮箱', ms.length === 7 && ms.every(m => m.from.email === EV), who(ms));
+  const mineL = ms.find(m => m.to === 'dora@example.com'), notes = ms.filter(m => m.subject.endsWith('新报名 ' + code));
+  check('bound: registrant letter replies there, no tag in it', mineL && mineL.replyTo === EV && !mineL.subject.includes(dk) && !mineL.text.includes(dk), mineL);
+  check('bound: 新报名 notice carries the 回信 tag, replies there, says how', notes.length === 3 && notes.every(m => m.subject === dtag + ' 新报名 ' + code && m.replyTo === EV && m.from.name === 'Registration' && m.text.startsWith('直接回复这封通知')) , who(notes));
+  const n1 = notes.find(m => m.to === CHIEF);
+  d = await regInboundMail(inbound({ from: '李总 <' + CHIEF + '>', subject: '回复：' + n1.subject, text: 'Welcome Dora.' }), env); ms = takeB();
+  const ans = ms.find(m => m.to === 'dora@example.com');
+  check('总管 answers the 新报名 notice → the registrant, from the event, under the event\'s name', ans && ans.subject === 'Re: Beijing Select Tango Weekend 2027 · ' + code && ans.from.email === EV && ans.replyTo === EV && ans.text.includes('Welcome Dora.') && !ans.subject.includes(dk), who(ms));
+  check('… and the others get a tagged copy from there', ms.length === 3 && ms.every(m => m.from.email === EV) && ms.filter(m => m.subject.startsWith('[副本 #' + dk + ']')).length === 2, who(ms));
+  // the answer quotes the notice the way QQ / Outlook do: address and tag are taken out before the registrant sees it
+  d = await regInboundMail(inbound({ from: '李总 <' + CHIEF + '>', subject: 'Re: ' + n1.subject, text: `See you.\n------------------ 原始邮件 ------------------\n发件人: Registration <${EV}>\n收件人: ${CHIEF.toUpperCase()}, ${COPY}\n抄送: ${BOSS}\n主题: ${n1.subject}` }), env); ms = takeB();
+  const q = ms.find(m => m.to === 'dora@example.com'), low = q ? q.text.toLowerCase() : '';
+  check('quoted original: no organizer address and no tag reaches the registrant', q && q.text.includes('See you.') && ![CHIEF, COPY, BOSS].some(a => low.includes(a)) && !q.text.includes(dk) && q.text.includes('（组织者邮箱）') && q.text.includes(code), q);
+  const nb = mails.length;
+  d = await regInboundMail(inbound({ from: EV, subject: n1.subject, text: n1.text }), env); ms = takeB();
+  check('a letter from the mailbox to itself (set as 副本邮箱 by mistake): goes nowhere', d === true && ms.length === 0 && mails.length === nb, who(ms));
+  d = await regInboundMail(inbound({ from: 'Dora Wu <dora@example.com>', subject: 'Re: ' + mineL.subject, text: 'One more night?' }), env); ms = takeB();
+  check('her reply → the organizers, from the 活动专属邮箱', ms.length === 3 && ms.every(m => m.from.email === EV && m.replyTo === EV && m.headers['X-TP-Relay'] === 'in'), who(ms));
+  // Cloudflare refusing that sender: the letters still go, from the usual one, replies still to the event
+  refuse = 'email from bstw2027@tangoweekend.org not allowed';
+  d = await call('POST', '/admin/reg/act', { id: await idOf(code), action: 'confirm' }, ADMIN); ms = takeB();
+  check('sender refused: sent from subscribe@ instead, replies unchanged', d.mail === 'sent' && ms.length === 4 && ms.every(m => m.from.email === 'subscribe@tangoweekend.org' && m.replyTo === EV), [d, who(ms)]);
+  // any other failure is not tried twice
+  let tries = 0; env.SUB_MAIL = { async send() { tries++; throw new Error('daily quota exceeded'); } };
+  d = await call('POST', '/admin/reg/act', { id: await idOf(code), action: 'cancel' }, ADMIN);
+  check('another send error: one try per letter, reported as failed', d.mail === 'failed' && tries === 1, [d, tries]);
+  Date.now = nowReal;
+  env.SOCIAL_MAIL = 'log'; delete env.SUB_MAIL; delete env.REG_LIVE; }
+
 // --- not a 活动专属邮箱: false, so live.js hands it to huodong@ as before
 check('other address: not ours', await regInboundMail(inbound({ from: 'amy@example.com', to: 'someone@tangoweekend.org', subject: 'x' }), env) === false);
 
@@ -219,6 +258,11 @@ check('change: old rule removed, new one made, test letter to the new address', 
 d = await call('POST', '/admin/reg/act', { id: amyId, action: 'note', note: 'y' }, ADMIN);
 await call('POST', '/admin/reg/act', { id: await idOf(bobCode), action: 'waitlist' }, ADMIN); ms = take();
 check('change: until the new test letter is back, replies go to info@', ms.every(m => m.replyTo === 'info@tangoweekend.org'), subs(ms));
+{ const got = []; env.SOCIAL_MAIL = 'sub_mail'; env.SUB_MAIL = { async send(m) { got.push(m); } };
+  const finn = subscriber('finn@example.com', 'Finn');
+  const f = await call('POST', '/reg', form({ people: [person({ name: 'Finn' })] }), finn);
+  check('not bound: from subscribe@; 新报名 as before (no tag, no Reply-To)', got.length > 1 && got.every(m => m.from.email === 'subscribe@tangoweekend.org') && got.filter(m => m.subject.endsWith('新报名 ' + f.code)).every(m => m.subject === O + '新报名 ' + f.code && !m.replyTo && m.text.startsWith('New registration')), got.map(m => [m.from.email, m.subject, m.replyTo]));
+  env.SOCIAL_MAIL = 'log'; delete env.SUB_MAIL; }
 d = await save({ event_mail_test: true }); ms = take();
 check('再测一次: a new test letter', d.sent.event_mail === 'testing' && ms.length === 1 && /\[TP-BIND /.test(ms[0].subject), [d, subs(ms)]);
 await regInboundMail(inbound({ from: 'subscribe@tangoweekend.org', to: 'bstw@tangoweekend.org', subject: ms[0].subject }), env);
