@@ -675,8 +675,7 @@ function showStatus(r){LAST=r;$('soon').hidden=true;$('gate').hidden=true;form.h
     // 付款步骤 (Shiao, 2026-11-26): step 2 one line per code shown (WeChat with its top-right +); first-timers from abroad bind a card;
     // step 3 puts the registration number in the payment note; the no-app line names only the codes shown
     $('ph2').style.whiteSpace='pre-line';$('ph2').textContent=pay.map(function(x){return t(isAli(x)?'ph2a':'ph2w')}).join('\n');
-    $('ph2d').style.whiteSpace='pre-line';$('ph2d').textContent=t('ph2d')+(r.domestic?'':'
-'+t('ph2bank'));
+    $('ph2d').style.whiteSpace='pre-line';$('ph2d').textContent=t('ph2d')+(r.domestic?'':'\n'+t('ph2bank'));
     $('payHow').textContent=tf('payHow',{app:apps||t('aliN')+t('orW')+t('wxN')})}
   var pl2=$('passList');pl2.innerHTML='';(r.passes||[]).forEach(function(x){var d=document.createElement('div');d.style.textAlign='center';
     var n=document.createElement('div');n.className='cap';n.style.fontWeight='700';n.textContent=x.name;var c=document.createElement('div');c.className='sub cap';c.textContent=x.pass.split('.')[0];var im=img(x.img);d.append(im,n,c);var k=st==='cash'?'cash':'pass';capEls(rl,k,'cap').forEach(function(e){d.appendChild(e)});pl2.appendChild(d);passCard(im,x,caps(rl,k))});
