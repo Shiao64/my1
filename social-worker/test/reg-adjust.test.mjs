@@ -182,7 +182,7 @@ check('two letters: the adjustment, then the one with the entry codes', to.lengt
 const eve = subscriber('eve@example.com', 'Eve');
 d = await call('POST', '/reg', form({ people: [person({ name: 'Eve Ma' })] }), eve); const E = (await row(d.code)).id; const eCode = d.code;
 await adjust(E, 100, { why: 'late' }); await act({ id: E, action: 'confirm' }); take();
-d = await act({ id: E, action: 'modify', silent: 1, data: form({ people: [person({ name: 'Eve Ma' })] }) });
+d = await act({ id: E, action: 'modify', silent: 1, data: form({ people: [person({ name: 'Eve Ma', role: 'leader' })] }) });
 check('修改报名 after review, not paid yet: no fee, 1450 + 100 kept', d.ok && d.amount === 1550, d);
 await act({ id: E, action: 'pay', silent: 1, pay: { amount: 1550, method: 'alipay' } }); take();
 d = await act({ id: E, action: 'modify', silent: 1, data: form({ people: [person({ name: 'Eve Ma', items: ['tour'] })] }) });

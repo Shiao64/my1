@@ -94,6 +94,18 @@ tr.sel{background:#fff4d6}
 #mailto .bar{margin-bottom:4px}
 #mailto .bar input[type=email]{flex:1;min-width:0;font-size:16px}
 #mailto .muted{margin:2px 0 0}
+/* 修改报名 (2026-11-26) */
+.mod .mp{border:1px solid var(--line);border-radius:8px;padding:8px;margin:8px 0;background:#fff}
+.mod .mp.gone{color:var(--muted);background:#f6f1e7}
+.mod .mph{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.mod .mph button{padding:3px 10px;font-size:13px}
+.mod label.ck{display:inline-flex;align-items:center;gap:6px;margin:3px 12px 3px 0}
+.mod label.ck input{width:auto}
+.mod .mi{margin:4px 0}
+.mod .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mod .mrm{border-top:1px dashed var(--line);padding-top:6px;margin-top:6px}
+#modPrev div{margin:2px 0}
+@media(max-width:360px){.mod .row2{grid-template-columns:1fr}}
 #mailto .fixed{overflow-wrap:anywhere}
 #mailto .chk{display:flex;gap:8px;align-items:center;font-weight:400;margin:6px 0 0}
 #mailto .chk input{width:20px;height:20px;margin:0}
@@ -287,10 +299,10 @@ var NAME={MV:'周五 欢迎舞会',T1:'周五 一日游',M1:'周六 下午场',M
 var PKG={full:'全程套餐',combo:'周末套餐',pass:'周末舞会4场',single:'单场'};
 var ST={pending:'待审核',confirmed:'待付款',overdue:'逾期',paid:'已付款',cash:'到场付款',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
 var ROLE={leader:'Leader',follower:'Follower',both:'都可以'};
-var ACTS={pending:['confirm','waitlist','decline','plus','minus','cancel'],waitlist:['confirm','decline','plus','minus','cancel'],confirmed:['pay','cash','plus','minus','cancel'],cash:['pay','plus','minus','cancel'],paid:['pay','plus','minus','refund','cancel'],declined:[],cancelled:['refund']};
-var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'到场付款',plus:'加收',minus:'减收',cancel:'取消报名',refund:'记退款'};
+var ACTS={pending:['confirm','waitlist','decline','modify','plus','minus','cancel'],waitlist:['confirm','decline','modify','plus','minus','cancel'],confirmed:['pay','cash','modify','plus','minus','cancel'],cash:['pay','modify','plus','minus','cancel'],paid:['pay','modify','plus','minus','refund','cancel'],declined:[],cancelled:['refund']};
+var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'到场付款',modify:'修改报名',plus:'加收',minus:'减收',cancel:'取消报名',refund:'记退款'};
 // mirrors the backend only to leave out buttons; the backend decides and does not send what a role may not see
-var ACT_NEEDS={confirm:'review',waitlist:'review',decline:'review',pay:'review',cash:'review',plus:'modify',minus:'modify',cancel:'cancel',refund:'refund'};   // 加收、减收: 总管 and 管理员 (调整金额, 2026-11-26)
+var ACT_NEEDS={confirm:'review',waitlist:'review',decline:'review',pay:'review',cash:'review',modify:'modify',plus:'modify',minus:'modify',cancel:'cancel',refund:'refund'};   // 加收、减收: 总管 and 管理员 (调整金额, 2026-11-26)
 var DONE={confirm:'确认',waitlist:'候补',decline:'婉拒',cash:'批准到场付款',pay:'记了收款',refund:'记了退款',cancel:'取消报名',modify:'修改报名',adjust:'调整金额',note:'改了内部备注'};
 var WHO={owner:'管理员',chief:'总管',deputy:'经理',manager:'现场经理'},LEVEL={manager:1,deputy:2,chief:3};
 var LETTER={recv:'收到报名的信',notify:'给主办的新报名通知',confirm:'确认信',waitlist:'候补信',decline:'婉拒信',cash:'到场付款信',paid:'付款确认信',remind:'付款提醒',cancel:'取消信',modify:'修改确认信',adjust:'金额调整信'};
@@ -413,6 +425,20 @@ function errText(d){
   if(e==='need_why')return '没有改：请写给报名者看的说明';
   if(e==='no_hotel')return '这笔没有住宿，不能算在住宿费';
   if(e==='no_payments')return '这笔没有收款纪录：请先记收款，再调整金额';
+  if(e==='need_name')return '第 '+((d.person||0)+1)+' 位：请填名字';
+  if(e==='need_country')return '第 '+((d.person||0)+1)+' 位：请选国家或地区';
+  if(e==='need_city')return '第 '+((d.person||0)+1)+' 位：请填城市';
+  if(e==='need_role')return '第 '+((d.person||0)+1)+' 位：请选角色';
+  if(e==='need_items')return '第 '+((d.person||0)+1)+' 位：还没选项目（单场至少要选一场舞会）';
+  if(e==='bad_people')return '人数不对：一份最多 6 人；报名者不能删（要整份取消）；已删除的不能恢复';
+  if(e==='bad_rooms')return '房间数不对：至少一间，不能比人数多';
+  if(e==='bad_room_type')return '请选房型';
+  if(e==='bad_dates')return '入住、退房日期不对：6/11 到 6/28 之间，退房要晚于入住';
+  if(e==='bad_guests')return '每间房住 1–2 位，而且要是还在报名里的人';
+  if(e==='guest_twice')return '同一个人不能住两间房';
+  if(e==='bad_passport')return '第 '+((d.person||0)+1)+' 位：护照姓名请用英文字母填';
+  if(e==='checked_in')return (d.person||'这位')+' 已经签到「'+(NAME[d.item]||d.item)+'」，这项不能拿掉';
+  if(e==='no_change')return '没有改动';
   if(e==='name_taken')return '已经有这个名字了';
   if(e==='name_reserved')return '这个名字留给管理员，请换一个';
   if(e==='changed'||e==='not_found')return '没有改：别人刚改过或删除了。画面已换成最新的';
@@ -501,6 +527,7 @@ function pplList(){
     if(st==='seated'&&['confirmed','paid','cash'].indexOf(r.status)<0)return;
     if(st==='paid'&&r.status!=='paid')return;
     r.data.people.forEach(function(p,i){
+      if(p.gone)return;   // taken off by 修改报名
       if(role&&p.role!==role)return;
       if(item&&(p.items||[]).indexOf(item)<0)return;
       var has=!!r.data.hotel&&r.data.rooms.some(function(x){return x.guests.indexOf(i)>=0});
@@ -554,7 +581,7 @@ addEventListener('popstate',function(){if(DATA&&S.open){S.open=0;$('side').hidde
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSide()});
 function history_(r){
   var h=[[r.created_at,'提交']],had={};
-  (r.log||[]).forEach(function(l){had[l.action]=1;h.push([l.at,(DONE[l.action]||l.action)+' · '+byName(l.by)])});
+  (r.log||[]).forEach(function(l){had[l.action]=1;h.push([l.at,(DONE[l.action]||l.action)+(l.text?'：'+l.text:'')+' · '+byName(l.by)])});
   // registrations from before the names were kept
   if(r.confirmed_at&&!had.confirm)h.push([r.confirmed_at,'已确认']);
   if(r.cancelled_at&&!had.cancel)h.push([r.cancelled_at,'已取消']);
@@ -568,7 +595,7 @@ function history_(r){
 function side(){
   var r=S.open&&rowOf(S.open);$('side').hidden=!r;if(!r)return;
   var d=r.data,pp=d.passports||[],rest=owed(r);
-  var ppl=d.people.map(function(p,i){var ck=(r.checkins||[]).filter(function(c){return c.person===i}).map(function(c){return NAME[c.item]});
+  var ppl=d.people.map(function(p,i){if(p.gone)return '<li class="muted"><s>'+esc(p.name)+'</s> 已删除（入场码已作废）</li>';var ck=(r.checkins||[]).filter(function(c){return c.person===i}).map(function(c){return NAME[c.item]});
     return '<li><b>'+esc(p.name)+'</b>'+(p.nick?'（'+esc(p.nick)+'）':'')+' '+(i?'同行者':'报名者')+' · '+esc(ROLE[p.role]||'')+'<div class="muted">'+esc(p.city)+' '+esc(country(p.country))+' · '+esc(what(p))+' · '+fmt(p.amount)+
       (p.wechat?'<br>微信：'+esc(p.wechat):'')+(p.facebook?'<br>Facebook：'+esc(p.facebook):'')+(i&&p.email?'<br>'+esc(p.email):'')+(ck.length?'<br>已签到：'+ck.join('、'):'')+'</div></li>'}).join('');
   var rooms=d.hotel?d.rooms.map(function(x,i){return '<li>房间 '+(i+1)+'：'+(x.type==='king'?'大床':'双床')+' · '+esc(x.ci)+' → '+esc(x.co)+' · '+x.nights+' 晚 '+fmt(x.amount)+'<div class="muted">'+x.guests.map(function(g){var q=pp[g]||{};return esc((d.people[g]||{}).name)+(S.show&&d.passports?'：'+esc(q.s)+' / '+esc(q.g):'')}).join('、')+'</div></li>'}).join(''):'';
@@ -602,6 +629,117 @@ function payForm(r,a){
     '<label>备注<input class="pn" placeholder="例如转账单号（可不填）"></label>'+
     '<div class="acts"><button class="p ps">确定</button><button type="button" data-pay-cancel>不记了</button></div></form>';
   $('payForm').scrollIntoView({block:'nearest'})}
+// ---------- 修改报名（总管、管理员）: items, people, hotel; the backend's preview first, then the password (Shiao, 2026-11-26)
+var EXTRA=['MV','T1','S1','T2','MF'],MIL=['M1','M2','M3','M4'],COV={full:['MV','M1','M2','M3','M4','S1','MF'],combo:['M1','M2','M3','M4','S1'],pass:['M1','M2','M3','M4'],single:[]};
+var CTRY=[['CN','中国大陆'],['KR','韩国'],['RU','俄罗斯'],['HK','香港'],['TW','台湾'],['VN','越南'],['JP','日本'],['SG','新加坡'],['MY','马来西亚'],['TH','泰国'],['PH','菲律宾'],['ID','印尼'],['IN','印度'],['AU','澳洲'],['NZ','新西兰'],['US','美国'],['CA','加拿大'],['AR','阿根廷'],['ES','西班牙'],['EU','欧洲其他']];
+var MOD=null,modT=0,modN=0;   // the open form: what it shows, kept here so a redraw loses nothing
+function modOpen(r){
+  var d=r.data;
+  MOD={id:r.id,seen:r.updated_at,from:r.status,code:d.promo&&d.promo.code||'',src:d.src||'',msg:d.msg||'',why:'',nofee:false,over:false,hotel:!!d.hotel,
+    people:d.people.map(function(p,i){return {name:p.name,nick:p.nick||'',email:p.email||'',wechat:p.wechat||'',facebook:p.facebook||'',country:p.country,city:p.city,role:p.role,
+      pkg:p.pkg||'',items:(p.extra||[]).slice(),gone:!!p.gone,was:!!p.gone,isNew:false,ins:(r.checkins||[]).filter(function(c){return c.person===i}).map(function(c){return c.item})}}),
+    rooms:(d.rooms||[]).map(function(x){return {type:x.type,ci:x.ci,co:x.co,guests:x.guests.slice()}}),
+    passports:d.people.map(function(p,i){var q=(d.passports||[])[i]||{};return {s:q.s||'',g:q.g||''}})};
+  modRender();modAsk();$('modForm').scrollIntoView({block:'nearest'})}
+function modOpts(list,cur){return list.map(function(x){return '<option value="'+x[0]+'"'+(x[0]===cur?' selected':'')+'>'+esc(x[1])+'</option>'}).join('')}
+function modName(i){return MOD.people[i].name||(i?'同行者 '+(i+1):'报名者')}
+function modPerson(p,i){
+  var head=(i?'同行者 '+(i+1):'报名者')+(p.isNew?'（新增）':'');
+  if(p.gone)return '<div class="mp gone" data-i="'+i+'"><div class="mph"><span><b>'+esc(head)+'</b> '+esc(p.name)+' · 已删除'+(p.was?'':'（按「确定修改」才算；入场码会作废）')+'</span>'+(p.was?'':'<button type="button" data-mundo="'+i+'">恢复</button>')+'</div></div>';
+  var free=p.pkg&&p.pkg!=='single'?EXTRA.filter(function(c){return COV[p.pkg].indexOf(c)<0}):MIL.concat(EXTRA);
+  var box=free.map(function(c){var on=p.items.indexOf(c)>=0,lock=on&&p.ins.indexOf(c)>=0;
+    return '<label class="ck"><input type="checkbox" data-mitem="'+c+'"'+(on?' checked':'')+(lock?' disabled':'')+'>'+esc(NAME[c])+(lock?'（已签到）':'')+'</label>'}).join('');
+  var inPkg=p.ins.filter(function(c){return (COV[p.pkg]||[]).indexOf(c)>=0}).map(function(c){return NAME[c]});
+  return '<div class="mp" data-i="'+i+'"><div class="mph"><b>'+esc(head)+'</b>'+(i&&!p.ins.length?'<button type="button" data-mdel="'+i+'">删除这位</button>':'')+'</div>'+
+    '<label>名字<input data-mf="name" value="'+esc(p.name)+'" maxlength="80"></label>'+
+    '<label>角色<select data-mf="role">'+modOpts([['leader','Leader'],['follower','Follower'],['both','都可以']],p.role)+'</select></label>'+
+    (p.isNew?'<label>国家或地区<select data-mf="country">'+modOpts(CTRY,p.country)+'</select></label><label>城市<input data-mf="city" value="'+esc(p.city)+'" maxlength="80"></label>':'')+
+    '<label>套餐<select data-mf="pkg">'+modOpts([['full',PKG.full],['combo',PKG.combo],['pass',PKG.pass],['single','单场（自己选场次）'],['','不选套餐（只选下面的项目）']],p.pkg)+'</select></label>'+
+    (inPkg.length?'<p class="muted">已签到：'+esc(inPkg.join('、'))+'（换套餐时要留着）</p>':'')+
+    '<div class="mi">'+box+'</div></div>'}
+function modHotel(){
+  var act=MOD.people.map(function(p,i){return p.gone?-1:i}).filter(function(i){return i>=0});
+  var h='<div class="mp"><div class="mph"><b>住宿</b></div><label class="ck"><input type="checkbox" data-mhotel'+(MOD.hotel?' checked':'')+'>要订房</label>';
+  if(MOD.hotel){
+    h+=MOD.rooms.map(function(x,j){return '<div class="mrm" data-j="'+j+'"><div class="mph"><span>房间 '+(j+1)+'</span><button type="button" data-mrdel="'+j+'">删除这间</button></div>'+
+      '<label>房型<select data-mr="type">'+modOpts([['king','大床（¥500／晚）'],['twin','双床（¥550／晚）']],x.type)+'</select></label>'+
+      '<div class="row2"><label>入住<input type="date" data-mr="ci" value="'+esc(x.ci)+'" min="2027-06-11" max="2027-06-27"></label><label>退房<input type="date" data-mr="co" value="'+esc(x.co)+'" min="2027-06-12" max="2027-06-28"></label></div>'+
+      '<div class="mi">住的人（1–2 位）：'+act.map(function(i){return '<label class="ck"><input type="checkbox" data-mg="'+i+'"'+(x.guests.indexOf(i)>=0?' checked':'')+'>'+esc(modName(i))+'</label>'}).join('')+'</div></div>'}).join('');
+    if(MOD.rooms.length<act.length)h+='<button type="button" data-mradd>加一间</button>';
+    h+='<p class="muted">护照姓名（英文字母，订房用）</p>'+act.map(function(i){var q=MOD.passports[i]||{s:'',g:''};
+      return '<div class="row2" data-mpp="'+i+'"><label>'+esc(modName(i))+' 姓<input data-mps="s" value="'+esc(q.s)+'" maxlength="60"></label><label>名<input data-mps="g" value="'+esc(q.g)+'" maxlength="60"></label></div>'}).join('')}
+  return h+'</div>'}
+function modRender(){
+  var n=MOD.people.filter(function(p){return !p.gone}).length;
+  $('payBox').innerHTML='<form class="form mod" id="modForm" data-act="modify"><h2>修改报名</h2>'+
+    '<p class="muted">改项目、人、住宿。价钱照报名时的价格表算（早鸟价、朋友价照算）；付款前改动不收手续费，收过钱以后第一次改动收 ¥50。已签到的项目不能拿掉。</p>'+
+    MOD.people.map(modPerson).join('')+(n<6?'<button type="button" data-madd>新增一位同行者</button>':'')+modHotel()+
+    '<label class="ck" id="mNoFeeL" hidden><input type="checkbox" id="mNoFee"'+(MOD.nofee?' checked':'')+'>这次不收手续费 ¥50（例如主办自己改了场次）</label>'+
+    '<label class="ck" id="mOverL" hidden><input type="checkbox" id="mOver"'+(MOD.over?' checked':'')+'>名额已满，仍要超额加入</label>'+
+    '<label>给报名者看的说明<input id="mWhy" maxlength="200" value="'+esc(MOD.why)+'" placeholder="会写进修改确认信（可不填）"></label>'+
+    '<div class="muted" id="modPrev">正在算…</div>'+
+    '<div class="acts"><button class="p ps" id="mGo" disabled>确定修改</button><button type="button" data-pay-cancel>不改了</button></div></form>'}
+function modCollect(){var f=$('modForm');if(!f||!MOD)return;
+  f.querySelectorAll('.mp[data-i]').forEach(function(el){var p=MOD.people[+el.dataset.i];if(!p||p.gone)return;
+    el.querySelectorAll('[data-mf]').forEach(function(x){p[x.dataset.mf]=x.tagName==='INPUT'?x.value.trim():x.value});
+    var on=[];el.querySelectorAll('[data-mitem]').forEach(function(x){if(x.checked)on.push(x.dataset.mitem)});p.items=on});
+  var hy=f.querySelector('[data-mhotel]');MOD.hotel=!!(hy&&hy.checked);
+  f.querySelectorAll('.mrm').forEach(function(el){var x=MOD.rooms[+el.dataset.j];if(!x)return;
+    el.querySelectorAll('[data-mr]').forEach(function(i){x[i.dataset.mr]=i.value});
+    x.guests=[];el.querySelectorAll('[data-mg]').forEach(function(i){if(i.checked)x.guests.push(+i.dataset.mg)})});
+  f.querySelectorAll('[data-mpp]').forEach(function(el){var k=+el.dataset.mpp,q=MOD.passports[k]=MOD.passports[k]||{s:'',g:''};
+    el.querySelectorAll('[data-mps]').forEach(function(i){q[i.dataset.mps]=i.value.trim().toUpperCase()})});
+  MOD.why=$('mWhy').value.trim();MOD.nofee=$('mNoFee').checked;MOD.over=$('mOver').checked}
+function modPayload(){
+  return {code:MOD.code,src:MOD.src,msg:MOD.msg,hotel:MOD.hotel?'yes':'no',
+    people:MOD.people.map(function(p){var q={name:p.name,nick:p.nick,email:p.email,wechat:p.wechat,facebook:p.facebook,country:p.country,city:p.city,role:p.role,pkg:p.pkg,items:p.items.slice()};if(p.gone)q.gone=true;return q}),
+    rooms:MOD.hotel?MOD.rooms.map(function(x){return {type:x.type,ci:x.ci,co:x.co,guests:x.guests.slice()}}):[],
+    passports:MOD.hotel?MOD.people.map(function(p,i){return MOD.passports[i]||{s:'',g:''}}):[]}}
+function modBody(){return {id:MOD.id,action:'modify',from:MOD.from,seen:MOD.seen,data:modPayload(),nofee:MOD.nofee?1:0,over:MOD.over?1:0,why:MOD.why}}
+function modAsk(){clearTimeout(modT);modT=setTimeout(modPreview,300)}
+function modPreview(){if(!MOD||!$('modForm'))return;var n=++modN,r=rowOf(MOD.id);if(!r)return;
+  $('mGo').disabled=true;var body=modBody();body.preview=1;
+  act('/act',body).then(function(d){
+    if(n!==modN||!$('modForm'))return;   // a newer one is on its way
+    var box=$('modPrev');
+    if(!d.ok){box.innerHTML='<p class="why">'+esc(errText(d))+'</p>';$('mNoFeeL').hidden=$('mOverL').hidden=true;return}
+    $('mNoFeeL').hidden=!(d.feeWhy==='first'||d.feeWhy==='waived');$('mOverL').hidden=!d.full;
+    var l=d.same?['还没有改动']:(d.changes||[]).slice();
+    l.push('合计 '+fmt(d.was)+' → '+fmt(d.amount)+'，已收 '+fmt(d.paid));
+    l.push(d.feeWhy==='unpaid'?'还没付款：不收手续费':d.feeWhy==='first'?'付款后第一次改动：收手续费 ¥50（已算进合计）':d.feeWhy==='had'?'之前已收过手续费：这次不再收':'这次不收手续费');
+    if(d.keep)l.push('6/11 之后改少：差价 '+fmt(d.keep)+' 依规定不退（会自动记一笔加收）');
+    if(d.status!==r.status)l.push('会变成「'+(ST[d.status]||d.status)+'」'+(d.status==='cash'?'：入场码照样能用，门口收齐才入场':d.status==='paid'?'，入场码会寄给报名者':''));
+    if(d.rest&&d.status!=='pending'&&d.status!=='waitlist')l.push('还差 '+fmt(d.rest));
+    if(d.over)l.push('多付 '+fmt(d.over)+'：改完后在这里按「记退款」退还');
+    if(d.full)l.push((NAME[d.full.item]||d.full.item)+' 只剩 '+d.full.left+' 位，这笔要 '+d.full.need+' 位'+(MOD.over?'：会超额加入':'：要超额加入，请勾上面那格'));
+    if(!d.same)l.push('会寄「修改确认信」给报名者，写明改了什么');
+    box.innerHTML=l.map(function(s){return '<div>'+esc(s)+'</div>'}).join('');
+    $('mGo').disabled=!!d.same||(!!d.full&&!MOD.over)})}
+function modSubmit(){
+  if(!MOD)return;modCollect();var r=rowOf(MOD.id),b=$('mGo');if(!r)return;b.disabled=true;
+  var body=modBody();
+  withPin('修改报名前请再输一次密码','总管修改报名要再输一次。',function(pin){body.pin=pin;return act('/act',body)}).then(function(d){
+    if(!d.ok){b.disabled=false;return refused(d)}
+    MOD=null;
+    toast(r.code+' 已修改，现在合计 '+fmt(d.amount)+(d.status!==r.status?'，变成「'+(ST[d.status]||d.status)+'」':'')+(d.over?'，要退还多付 '+fmt(d.over):'')+(d.rest&&d.status!=='pending'&&d.status!=='waitlist'?'，还差 '+fmt(d.rest):'')+mailTip(d),d.mail==='failed'?12000:6000);load()})}
+function modClick(b){
+  modCollect();
+  if(b.hasAttribute('data-madd')){var p0=MOD.people[0];MOD.people.push({name:'',nick:'',email:'',wechat:'',facebook:'',country:p0.country,city:p0.city,role:'follower',pkg:'pass',items:[],gone:false,was:false,isNew:true,ins:[]});MOD.passports.push({s:'',g:''})}
+  else if(b.dataset.mdel){var i=+b.dataset.mdel;
+    if(MOD.people[i].isNew){MOD.people.splice(i,1);MOD.passports.splice(i,1);MOD.rooms.forEach(function(x){x.guests=x.guests.filter(function(g){return g!==i}).map(function(g){return g>i?g-1:g})})}
+    else{MOD.people[i].gone=true;MOD.rooms.forEach(function(x){x.guests=x.guests.filter(function(g){return g!==i})})}}
+  else if(b.dataset.mundo)MOD.people[+b.dataset.mundo].gone=false;
+  else if(b.hasAttribute('data-mradd'))MOD.rooms.push({type:'king',ci:'2027-06-18',co:'2027-06-20',guests:[]});
+  else if(b.dataset.mrdel)MOD.rooms.splice(+b.dataset.mrdel,1);
+  else return false;
+  modRender();modAsk();return true}
+$('side').addEventListener('change',function(e){var t=e.target;if(!MOD||!t.closest('#modForm'))return;
+  if(t.dataset.mf==='pkg'){var p=MOD.people[+t.closest('.mp').dataset.i],old=p.pkg;modCollect();   // what the old package held stays picked, unless the new one holds it
+    var all=(COV[old]||[]).concat(p.items);p.items=all.filter(function(c,k){return all.indexOf(c)===k&&(COV[p.pkg]||[]).indexOf(c)<0});modRender()}
+  else if(t.hasAttribute('data-mhotel')){modCollect();if(MOD.hotel&&!MOD.rooms.length)MOD.rooms.push({type:'king',ci:'2027-06-18',co:'2027-06-20',guests:[0]});modRender()}
+  else modCollect();
+  modAsk()});
+$('side').addEventListener('input',function(e){if(MOD&&e.target.closest('#modForm')){modCollect();modAsk()}});
 // ---------- 调整金额（加收、减收；总管、管理员）: money only, what they registered for stays (Shiao, 2026-11-26)
 function adjAfter(r,sign,n,part){
   var paid=r.paid_total||0,st=r.status,base=part==='hotel'?(r.hotel_amount||0):r.amount-(r.hotel_amount||0),amt=r.amount+sign*n;
@@ -653,6 +791,7 @@ function refused(d){
 $('side').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target,id=S.open,a=f.dataset.act,b=f.querySelector('.ps'),v=function(c){return f.querySelector(c).value.trim()};
   if(a==='adjust')return adjSubmit(f);
+  if(a==='modify')return modSubmit();
   b.disabled=true;
   var body={id:id,action:a,from:f.dataset.from,pay:{seen:+f.dataset.seen,amount:+v('.pa'),method:v('.pm'),collector:v('.pc'),note:v('.pn')}};
   (a==='refund'?withPin('退款前请再输一次密码','总管退款要再输一次。',function(pin){body.pin=pin;return act('/act',body)}):act('/act',body)).then(function(d){
@@ -662,7 +801,8 @@ $('side').addEventListener('click',function(e){
   var b=e.target.closest('button');if(!b)return;var r=rowOf(S.open);if(!r)return;
   if(b.hasAttribute('data-close'))return closeSide();
   if(b.hasAttribute('data-show')){S.show=!S.show;return side()}
-  if(b.hasAttribute('data-pay-cancel')){$('payBox').innerHTML='';return}
+  if(b.hasAttribute('data-pay-cancel')){$('payBox').innerHTML='';MOD=null;return}
+  if(MOD&&b.closest('#modForm')&&b.type==='button'&&modClick(b))return;
   if(b.dataset.next)return openSide(+b.dataset.next);
   if(b.hasAttribute('data-save')){
     var text=$('side').querySelector('[data-note]').value,was=r.id in bases?bases[r.id]:r.note||'';b.disabled=true;
@@ -674,6 +814,7 @@ $('side').addEventListener('click',function(e){
   var a=b.dataset.a;if(!a)return;
   if(a==='pay'||a==='refund')return payForm(r,a);
   if(a==='plus'||a==='minus')return adjForm(r,a);
+  if(a==='modify')return modOpen(r);
   if(!confirm('确定要「'+ACT_NAME[a]+'」'+r.code+'（'+r.data.people[0].name+'，'+r.people+' 人，'+fmt(r.amount)+'）吗？会试着寄信通知报名者。'))return;
   var l=S.tab==='regs'?regList():[],k=l.map(function(x){return x.id}).indexOf(r.id),after=k>=0&&l[k+1]?l[k+1].id:0;
   b.disabled=true;
