@@ -86,8 +86,8 @@ take();
 // --- who may, and what is refused (a pending one: ¥1450)
 const amy = subscriber('amy@example.com', 'Amy');
 let d = await call('POST', '/reg', form(), amy);
-check('amy registered', d.ok && d.code === 'BJ27-0001' && d.total === 1450, d);
-const A = (await row('BJ27-0001')).id;
+check('amy registered', d.ok && d.code === 'BJ27-0101' && d.total === 1450, d);
+const A = (await row('BJ27-0101')).id;
 take();
 d = await adjust(A, 200, {}, DP); check('经理 may not adjust', d._s === 403 && d.error === 'no_permission', d);
 d = await adjust(A, 200, {}, CH); check('总管 without the password: asked for it', d._s === 401 && d.error === 'pin_needed', d);
@@ -97,19 +97,19 @@ d = await adjust(A, 0); check('¥0 refused', d._s === 400 && d.error === 'bad_am
 d = await adjust(A, 'x'); check('not a number refused', d._s === 400 && d.error === 'bad_amount', d);
 d = await adjust(A, -300, { part: 'hotel' }); check('no hotel: nothing to take off it', d._s === 400 && d.error === 'no_hotel', d);
 d = await adjust(A, -1451); check('never below ¥0: says how much at most', d._s === 400 && d.error === 'bad_amount' && d.max === 1450, d);
-check('nothing written by the refused ones', dbRow('BJ27-0001').amount === 1450 && !db.prepare("SELECT 1 FROM reg_log WHERE action='adjust'").get() && take().length === 0);
+check('nothing written by the refused ones', dbRow('BJ27-0101').amount === 1450 && !db.prepare("SELECT 1 FROM reg_log WHERE action='adjust'").get() && take().length === 0);
 
 // --- pending: +200 by the 总管 with the password
 d = await adjust(A, 200, { pin: '730195', why: 'one more night', note: 'asked on WeChat' }, CH);
 let ms = take(), to = mine(ms, 'amy@example.com');
 check('总管 adds ¥200: total 1650, still pending', d.ok && d.amount === 1650 && d.status === 'pending', d);
-check('amy gets the 金额调整 letter', to.length === 1 && to[0].subject === 'Amount changed · BJ27-0001', ms.map(m => m.to + ' ' + m.subject));
+check('amy gets the 金额调整 letter', to.length === 1 && to[0].subject === 'Amount changed · BJ27-0101', ms.map(m => m.to + ' ' + m.subject));
 check('the letter: what changed, why, the totals, what next', /an extra charge of ¥200/.test(to[0].body) && /Note from the organizers: one more night/.test(to[0].body)
   && /Previous total ¥1,450, new total ¥1,650, paid so far ¥0/.test(to[0].body) && /once your registration is confirmed will use the new amount/.test(to[0].body), to[0].body);
 check('the internal note never reaches the registrant', !/asked on WeChat/.test(to[0].body));
-check('the organizers get a copy, without the internal note', ms.some(m => m.to === BOSS && /\[副本\] Amount changed · BJ27-0001/.test(m.subject) && !/asked on WeChat/.test(m.body)), ms.map(m => m.to + ' ' + m.subject));
+check('the organizers get a copy, without the internal note', ms.some(m => m.to === BOSS && /\[副本\] Amount changed · BJ27-0101/.test(m.subject) && !/asked on WeChat/.test(m.body)), ms.map(m => m.to + ' ' + m.subject));
 d = await adjust(A, 100, { seen: 1450 }); check('a screen that showed the old total: refused, says who', d._s === 409 && d.error === 'bad_state' && d.last && d.last.action === 'adjust' && d.last.by === '刘峥', d);
-let r = await row('BJ27-0001');
+let r = await row('BJ27-0101');
 check('the list shows the adjustment with its note and who', r.adjusts.length === 1 && r.adjusts[0].d === 200 && r.adjusts[0].why === 'one more night' && r.adjusts[0].note === 'asked on WeChat' && r.adjusts[0].by === '刘峥', r.adjusts);
 check('not twice in the history', !r.log.some(l => l.action === 'adjust'), r.log);
 d = await me(amy);
@@ -118,7 +118,7 @@ check('amy sees it on the page, without the note', d.reg.amount === 1650 && d.re
 d = await call('POST', '/reg', form(), amy); ms = take();
 check('the same form again at once: same press, no second letter', d.ok && d.total === 1650 && !mine(ms, 'amy@example.com').length, { d, ms: ms.map(m => m.subject) });
 d = await call('POST', '/reg', form({ people: [person({ pkg: 'pass' })] }), amy); take();
-check('edited to the ¥700 pass: 700 + 200', d.ok && d.total === 900 && dbRow('BJ27-0001').amount === 900, d);
+check('edited to the ¥700 pass: 700 + 200', d.ok && d.total === 900 && dbRow('BJ27-0101').amount === 900, d);
 
 // --- confirmed: the payment letter and −100
 d = await act({ id: A, action: 'confirm' }); ms = take();
@@ -149,7 +149,7 @@ d = await act({ id: A, action: 'refund', from: 'paid', pay: { amount: 600, metho
 d = await act({ id: A, action: 'refund', from: 'paid', pay: { amount: 500, method: 'wechat', seen: 500 }, pin: '730195' }, CH);
 check('refunded 500, nothing more due', d.ok && d.due === 0, d);
 d = await act({ id: A, action: 'refund', from: 'paid', pay: { amount: 1, method: 'wechat' } }); check('nothing left to refund', d._s === 409 && d.error === 'already_refunded', d);
-check('still paid, 600 held for a 600 total', dbRow('BJ27-0001').status === 'paid' && db.prepare('SELECT SUM(amount) s FROM reg_payment WHERE reg_id=?').get(A).s === 600);
+check('still paid, 600 held for a 600 total', dbRow('BJ27-0101').status === 'paid' && db.prepare('SELECT SUM(amount) s FROM reg_payment WHERE reg_id=?').get(A).s === 600);
 // cancelling afterwards refunds from the adjusted amount
 d = await act({ id: A, action: 'cancel', from: 'paid' }); take();
 check('cancel: 600 held − ¥50 fee = 550 still to return (1,050 refunded in all)', d.ok && d.refundLeft === 550 && d.refund === 1050, d);
@@ -161,7 +161,7 @@ d = await call('POST', '/reg', form({ people: [person({ name: 'Bob Kim' })], hot
 check('bob with a hotel: 1450 + 1000', d.ok && d.total === 2450, d);
 const B = (await row(d.code)).id; take();
 d = await adjust(B, -300, { part: 'hotel', why: 'hotel discount' }); take();
-check('−300 on the hotel: both totals', d.ok && d.amount === 2150 && dbRow('BJ27-0002').hotel_amount === 700, { d, hotel: dbRow('BJ27-0002').hotel_amount });
+check('−300 on the hotel: both totals', d.ok && d.amount === 2150 && dbRow('BJ27-0102').hotel_amount === 700, { d, hotel: dbRow('BJ27-0102').hotel_amount });
 d = await adjust(B, -800, { part: 'hotel' }); check('the hotel part never below ¥0', d._s === 400 && d.error === 'bad_amount' && d.max === 700, d);
 d = await adjust(B, -1500); check('the registration part never below ¥0', d._s === 400 && d.error === 'bad_amount' && d.max === 1450, d);
 
@@ -212,7 +212,7 @@ for (const l of ['es', 'ru']) {
 d = await call('GET', '/admin/reg?event=bstw2027&format=csv', null, ADMIN);
 const csv = d._text.replace(/^﻿/, '').split('\n'), head = csv[0].split(',');
 check('export: two new columns at the end', head.slice(-2).join(',') === 'adjust,adjust_why', head.slice(-3));
-const amyLine = csv.find(l => l.startsWith('BJ27-0001,'));
+const amyLine = csv.find(l => l.startsWith('BJ27-0101,'));
 check('export: amy −100 in all, with each reason', amyLine && /,-100,"?加收 200 one more night; 减收 100 volunteer; 加收 300 room upgrade; 减收 500 session cancelled"?$/.test(amyLine), amyLine);
 
 orig(`reg-adjust: ${passed} passed, ${fail.length} failed`);

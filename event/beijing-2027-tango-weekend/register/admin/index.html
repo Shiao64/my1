@@ -305,7 +305,7 @@ var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款
 var ACT_NEEDS={confirm:'review',waitlist:'review',decline:'review',pay:'review',cash:'review',modify:'modify',plus:'modify',minus:'modify',cancel:'cancel',refund:'refund'};   // 加收、减收: 总管 and 管理员 (调整金额, 2026-11-26)
 var DONE={confirm:'确认',waitlist:'候补',decline:'婉拒',cash:'批准到场付款',pay:'记了收款',refund:'记了退款',cancel:'取消报名',modify:'修改报名',adjust:'调整金额',note:'改了内部备注'};
 var WHO={owner:'管理员',chief:'总管',deputy:'经理',manager:'现场经理'},LEVEL={manager:1,deputy:2,chief:3};
-var LETTER={recv:'收到报名的信',notify:'给主办的新报名通知',confirm:'确认信',waitlist:'候补信',decline:'婉拒信',cash:'到场付款信',paid:'付款确认信',part:'部分收款信',remind:'付款提醒',cancel:'取消信',modify:'修改确认信',adjust:'金额调整信'};
+var LETTER={recv:'收到报名的信',notify:'给主办的新报名通知',confirm:'确认信',waitlist:'候补信',decline:'婉拒信',cash:'到场付款信',paid:'付款确认信',part:'部分收款信',replyin:'报名者回信没转到组织者（请查管理员邮箱；那里也没有的话，信已退回寄件人）',remind:'付款提醒',cancel:'取消信',modify:'修改确认信',adjust:'金额调整信'};
 function mailTip(d){return d.mail==='sent'?'，信已寄出':d.mail==='failed'?'。但信没寄出，请自己联系报名者':''}
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'};
 var SITE=[['site','现场']];
