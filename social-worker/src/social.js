@@ -286,7 +286,15 @@ async function confirmLink(req, env, url) {
 
 function regKit() { return { ...goingKit(), user }; }
 // Mail to a 活动专属邮箱 (live.js email). false: not one, the caller handles it as before (huodong@).
-export function regInboundMail(message, env) { return REG().then(m => m.regInbound(message, env, regKit())).catch(e => { if (/no such table/i.test(String(e && e.message))) return false; throw e; }); }
+export function regInboundMail(message, env) { return REG().then(m => m.regInbound(message, env, regKit())).catch(async e => { if (/no such table/i.test(String(e && e.message))) return false; await keepLost(message, env, e); return true; }); }
+// A letter that could not be handled is not swallowed: the message goes on as it is to the 管理员's fixed address (a
+// verified Email Routing destination); if even that fails, the sender gets it back and knows to write again.
+async function keepLost(message, env, why) {
+  console.log('tp inbound', String(why && why.message || why).slice(0, 160));
+  try { await message.forward(String(env.REG_NOTIFY || 'selecttango@gmail.com').trim()); return; }
+  catch (e) { console.log('tp inbound forward', String(e && e.message || e).slice(0, 160)); }
+  message.setReject('This message could not be received just now. Please send it again later.');
+}
 export function regCron(env) { return REG().then(m => m.regRemind(env, regKit())).catch(e => { if (/no such table/i.test(String(e && e.message))) return { sent: 0 }; throw e; }); }   // quiet until migration 0020 runs
 function goingKit() { return { sha, he, clean, now, rnd, turnstile, humanCheck: HUMAN_CHECK, deliver, safeNext, emailParam, confirmPage, confirmFields, issueSession, applyList, EMAIL_RE, ID_RE, DEV_RE }; }
 export async function social(req, env, url, json) {
