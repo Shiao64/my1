@@ -585,7 +585,7 @@ function side(){
     (r.mail_failed||[]).map(function(m){return '<p class="why" data-unsent>信没寄出：'+esc(LETTER[m.action]||m.action)+'（'+bj(m.at).slice(5)+'）</p>'}).join('')+
     '<ul>'+ppl+rooms+'</ul>'+(d.hotel&&can('passport')?'<button data-show>'+(S.show?'隐藏护照姓名':'显示护照姓名')+'</button>':'')+
     '<div class="cards">'+card('应收',fmt(r.amount),r.status==='confirmed'&&r.due_at?'期限 '+bj(r.due_at).slice(0,10):r.fee?'含手续费 '+fmt(r.fee):'全部人合计')+
-      (r.status==='cancelled'?card('应退',fmt(r.refund),'已收净额 '+fmt(r.paid_total)):over(r)?card('退还多付',fmt(over(r)),'已收 '+fmt(r.paid_total),'',true):card('尚欠',fmt(r.status==='pending'||r.status==='waitlist'?r.amount:rest),'已收 '+fmt(r.paid_total)))+'</div>'+
+      (r.status==='cancelled'?card('应退',fmt(r.refund),'已收净额 '+fmt(r.paid_total)+(r.refund===0&&r.paid_total>0?' · 依规定不退':'')):over(r)?card('退还多付',fmt(over(r)),'已收 '+fmt(r.paid_total),'',true):card('尚欠',fmt(r.status==='pending'||r.status==='waitlist'?r.amount:rest),'已收 '+fmt(r.paid_total)))+'</div>'+
     (adjSum(r)?'<p class="muted">应收已含调整金额 '+(adjSum(r)>0?'+':'−')+fmt(Math.abs(adjSum(r)))+'（见处理纪录）</p>':'')+
     (r.fee&&r.status==='confirmed'?'<p class="muted">含手续费 '+fmt(r.fee)+'</p>':'')+
     (r.promo?'<p class="muted">折扣码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':'')+'</p>':'')+
@@ -679,7 +679,7 @@ $('side').addEventListener('click',function(e){
   b.disabled=true;
   act('/act',{id:r.id,action:a,from:r.status}).then(function(d){
     if(!d.ok){b.disabled=false;return refused(d)}
-    toast(r.code+' 已'+ACT_NAME[a]+(d.refund!=null&&a==='cancel'?'，应退 '+fmt(d.refund):'')+mailTip(d),d.mail==='failed'?12000:4000);
+    toast(r.code+' 已'+ACT_NAME[a]+(d.refund!=null&&a==='cancel'?(d.refund===0?'，依规定不退款':'，应退 '+fmt(d.refund)):'')+mailTip(d),d.mail==='failed'?12000:4000);
     // reviewing one by one: go straight on to the next one that is waiting
     if(S.st==='pending'&&after&&S.open===r.id&&(a==='confirm'||a==='waitlist'||a==='decline')){S.open=after;S.show=false;$('side').scrollTop=0}
     load()})});

@@ -219,13 +219,13 @@ check('second modify: fee still once', d.amount === 700 + 50, d);
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'paid' }, ADMIN); check('mark paid', d.status === 'paid');
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'cancel' }, ADMIN); check('cancel paid → refund minus ¥50 once', d.status === 'cancelled' && d.refund === 700, d);
 d = await call('GET', '/reg/left?event=bstw2027'); check('cancel frees seats', d.left.M1 === 298, d.left);
-// hotel refund after 6/11 — use a direct row with paid hotel
-const late = R.EVENTS.bstw2027; const saved = late.hotelRefundBy; late.hotelRefundBy = '2000-01-01';
+// cancelled after the refund date (6/11; since 2026-11-26 the hotel too) — a direct row with paid hotel
+const late = R.EVENTS.bstw2027; const saved = late.refundBy; late.refundBy = '2000-01-01';
 db.prepare("INSERT INTO reg(event,code,email,status,people,data,amount,hotel_amount,created_at,updated_at) VALUES('bstw2027','H-1','h@h.com','paid',1,?,3950,2500,'2026-12-01','2026-12-01')")
   .run(JSON.stringify({ people: [person({ items: [] })], rooms: [], passports: [] }));
 const hid = db.prepare("SELECT id FROM reg WHERE code='H-1'").get().id;
-d = await call('POST', '/admin/reg/act', { id: hid, action: 'cancel', silent: 1 }, ADMIN); check('late cancel keeps hotel', d.refund === 3950 - 50 - 2500, d);
-late.hotelRefundBy = saved;
+d = await call('POST', '/admin/reg/act', { id: hid, action: 'cancel', silent: 1 }, ADMIN); check('late cancel: nothing back, hotel included', d.refund === 0, d);
+late.refundBy = saved;
 // registration-only password works for registration admin only
 env.REG_ADMIN_TOKEN = 'r'.repeat(32);
 d = await call('GET', '/admin/reg?event=bstw2027', null, env.REG_ADMIN_TOKEN); check('REG_ADMIN_TOKEN opens registration admin', d._s === 200 && Array.isArray(d.rows));
@@ -560,8 +560,8 @@ check('QR hidden without key', q2.status === 404);
     await call('POST', '/reg', form(), t);
     const d = await call('POST', '/reg', form({ people: [person({ pkg: 'pass' })] }), t);
     check('a changed form still updates the waiting one', d.ok && d.updated && d.total === 700, d); }
-  // 3. the hotel refund date ends at Beijing midnight
-  for (const [at, want] of [['2027-06-11T23:59:59+08:00', 2400], ['2027-06-12T00:00:00+08:00', 1400]]) {
+  // 3. the refund date ends at Beijing midnight: after it nothing back, hotel included (2026-11-26)
+  for (const [at, want] of [['2027-06-11T23:59:59+08:00', 2400], ['2027-06-12T00:00:00+08:00', 0]]) {
     const email = `cut${want}@example.test`, t = subscriber(email, 'Cut');
     const reg = await call('POST', '/reg', form({ hotel: 'yes', rooms: [{ type: 'king', ci: '2027-06-18', co: '2027-06-20', guests: [0] }], passports: [{ s: 'TEST', g: 'CUT' }] }), t);
     const id = db.prepare('SELECT id FROM reg WHERE code=?').get(reg.code).id;
@@ -571,7 +571,7 @@ check('QR hidden without key', q2.status === 404);
     globalThis.Date = class extends Real { constructor(...a) { super(...(a.length ? a : [now])); } static now() { return now; } };
     const d = await call('POST', '/admin/reg/act', { id, action: 'cancel', silent: 1 }, ADMIN);
     globalThis.Date = Real;
-    check('hotel refund, Beijing time ' + at, d.refund === want, d);
+    check('refund date, Beijing time ' + at, d.refund === want, d);
   }
   const mine = "SELECT id FROM reg WHERE email LIKE '%@example.test'";
   for (const t of ['reg_payment', 'reg_log']) db.exec(`DELETE FROM ${t} WHERE reg_id IN (${mine})`);
