@@ -305,11 +305,11 @@
 
 **测试工具**：`…/register/draft/?demo=1` 只看画面、不连后台、什么都不寄；`?api=http://localhost:…` 连本机后台。
 
-**12/1 切换步骤**（2026-11-25 Shiao 定；11/30 北京时间白天做，每一步做之前先问 Shiao；改后端、Cloudflare 都要先问）
+**12/1 切换步骤**（2026-11-25 Shiao 定；11/26 Shiao 同意改成「先合并、再部署」：后台部署走 GitHub Actions「API deploy」，它只部署 main。11/30 北京时间白天做，每一步做之前先问 Shiao；改后端、Cloudflare 都要先问）
 做法：11/30 白天就把东西都放上去，报名页和活动页的按钮到**北京时间 12/1 00:00 自己打开**，后台在正式模式下也挡 00:00 以前的报名；半夜不用有人守。中国大陆的舞者 12/1 起也能报名，系统不拦，团队人工审核（Shiao 11/25）。
-1. 开工：`git fetch`，确认 main 的 worker 程序没有别人新改；把上线 PR 接到最新的 main。
-2. 记 D1 书签：`subscribe-worker/` 里 `npx wrangler@3 d1 time-travel info tango-subscribe`。
-3. 清测试资料。Shiao 11/25 确认：线上 27 笔报名（BJ27-0001 到 0027）**全是测试**。先数一次（11/25 是 27 笔报名、6 笔收款、2 次签到、114 条纪录；之后又多的测试报名先列给 Shiao 看），对得上才删：
+1. 开工：`git fetch`，确认 main 的 worker 程序没有别人新改；把上线 PR 接到最新的 main，本机测试再跑一次（后台全套、`launch-ui`、`hotel-check`、`adjust-ui`）。
+2. 记 D1 书签：`subscribe-worker/` 里 `npx wrangler@3 d1 time-travel info tango-subscribe`（这是删测试资料以前的还原点）。同时用 `npx wrangler@3 deployments list` 记下现在的 worker 版本，回退要用。
+3. 清测试资料。Shiao 11/25 确认：线上的报名**全是测试**（11/25 是 27 笔，11/26 联合测试后是 31 笔：BJ27-0001 到 0031）。先数一次报名、收款、签到、处理纪录，把 0028 以后新加的列给 Shiao 看，对得上才删：
    ```sql
    DELETE FROM reg_checkin WHERE reg_id IN (SELECT id FROM reg WHERE event='bstw2027');
    DELETE FROM reg_payment WHERE reg_id IN (SELECT id FROM reg WHERE event='bstw2027');
@@ -317,14 +317,14 @@
    DELETE FROM reg WHERE event='bstw2027';
    ```
    留着：3 张收款码、张竟文和刘峥的账号和手机、活动邮箱设定、网站会员账号。没有测试用的工作人员要删（11/25 查过）。删完正式编号从 BJ27-0001 开始。
-4. 部署 worker（上线 PR 的后台：信里「回到报名页」改成 `register/`；正式模式下 12/1 00:00 以前回 `not_open_yet`）。
-5. Cloudflare 设 `REG_LIVE=1`（Shiao 同意）。从这时起：信直接寄报名者本人、不加「[TEST]」「[测试]」，测试名单不起作用；00:00 以前没人报得进来。
-6. 合并上线 PR（网页）：报名页搬到 `register/`（拿掉测试横幅、可被搜寻；00:00 前显示开放时间，时间到自己打开报名表）；`draft/` 转到 `register/`（保留 `?lang`、`#pay`／`#passes`）；中文预告页 `zh/register/` 转到 `register/?lang=zh`；中英文活动页的报名按钮 00:00 自己打开；地图提醒条 `reg-notice.js` 指向 `register/`（两张地图页 `?v=rn10`）。等网页发布完，先看 HTML 里是 `?v=rn10` 再抓 JS（不然 CDN 会把旧档按新版本号缓存一年）。
+4. 合并上线 PR（网页）：报名页搬到 `register/`（拿掉测试横幅、可被搜寻；00:00 前显示开放时间，时间到自己打开报名表）；`draft/` 转到 `register/`（保留 `?lang`、`#pay`／`#passes`）；中文预告页 `zh/register/` 转到 `register/?lang=zh`；中英文活动页的报名按钮 00:00 自己打开；地图提醒条 `reg-notice.js` 指向 `register/`（两张地图页 `?v=rn10`）。等网页发布完，先看 HTML 里是 `?v=rn10` 再抓 JS（不然 CDN 会把旧档按新版本号缓存一年）。这时后台还是旧的、测试模式：新报名页 00:00 以前只显示开放时间，没人报得进来。
+5. 部署后台：GitHub Actions「API deploy」→ Run workflow → 填 `deploy`（或 `gh workflow run api-deploy.yml --repo Shiao64/my1 --ref main -f confirm=deploy`）。部署的是第 4 步合并后的 main：信里「回到报名页」改成 `register/`；正式模式下 12/1 00:00 以前回 `not_open_yet`。看步骤清单：「Deploy」成功就是部署好了；最后的「Check」会因为找不到人机验证 site key 显示失败（11/23 起本来就没有），不用管；没填迁移时流程会照预设再跑 `0019`（栏位已经有，不改资料）。记下新的 worker 版本和流程印出的书签。
+6. Cloudflare 设 `REG_LIVE=1`（Shiao 同意）。**一定要在第 5 步之后**：旧后台没有 00:00 的关卡，先设的话 00:00 以前就挡不住直接打后台的报名。从这时起：信直接寄报名者本人、不加「[TEST]」「[测试]」，测试名单不起作用；00:00 以前没人报得进来。
 7. 设置页「活动邮箱」：总管邮箱（刘峥）**11/25 北京时间 11:32 已验证**（刘峥重寄任命信后，在自己的 QQ 邮箱打开链接；测试阶段直接寄本人，上线后照样算），不用再寄，看一眼还是「已验证」就好。测试名单上线后自动不起作用。之后再决定要不要关「管理员也收信」。
 8. 00:00 以前检查：报名页显示开放时间、没有测试横幅；`draft/`、中文预告页转得过去；活动页按钮还是「即将开放」。
 9. 00:00 以后检查：活动页按钮变「立即报名」「Register now」；用自己的邮箱报一笔：信寄到本人、标题没有 [TEST]、信里连结到 `register/`；看完在管理页取消、再删掉。
 10. 写部署纪录（这一节下面）。
-回退：worker 退回上一版（`npx wrangler@3 rollback`）、拿掉 `REG_LIVE`、网页 revert 上线 PR；删掉的测试资料可以用第 2 步的书签还原（`d1 time-travel restore`）。
+回退：**先拿掉 `REG_LIVE`，再退 worker**（退到第 2 步记下的版本：`npx wrangler@3 rollback <版本>` 或 Cloudflare 后台；顺序反了，00:00 以前会有一段时间是没有关卡的旧后台在正式模式），再 revert 上线 PR 的网页；删掉的测试资料可以用第 2 步的书签还原（`d1 time-travel restore`）。
 饭店名（Shiao 11/25 定）：英文一律「AC Embassy Hotel」，中文「奥加美术馆酒店」；报名页原本的「A.C. Art Museum Hotel」（韩文「A.C. 아트 뮤지엄 호텔」）已经改掉。
 
 **12/1 之后：TP 平台分三批上线**（2026-11-25 Shiao 定「照原计划」；每批部署前先问 Shiao；北京开放不顺就整个往后延）
