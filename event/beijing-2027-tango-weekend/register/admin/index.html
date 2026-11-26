@@ -439,6 +439,7 @@ function errText(d){
   if(e==='bad_passport')return '第 '+((d.person||0)+1)+' 位：护照姓名请用英文字母填';
   if(e==='checked_in')return (d.person||'这位')+' 已经签到「'+(NAME[d.item]||d.item)+'」，这项不能拿掉';
   if(e==='no_change')return '没有改动';
+  if(e==='discount_too_big')return '原来的减收比改后的报名费多 '+fmt(d.over)+'：请先按「加收」撤回这部分，再修改';
   if(e==='name_taken')return '已经有这个名字了';
   if(e==='name_reserved')return '这个名字留给管理员，请换一个';
   if(e==='changed'||e==='not_found')return '没有改：别人刚改过或删除了。画面已换成最新的';
@@ -826,7 +827,7 @@ $('side').addEventListener('click',function(e){
       var now=DATA&&DATA.rows&&rowOf(r.id);
       if(d.error==='note_changed'){drafts[r.id]=text;bases[r.id]=d.note;if(now)now.note=d.note;return toast(errText(d),12000)}
       if(!d.ok)return toast(errText(d));
-      r.note=d.note;delete drafts[r.id];delete bases[r.id];if(now){now.note=d.note;if(d.updated_at){if(MOD&&MOD.id===now.id&&MOD.seen===now.updated_at)MOD.seen=d.updated_at;now.updated_at=d.updated_at}}toast('备注已存')});return}
+      r.note=d.note;delete drafts[r.id];delete bases[r.id];if(now)now.note=d.note;toast('备注已存')});return}
   var a=b.dataset.a;if(!a)return;
   if(a==='pay'||a==='refund')return payForm(r,a);
   if(a==='plus'||a==='minus')return adjForm(r,a);

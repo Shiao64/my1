@@ -170,7 +170,6 @@ const activeOf = d => d.people.filter(p => !p.gone);
 const KEEP_WHY = '依报名规则，6/11 之后改少不退差价 · No refund of the difference after June 11, 2027';
 const UNKEEP_WHY = '改回原项目，撤回之前保留的差价 · Earlier kept difference withdrawn';
 const HOTEL_WHY = '住宿改动，原来住宿的加减收随之调整 · Hotel adjustment follows the new hotel';
-const FLOOR_WHY = '减收超过报名费的部分不计 · A discount never goes below ¥0';
 
 // Seats used per capped item by registrations that hold a place. Pass skipId to leave one registration out.
 export async function usedSeats(env, evId, skipId) {
@@ -203,16 +202,16 @@ async function log(env, id, action, detail) { await env.SDB.prepare('INSERT INTO
 // (and reg.hotel_amount for the hotel part) already include them. A new total worked out from the form again (the
 // registrant editing a pending one, or 修改报名) adds them back, so an adjustment is never lost on the way.
 async function adjOf(env, regId) {
-  const out = { all: 0, hotel: 0, keep: 0, floor: 0, list: [] };
+  const out = { all: 0, hotel: 0, keep: 0, list: [] };
   for (const l of ((await env.SDB.prepare("SELECT at,detail FROM reg_log WHERE reg_id=? AND action='adjust' ORDER BY id").bind(regId).all()).results) || []) {
     let x = null; try { const o = JSON.parse(l.detail || ''); x = JSON.parse(o.text || ''); x.by = o.by; } catch { continue; }
     const d = Math.round(Number(x.d)) || 0; if (!d) continue;
-    out.all += d; if (x.part === 'hotel') out.hotel += d; if (x.auto === 'keep') out.keep += d; if (x.auto === 'floor') out.floor += d;
+    out.all += d; if (x.part === 'hotel') out.hotel += d; if (x.auto === 'keep') out.keep += d;
     out.list.push({ at: l.at, d, part: x.part === 'hotel' ? 'hotel' : 'reg', why: String(x.why || ''), note: String(x.note || ''), by: String(x.by || ''), was: Number(x.was) || 0 });
   }
   return out;
 }
-const withAdj = (total, hotel, adj) => ({ amount: Math.max(0, total + adj.all - adj.floor), hotel: Math.max(0, hotel + adj.hotel) });
+const withAdj = (total, hotel, adj) => ({ amount: Math.max(0, total + adj.all), hotel: Math.max(0, hotel + adj.hotel) });
 // One statement takes the next number and refuses a second live form of the same email, so any number of people can send at once.
 async function addReg(env, r, userId, email, data, ts) {
   const pre = r.ev.prefix + '-';
@@ -1269,8 +1268,8 @@ export async function regAct(env, b, json, kit, ev, who) {
     const clash = async () => json({ error: 'note_changed', note: ((await db.prepare('SELECT note FROM reg WHERE id=?').bind(reg.id).first()) || {}).note || '', last: await lastHandled(env, reg.id, ['note']) }, 409);
     if (b.was != null && str(b.was, 2000) !== str(cur, 2000)) return clash();
     if (text === cur) return json({ ok: true, note: cur });
-    if (!(await done(db.prepare("UPDATE reg SET note=?,updated_at=? WHERE id=? AND COALESCE(note,'')=?").bind(text, ts, reg.id, cur)))) return clash();
-    return json({ ok: true, note: text, updated_at: ts });
+    if (!(await done(db.prepare("UPDATE reg SET note=? WHERE id=? AND COALESCE(note,'')=?").bind(text, reg.id, cur)))) return clash();
+    return json({ ok: true, note: text });
   }
   if (a === 'pay') {
     // Record money received. Default: the rest of what is owed. The registration becomes paid once fully covered.
@@ -1424,10 +1423,10 @@ export async function regAct(env, b, json, kit, ev, who) {
     // exceeds the new hotel charge. The 6/11 「kept difference」 is worked out anew each time, never added on top.
     const adj = await adjOf(env, reg.id);
     const hotelAdj = rs.hotel > 0 ? Math.max(adj.hotel, -rs.hotel) : 0, hotelFix = hotelAdj - adj.hotel;
-    // a registration-part discount bigger than that part never eats into the hotel: an automatic line brings it back to ¥0
-    const raw = rs.total + fee + adj.all - adj.keep - adj.floor + hotelFix;
-    const floorAll = Math.max(0, (rs.hotel > 0 ? rs.hotel + hotelAdj : 0) - raw), floorDelta = same ? 0 : floorAll - adj.floor;
-    const base = raw + floorAll;
+    const base = rs.total + fee + adj.all - adj.keep + hotelFix;
+    // a discount bigger than the new registration price would eat into the hotel: take part of it back (加收) first
+    const short_ = (rs.hotel > 0 ? rs.hotel + hotelAdj : 0) - base;
+    if (!same && short_ > 0) return json({ error: 'discount_too_big', over: short_ }, 409);
     // after the refund date this change refunds nothing it lowers; a refund already owed (paid above the total) stays owed
     const keepAll = bjDate(ts) > ev.refundBy && took > 0 ? Math.max(0, Math.min(took, reg.amount) - base) : 0;
     const keepDelta = same ? 0 : keepAll - adj.keep, keep = Math.max(0, keepDelta);
@@ -1451,7 +1450,7 @@ export async function regAct(env, b, json, kit, ev, who) {
     const line = (d2, part, w, auto) => db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) SELECT ?,?,'adjust',? WHERE changes()>0")
       .bind(reg.id, ts, JSON.stringify({ by: who.name, text: JSON.stringify({ d: d2, part, why: w, note: '', was: reg.amount, auto }) }));
     // each line is written only if the one before it was (changes() carries on)
-    const lines = [...(hotelFix ? [line(hotelFix, 'hotel', HOTEL_WHY, 'hotel')] : []), ...(floorDelta ? [line(floorDelta, 'reg', FLOOR_WHY, 'floor')] : []), ...(keepDelta ? [line(keepDelta, 'reg', keepDelta > 0 ? KEEP_WHY : UNKEEP_WHY, 'keep')] : [])];
+    const lines = [...(hotelFix ? [line(hotelFix, 'hotel', HOTEL_WHY, 'hotel')] : []), ...(keepDelta ? [line(keepDelta, 'reg', keepDelta > 0 ? KEEP_WHY : UNKEEP_WHY, 'keep')] : [])];
     // the seat check written into the UPDATE covers what grows (items the 总管 chose to overbook are left out)
     const guarded = seated && grow.length ? { people: grow.flatMap(([c, k]) => Array.from({ length: k }, () => ({ items: [c] }))) } : null;
     const ok = await done(

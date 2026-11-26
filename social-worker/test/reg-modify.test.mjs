@@ -326,10 +326,11 @@ d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'single'; f.people[0]
 check('to ¥0: paid at once, with the entry code', d.ok && d.amount === 0 && d.status === 'paid' && /Your entry QR codes/.test(to[0].body), { d, b: to[0] && to[0].body });
 // a registration discount never eats the hotel
 x = await make('confirmed', 0, withHotel); await adjustAct(x.id, -700);
+d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'single'; f.people[0].items = ['sat-eve']; return f; }));
+check('discount bigger than the new price: refused, says by how much', d.error === 'discount_too_big' && d.over === 500 && row(x.id).amount === 1000, d);
+await adjustAct(x.id, 500);
 d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'single'; f.people[0].items = ['sat-eve']; return f; })); take();
-check('reg part floored at ¥0, hotel whole', d.ok && d.amount === 1000 && row(x.id).hotel_amount === 1000, d);
-d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'pass'; f.people[0].items = []; return f; })); take();
-check('…raised again: the floor line is withdrawn, 700 − 700 + 1000', d.ok && d.amount === 1000, d);
+check('…after taking that back: 200 - 200 + 1000', d.ok && d.amount === 1000 && row(x.id).hotel_amount === 1000, d);
 // overbooking only what was shown
 const S1c = R.EVENTS.bstw2027.items.S1, capc = S1c.cap;
 x = await make('confirmed'); S1c.cap = (await R.usedSeats(env, 'bstw2027')).S1;
@@ -337,9 +338,9 @@ d = await modify(x.id, back(x.id, f => { f.people[0].items = ['yard']; return f;
 check('over: only the items agreed', d.error === 'full' && d.item === 'S1', d);
 d = await modify(x.id, back(x.id, f => { f.people[0].items = ['yard']; return f; }), { over: 1, overItems: ['S1'] }); take(); check('agreed: saved', d.ok, d);
 S1c.cap = capc;
-// a note saved while the form is open: the new version comes back
-x = await make('confirmed');
-d = await act({ id: x.id, action: 'note', note: 'hi', was: '' }); check('note returns the new version', d.ok && d.updated_at === row(x.id).updated_at, d);
+// a note saved while the form is open leaves the version alone
+x = await make('confirmed'); const v1 = row(x.id).updated_at;
+d = await act({ id: x.id, action: 'note', note: 'hi', was: '' }); check('a note does not move the version', d.ok && row(x.id).updated_at === v1, d);
 
 // --- 10. the letter in Chinese, with the hotel
 const zhReg = { code: 'BJ27-0123', lang: 'zh', amount: 1450, fee: 0, status: 'pending', data: { people: [{ name: '朱一', pkg: 'full', extra: [], items: [], amount: 1450 }], rooms: [{ type: 'king', ci: '2027-06-18', co: '2027-06-20', nights: 2, guests: [0], amount: 1000 }], hotel: true },
