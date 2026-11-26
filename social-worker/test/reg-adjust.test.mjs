@@ -149,7 +149,7 @@ d = await act({ id: A, action: 'refund', from: 'paid', pay: { amount: 1, method:
 check('still paid, 600 held for a 600 total', dbRow('BJ27-0001').status === 'paid' && db.prepare('SELECT SUM(amount) s FROM reg_payment WHERE reg_id=?').get(A).s === 600);
 // cancelling afterwards refunds from the adjusted amount
 d = await act({ id: A, action: 'cancel', from: 'paid' }); take();
-check('cancel: 600 paid − ¥50 fee = 550', d.ok && d.refund === 550, d);
+check('cancel: 600 held − ¥50 fee = 550 still to return (1,050 refunded in all)', d.ok && d.refundLeft === 550 && d.refund === 1050, d);
 d = await adjust(A, 100); check('a cancelled one cannot be adjusted', d._s === 409 && d.error === 'bad_state', d);
 
 // --- the hotel part

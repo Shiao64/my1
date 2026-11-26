@@ -170,6 +170,7 @@ const activeOf = d => d.people.filter(p => !p.gone);
 const KEEP_WHY = '依报名规则，6/11 之后改少不退差价 · No refund of the difference after June 11, 2027';
 const UNKEEP_WHY = '改回原项目，撤回之前保留的差价 · Earlier kept difference withdrawn';
 const HOTEL_WHY = '住宿改动，原来住宿的加减收随之调整 · Hotel adjustment follows the new hotel';
+const FLOOR_WHY = '减收超过报名费的部分不计 · A discount never goes below ¥0';
 
 // Seats used per capped item by registrations that hold a place. Pass skipId to leave one registration out.
 export async function usedSeats(env, evId, skipId) {
@@ -202,16 +203,16 @@ async function log(env, id, action, detail) { await env.SDB.prepare('INSERT INTO
 // (and reg.hotel_amount for the hotel part) already include them. A new total worked out from the form again (the
 // registrant editing a pending one, or 修改报名) adds them back, so an adjustment is never lost on the way.
 async function adjOf(env, regId) {
-  const out = { all: 0, hotel: 0, keep: 0, list: [] };
+  const out = { all: 0, hotel: 0, keep: 0, floor: 0, list: [] };
   for (const l of ((await env.SDB.prepare("SELECT at,detail FROM reg_log WHERE reg_id=? AND action='adjust' ORDER BY id").bind(regId).all()).results) || []) {
     let x = null; try { const o = JSON.parse(l.detail || ''); x = JSON.parse(o.text || ''); x.by = o.by; } catch { continue; }
     const d = Math.round(Number(x.d)) || 0; if (!d) continue;
-    out.all += d; if (x.part === 'hotel') out.hotel += d; if (x.auto === 'keep') out.keep += d;
+    out.all += d; if (x.part === 'hotel') out.hotel += d; if (x.auto === 'keep') out.keep += d; if (x.auto === 'floor') out.floor += d;
     out.list.push({ at: l.at, d, part: x.part === 'hotel' ? 'hotel' : 'reg', why: String(x.why || ''), note: String(x.note || ''), by: String(x.by || ''), was: Number(x.was) || 0 });
   }
   return out;
 }
-const withAdj = (total, hotel, adj) => ({ amount: Math.max(0, total + adj.all), hotel: Math.max(0, hotel + adj.hotel) });
+const withAdj = (total, hotel, adj) => ({ amount: Math.max(0, total + adj.all - adj.floor), hotel: Math.max(0, hotel + adj.hotel) });
 // One statement takes the next number and refuses a second live form of the same email, so any number of people can send at once.
 async function addReg(env, r, userId, email, data, ts) {
   const pre = r.ev.prefix + '-';
@@ -403,7 +404,7 @@ export function changeLines(was, now, lang, coded = true) {
 export function letter(kind, reg, env, passes, qrs = []) {
   const d = typeof reg.data === 'string' ? JSON.parse(reg.data) : reg.data;
   const lang = T[reg.lang] ? reg.lang : 'en', L = T[lang];
-  const v = { n: d.people[0] && d.people[0].name, c: reg.code, t: fmt(reg.rest == null ? reg.amount : reg.rest), d: reg.due_at ? bjDate(reg.due_at) : '', r: fmt(reg.refund || 0) };
+  const v = { n: d.people[0] && d.people[0].name, c: reg.code, t: fmt(reg.rest == null ? reg.amount : reg.rest), d: reg.due_at ? bjDate(reg.due_at) : '', r: fmt((reg.refundLeft != null ? reg.refundLeft : reg.refund) || 0) };
   // 金额调整: reg.adj = {d, why, was, paid, over}; what follows depends on where the registration stands now
   const a = kind === 'adj' && reg.adj ? reg.adj : null, adjPay = !!a && reg.status === 'confirmed' && reg.rest > 0;
   // 修改确认信: reg.upd = {was, slots, why, over, keep}; it asks for money only while 待付款 and something is owed
@@ -415,7 +416,7 @@ export function letter(kind, reg, env, passes, qrs = []) {
   const body = [fill(L.hi, v), '', fill(kind === 'upd' && reg.fee > 0 ? L.updFee : L[kind], v)];   // 修改确认信 names the fee only when the total holds it
   // one refund date for everything, hotel included (Shiao, 2026-11-26): cancelled after it, the letter says why nothing comes back
   const ev0 = own(EVENTS, reg.event), late = !!ev0 && !!reg.cancelled_at && bjDate(reg.cancelled_at) > ev0.refundBy;
-  if (kind === 'canc' && reg.refund != null) body.push(reg.refund === 0 && late ? L.noRefund : fill(L.refund, v));
+  if (kind === 'canc' && reg.refund != null) body.push((reg.refundLeft != null ? reg.refundLeft : reg.refund) === 0 && late ? L.noRefund : fill(L.refund, v));
   if (a) {
     if (a.why) body.push(fill(L.why, v));
     body.push('', fill(L.adjT, v));
@@ -853,7 +854,7 @@ export async function regMe(req, env, url, json, kit) {
   // a paid one that owes again only after 修改报名 raised it (调整金额 turns it into 到场付款); one marked paid before the ledger owes nothing
   const rest = r.status === 'confirmed' || r.status === 'cash' || (r.status === 'paid' && got.n) ? Math.max(0, r.amount - got.sum) : 0;
   const over = r.status === 'paid' && got.n ? Math.max(0, got.sum - r.amount) : 0;   // paid more than a total that 调整金额 lowered
-  return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, over, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
+  return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, over, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund == null ? null : Math.max(0, r.refund - got.out), due: r.due_at, domestic: !!r.domestic,
     updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang), pay, passes,
     adjust: adj.list.map(x => ({ at: x.at, d: x.d, part: x.part, why: x.why })) } });   // never the internal note, nor who
 }
@@ -1269,7 +1270,7 @@ export async function regAct(env, b, json, kit, ev, who) {
     if (b.was != null && str(b.was, 2000) !== str(cur, 2000)) return clash();
     if (text === cur) return json({ ok: true, note: cur });
     if (!(await done(db.prepare("UPDATE reg SET note=?,updated_at=? WHERE id=? AND COALESCE(note,'')=?").bind(text, ts, reg.id, cur)))) return clash();
-    return json({ ok: true, note: text });
+    return json({ ok: true, note: text, updated_at: ts });
   }
   if (a === 'pay') {
     // Record money received. Default: the rest of what is owed. The registration becomes paid once fully covered.
@@ -1342,8 +1343,8 @@ export async function regAct(env, b, json, kit, ev, who) {
     let text = JSON.stringify({ d: delta, part, why, note, was: reg.amount });
     if (text.length > 700) text = JSON.stringify({ d: delta, part, why: why.slice(0, 120), note: '', was: reg.amount });   // the log keeps 700
     const ok = await done(
-      db.prepare(`UPDATE reg SET amount=?,hotel_amount=?,status=?,paid_at=${nowPaid ? 'COALESCE(paid_at,?)' : 'paid_at'},updated_at=? WHERE id=? AND status=? AND amount=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?`)
-        .bind(amount, hotel, status, ...(nowPaid ? [ts] : []), ts, reg.id, reg.status, reg.amount, reg.id, got.n),
+      db.prepare(`UPDATE reg SET amount=?,hotel_amount=?,status=?,paid_at=${nowPaid ? 'COALESCE(paid_at,?)' : 'paid_at'},updated_at=? WHERE id=? AND status=? AND amount=? AND data=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?`)
+        .bind(amount, hotel, status, ...(nowPaid ? [ts] : []), ts, reg.id, reg.status, reg.amount, reg.data, reg.id, got.n),
       text);
     if (!ok) return late();
     const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
@@ -1356,21 +1357,25 @@ export async function regAct(env, b, json, kit, ev, who) {
     return json({ ok: true, status: after.status, amount: after.amount, paid: got.sum, rest: Math.max(0, after.amount - got.sum), over: info.over, mail });
   }
   // The rest change the registration itself, and only from the status it was read in.
-  let change;
+  let change, refundLeft = null;
   let seats = null;   // the seats this change takes, checked inside the write
   if (a === 'confirm') {
     const no = await full(env, ev, d, reg.id, json); if (no) return no;
     const due = new Date(Date.now() + ev.payDays * 864e5).toISOString();
     seats = d;
-    change = db.prepare("UPDATE reg SET status='confirmed',confirmed_at=?,due_at=?,reminded_at=NULL,updated_at=? WHERE id=? AND status=?" + ROOM_SQL).bind(ts, due, ts, reg.id, reg.status, ...roomArgs(ev, d, reg.id));
+    change = db.prepare("UPDATE reg SET status='confirmed',confirmed_at=?,due_at=?,reminded_at=NULL,updated_at=? WHERE id=? AND status=? AND data=?" + ROOM_SQL).bind(ts, due, ts, reg.id, reg.status, reg.data, ...roomArgs(ev, d, reg.id));
   } else if (a === 'waitlist' || a === 'decline' || a === 'cash') {
     change = db.prepare('UPDATE reg SET status=?,updated_at=? WHERE id=? AND status=?').bind({ waitlist: 'waitlist', decline: 'declined', cash: 'cash' }[a], ts, reg.id, reg.status);
   } else if (a === 'cancel') {
     // Refund only what was paid: everything minus the ¥50 fee (once). After the refund date (Beijing) nothing at all, hotel
     // included: one date for every part (Shiao, 2026-11-26; before that, only the hotel stopped on 6/11).
+    // reg.refund is what all refunds together should reach (the 记退款 button asks for the rest), so money already paid
+    // back counts in it. After the date nothing more is refunded, but a refund already owed (paid above the total) stays owed.
     let refund = null;
-    const got = await moneyOf(env, reg.id), paid = got.sum, took = reg.status === 'paid' ? Math.max(paid, paid ? 0 : reg.amount) : paid;
-    if (took > 0) refund = bjDate(ts) > ev.refundBy ? 0 : Math.max(0, took - ev.fee);   // the ¥50 fee is kept once, whether or not a change already charged it
+    const got = await moneyOf(env, reg.id), paid = got.sum, took = reg.status === 'paid' ? Math.max(paid, got.n ? 0 : reg.amount) : paid;
+    const owed = reg.status === 'paid' && got.n ? Math.max(0, paid - reg.amount) : 0;
+    if (took > 0) refund = got.out + (bjDate(ts) > ev.refundBy ? owed : Math.max(0, took - ev.fee));   // the ¥50 fee is kept once, whether or not a change already charged it
+    refundLeft = refund == null ? null : refund - got.out;
     // the refund is worked out from the payments read just now; if one is recorded before this lands, the cancel is refused (S09)
     change = db.prepare("UPDATE reg SET status='cancelled',cancelled_at=?,refund=?,fee=CASE WHEN fee>0 THEN fee ELSE ? END,updated_at=? WHERE id=? AND status=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?")
       .bind(ts, refund, took > 0 ? ev.fee : 0, ts, reg.id, reg.status, reg.id, got.n);
@@ -1419,7 +1424,10 @@ export async function regAct(env, b, json, kit, ev, who) {
     // exceeds the new hotel charge. The 6/11 「kept difference」 is worked out anew each time, never added on top.
     const adj = await adjOf(env, reg.id);
     const hotelAdj = rs.hotel > 0 ? Math.max(adj.hotel, -rs.hotel) : 0, hotelFix = hotelAdj - adj.hotel;
-    const base = Math.max(0, rs.total + fee + adj.all - adj.keep + hotelFix);
+    // a registration-part discount bigger than that part never eats into the hotel: an automatic line brings it back to ¥0
+    const raw = rs.total + fee + adj.all - adj.keep - adj.floor + hotelFix;
+    const floorAll = Math.max(0, (rs.hotel > 0 ? rs.hotel + hotelAdj : 0) - raw), floorDelta = same ? 0 : floorAll - adj.floor;
+    const base = raw + floorAll;
     // after the refund date this change refunds nothing it lowers; a refund already owed (paid above the total) stays owed
     const keepAll = bjDate(ts) > ev.refundBy && took > 0 ? Math.max(0, Math.min(took, reg.amount) - base) : 0;
     const keepDelta = same ? 0 : keepAll - adj.keep, keep = Math.max(0, keepDelta);
@@ -1427,13 +1435,15 @@ export async function regAct(env, b, json, kit, ev, who) {
     // marked paid with no payment records: a total raised from ¥0 is simply owed; otherwise record the money first
     if (!same && reg.status === 'paid' && !got.n && reg.amount > 0 && amount !== reg.amount) return json({ error: 'no_payments' }, 409);
     // paid and raised: 到场付款 (codes stay, the rest shows); 待付款 / 到场付款 now covered: paid
-    const st = same ? reg.status : reg.status === 'paid' && (got.n || reg.amount <= 0) && got.sum < amount ? 'cash' : (reg.status === 'confirmed' || reg.status === 'cash') && got.n && got.sum >= amount && amount > 0 ? 'paid' : reg.status;
+    const st = same ? reg.status : reg.status === 'paid' && (got.n || reg.amount <= 0) && got.sum < amount ? 'cash' : (reg.status === 'confirmed' || reg.status === 'cash') && (amount <= 0 || (got.n && got.sum >= amount)) ? 'paid' : reg.status;
     const nowPaid = st === 'paid' && reg.status !== 'paid';
     const over = st === 'paid' && got.n ? Math.max(0, got.sum - amount) : 0, rest = st === 'confirmed' || st === 'cash' ? Math.max(0, amount - got.sum) : 0;
     const zh = changeLines(d, slots, 'zh', coded);
     if (b.preview === 1) return json({ ok: true, preview: true, was: reg.amount, amount, fee: same ? reg.fee : fee, feeWhy, keep, paid: got.sum, rest, over, status: st, full: same ? null : short, fulls: same ? [] : shorts, changes: zh, same, people: activeOf(data).length });
     if (same) return json({ error: 'no_change' }, 400);
-    if (short && b.over !== 1) return json({ error: 'full', ...short }, 409);
+    const agreed = b.over !== 1 ? [] : Array.isArray(b.overItems) ? b.overItems : shorts.map(x => x.item);
+    const unseen = shorts.find(x => !agreed.includes(x.item));
+    if (unseen) return json({ error: 'full', ...unseen }, 409);
     const why = str(b.why, 200);
     const text = [...zh, `合计 ${fmt(reg.amount)} → ${fmt(amount)}`, fee && !reg.fee ? `手续费 ${fmt(fee)}` : feeWhy === 'waived' ? '这次不收手续费' : '',
       keep ? `6/11 之后改少，差价 ${fmt(keep)} 不退` : '', hotelFix ? `住宿原来的加减收随住宿调整 ${hotelFix > 0 ? '+' : '−'}${fmt(Math.abs(hotelFix))}` : '',
@@ -1441,7 +1451,7 @@ export async function regAct(env, b, json, kit, ev, who) {
     const line = (d2, part, w, auto) => db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) SELECT ?,?,'adjust',? WHERE changes()>0")
       .bind(reg.id, ts, JSON.stringify({ by: who.name, text: JSON.stringify({ d: d2, part, why: w, note: '', was: reg.amount, auto }) }));
     // each line is written only if the one before it was (changes() carries on)
-    const lines = [...(hotelFix ? [line(hotelFix, 'hotel', HOTEL_WHY, 'hotel')] : []), ...(keepDelta ? [line(keepDelta, 'reg', keepDelta > 0 ? KEEP_WHY : UNKEEP_WHY, 'keep')] : [])];
+    const lines = [...(hotelFix ? [line(hotelFix, 'hotel', HOTEL_WHY, 'hotel')] : []), ...(floorDelta ? [line(floorDelta, 'reg', FLOOR_WHY, 'floor')] : []), ...(keepDelta ? [line(keepDelta, 'reg', keepDelta > 0 ? KEEP_WHY : UNKEEP_WHY, 'keep')] : [])];
     // the seat check written into the UPDATE covers what grows (items the 总管 chose to overbook are left out)
     const guarded = seated && grow.length ? { people: grow.flatMap(([c, k]) => Array.from({ length: k }, () => ({ items: [c] }))) } : null;
     const ok = await done(
@@ -1469,8 +1479,8 @@ export async function regAct(env, b, json, kit, ev, who) {
     await db.prepare("UPDATE reg SET status='paid',paid_at=COALESCE(paid_at,?),updated_at=? WHERE id=? AND status='confirmed' AND amount<=0").bind(ts, ts, reg.id).run();
     after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first(); if (after.status === 'paid') kind = 'paid';
   }
-  const mail = b.silent !== 1 ? await send(env, kit, after, kind) : undefined;
-  return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, due: after.due_at, mail });
+  const mail = b.silent !== 1 ? await send(env, kit, after, kind, refundLeft == null ? undefined : { refundLeft }) : undefined;
+  return json({ ok: true, status: after.status, amount: after.amount, refund: after.refund, ...(refundLeft == null ? {} : { refundLeft }), due: after.due_at, mail });
 }
 
 // Day-10 reminder for confirmed registrations that are still unpaid. Called from the 10-minute cron.

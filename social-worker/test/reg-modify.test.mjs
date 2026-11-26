@@ -292,7 +292,7 @@ check('…and has its picture', (await call('GET', '/reg/pass/' + encodeURICompo
 // full item: a rename or removal needs no free seat
 const S1b = R.EVENTS.bstw2027.items.S1, capb = S1b.cap;
 x = await make('confirmed', 0, form({ people: [person({ items: ['yard'] }), person({ name: 'Bo', items: ['yard'] })] }));
-S1b.cap = 0;
+S1b.cap = 1;   // already full (several hold it)
 d = await modify(x.id, back(x.id, f => { f.people.pop(); return f; }));
 check('over a full item: removing a person needs no seat', d.ok && !d.error, d);
 S1b.cap = capb;
@@ -305,6 +305,41 @@ check('not paid yet: removed, nothing about a code', to.length === 1 && /Removed
 // a stray check-in row for a place not held does not lock the registration
 x = await make('paid', 700); db.prepare("INSERT INTO reg_checkin(reg_id,person,item,at,staff) VALUES(?,3,'M1','2027-06-19T06:00:00.000Z','x')").run(x.id);
 d = await modify(x.id, back(x.id, f => { f.people[0].name = 'Amy Q'; return f; })); check('stray check-in row ignored', d.ok, d);
+
+// --- 12. second review
+const refund = (id, amount) => act({ id, action: 'refund', pay: { amount, method: 'alipay' } });
+const adminRow = async id => (await call('GET', '/admin/reg?event=bstw2027', null, ADMIN)).rows.find(r => r.id === id);
+x = await make('paid', 700); await adjustAct(x.id, -200); d = await refund(x.id); check('refund the 200 first', d.ok, d); take();
+d = await act({ id: x.id, action: 'cancel' }); ms = take(); to = mine(ms, x.email);
+check('then cancel before 6/11: 450 still to return, the letter says so', d.ok && d.refundLeft === 450 && d.refund === 650 && /Refund: ¥450\./.test(to[0].body), { d, b: to[0] && to[0].body });
+check('the page shows what is still to come', (await me(x.tok)).reg === null || (await me(x.tok)).reg.refund === 450, (await me(x.tok)).reg);
+d = await refund(x.id); check('the refund button pays exactly 450', d.ok && d.refunded === 650 && d.due === 0, d);
+x = await make('paid', 700); await adjustAct(x.id, -500);
+at('2027-06-15T10:00:00+08:00');
+d = await act({ id: x.id, action: 'cancel' }); ms = take(); to = mine(ms, x.email);
+check('late cancel keeps a refund already owed (¥500), letter says it', d.ok && d.refundLeft === 500 && /Refund: ¥500\./.test(to[0].body), d);
+d = await refund(x.id); check('…and it can be recorded', d.ok && d.due === 0, d);
+at('2027-01-05T12:00:00+08:00');
+// down to ¥0 before payment: paid, with codes
+x = await make('confirmed'); await adjustAct(x.id, -200);
+d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'single'; f.people[0].items = ['sat-eve']; return f; })); ms = take(); to = mine(ms, x.email);
+check('to ¥0: paid at once, with the entry code', d.ok && d.amount === 0 && d.status === 'paid' && /Your entry QR codes/.test(to[0].body), { d, b: to[0] && to[0].body });
+// a registration discount never eats the hotel
+x = await make('confirmed', 0, withHotel); await adjustAct(x.id, -700);
+d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'single'; f.people[0].items = ['sat-eve']; return f; })); take();
+check('reg part floored at ¥0, hotel whole', d.ok && d.amount === 1000 && row(x.id).hotel_amount === 1000, d);
+d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'pass'; f.people[0].items = []; return f; })); take();
+check('…raised again: the floor line is withdrawn, 700 − 700 + 1000', d.ok && d.amount === 1000, d);
+// overbooking only what was shown
+const S1c = R.EVENTS.bstw2027.items.S1, capc = S1c.cap;
+x = await make('confirmed'); S1c.cap = (await R.usedSeats(env, 'bstw2027')).S1;
+d = await modify(x.id, back(x.id, f => { f.people[0].items = ['yard']; return f; }), { over: 1, overItems: [] });
+check('over: only the items agreed', d.error === 'full' && d.item === 'S1', d);
+d = await modify(x.id, back(x.id, f => { f.people[0].items = ['yard']; return f; }), { over: 1, overItems: ['S1'] }); take(); check('agreed: saved', d.ok, d);
+S1c.cap = capc;
+// a note saved while the form is open: the new version comes back
+x = await make('confirmed');
+d = await act({ id: x.id, action: 'note', note: 'hi', was: '' }); check('note returns the new version', d.ok && d.updated_at === row(x.id).updated_at, d);
 
 // --- 10. the letter in Chinese, with the hotel
 const zhReg = { code: 'BJ27-0123', lang: 'zh', amount: 1450, fee: 0, status: 'pending', data: { people: [{ name: '朱一', pkg: 'full', extra: [], items: [], amount: 1450 }], rooms: [{ type: 'king', ci: '2027-06-18', co: '2027-06-20', nights: 2, guests: [0], amount: 1000 }], hotel: true },
