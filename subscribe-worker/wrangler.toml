@@ -43,7 +43,8 @@ destination_address = "selecttango@gmail.com"
 # so this binding stays in place and is not the current social sender.
 [[send_email]]
 name = "SUB_MAIL"
-allowed_sender_addresses = ["subscribe@tangoweekend.org"]
+# 2026-11-26: me@tangoweekend.org sends the hand-written letters (social-worker/src/letter.js, POST /social/admin/letter).
+allowed_sender_addresses = ["subscribe@tangoweekend.org", "me@tangoweekend.org"]
 
 [ai]
 binding = "AI"
