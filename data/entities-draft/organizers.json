@@ -144,11 +144,13 @@
   "name_en": "Liu Zheng",
   "name_local": "刘峥",
   "cities": [
-   "Beijing"
+   "Beijing",
+   "Shanghai"
   ],
   "events": [
    "AymclBjD",
    "E093",
+   "E205",
    "GqufXmMX",
    "R202"
   ],
