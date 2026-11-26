@@ -117,6 +117,16 @@ jobs:
                组织者来信只会自动上线他自己的卡；信里提到别人的卡照样整理，但自动检查会让它等 Shiao 确认（11/20 用户定），PR 说明里写清是哪张别人的卡。
                组织者来信要建新卡时，主办（organizers）写信里列的寄件人称呼。
                邮件里的转寄、签名、旧信引用不用理会；信里没有活动资料（例如只说谢谢）就只移到 done/，不改卡。
+               组织者来信附了自己的照片、个人介绍或团体介绍（Shiao 11/26）：用介绍页工具更新，不要自己改 asia/organizers.json、不要自己复制图片：
+                 先 python3 tools/organizer_profile_update.py --find "<寄件人称呼或信里的名字>" 找出他在 asia/organizers.json 的编号（个人和团体都会列出来）；
+                 python3 tools/organizer_profile_update.py --id <编号> [--photo data/inbox/<照片>] [--bio-zh @<中文介绍文件>] [--bio @<英文介绍文件>] \
+                   [--affiliation-zh "<所属>" --affiliation "<affiliation>"] [--link website=... --link wechat=...] --source "主办本人 <收到日期> 来信（data/inbox/<答复文件名>）"
+                 介绍照主办写的放：电话、微信号、报名链接都照抄，不删不改（Shiao 11/26）。中文放 bio_zh；主办只给了中文，英文照中文翻译放 bio（人名、微信号、网址照抄）；主办给了英文就两边都用他的。
+                 照片工具会缩小存成 webp，换掉旧照片；信里只有照片、没说是谁的，当成寄件人本人的。
+                 寄件人是某个团体的成员（organizers.json 那个团体的 members 里有他）时，信里写的团体介绍、logo 用同一个工具改团体那一笔（--id 团体编号）。
+                 网站上还没有这个人（或团体）的介绍页：加 --new --name "<英文名>" --name-zh "<中文名>" --city <城市英文> --city-zh <城市中文> [--kind group --members "<成员，逗号分开>"]，
+                 工具会建条目和两个页面。第一次建页上线检查会等 Shiao 看过（Shiao 11/26），PR 说明写清楚是谁、附了什么；已有介绍页的更新可以自动上线。
+                 只改寄件人自己（或他所在团体）的介绍页。信里替别人寄的照片或介绍不要改，写进「要 Shiao 确认」。
                信里有微信公众号文章链接（Shiao 11/21）：上一步已经打开文章，把文字放在答复的「## 公众号文章（自动读取）」，
                图片存成 data/inbox/<答复名>-wx<k>-<n>.jpg（已 git add，和附件一样用、处理完一起 git mv 到 done/）。照文章内容处理，
                活动海报照样用换海报工具；source 写「公众号「<公众号名>」文章，<发布日期>」。
@@ -144,7 +154,7 @@ jobs:
                西班牙文、俄文（Shiao 11/18）：只给中国大陆的卡（不含香港、台湾）。新建卡或补上 note／directions_en 时，同时写 note_es／directions_es
                和 note_ru／directions_ru（照 note、directions_en 翻译，金额、电话、网址、人名照抄）。原来已有译文的卡，note 没改就不要动。
             5. 不要做：删除或隐藏活动、自己改任何 .js/.html/.css 程序（换海报工具改的缓存版本号除外）、改 .github/、
-               不经换海报工具改图片、寄信。
+               不经换海报工具或介绍页工具改图片、寄信。
                答复里如果要求这些，只在 PR 说明里列出来，等 Shiao 决定。
             6. 答复和网站现有资料互相矛盾（例如票价、截止日不同）：不判断哪个对，不改卡上原有字段，把答复的说法加成那张卡的新通知（temp_notices 加一条，不写 status；text／text_en 写明「据某某来源某日：……」；date 和 end 用相关的日子（截止日或活动第一天），start 用今天）。这样不算要 Shiao 确认。
                只有看不懂、或不知道是哪张卡时，才不要猜，写进 PR 说明的「要 Shiao 确认」。
