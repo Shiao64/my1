@@ -28,13 +28,20 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
 .big{font-size:1.6rem;font-weight:800;line-height:1.2}
 .muted{color:var(--muted);font-size:.9rem}
 .res{border-radius:14px;padding:18px;text-align:center;font-size:1.3rem;font-weight:800;margin-bottom:12px;color:#fff}
-.res.ok{background:var(--ok)}.res.warn{background:var(--warn)}.res.no{background:var(--red)}
+.res.ok{background:var(--ok)}.res.warn{background:#9a5b00}.res.no{background:var(--red)}.res.wait{background:#5c4a40}
+.res span{display:block}.res .sub2{font-size:1rem;font-weight:600;margin-top:4px}
 .items{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .it{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:.88rem;background:var(--cream)}
 .it.on{background:#d9f2df;border-color:var(--ok);color:var(--ok);font-weight:700}
 .it.cur{outline:2px solid var(--deep)}
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:1.15rem;font-weight:800;background:var(--red);color:#fff;cursor:pointer;margin-top:10px}
 .btn.scan{background:var(--deep)}
+.btn.go{background:var(--ok)}
+#now{display:flex;gap:10px;align-items:center;justify-content:space-between;width:100%;border:0;border-bottom:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;font:inherit;font-weight:800;font-size:1.05rem;text-align:left;cursor:pointer}
+#now small{font-weight:700;font-size:.9rem;white-space:nowrap;text-decoration:underline}
+#now.off{background:#ffe1b8}
+#prev{display:block;width:100%;text-align:left;border:2px dashed var(--muted);background:#fff;color:var(--ink);border-radius:12px;padding:10px 12px;margin-bottom:12px;font:inherit;font-weight:700;cursor:pointer}
+#prev.bad{border-color:var(--red);color:#8a0c12}
 .btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:1rem;padding:11px}
 .cash{background:#fff1cc;border:1px solid #f0d99a;border-radius:10px;padding:10px;margin-top:10px;font-weight:700}
 #cam{position:relative;border-radius:14px;overflow:hidden;background:#000;margin-bottom:12px}
@@ -63,6 +70,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
   <option value="M3">周日 下午场</option><option value="M4">周日 晚场</option>
   <option value="S1">周一 探戈小院</option><option value="T2">周二 城市漫步</option><option value="MF">周二 告别舞会</option>
 </select></header>
+<button type="button" id="now" hidden></button>
 <main>
   <div class="card" id="oldLink" hidden>
     <div class="big">这个前台连结已经停用</div>
@@ -86,7 +94,9 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
     <ol class="steps"><li>iPhone（Safari）：按下方「分享」→「加入主屏幕」</li><li>Android（Chrome）：按右上角 ⋮ →「添加到主屏幕」</li></ol>
     <p class="muted">iPhone 从桌面图标第一次打开时，要再输一次密码（这支手机还是只算 1 台）。不要清除浏览资料；换手机就在新手机用链接重新登入。</p>
   </div>
-  <div id="res" class="res" hidden></div>
+  <div id="res" class="res" role="status" aria-live="assertive" hidden></div>
+  <button class="btn sec" id="retry" hidden>重试</button>
+  <button type="button" id="prev" role="status" hidden></button>
   <div id="cam" hidden><video id="video" playsinline muted></video><div class="frame"></div></div>
   <button class="btn scan" id="scanBtn" hidden>📷 扫描入场码</button>
   <button class="btn sec" id="stopBtn" hidden>关闭相机</button>
@@ -102,7 +112,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
       <button class="btn" id="take" disabled></button>
     </div>
     <div class="muted" id="note" style="margin-top:8px"></div>
-    <button class="btn" id="go" hidden></button>
+    <button class="btn go" id="go" hidden></button>
     <p class="muted" id="undoHelp" hidden>按错了？请找经理或总管撤销。</p>
     <button class="btn sec" id="undo" hidden>撤销这一场的签到</button>
   </div>
@@ -128,8 +138,25 @@ function keepUrl(extra){var u=new URLSearchParams();if(TP.dev()&&TP.key())u.set(
 put('bstw_staff','');   // the one-time desk keys ended 2026-11-23
 (function(){var k=TP.keyFromUrl();if(k&&!TP.dev()&&!TP.owner())put('tp_key',k)})();
 var pass=Q.get('p')||'',info=null,flash='',flashKind='ok';
-if(get('bstw_item'))$('item').value=get('bstw_item');
-$('item').addEventListener('change',function(){put('bstw_item',$('item').value);show()});
+// The session follows Beijing time (Shiao, 2026-11-27): on each event day the daytime one until 18:00, then the evening one,
+// which lasts until 06:00 the next morning (the milongas run past midnight). A choice made by hand stays until that half-day
+// is over. Before and after the event the last one stays. It never changes under a person who is on the screen.
+var DAYS={'2027-06-18':['T1','MV'],'2027-06-19':['M1','M2'],'2027-06-20':['M3','M4'],'2027-06-21':['S1','S1'],'2027-06-22':['T2','MF']};
+// t is Beijing time minus 6 hours: the event day turns over at 06:00, and 12 here is 18:00 there
+function slotNow(){var t=new Date(Date.now()+72e5).toISOString(),d=t.slice(0,10),eve=+t.slice(11,13)>=12;return DAYS[d]?{key:d+(eve?'b':'a'),item:DAYS[d][eve?1:0]}:null}
+var slotSeen='';
+function nowLine(){var s=slotNow(),cur=$('item').value,b=$('now'),off=!!s&&cur!==s.item;b.hidden=$('item').hidden;b.className=off?'off':'';
+  b.textContent='';var a=document.createElement('span'),c=document.createElement('small');a.textContent='现在签：'+NAME[cur]+(off?'（按时间应是 '+NAME[s.item]+'）':'');c.textContent='换场';b.append(a,c)}
+function pickItem(){var s=slotNow(),kept=get('bstw_item');
+  if(!s){if(kept&&!slotSeen)$('item').value=kept}
+  else if(s.key!==slotSeen){$('item').value=get('bstw_slot')===s.key&&kept?kept:s.item;put('bstw_item',$('item').value);put('bstw_slot',s.key)}
+  slotSeen=s?s.key:'-';nowLine()}
+pickItem();
+$('item').addEventListener('change',function(){var s=slotNow();put('bstw_item',$('item').value);put('bstw_slot',s?s.key:'');nowLine();show()});
+$('now').addEventListener('click',function(){var e=$('item');e.focus();try{e.showPicker()}catch(x){e.click()}});
+function tick_(){if(info)nowLine();else pickItem()}   // with a person on screen only the line says that the time has moved on
+setInterval(tick_,30000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)tick_()});
 var WAIT=20000;
 function within(ms){if(!window.AbortController)return undefined;var c=new AbortController();setTimeout(function(){c.abort()},ms);return c.signal}   // a lost network must not wait for ever
 function raw(path,opt){opt=opt||{};return fetch(API+path,{signal:within(WAIT),method:opt.method||'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+(opt.noAuth?'':key())},body:opt.body?JSON.stringify(opt.body):undefined}).then(function(r){return r.json().then(function(d){d._s=r.status;return d})})}
@@ -145,7 +172,9 @@ function again(role){
 function call(path,opt){return raw(path,opt).then(function(d){
   if(d._s!==401||!TP.dev()||TP.owner()||d.error!=='reauth')return d;
   return again(d.role).then(function(ok){return ok?raw(path,opt):d})})}
-function res(kind,text){var r=$('res');r.className='res '+kind;r.textContent=text;r.hidden=!text}
+// a result: the answer in large words, and under it what to do next
+function res(kind,text,sub){var r=$('res');r.className='res '+kind;r.textContent='';r.hidden=!text;$('retry').hidden=true;
+  [text,sub].forEach(function(x,i){if(!x)return;var e=document.createElement('span');if(i)e.className='sub2';e.textContent=x;r.appendChild(e)})}
 var GO={"zh": {"go": "请先到经理处付款，再入场"}, "en": {"go": "Please pay the event manager first, then come in"}, "ko": {"go": "먼저 행사 매니저에게 결제한 뒤 입장해 주세요"}, "es": {"go": "Primero paga al responsable del evento y después entra"}, "ru": {"go": "Сначала оплатите у менеджера мероприятия, затем проходите"}};
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'},method='',taking=false;
 function yen(n){return '¥'+Number(n).toLocaleString('en-US')}
@@ -158,7 +187,7 @@ function ready(name,collect,role){var adm=role!=='desk',badge=document.createEle
   myRole=WHO[role]||'经理';
   badge.className='badge';badge.textContent=adm?myRole:'前台';$('me').textContent='';$('me').appendChild(badge);
   $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
-  $('swap').hidden=false;$('swap').textContent='退出'+(adm?myRole:'前台');$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false;
+  $('swap').hidden=false;$('swap').textContent='退出'+(adm?myRole:'前台');$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false;nowLine();
   $('toAdmin').hidden=!adm}   // 2026-11-24 Shiao: 经理、总管、管理员 can go back to the admin page; 前台 has no admin page
 $('toAdmin').addEventListener('click',function(){this.href='../admin/'+location.search});   // keep ?api= and the sign-in key, like the admin page's link here
 function lost(d){
@@ -166,7 +195,7 @@ function lost(d){
   var owner=!!TP.owner()&&!TP.dev();
   if(owner)put('bstw_admin','');else TP.out(!!d&&/^(reset|deleted|stopped|ended)$/.test(d.why||''));
   choose();res('no',d&&d.error==='signed_out'?TP.gone(d):owner?'密码已经失效，请重新输入':'这台已经退出，请用链接重新登入')}
-function choose(){stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('nokey').hidden=false;
+function choose(){stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('now').hidden=true;$('nokey').hidden=false;
   $('toIn').hidden=!TP.key();$('toIn').href=TP.loginUrl(TP.key(),Q.get('api')||'');}
 function show(){
   if(!info)return;var cur=$('item').value,p=info.person,did={},by={};info.checkins.forEach(function(c){did[c.item]=c.at;by[c.item]=c.staff});
@@ -182,26 +211,41 @@ function show(){
   if(due||!c||!c.last)box.style.background='';
   $('note').textContent=info.note?'备注：'+info.note:'';
   var go=$('go');$('undo').hidden=!did[cur]||!asAdmin();$('undoHelp').hidden=!did[cur]||asAdmin();go.hidden=true;
-  if(info.status==='cancelled'||info.status==='declined')return res('no','✕ '+ST[info.status]+'，不能入场');
-  if(!info.valid)return res('no','✕ 未完成付款，不能入场。如要到场付款，请找经理或总管批准');
-  if(due){go.hidden=false;go.disabled=true;go.textContent='签到（付款后才能按）';return res('warn',c&&c.rest>0?'待收款':'待付款 · 请带到经理处')}
+  var adm=asAdmin(),inIt=p.items.indexOf(cur)>=0,out='「'+NAME[cur]+'」不在这位的报名里';
+  if(info.status==='cancelled'||info.status==='declined')return res('no','✕ 不能入场',ST[info.status]);
+  if(!info.valid)return res('no','✕ 未付款，不能入场',adm?'要到场付款：先在管理页批准「到场付款」':'请带到经理或总管处');
+  // not booked for this session is said first, before any money is taken; collecting for the whole registration stays possible
+  if(!inIt)return res('no','✕ 本场没有报名',out+(due?'；整份报名还没付清':''));
+  if(due){go.hidden=false;go.disabled=true;go.textContent='签到（付款后才能按）';return c&&c.rest>0?res('warn','先收款 '+yen(c.rest),'收到钱后再签到'):res('warn','先付款','请带到经理处')}
   go.disabled=false;
-  if(p.items.indexOf(cur)<0)return res('no','✕ 没有报名「'+NAME[cur]+'」');
-  if(did[cur])return res('warn','⚠ 已经签到过 '+hm(did[cur])+(by[cur]?'（'+by[cur]+'）':''));
-  res('','');go.hidden=false;go.textContent='签到 · '+NAME[cur];
+  if(did[cur])return res('warn','⚠ 已经签到过',hm(did[cur])+(by[cur]?'（'+by[cur]+'）':''));
+  res('ok','✓ 可以入场','请按下面的绿色按钮签到');go.hidden=false;go.textContent='签到 · '+NAME[cur];
 }
-function load(){if(!pass)return;
-  call('/social/reg/door/pass?p='+encodeURIComponent(pass)).then(function(d){
+var loadN=0;
+function load(){if(!pass)return;var want=pass,n=++loadN,stale=function(){return n!==loadN||want!==pass};
+  if(!info||info.asked!==want){info=null;$('who').hidden=true;pickItem();res('wait','查询中…','请等结果出来再放行')}
+  call('/social/reg/door/pass?p='+encodeURIComponent(want)).then(function(d){
+    if(stale())return;
     if(d._s===401){lost(d);return}
-    if(!d.ok){$('who').hidden=true;res('no',d.error==='removed'?'✕ 这位已从报名里删除，入场码已作废':'✕ 无效的入场码');return}
-    info=d;method='';taking=false;$('arrived').checked=false;show();if(flash){res(flashKind,flash);flash='';flashKind='ok'}
-  }).catch(function(){res('no','连不上后台，请检查网络')})}
-$('go').addEventListener('click',function(){var cur=$('item').value;$('go').disabled=true;
-  call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur}}).then(function(d){$('go').disabled=false;
+    if(!d.ok){info=null;$('who').hidden=true;res('no',d.error==='removed'?'✕ 这位已从报名里删除，入场码已作废':'✕ 无效的入场码');return}
+    info=d;info.asked=want;method='';taking=false;$('arrived').checked=false;$('who').hidden=false;show();
+    // after money was taken: say so, and under it what the code says now (it may not be booked for this session)
+    if(flash){var r=$('res'),now=[].map.call(r.children,function(x){return x.textContent}),can=!$('go').hidden&&!$('go').disabled;
+      res(can?flashKind:'warn',flash,can?'现在可以签到':now.join('：'));flash='';flashKind='ok'}
+  }).catch(function(){if(stale())return;info=null;$('who').hidden=true;res('no','连不上后台','请检查网络，再按「重试」');$('retry').hidden=false})}
+$('retry').addEventListener('click',load);
+function aside(who,text,bad){var b=$('prev'),line='上一位 '+who.person.name+'：'+text+'（按这里收起）';b.textContent=b.hidden?line:b.textContent+'\n'+line;b.style.whiteSpace='pre-line';b.className=bad?'bad':'';b.hidden=false}
+$('prev').addEventListener('click',function(){this.hidden=true;this.textContent=''});
+$('go').addEventListener('click',function(){var cur=$('item').value,who=info;if(!who)return;$('go').disabled=true;
+  call('/social/reg/door/checkin',{method:'POST',body:{p:who.asked,item:cur}}).then(function(d){
+    if(info!==who){   // another code is on the screen by now
+      if(d.ok)return aside(who,'「'+NAME[cur]+'」签到成功');
+      aside(who,d.error==='already'?'「'+NAME[cur]+'」之前已经签到过':'「'+NAME[cur]+'」没有签到成功，请重扫那位的码',d.error!=='already');if(d._s===401)lost(d);return}
+    $('go').disabled=false;
     if(d.ok){info.checkins.push({item:cur,at:d.at,staff:d.by});show();res('ok','✓ 签到成功 · '+NAME[cur]);return}
     if(d.error==='already'){info.checkins.push({item:cur,at:d.at,staff:d.by});show();return}
     if(d._s===401){lost(d);return}
-    res('no','✕ '+(d.error==='removed'?'这位已从报名里删除，入场码已作废':d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){$('go').disabled=false;res('no','连不上后台，请检查网络')})});
+    res('no','✕ '+(d.error==='removed'?'这位已从报名里删除，入场码已作废':d.error==='not_registered'?'没有报名这一场':d.error==='pay_first'?'请先到经理处付款':d.error==='not_paid'?'未完成付款':d.error))}).catch(function(){if(info!==who)return aside(who,'连不上后台，不确定「'+NAME[cur]+'」有没有签上，请重扫看一下',true);$('go').disabled=false;res('no','连不上后台，不确定有没有签上','请重扫一次看看')})});
 $('undo').addEventListener('click',function(){var cur=$('item').value;if(!confirm('撤销「'+NAME[cur]+'」的签到？'))return;
   var seen=info.checkins.filter(function(c){return c.item===cur})[0];
   call('/social/reg/door/checkin',{method:'POST',body:{p:pass,item:cur,undo:1,at:seen&&seen.at}}).then(function(d){
@@ -223,14 +267,20 @@ $('collect').addEventListener('click',function(e){var b=e.target.closest('[data-
 $('arrived').addEventListener('change',takeState);
 $('take').addEventListener('click',function(){var c=info&&info.collect;if(!c||!method||!$('arrived').checked||taking)return;
   taking=true;takeState();
-  call('/social/admin/reg/act',{method:'POST',body:{event:c.event,id:c.id,p:pass,action:'pay',from:info.status,pay:{amount:c.rest,seen:c.rest,method:method}}}).then(function(d){taking=false;
-    if(d.ok){flash='✓ 已收款 '+yen(c.rest)+'，现在可以签到'+(d.mail==='failed'?'。付款确认信没寄出，请告诉对方':'');if(d.mail==='failed')flashKind='warn';load();return}
+  var who=info;
+  call('/social/admin/reg/act',{method:'POST',body:{event:c.event,id:c.id,p:who.asked,action:'pay',from:who.status,pay:{amount:c.rest,seen:c.rest,method:method}}}).then(function(d){
+    if(info!==who){
+      if(d.ok)return aside(who,'已收款 '+yen(c.rest)+(d.mail==='failed'?'（付款确认信没寄出，请告诉对方）':''),d.mail==='failed');
+      aside(who,d.error==='already_paid'?'已经记过收款，这次没有再记':'收款 '+yen(c.rest)+' 没记上，请重扫那位的码',true);if(d._s===401)lost(d);return}
+    taking=false;
+    if(d.ok){flash='✓ 已收款 '+yen(c.rest)+(d.mail==='failed'?'（付款确认信没寄出，请告诉对方）':'');if(d.mail==='failed')flashKind='warn';load();return}
     if(d._s===401)return lost(d);
     if(d.error==='already_paid')return late(d.last?'刚刚已由 '+d.last.by+' '+when(d.last.at)+' 记过收款，这次没有再记':'已经收齐，这次没有再记');
     if(d.error==='bad_state')return late(d.last?'刚刚已由 '+d.last.by+' '+when(d.last.at)+' 处理过，这次没有记':'这笔刚被改过，这次没有记');
     if(d.error==='bad_amount')return late('金额刚刚有变动，请看最新金额');
     takeState();res('no','✕ '+(d.error==='no_permission'?'不能收：你的身份刚被改过，或码不对。请重扫或找总管':'没记上：'+d.error))
-  }).catch(function(){taking=false;takeState();res('no','连不上后台：不确定有没有记上。请有网络后重扫一次再收，不要重复收钱')})});
+  }).catch(function(){if(info!==who)return aside(who,'连不上后台，不确定收款 '+yen(c.rest)+' 有没有记上。请重扫看清楚，不要重复收钱',true);
+    taking=false;takeState();res('no','连不上后台：不确定有没有记上。请有网络后重扫一次再收，不要重复收钱')})});
 
 // ---------- in-page scanner (camera stays inside this page, so the phone key is always here) ----------
 var video=$('video'),stream=null,scanning=false,det=null,cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
@@ -238,14 +288,14 @@ try{if('BarcodeDetector' in window)det=new BarcodeDetector({formats:['qr_code']}
 function loadJsQR(cb){if(window.jsQR)return cb();var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';s.onload=cb;s.onerror=function(){res('no','扫码工具载入失败，请检查网络')};document.head.appendChild(s)}
 function stopScan(){scanning=false;if(stream)stream.getTracks().forEach(function(t){t.stop()});stream=null;$('cam').hidden=true;$('stopBtn').hidden=true;$('scanBtn').hidden=false}
 function found(text){var m=/[?&]p=([^&#\s]+)/.exec(text||'');stopScan();if(navigator.vibrate)navigator.vibrate(60);
-  if(!m){res('no','✕ 这不是入场码');return}pass=decodeURIComponent(m[1]);keepUrl({p:pass});info=null;res('','');load()}
+  if(!m){res('no','✕ 这不是入场码');return}pass=decodeURIComponent(m[1]);keepUrl({p:pass});info=null;flash='';flashKind='ok';res('','');load()}
 function tick(){if(!scanning)return;if(video.readyState<2){requestAnimationFrame(tick);return}
   if(det){det.detect(video).then(function(r){if(r&&r[0])found(r[0].rawValue);else setTimeout(tick,120)}).catch(function(){det=null;tick()});return}
   if(!window.jsQR){loadJsQR(tick);return}
   var w=video.videoWidth,h=video.videoHeight,sc=Math.min(1,640/Math.max(w,h));cv.width=w*sc;cv.height=h*sc;cx.drawImage(video,0,0,cv.width,cv.height);
   var img=cx.getImageData(0,0,cv.width,cv.height),r=window.jsQR(img.data,img.width,img.height,{inversionAttempts:'dontInvert'});
   if(r&&r.data)found(r.data);else setTimeout(tick,120)}
-$('scanBtn').addEventListener('click',function(){res('','');$('who').hidden=true;$('welcome').hidden=true;
+$('scanBtn').addEventListener('click',function(){res('','');$('who').hidden=true;$('welcome').hidden=true;++loadN;info=null;
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){res('no','这个浏览器不能用相机，请改用 Safari 或 Chrome');return}
   navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false}).then(function(s){stream=s;video.srcObject=s;video.play();scanning=true;$('cam').hidden=false;$('scanBtn').hidden=true;$('stopBtn').hidden=false;if(!det)loadJsQR(function(){});tick()})
     .catch(function(){res('no','打不开相机：请在浏览器设定里允许使用相机')})});
