@@ -97,8 +97,17 @@ async function deliver(env, to, subject, text, html, headers, opt) {
   else if (p === 'sub_mail' || p === 'cloudflare') {
     const binding = env.SUB_MAIL;
     if (!binding || typeof binding.send !== 'function') throw new Error('SUB_MAIL binding missing');
-    await binding.send({ from: { email: env.SENDER || 'subscribe@tangoweekend.org', name: fromName }, to, ...(list.length ? { cc: list } : {}), ...(replyTo ? { replyTo } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}),
+    const sendAs = email => binding.send({ from: { email, name: fromName }, to, ...(list.length ? { cc: list } : {}), ...(replyTo ? { replyTo } : {}), subject, text, ...(html ? { html } : {}), ...(hasH ? { headers: hasH } : {}),
       ...(atts.length ? { attachments: atts.map(a => ({ ...a, disposition: 'attachment' })) } : {}) });
+    const usual = env.SENDER || 'subscribe@tangoweekend.org';
+    // opt.from (a TP 活动专属邮箱): if Cloudflare will not send as that address, the letter still goes, from the usual one
+    try { await sendAs(opt.from || usual); }
+    catch (e) {
+      const why = String(e && e.code || '') + ' ' + String(e && e.message || e);
+      if (!opt.from || !/sender|\bfrom\b/i.test(why)) throw e;
+      console.log('mail from refused', why.slice(0, 160));
+      await sendAs(usual);
+    }
   }
   else console.log(`[mail:log] from=${fromName} to=${to}${cc ? ' cc=' + cc : ''}${replyTo ? ' reply-to=' + replyTo : ''} subject=${subject}${hasH ? ' ' + JSON.stringify(hasH) : ''}\n${text}${html ? '\n' + html : ''}${atts.length ? '\n[attachments] ' + atts.map(a => a.filename + ' ' + a.type + ' ' + a.content.length).join(' | ') : ''}`);
   return p;
