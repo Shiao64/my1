@@ -145,7 +145,7 @@ d = await call('POST', '/admin/reg/act', { id: id1, action: 'paid' }, ADMIN); ch
 mails.length = 0;
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'confirm' }, ADMIN);
 check('confirm sets due date +14d', d.ok && d.status === 'confirmed' && Math.abs(Date.parse(d.due) - Date.now() - 14 * 864e5) < 6e4, d);
-check('confirmation letter has pay + rules + QR', mails.some(m => m.includes('Registration confirmed · BJ27-0001') && m.includes('WeChat Pay or Alipay') && m.includes('June 11, 2027') && m.includes('/register/draft/?lang=en#pay') && !m.includes('transfer note') && !m.includes('/social/reg/qr/')), mails);
+check('confirmation letter has pay + rules + QR', mails.some(m => m.includes('Registration confirmed · BJ27-0001') && m.includes('with Alipay or WeChat Pay') && m.includes('June 11, 2027') && m.includes('/register/draft/?lang=en#pay') && !m.includes('transfer note') && !m.includes('/social/reg/qr/')), mails);
 d = await call('GET', '/reg/left?event=bstw2027'); check('confirmed pass uses M1–M4, not S1', d.left.M1 === 299 && d.left.S1 === 120, d.left);
 d = await call('POST', '/reg', form(), amy); check('cannot resubmit after confirm', d._s === 409 && d.error === 'exists');
 // capacity: fill S1 to 1 left, then a 2-person S1 form cannot be confirmed
@@ -608,12 +608,12 @@ d = await call('POST', '/reg', form({ lang: 'zh' }), cat); check('live: letter t
   const dan = subscriber('dan@gmail.com', 'Dan');
   const res = await social(new Request('https://api.tangoweekend.org/social/reg', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: 'https://tangoweekend.org', Authorization: 'Bearer ' + dan }, body: JSON.stringify(form()) }), benv, new URL('https://api.tangoweekend.org/social/reg'), json);
   check('binding mail goes out with replyTo field, no Reply-To header', (await res.json()).ok && sent.some(m => m.replyTo === 'info@tangoweekend.org' && /Registration received/.test(m.subject)), sent.map(m => m.subject)); }
-// letters: only uploaded QR codes, page link, Beijing date, no transfer note
+// letters: only uploaded QR codes, page link, Beijing date; 付款码 not 收款码 (the payment note with the number: 11/26, reg-paysteps.test.mjs)
 { const reg = { code: 'BJ27-0777', lang: 'zh', amount: 1450, due_at: '2026-12-14T17:30:00.000Z', data: { people: [], rooms: [], hotel: false } };
   for (const lang of ['en', 'zh', 'ko', 'es', 'ru']) for (const kind of ['conf', 'upd', 'rem']) {
     const m = R.letter(kind, { ...reg, lang }, env, null, ['intl-alipay']);
     check(`${lang} ${kind}: date, link, only uploaded QR`, m.text.includes('2026-12-15') && !m.text.includes('2026-12-14') && m.html.includes(`?lang=${lang}#pay"`) && m.html.includes('intl-alipay') && !m.html.includes('intl-wechat'), m.text);
-    check(`${lang} ${kind}: no transfer note, new word`, !/transfer note|转账备注|收款码|송금 메모|nota de la transferencia|комментарии к переводу/.test(m.text));
+    check(`${lang} ${kind}: the word 付款码, never 收款码 or a bank transfer`, !/transfer note|转账备注|收款码|송금 메모|nota de la transferencia|комментарии к переводу/.test(m.text));
   }
   const p = R.letter('paid', reg, env, [{ name: 'A', pass: 'BJ27-0777-1.x' }]);
   check('paid letter links to the live page', p.text.includes('/register/draft/?lang=zh#passes') && p.html.includes('#passes"'));
