@@ -75,6 +75,14 @@ tr.sel{background:#fff4d6}
 .hist div{padding:2px 0}
 .acts{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
 .sacts{position:sticky;bottom:-24px;background:#fff;padding:10px 0 24px}
+#payBox:not(:empty)+.sacts{display:none}   /* an open money or change form has its own buttons */
+.sacts .more{display:flex;gap:7px;flex-wrap:wrap;width:100%;align-items:center}
+.sacts .more button{font-size:13px;padding:6px 10px}
+button.d{color:#a30d14;border-color:#e6b3b6;background:#fff}
+.sacts .more .d{margin-left:auto}.sacts .more .d~.d{margin-left:0}
+.money-note{display:block;font-size:12px;font-weight:700;color:#8a5200}.money-note.back{color:#a30d14}
+.sh .next{margin-left:auto;margin-right:8px}
+.form .who{margin:0 0 8px}
 .form{background:#fffaf0;border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:10px}
 .form label{display:block;margin-bottom:7px}
 .form input,.form select{width:100%}
@@ -332,6 +340,10 @@ function owed(r){
 function rowOf(id){return DATA.rows.filter(function(r){return r.id===id})[0]}
 // paid more than the total (调整金额 lowered it): to be refunded without cancelling
 function over(r){return r.status==='paid'&&(r.payments||[]).length?Math.max(0,(r.paid_total||0)-r.amount):0}
+function backDue(r){return r.status==='cancelled'?toRefund(r):over(r)}
+function moneyNote(r){var b=backDue(r),o=owed(r);
+  if(b>0)return '<span class="money-note back">'+(r.status==='cancelled'?'应退 ':'多收 ')+fmt(b)+'</span>';
+  return o>0&&o!==r.amount?'<span class="money-note">欠 '+fmt(o)+'</span>':''}
 function adjSum(r){return (r.adjusts||[]).reduce(function(s,x){return s+x.d},0)}
 function card(title,big,small,attr,hot){var t=attr?'button':'div';return '<'+t+' class="k'+(hot?' hot':'')+'" '+(attr||'')+'><small>'+title+'</small><b>'+big+'</b><small>'+small+'</small></'+t+'>'}
 function toast(s,ms){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},ms||4000)}
@@ -481,6 +493,8 @@ function todo(){
     card('待付款',n.confirmed||0,'收到截图就记收款','data-go="confirmed"')+
     card('到场付款',n.cash||0,'到场扫码收款','data-go="cash"')+
     card('候补',n.waitlist||0,'有名额时递补','data-go="waitlist"');
+  var back=DATA.rows.filter(function(r){return backDue(r)>0}).length;
+  if(back)$('todoCards').innerHTML+=card('待退款',back,'取消应退或多收的','data-go="refund"',true);
   var unsent=DATA.rows.filter(function(r){return (r.mail_failed||[]).length}).length;
   if(unsent)$('todoCards').innerHTML+=card('信没寄出',unsent,'点进去看是哪一封','data-go="unsent"',true);
   $('caps').innerHTML=Object.keys(DATA.caps).map(function(c){var l=DATA.left[c],k=(DATA.checked||{})[c];return card(NAME[c],l,'上限 '+DATA.caps[c]+(k?' · 已签到 '+k:''),'',l<=20)}).join('');
@@ -493,7 +507,7 @@ $('todoCards').addEventListener('click',function(e){var b=e.target.closest('[dat
 function regList(){
   var q=$('fQ').value.trim().toLowerCase(),dom=$('fDom').value,sort=$('fSort').value;
   return DATA.rows.filter(function(r){
-    return (!S.st||(S.st==='unsent'?(r.mail_failed||[]).length>0:state(r)===S.st))&&(dom===''||String(r.domestic?1:0)===dom)&&(!q||(r.code+' '+r.email+' '+r.data.people.map(function(p){return p.name+' '+(p.nick||'')}).join(' ')).toLowerCase().indexOf(q)>=0)
+    return (!S.st||(S.st==='unsent'?(r.mail_failed||[]).length>0:S.st==='refund'?backDue(r)>0:state(r)===S.st))&&(dom===''||String(r.domestic?1:0)===dom)&&(!q||(r.code+' '+r.email+' '+r.data.people.map(function(p){return p.name+' '+(p.nick||'')}).join(' ')).toLowerCase().indexOf(q)>=0)
   }).sort(function(a,b){
     if(sort==='old')return a.id-b.id;
     if(sort==='amount')return b.amount-a.amount||b.id-a.id;
@@ -505,15 +519,15 @@ function pager(key,total,unit){
   return '<button data-pg="'+key+'" data-d="-1"'+(p?'':' disabled')+'>‹ 上一页</button><span>第 '+(p+1)+' / '+z+' 页 · 共 '+total+' '+unit+'</span><button data-pg="'+key+'" data-d="1"'+(p<z-1?'':' disabled')+'>下一页 ›</button>'}
 function someLabel(id,n){var b=$(id);b.textContent='导出筛选的 '+n;b.disabled=!n}
 function regs(){
-  var n={},unsent=0;DATA.rows.forEach(function(r){var s=state(r);n[s]=(n[s]||0)+1;if((r.mail_failed||[]).length)unsent++});
-  $('chips').innerHTML=[['','全部',DATA.rows.length]].concat(Object.keys(ST).map(function(k){return [k,ST[k],n[k]||0]})).concat(unsent||S.st==='unsent'?[['unsent','信没寄出',unsent]]:[]).map(function(c){return '<button data-st="'+c[0]+'" class="'+(S.st===c[0]?'on':'')+'">'+c[1]+' '+c[2]+'</button>'}).join('');
+  var n={},unsent=0,back=0;DATA.rows.forEach(function(r){var s=state(r);n[s]=(n[s]||0)+1;if((r.mail_failed||[]).length)unsent++;if(backDue(r)>0)back++});
+  $('chips').innerHTML=[['','全部',DATA.rows.length]].concat(Object.keys(ST).map(function(k){return [k,ST[k],n[k]||0]})).concat(back||S.st==='refund'?[['refund','待退款',back]]:[]).concat(unsent||S.st==='unsent'?[['unsent','信没寄出',unsent]]:[]).map(function(c){return '<button data-st="'+c[0]+'" class="'+(S.st===c[0]?'on':'')+'">'+c[1]+' '+c[2]+'</button>'}).join('');
   var l=regList();$('regPager').innerHTML=pager('regs',l.length,'笔');someLabel('csvSome',l.length);
   $('rows').innerHTML=l.slice(S.pg.regs*N,(S.pg.regs+1)*N).map(function(r){var p=r.data.people[0]||{},due=r.status==='confirmed'&&r.due_at?bj(r.due_at).slice(5,10):'';
     return '<tr tabindex="0" data-open="'+r.id+'"'+(S.open===r.id?' class="sel"':'')+'><td class="x">'+esc(r.code)+'</td>'+
       '<td class="name"><b>'+esc(p.name)+'</b>'+(r.people>1?' +'+(r.people-1):'')+'<span class="sub">'+esc(r.code)+' · '+esc(brief(p))+'</span></td>'+
       '<td class="x">'+r.people+'</td><td class="x">'+esc(country(p.country))+'</td>'+
       '<td class="x what" title="'+esc(what(p))+'">'+esc(brief(p))+'</td><td class="x">'+(r.data.hotel?'有':'—')+'</td>'+
-      '<td class="n">'+fmt(r.amount)+(due?'<span class="sub">'+due+' 到期</span>':'')+'</td>'+
+      '<td class="n">'+fmt(r.amount)+moneyNote(r)+(due?'<span class="sub">'+due+' 到期</span>':'')+'</td>'+
       '<td class="n x">'+(r.paid_total?fmt(r.paid_total):'—')+'</td><td class="x">'+(due||'—')+'</td><td>'+tag(r)+'</td></tr>'
   }).join('')||'<tr><td colspan="10" class="empty">没有符合的报名</td></tr>'}
 $('chips').addEventListener('click',function(e){var b=e.target.closest('[data-st]');if(!b)return;S.st=b.dataset.st;S.pg.regs=0;closeSide();regs()});
@@ -606,11 +620,14 @@ function side(){
     if(!can(ACT_NEEDS[a]))return false;
     if(a==='refund')return r.status==='cancelled'?toRefund(r)>0:over(r)>0;
     if(a==='pay')return r.amount-(r.paid_total||0)>0;
-    return true}).map(function(a){return '<button data-a="'+a+'"'+(a==='confirm'||a==='pay'?' class="p"':'')+'>'+ACT_NAME[a]+'</button>'}).join('');
+    return true});
+  var btn=function(a){return '<button data-a="'+a+'"'+(a==='confirm'||a==='pay'?' class="p"':a==='cancel'||a==='decline'?' class="d"':'')+'>'+ACT_NAME[a]+'</button>'};
+  var RARE=['modify','plus','minus','decline','cancel'],main=acts.filter(function(a){return RARE.indexOf(a)<0}),more=acts.filter(function(a){return RARE.indexOf(a)>=0});
+  var buttons=main.map(btn).join('')+(more.length?'<div class="more">'+more.map(btn).join('')+'</div>':'');
   var l=S.tab==='regs'?regList():[],k=l.map(function(x){return x.id}).indexOf(r.id);
   var next=k>=0&&k<l.length-1?'<button data-next="'+l[k+1].id+'">下一笔 ›</button>':'';
   var note=r.id in drafts?drafts[r.id]:r.note||'';
-  $('side').innerHTML='<div class="sh"><h2>'+esc(r.code)+'</h2><button data-close aria-label="关闭">✕</button></div>'+
+  $('side').innerHTML='<div class="sh"><h2>'+esc(r.code)+'</h2>'+(next?next.replace('<button ','<button class="next" '):'')+'<button data-close aria-label="关闭">✕</button></div>'+
     '<div class="sideinfo">'+tag(r)+' <span class="muted">'+(r.domestic?'国内':'国际')+' · '+r.people+' 人 · '+esc(r.email)+' · 语言 '+esc(r.lang)+'</span></div>'+
     (r.mail_failed||[]).map(function(m){return '<p class="why" data-unsent>信没寄出：'+esc(LETTER[m.action]||m.action)+'（'+bj(m.at).slice(5)+'）</p>'}).join('')+
     '<ul>'+ppl+rooms+'</ul>'+(d.hotel&&can('passport')?'<button data-show>'+(S.show?'隐藏护照姓名':'显示护照姓名')+'</button>':'')+
@@ -622,19 +639,30 @@ function side(){
     (d.msg?'<h3>报名者留言</h3><div class="sideinfo">'+esc(d.msg)+'</div>':'')+
     '<h3>处理纪录（北京时间）</h3><div class="muted hist">'+history_(r)+'</div>'+
     '<h3>内部备注</h3><textarea data-note placeholder="总管和经理看得到，前台看不到">'+esc(note)+'</textarea><button data-save>保存备注</button>'+
-    '<div id="payBox"></div><div class="acts sacts">'+acts+next+'</div>';
+    '<div id="payBox"></div><div class="acts sacts">'+buttons+'</div>';
   // a refresh of the panel keeps the open 修改报名 form, unless the registration changed meanwhile
   if(MOD){if(MOD.id===r.id&&MOD.seen===r.updated_at){modRender();modAsk()}else MOD=null}}
 function modDrop(){MOD=null;clearTimeout(modT);++modN}
 function payForm(r,a){modDrop();
   var rf=a==='refund',back=(r.payments||[]).reduce(function(s,x){return x.amount<0?s-x.amount:s},0),amount=rf?(r.status==='cancelled'?Math.max(0,(r.refund||0)-back):over(r)):Math.max(0,r.amount-(r.paid_total||0));
-  $('payBox').innerHTML='<form class="form" id="payForm" data-act="'+a+'" data-seen="'+amount+'" data-from="'+esc(r.status)+'"><h2>'+(rf?(r.status==='cancelled'?'记退款':'退还多付'):'记收款')+'</h2>'+
+  var title=rf?(r.status==='cancelled'?'记退款':'退还多付'):'记收款';
+  $('payBox').innerHTML='<form class="form" id="payForm" data-act="'+a+'" data-seen="'+amount+'" data-from="'+esc(r.status)+'"><h2>'+title+' · '+esc((r.data.people[0]||{}).name)+'</h2>'+
+    '<p class="muted who">'+esc(r.code)+' · '+(rf?'应退 ':'尚欠 ')+fmt(amount)+' · 合计 '+fmt(r.amount)+'，已收 '+fmt(r.paid_total)+'</p>'+
     '<label>金额<input class="pa" type="number" min="1" step="1" required value="'+amount+'"></label>'+
     '<label>方式<select class="pm" required><option value="">请选…</option>'+Object.keys(METHOD).map(function(k){return '<option value="'+k+'">'+METHOD[k]+'</option>'}).join('')+'</select></label>'+
     '<label>'+(rf?'退款人':'收款人')+'<input class="pc" required value="'+esc(DATA.me.name)+'"></label>'+
     '<label>备注<input class="pn" placeholder="例如转账单号（可不填）"></label>'+
-    '<div class="acts"><button class="p ps">确定</button><button type="button" data-pay-cancel>不记了</button></div></form>';
-  $('payForm').scrollIntoView({block:'nearest'})}
+    '<div class="acts"><button class="p ps"></button><button type="button" data-pay-cancel>不记了</button></div></form>';
+  payLabel();$('payForm').scrollIntoView({block:'nearest'})}
+function payLabel(){var f=$('payForm');if(!f)return;var n=Math.round(+f.querySelector('.pa').value||0),m=f.querySelector('.pm').value;
+  f.querySelector('.ps').textContent=(f.dataset.act==='refund'?'记退款 ':'记收款 ')+(n>0?fmt(n):'')+(m?' · '+METHOD[m]:'')}
+$('side').addEventListener('input',function(e){if(e.target.closest('#payForm'))payLabel()});
+$('side').addEventListener('change',function(e){if(e.target.closest('#payForm'))payLabel()});
+// what cancelling will mean for the money, said before it is done (the same rule as the backend; its answer is what counts)
+function cancelText(r){var paid=r.paid_total||0,list=r.payments||[],took=r.status==='paid'&&!list.length?r.amount:paid;
+  if(!(took>0))return '这笔没有收过款，不用退款。';
+  var late=new Date(Date.now()+288e5).toISOString().slice(0,10)>'2027-06-11',back=late?(r.status==='paid'&&list.length?Math.max(0,paid-r.amount):0):Math.max(0,took-50);
+  return '已收 '+fmt(took)+'，取消后应退 '+fmt(back)+(late?(back>0?'（已过 6 月 11 日，只退之前多收的部分）':'（已过 6 月 11 日，不退款）'):'（扣 ¥50 手续费）')+'。'}
 // ---------- 修改报名（总管、管理员）: items, people, hotel; the backend's preview first, then the password (Shiao, 2026-11-26)
 var EXTRA=['MV','T1','S1','T2','MF'],MIL=['M1','M2','M3','M4'],COV={full:['MV','M1','M2','M3','M4','S1','MF'],combo:['M1','M2','M3','M4','S1'],pass:['M1','M2','M3','M4'],single:[]};
 var CTRY=[['CN','中国大陆'],['KR','韩国'],['RU','俄罗斯'],['HK','香港'],['TW','台湾'],['VN','越南'],['JP','日本'],['SG','新加坡'],['MY','马来西亚'],['TH','泰国'],['PH','菲律宾'],['ID','印尼'],['IN','印度'],['AU','澳洲'],['NZ','新西兰'],['US','美国'],['CA','加拿大'],['AR','阿根廷'],['ES','西班牙'],['EU','欧洲其他'],['OTHER','其他']];
@@ -773,7 +801,7 @@ function adjAfter(r,sign,n,part){
   return {lines:l}}
 function adjForm(r,a){modDrop();
   var sign=a==='plus'?1:-1,hotel=!!r.data.hotel;
-  $('payBox').innerHTML='<form class="form" id="adjForm" data-act="adjust" data-sign="'+sign+'" data-seen="'+r.amount+'" data-from="'+esc(r.status)+'"><h2>'+(sign>0?'加收':'减收')+'</h2>'+
+  $('payBox').innerHTML='<form class="form" id="adjForm" data-act="adjust" data-sign="'+sign+'" data-seen="'+r.amount+'" data-from="'+esc(r.status)+'"><h2>'+(sign>0?'加收':'减收')+' · '+esc((r.data.people[0]||{}).name)+'</h2>'+
     '<p class="muted">只改金额，不改报名的场次、人数、房间；不收手续费。</p>'+
     '<label>金额<input class="aa" type="number" min="1" step="1" inputmode="numeric" required></label>'+
     (hotel?'<label>算在<select class="ap"><option value="reg">报名费</option><option value="hotel">住宿费（取消时照住宿退费期限处理）</option></select></label>':'')+
@@ -832,7 +860,16 @@ $('side').addEventListener('click',function(e){
   if(a==='pay'||a==='refund')return payForm(r,a);
   if(a==='plus'||a==='minus')return adjForm(r,a);
   if(a==='modify')return modOpen(r);
-  if(!confirm('确定要「'+ACT_NAME[a]+'」'+r.code+'（'+r.data.people[0].name+'，'+r.people+' 人，'+fmt(r.amount)+'）吗？会试着寄信通知报名者。'))return;
+  // cancelling says what happens to the money: read it afresh first (someone else may have just recorded a payment)
+  if(a==='cancel'){var before=DATA;b.disabled=true;return load().then(function(){var now=DATA&&rowOf(r.id);
+    if(!now||DATA===before){b.disabled=false;return toast('读不到最新资料，先没有取消')}
+    if(S.open!==r.id)return;
+    if(now.status!==r.status||now.paid_total!==r.paid_total||now.amount!==r.amount)return toast('这笔刚有变动，请看一下再按「取消报名」',9000);
+    doAct(now,a,$('side').querySelector('[data-a="cancel"]')||b)})}
+  doAct(r,a,b)});
+function doAct(r,a,b){
+  b.disabled=false;
+  if(!confirm('确定要「'+ACT_NAME[a]+'」'+r.code+'（'+r.data.people[0].name+'，'+r.people+' 人，'+fmt(r.amount)+'）吗？'+(a==='cancel'?'\n'+cancelText(r)+'\n':'')+'会试着寄信通知报名者。'))return;
   var l=S.tab==='regs'?regList():[],k=l.map(function(x){return x.id}).indexOf(r.id),after=k>=0&&l[k+1]?l[k+1].id:0;
   b.disabled=true;
   act('/act',{id:r.id,action:a,from:r.status}).then(function(d){
@@ -840,7 +877,7 @@ $('side').addEventListener('click',function(e){
     toast(r.code+' 已'+ACT_NAME[a]+(d.refund!=null&&a==='cancel'?((d.refundLeft!=null?d.refundLeft:d.refund)===0?'，依规定不退款':'，应退 '+fmt(d.refundLeft!=null?d.refundLeft:d.refund)):'')+mailTip(d),d.mail==='failed'?12000:4000);
     // reviewing one by one: go straight on to the next one that is waiting
     if(S.st==='pending'&&after&&S.open===r.id&&(a==='confirm'||a==='waitlist'||a==='decline')){S.open=after;S.show=false;$('side').scrollTop=0}
-    load()})});
+    load()})}
 
 // ---------- 导出：全部＝后台给的文件；筛选的＝同一个文件只留画面上筛出来的行
 function csvRows(t){var out=[],cur=[],cell='',q=false,start=0;
