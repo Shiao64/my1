@@ -155,6 +155,7 @@
 - 一起补上：「修改报名」（后台才有，管理页没有画面）把已付款那笔改高时，也变「到场付款」，不会再显示成已付清。报名者在待审核时自己改表单、或「修改报名」重算金额时，之前的调整都保留。
 - 程序：`register.js` 的 `regAct` 动作 `adjust`（权限沿用 `modify`，`/act` 要 `stepUp`）、`refund` 多了「已付款且多付」的情况、`adjOf`/`withAdj`（调整存在 `reg_log` 的 `adjust` 行，`reg.amount`、`reg.hotel_amount` 已含调整，**不用新迁移**）、信 `adj`。管理页 `adjForm`/`adjAfter`/`adjSubmit`，报名页 `adjText`。测试 `social-worker/test/reg-adjust.test.mjs`；浏览器测试 `~/atm-claude/tp-ui-tests/t200/adjust-ui.mjs`（不进仓库）。
 - 平台那边（规格书 v0.8 第二批）以后用新表 `reg_adjust` 也行；北京这版先存在处理纪录里，搬家时一起带过去。
+- 部署顺序（先问 Shiao）：记书签 → 部署 worker（不用迁移、不改 Cloudflare 设定）→ 合并网页（管理页、报名页）。网页不能比后台先上：旧后台不认得 `adjust`，按「加收」只会说没成功。回退：worker 退回上一版就好；已经调过的金额留在 `reg.amount` 里照样对，只是旧程序不再显示调整的明细，报名者改待审核的表单时会按表单重算（调整掉了）。之后 #450（12/1 上线）和平台那 5 个 PR 要接到新的 main 上。
 
 ## 用词
 
