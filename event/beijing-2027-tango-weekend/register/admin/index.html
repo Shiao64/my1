@@ -287,13 +287,13 @@ var NAME={MV:'周五 欢迎舞会',T1:'周五 一日游',M1:'周六 下午场',M
 var PKG={full:'全程套餐',combo:'周末套餐',pass:'周末舞会4场',single:'单场'};
 var ST={pending:'待审核',confirmed:'待付款',overdue:'逾期',paid:'已付款',cash:'到场付款',waitlist:'候补',declined:'婉拒',cancelled:'已取消'};
 var ROLE={leader:'Leader',follower:'Follower',both:'都可以'};
-var ACTS={pending:['confirm','waitlist','decline','cancel'],waitlist:['confirm','decline','cancel'],confirmed:['pay','cash','cancel'],cash:['pay','cancel'],paid:['pay','cancel'],declined:[],cancelled:['refund']};
-var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'到场付款',cancel:'取消报名',refund:'记退款'};
+var ACTS={pending:['confirm','waitlist','decline','plus','minus','cancel'],waitlist:['confirm','decline','plus','minus','cancel'],confirmed:['pay','cash','plus','minus','cancel'],cash:['pay','plus','minus','cancel'],paid:['pay','plus','minus','refund','cancel'],declined:[],cancelled:['refund']};
+var ACT_NAME={confirm:'确认',waitlist:'候补',decline:'婉拒',pay:'记收款',cash:'到场付款',plus:'加收',minus:'减收',cancel:'取消报名',refund:'记退款'};
 // mirrors the backend only to leave out buttons; the backend decides and does not send what a role may not see
-var ACT_NEEDS={confirm:'review',waitlist:'review',decline:'review',pay:'review',cash:'review',cancel:'cancel',refund:'refund'};
-var DONE={confirm:'确认',waitlist:'候补',decline:'婉拒',cash:'批准到场付款',pay:'记了收款',refund:'记了退款',cancel:'取消报名',modify:'修改报名',note:'改了内部备注'};
+var ACT_NEEDS={confirm:'review',waitlist:'review',decline:'review',pay:'review',cash:'review',plus:'modify',minus:'modify',cancel:'cancel',refund:'refund'};   // 加收、减收: 总管 and 管理员 (调整金额, 2026-11-26)
+var DONE={confirm:'确认',waitlist:'候补',decline:'婉拒',cash:'批准到场付款',pay:'记了收款',refund:'记了退款',cancel:'取消报名',modify:'修改报名',adjust:'调整金额',note:'改了内部备注'};
 var WHO={owner:'管理员',chief:'总管',deputy:'经理',manager:'现场经理'},LEVEL={manager:1,deputy:2,chief:3};
-var LETTER={recv:'收到报名的信',notify:'给主办的新报名通知',confirm:'确认信',waitlist:'候补信',decline:'婉拒信',cash:'到场付款信',paid:'付款确认信',remind:'付款提醒',cancel:'取消信',modify:'修改确认信'};
+var LETTER={recv:'收到报名的信',notify:'给主办的新报名通知',confirm:'确认信',waitlist:'候补信',decline:'婉拒信',cash:'到场付款信',paid:'付款确认信',remind:'付款提醒',cancel:'取消信',modify:'修改确认信',adjust:'金额调整信'};
 function mailTip(d){return d.mail==='sent'?'，信已寄出':d.mail==='failed'?'。但信没寄出，请自己联系报名者':''}
 var METHOD={alipay:'支付宝',wechat:'微信',cash:'现金',other:'其他'};
 var SITE=[['site','现场']];
@@ -318,6 +318,9 @@ function owed(r){
   if(r.status==='confirmed'||r.status==='cash'||(r.status==='paid'&&(r.payments||[]).length))return Math.max(0,r.amount-(r.paid_total||0));
   return 0}
 function rowOf(id){return DATA.rows.filter(function(r){return r.id===id})[0]}
+// paid more than the total (调整金额 lowered it): to be refunded without cancelling
+function over(r){return r.status==='paid'&&(r.payments||[]).length?Math.max(0,(r.paid_total||0)-r.amount):0}
+function adjSum(r){return (r.adjusts||[]).reduce(function(s,x){return s+x.d},0)}
 function card(title,big,small,attr,hot){var t=attr?'button':'div';return '<'+t+' class="k'+(hot?' hot':'')+'" '+(attr||'')+'><small>'+title+'</small><b>'+big+'</b><small>'+small+'</small></'+t+'>'}
 function toast(s,ms){var m=$('msg');m.textContent=s;m.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(function(){m.style.display='none'},ms||4000)}
 
@@ -406,7 +409,10 @@ function errText(d){
   if(e==='chief_taken')return '每场只有 1 位总管';
   if(e==='deputy_full')return '经理最多 3 位，已经满了：不能新增或升级，先删除或降级一位';
   if(e==='full')return NAME[d.item]+' 只剩 '+d.left+' 位，这笔要 '+d.need+' 位';
-  if(e==='bad_amount')return '金额不对：最多 '+fmt(d.rest!=null?d.rest:d.due);
+  if(e==='bad_amount')return d.max!=null?'金额不对：这部分最多只能减 '+fmt(d.max):d.rest!=null||d.due!=null?'金额不对：最多 '+fmt(d.rest!=null?d.rest:d.due):'金额不对';
+  if(e==='need_why')return '没有改：请写给报名者看的说明';
+  if(e==='no_hotel')return '这笔没有住宿，不能算在住宿费';
+  if(e==='no_payments')return '这笔没有收款纪录：请先记收款，再调整金额';
   if(e==='name_taken')return '已经有这个名字了';
   if(e==='name_reserved')return '这个名字留给管理员，请换一个';
   if(e==='changed'||e==='not_found')return '没有改：别人刚改过或删除了。画面已换成最新的';
@@ -554,6 +560,7 @@ function history_(r){
   if(r.cancelled_at&&!had.cancel)h.push([r.cancelled_at,'已取消']);
   if(r.reminded_at&&!(r.mail_failed||[]).some(function(m){return m.action==='remind'}))h.push([r.reminded_at,'已寄付款提醒']);
   (r.mail_failed||[]).forEach(function(m){h.push([m.at,'信没寄出：'+(LETTER[m.action]||m.action)])});
+  (r.adjusts||[]).forEach(function(x){h.push([x.at,(x.d>0?'加收 ':'减收 ')+fmt(Math.abs(x.d))+(x.part==='hotel'?'（住宿）':'')+' · '+x.why+(x.note?' · 内部备注：'+x.note:'')+' · '+byName(x.by)])});
   (r.payments||[]).forEach(function(x){h.push([x.at,(x.amount<0?'退款 ':'收款 ')+fmt(Math.abs(x.amount))+' · '+(METHOD[x.method]||x.method)+' · '+byName(x.collector)+(x.by_admin!==x.collector?'（'+byName(x.by_admin)+' 记录）':'')+(x.note?' · '+x.note:'')])});
   if(r.paid_at)h.push([r.paid_at,'已付款']);
   (r.undos||[]).forEach(function(u){h.push([u.at,'撤销签到 '+((r.data.people[u.person]||{}).name||'')+' · '+(NAME[u.item]||u.item)+' · '+byName(u.by)])});
@@ -567,7 +574,7 @@ function side(){
   var rooms=d.hotel?d.rooms.map(function(x,i){return '<li>房间 '+(i+1)+'：'+(x.type==='king'?'大床':'双床')+' · '+esc(x.ci)+' → '+esc(x.co)+' · '+x.nights+' 晚 '+fmt(x.amount)+'<div class="muted">'+x.guests.map(function(g){var q=pp[g]||{};return esc((d.people[g]||{}).name)+(S.show&&d.passports?'：'+esc(q.s)+' / '+esc(q.g):'')}).join('、')+'</div></li>'}).join(''):'';
   var acts=(ACTS[r.status]||[]).filter(function(a){
     if(!can(ACT_NEEDS[a]))return false;
-    if(a==='refund')return r.refund>0;
+    if(a==='refund')return r.status==='cancelled'?r.refund>0:over(r)>0;
     if(a==='pay')return r.amount-(r.paid_total||0)>0;
     return true}).map(function(a){return '<button data-a="'+a+'"'+(a==='confirm'||a==='pay'?' class="p"':'')+'>'+ACT_NAME[a]+'</button>'}).join('');
   var l=S.tab==='regs'?regList():[],k=l.map(function(x){return x.id}).indexOf(r.id);
@@ -578,7 +585,8 @@ function side(){
     (r.mail_failed||[]).map(function(m){return '<p class="why" data-unsent>信没寄出：'+esc(LETTER[m.action]||m.action)+'（'+bj(m.at).slice(5)+'）</p>'}).join('')+
     '<ul>'+ppl+rooms+'</ul>'+(d.hotel&&can('passport')?'<button data-show>'+(S.show?'隐藏护照姓名':'显示护照姓名')+'</button>':'')+
     '<div class="cards">'+card('应收',fmt(r.amount),r.status==='confirmed'&&r.due_at?'期限 '+bj(r.due_at).slice(0,10):r.fee?'含手续费 '+fmt(r.fee):'全部人合计')+
-      (r.status==='cancelled'?card('应退',fmt(r.refund),'已收净额 '+fmt(r.paid_total)):card('尚欠',fmt(r.status==='pending'||r.status==='waitlist'?r.amount:rest),'已收 '+fmt(r.paid_total)))+'</div>'+
+      (r.status==='cancelled'?card('应退',fmt(r.refund),'已收净额 '+fmt(r.paid_total)):over(r)?card('退还多付',fmt(over(r)),'已收 '+fmt(r.paid_total),'',true):card('尚欠',fmt(r.status==='pending'||r.status==='waitlist'?r.amount:rest),'已收 '+fmt(r.paid_total)))+'</div>'+
+    (adjSum(r)?'<p class="muted">应收已含调整金额 '+(adjSum(r)>0?'+':'−')+fmt(Math.abs(adjSum(r)))+'（见处理纪录）</p>':'')+
     (r.fee&&r.status==='confirmed'?'<p class="muted">含手续费 '+fmt(r.fee)+'</p>':'')+
     (r.promo?'<p class="muted">折扣码 '+esc(r.promo)+(r.promo_dj?'（'+esc(r.promo_dj)+' 的朋友）':'')+'</p>':'')+
     (d.msg?'<h3>报名者留言</h3><div class="sideinfo">'+esc(d.msg)+'</div>':'')+
@@ -586,14 +594,55 @@ function side(){
     '<h3>内部备注</h3><textarea data-note placeholder="总管和经理看得到，前台看不到">'+esc(note)+'</textarea><button data-save>保存备注</button>'+
     '<div id="payBox"></div><div class="acts sacts">'+acts+next+'</div>'}
 function payForm(r,a){
-  var rf=a==='refund',back=(r.payments||[]).reduce(function(s,x){return x.amount<0?s-x.amount:s},0),amount=rf?Math.max(0,(r.refund||0)-back):Math.max(0,r.amount-(r.paid_total||0));
-  $('payBox').innerHTML='<form class="form" id="payForm" data-act="'+a+'" data-seen="'+amount+'" data-from="'+esc(r.status)+'"><h2>'+(rf?'记退款':'记收款')+'</h2>'+
+  var rf=a==='refund',back=(r.payments||[]).reduce(function(s,x){return x.amount<0?s-x.amount:s},0),amount=rf?(r.status==='cancelled'?Math.max(0,(r.refund||0)-back):over(r)):Math.max(0,r.amount-(r.paid_total||0));
+  $('payBox').innerHTML='<form class="form" id="payForm" data-act="'+a+'" data-seen="'+amount+'" data-from="'+esc(r.status)+'"><h2>'+(rf?(r.status==='cancelled'?'记退款':'退还多付'):'记收款')+'</h2>'+
     '<label>金额<input class="pa" type="number" min="1" step="1" required value="'+amount+'"></label>'+
     '<label>方式<select class="pm" required><option value="">请选…</option>'+Object.keys(METHOD).map(function(k){return '<option value="'+k+'">'+METHOD[k]+'</option>'}).join('')+'</select></label>'+
     '<label>'+(rf?'退款人':'收款人')+'<input class="pc" required value="'+esc(DATA.me.name)+'"></label>'+
     '<label>备注<input class="pn" placeholder="例如转账单号（可不填）"></label>'+
     '<div class="acts"><button class="p ps">确定</button><button type="button" data-pay-cancel>不记了</button></div></form>';
   $('payForm').scrollIntoView({block:'nearest'})}
+// ---------- 调整金额（加收、减收；总管、管理员）: money only, what they registered for stays (Shiao, 2026-11-26)
+function adjAfter(r,sign,n,part){
+  var paid=r.paid_total||0,st=r.status,base=part==='hotel'?(r.hotel_amount||0):r.amount-(r.hotel_amount||0),amt=r.amount+sign*n;
+  if(!(n>0))return {msg:'填好金额，这里会显示调整后的结果'};
+  if(sign<0&&n>base)return {err:'这部分最多只能减 '+fmt(base)};
+  if(st==='paid'&&!(r.payments||[]).length)return {err:'这笔没有收款纪录：请先记收款，再调整金额'};
+  var l=['合计 '+fmt(r.amount)+' → '+fmt(amt)+'，已收 '+fmt(paid)];
+  if(st==='pending'||st==='waitlist')l.push('确认后寄出的付款信会用新的金额');
+  else if(st==='paid'&&paid<amt)l.push('会变成「到场付款」：还差 '+fmt(amt-paid)+'。入场码照样能用，门口收齐才入场');
+  else if((st==='confirmed'||st==='cash')&&paid>=amt)l.push('会变成「已付款」'+(r.paid_at?'':'，并寄入场码给报名者'));
+  else if(st==='paid'&&paid>amt)l.push('多付 '+fmt(paid-amt)+'：之后在这里按「记退款」退还');
+  else if(st==='confirmed'||st==='cash')l.push('尚欠 '+fmt(amt-paid));
+  l.push('会寄「金额调整」信给报名者，写明说明和新的金额');
+  return {lines:l}}
+function adjForm(r,a){
+  var sign=a==='plus'?1:-1,hotel=!!r.data.hotel;
+  $('payBox').innerHTML='<form class="form" id="adjForm" data-act="adjust" data-sign="'+sign+'" data-seen="'+r.amount+'" data-from="'+esc(r.status)+'"><h2>'+(sign>0?'加收':'减收')+'</h2>'+
+    '<p class="muted">只改金额，不改报名的场次、人数、房间；不收手续费。</p>'+
+    '<label>金额<input class="aa" type="number" min="1" step="1" inputmode="numeric" required></label>'+
+    (hotel?'<label>算在<select class="ap"><option value="reg">报名费</option><option value="hotel">住宿费（取消时照住宿退费期限处理）</option></select></label>':'')+
+    '<label>给报名者看的说明<input class="aw" required maxlength="200" placeholder="'+(sign>0?'例如：多住一晚':'例如：义工优惠')+'"></label>'+
+    '<label>内部备注<input class="an" maxlength="200" placeholder="只有组织者看得到（可不填）"></label>'+
+    '<div class="muted" id="adjPrev"></div>'+
+    '<div class="acts"><button class="p ps">确定'+(sign>0?'加收':'减收')+'</button><button type="button" data-pay-cancel>不改了</button></div></form>';
+  adjShow();$('adjForm').scrollIntoView({block:'nearest'})}
+function adjShow(){var f=$('adjForm'),r=S.open&&rowOf(S.open);if(!f||!r)return;
+  var p=f.querySelector('.ap'),x=adjAfter(r,+f.dataset.sign,Math.round(+f.querySelector('.aa').value||0),p?p.value:'reg');
+  $('adjPrev').innerHTML=x.err?'<p class="why">'+esc(x.err)+'</p>':x.msg?esc(x.msg):x.lines.map(function(s){return '<div>'+esc(s)+'</div>'}).join('')}
+function adjSubmit(f){
+  var r=rowOf(S.open);if(!r)return;
+  var b=f.querySelector('.ps'),sign=+f.dataset.sign,n=Math.round(+f.querySelector('.aa').value||0),p=f.querySelector('.ap'),part=p?p.value:'reg';
+  var why=f.querySelector('.aw').value.trim(),note=f.querySelector('.an').value.trim(),x=adjAfter(r,sign,n,part);
+  if(!(n>0))return toast('请填金额');if(x.err)return toast(x.err);if(!why)return toast('请写给报名者看的说明');
+  if(sign>0&&n>r.amount&&!confirm('加收 '+fmt(n)+' 比原来的合计 '+fmt(r.amount)+' 还多，确定吗？'))return;
+  b.disabled=true;
+  var body={id:r.id,action:'adjust',from:f.dataset.from,seen:+f.dataset.seen,adjust:{d:sign*n,part:part,why:why,note:note}};
+  withPin('调整金额前请再输一次密码','总管加收、减收要再输一次。',function(pin){body.pin=pin;return act('/act',body)}).then(function(d){
+    if(!d.ok){b.disabled=false;return refused(d)}
+    toast(r.code+' 已'+(sign>0?'加收 ':'减收 ')+fmt(n)+'，现在合计 '+fmt(d.amount)+(d.status!==r.status?'，变成「'+(ST[d.status]||d.status)+'」':'')+(d.over?'，要退还多付 '+fmt(d.over):'')+mailTip(d),d.mail==='failed'?12000:6000);load()})}
+$('side').addEventListener('change',function(e){if(e.target.closest('#adjForm'))adjShow()});
+$('side').addEventListener('input',function(e){if(e.target.closest('#adjForm'))adjShow()});
 $('side').addEventListener('input',function(e){if(!e.target.matches('[data-note]'))return;
   if(!(S.open in drafts)){var r=rowOf(S.open);bases[S.open]=r&&r.note||''}   // what this draft started from
   drafts[S.open]=e.target.value});
@@ -603,6 +652,7 @@ function refused(d){
   toast(errText(d),late?9000:4000);if(late)load()}
 $('side').addEventListener('submit',function(e){
   e.preventDefault();var f=e.target,id=S.open,a=f.dataset.act,b=f.querySelector('.ps'),v=function(c){return f.querySelector(c).value.trim()};
+  if(a==='adjust')return adjSubmit(f);
   b.disabled=true;
   var body={id:id,action:a,from:f.dataset.from,pay:{seen:+f.dataset.seen,amount:+v('.pa'),method:v('.pm'),collector:v('.pc'),note:v('.pn')}};
   (a==='refund'?withPin('退款前请再输一次密码','总管退款要再输一次。',function(pin){body.pin=pin;return act('/act',body)}):act('/act',body)).then(function(d){
@@ -623,6 +673,7 @@ $('side').addEventListener('click',function(e){
       r.note=d.note;delete drafts[r.id];delete bases[r.id];if(now)now.note=d.note;toast('备注已存')});return}
   var a=b.dataset.a;if(!a)return;
   if(a==='pay'||a==='refund')return payForm(r,a);
+  if(a==='plus'||a==='minus')return adjForm(r,a);
   if(!confirm('确定要「'+ACT_NAME[a]+'」'+r.code+'（'+r.data.people[0].name+'，'+r.people+' 人，'+fmt(r.amount)+'）吗？会试着寄信通知报名者。'))return;
   var l=S.tab==='regs'?regList():[],k=l.map(function(x){return x.id}).indexOf(r.id),after=k>=0&&l[k+1]?l[k+1].id:0;
   b.disabled=true;
