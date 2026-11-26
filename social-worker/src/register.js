@@ -47,11 +47,57 @@ export const EVENTS = {
     ciMin: '2027-06-11', ciMax: '2027-06-27', coMin: '2027-06-12', coMax: '2027-06-28',
     earlyEnd: Date.parse('2027-02-02T00:00:00+08:00'), earlyPrice: 1350, friendPrice: 1200,
     hotelRefundBy: '2027-06-11', fee: 50, payDays: 14, remindDay: 10, maxPeople: 6,
-    deskEnds: '2027-06-22T22:00:00.000Z'   // 前台 sign-ins end 2027-06-23 06:00 Beijing, after the farewell milonga
+    deskEnds: '2027-06-22T22:00:00.000Z',   // 前台 sign-ins end 2027-06-23 06:00 Beijing, after the farewell milonga
+    // where its pages are, what the letters say it is from, and a 单场 needs one of the four weekend milongas
+    slug: 'beijing-2027-tango-weekend', regPath: 'register/draft/', from: 'Beijing Select Tango Weekend', singleNeeds: ['M1', 'M2', 'M3', 'M4']
   }
 };
 // looked up by what a visitor typed: 'constructor' and the like are not entries
 const own = (o, k) => (Object.hasOwn(o, String(k)) ? o[k] : undefined);
+
+// ---------- events (platform stage 1, spec v0.6) ----------
+// An event's settings: a row in reg_event (migration 0027) when it has one, else the settings written above.
+// 北京 has no row yet, so it is exactly the object above (and behaves as before); a row for an id written above
+// overrides those settings field by field. reg_event.mode: 'test' | 'practice' | 'live'; none = the site-wide REG_LIVE.
+// Config fields, as above: prefix, name {zh,en}, items {CODE: {key, price, cap}}, pkgs {key: {price, covers}},
+// and optionally names {lang: {CODE|pkg: name}}, letters {lang: {key: text}} (sign, rules, …), from, slug, regPath,
+// rooms, ciMin…coMax, earlyEnd, earlyPrice, friendPrice, promoPkg, codes {code: who}, singleNeeds, fee, payDays,
+// remindDay, maxPeople, hotelRefundBy, deskEnds.
+const EV_NEEDS = ['prefix', 'name', 'items', 'pkgs'];
+const noSuchTable = e => /no such table/i.test(String(e && e.message));
+function eventOfRow(row) {
+  let cfg; try { cfg = JSON.parse(row.config || '{}'); } catch { cfg = null; }
+  const base = own(EVENTS, row.id);
+  if (!cfg || typeof cfg !== 'object') { console.log('reg_event: config is not JSON', row.id); return base; }
+  const ev = { maxPeople: 6, fee: 0, payDays: 14, remindDay: 10, ...(base || {}), ...cfg, id: row.id };
+  if (row.slug) ev.slug = row.slug;
+  if (row.mode) ev.mode = row.mode;
+  if (typeof ev.earlyEnd === 'string') ev.earlyEnd = Date.parse(ev.earlyEnd);
+  if (!EV_NEEDS.every(k => ev[k] && typeof ev[k] === 'object' || k === 'prefix') || !/^[A-Z0-9]{2,6}$/.test(String(ev.prefix || ''))) {
+    console.log('reg_event: missing settings', row.id); return base;
+  }
+  return ev;
+}
+// the event a request names, or undefined
+export async function getEvent(env, id) {
+  id = str(id, 40); if (!id) return undefined;
+  let row = null;
+  try { row = await env.SDB.prepare('SELECT * FROM reg_event WHERE id=?').bind(id).first(); } catch (e) { if (!noSuchTable(e)) throw e; }
+  return row ? eventOfRow(row) : own(EVENTS, id);
+}
+export async function listEvents(env) {
+  const out = new Map(Object.entries(EVENTS));
+  let rows = [];
+  try { rows = (await env.SDB.prepare('SELECT * FROM reg_event').all()).results || []; } catch (e) { if (!noSuchTable(e)) throw e; }
+  for (const r of rows) { const ev = eventOfRow(r); if (ev) out.set(r.id, ev); }
+  return [...out.values()];
+}
+// live = letters go to the people themselves; else the test-stage rules (plan 1225)
+const isLive = (env, ev) => ev && ev.mode ? ev.mode === 'live' : env.REG_LIVE === '1';
+const BSTW = () => EVENTS.bstw2027;
+const siteBase = env => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '');
+const evSlug = ev => (ev && ev.slug) || BSTW().slug;
+const evFrom = ev => (ev && (ev.from || (ev.name && ev.name.en))) || BSTW().from;
 const KEY2CODE = ev => Object.fromEntries(Object.entries(ev.items).map(([c, it]) => [it.key, c]));
 const ROLES = ['leader', 'follower', 'both'];
 const LANGS = ['en', 'ko', 'es', 'ru', 'zh'];
@@ -68,8 +114,9 @@ function friendCodes(env) { try { const o = JSON.parse(env.REG_CODES || '{}'); r
 export function promoOf(raw, env, ev, at) {
   const c = str(raw, 40).toLowerCase();
   if (!c) return { code: '', kind: '' };
-  if (c === 'early') return { code: c, kind: at < ev.earlyEnd ? 'early' : 'early_over' };
-  const dj = friendCodes(env)[c];
+  if (c === 'early') return { code: c, kind: ev.earlyEnd && at < ev.earlyEnd ? 'early' : 'early_over' };
+  const codes = ev.codes ? Object.fromEntries(Object.entries(ev.codes).map(([k, v]) => [String(k).toLowerCase(), String(v)])) : friendCodes(env);
+  const dj = codes[c];
   return dj ? { code: c, kind: 'friend', dj } : { code: c, kind: 'unknown' };
 }
 // ---------- entry passes: one per person, signed, issued once paid ----------
@@ -89,21 +136,22 @@ async function passesOf(env, reg) { const d = typeof reg.data === 'string' ? JSO
   if (!PAID.includes(reg.status)) return [];
   return Promise.all(d.people.map(async (p, i) => ({ name: p.name, items: p.items || [], pass: await passFor(env, reg.code, i) }))).then(a => a.filter(x => x.pass)); }
 const passImg = (env, pass) => String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '') + '/social/reg/pass/' + encodeURIComponent(pass) + '.png';
-const checkinUrl = (env, pass) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/checkin/?p=' + encodeURIComponent(pass);
+const checkinUrl = (env, pass, ev) => siteBase(env) + '/event/' + evSlug(ev) + '/register/checkin/?p=' + encodeURIComponent(pass);
 const bjDate = iso => new Date(Date.parse(iso) + 8 * 36e5).toISOString().slice(0, 10);   // Beijing date, as on the page
-const regPage = env => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/draft/';   // 12/1: move to register/, or keep draft/ redirecting there
+const regPage = (env, ev) => siteBase(env) + '/event/' + evSlug(ev) + '/' + ((ev || BSTW()).regPath || 'register/');   // 北京: draft/ until 12/1
 
 function nights(ci, co) { const n = Math.round((Date.parse(co + 'T00:00:00Z') - Date.parse(ci + 'T00:00:00Z')) / 864e5); return n > 0 ? n : 0; }
 
 // Validate a submitted form and compute every amount. Returns {error} or {data, total, hotel, domestic, promo}.
-export function evaluate(b, env, at = Date.now()) {
-  const ev = own(EVENTS, str(b && b.event, 20));
+export function evaluate(b, env, at = Date.now(), evIn) {
+  const ev = evIn || own(EVENTS, str(b && b.event, 20));
   if (!ev) return { error: 'bad_event' };
   const k2c = KEY2CODE(ev);
   const people = Array.isArray(b.people) ? b.people : [];
   if (people.length < 1 || people.length > ev.maxPeople) return { error: 'bad_people' };
   const promo = promoOf(b.code, env, ev, at);
-  const fullPrice = promo.kind === 'friend' ? ev.friendPrice : promo.kind === 'early' ? ev.earlyPrice : ev.pkgs.full.price;
+  const promoPkg = ev.promoPkg || 'full', pp0 = own(ev.pkgs, promoPkg);
+  const promoPrice = !pp0 ? 0 : promo.kind === 'friend' && ev.friendPrice != null ? ev.friendPrice : promo.kind === 'early' && ev.earlyPrice != null ? ev.earlyPrice : pp0.price;
   const outPeople = [];
   for (let i = 0; i < people.length; i++) {
     const p = people[i] || {};
@@ -118,14 +166,15 @@ export function evaluate(b, env, at = Date.now()) {
     const picked = (Array.isArray(p.items) ? p.items : []).map(k => own(k2c, k) || (own(ev.items, k) ? k : '')).filter(Boolean);
     const covers = pkg ? ev.pkgs[pkg].covers : [];
     const extra = [...new Set(picked)].filter(c => !covers.includes(c));
-    if (pkg === 'single' && !extra.some(c => /^M[1-4]$/.test(c))) return { error: 'need_items', person: i };
+    if (pkg === 'single' && !extra.some(c => !ev.singleNeeds || ev.singleNeeds.includes(c))) return { error: 'need_items', person: i };
     if (!pkg && !extra.length) return { error: 'need_items', person: i };
-    const base = pkg === 'full' ? fullPrice : pkg ? ev.pkgs[pkg].price : 0;
+    const base = pkg && pkg === promoPkg ? promoPrice : pkg ? ev.pkgs[pkg].price : 0;
     const amount = base + extra.reduce((s, c) => s + ev.items[c].price, 0);
     outPeople.push({ ...q, pkg, items: [...covers, ...extra], extra, amount });
   }
   let rooms = [], passports = [], hotel = 0;
   if (b.hotel === 'yes') {
+    if (!ev.rooms) return { error: 'no_hotel' };
     const rs = Array.isArray(b.rooms) ? b.rooms : [];
     if (rs.length < 1 || rs.length > outPeople.length) return { error: 'bad_rooms' };
     const used = new Set();
@@ -298,8 +347,9 @@ const fmt = n => '¥' + Number(n || 0).toLocaleString('en-US');
 const fill = (s, v) => s.replace(/\{(\w)\}/g, (_, k) => v[k] == null ? '' : v[k]);
 const he = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-export function detailLines(d, lang) {
-  const N = NAMES[lang] || NAMES.en, L = T[lang] || T.en, out = [];
+export function detailLines(d, lang, ev) {
+  const own_ = ev && ev.names ? (ev.names[lang] || ev.names.en || ev.names.zh) : null;
+  const N = own_ || NAMES[lang] || NAMES.en, L = T[lang] || T.en, out = [];
   for (const p of d.people) {
     const what = [p.pkg && p.pkg !== 'single' ? N[p.pkg] : '', ...(p.pkg && p.pkg !== 'single' ? p.extra : p.items).map(c => N[c])].filter(Boolean).join(' + ');
     out.push(`${p.name}: ${what} — ${fmt(p.amount)}`);
@@ -308,20 +358,21 @@ export function detailLines(d, lang) {
   return out;
 }
 // qrs: names of the payment QR images that are really uploaded (a missing one would be a broken image).
-export function letter(kind, reg, env, passes, qrs = []) {
+export function letter(kind, reg, env, passes, qrs = [], evIn) {
+  const ev = evIn || own(EVENTS, reg.event) || BSTW();
   const d = typeof reg.data === 'string' ? JSON.parse(reg.data) : reg.data;
-  const lang = T[reg.lang] ? reg.lang : 'en', L = T[lang];
+  const lang = T[reg.lang] ? reg.lang : 'en', L = { ...T[lang], ...((ev.letters && (ev.letters[lang] || ev.letters.en)) || {}) };
   const v = { n: d.people[0] && d.people[0].name, c: reg.code, t: fmt(reg.rest == null ? reg.amount : reg.rest), d: reg.due_at ? bjDate(reg.due_at) : '', r: fmt(reg.refund || 0) };
   const body = [fill(L.hi, v), '', fill(L[kind], v)];
   if (kind === 'canc' && reg.refund != null) body.push(fill(L.refund, v));
   if (['recv', 'conf', 'upd'].includes(kind)) { const colon = lang === 'zh' ? '：' : ': ';
-    body.push('', L.details + colon.trim(), ...detailLines(d, lang).map(s => '· ' + s));
+    body.push('', L.details + colon.trim(), ...detailLines(d, lang, ev).map(s => '· ' + s));
     if (reg.fee) body.push('· ' + (lang === 'zh' ? '手续费' : 'Fee') + ' — ' + fmt(reg.fee)); body.push(L.total + colon + fmt(reg.amount)); }
   if (kind === 'conf' || kind === 'upd' || kind === 'rem') body.push('', fill(L.pay, v), L.noApp);
   if (kind === 'conf' || kind === 'upd') body.push('', L.rules);
   if ((kind === 'paid' || kind === 'cash') && passes && passes.length) body.push('', fill(L.passT, v));
   const toPay = kind === 'conf' || kind === 'upd' || kind === 'rem', toPass = kind === 'paid' || kind === 'cash';
-  const view = toPay ? L.viewPay : L.viewPass, href = regPage(env) + '?lang=' + lang + (toPay ? '#pay' : '#passes');
+  const view = toPay ? L.viewPay : L.viewPass, href = regPage(env, ev) + '?lang=' + lang + (toPay ? '#pay' : '#passes');
   const button = `<p style="margin:18px 0 6px"><a href="${he(href)}" style="display:inline-block;background:#4a0609;color:#f6e3b4;padding:11px 22px;border-radius:999px;text-decoration:none;font-weight:700">${he(view)}</a></p>`;
   const capK = toPay ? 'pay' : kind === 'cash' ? 'cash' : 'pass';
   if ((toPay && qrs.length) || (toPass && passes && passes.length)) body.push('', ...caption(lang, capK));
@@ -358,14 +409,14 @@ async function payNames(env, reg) {
 //   its subject saying whom it was for, so nobody outside the list ever gets a test letter.
 const TEST_TAG = '[测试] ';
 const testInbox = env => env.REG_TEST_INBOX || 'selecttango@gmail.com';
-const toOrganizer = (env, to) => ({ to, pre: env.REG_LIVE === '1' ? '' : TEST_TAG });
+const toOrganizer = (t, to) => ({ to, pre: t && t.live ? '' : TEST_TAG });
 function toRegistrant(env, t, to) {
-  if (env.REG_LIVE === '1') return { to, pre: '' };
+  if (t && t.live) return { to, pre: '' };
   if (t && (t.test_list || []).includes(String(to || '').toLowerCase())) return { to, pre: TEST_TAG };
   return { to: testInbox(env), pre: '[TEST → ' + to + '] ' };
 }
 const replyTo = env => env.REG_REPLY_TO || 'info@tangoweekend.org';
-const stageOf = env => env.REG_LIVE === '1' ? 'live' : 'test';
+const stageOf = live => live ? 'live' : 'test';
 const adminMail = env => String(env.REG_NOTIFY || 'selecttango@gmail.com').trim().toLowerCase();
 // 'sent' or 'failed'; what was saved stays saved either way
 async function send(env, kit, reg, action) {
@@ -374,11 +425,11 @@ async function send(env, kit, reg, action) {
   const qrs = ['conf', 'upd', 'rem'].includes(kind) ? await payNames(env, reg) : [];
   const rest = kind === 'cash' || kind === 'rem' ? Math.max(0, reg.amount - await paidSum(env, reg.id)) : null;
   const shown = rest == null ? reg : { ...reg, rest };
-  const m = letter(kind, shown, env, passes, qrs);
-  const t = await mailTo(env, reg.event), dest = toRegistrant(env, t, reg.email);
-  try { await kit.deliver(env, dest.to, dest.pre + m.subject, m.text, m.html || undefined, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: replyFor(env, t) }); await log(env, reg.id, 'mail:' + action, dest.to); }
+  const ev = await getEvent(env, reg.event), m = letter(kind, shown, env, passes, qrs, ev);
+  const t = await mailTo(env, reg.event, ev), dest = toRegistrant(env, t, reg.email);
+  try { await kit.deliver(env, dest.to, dest.pre + m.subject, m.text, m.html || undefined, undefined, { fromName: evFrom(ev), replyTo: replyFor(env, t) }); await log(env, reg.id, 'mail:' + action, dest.to); }
   catch (e) { await log(env, reg.id, 'mail_failed:' + action, String(e && e.message || e)); return 'failed'; }
-  await sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t);
+  await sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t, ev);
   return 'sent';
 }
 
@@ -401,11 +452,12 @@ async function setSetting(env, evId, key, value, by) {
     .bind(evId, key, value, nowIso(), by).run();
 }
 // what the settings page shows (never the token)
-async function mailTo(env, evId) {
+async function mailTo(env, evId, evIn) {
+  const live = isLive(env, evIn || await getEvent(env, evId));
   const s = await settingsOf(env, evId), chief = s.chief_email || '', v = String(s.chief_verified || '').split('|');
-  const verified = !!chief && v[0] === chief && (v[1] === 'direct' || v[1] === stageOf(env));
+  const verified = !!chief && v[0] === chief && (v[1] === 'direct' || v[1] === stageOf(live));
   const event_mail = s.event_mail || '', ok = String(s.event_mail_ok || '').split('|'), bound = !!event_mail && ok[0] === event_mail;
-  return { chief, copy: s.copy_email || '', admin: adminMail(env), admin_on: s.admin_copy !== '0', verified, verified_at: verified ? v[2] : undefined, live: env.REG_LIVE === '1',
+  return { chief, copy: s.copy_email || '', admin: adminMail(env), admin_on: s.admin_copy !== '0', verified, verified_at: verified ? v[2] : undefined, live,
     event_mail, event_mail_ok: bound, event_mail_at: bound ? ok[1] : undefined, domain: mailDomain(env), cf_ready: !!env.CF_MAIL_TOKEN,
     test_list: String(s.test_list || '').split(',').filter(Boolean) };
 }
@@ -418,21 +470,22 @@ function recipients(t, skip) {
   if (t.admin_on || !t.verified) add(t.admin, 'admin');
   return out;
 }
-const route = (env, x) => toOrganizer(env, x.addr);
+const route = (t, x) => toOrganizer(t, x.addr);
 // The copy is the same letter with a line on top. Entry codes belong to the registrant alone: never in a copy.
-async function sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t) {
-  t = t || await mailTo(env, reg.event);
+async function sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t, ev) {
+  ev = ev || await getEvent(env, reg.event);
+  t = t || await mailTo(env, reg.event, ev);
   const list = recipients(t, String(reg.email || '').toLowerCase());
   if (!list.length) return;
-  const m = letter(kind, shown, env, null, qrs);
+  const m = letter(kind, shown, env, null, qrs, ev);
   const bound = t.event_mail && t.event_mail_ok, tag = bound ? `[副本 #${await relayKey(env, reg.code)}] ` : '[副本] ';
   const head = `副本：这是寄给报名者 ${reg.email}（${reg.code}）那封信的副本，报名者看不到这个副本。` + (passes && passes.length ? '入场码只寄给报名者本人，副本里没有。' : '')
     + (bound ? `直接回复这封副本，会以活动名义寄给报名者（报名者看不到你的邮箱）。` : '');
   const html = m.html ? m.html.replace(/(<body[^>]*>)/, `$1<div style="max-width:560px;margin:0 auto 12px;font-family:sans-serif;font-size:14px;color:#7a6255">${he(head)}</div>`) : undefined;
   const done = [], failed = [];
   for (const x of list) {
-    const dest = route(env, x);
-    try { await kit.deliver(env, dest.to, dest.pre + tag + m.subject, head + '\n\n' + m.text, html, undefined, { fromName: 'Beijing Select Tango Weekend', replyTo: replyFor(env, t) }); done.push(x.who); }
+    const dest = route(t, x);
+    try { await kit.deliver(env, dest.to, dest.pre + tag + m.subject, head + '\n\n' + m.text, html, undefined, { fromName: evFrom(ev), replyTo: replyFor(env, t) }); done.push(x.who); }
     catch (e) { failed.push(x.who + ': ' + String(e && e.message || e).slice(0, 200)); }
   }
   if (done.length) await log(env, reg.id, 'copy:' + action, done.join(','));
@@ -440,11 +493,12 @@ async function sendCopies(env, kit, reg, action, kind, shown, qrs, passes, t) {
 }
 // The 新报名 notice: to the same people, each their own. A failure to the 管理员 shows on the page, as before.
 async function notifyOwner(env, kit, reg) {
-  const d = JSON.parse(reg.data);
-  const text = [`New registration ${reg.code} (${reg.people} people${reg.domestic ? ', domestic' : ''})`, `${reg.email} · ${reg.lang}`, ...detailLines(d, 'zh'), `合计 ${fmt(reg.amount)}`, d.promo && d.promo.code ? `码 ${d.promo.code}${d.promo.dj ? ' (' + d.promo.dj + ')' : ''}` : '', d.msg ? '留言：' + d.msg : ''].filter(Boolean).join('\n');
+  const d = JSON.parse(reg.data), ev = await getEvent(env, reg.event);
+  const text = [`New registration ${reg.code} (${reg.people} people${reg.domestic ? ', domestic' : ''})`, `${reg.email} · ${reg.lang}`, ...detailLines(d, 'zh', ev), `合计 ${fmt(reg.amount)}`, d.promo && d.promo.code ? `码 ${d.promo.code}${d.promo.dj ? ' (' + d.promo.dj + ')' : ''}` : '', d.msg ? '留言：' + d.msg : ''].filter(Boolean).join('\n');
   const done = [], failed = [];
-  for (const x of recipients(await mailTo(env, reg.event))) {
-    const dest = route(env, x);
+  const t = await mailTo(env, reg.event, ev);
+  for (const x of recipients(t)) {
+    const dest = route(t, x);
     try { await kit.deliver(env, dest.to, dest.pre + '新报名 ' + reg.code, text, undefined, undefined, { fromName: 'Registration' }); if (x.who !== 'admin') done.push(x.who); }
     catch (e) {
       const why = String(e && e.message || e);
@@ -457,8 +511,8 @@ async function notifyOwner(env, kit, reg) {
 }
 // Letters about the people who run an event: the system's own name, never a password in them.
 const TP_SIGN = '\n\n探戈通 Tango Pass · tangoweekend.org\n（有问题请直接回信）';
-async function tpMail(env, kit, to, subject, text) {
-  const dest = toOrganizer(env, to);   // 任命信 and notices go to the 总管邮箱 / 副本邮箱 only
+async function tpMail(env, kit, t, to, subject, text) {
+  const dest = toOrganizer(t, to);   // 任命信 and notices go to the 总管邮箱 / 副本邮箱 only
   try { await kit.deliver(env, dest.to, dest.pre + subject, text + TP_SIGN, undefined, undefined, { fromName: '探戈通 Tango Pass', replyTo: replyTo(env) }); return 'sent'; }
   catch (e) { console.log('tp mail', String(e && e.message || e).slice(0, 120)); return 'failed'; }
 }
@@ -493,9 +547,9 @@ async function mailChief(env, kit, ev, name, mode, key, temp, tell) {
   const m = rndHex(16);
   // the letter goes straight to the 总管邮箱 in both stages now, so opening it proves that address: 'direct'
   await setSetting(env, ev.id, 'chief_token', `${await sha256(m)}|${t.chief}|direct`, name);
-  const l = chiefLetter(ev, name, mode, personLink(env, key, m), temp);
-  const r = await tpMail(env, kit, t.chief, l.subject, l.text);
-  if (r === 'sent' && tell && t.copy && t.copy !== t.chief) { const o = copyLetter(ev, 'chief', { name, chief: t.chief }); await tpMail(env, kit, t.copy, o.subject, o.text); }
+  const l = chiefLetter(ev, name, mode, personLink(env, key, m, ev), temp);
+  const r = await tpMail(env, kit, t, t.chief, l.subject, l.text);
+  if (r === 'sent' && tell && t.copy && t.copy !== t.chief) { const o = copyLetter(ev, 'chief', { name, chief: t.chief }); await tpMail(env, kit, t, t.copy, o.subject, o.text); }
   return r;
 }
 // A link for the 总管 already there: only its hash is kept, so a new one is made and mailed. The password and the
@@ -517,7 +571,7 @@ async function relinkChief(env, kit, ev, mode, tell) {
 async function mailOk(env, kind, row, m) {
   if (kind !== 'admin' || roleOf(row.perms) !== 'chief' || !/^[0-9a-f]{32}$/.test(String(m || ''))) return undefined;
   const s = await settingsOf(env, row.event), [h, addr, stage] = String(s.chief_token || '').split('|');
-  if (!s.chief_email || addr !== s.chief_email || (stage !== 'direct' && stage !== stageOf(env)) || h !== await sha256(String(m))) return undefined;
+  if (!s.chief_email || addr !== s.chief_email || (stage !== 'direct' && stage !== stageOf(isLive(env, await getEvent(env, row.event)))) || h !== await sha256(String(m))) return undefined;
   await setSetting(env, row.event, 'chief_verified', `${addr}|${stage}|${nowIso()}`, row.name);
   return true;
 }
@@ -634,7 +688,7 @@ export async function regInbound(message, env, kit) {
   const to = String(message.to || '').trim().toLowerCase();
   let row;
   try { row = await env.SDB.prepare("SELECT event FROM reg_setting WHERE key='event_mail' AND value=?").bind(to).first(); } catch (e) { if (noTable(e)) return false; throw e; }
-  const ev = row && own(EVENTS, row.event); if (!ev) return false;
+  const ev = row && await getEvent(env, row.event); if (!ev) return false;
   const M = await import('./inmail.js'), h = message.headers;
   const subject = M.decodeWords(h.get('subject') || '').trim();
   const bind = /\[TP-BIND ([0-9a-f]{32})\]/.exec(subject);
@@ -644,7 +698,7 @@ export async function regInbound(message, env, kit) {
   if (!M.authPassed(h)) return drop('not authenticated');
   if (M.isAuto(h, subject)) return drop('automatic reply');
   const from = addrOf(h.get('from')) || String(message.from || '').toLowerCase();
-  const t = await mailTo(env, ev.id), orgs = { [t.chief]: 'chief', [t.copy]: 'copy', [t.admin]: 'admin' };
+  const t = await mailTo(env, ev.id, ev), orgs = { [t.chief]: 'chief', [t.copy]: 'copy', [t.admin]: 'admin' };
   delete orgs['']; const role = Object.hasOwn(orgs, from) ? orgs[from] : '';
   const code = (new RegExp(ev.prefix + '-\\d{4}').exec(subject) || [])[0];
   const reg = code ? await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND code=?').bind(ev.id, code).first() : null;
@@ -654,7 +708,7 @@ export async function regInbound(message, env, kit) {
   // test stage: the registrant's letters land in the test inbox, so a reply from there to one of them stands for that registrant
   const testReply = !t.live && reg && from === String(env.REG_TEST_INBOX || 'selecttango@gmail.com').toLowerCase() && /\[TEST → [^\]]+\]/.test(subject) && !keyed;
   if (message.rawSize > 25 * 1024 * 1024) {
-    const x = { addr: t.admin, who: 'admin' }, d = route(env, x);
+    const x = { addr: t.admin, who: 'admin' }, d = route(t, x);
     await kit.deliver(env, d.to, d.pre + '[来信太大] ' + subject, `${from} 寄到 ${to} 的信超过 25MB，没有转寄。请直接联系寄件人。`, undefined, { 'X-TP-Relay': 'big' }, { fromName: '探戈通 Tango Pass', replyTo: from }).catch(() => {});
     return true;
   }
@@ -662,19 +716,19 @@ export async function regInbound(message, env, kit) {
   let bin = ''; for (let i = 0; i < buf.length; i += 0x8000) bin += String.fromCharCode(...buf.subarray(i, i + 0x8000));
   const parsed = M.parseMime(bin), plain = parsed.texts.find(x => x.type === 'text/plain'), htm = parsed.texts.find(x => x.type === 'text/html');
   const body = (plain ? plain.text : htm ? M.htmlText(htm.text) : '').trim(), files = filesOut(parsed);
-  const relay = async (x, subj, text, opt) => { const d = route(env, x); await kit.deliver(env, d.to, d.pre + subj, text, undefined, { 'X-TP-Relay': opt.kind }, { fromName: opt.fromName, replyTo: opt.replyTo, attachments: files.keep }); };
+  const relay = async (x, subj, text, opt) => { const d = route(t, x); await kit.deliver(env, d.to, d.pre + subj, text, undefined, { 'X-TP-Relay': opt.kind }, { fromName: opt.fromName, replyTo: opt.replyTo, attachments: files.keep }); };
   if (role && keyed) {
     // an organizer answers a letter TP sent them: to the registrant in the event's name; the others get a copy
     const subj = 'Re: ' + cleanSubject(subject).replace(new RegExp('\\s*·?\\s*' + reg.code + '\\s*'), ' ').trim() + ' · ' + reg.code;
     const d = toRegistrant(env, t, reg.email);
-    try { await kit.deliver(env, d.to, d.pre + subj, body, undefined, { 'X-TP-Relay': 'out' }, { fromName: 'Beijing Select Tango Weekend', replyTo: to, attachments: files.keep }); }
+    try { await kit.deliver(env, d.to, d.pre + subj, body, undefined, { 'X-TP-Relay': 'out' }, { fromName: evFrom(ev), replyTo: to, attachments: files.keep }); }
     catch (e) {
       await log(env, reg.id, 'reply_failed:out', String(e && e.message || e));
       const x = { addr: from, who: role }; await relay(x, '探戈通：没寄出 ' + reg.code, `你回给报名者 ${reg.email}（${reg.code}）的信没有寄出，请稍后再回复一次。\n\n原信标题：${subject}`, { kind: 'notice', fromName: '探戈通 Tango Pass', replyTo: replyTo(env) }).catch(() => {});
       return true;
     }
     const head = `副本：${ROLE_ZH[role]}（${from}）以「${ev.name.zh}」的名义回给报名者 ${reg.email}（${reg.code}）的信。报名者看不到寄件人的邮箱。`;
-    for (const x of recipients(t, from)) await relay(x, `[副本 #${k}] ` + subj, head + '\n\n' + body + files.note, { kind: 'copy', fromName: 'Beijing Select Tango Weekend', replyTo: to }).catch(e => console.log('tp relay copy', String(e && e.message || e).slice(0, 120)));
+    for (const x of recipients(t, from)) await relay(x, `[副本 #${k}] ` + subj, head + '\n\n' + body + files.note, { kind: 'copy', fromName: evFrom(ev), replyTo: to }).catch(e => console.log('tp relay copy', String(e && e.message || e).slice(0, 120)));
     await log(env, reg.id, 'reply:out', role + (files.keep.length ? ' +' + files.keep.length : ''));
     return true;
   }
@@ -702,13 +756,13 @@ export async function regInbound(message, env, kit) {
 
 // ---------- public handlers ----------
 export async function regLeft(url, env, json) {
-  const ev = own(EVENTS, url.searchParams.get('event') || 'bstw2027');
+  const ev = await getEvent(env, url.searchParams.get('event') || 'bstw2027');
   if (!ev) return json({ error: 'bad_event' }, 400);
   return json({ left: await seatsLeft(env, ev) });
 }
 export async function regMe(req, env, url, json, kit) {
   const u = await kit.user(req, env); if (!u) return json({ error: 'auth' }, 401);
-  const ev = own(EVENTS, url.searchParams.get('event') || 'bstw2027'); if (!ev) return json({ error: 'bad_event' }, 400);
+  const ev = await getEvent(env, url.searchParams.get('event') || 'bstw2027'); if (!ev) return json({ error: 'bad_event' }, 400);
   const r = await env.SDB.prepare('SELECT * FROM reg WHERE event=? AND email=? ORDER BY (status=\'cancelled\'), id DESC LIMIT 1').bind(ev.id, String(u.email).toLowerCase()).first();
   if (!r) return json({ email: u.email, name: u.name, reg: null });
   const passes = (await passesOf(env, r)).map(x => ({ name: x.name, items: x.items, pass: x.pass, img: passImg(env, x.pass) }));
@@ -721,7 +775,7 @@ export async function regMe(req, env, url, json, kit) {
   const d = JSON.parse(r.data);
   const rest = r.status === 'confirmed' || r.status === 'cash' ? Math.max(0, r.amount - await paidSum(env, r.id)) : 0;
   return json({ email: u.email, name: u.name, reg: { code: r.code, lang: r.lang, people: r.people, rest, status: r.status, amount: r.amount, fee: r.fee, refund: r.refund, due: r.due_at, domestic: !!r.domestic,
-    updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang), pay, passes } });
+    updated: r.updated_at, lines: detailLines(d, ['en', 'ko', 'es', 'ru', 'zh'].includes(url.searchParams.get('lang')) ? url.searchParams.get('lang') : r.lang, ev), pay, passes } });
 }
 export async function regSubmit(req, env, b, json, kit) {
   const u = await kit.user(req, env);
@@ -729,7 +783,7 @@ export async function regSubmit(req, env, b, json, kit) {
   const email = String(u.email || '').toLowerCase();
   if (!EMAIL_STRICT.test(email)) return json({ error: 'need_email_subscribe' }, 403);
   if (b && b.website) return json({ ok: true });   // honeypot
-  const r = evaluate(b, env);
+  const r = evaluate(b, env, Date.now(), await getEvent(env, b && b.event));
   if (r.error) return json(r, 400);
   const ts = nowIso(), data = JSON.stringify(r.data);
   const live = () => env.SDB.prepare("SELECT * FROM reg WHERE event=? AND email=? AND status<>'cancelled' ORDER BY id DESC LIMIT 1").bind(r.ev.id, email).first();
@@ -759,10 +813,10 @@ export async function regSubmit(req, env, b, json, kit) {
 export async function regPassPng(url, env) {
   const p = await readPass(env, decodeURIComponent(url.pathname.split('/').pop() || '').replace(/\.png$/, ''));
   if (!p) return new Response('not found', { status: 404 });
-  const reg = await env.SDB.prepare('SELECT status,people FROM reg WHERE code=?').bind(p.code).first();
+  const reg = await env.SDB.prepare('SELECT event,status,people FROM reg WHERE code=?').bind(p.code).first();
   if (!reg || !PAID.includes(reg.status) || p.idx >= reg.people) return new Response('not found', { status: 404 });
   const { qrPng } = await import('./qrpng.js');
-  return new Response(await qrPng(checkinUrl(env, p.pass), 8), { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'private, max-age=86400' } });
+  return new Response(await qrPng(checkinUrl(env, p.pass, await getEvent(env, reg.event)), 8), { headers: { 'Content-Type': 'image/png', 'Cache-Control': 'private, max-age=86400' } });
 }
 export async function regQr(url, env) {
   const name = decodeURIComponent(url.pathname.split('/').pop() || '');
@@ -878,7 +932,7 @@ async function moneyOf(env, regId) {
 export async function regAdmin(req, env, url, b, json, kit) {
   const p = url.pathname.slice('/social/admin/reg'.length);
   const evId = String((b && b.event) || url.searchParams.get('event') || 'bstw2027');
-  const ev = Object.hasOwn(EVENTS, evId) ? EVENTS[evId] : null;
+  const ev = (await getEvent(env, evId)) || null;
   if (!ev) return json({ error: 'bad_event' }, 400);
   const caller = await adminWho(req, env, ev.id);
   if (caller.err) return json(caller.err, 401);
@@ -973,7 +1027,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
         if (want[k] === cur[k]) continue;
         await setSetting(env, ev.id, k + '_email', want[k], who.name);
         if (!want[k]) { sent[k] = 'cleared'; continue; }
-        if (k === 'copy') { const o = copyLetter(ev, 'set'); sent.copy = await tpMail(env, kit, want.copy, o.subject, o.text); }
+        if (k === 'copy') { const o = copyLetter(ev, 'set'); sent.copy = await tpMail(env, kit, cur, want.copy, o.subject, o.text); }
         else sent.chief = await relinkChief(env, kit, ev, 'relink', true);   // sent | failed | wait (no 总管 yet) | need_reset | changed
       }
       // 重寄任命信: lost, or read in the test inbox before going live
@@ -1013,7 +1067,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
       const r = await env.SDB.prepare("INSERT INTO reg_admin(event,name,pass_hash,perms,created_at,link_hash,pin_hash,pin_salt,pin_temp) SELECT ?,?,'-',?,?,?,?,?,1 WHERE " + NAME_FREE + room)
         .bind(ev.id, name, want, nowIso(), c.link_hash, c.pin_hash, c.pin_salt, ev.id, name, ev.id, name, ...roomArgs).run();
       if (!r.meta.changes) return (await nameFree(env, ev.id, name)) ? noRoom() : json({ error: 'name_taken' }, 409);
-      const link = personLink(env, c.key);
+      const link = personLink(env, c.key, null, ev);
       // a new 总管 gets the 任命信 at the 总管邮箱: the link only, the password is given another way
       const letter = want === 'chief' ? await mailChief(env, kit, ev, name, 'new', c.key, true, true) : undefined;
       return json({ ok: true, id: r.meta.last_row_id, name, role: want, link, pin: c.pin, letter });
@@ -1045,7 +1099,7 @@ export async function regAdmin(req, env, url, b, json, kit) {
       const ok = await write(env.SDB.prepare("UPDATE reg_admin SET link_hash=?,pin_hash=?,pin_salt=?,pin_temp=1,fails=0,locked_until=NULL,stopped_at=NULL WHERE id=? AND perms=? AND COALESCE(link_hash,'')=? AND disabled_at IS NULL")
         .bind(c.link_hash, c.pin_hash, c.pin_salt, id, t.perms, t.link_hash || ''), 'reset');
       if (!ok) return changed();
-      const link = personLink(env, c.key);
+      const link = personLink(env, c.key, null, ev);
       return json({ ok: true, link, pin: c.pin, letter: had === 'chief' ? await mailChief(env, kit, ev, t.name, 'reset', c.key, true, false) : undefined });
     }
     if (p === '/admins/delete') {
@@ -1190,7 +1244,7 @@ export async function regAct(env, b, json, kit, ev, who) {
     change = db.prepare("UPDATE reg SET status='cancelled',cancelled_at=?,refund=?,fee=CASE WHEN fee>0 THEN fee ELSE ? END,updated_at=? WHERE id=? AND status=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?")
       .bind(ts, refund, took > 0 ? ev.fee : 0, ts, reg.id, reg.status, reg.id, got.n);
   } else if (a === 'modify') {
-    const r = evaluate({ ...b.data, event: ev.id, lang: reg.lang }, env, Date.parse(reg.created_at));   // promo judged at the original submit time
+    const r = evaluate({ ...b.data, event: ev.id, lang: reg.lang }, env, Date.parse(reg.created_at), ev);   // promo judged at the original submit time
     if (r.error) return json(r, 400);
     const fee = reg.status === 'pending' ? reg.fee : ev.fee;   // changes after review carry the ¥50 fee, once
     const seated = SEATED.includes(reg.status);
@@ -1212,7 +1266,7 @@ export async function regAct(env, b, json, kit, ev, who) {
 // Day-10 reminder for confirmed registrations that are still unpaid. Called from the 10-minute cron.
 export async function regRemind(env, kit) {
   const out = { sent: 0 };
-  for (const ev of Object.values(EVENTS)) {
+  for (const ev of await listEvents(env)) {
     const cutoff = new Date(Date.now() - ev.remindDay * 864e5).toISOString();
     const rows = (await env.SDB.prepare("SELECT * FROM reg WHERE event=? AND status='confirmed' AND reminded_at IS NULL AND confirmed_at<=? LIMIT 20").bind(ev.id, cutoff).all()).results || [];
     for (const r of rows) {
@@ -1232,7 +1286,7 @@ const rndHex = n => [...crypto.getRandomValues(new Uint8Array(n))].map(b => b.to
 async function sha256(s) { return [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, '0')).join(''); }
 const bearer = req => (req.headers.get('Authorization') || '').replace(/^Bearer\s+/i, '');
 // m: only in the link mailed to the 总管邮箱, so opening that one verifies the address
-const personLink = (env, key, m) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/in/' + (m ? '?m=' + m : '') + '#' + key;
+const personLink = (env, key, m, ev) => siteBase(env) + '/event/' + evSlug(ev) + '/register/in/' + (m ? '?m=' + m : '') + '#' + key;
 const TABLE = { admin: 'reg_admin', staff: 'reg_staff' };
 const DEVICES = { chief: 2, deputy: 2, manager: 1, desk: 1 };   // over the limit, the phone that signed in first is signed out
 const LOCK_AT = 5, STOP_AT = 10, LOCK_MS = 15 * 60e3, AGAIN_MS = 12 * 3600e3;
@@ -1282,7 +1336,7 @@ async function deviceWho(req, env, { again = false } = {}) {
   const row = await env.SDB.prepare(`SELECT * FROM ${TABLE[d.kind]} WHERE id=?`).bind(d.person).first();
   if (!row || row.disabled_at) return { err: { error: 'signed_out', why: 'deleted' } };
   if (row.stopped_at) return { err: { error: 'signed_out', why: 'stopped', at: row.stopped_at } };
-  const role = roleOfRow(d.kind, row), ev = own(EVENTS, row.event);
+  const role = roleOfRow(d.kind, row), ev = await getEvent(env, row.event);
   if (over(role, ev)) return { err: { error: 'signed_out', why: 'ended', at: ev.deskEnds } };
   const who = { kind: d.kind, id: row.id, event: row.event, name: row.name, since: row.created_at, role, dev: d.id, auth_at: d.auth_at };
   if (!again && due(role, d.auth_at)) return { err: { error: 'reauth', role, at: d.auth_at }, who };
@@ -1334,7 +1388,7 @@ export async function regLogin(req, env, url, b, json) {
     return json({ ok: true });
   }
   const found = await byLink(env, b && b.key);
-  const ev = found && own(EVENTS, found.row.event);
+  const ev = found && await getEvent(env, found.row.event);
   if (!found || !ev) return json({ error: 'not_found' }, 404);   // reset, deleted, or never was
   const { kind, row } = found, role = roleOfRow(kind, row);
   const base = { name: row.name, role, event: ev.id, event_name: ev.name.zh, devices: DEVICES[role] || 1 };
@@ -1384,7 +1438,7 @@ async function staffAdd(env, ev, b, json) {
   const r = await env.SDB.prepare('INSERT INTO reg_staff(event,name,created_at,link_hash,pin_hash,pin_salt,pin_temp) SELECT ?,?,?,?,?,?,1 WHERE ' + NAME_FREE)
     .bind(ev.id, name, nowIso(), c.link_hash, c.pin_hash, c.pin_salt, ev.id, name, ev.id, name).run();
   if (!r.meta.changes) return json({ error: 'name_taken' }, 409);
-  return json({ ok: true, id: r.meta.last_row_id, name, link: personLink(env, c.key), pin: c.pin });
+  return json({ ok: true, id: r.meta.last_row_id, name, link: personLink(env, c.key, null, ev), pin: c.pin });
 }
 // 「重设」: a new link and a new temporary password; the old ones and the phone stop at once. Of two resets at once, one wins.
 async function staffReset(env, ev, b, json) {
@@ -1396,7 +1450,7 @@ async function staffReset(env, ev, b, json) {
       .bind(c.link_hash, c.pin_hash, c.pin_salt, st.id, st.link_hash || ''),
     endDevices(env, 'staff', st.id, 'reset')]);
   if (!out[0].meta.changes) return json({ error: 'changed' }, 409);
-  return json({ ok: true, id: st.id, name: st.name, link: personLink(env, c.key), pin: c.pin });
+  return json({ ok: true, id: st.id, name: st.name, link: personLink(env, c.key, null, ev), pin: c.pin });
 }
 // Deleting is final: no history and no undo. What they checked in stays, under their name.
 async function staffDelete(env, ev, b, json) {
@@ -1410,7 +1464,7 @@ export async function regDoor(req, env, url, b, json) {
   const c = await doorWho(req, env);
   if (c.err) return json(c.err, 401);
   const who = c.who; if (!who) return json({ error: 'auth' }, 401);
-  const ev = who.event ? own(EVENTS, who.event) : null;
+  const ev = who.event ? await getEvent(env, who.event) : null;
   if (p === '/me' && req.method === 'GET') return json({ ok: true, name: who.name, role: who.role, admin: who.role !== 'desk', collect: can(who, 'collect'), until: who.role === 'desk' && ev ? ev.deskEnds : undefined });
   if (p === '/pass' && req.method === 'GET') return regPassInfo(env, url.searchParams.get('p'), json, who);
   if (p === '/checkin' && req.method === 'POST') return regCheckin(env, b, json, who);
