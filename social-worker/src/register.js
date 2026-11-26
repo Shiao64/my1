@@ -208,11 +208,15 @@ async function addReg(env, r, userId, email, data, ts) {
 
 // ---------- letters ----------
 const T = {
-  en: { viewPay: 'View registration and payment QR', viewPass: 'View registration and entry QR', passT: 'Your entry QR codes (one per person) are below. Show them at the door. You can also see them on the registration page after signing in. Tip: take a screenshot of your QR code now, in case there is no internet at the door.', hi: 'Hi {n},', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'nights', details: 'Your registration',
+  en: { appA: 'Alipay', appW: 'WeChat Pay', appOr: ' or ', stepsH: 'How to pay:', one: 'Two codes are attached: choose one and pay once.',
+    st1: '① Take a screenshot, or press and hold, to save the payment QR code to your photos', st2a: 'Alipay: Scan → Album', st2w: 'WeChat: + (top right) → Scan → Album', st2j: '; ', stBank: ' (first time? Link a bank card in the app first)',
+    st3: '③ Enter the amount, tap "Add note" and type this registration number ({c})', st4: '④ Take a screenshot of the payment result and reply to this email with it',
+    key: '✅ Important: always put your registration number in the payment note.', noImg: 'Cannot see the payment QR codes in this email? Tap "{b}".',
+    viewPay: 'View registration and payment QR', viewPass: 'View registration and entry QR', passT: 'Your entry QR codes (one per person) are below. Show them at the door. You can also see them on the registration page after signing in. Tip: take a screenshot of your QR code now, in case there is no internet at the door.', hi: 'Hi {n},', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'nights', details: 'Your registration',
     recvS: 'Registration received · {c}', recv: 'We have received your registration {c}. We will review it and reply within 10 days.',
     confS: 'Registration confirmed · {c}', conf: 'Your registration {c} is confirmed.',
-    pay: 'Please pay {t} by {d} (within 2 weeks of this email) by WeChat Pay or Alipay, using the payment QR code. After paying, reply to this email with a screenshot of the payment.',
-    noApp: 'If you cannot use WeChat Pay or Alipay, reply to this email with a screenshot of your flight ticket instead; you can then pay when you arrive.',
+    pay: 'Please pay {t} by {d} (within 2 weeks of this email) with {y}, using the payment QR code.',
+    noApp: 'If you cannot use {y}, reply to this email with a screenshot of your flight ticket instead; you can then pay when you arrive.',
     rules: 'Changes, additions and cancellations: ¥50 handling fee, charged once per registration. If you cannot attend, we refund your payment minus ¥50. Hotel charges are refunded only for cancellations on or before June 11, 2027. Places cannot be passed to another person.',
     waitS: 'Waiting list · {c}', wait: 'Your registration {c} is on the waiting list. We will email you as soon as a place opens.',
     declS: 'Registration · {c}', decl: 'We are sorry, we cannot accept your registration {c} this time. Thank you for your interest.',
@@ -225,11 +229,15 @@ const T = {
     adjT: 'Previous total {o}, new total {a}, paid so far {p}.', adjLater: 'The payment email you get once your registration is confirmed will use the new amount.',
     adjCash: '{t} is still to pay: please pay it when you arrive (Alipay, WeChat Pay or cash), before going in. To pay earlier, just reply to this email. Your entry QR codes stay the same.',
     adjPaid: 'Everything is paid; there is nothing more to pay.', adjOver: 'You have paid {r} more than the new total. The organizers will refund it to you.', viewReg: 'View registration' },
-  zh: { viewPay: '查看报名和付款码', viewPass: '查看报名和入场码', passT: '下方是每个人的入场二维码，请在入场时出示。登入报名页也看得到。建议先把入场码截图存在手机里，以免现场网络不好。', hi: '{n}，你好：', sign: '张孝、刘峥\n北京精选探戈周末', total: '合计', hotel: '住宿', nights: '晚', details: '你的报名',
+  zh: { appA: '支付宝', appW: '微信', appOr: '或', stepsH: '付款步骤：', one: '附了两个付款码，选一个付一次就好。',
+    st1: '① 截图或长按，把付款码存到相册', st2a: '支付宝：扫一扫 → 相册', st2w: '微信：右上角 + → 扫一扫 → 相册', st2j: '；', stBank: '（第一次用的，先在 App 里绑好银行卡）',
+    st3: '③ 输入金额，点「添加备注」填这笔的编号（{c}）', st4: '④ 截下付款结果，回复本邮件附上截图',
+    key: '✅ 重要提醒：付款备注一定要填报名编号。', noImg: '信里看不到付款码，点「{b}」。',
+    viewPay: '查看报名和付款码', viewPass: '查看报名和入场码', passT: '下方是每个人的入场二维码，请在入场时出示。登入报名页也看得到。建议先把入场码截图存在手机里，以免现场网络不好。', hi: '{n}，你好：', sign: '张孝、刘峥\n北京精选探戈周末', total: '合计', hotel: '住宿', nights: '晚', details: '你的报名',
     recvS: '已收到报名 · {c}', recv: '我们已收到你的报名 {c}，审核后会在 10 天内回复。',
     confS: '报名确认 · {c}', conf: '你的报名 {c} 已确认。',
-    pay: '请在 {d} 前（收到本信后 2 周内）用微信或支付宝扫付款码支付 {t}，付款后直接回复本邮件并附上付款截图。请不要发送你自己支付宝、微信里的「付款码」。',
-    noApp: '如无法使用微信、支付宝，请回复本邮件并附上机票截图，即可到场付款。',
+    pay: '请在 {d} 前（收到本信后 2 周内）用{y}扫付款码支付 {t}。请不要发送你自己 App 里的「付款码」。',
+    noApp: '如无法使用{y}，请回复本邮件并附上机票截图，即可到场付款。',
     rules: '报名后改动、增加、取消，每份报名收一次手续费 ¥50。如无法出席，可退费，扣除手续费 ¥50。房费在 2027年6月11日（含）前取消可退，之后不退。参加资格仅限报名者本人，不能换人。',
     waitS: '候补名单 · {c}', wait: '你的报名 {c} 目前在候补名单上，有名额时我们会立即通知你。',
     declS: '报名结果 · {c}', decl: '很抱歉，这次无法接受你的报名 {c}。谢谢你的关注。',
@@ -242,11 +250,15 @@ const T = {
     adjT: '原来合计 {o}，现在合计 {a}，已付 {p}。', adjLater: '报名确认后寄出的付款信，会用新的金额。',
     adjCash: '还差 {t}，请到场时支付（支付宝、微信或现金），付清后入场；想先付的，直接回复本邮件。入场码不变。',
     adjPaid: '已经付清，不用再付款。', adjOver: '你多付了 {r}，组织者会退还给你。', viewReg: '查看报名' },
-  ko: { viewPay: '신청 내역·결제 QR 보기', viewPass: '신청 내역·입장 QR 보기', passT: '아래는 1인당 하나씩인 입장 QR 코드입니다. 입장할 때 보여 주세요. 신청 페이지에 로그인해도 볼 수 있습니다. 현장에 인터넷이 약할 수 있으니 입장 QR 코드를 미리 캡처해 휴대폰에 저장해 두세요.', hi: '{n} 님, 안녕하세요.', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: '합계', hotel: '호텔', nights: '박', details: '신청 내역',
+  ko: { appA: '알리페이', appW: '위챗페이', appOr: ' 또는 ', stepsH: '결제 방법:', one: '결제 QR 코드가 두 개 있습니다. 하나만 골라 한 번 결제하면 됩니다.',
+    st1: '① 결제 QR 코드를 캡처하거나 길게 눌러 사진첩에 저장', st2a: '알리페이: 스캔 → 앨범', st2w: '위챗: 오른쪽 위 + → 스캔 → 앨범', st2j: '; ', stBank: ' (처음 사용한다면 먼저 앱에서 은행 카드를 연결하세요)',
+    st3: '③ 금액을 입력하고 「메모 추가」를 눌러 이 신청 번호({c})를 입력', st4: '④ 결제 결과를 캡처해 이 메일에 첨부해 회신',
+    key: '✅ 중요: 결제 메모에 꼭 신청 번호를 입력해 주세요.', noImg: '메일에서 결제 QR 코드가 보이지 않으면 「{b}」를 누르세요.',
+    viewPay: '신청 내역·결제 QR 보기', viewPass: '신청 내역·입장 QR 보기', passT: '아래는 1인당 하나씩인 입장 QR 코드입니다. 입장할 때 보여 주세요. 신청 페이지에 로그인해도 볼 수 있습니다. 현장에 인터넷이 약할 수 있으니 입장 QR 코드를 미리 캡처해 휴대폰에 저장해 두세요.', hi: '{n} 님, 안녕하세요.', sign: 'Shiao Chang & Liu Zheng\nBeijing Select Tango Weekend', total: '합계', hotel: '호텔', nights: '박', details: '신청 내역',
     recvS: '신청 접수 · {c}', recv: '신청 {c}이(가) 접수되었습니다. 검토 후 10일 이내에 답장드리겠습니다.',
     confS: '신청 확정 · {c}', conf: '신청 {c}이(가) 확정되었습니다.',
-    pay: '{d}까지(이 메일을 받은 후 2주 이내) 결제 QR 코드로 위챗페이 또는 알리페이로 {t}을(를) 결제해 주세요. 결제 후 이 메일에 결제 캡처를 첨부해 회신해 주세요.',
-    noApp: '위챗페이/알리페이를 사용할 수 없다면 항공권 캡처를 회신해 주세요. 도착해서 결제할 수 있습니다.',
+    pay: '{d}까지(이 메일을 받은 후 2주 이내) {y}로 결제 QR 코드를 스캔해 {t}을(를) 결제해 주세요.',
+    noApp: '{y}를 사용할 수 없다면 항공권 캡처를 회신해 주세요. 도착해서 결제할 수 있습니다.',
     rules: '신청 후 변경·추가·취소 시 신청 건당 ¥50 수수료가 한 번 부과됩니다. 참가할 수 없게 되면 ¥50을 제외하고 환불합니다. 호텔 요금은 2027년 6월 11일(포함)까지 취소 시에만 환불됩니다. 다른 사람으로 바꿀 수 없습니다.',
     waitS: '대기자 명단 · {c}', wait: '신청 {c}은(는) 대기자 명단에 있습니다. 자리가 나면 바로 알려드리겠습니다.',
     declS: '신청 결과 · {c}', decl: '죄송하지만 이번에는 신청 {c}을(를) 받을 수 없습니다. 관심 가져 주셔서 감사합니다.',
@@ -259,11 +271,15 @@ const T = {
     adjT: '이전 합계 {o}, 새 합계 {a}, 지금까지 결제 {p}.', adjLater: '신청이 확정되면 받는 결제 안내 메일에 새 금액이 적용됩니다.',
     adjCash: '남은 금액 {t}은(는) 도착해서 입장 전에 결제해 주세요(알리페이, 위챗페이 또는 현금). 미리 결제하려면 이 메일에 회신해 주세요. 입장 QR 코드는 그대로입니다.',
     adjPaid: '모두 결제되었습니다. 더 결제할 금액이 없습니다.', adjOver: '새 합계보다 {r} 더 결제하셨습니다. 주최 측에서 환불해 드립니다.', viewReg: '신청 내역 보기' },
-  es: { viewPay: 'Ver inscripción y QR de pago', viewPass: 'Ver inscripción y QR de entrada', passT: 'Abajo están los códigos QR de entrada (uno por persona). Muéstralos en la puerta. También puedes verlos en la página de inscripción al iniciar sesión. Consejo: haz ya una captura de tu código QR por si no hay internet en la puerta.', hi: 'Hola, {n}:', sign: 'Shiao Chang y Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'noches', details: 'Tu inscripción',
+  es: { appA: 'Alipay', appW: 'WeChat Pay', appOr: ' o ', stepsH: 'Cómo pagar:', one: 'Hay dos códigos: elige uno y paga una sola vez.',
+    st1: '① Haz una captura o mantén pulsado para guardar el código QR de pago en tus fotos', st2a: 'Alipay: Escanear → Álbum', st2w: 'WeChat: + (arriba a la derecha) → Escanear → Álbum', st2j: '; ', stBank: ' (¿primera vez? Vincula antes una tarjeta bancaria en la app)',
+    st3: '③ Introduce el importe, toca «Añadir nota» y escribe este número de inscripción ({c})', st4: '④ Haz una captura del resultado del pago y responde a este email con ella',
+    key: '✅ Importante: pon siempre tu número de inscripción en la nota del pago.', noImg: '¿No ves los códigos QR en este email? Toca «{b}».',
+    viewPay: 'Ver inscripción y QR de pago', viewPass: 'Ver inscripción y QR de entrada', passT: 'Abajo están los códigos QR de entrada (uno por persona). Muéstralos en la puerta. También puedes verlos en la página de inscripción al iniciar sesión. Consejo: haz ya una captura de tu código QR por si no hay internet en la puerta.', hi: 'Hola, {n}:', sign: 'Shiao Chang y Liu Zheng\nBeijing Select Tango Weekend', total: 'Total', hotel: 'Hotel', nights: 'noches', details: 'Tu inscripción',
     recvS: 'Inscripción recibida · {c}', recv: 'Hemos recibido tu inscripción {c}. La revisaremos y te responderemos en 10 días.',
     confS: 'Inscripción confirmada · {c}', conf: 'Tu inscripción {c} está confirmada.',
-    pay: 'Paga {t} antes del {d} (2 semanas desde este email) con WeChat Pay o Alipay usando el código QR de pago. Después de pagar, responde a este email con una captura del pago.',
-    noApp: 'Si no puedes usar WeChat Pay ni Alipay, responde con una captura de tu billete de avión; así podrás pagar al llegar.',
+    pay: 'Paga {t} antes del {d} (2 semanas desde este email) con {y}, usando el código QR de pago.',
+    noApp: 'Si no puedes usar {y}, responde con una captura de tu billete de avión; así podrás pagar al llegar.',
     rules: 'Cambios, añadidos y cancelaciones: cargo de ¥50, una sola vez por inscripción. Si no puedes asistir, devolvemos lo pagado menos ¥50. El hotel solo se reembolsa si cancelas hasta el 11 de junio de 2027. La plaza no se puede ceder a otra persona.',
     waitS: 'Lista de espera · {c}', wait: 'Tu inscripción {c} está en lista de espera. Te escribiremos en cuanto haya plaza.',
     declS: 'Inscripción · {c}', decl: 'Lo sentimos, esta vez no podemos aceptar tu inscripción {c}. Gracias por tu interés.',
@@ -276,11 +292,15 @@ const T = {
     adjT: 'Total anterior {o}, nuevo total {a}, pagado hasta ahora {p}.', adjLater: 'El email de pago que recibirás cuando se confirme tu inscripción usará el nuevo importe.',
     adjCash: 'Quedan {t} por pagar: págalos al llegar, antes de entrar (Alipay, WeChat Pay o efectivo). Si prefieres pagar antes, responde a este email. Tus códigos QR de entrada no cambian.',
     adjPaid: 'Todo está pagado; no hay nada más que pagar.', adjOver: 'Has pagado {r} más que el nuevo total. Los organizadores te lo devolverán.', viewReg: 'Ver inscripción' },
-  ru: { viewPay: 'Регистрация и QR для оплаты', viewPass: 'Регистрация и входной QR', passT: 'Ниже входные QR-коды (по одному на человека). Покажите их на входе. Их также видно на странице регистрации после входа. Совет: сохраните скриншот QR-кода заранее — на входе может не быть интернета.', hi: 'Здравствуйте, {n}!', sign: 'Shiao Chang и Liu Zheng\nBeijing Select Tango Weekend', total: 'Итого', hotel: 'Отель', nights: 'ноч.', details: 'Ваша регистрация',
+  ru: { appA: 'Alipay', appW: 'WeChat Pay', appOr: ' или ', stepsH: 'Как оплатить:', one: 'Приложены два кода: выберите один и оплатите один раз.',
+    st1: '① Сделайте скриншот или нажмите и удерживайте, чтобы сохранить QR-код в галерею', st2a: 'Alipay: «Сканировать» → «Альбом»', st2w: 'WeChat: «+» справа вверху → «Сканировать» → «Альбом»', st2j: '; ', stBank: ' (впервые? Сначала привяжите банковскую карту в приложении)',
+    st3: '③ Введите сумму, нажмите «Добавить примечание» и укажите номер регистрации ({c})', st4: '④ Сделайте скриншот результата оплаты и ответьте на это письмо, приложив его',
+    key: '✅ Важно: обязательно укажите номер регистрации в примечании к платежу.', noImg: 'Не видно QR-кодов в письме? Нажмите «{b}».',
+    viewPay: 'Регистрация и QR для оплаты', viewPass: 'Регистрация и входной QR', passT: 'Ниже входные QR-коды (по одному на человека). Покажите их на входе. Их также видно на странице регистрации после входа. Совет: сохраните скриншот QR-кода заранее — на входе может не быть интернета.', hi: 'Здравствуйте, {n}!', sign: 'Shiao Chang и Liu Zheng\nBeijing Select Tango Weekend', total: 'Итого', hotel: 'Отель', nights: 'ноч.', details: 'Ваша регистрация',
     recvS: 'Регистрация получена · {c}', recv: 'Мы получили вашу регистрацию {c}. Проверим её и ответим в течение 10 дней.',
     confS: 'Регистрация подтверждена · {c}', conf: 'Ваша регистрация {c} подтверждена.',
-    pay: 'Оплатите {t} до {d} (в течение 2 недель после этого письма) через WeChat Pay или Alipay по QR-коду для оплаты. После оплаты ответьте на это письмо со скриншотом.',
-    noApp: 'Если не можете пользоваться WeChat Pay или Alipay, пришлите в ответ скриншот авиабилета — тогда оплата по прибытии.',
+    pay: 'Оплатите {t} до {d} (в течение 2 недель после этого письма) через {y} по QR-коду для оплаты.',
+    noApp: 'Если не можете пользоваться {y}, пришлите в ответ скриншот авиабилета — тогда оплата по прибытии.',
     rules: 'Изменения, добавления и отмена: сбор ¥50, один раз за регистрацию. Если вы не сможете приехать, вернём оплату за вычетом ¥50. Отель возвращается только при отмене до 11 июня 2027 включительно. Место нельзя передать другому человеку.',
     waitS: 'Лист ожидания · {c}', wait: 'Ваша регистрация {c} в листе ожидания. Напишем, как только освободится место.',
     declS: 'Регистрация · {c}', decl: 'К сожалению, в этот раз мы не можем принять регистрацию {c}. Спасибо за интерес.',
@@ -351,6 +371,9 @@ export function letter(kind, reg, env, passes, qrs = []) {
   // 金额调整: reg.adj = {d, why, was, paid, over}; what follows depends on where the registration stands now
   const a = kind === 'adj' && reg.adj ? reg.adj : null, adjPay = !!a && reg.status === 'confirmed' && reg.rest > 0;
   if (a) Object.assign(v, { x: fill(a.d > 0 ? L.up : L.down, { m: fmt(Math.abs(a.d)) }), w: a.why, o: fmt(a.was), a: fmt(reg.amount), p: fmt(a.paid), r: fmt(a.over) });
+  // 付款步骤 (Shiao, 2026-11-26): name only the apps whose payment code is attached (none uploaded yet: both)
+  const ali = qrs.some(n => /alipay/.test(n)), wx = qrs.some(n => /wechat/.test(n));
+  v.y = ali && !wx ? L.appA : wx && !ali ? L.appW : L.appA + L.appOr + L.appW;
   const body = [fill(L.hi, v), '', fill(L[kind], v)];
   if (kind === 'canc' && reg.refund != null) body.push(fill(L.refund, v));
   if (a) {
@@ -363,7 +386,15 @@ export function letter(kind, reg, env, passes, qrs = []) {
   if (['recv', 'conf', 'upd'].includes(kind)) { const colon = lang === 'zh' ? '：' : ': ';
     body.push('', L.details + colon.trim(), ...detailLines(d, lang).map(s => '· ' + s));
     if (reg.fee) body.push('· ' + (lang === 'zh' ? '手续费' : 'Fee') + ' — ' + fmt(reg.fee)); body.push(L.total + colon + fmt(reg.amount)); }
-  if (kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) body.push('', fill(L.pay, v), L.noApp);
+  // The steps, whenever codes are attached: in the text right after the pay line, in the html right above the codes.
+  // Step 2 only for the codes attached; first-timers from abroad bind a card first; the note carries the number.
+  const STEPS = {}, steps = [];
+  if ((kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) && qrs.length) {
+    steps.push(L.stepsH); if (ali && wx) steps.push(L.one);
+    steps.push(L.st1, '② ' + [ali ? L.st2a : '', wx ? L.st2w : ''].filter(Boolean).join(L.st2j) + (reg.domestic ? '' : L.stBank),
+      fill(L.st3, { c: reg.code }), L.st4, L.key, fill(L.noImg, { b: L.viewPay }));
+  }
+  if (kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) body.push('', fill(L.pay, v), STEPS, fill(L.noApp, v));
   if (kind === 'conf' || kind === 'upd') body.push('', L.rules);
   if ((kind === 'paid' || kind === 'cash') && passes && passes.length) body.push('', fill(L.passT, v));
   const toPay = kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay, toPass = kind === 'paid' || kind === 'cash';
@@ -375,13 +406,15 @@ export function letter(kind, reg, env, passes, qrs = []) {
   const capHtml = caption(lang, capK).map(x => `<div style="max-width:220px;margin:5px auto 0;font-size:13px;line-height:1.4">${he(x)}</div>`).join('');
   if (toPay || toPass || a) body.push('', view + (lang === 'zh' ? '：' : ': '), href);
   body.push('', L.sign);
-  const text = body.join('\n');
+  const text = body.flatMap(x => x === STEPS ? (steps.length ? ['', ...steps, ''] : []) : [x]).join('\n');
+  const htext = body.filter(x => x !== STEPS).join('\n');   // the html shows the steps by the codes instead
   let html = '';
   if (kind === 'conf' || kind === 'upd' || kind === 'rem' || adjPay) {
     const base = String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '');
+    const box = steps.length ? `<div style="margin:16px 0 4px;padding:12px 14px;background:#fbf5e9;border:1px solid #e7d3b0;border-radius:10px;line-height:1.7">${steps.map(x => x === L.stepsH || x === L.key ? `<b>${he(x)}</b>` : he(x)).join('<br>')}</div>` : '';
     const imgs = qrs.map(n => `<div style="display:inline-block;text-align:center;margin:6px"><div style="font-weight:700">${/alipay/.test(n) ? 'Alipay 支付宝' : 'WeChat Pay 微信支付'}</div><img src="${he(base)}/social/reg/qr/${encodeURIComponent(n)}?k=${encodeURIComponent(env.REG_QR_KEY || '')}" alt="${he(n)}" width="220" style="border:1px solid #e7d3b0;border-radius:8px">${capHtml}</div>`).join('');
     html = `<!doctype html><html><body style="font-family:Georgia,serif;color:#2a1a14;background:#fbf5e9;padding:20px"><div style="max-width:560px;margin:auto;background:#fff;border:1px solid #e7d3b0;border-radius:12px;padding:20px">` +
-      he(text).replace(/\n/g, '<br>') + button + `<div style="margin-top:14px">${imgs}</div></div></body></html>`;
+      he(htext).replace(/\n/g, '<br>') + button + box + `<div style="margin-top:14px">${imgs}</div></div></body></html>`;
   }
   if ((kind === 'paid' || kind === 'cash') && passes && passes.length) {
     const cards = passes.map(x => `<div style="display:inline-block;text-align:center;margin:8px"><img src="${he(passImg(env, x.pass))}" alt="QR" width="200" height="200" style="border:1px solid #e7d3b0;border-radius:8px"><div style="font-weight:700">${he(x.name)}</div><div style="font-size:12px;color:#7a6255">${he(x.pass.split('.')[0])}</div>${capHtml}</div>`).join('');
