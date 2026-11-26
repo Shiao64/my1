@@ -233,6 +233,79 @@ check('…an automatic 加收 line keeps it', adj.length === 1 && adj[0].d === 4
 check('…the letter says the difference is not refunded', to.length === 1 && /a change after June 11, 2027 that lowers the total is not refunded/.test(to[0].body) && /Everything is paid/.test(to[0].body), to.map(m => m.body));
 at('2027-01-05T12:00:00+08:00');
 
+// --- 11. found in review before deploying
+const adjustAct = (id, d, o = {}) => act({ id, action: 'adjust', silent: 1, adjust: { d, why: 'x', part: o.part } });
+const single = f => { f.people[0].pkg = 'single'; f.people[0].items = ['sat-eve']; return f; };
+const pass700 = f => { f.people[0].pkg = 'pass'; f.people[0].items = []; return f; };
+// lower after 6/11, then put it back: nothing charged twice
+x = await make('paid', 700);
+at('2027-06-15T10:00:00+08:00');
+await modify(x.id, back(x.id, single));
+d = await modify(x.id, back(x.id, pass700));
+check('after 6/11 lower then restore: 700 + ¥50 only, ¥50 owed', d.ok && d.amount === 750 && d.rest === 50 && d.keep === 0, d);
+d = await modify(x.id, back(x.id, single));
+check('…lowered again: stays at what was paid, never above it', d.ok && d.amount === 700 && row(x.id).amount === 700, d);
+// a refund already owed survives a rename after 6/11
+x = await make('paid', 700); await adjustAct(x.id, -200);
+at('2027-06-15T10:00:00+08:00');
+d = await modify(x.id, back(x.id, f => { f.people[0].name = 'Amy L'; return f; }));
+check('after 6/11 a rename keeps the owed refund', d.ok && d.amount === 550 && d.over === 150 && d.keep === 0, d);
+at('2027-01-05T12:00:00+08:00');
+// nothing changed on a paid one: no fee
+x = await make('paid', 700);
+d = await act({ id: x.id, action: 'modify_preview', seen: row(x.id).updated_at, data: back(x.id) });
+check('unchanged paid: preview shows no fee, same total', d.ok && d.same && d.fee === 0 && d.amount === 700 && d.status === 'paid', d);
+d = await modify(x.id, back(x.id)); check('unchanged paid: refused, no fee', d.error === 'no_change' && row(x.id).fee === 0 && row(x.id).amount === 700, d);
+// waived to ¥0 then raised: it is owed
+x = await make('pending'); await adjustAct(x.id, -700); await act({ id: x.id, action: 'confirm', silent: 1 });
+check('waived: paid with no money', row(x.id).status === 'paid');
+d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'full'; return f; }));
+check('waived then upgraded: 到场付款, the difference owed', d.ok && d.status === 'cash' && d.rest === 750 && d.amount === 750, d);
+// legacy paid with no records: record the money first
+x = await make('confirmed'); db.prepare("UPDATE reg SET status='paid' WHERE id=?").run(x.id);
+d = await modify(x.id, back(x.id, f => { f.people[0].pkg = 'full'; return f; }));
+check('paid with no records: refused, record the money first', d.error === 'no_payments' && row(x.id).amount === 700, d);
+// hotel adjustments follow the hotel
+const withHotel = form({ hotel: 'yes', rooms: [{ type: 'king', ci: '2027-06-18', co: '2027-06-20', guests: [0] }], passports: [{ s: 'LEE', g: 'AMY' }] });
+x = await make('confirmed', 0, withHotel); await adjustAct(x.id, -500, { part: 'hotel' });
+check('pass + 2 nights - 500', row(x.id).amount === 1200);
+d = await modify(x.id, back(x.id, f => { f.hotel = 'no'; f.rooms = []; f.passports = []; return f; }));
+check('hotel removed: its discount goes with it, the pass stays ¥700', d.ok && d.amount === 700 && row(x.id).hotel_amount === 0, d);
+d = await modify(x.id, back(x.id, f => { f.hotel = 'yes'; f.rooms = withHotel.rooms; f.passports = withHotel.passports; return f; }));
+check('hotel back: full hotel price, no old discount', d.ok && d.amount === 1700, d);
+// code removed later: the price basis stays
+env.REG_CODES = JSON.stringify({ pal: 'Dee' });
+x = await make('confirmed', 0, form({ code: 'pal', people: [person({ pkg: 'full' })] }));
+const friendTotal = row(x.id).amount; delete env.REG_CODES;
+d = await modify(x.id, back(x.id, f => { f.people[0].name = 'Amy N'; return f; }));
+check('friend code since removed: a rename keeps the price', friendTotal < 1450 && d.ok && d.amount === friendTotal && row(x.id).promo_dj === 'Dee', { friendTotal, d });
+// entry codes beyond place 9
+x = await make('paid', 4200, form({ people: [0, 1, 2, 3, 4, 5].map(i => person({ name: 'P' + i })) }));
+for (let k = 0; k < 4; k++) {
+  const r = await modify(x.id, back(x.id, f => { const i = f.people.findIndex((p, n) => n > 0 && !p.gone); f.people[i].gone = true; f.people.push(person({ name: 'N' + k, pkg: 'pass' })); return f; }));
+  if (!r.ok) { check('grow places', false, r); break; }
+}
+const ten = await R.passFor(env, x.code, 9);
+d = await call('GET', '/reg/door/pass?p=' + encodeURIComponent(ten), null, ADMIN);
+check('the 10th place\'s code works at the door', d._s === 200 && !d.error, { ten, d });
+check('…and has its picture', (await call('GET', '/reg/pass/' + encodeURIComponent(ten) + '.png'))._s === 200);
+// full item: a rename or removal needs no free seat
+const S1b = R.EVENTS.bstw2027.items.S1, capb = S1b.cap;
+x = await make('confirmed', 0, form({ people: [person({ items: ['yard'] }), person({ name: 'Bo', items: ['yard'] })] }));
+S1b.cap = 0;
+d = await modify(x.id, back(x.id, f => { f.people.pop(); return f; }));
+check('over a full item: removing a person needs no seat', d.ok && !d.error, d);
+S1b.cap = capb;
+// letters: not-yet-paid removal says no code; room swap and role are listed
+x = await make('confirmed', 0, form({ people: [person(), person({ name: 'Bo' })], hotel: 'yes', rooms: [{ type: 'king', ci: '2027-06-18', co: '2027-06-20', guests: [0] }], passports: [{ s: 'LEE', g: 'AMY' }, { s: 'LI', g: 'BO' }] }));
+d = await modify(x.id, back(x.id, f => { f.rooms[0].guests = [1]; f.people[1].role = 'leader'; return f; })); ms = take(); to = mine(ms, x.email);
+check('room swap and role listed', to.length === 1 && /Hotel: .*\(Amy Lee\) → .*\(Bo\)/.test(to[0].body) && /Bo: Follower → Leader/.test(to[0].body), to.map(m => m.body));
+d = await modify(x.id, back(x.id, f => { f.people.pop(); f.hotel = 'no'; f.rooms = []; f.passports = []; return f; })); ms = take(); to = mine(ms, x.email);
+check('not paid yet: removed, nothing about a code', to.length === 1 && /Removed: Bo/.test(to[0].body) && !/entry code/.test(to[0].body), to.map(m => m.body));
+// a stray check-in row for a place not held does not lock the registration
+x = await make('paid', 700); db.prepare("INSERT INTO reg_checkin(reg_id,person,item,at,staff) VALUES(?,3,'M1','2027-06-19T06:00:00.000Z','x')").run(x.id);
+d = await modify(x.id, back(x.id, f => { f.people[0].name = 'Amy Q'; return f; })); check('stray check-in row ignored', d.ok, d);
+
 // --- 10. the letter in Chinese, with the hotel
 const zhReg = { code: 'BJ27-0123', lang: 'zh', amount: 1450, fee: 0, status: 'pending', data: { people: [{ name: '朱一', pkg: 'full', extra: [], items: [], amount: 1450 }], rooms: [{ type: 'king', ci: '2027-06-18', co: '2027-06-20', nights: 2, guests: [0], amount: 1000 }], hotel: true },
   upd: { was: { people: [{ name: '朱一', pkg: 'pass', extra: [], items: [] }, { name: '朱二', pkg: 'pass', extra: [], items: [] }], rooms: [], hotel: false },

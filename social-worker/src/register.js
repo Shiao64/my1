@@ -74,7 +74,7 @@ export function promoOf(raw, env, ev, at) {
   return dj ? { code: c, kind: 'friend', dj } : { code: c, kind: 'unknown' };
 }
 // ---------- entry passes: one per person, signed, issued once paid ----------
-const PASS_RE = /^([A-Z0-9]+-\d{4})-(\d)\.([0-9a-f]{20})$/;
+const PASS_RE = /^([A-Z0-9]+-\d{4})-([1-9]\d?)\.([0-9a-f]{20})$/;
 async function hmac(secret, msg) {
   const k = await crypto.subtle.importKey('raw', new TextEncoder().encode('regpass:' + secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
   return [...new Uint8Array(await crypto.subtle.sign('HMAC', k, new TextEncoder().encode(msg)))].map(b => b.toString(16).padStart(2, '0')).join('');
@@ -99,7 +99,7 @@ function nights(ci, co) { const n = Math.round((Date.parse(co + 'T00:00:00Z') - 
 // Validate a submitted form and compute every amount. Returns {error} or {data, total, hotel, domestic, promo}.
 // slots (修改报名): a person taken off arrives as {gone: true} and stays in their place, so everyone after them keeps their
 // entry code (codes go by place); the registrant (the first) is never taken off that way, and gone ones count for nothing.
-export function evaluate(b, env, at = Date.now(), { slots = false } = {}) {
+export function evaluate(b, env, at = Date.now(), { slots = false, promo: kept = null } = {}) {
   const ev = own(EVENTS, str(b && b.event, 20));
   if (!ev) return { error: 'bad_event' };
   const k2c = KEY2CODE(ev);
@@ -107,7 +107,7 @@ export function evaluate(b, env, at = Date.now(), { slots = false } = {}) {
   const gone = i => slots && i > 0 && !!(people[i] && people[i].gone), active = people.filter((_, i) => !gone(i)).length;
   if (slots && people[0] && people[0].gone) return { error: 'bad_people' };
   if (active < 1 || active > ev.maxPeople || people.length > ev.maxPeople * 2) return { error: 'bad_people' };
-  const promo = promoOf(b.code, env, ev, at);
+  const promo = kept || promoOf(b.code, env, ev, at);
   const fullPrice = promo.kind === 'friend' ? ev.friendPrice : promo.kind === 'early' ? ev.earlyPrice : ev.pkgs.full.price;
   const outPeople = [];
   for (let i = 0; i < people.length; i++) {
@@ -168,6 +168,8 @@ function dropGone(d) {
 }
 const activeOf = d => d.people.filter(p => !p.gone);
 const KEEP_WHY = '依报名规则，6/11 之后改少不退差价 · No refund of the difference after June 11, 2027';
+const UNKEEP_WHY = '改回原项目，撤回之前保留的差价 · Earlier kept difference withdrawn';
+const HOTEL_WHY = '住宿改动，原来住宿的加减收随之调整 · Hotel adjustment follows the new hotel';
 
 // Seats used per capped item by registrations that hold a place. Pass skipId to leave one registration out.
 export async function usedSeats(env, evId, skipId) {
@@ -200,11 +202,11 @@ async function log(env, id, action, detail) { await env.SDB.prepare('INSERT INTO
 // (and reg.hotel_amount for the hotel part) already include them. A new total worked out from the form again (the
 // registrant editing a pending one, or 修改报名) adds them back, so an adjustment is never lost on the way.
 async function adjOf(env, regId) {
-  const out = { all: 0, hotel: 0, list: [] };
+  const out = { all: 0, hotel: 0, keep: 0, list: [] };
   for (const l of ((await env.SDB.prepare("SELECT at,detail FROM reg_log WHERE reg_id=? AND action='adjust' ORDER BY id").bind(regId).all()).results) || []) {
     let x = null; try { const o = JSON.parse(l.detail || ''); x = JSON.parse(o.text || ''); x.by = o.by; } catch { continue; }
     const d = Math.round(Number(x.d)) || 0; if (!d) continue;
-    out.all += d; if (x.part === 'hotel') out.hotel += d;
+    out.all += d; if (x.part === 'hotel') out.hotel += d; if (x.auto === 'keep') out.keep += d;
     out.list.push({ at: l.at, d, part: x.part === 'hotel' ? 'hotel' : 'reg', why: String(x.why || ''), note: String(x.note || ''), by: String(x.by || ''), was: Number(x.was) || 0 });
   }
   return out;
@@ -238,7 +240,7 @@ const T = {
     paidS: 'Payment received · {c}', paid: 'We have received your payment for {c}. Your registration is complete. See you in Beijing!',
     cashS: 'Pay at the event · {c}', cash: 'We have received your flight ticket for {c}. Please pay {t} when you arrive (Alipay, WeChat Pay or cash).',
     cancS: 'Registration cancelled · {c}', canc: 'Your registration {c} has been cancelled.', refund: 'Refund: {r}.', noRefund: 'Under the registration rules, cancellations after June 11, 2027 are not refunded.',
-    updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated.', updFee: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.', chgT: 'What changed:', chgAdd: 'Added: {n} ({w})', chgDel: 'Removed: {n} (their entry code no longer works)', chgName: 'Name: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Hotel: {o} → {w}', none: 'none', keepDiff: 'Under the registration rules, a change after June 11, 2027 that lowers the total is not refunded.',
+    updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated.', updFee: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.', chgT: 'What changed:', chgDelPlain: 'Removed: {n}', chgRole: '{n}: {o} → {w}', chgPass: 'Passport names for the hotel updated', roles: { leader: 'Leader', follower: 'Follower', both: 'Both' }, chgAdd: 'Added: {n} ({w})', chgDel: 'Removed: {n} (their entry code no longer works)', chgName: 'Name: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Hotel: {o} → {w}', none: 'none', keepDiff: 'Under the registration rules, a change after June 11, 2027 that lowers the total is not refunded.',
     adjS: 'Amount changed · {c}', adj: 'The amount of your registration {c} has changed: {x}.', up: 'an extra charge of {m}', down: 'a reduction of {m}', why: 'Note from the organizers: {w}',
     adjT: 'Previous total {o}, new total {a}, paid so far {p}.', adjLater: 'The payment email you get once your registration is confirmed will use the new amount.',
     adjCash: '{t} is still to pay: please pay it when you arrive (Alipay, WeChat Pay or cash), before going in. To pay earlier, just reply to this email. Your entry QR codes stay the same.',
@@ -259,7 +261,7 @@ const T = {
     paidS: '已收到付款 · {c}', paid: '已收到报名 {c} 的付款，报名完成。北京见！',
     cashS: '到场付款 · {c}', cash: '已收到报名 {c} 的机票截图，请到场时支付 {t}（支付宝、微信或现金）。',
     cancS: '报名已取消 · {c}', canc: '你的报名 {c} 已取消。', refund: '退款：{r}。', noRefund: '依报名规则，2027年6月11日之后取消不退费。',
-    updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新。', updFee: '你的报名 {c} 已更新，合计已含手续费 ¥50。', chgT: '改了什么：', chgAdd: '新增：{n}（{w}）', chgDel: '删除：{n}（这位的入场码已作废）', chgName: '名字：{o} → {n}', chgItems: '{n}：{o} → {w}', chgHotel: '住宿：{o} → {w}', none: '无', keepDiff: '依报名规则，2027年6月11日之后改少，差价不退。',
+    updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新。', updFee: '你的报名 {c} 已更新，合计已含手续费 ¥50。', chgT: '改了什么：', chgDelPlain: '删除：{n}', chgRole: '{n}：{o} → {w}', chgPass: '订房用的护照姓名已更新', roles: { leader: '领舞', follower: '跟舞', both: '都可以' }, chgAdd: '新增：{n}（{w}）', chgDel: '删除：{n}（这位的入场码已作废）', chgName: '名字：{o} → {n}', chgItems: '{n}：{o} → {w}', chgHotel: '住宿：{o} → {w}', none: '无', keepDiff: '依报名规则，2027年6月11日之后改少，差价不退。',
     adjS: '金额调整 · {c}', adj: '你的报名 {c} 的金额有调整：{x}。', up: '加收 {m}', down: '减收 {m}', why: '说明：{w}',
     adjT: '原来合计 {o}，现在合计 {a}，已付 {p}。', adjLater: '报名确认后寄出的付款信，会用新的金额。',
     adjCash: '还差 {t}，请到场时支付（支付宝、微信或现金），付清后入场；想先付的，直接回复本邮件。入场码不变。',
@@ -280,7 +282,7 @@ const T = {
     paidS: '결제 확인 · {c}', paid: '신청 {c}의 결제를 확인했습니다. 신청이 완료되었습니다. 베이징에서 만나요!',
     cashS: '현장 결제 · {c}', cash: '신청 {c}의 항공권을 확인했습니다. 도착 시 {t}을(를) 결제해 주세요(알리페이, 위챗페이 또는 현금).',
     cancS: '신청 취소 · {c}', canc: '신청 {c}이(가) 취소되었습니다.', refund: '환불: {r}.', noRefund: '신청 규정에 따라 2027년 6월 11일 후에 취소하면 환불되지 않습니다.',
-    updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다.', updFee: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.', chgT: '변경 내용:', chgAdd: '추가: {n} ({w})', chgDel: '삭제: {n} (이분의 입장 코드는 더 이상 사용할 수 없습니다)', chgName: '이름: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: '호텔: {o} → {w}', none: '없음', keepDiff: '신청 규정에 따라 2027년 6월 11일 후에 금액이 줄어드는 변경은 차액을 환불하지 않습니다.',
+    updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다.', updFee: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.', chgT: '변경 내용:', chgDelPlain: '삭제: {n}', chgRole: '{n}: {o} → {w}', chgPass: '호텔 예약용 여권 이름이 수정되었습니다', roles: { leader: '리더', follower: '팔로워', both: '둘 다' }, chgAdd: '추가: {n} ({w})', chgDel: '삭제: {n} (이분의 입장 코드는 더 이상 사용할 수 없습니다)', chgName: '이름: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: '호텔: {o} → {w}', none: '없음', keepDiff: '신청 규정에 따라 2027년 6월 11일 후에 금액이 줄어드는 변경은 차액을 환불하지 않습니다.',
     adjS: '금액 변경 · {c}', adj: '신청 {c}의 금액이 변경되었습니다: {x}.', up: '추가 요금 {m}', down: '{m} 할인', why: '주최 측 안내: {w}',
     adjT: '이전 합계 {o}, 새 합계 {a}, 지금까지 결제 {p}.', adjLater: '신청이 확정되면 받는 결제 안내 메일에 새 금액이 적용됩니다.',
     adjCash: '남은 금액 {t}은(는) 도착해서 입장 전에 결제해 주세요(알리페이, 위챗페이 또는 현금). 미리 결제하려면 이 메일에 회신해 주세요. 입장 QR 코드는 그대로입니다.',
@@ -301,7 +303,7 @@ const T = {
     paidS: 'Pago recibido · {c}', paid: 'Hemos recibido el pago de {c}. Tu inscripción está completa. ¡Nos vemos en Pekín!',
     cashS: 'Pago en el evento · {c}', cash: 'Hemos recibido tu billete de avión para {c}. Paga {t} al llegar (Alipay, WeChat Pay o efectivo).',
     cancS: 'Inscripción cancelada · {c}', canc: 'Tu inscripción {c} ha sido cancelada.', refund: 'Reembolso: {r}.', noRefund: 'Según las normas de inscripción, las cancelaciones después del 11 de junio de 2027 no se reembolsan.',
-    updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada.', updFee: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.', chgT: 'Qué cambió:', chgAdd: 'Añadido: {n} ({w})', chgDel: 'Quitado: {n} (su código de entrada ya no sirve)', chgName: 'Nombre: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Hotel: {o} → {w}', none: 'nada', keepDiff: 'Según las normas de inscripción, después del 11 de junio de 2027 no se devuelve la diferencia cuando un cambio baja el total.',
+    updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada.', updFee: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.', chgT: 'Qué cambió:', chgDelPlain: 'Quitado: {n}', chgRole: '{n}: {o} → {w}', chgPass: 'Nombres de pasaporte para el hotel actualizados', roles: { leader: 'Líder', follower: 'Follower', both: 'Ambos' }, chgAdd: 'Añadido: {n} ({w})', chgDel: 'Quitado: {n} (su código de entrada ya no sirve)', chgName: 'Nombre: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Hotel: {o} → {w}', none: 'nada', keepDiff: 'Según las normas de inscripción, después del 11 de junio de 2027 no se devuelve la diferencia cuando un cambio baja el total.',
     adjS: 'Cambio de importe · {c}', adj: 'El importe de tu inscripción {c} ha cambiado: {x}.', up: 'un cargo adicional de {m}', down: 'un descuento de {m}', why: 'Nota de los organizadores: {w}',
     adjT: 'Total anterior {o}, nuevo total {a}, pagado hasta ahora {p}.', adjLater: 'El email de pago que recibirás cuando se confirme tu inscripción usará el nuevo importe.',
     adjCash: 'Quedan {t} por pagar: págalos al llegar, antes de entrar (Alipay, WeChat Pay o efectivo). Si prefieres pagar antes, responde a este email. Tus códigos QR de entrada no cambian.',
@@ -322,7 +324,7 @@ const T = {
     paidS: 'Оплата получена · {c}', paid: 'Мы получили оплату {c}. Регистрация завершена. До встречи в Пекине!',
     cashS: 'Оплата на месте · {c}', cash: 'Мы получили авиабилет для {c}. Оплатите {t} по прибытии (Alipay, WeChat Pay или наличные).',
     cancS: 'Регистрация отменена · {c}', canc: 'Ваша регистрация {c} отменена.', refund: 'Возврат: {r}.', noRefund: 'По правилам регистрации при отмене после 11 июня 2027 года деньги не возвращаются.',
-    updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена.', updFee: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.', chgT: 'Что изменилось:', chgAdd: 'Добавлен(а): {n} ({w})', chgDel: 'Удалён(а): {n} (входной код больше не действует)', chgName: 'Имя: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Отель: {o} → {w}', none: 'нет', keepDiff: 'По правилам регистрации после 11 июня 2027 года разница при уменьшении суммы не возвращается.',
+    updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена.', updFee: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.', chgT: 'Что изменилось:', chgDelPlain: 'Удалён(а): {n}', chgRole: '{n}: {o} → {w}', chgPass: 'Паспортные имена для отеля обновлены', roles: { leader: 'ведущий', follower: 'ведомый', both: 'оба' }, chgAdd: 'Добавлен(а): {n} ({w})', chgDel: 'Удалён(а): {n} (входной код больше не действует)', chgName: 'Имя: {o} → {n}', chgItems: '{n}: {o} → {w}', chgHotel: 'Отель: {o} → {w}', none: 'нет', keepDiff: 'По правилам регистрации после 11 июня 2027 года разница при уменьшении суммы не возвращается.',
     adjS: 'Изменение суммы · {c}', adj: 'Сумма вашей регистрации {c} изменилась: {x}.', up: 'доплата {m}', down: 'скидка {m}', why: 'Комментарий организаторов: {w}',
     adjT: 'Было {o}, стало {a}, уже оплачено {p}.', adjLater: 'В письме об оплате после подтверждения регистрации будет новая сумма.',
     adjCash: 'Осталось оплатить {t}: оплатите по прибытии, до входа (Alipay, WeChat Pay или наличные). Чтобы оплатить заранее, просто ответьте на это письмо. Входные QR-коды остаются прежними.',
@@ -376,20 +378,25 @@ export function detailLines(d, lang) {
   return out;
 }
 // 修改报名: what changed, place by place (added, taken off, renamed, items), and the hotel, in the reader's language
-export function changeLines(was, now, lang) {
+export function changeLines(was, now, lang, coded = true) {
   const N = NAMES[lang] || NAMES.en, L = T[lang] || T.en, out = [];
   now.people.forEach((p, i) => {
     const o = was.people[i];
     if (!o) { if (!p.gone) out.push(fill(L.chgAdd, { n: p.name, w: whatOf(p, N) })); return; }
-    if (p.gone) { if (!o.gone) out.push(fill(L.chgDel, { n: o.name })); return; }
+    if (p.gone) { if (!o.gone) out.push(fill(coded ? L.chgDel : L.chgDelPlain, { n: o.name })); return; }
     if (o.gone) return;
     if (o.name !== p.name) out.push(fill(L.chgName, { o: o.name, n: p.name }));
     const a = whatOf(o, N), z = whatOf(p, N);
     if (a !== z) out.push(fill(L.chgItems, { n: p.name, o: a, w: z }));
+    if (o.role !== p.role) out.push(fill(L.chgRole, { n: p.name, o: L.roles[o.role] || o.role, w: L.roles[p.role] || p.role }));
   });
-  const rooms = d => (d.hotel ? d.rooms.map(r => `${N[r.type]} ${r.ci} → ${r.co}`).join('; ') : '');
-  const a = rooms(was), z = rooms(now);
-  if (a !== z) out.push(fill(L.chgHotel, { o: a || L.none, w: z || L.none }));
+  was.people.slice(now.people.length).forEach(o => { if (!o.gone) out.push(fill(coded ? L.chgDel : L.chgDelPlain, { n: o.name })); });   // a shorter list (not paid yet)
+  // the hotel: compared by room, dates and which places sleep there (a rename alone is no hotel change)
+  const key = d => (d.hotel ? d.rooms.map(r => `${r.type} ${r.ci} ${r.co} ${[...(r.guests || [])].sort((x, y) => x - y)}`).join('; ') : '');
+  const rooms = d => (d.hotel ? d.rooms.map(r => `${N[r.type]} ${r.ci} → ${r.co} (${(r.guests || []).map(g => d.people[g] && d.people[g].name).filter(Boolean).join(', ')})`).join('; ') : '');
+  if (key(was) !== key(now)) out.push(fill(L.chgHotel, { o: rooms(was) || L.none, w: rooms(now) || L.none }));
+  const pp = (d, i) => { const q = (d.passports || [])[i] || {}; return d.hotel ? `${q.s || ''} ${q.g || ''}` : ''; };
+  if (was.hotel && now.hotel && now.people.some((p, i) => !p.gone && was.people[i] && !was.people[i].gone && pp(was, i) !== pp(now, i))) out.push(L.chgPass);
   return out;
 }
 // qrs: names of the payment QR images that are really uploaded (a missing one would be a broken image).
@@ -418,7 +425,7 @@ export function letter(kind, reg, env, passes, qrs = []) {
   }
   if (u) {   // the organizers' note and what changed
     if (u.why) body.push(fill(L.why, { w: u.why }));
-    const chg = u.was ? changeLines(u.was, u.slots || d, lang) : [];
+    const chg = u.was ? changeLines(u.was, u.slots || d, lang, u.coded !== false) : [];
     if (chg.length) body.push('', L.chgT, ...chg.map(s => '· ' + s));
   }
   if (['recv', 'conf', 'upd'].includes(kind)) { const colon = lang === 'zh' ? '：' : ': ';
@@ -1383,50 +1390,71 @@ export async function regAct(env, b, json, kit, ev, who) {
     const coded = PAID.includes(reg.status) || ins.length > 0;
     // once the codes are out nobody comes back and no place is dropped (a person taken off stays in the list, gone)
     if (coded && Array.isArray(inp.people) && (inp.people.length < d.people.length || d.people.some((p, i) => p.gone && !(inp.people[i] && inp.people[i].gone)))) return json({ error: 'bad_people' }, 400);
-    const rs = evaluate(inp, env, Date.parse(reg.created_at), { slots: true });   // promo judged at the original submit time
+    // the same code as before: the price basis it was charged with (a friend code since removed still counts); a new one is judged at the original submit time
+    const kept = d.promo && String(inp.code || '').trim().toLowerCase() === (d.promo.code || '') ? d.promo : null;
+    const rs = evaluate(inp, env, Date.parse(reg.created_at), { slots: true, promo: kept });
     if (rs.error) return json(rs, 400);
     const slots = rs.data;
-    for (const c of ins) {   // what someone already checked in for stays
+    for (const c of ins) {   // what someone already checked in for stays (a stray row for something no longer held does not lock the registration)
+      const o = d.people[c.person]; if (!o || o.gone || !(o.items || []).includes(c.item)) continue;
       const p = slots.people[c.person];
       if (!p || p.gone || !p.items.includes(c.item)) return json({ error: 'checked_in', person: (d.people[c.person] || {}).name || '', item: c.item }, 409);
     }
     const data = coded ? slots : dropGone(slots);
     // ¥50 only once money was received (Shiao, 2026-11-26): before payment (待审核, 候补, 已确认 or 到场付款 not yet paid) a
     // change is free; after it (paid, or paid in part) the first change carries the fee, once per registration.
+    const same = JSON.stringify(data) === reg.data;   // nothing changed: nothing to charge, keep or send
     const got = await moneyOf(env, reg.id), took = reg.status === 'paid' ? Math.max(got.sum, got.sum ? 0 : reg.amount) : got.sum;
-    const fee = reg.fee > 0 ? reg.fee : took > 0 && b.nofee !== 1 ? ev.fee : 0;
+    const fee = reg.fee > 0 ? reg.fee : !same && took > 0 && b.nofee !== 1 ? ev.fee : 0;
     const feeWhy = reg.fee > 0 ? 'had' : took > 0 ? (b.nofee === 1 ? 'waived' : 'first') : 'unpaid';
     const seated = SEATED.includes(reg.status);
-    let short = null;
-    if (seated) { const left = await seatsLeft(env, ev, reg.id); for (const [c, k] of Object.entries(need(data))) if (left[c] != null && k > left[c]) { short = { item: c, left: left[c], need: k }; break; } }
-    const m = withAdj(rs.total + fee, rs.hotel, await adjOf(env, reg.id));   // a 调整金额 made before stays
-    const keep = bjDate(ts) > ev.refundBy && took > 0 && m.amount < took ? took - m.amount : 0;   // after the refund date nothing goes back
-    const amount = m.amount + keep;
+    // only what this change adds has to fit (removing someone, or renaming, never needs a free seat)
+    const shorts = [], grow = [];
+    if (seated) {
+      const left = await seatsLeft(env, ev, reg.id), before = need(d), now = need(data);
+      for (const [c, k] of Object.entries(now)) { if (k <= (before[c] || 0)) continue; if (left[c] != null && k > left[c]) shorts.push({ item: c, left: left[c], need: k }); else grow.push([c, k]); }
+    }
+    const short = shorts[0] || null;
+    // 调整金额 made before stay. A hotel one belongs to the hotel: with no hotel left it goes, and a hotel discount never
+    // exceeds the new hotel charge. The 6/11 「kept difference」 is worked out anew each time, never added on top.
+    const adj = await adjOf(env, reg.id);
+    const hotelAdj = rs.hotel > 0 ? Math.max(adj.hotel, -rs.hotel) : 0, hotelFix = hotelAdj - adj.hotel;
+    const base = Math.max(0, rs.total + fee + adj.all - adj.keep + hotelFix);
+    // after the refund date this change refunds nothing it lowers; a refund already owed (paid above the total) stays owed
+    const keepAll = bjDate(ts) > ev.refundBy && took > 0 ? Math.max(0, Math.min(took, reg.amount) - base) : 0;
+    const keepDelta = same ? 0 : keepAll - adj.keep, keep = Math.max(0, keepDelta);
+    const amount = same ? reg.amount : base + keepAll, hotel = same ? reg.hotel_amount : Math.max(0, rs.hotel + hotelAdj);
+    // marked paid with no payment records: a total raised from ¥0 is simply owed; otherwise record the money first
+    if (!same && reg.status === 'paid' && !got.n && reg.amount > 0 && amount !== reg.amount) return json({ error: 'no_payments' }, 409);
     // paid and raised: 到场付款 (codes stay, the rest shows); 待付款 / 到场付款 now covered: paid
-    const st = reg.status === 'paid' && got.n && got.sum < amount ? 'cash' : (reg.status === 'confirmed' || reg.status === 'cash') && got.n && got.sum >= amount && amount > 0 ? 'paid' : reg.status;
+    const st = same ? reg.status : reg.status === 'paid' && (got.n || reg.amount <= 0) && got.sum < amount ? 'cash' : (reg.status === 'confirmed' || reg.status === 'cash') && got.n && got.sum >= amount && amount > 0 ? 'paid' : reg.status;
     const nowPaid = st === 'paid' && reg.status !== 'paid';
     const over = st === 'paid' && got.n ? Math.max(0, got.sum - amount) : 0, rest = st === 'confirmed' || st === 'cash' ? Math.max(0, amount - got.sum) : 0;
-    const zh = changeLines(d, slots, 'zh'), same = JSON.stringify(data) === reg.data && fee === reg.fee;
-    if (b.preview === 1) return json({ ok: true, preview: true, was: reg.amount, amount, fee, feeWhy, keep, paid: got.sum, rest, over, status: st, full: short, changes: zh, same, people: activeOf(data).length });
+    const zh = changeLines(d, slots, 'zh', coded);
+    if (b.preview === 1) return json({ ok: true, preview: true, was: reg.amount, amount, fee: same ? reg.fee : fee, feeWhy, keep, paid: got.sum, rest, over, status: st, full: same ? null : short, fulls: same ? [] : shorts, changes: zh, same, people: activeOf(data).length });
     if (same) return json({ error: 'no_change' }, 400);
     if (short && b.over !== 1) return json({ error: 'full', ...short }, 409);
     const why = str(b.why, 200);
     const text = [...zh, `合计 ${fmt(reg.amount)} → ${fmt(amount)}`, fee && !reg.fee ? `手续费 ${fmt(fee)}` : feeWhy === 'waived' ? '这次不收手续费' : '',
-      keep ? `6/11 之后改少，差价 ${fmt(keep)} 不退` : '', short ? `超额：${NAMES.zh[short.item] || short.item}` : '', why ? `说明：${why}` : ''].filter(Boolean).join('；');
-    const keepLine = keep ? [db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) SELECT ?,?,'adjust',? WHERE changes()>0")
-      .bind(reg.id, ts, JSON.stringify({ by: who.name, text: JSON.stringify({ d: keep, part: 'reg', why: KEEP_WHY, note: '', was: m.amount }) }))] : [];
-    const guard = seated && !short;   // overbooking (over: 1) skips the seat check in the write too
+      keep ? `6/11 之后改少，差价 ${fmt(keep)} 不退` : '', hotelFix ? `住宿原来的加减收随住宿调整 ${hotelFix > 0 ? '+' : '−'}${fmt(Math.abs(hotelFix))}` : '',
+      shorts.length ? `超额：${shorts.map(x => NAMES.zh[x.item] || x.item).join('、')}` : '', why ? `说明：${why}` : ''].filter(Boolean).join('；');
+    const line = (d2, part, w, auto) => db.prepare("INSERT INTO reg_log(reg_id,at,action,detail) SELECT ?,?,'adjust',? WHERE changes()>0")
+      .bind(reg.id, ts, JSON.stringify({ by: who.name, text: JSON.stringify({ d: d2, part, why: w, note: '', was: reg.amount, auto }) }));
+    // each line is written only if the one before it was (changes() carries on)
+    const lines = [...(hotelFix ? [line(hotelFix, 'hotel', HOTEL_WHY, 'hotel')] : []), ...(keepDelta ? [line(keepDelta, 'reg', keepDelta > 0 ? KEEP_WHY : UNKEEP_WHY, 'keep')] : [])];
+    // the seat check written into the UPDATE covers what grows (items the 总管 chose to overbook are left out)
+    const guarded = seated && grow.length ? { people: grow.flatMap(([c, k]) => Array.from({ length: k }, () => ({ items: [c] }))) } : null;
     const ok = await done(
-      db.prepare(`UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,status=?,paid_at=${nowPaid ? 'COALESCE(paid_at,?)' : 'paid_at'},updated_at=? WHERE id=? AND status=? AND data=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?` + (guard ? ROOM_SQL : ''))
-        .bind(JSON.stringify(data), activeOf(data).length, rs.domestic, amount, m.hotel, fee, rs.promo.code || null, rs.promo.dj || null, st, ...(nowPaid ? [ts] : []), ts, reg.id, reg.status, reg.data, reg.id, got.n, ...(guard ? roomArgs(ev, data, reg.id) : [])),
-      text.slice(0, 700), ...keepLine);
+      db.prepare(`UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,status=?,paid_at=${nowPaid ? 'COALESCE(paid_at,?)' : 'paid_at'},updated_at=? WHERE id=? AND status=? AND amount=? AND updated_at=? AND data=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=? AND (SELECT COUNT(*) FROM reg_checkin WHERE reg_id=?)=?` + (guarded ? ROOM_SQL : ''))
+        .bind(JSON.stringify(data), activeOf(data).length, rs.domestic, amount, hotel, fee, rs.promo.code || null, rs.promo.dj || null, st, ...(nowPaid ? [ts] : []), ts, reg.id, reg.status, reg.amount, reg.updated_at, reg.data, reg.id, got.n, reg.id, ins.length, ...(guarded ? roomArgs(ev, guarded, reg.id) : [])),
+      text.slice(0, 700), ...lines);
     if (!ok) {   // still as read: then what stopped it was the seats, taken a moment ago by someone else
-      const now = await db.prepare('SELECT status,data FROM reg WHERE id=?').bind(reg.id).first();
-      if (guard && now && now.status === reg.status && now.data === reg.data) { const no = await full(env, ev, data, reg.id, json); if (no) return no; }
+      const now = await db.prepare('SELECT status,data,updated_at FROM reg WHERE id=?').bind(reg.id).first();
+      if (guarded && now && now.status === reg.status && now.data === reg.data && now.updated_at === reg.updated_at) { const no = await full(env, ev, guarded, reg.id, json); if (no) return no; }
       return late();
     }
     const after = await db.prepare('SELECT * FROM reg WHERE id=?').bind(reg.id).first();
-    const mail = b.silent !== 1 ? await send(env, kit, after, 'modify', { upd: { was: d, slots, why, over, keep } }) : undefined;
+    const mail = b.silent !== 1 ? await send(env, kit, after, 'modify', { upd: { was: d, slots, why, over, keep, coded } }) : undefined;
     return json({ ok: true, status: after.status, amount: after.amount, fee: after.fee, rest, over, keep, mail });
   }
   if (!(await done(change, b.note ? str(b.note, 500) : ''))) {   // and no letter from the one who was late
