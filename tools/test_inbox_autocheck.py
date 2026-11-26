@@ -10,7 +10,7 @@ TODAY = datetime.date(2026, 11, 16)
 BASE_CARDS = [
     {"id": "R001", "kind": "weekly", "type": "milonga", "name": "Milonga Uno", "city": "Beijing",
      "region": "China", "weekday": 2, "weekdays": [2], "time": "20:00–24:00", "venue": "Hall A",
-     "venue_address": "", "source": "x"},
+     "venue_address": "", "source": "x", "organizers": ["勾陳"], "organizers_en": ["Gou Chen"]},
     {"id": "E001", "kind": "event", "type": "milonga", "name": "Big Night", "city": "Shanghai",
      "region": "China", "start": "2026-11-28", "end": "2026-11-28", "time": "20:00", "venue": "Te Amo",
      "venue_address": "某路1号", "source": "x"},
@@ -19,6 +19,18 @@ BASE_CARDS = [
      "venue_address": "", "source": "x"},
 ]
 CORE_IDS = {"R001", "E001"}
+PROFILES = [
+    {"id": "gou-chen", "name": "Gou Chen", "name_zh": "勾陳", "city": "Beijing", "photo": "", "bio": "", "bio_zh": "",
+     "links": {"wechat": ""}, "match": ["Gou Chen", "勾陳"], "auto": True},
+    {"id": "liu-zheng", "name": "Liu Zheng", "name_zh": "刘峥", "city": "Beijing", "photo": "/images/asia/profiles/liu-zheng.webp?v=l1",
+     "bio": "old", "bio_zh": "旧", "links": {"wechat": ""}, "match": ["刘峥"]},
+    {"id": "union-west", "kind": "group", "name": "Tango Union West", "name_zh": "Tango Union West", "city": "Beijing",
+     "photo": "", "bio": "", "bio_zh": "", "links": {}, "match": ["Tango Union West"], "members": ["Gou Chen"]},
+]
+
+
+def dump_profiles(lst):
+    return json.dumps(lst, ensure_ascii=False, indent=2) + '\n'
 
 
 def dump(lst, more=False):
@@ -39,6 +51,8 @@ class T(unittest.TestCase):
         open('tools/radar-poster-log.jsonl', 'w').write('{"action":"replaced","id":"OLD"}\n')
         open('asia/index.html', 'w').write("<script src='/asia/cardB.js?v=cb1'></script><p>hello</p>")
         self.write(BASE_CARDS)
+        os.makedirs('images/asia/profiles')
+        open('asia/organizers.json', 'w').write(dump_profiles(PROFILES))
         self.git('add', '-A')
         self.git('commit', '-qm', 'base')
         self.git('checkout', '-qb', 'run')
@@ -72,6 +86,73 @@ class T(unittest.TestCase):
         who = '- 寄件人是主办本人：这封信可以算「主办确认」' if organizer else '- 寄件人是 ATM 这边的人（转寄或整理的资料），不算主办确认'
         cards = f'\n- 这位主办在网站上的卡：{"、".join(own)}（主办确认只用在这些卡）' if own else ''
         open('data/inbox/done/2026-11-20-mail-1120-1200-abcd.md', 'w').write(f'# 邮件：x\n\n{who}{cards}\n')
+
+    def profiles(self):
+        return json.loads(json.dumps(PROFILES))
+
+    def run_profile(self, profiles, own=('R001',), organizer=True, photo_of=None, pages_of=None):
+        if own is not None:
+            self.mail(list(own), organizer)
+        open('asia/organizers.json', 'w').write(dump_profiles(profiles))
+        if photo_of:
+            open(f'images/asia/profiles/{photo_of}.webp', 'wb').write(b'RIFF')
+        for pid in pages_of or []:
+            for d in (f'organizer/{pid}', f'zh/organizer/{pid}'):
+                os.makedirs(d, exist_ok=True)
+                open(f'{d}/index.html', 'w').write('<html></html>')
+        return self.run_check(self.cards())
+
+    def test_organizer_mail_own_profile_goes_live(self):
+        p = self.profiles()
+        p[0].update(photo='/images/asia/profiles/gou-chen.webp?v=g1', bio='Runs TUW. WeChat abc', bio_zh='主理人。微信 abc',
+                    links={'wechat': 'abc'}, sources=['主办本人来信'])
+        del p[0]['auto']
+        ok, why, ch = self.run_profile(p, photo_of='gou-chen')
+        self.assertTrue(ok, why)
+        self.assertTrue(any('介绍页 gou-chen' in c for c in ch))
+
+    def test_organizer_mail_other_profile_waits(self):
+        p = self.profiles()
+        p[1]['bio_zh'] = '新'
+        ok, why, _ = self.run_profile(p)
+        self.assertFalse(ok)
+        self.assertTrue(any('别人的介绍页 liu-zheng' in r for r in why), why)
+
+    def test_organizer_mail_group_member_goes_live(self):
+        p = self.profiles()
+        p[2].update(bio_zh='团体介绍', photo='/images/asia/profiles/union-west.webp?v=u1')
+        ok, why, _ = self.run_profile(p, photo_of='union-west')
+        self.assertTrue(ok, why)
+
+    def test_new_profile_waits(self):
+        p = self.profiles()
+        p.append({"id": "new-one", "name": "New One", "name_zh": "新人", "city": "Beijing", "photo": "/images/asia/profiles/new-one.webp?v=n1",
+                  "bio": "x", "bio_zh": "x", "links": {}, "match": ["New One"]})
+        ok, why, _ = self.run_profile(p, photo_of='new-one', pages_of=['new-one'])
+        self.assertFalse(ok)
+        self.assertTrue(any('新建了介绍页 new-one' in r for r in why), why)
+        self.assertFalse(any('不属于' in r or '页面文件' in r for r in why), why)
+
+    def test_profile_without_organizer_mail_waits(self):
+        p = self.profiles()
+        p[0]['bio_zh'] = 'x'
+        ok, why, _ = self.run_profile(p, own=None)
+        self.assertFalse(ok)
+        self.assertTrue(any('不是组织者来信' in r for r in why), why)
+
+    def test_profile_name_change_waits(self):
+        p = self.profiles()
+        p[0]['name_zh'] = '勾陈'
+        ok, why, _ = self.run_profile(p)
+        self.assertFalse(ok)
+        self.assertTrue(any('改了「name_zh」' in r for r in why), why)
+
+    def test_stray_profile_photo_waits(self):
+        p = self.profiles()
+        p[0]['bio_zh'] = 'x'
+        ok, why, _ = self.run_profile(p, photo_of='liu-zheng')
+        self.assertFalse(ok)
+        self.assertTrue(any('不属于这次介绍页更新的照片' in r for r in why), why)
 
     def test_organizer_mail_own_card_goes_live(self):
         c = self.cards(); i = c[0]['id']

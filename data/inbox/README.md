@@ -158,4 +158,6 @@ Shiao 在「资料更新」PR 留言里说「以后都这样」的规则，由 C
 
 （2026-11-26 Shiao）**探戈组团**（`type: "grouptrip"`，首页「大型」下的一类）：本地主办带一群人去参加外地探戈节的团，有固定日期、有报名方式，才收。卡上 `city` 写出发城市（`region`、`country` 跟着出发地），目的地写在 `destination`（英文 `destination_en`；例：「伊斯坦布尔 · 卡帕多奇亚」／"Istanbul · Cappadocia"），`venue`、`venue_address` 留空（目的地不是场地，不进场地名单），`note_zh`／`note` 写去参加哪个节、几天几晚、团费含什么。**不算**探戈组团的：外地探戈节本身（照旧当探戈节／马拉松，放在它自己的国家城市）、个人找人结伴、一般旅游团。目的地的节已经在网站上时，两张卡在说明里互相提到。新的探戈组团卡先不自动上线，等 Shiao 看过。
 
+（2026-11-26 Shiao）**组织者寄来自己的照片和介绍**（寄到 huodong@ 的来信）：用介绍页工具 `tools/organizer_profile_update.py` 更新他在 `asia/organizers.json` 的那一笔和照片（`images/asia/profiles/<id>.webp`），不手改。介绍照主办写的放，电话、微信号、报名链接都照抄；中文放 `bio_zh`，英文没给就翻译放 `bio`。寄件人是团体成员时也可以更新团体页。只改寄件人自己（或他所在团体）的介绍页，替别人寄的写进「要 Shiao 确认」。第一次建介绍页（`--new`）等 Shiao 看过才上线，之后同一个人的更新自动上线。
+
 （2026-11-21 Shiao，从交接说明补进来）同一位 DJ 的不同写法以 `data/dj-names.json` 为准：海报写 Bana、Ban-A 的，卡上一律写「Ban A」；其他人照海报写，不用改。

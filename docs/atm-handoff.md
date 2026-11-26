@@ -68,6 +68,7 @@
 - **公众号文章链接（11/21 用户定）**：答复（来信或探戈助理）里有 mp.weixin.qq.com 文章链接时，inbox.yml 在 Claude 处理前先跑 `tools/wechat_article.py`：打开文章，把正文加进答复的「## 公众号文章（自动读取）」（邮箱、电话隐藏），图片（最多 8 张、去掉小图标和 gif）存成 `<答复名>-wx<k>-<n>.jpg`，当附件用。读不到（微信要验证、文章删了）就在答复里写「读取失败」，PR 等 Shiao 看。测试 `python3 tools/test_wechat_article.py`。只寄链接也行，但微信偶尔挡 GitHub 的机器，重要的最好附海报。
 - **「等 Shiao 看」要 @Shiao64（11/24 用户定）**：自动处理的 PR 是 claude[bot] 开的，`inbox.yml` 留的「这次没有自动上线」留言原本不会通知 Shiao（#425 Shiao 没收到）。现在留言开头加 `@Shiao64`，GitHub 会寄信、手机 GitHub App 会推送。以后别的自动流程要 Shiao 决定时，也要在留言里 @Shiao64。
 - **交收件箱（11/23 起，旧名「微信摘要交仓库」）**：Shiao 的 Mac（Peggy的MacBook Air）上有两个 Claude 任务：「读微信」每天 9:54、21:54（11/25 起）用 Computer use 读 5 个微信群，摘要存在 Mac 的 `Documents/微信摘要/`（只给 Shiao 看，不碰仓库）；「交收件箱」由读微信写完摘要后自动启动（也可手动），把摘要里中国大陆和香港的新活动、变更照 `data/inbox/README.md` 交进 `data/inbox/`（分支 `answer/wechat-…-mba`，PR 标题目前仍是「微信摘要交仓库：…」（任务指令没改；文件里定名为「交收件箱：…」），例 #424、#427、#465）。和探戈助理的「探戈雷达」可能交到同一件事，交之前要查重。
+- **组织者来信补介绍页（11/26 Shiao 定）**：名单上的组织者寄照片、个人或团体介绍到 huodong@，`inbox.yml` 里的 Claude 用 `tools/organizer_profile_update.py`（`--find` 找编号；`--id` 更新；`--new` 建条目和两个页面；`--photo` 缩成 webp 存 `images/asia/profiles/<id>.webp` 并把 `?v=` 加一；测试 `python3 tools/test_organizer_profile_update.py`）改 `asia/organizers.json`。规矩：介绍照主办写的放，**电话、微信号、报名链接都照抄**；中文 `bio_zh`、英文 `bio`（没给就翻译）；寄件人是团体 `members` 之一可以改团体页；只能改他自己的。上线检查（`inbox_autocheck.py` 的 `check_profiles()`）：只在有组织者来信的 PR 里放行，只放行他自己（或所在团体）的条目、只放行 photo／bio／affiliation／links／classes／sources／auto 这些栏位和对应的照片文件；**新建介绍页第一次等 Shiao**，之后同一个人的更新自动上线；不是组织者来信改到 organizers.json 一律等 Shiao。不用改 .js 的版本号：`organizers.json` 和 `/images/*` 不在 `_headers` 的长缓存名单里，GitHub Pages 默认约 10 分钟就会更新，照片靠 `?v=` 换新。
 - 查错：Actions「API tail (mail errors only)」只读监听几分钟，只印收信错误，不印地址。Cloudflare 邮件路由的 Activity log 也看得到每封信的结果。
 - 坑：在 Cloudflare 后台「Add variable and deploy」会用**页面打开时**的版本重新部署。部署后要先重新整理页面再改变量，不然会把旧程序放回去（11/20 踩过）。
 
@@ -180,6 +181,7 @@
   - **换新一期海报**（#152）：必须是 `radar_poster_update.py` 换的（`tools/radar-poster-log.jsonl` 有该卡的 replaced 记录）；允许该卡的海报字段、和新海报 DJ 一致的 `dj`/`dj_en`、该卡的海报／缩图／备份图片、网页里只有缓存版本号的改动；
   - 新卡：中国大陆或香港、资料齐全（名称、城市、时间、场地、地址、来源；日期没过或有每周几）、放进 events-core、不像现有的卡（同城同日同场地或同名；多日活动只比名称）；
   - 一次最多 8 张卡。其他都等，PR 下面会留言写原因。
+  - **介绍页（11/26 Shiao）**：组织者来信的 PR 可以改 `asia/organizers.json` 里他自己（或所在团体）的照片、介绍、联络方式和 `images/asia/profiles/<id>.webp`；新建的介绍页等 Shiao（见 0.7 节）。
   - 自动合并后，流程会自己启动 R2 sync、发活动变动推播、还有答复在等就再跑一次。
 - **R2 同步**（#198 前一次要上传 1200 多个文件，20–40 分钟；#198 起只传改过的，见下面「2026-11-17 晚更新」）。同步有排队规则（`concurrency`，不取消正在跑的；排队中的只留最新一个，被它取代的那次显示 cancelled，无害，因为最新那次包含了它的改动）。合并不会触发同步的情况（例如只改 `tools/`）要手动启动：`gh api -X POST repos/Shiao64/my1/actions/workflows/r2-sync.yml/dispatches -f ref=main`。**改了资料后，要等同步跑完，数据站上才有新的图和数据**；PR 里如果用到新的图，先确认同步能上传它再合并。
 - **只传改过的文件**：`tools/r2_sync_cards.py` 在数据站上存一份清单 `asia/sync-hashes.json`（每个文件的 sha256）。同步时图片 sha256 和清单相同就跳过；三个活动 JSON 每次都传；最后才写清单（中途失败，下次会重传）。读不到清单（第一次、或被删）就全部上传并重建清单，所以 **#198 合并后的第一次同步仍要 20–40 分钟**，之后通常几分钟。有人手动改过数据站时：Actions →「R2 sync」→ Run workflow，勾 **full** 全部重传（命令行 `--full`）。测试：`python3 tools/test_r2_incremental.py`。
