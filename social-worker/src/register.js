@@ -216,14 +216,14 @@ const T = {
     confS: 'Registration confirmed · {c}', conf: 'Your registration {c} is confirmed.',
     pay: 'Please pay {t} by {d} (within 2 weeks of this email) with {y}, using the payment QR code.',
     noApp: 'If you cannot use {y}, reply to this email with a screenshot of your flight ticket instead; you can then pay when you arrive.',
-    rules: 'Changes, additions and cancellations: ¥50 handling fee, charged once per registration. If you cancel on or before June 11, 2027, we refund your payment minus ¥50; after that nothing is refunded, hotel included. Places cannot be passed to another person.',
+    rules: 'Changes, additions and cancellations after payment: ¥50 handling fee, charged once per registration; before payment they are free. If you cancel on or before June 11, 2027, we refund your payment minus ¥50; after that nothing is refunded, hotel included. Places cannot be passed to another person.',
     waitS: 'Waiting list · {c}', wait: 'Your registration {c} is on the waiting list. We will email you as soon as a place opens.',
     declS: 'Registration · {c}', decl: 'We are sorry, we cannot accept your registration {c} this time. Thank you for your interest.',
     remS: 'Payment reminder · {c}', rem: 'A friendly reminder: payment for {c} ({t}) is due by {d}.',
     paidS: 'Payment received · {c}', paid: 'We have received your payment for {c}. Your registration is complete. See you in Beijing!',
     cashS: 'Pay at the event · {c}', cash: 'We have received your flight ticket for {c}. Please pay {t} when you arrive (Alipay, WeChat Pay or cash).',
     cancS: 'Registration cancelled · {c}', canc: 'Your registration {c} has been cancelled.', refund: 'Refund: {r}.', noRefund: 'Under the registration rules, cancellations after June 11, 2027 are not refunded.',
-    updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.',
+    updS: 'Registration updated · {c}', upd: 'Your registration {c} has been updated.', updFee: 'Your registration {c} has been updated. The ¥50 handling fee is included in the total.',
     adjS: 'Amount changed · {c}', adj: 'The amount of your registration {c} has changed: {x}.', up: 'an extra charge of {m}', down: 'a reduction of {m}', why: 'Note from the organizers: {w}',
     adjT: 'Previous total {o}, new total {a}, paid so far {p}.', adjLater: 'The payment email you get once your registration is confirmed will use the new amount.',
     adjCash: '{t} is still to pay: please pay it when you arrive (Alipay, WeChat Pay or cash), before going in. To pay earlier, just reply to this email. Your entry QR codes stay the same.',
@@ -237,14 +237,14 @@ const T = {
     confS: '报名确认 · {c}', conf: '你的报名 {c} 已确认。',
     pay: '请在 {d} 前（收到本信后 2 周内）用{y}扫付款码支付 {t}。请不要发送你自己 App 里的「付款码」。',
     noApp: '如无法使用{y}，请回复本邮件并附上机票截图，即可到场付款。',
-    rules: '报名后改动、增加、取消，每份报名收一次手续费 ¥50。2027年6月11日（含）前取消可退费，扣除手续费 ¥50；之后取消不退费，房费也一样。参加资格仅限报名者本人，不能换人。',
+    rules: '付款后改动、增加或取消，每份报名收一次手续费 ¥50；付款前改动、取消都不收。2027年6月11日（含）前取消可退费，扣除手续费 ¥50；之后取消不退费，房费也一样。参加资格仅限报名者本人，不能换人。',
     waitS: '候补名单 · {c}', wait: '你的报名 {c} 目前在候补名单上，有名额时我们会立即通知你。',
     declS: '报名结果 · {c}', decl: '很抱歉，这次无法接受你的报名 {c}。谢谢你的关注。',
     remS: '付款提醒 · {c}', rem: '提醒你：报名 {c} 的款项 {t} 请在 {d} 前支付。',
     paidS: '已收到付款 · {c}', paid: '已收到报名 {c} 的付款，报名完成。北京见！',
     cashS: '到场付款 · {c}', cash: '已收到报名 {c} 的机票截图，请到场时支付 {t}（支付宝、微信或现金）。',
     cancS: '报名已取消 · {c}', canc: '你的报名 {c} 已取消。', refund: '退款：{r}。', noRefund: '依报名规则，2027年6月11日之后取消不退费。',
-    updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新，合计已含手续费 ¥50。',
+    updS: '报名已更新 · {c}', upd: '你的报名 {c} 已更新。', updFee: '你的报名 {c} 已更新，合计已含手续费 ¥50。',
     adjS: '金额调整 · {c}', adj: '你的报名 {c} 的金额有调整：{x}。', up: '加收 {m}', down: '减收 {m}', why: '说明：{w}',
     adjT: '原来合计 {o}，现在合计 {a}，已付 {p}。', adjLater: '报名确认后寄出的付款信，会用新的金额。',
     adjCash: '还差 {t}，请到场时支付（支付宝、微信或现金），付清后入场；想先付的，直接回复本邮件。入场码不变。',
@@ -258,14 +258,14 @@ const T = {
     confS: '신청 확정 · {c}', conf: '신청 {c}이(가) 확정되었습니다.',
     pay: '{d}까지(이 메일을 받은 후 2주 이내) {y}로 결제 QR 코드를 스캔해 {t}을(를) 결제해 주세요.',
     noApp: '{y}를 사용할 수 없다면 항공권 캡처를 회신해 주세요. 도착해서 결제할 수 있습니다.',
-    rules: '신청 후 변경·추가·취소 시 신청 건당 ¥50 수수료가 한 번 부과됩니다. 2027년 6월 11일(포함)까지 취소하면 ¥50을 제외하고 환불하며, 그 후에 취소하면 호텔 요금을 포함해 환불되지 않습니다. 다른 사람으로 바꿀 수 없습니다.',
+    rules: '결제 후 변경·추가·취소 시 신청 건당 ¥50 수수료가 한 번 부과되며, 결제 전에는 수수료가 없습니다. 2027년 6월 11일(포함)까지 취소하면 ¥50을 제외하고 환불하며, 그 후에 취소하면 호텔 요금을 포함해 환불되지 않습니다. 다른 사람으로 바꿀 수 없습니다.',
     waitS: '대기자 명단 · {c}', wait: '신청 {c}은(는) 대기자 명단에 있습니다. 자리가 나면 바로 알려드리겠습니다.',
     declS: '신청 결과 · {c}', decl: '죄송하지만 이번에는 신청 {c}을(를) 받을 수 없습니다. 관심 가져 주셔서 감사합니다.',
     remS: '결제 안내 · {c}', rem: '신청 {c}의 결제({t}) 기한은 {d}입니다.',
     paidS: '결제 확인 · {c}', paid: '신청 {c}의 결제를 확인했습니다. 신청이 완료되었습니다. 베이징에서 만나요!',
     cashS: '현장 결제 · {c}', cash: '신청 {c}의 항공권을 확인했습니다. 도착 시 {t}을(를) 결제해 주세요(알리페이, 위챗페이 또는 현금).',
     cancS: '신청 취소 · {c}', canc: '신청 {c}이(가) 취소되었습니다.', refund: '환불: {r}.', noRefund: '신청 규정에 따라 2027년 6월 11일 후에 취소하면 환불되지 않습니다.',
-    updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.',
+    updS: '신청 변경 · {c}', upd: '신청 {c}이(가) 변경되었습니다.', updFee: '신청 {c}이(가) 변경되었습니다. 합계에 수수료 ¥50이 포함되어 있습니다.',
     adjS: '금액 변경 · {c}', adj: '신청 {c}의 금액이 변경되었습니다: {x}.', up: '추가 요금 {m}', down: '{m} 할인', why: '주최 측 안내: {w}',
     adjT: '이전 합계 {o}, 새 합계 {a}, 지금까지 결제 {p}.', adjLater: '신청이 확정되면 받는 결제 안내 메일에 새 금액이 적용됩니다.',
     adjCash: '남은 금액 {t}은(는) 도착해서 입장 전에 결제해 주세요(알리페이, 위챗페이 또는 현금). 미리 결제하려면 이 메일에 회신해 주세요. 입장 QR 코드는 그대로입니다.',
@@ -279,14 +279,14 @@ const T = {
     confS: 'Inscripción confirmada · {c}', conf: 'Tu inscripción {c} está confirmada.',
     pay: 'Paga {t} antes del {d} (2 semanas desde este email) con {y}, usando el código QR de pago.',
     noApp: 'Si no puedes usar {y}, responde con una captura de tu billete de avión; así podrás pagar al llegar.',
-    rules: 'Cambios, añadidos y cancelaciones: cargo de ¥50, una sola vez por inscripción. Si cancelas hasta el 11 de junio de 2027 (incluido), devolvemos lo pagado menos ¥50; después no se reembolsa nada, tampoco el hotel. La plaza no se puede ceder a otra persona.',
+    rules: 'Cambios, añadidos y cancelaciones después de pagar: cargo de ¥50, una sola vez por inscripción; antes de pagar no tienen cargo. Si cancelas hasta el 11 de junio de 2027 (incluido), devolvemos lo pagado menos ¥50; después no se reembolsa nada, tampoco el hotel. La plaza no se puede ceder a otra persona.',
     waitS: 'Lista de espera · {c}', wait: 'Tu inscripción {c} está en lista de espera. Te escribiremos en cuanto haya plaza.',
     declS: 'Inscripción · {c}', decl: 'Lo sentimos, esta vez no podemos aceptar tu inscripción {c}. Gracias por tu interés.',
     remS: 'Recordatorio de pago · {c}', rem: 'Recordatorio: el pago de {c} ({t}) vence el {d}.',
     paidS: 'Pago recibido · {c}', paid: 'Hemos recibido el pago de {c}. Tu inscripción está completa. ¡Nos vemos en Pekín!',
     cashS: 'Pago en el evento · {c}', cash: 'Hemos recibido tu billete de avión para {c}. Paga {t} al llegar (Alipay, WeChat Pay o efectivo).',
     cancS: 'Inscripción cancelada · {c}', canc: 'Tu inscripción {c} ha sido cancelada.', refund: 'Reembolso: {r}.', noRefund: 'Según las normas de inscripción, las cancelaciones después del 11 de junio de 2027 no se reembolsan.',
-    updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.',
+    updS: 'Inscripción actualizada · {c}', upd: 'Tu inscripción {c} ha sido actualizada.', updFee: 'Tu inscripción {c} ha sido actualizada. El total incluye el cargo de ¥50.',
     adjS: 'Cambio de importe · {c}', adj: 'El importe de tu inscripción {c} ha cambiado: {x}.', up: 'un cargo adicional de {m}', down: 'un descuento de {m}', why: 'Nota de los organizadores: {w}',
     adjT: 'Total anterior {o}, nuevo total {a}, pagado hasta ahora {p}.', adjLater: 'El email de pago que recibirás cuando se confirme tu inscripción usará el nuevo importe.',
     adjCash: 'Quedan {t} por pagar: págalos al llegar, antes de entrar (Alipay, WeChat Pay o efectivo). Si prefieres pagar antes, responde a este email. Tus códigos QR de entrada no cambian.',
@@ -300,14 +300,14 @@ const T = {
     confS: 'Регистрация подтверждена · {c}', conf: 'Ваша регистрация {c} подтверждена.',
     pay: 'Оплатите {t} до {d} (в течение 2 недель после этого письма) через {y} по QR-коду для оплаты.',
     noApp: 'Если не можете пользоваться {y}, пришлите в ответ скриншот авиабилета — тогда оплата по прибытии.',
-    rules: 'Изменения, добавления и отмена: сбор ¥50, один раз за регистрацию. При отмене до 11 июня 2027 включительно вернём оплату за вычетом ¥50; позже деньги не возвращаются, в том числе за отель. Место нельзя передать другому человеку.',
+    rules: 'Изменения, добавления и отмена после оплаты: сбор ¥50, один раз за регистрацию; до оплаты — бесплатно. При отмене до 11 июня 2027 включительно вернём оплату за вычетом ¥50; позже деньги не возвращаются, в том числе за отель. Место нельзя передать другому человеку.',
     waitS: 'Лист ожидания · {c}', wait: 'Ваша регистрация {c} в листе ожидания. Напишем, как только освободится место.',
     declS: 'Регистрация · {c}', decl: 'К сожалению, в этот раз мы не можем принять регистрацию {c}. Спасибо за интерес.',
     remS: 'Напоминание об оплате · {c}', rem: 'Напоминаем: оплата {c} ({t}) до {d}.',
     paidS: 'Оплата получена · {c}', paid: 'Мы получили оплату {c}. Регистрация завершена. До встречи в Пекине!',
     cashS: 'Оплата на месте · {c}', cash: 'Мы получили авиабилет для {c}. Оплатите {t} по прибытии (Alipay, WeChat Pay или наличные).',
     cancS: 'Регистрация отменена · {c}', canc: 'Ваша регистрация {c} отменена.', refund: 'Возврат: {r}.', noRefund: 'По правилам регистрации при отмене после 11 июня 2027 года деньги не возвращаются.',
-    updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.',
+    updS: 'Регистрация изменена · {c}', upd: 'Ваша регистрация {c} изменена.', updFee: 'Ваша регистрация {c} изменена. В итог включён сбор ¥50.',
     adjS: 'Изменение суммы · {c}', adj: 'Сумма вашей регистрации {c} изменилась: {x}.', up: 'доплата {m}', down: 'скидка {m}', why: 'Комментарий организаторов: {w}',
     adjT: 'Было {o}, стало {a}, уже оплачено {p}.', adjLater: 'В письме об оплате после подтверждения регистрации будет новая сумма.',
     adjCash: 'Осталось оплатить {t}: оплатите по прибытии, до входа (Alipay, WeChat Pay или наличные). Чтобы оплатить заранее, просто ответьте на это письмо. Входные QR-коды остаются прежними.',
@@ -373,7 +373,7 @@ export function letter(kind, reg, env, passes, qrs = []) {
   // 付款步骤 (Shiao, 2026-11-26): name only the apps whose payment code is attached (none uploaded yet: both)
   const ali = qrs.some(n => /alipay/.test(n)), wx = qrs.some(n => /wechat/.test(n));
   v.y = ali && !wx ? L.appA : wx && !ali ? L.appW : L.appA + L.appOr + L.appW;
-  const body = [fill(L.hi, v), '', fill(L[kind], v)];
+  const body = [fill(L.hi, v), '', fill(kind === 'upd' && reg.fee > 0 ? L.updFee : L[kind], v)];   // 修改确认信 names the fee only when the total holds it
   // one refund date for everything, hotel included (Shiao, 2026-11-26): cancelled after it, the letter says why nothing comes back
   const ev0 = own(EVENTS, reg.event), late = !!ev0 && !!reg.cancelled_at && bjDate(reg.cancelled_at) > ev0.refundBy;
   if (kind === 'canc' && reg.refund != null) body.push(reg.refund === 0 && late ? L.noRefund : fill(L.refund, v));
@@ -1322,14 +1322,17 @@ export async function regAct(env, b, json, kit, ev, who) {
   } else if (a === 'modify') {
     const r = evaluate({ ...b.data, event: ev.id, lang: reg.lang }, env, Date.parse(reg.created_at));   // promo judged at the original submit time
     if (r.error) return json(r, 400);
-    const fee = reg.status === 'pending' ? reg.fee : ev.fee;   // changes after review carry the ¥50 fee, once
+    // ¥50 only once money was received (Shiao, 2026-11-26): before payment (待审核, 候补, 已确认 or 到场付款 not yet paid) a
+    // change is free; after it (paid, or paid in part) the first change carries the fee, once per registration.
+    const got = await moneyOf(env, reg.id), took = reg.status === 'paid' ? Math.max(got.sum, got.sum ? 0 : reg.amount) : got.sum;
+    const fee = reg.fee > 0 ? reg.fee : took > 0 ? ev.fee : 0;
     const seated = SEATED.includes(reg.status);
     if (seated) { const no = await full(env, ev, r.data, reg.id, json); if (no) return no; seats = r.data; }
     const m = withAdj(r.total + fee, r.hotel, await adjOf(env, reg.id));   // a 调整金额 made before stays
     // a paid one raised above what it paid: 到场付款, so the page and the door show the rest (the entry codes stay)
-    const got = reg.status === 'paid' ? await moneyOf(env, reg.id) : null, st = got && got.n && got.sum < m.amount ? 'cash' : reg.status;
-    change = db.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,status=?,updated_at=? WHERE id=? AND status=? AND data=?' + (seated ? ROOM_SQL : ''))
-      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, m.amount, m.hotel, fee, r.promo.code || null, r.promo.dj || null, st, ts, reg.id, reg.status, reg.data, ...(seated ? roomArgs(ev, r.data, reg.id) : []));
+    const st = reg.status === 'paid' && got.n && got.sum < m.amount ? 'cash' : reg.status;
+    change = db.prepare('UPDATE reg SET data=?,people=?,domestic=?,amount=?,hotel_amount=?,fee=?,promo=?,promo_dj=?,status=?,updated_at=? WHERE id=? AND status=? AND data=? AND (SELECT COUNT(*) FROM reg_payment WHERE reg_id=?)=?' + (seated ? ROOM_SQL : ''))
+      .bind(JSON.stringify(r.data), r.data.people.length, r.domestic, m.amount, m.hotel, fee, r.promo.code || null, r.promo.dj || null, st, ts, reg.id, reg.status, reg.data, reg.id, got.n, ...(seated ? roomArgs(ev, r.data, reg.id) : []));
   }
   if (!(await done(change, b.note ? str(b.note, 500) : ''))) {   // and no letter from the one who was late
     // still as read: then what stopped it was the seats, taken a moment ago by someone else
