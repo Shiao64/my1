@@ -1,6 +1,8 @@
 import { gmailSend } from './smtp.js';
 // Registration module is loaded only when a /reg route is used, so older tests that copy social.js alone keep working.
 const REG = () => import('./register.js');
+// 2026-11-26: letters from me@tangoweekend.org (POST /social/admin/letter, Bearer LETTER_TOKEN or ADMIN_TOKEN). Loaded only when used.
+const LETTER = () => import('./letter.js');
 import { updateFooter } from './unsub.js';
 import { goingConfirm, goingAwait, goingCode, goingGoogle, googleClientId, goingEnter, goingPass, goingPhone, goingSubmit, goingCancel, goingUnfav, goingCounts, goingMine, goingRestore, goingProfile, goingAdmin, goingDates, goingUnsub, goingNoticeAdmin, goingReach, generateGoingStats, runGoingNotices } from './going.js';
 export { generateGoingStats, runGoingNotices };
@@ -295,6 +297,7 @@ export async function social(req, env, url, json) {
   if (p.startsWith('/reg/qr/') && req.method === 'GET') return (await REG()).regQr(url, env);
   if (p.startsWith('/reg/pass/') && req.method === 'GET') return (await REG()).regPassPng(url, env);
   let b = {}; if (req.method === 'POST') { try { b = await req.json(); } catch { return json({ error: 'bad_json' }, 400); } }
+  if (p === '/admin/letter' && req.method === 'POST') return (await LETTER()).letterAdmin(req, env, b, json);
   if (p === '/reg' && req.method === 'POST') return (await REG()).regSubmit(req, env, b, json, regKit());
   if (p.startsWith('/reg/door/')) return (await REG()).regDoor(req, env, url, b, json);
   if (p === '/reg/login' || p.startsWith('/reg/login/')) return (await REG()).regLogin(req, env, url, b, json);
