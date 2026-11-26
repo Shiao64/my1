@@ -186,10 +186,10 @@ const eve = subscriber('eve@example.com', 'Eve');
 d = await call('POST', '/reg', form({ people: [person({ name: 'Eve Ma' })] }), eve); const E = (await row(d.code)).id; const eCode = d.code;
 await adjust(E, 100, { why: 'late' }); await act({ id: E, action: 'confirm' }); take();
 d = await act({ id: E, action: 'modify', silent: 1, data: form({ people: [person({ name: 'Eve Ma' })] }) });
-check('修改报名 after review: 1450 + ¥50 fee + 100 kept', d.ok && d.amount === 1600, d);
-await act({ id: E, action: 'pay', silent: 1, pay: { amount: 1600, method: 'alipay' } }); take();
+check('修改报名 after review, not paid yet: no fee, 1450 + 100 kept', d.ok && d.amount === 1550, d);
+await act({ id: E, action: 'pay', silent: 1, pay: { amount: 1550, method: 'alipay' } }); take();
 d = await act({ id: E, action: 'modify', silent: 1, data: form({ people: [person({ name: 'Eve Ma', items: ['tour'] })] }) });
-check('修改报名 raising a paid one: 到场付款, the rest shows', d.ok && d.amount === 2050 && d.status === 'cash' && (await me(eve)).reg.rest === 450, d);
+check('修改报名 raising a paid one: ¥50 (first change after payment), 到场付款, the rest shows', d.ok && d.amount === 2050 && d.status === 'cash' && (await me(eve)).reg.rest === 500, d);
 
 // --- other languages
 const kim = subscriber('kim@example.com', 'Kim');

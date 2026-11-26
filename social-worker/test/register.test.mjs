@@ -211,13 +211,13 @@ check('deleted desk: check-in keeps the name', db.prepare("SELECT staff FROM reg
 d = await call('POST', '/admin/reg/staff/reset', { id: sid }, ADMIN); check('deleted desk cannot be brought back', d._s === 404);
 d = await call('POST', '/admin/reg/staff', { name: '主办' }, ADMIN); check('desk cannot take the organizer name', d._s === 409 && d.error === 'name_reserved');
 d = await call('GET', '/reg/door/me', null, phone2); check('deleted desk signed out, told why', d._s === 401 && d.why === 'deleted', d);
-// modify after confirm: +¥50 once
+// modify after confirm, not paid yet: no fee (Shiao 2026-11-26: ¥50 only once money was received; reg-change-fee.test.mjs)
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'modify', data: form({ people: [person({ pkg: 'pass', items: ['tour'] })] }) }, ADMIN);
-check('modify adds ¥50 fee', d.ok && d.amount === 700 + 450 + 50, d);
+check('modify before payment: no fee', d.ok && d.amount === 700 + 450, d);
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'modify', data: form({ people: [person({ pkg: 'pass' })] }) }, ADMIN);
-check('second modify: fee still once', d.amount === 700 + 50, d);
+check('second modify before payment: still no fee', d.amount === 700, d);
 d = await call('POST', '/admin/reg/act', { id: id1, action: 'paid' }, ADMIN); check('mark paid', d.status === 'paid');
-d = await call('POST', '/admin/reg/act', { id: id1, action: 'cancel' }, ADMIN); check('cancel paid → refund minus ¥50 once', d.status === 'cancelled' && d.refund === 700, d);
+d = await call('POST', '/admin/reg/act', { id: id1, action: 'cancel' }, ADMIN); check('cancel paid → refund minus ¥50 once', d.status === 'cancelled' && d.refund === 650, d);
 d = await call('GET', '/reg/left?event=bstw2027'); check('cancel frees seats', d.left.M1 === 298, d.left);
 // cancelled after the refund date (6/11; since 2026-11-26 the hotel too) — a direct row with paid hotel
 const late = R.EVENTS.bstw2027; const saved = late.refundBy; late.refundBy = '2000-01-01';
