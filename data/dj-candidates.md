@@ -6,7 +6,7 @@
 - 两个名字是同一人：写进 `data/dj-names.json` 的 `same`；不要做页面：写进 `skip`。
 - 「多个城市」的要特别看：可能是同名的两个人。
 
-记录共 131 条，111 个名字。更新：2026-11-26
+记录共 132 条，111 个名字。更新：2026-11-27
 
 ## Fiona Szeto（3 场）
 
@@ -34,7 +34,7 @@
 
 ## 差 1 场的（参考，不用处理）
 
-Anthony、Anton / Anton（符拉迪沃斯托克）、Ban A、Jessie / Jessie (SH)、Maggie Ho（澳门）、Vuk / Vuk (Serbia)、XIAOXIN / Xiao-xin、YuJing、修行、哈博、增歌、艺侨
+Anthony、Anton / Anton（符拉迪沃斯托克）、Ban A、Jessie / Jessie (SH)、Maggie Ho（澳门）、Sergio、Vuk / Vuk (Serbia)、XIAOXIN / Xiao-xin、YuJing、修行、哈博、增歌、艺侨
 
 ## 同一人的写法？
 

@@ -50,7 +50,15 @@
 - Seoul：Juni&Eugene's Practica（R090）：缺本地语言地址
 - Seoul：Practica 79（R101）：缺本地语言地址
 - Seoul：Tango Pasión Daytime Practica（R097）：缺本地语言地址
+- Seoul：Tú（R089）：海报最新一期是 2026-10-29，超过 4 周
+- Seoul：Uno（R175）：海报最新一期是 2026-10-29，超过 4 周
 - Seoul：Viva Practica（R113）：缺本地语言地址
+- Seoul：밀밀 (MilMil Milonga)（R116）：海报最新一期是 2026-10-29，超过 4 周
+- Seoul：불금（火热星期五）（R094）：海报最新一期是 2026-10-29，超过 4 周
+- Seoul：쏠땅화정 (Solo Tango)（Solo Tango 花井）（R166）：海报最新一期是 2026-10-29，超过 4 周
+- Seoul：오후밀（午后 Milonga）（R098）：海报最新一期是 2026-10-29，超过 4 周
+- Seoul：월나다 (Monday o nada Milonga)（周一 o nada Milonga）（R153）：海报最新一期是 2026-10-29，超过 4 周
+- Seoul：토나다 (Saturday o nada Milonga)（周六 o nada Milonga）（R106）：海报最新一期是 2026-10-29，超过 4 周
 - Tokyo：David & Belén's Milonga（R076）：缺本地语言地址
 - Tokyo：Jueves Milonga by Leonel & Natalia（R077）：缺本地语言地址
 - Tokyo：Parkside Milonga（R078）：缺本地语言地址
