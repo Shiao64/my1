@@ -333,13 +333,13 @@
 
 1. 开工：`git fetch`，确认 main 的 worker 程序没有别人新改；把上线 PR 接到最新的 main，本机测试再跑一次（后台全套、`launch-ui`、`hotel-check`、`adjust-ui`、`modify-ui`、`uxfix-ui`、`jsqr-ui` 等）。
 2. 记还原点，并把测试资料另存一份：
-   - `subscribe-worker/` 里 `npx wrangler@3 d1 time-travel info tango-subscribe`（书签）；`npx wrangler@3 deployments list`（现在的 worker 版本，回退要用；11/28 是 `2cd0540f`）。
+   - `subscribe-worker/` 里 `npx wrangler@3 d1 time-travel info tango-subscribe`（书签）；`npx wrangler@3 deployments list`（现在的 worker 版本，回退要用，复制**完整的版本号**；11/28 是 `2cd0540f-9071-4629-a41e-3de341a3ba7a`）。
    - 四张表导出到本机、**仓库外**（有个人资料，不进仓库）：
      ```bash
      mkdir -p ~/atm-claude/backup-1130 && for t in reg reg_payment reg_checkin reg_log; do npx -y wrangler@3 d1 execute tango-subscribe --remote --json --command "SELECT * FROM $t" > ~/atm-claude/backup-1130/$t.json; done
      ```
    - 打开档案看笔数对得上。请团队从这时起**停止试报**。
-3. 清测试资料。Shiao 11/25 确认线上的报名**全是测试**。先数报名、收款、签到、处理纪录，把 0028 以后新加的列给 Shiao 看，同意才删。11/28 的数：报名 34（到 BJ27-0034）、收款 11、签到 3、纪录 198；管理员 2、前台 1、活动邮箱设定 8、收款码 3。
+3. 清测试资料。Shiao 11/25 确认线上的报名**全是测试**。先数报名、收款、签到、处理纪录，把 0028 以后新加的列给 Shiao 看，同意才删。11/28 的数：报名 34（到 BJ27-0034）、收款 11、签到 3、纪录 198；总管和经理账号（reg_admin）2、前台 1、活动邮箱设定 8、收款码 3。
    ```sql
    DELETE FROM reg_checkin WHERE reg_id IN (SELECT id FROM reg WHERE event='bstw2027');
    DELETE FROM reg_payment WHERE reg_id IN (SELECT id FROM reg WHERE event='bstw2027');
@@ -350,16 +350,16 @@
    删后四张表都应是 0：`SELECT (SELECT COUNT(*) FROM reg) reg,(SELECT COUNT(*) FROM reg_payment) pay,(SELECT COUNT(*) FROM reg_checkin) checkin,(SELECT COUNT(*) FROM reg_log) log;`
    留着：3 张收款码、张竟文和刘峥的账号和手机、活动邮箱设定、网站会员账号。测试用的前台账号（见上面 ②）在设置页删除（手机同时退出）。测试名单上线后不起作用（拿掉 `REG_LIVE` 时又会生效）。删完后正式编号从 BJ27-0101 开始（#524，不用另外设）。
 4. 合并上线 PR（网页）：报名页搬到 `register/`（拿掉测试横幅、可被搜寻；00:00 前显示开放时间，时间到自己打开报名表）；`draft/` 转到 `register/`（保留 `?lang`、`#pay`／`#passes`）；中文预告页 `zh/register/` 转到 `register/?lang=zh`；中英文活动页的报名按钮和倒数上面那行字 00:00 自己改；地图提醒条 `reg-notice.js` 指向 `register/`（两张地图页 `?v=rn10`）。等网页发布完，先看 HTML 里是 `?v=rn10` 再抓 JS（不然 CDN 会把旧档按新版本号缓存一年）。这时后台还是旧的、测试模式：新报名页 00:00 以前只显示开放时间。
-5. 部署后台：GitHub Actions「API deploy」→ Run workflow → 填 `deploy`（或 `gh workflow run api-deploy.yml --repo Shiao64/my1 --ref main -f confirm=deploy`）。部署的是第 4 步合并后的 main：信里「回到报名页」改成 `register/`；正式模式下 12/1 00:00 以前回 `not_open_yet`。看步骤清单：「Deploy」成功就是部署好了；最后的「Check」照例显示失败（找人机验证 site key），不用管；没填迁移时流程会照预设再跑 `0019`（栏位已经有，不改资料）。记下新的 worker 版本和流程印出的书签。
+5. 部署后台：GitHub Actions「API deploy」→ Run workflow → 填 `deploy`（或 `gh workflow run api-deploy.yml --repo Shiao64/my1 --ref main -f confirm=deploy`）。部署的是第 4 步合并后的 main：信里「回到报名页」改成 `register/`；正式模式下 12/1 00:00 以前回 `not_open_yet`。看步骤清单：「Deploy」成功就是部署好了；最后的「Check」照例显示失败（找人机验证 site key），但要点开看：印得出那段 config 内容、错误只有缺 site key 一项才不用管；连内容都抓不到（curl 错误）就是部署坏了；没填迁移时流程会照预设再跑 `0019`（栏位已经有，不改资料）。记下新的 worker 版本和流程印出的书签。
 6. **Shiao** 在 Cloudflare 设 `REG_LIVE=1`（Workers → tango-subscribe → Settings → Variables；部署流程带 `--keep-vars`，以后部署不会洗掉）。**一定要在第 5 步之后**：旧后台没有 00:00 的关卡。从这时起：信直接寄报名者本人、不加「[TEST]」「[测试]」，测试名单不起作用；00:00 以前没人报得进来。
 7. 确认正式模式生效：重新载入管理页设置「活动邮箱」，**「测试阶段」那段提示和「测试名单」应该消失**，总管邮箱（刘峥）仍是「已验证」（11/25 已验证，不用重寄）。再数一次四张表，应仍是 0；有漏进来的测试报名，给 Shiao 看过后照第 3 步删（这时仍在 00:00 前）。记下带 `REG_LIVE` 的 worker 版本（`deployments list`）。之后再决定要不要关「管理员也收信」。
 8. 00:00 以前（约 23:50）检查：报名页显示开放时间、没有测试横幅；`draft/`、中文预告页转得过去；活动页按钮还是「即将开放」；管理页仍是正式模式、报名 0 笔。
 9. 00:00 以后检查：活动页按钮变「立即报名」「Register now」，倒数上面那行变「报名已开放」；用自己的邮箱报一笔：信寄到本人、标题没有 [TEST]、信里连结到 `register/`、编号 BJ27-0101（别人先报了就是下一号）；完成画面切一次语言。看完在管理页**取消，不要删**（管理页也没有删除；手动删掉编号会发给下一个人，旧回信记号和入场码就对到别人），备注「开放当晚测试」，**不要记收款**。取消的不占名额，同一邮箱以后可以再报。
 10. 写部署纪录（这一节下面）。
 
-回退一（00:00 以前、还没有真实报名）：**先拿掉 `REG_LIVE`（设过的话），再退 worker**（部署过的话，退到第 2 步记下的版本：`npx wrangler@3 rollback <版本>` 或 Cloudflare 后台；顺序反了，会有一段时间是没有关卡的旧后台在正式模式），再 revert 上线 PR 的网页（页面到点会自己打开，所以一定要撤）。删错的测试资料从第 2 步导出的四张表插回（先 `reg`，再另外三张）。重新开放时要把那次 revert 再 revert 回来，开放时间有变就连文字一起改。
+回退一（只限 00:00 以前、还没有真实报名）：**先拿掉 `REG_LIVE`（设过的话），再退 worker**（部署过的话，退到第 2 步记下的版本：在 `subscribe-worker/` 里 `npx wrangler@3 rollback <完整版本号>`，或 Cloudflare 后台；退完看管理页「测试阶段」那段提示回来了，才算 `REG_LIVE` 已经拿掉），再 revert 上线 PR 的网页（页面到点会自己打开，所以一定要撤）。删错的测试资料从第 2 步导出的四张表插回：导出的是 JSON，要先转成带原 `id` 的 INSERT 语句（需要时由 Claude 当场转，问过 Shiao 才执行），先 `reg`，再另外三张。重新开放时要把那次 revert 再 revert 回来，开放时间有变就连文字一起改。
 
-回退二（已经有真实报名）：**只向前修**。不拿掉 `REG_LIVE`（否则报名者的信寄进测试信箱，付款提醒也寄丢且不会补寄）、不退 worker 版本（版本回退会连当时的变量一起退回）、不 revert 上线 PR（`draft/` 会变回开着的旧报名表，信里的 `register/` 打不开表单和付款码）、不还原资料库。出修正版部署。现在没有「暂停收报名」的开关；要停收得另外改程序，先问 Shiao。
+回退二（**00:00 起一律用这个**，不管有没有人报了名）：**只向前修**。不拿掉 `REG_LIVE`（否则报名者的信寄进测试信箱，付款提醒也寄丢且不会补寄）、不退 worker 版本（版本回退会连当时的变量一起退回）、不 revert 上线 PR（`draft/` 会变回开着的旧报名表，信里的 `register/` 打不开表单和付款码）、不还原资料库。出修正版部署。现在没有「暂停收报名」的开关；要停收得另外改程序，先问 Shiao。
 
 资料库整库还原（`d1 time-travel restore`）：`tango-subscribe` 里还有订阅者、会员、要参加／感兴趣等**全站资料**，还原会把书签以后的写入全部倒回去。只在 00:00 以前、导出的四张表也救不回来时，问过 Shiao 才用；开放以后一律不用。
 饭店名（Shiao 11/25 定）：英文一律「AC Embassy Hotel」，中文「奥加美术馆酒店」；报名页原本的「A.C. Art Museum Hotel」（韩文「A.C. 아트 뮤지엄 호텔」）已经改掉。
