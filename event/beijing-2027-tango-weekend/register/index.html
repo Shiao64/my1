@@ -298,7 +298,7 @@ html[lang=ko] .topbar a{word-break:keep-all}   /* Korean title breaks at spaces,
 
 <div class="done" id="done" hidden><div class="card">
   <h2 data-t="doneH">Thank you — registration received 🎉</h2>
-  <p id="doneP" data-t="doneP">This is a draft preview; nothing was sent. Once live, we will confirm your place by email with payment details.</p>
+  <p id="doneP">This is a draft preview; nothing was sent. Once live, we will confirm your place by email with payment details.</p>
   <dl id="summary"></dl>
   <button type="button" class="btn" id="back" data-t="back">Edit</button>
 </div></div>
@@ -396,6 +396,7 @@ function apply(lang){
   update();
   gRender();
   if(LAST&&!$('already').hidden)showStatus(LAST);
+  if(DONE&&!$('done').hidden){var s=update();s.total=DONE.total;showDone(s,DONE.code,DONE.mail)}   // the receipt in the new language
 }
 $('langs').addEventListener('click',function(e){var b=e.target.closest('button');if(b)apply(b.dataset.l)});
 
@@ -565,7 +566,8 @@ function payload(s){
   var passports=s.hy?s.ppl.map(function(p){return {s:pv(p.id+'-s'),g:pv(p.id+'-g')}}):[];
   return {event:'bstw2027',lang:L,code:$('code').value.trim(),src:$('src').value,msg:$('msg').value.trim(),website:$('hp')?$('hp').value:'',people:people,hotel:s.hy?'yes':'no',rooms:rooms,passports:passports};
 }
-function showDone(s,code,mail){$('soon').hidden=true;
+var DONE;   // what the done screen shows, to write it again in another language
+function showDone(s,code,mail){$('soon').hidden=true;DONE={code:code,mail:mail,total:s.total};
   var rows=code?[[t('regNo'),code]]:[];rows.push([t('dName'),$('name').value],[t('email'),$('email').value]);
   s.res.forEach(function(x){rows.push([(s.ppl.length>1?x.p.name+' · ':'')+t('dTickets'),x.r.parts.join(' + ')])});
   if(s.hy)document.querySelectorAll('#rooms .room').forEach(function(rm,i){

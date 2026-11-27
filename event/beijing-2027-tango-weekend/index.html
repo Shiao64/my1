@@ -362,6 +362,7 @@
     var b = document.getElementById('register-btn'); if (!b || b.dataset.open) return;
     b.dataset.open = '1'; b.className = 'btn btn-gold'; b.removeAttribute('aria-disabled'); b.setAttribute('href', 'register/'); b.textContent = 'Register now';
     var l = document.querySelector('.cd-label'); if (l) l.textContent = 'Registration is open';
+    var n = document.querySelector('.reg-notice'); if (n) n.textContent = 'Registration is open';
   }
   function tick(){
     var diff = target - Date.now();

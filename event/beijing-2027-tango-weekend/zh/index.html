@@ -360,6 +360,7 @@
     var b = document.getElementById('register-btn'); if (!b || b.dataset.open) return;
     b.dataset.open = '1'; b.className = 'btn btn-gold'; b.removeAttribute('aria-disabled'); b.setAttribute('href', '../register/?lang=zh'); b.textContent = '立即报名';
     var l = document.querySelector('.cd-label'); if (l) l.textContent = '报名已开放';
+    var n = document.querySelector('.reg-notice'); if (n) n.textContent = '报名已开放';
   }
   function tick(){
     var diff = target - Date.now();
