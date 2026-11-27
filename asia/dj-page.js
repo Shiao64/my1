@@ -68,7 +68,10 @@
        and 最近担任 DJ 的场次 (the DJ log), side by side above the photo + intro. Both stay hidden when empty. */
     var djUpS = null, djRecS = null;
     if (kind === 'organizer') { var st0 = document.querySelector('.dj-story'); if (st0) { djUpS = document.createElement('section'); djUpS.id = 'pf-djup'; djUpS.hidden = true; djRecS = document.createElement('section'); djRecS.id = 'pf-djrec'; djRecS.hidden = true; djUpS.style.marginBottom = djRecS.style.marginBottom = '18px'; st0.parentNode.insertBefore(djUpS, st0); st0.parentNode.insertBefore(djRecS, st0); } }
-    fetch('/asia/dj-recent.json?v=r1').then(function (r) { return r.json(); }).then(function (all) {
+    /* 2026-11-27 (Shiao): the events file is read once, by the DJ log list and the event lists below. */
+    var evP = fetch('/asia/events.json?v=e233').then(function (r) { return r.json(); });
+    Promise.all([fetch('/asia/dj-recent.json?v=r1').then(function (r) { return r.json(); }), evP.catch(function () { return []; })]).then(function (got) {
+      var all = got[0], evById = {}, dNow = today(); (got[1] || []).forEach(function (e) { if (e && e.id) evById[e.id] = e; });
       var rec = all && all[id], list = rec && rec.recent || [];
       if (!list.length) return;
       var main = document.querySelector('.dj-main'), story = document.querySelector('.dj-story'); if (!main) return;
@@ -77,7 +80,9 @@
       var h = document.createElement('h2'); h.textContent = zh ? '最近担任 DJ 的场次' : 'Recent DJ sets'; sec.appendChild(h);
       var box = document.createElement('div'); box.className = 'dj-events'; sec.appendChild(box);
       list.forEach(function (x) {
-        var a = document.createElement('a'); a.href = home + '?card=' + encodeURIComponent(x.event);
+        /* 2026-11-27 (Shiao): link only to a card that is still on: not ended (weekly cards never end), not hidden, still on the map. An ended one keeps its name, no link. */
+        var ev = evById[x.event], live = !!(ev && !ev.hidden && !isPast(ev, dNow));
+        var a = document.createElement('a'); if (live) a.href = home + '?card=' + encodeURIComponent(x.event); else a.className = 'dj-ev-off';
         var b = document.createElement('b'); b.textContent = (zh ? x.name : (x.name_en || x.name)) || ''; a.appendChild(b);
         var sp = document.createElement('span'); var d = String(x.date || '');
         sp.textContent = [d ? (zh ? d.slice(0, 4) + '/' + (+d.slice(5, 7)) + '/' + (+d.slice(8, 10)) : d) : '', (zh && CZ[x.city]) || x.city || ''].filter(Boolean).join(' · '); a.appendChild(sp);
@@ -88,7 +93,7 @@
     }).catch(function () {});
     var links = profile.links || {};
     setLink('pf-ig', links.instagram || ''); setLink('pf-fb', links.facebook || ''); setLink('pf-wx', links.wechat || ''); setLink('pf-sc', links.soundcloud || ''); setLink('pf-web', links.website || '');
-    return fetch('/asia/events.json?v=e233').then(function (r) { return r.json(); }).then(function (events) {
+    return evP.then(function (events) {
       var day = today(), up = [], past = [];
       (events || []).forEach(function (e) { if (!e || e.hidden || !matches(profile, e)) return; (isPast(e, day) ? past : up).push(e); });
       past.sort(function (a, b) { var x = a.end || a.start || '', y = b.end || b.start || ''; return x < y ? 1 : x > y ? -1 : 0; });
@@ -156,7 +161,7 @@
           var title = (zh && e.name_zh) || e.name || '';
           var cz = { Shanghai: '上海', Beijing: '北京', Shenzhen: '深圳', Guangzhou: '广州', Hangzhou: '杭州', Chengdu: '成都', Wuhan: '武汉', Nanjing: '南京', Suzhou: '苏州', Xiamen: '厦门', Tianjin: '天津', Chongqing: '重庆', "Xi'an": '西安', 'Hong Kong': '香港', Taipei: '台北', Macau: '澳门' }, city = (zh && cz[e.city]) || e.city || '';
           var sub = [when(e), city].filter(Boolean).join(' · ');
-          return '<a href="' + home + '?card=' + encodeURIComponent(e.id) + '"><b>' + esc(title) + '</b><span>' + sub + '</span></a>';
+          return '<a' + (isPast(e, today()) ? ' class="dj-ev-off"' : ' href="' + home + '?card=' + encodeURIComponent(e.id) + '"') + '><b>' + esc(title) + '</b><span>' + sub + '</span></a>';
         }).join('');
       }
       var richOn = kind === 'organizer' || kind === 'group';
