@@ -155,6 +155,17 @@
  },
  {
   "id": "D013",
+  "name_en": "富贵儿",
+  "name_local": "富贵儿",
+  "cities": [
+   "Beijing"
+  ],
+  "events": [
+   "eRpBxkDC"
+  ]
+ },
+ {
+  "id": "D014",
   "name_en": "张羽",
   "name_local": "张羽",
   "cities": [
@@ -165,7 +176,7 @@
   ]
  },
  {
-  "id": "D014",
+  "id": "D015",
   "name_en": "海鸥",
   "name_local": "海鸥",
   "cities": [
@@ -176,7 +187,7 @@
   ]
  },
  {
-  "id": "D015",
+  "id": "D016",
   "name_en": "艺侨 Yiqiao",
   "name_local": "艺侨 Yiqiao",
   "cities": [
@@ -187,7 +198,7 @@
   ]
  },
  {
-  "id": "D016",
+  "id": "D017",
   "name_en": "蔓婷",
   "name_local": "蔓婷",
   "cities": [
@@ -198,7 +209,7 @@
   ]
  },
  {
-  "id": "D017",
+  "id": "D018",
   "name_en": "Danger",
   "name_local": "",
   "cities": [
@@ -209,7 +220,7 @@
   ]
  },
  {
-  "id": "D018",
+  "id": "D019",
   "name_en": "昊天",
   "name_local": "昊天",
   "cities": [
@@ -220,7 +231,7 @@
   ]
  },
  {
-  "id": "D019",
+  "id": "D020",
   "name_en": "王为",
   "name_local": "王为",
   "cities": [
@@ -233,7 +244,7 @@
   ]
  },
  {
-  "id": "D020",
+  "id": "D021",
   "name_en": "Béatrice",
   "name_local": "",
   "cities": [
@@ -245,7 +256,7 @@
   "from": "YuYu"
  },
  {
-  "id": "D021",
+  "id": "D022",
   "name_en": "Che Tango",
   "name_local": "",
   "cities": [
@@ -256,7 +267,7 @@
   ]
  },
  {
-  "id": "D022",
+  "id": "D023",
   "name_en": "Fiona",
   "name_local": "",
   "cities": [
@@ -267,7 +278,7 @@
   ]
  },
  {
-  "id": "D023",
+  "id": "D024",
   "name_en": "Gianluca",
   "name_local": "",
   "cities": [
@@ -278,7 +289,7 @@
   ]
  },
  {
-  "id": "D024",
+  "id": "D025",
   "name_en": "Khanh Nguyen",
   "name_local": "",
   "cities": [
@@ -289,7 +300,7 @@
   ]
  },
  {
-  "id": "D025",
+  "id": "D026",
   "name_en": "Liu Zheng",
   "name_local": "刘峥",
   "cities": [
@@ -308,7 +319,7 @@
   ]
  },
  {
-  "id": "D026",
+  "id": "D027",
   "name_en": "Lorena",
   "name_local": "",
   "cities": [
@@ -319,7 +330,7 @@
   ]
  },
  {
-  "id": "D027",
+  "id": "D028",
   "name_en": "Odysseus Dada",
   "name_local": "",
   "cities": [
@@ -330,7 +341,7 @@
   ]
  },
  {
-  "id": "D028",
+  "id": "D029",
   "name_en": "Tu Duong",
   "name_local": "",
   "cities": [
@@ -341,7 +352,7 @@
   ]
  },
  {
-  "id": "D029",
+  "id": "D030",
   "name_en": "Yutaka & Miki",
   "name_local": "",
   "cities": [
@@ -352,7 +363,7 @@
   ]
  },
  {
-  "id": "D030",
+  "id": "D031",
   "name_en": "Asin",
   "name_local": "",
   "cities": [
@@ -363,7 +374,7 @@
   ]
  },
  {
-  "id": "D031",
+  "id": "D032",
   "name_en": "Daniel",
   "name_local": "",
   "cities": [
@@ -374,7 +385,7 @@
   ]
  },
  {
-  "id": "D032",
+  "id": "D033",
   "name_en": "Dave",
   "name_local": "",
   "cities": [
@@ -385,7 +396,7 @@
   ]
  },
  {
-  "id": "D033",
+  "id": "D034",
   "name_en": "Epitone",
   "name_local": "",
   "cities": [
@@ -396,7 +407,7 @@
   ]
  },
  {
-  "id": "D034",
+  "id": "D035",
   "name_en": "Lucila",
   "name_local": "",
   "cities": [
@@ -411,7 +422,7 @@
   ]
  },
  {
-  "id": "D035",
+  "id": "D036",
   "name_en": "Sumire",
   "name_local": "",
   "cities": [
@@ -422,7 +433,7 @@
   ]
  },
  {
-  "id": "D036",
+  "id": "D037",
   "name_en": "Tony",
   "name_local": "",
   "cities": [
@@ -433,7 +444,7 @@
   ]
  },
  {
-  "id": "D037",
+  "id": "D038",
   "name_en": "Zaman",
   "name_local": "",
   "cities": [
@@ -444,7 +455,7 @@
   ]
  },
  {
-  "id": "D038",
+  "id": "D039",
   "name_en": "Zheng Zhong",
   "name_local": "",
   "cities": [
@@ -461,7 +472,7 @@
   ]
  },
  {
-  "id": "D039",
+  "id": "D040",
   "name_en": "Bella",
   "name_local": "",
   "cities": [
@@ -472,7 +483,7 @@
   ]
  },
  {
-  "id": "D040",
+  "id": "D041",
   "name_en": "Dan",
   "name_local": "旦",
   "cities": [
@@ -483,7 +494,7 @@
   ]
  },
  {
-  "id": "D041",
+  "id": "D042",
   "name_en": "Jeanette",
   "name_local": "",
   "cities": [
@@ -494,7 +505,7 @@
   ]
  },
  {
-  "id": "D042",
+  "id": "D043",
   "name_en": "Li-Yan",
   "name_local": "",
   "cities": [
@@ -505,7 +516,7 @@
   ]
  },
  {
-  "id": "D043",
+  "id": "D044",
   "name_en": "Marisol",
   "name_local": "",
   "cities": [
@@ -516,7 +527,7 @@
   ]
  },
  {
-  "id": "D044",
+  "id": "D045",
   "name_en": "Raymond",
   "name_local": "",
   "cities": [
@@ -527,7 +538,7 @@
   ]
  },
  {
-  "id": "D045",
+  "id": "D046",
   "name_en": "Xiao-xin",
   "name_local": "",
   "cities": [
@@ -540,7 +551,7 @@
   ]
  },
  {
-  "id": "D046",
+  "id": "D047",
   "name_en": "Xingchen",
   "name_local": "",
   "cities": [
@@ -551,7 +562,7 @@
   ]
  },
  {
-  "id": "D047",
+  "id": "D048",
   "name_en": "Alex",
   "name_local": "",
   "cities": [
@@ -562,7 +573,7 @@
   ]
  },
  {
-  "id": "D048",
+  "id": "D049",
   "name_en": "Ban A",
   "name_local": "",
   "cities": [
@@ -575,7 +586,7 @@
   ]
  },
  {
-  "id": "D049",
+  "id": "D050",
   "name_en": "Chris Han",
   "name_local": "",
   "cities": [
@@ -586,7 +597,7 @@
   ]
  },
  {
-  "id": "D050",
+  "id": "D051",
   "name_en": "Eugene",
   "name_local": "",
   "cities": [
@@ -599,7 +610,7 @@
   ]
  },
  {
-  "id": "D051",
+  "id": "D052",
   "name_en": "Gerardo",
   "name_local": "",
   "cities": [
@@ -610,7 +621,7 @@
   ]
  },
  {
-  "id": "D052",
+  "id": "D053",
   "name_en": "Hoon",
   "name_local": "",
   "cities": [
@@ -621,7 +632,7 @@
   ]
  },
  {
-  "id": "D053",
+  "id": "D054",
   "name_en": "Kwon",
   "name_local": "",
   "cities": [
@@ -632,7 +643,7 @@
   ]
  },
  {
-  "id": "D054",
+  "id": "D055",
   "name_en": "Nacho",
   "name_local": "",
   "cities": [
@@ -643,7 +654,7 @@
   ]
  },
  {
-  "id": "D055",
+  "id": "D056",
   "name_en": "Rafael",
   "name_local": "",
   "cities": [
@@ -654,7 +665,7 @@
   ]
  },
  {
-  "id": "D056",
+  "id": "D057",
   "name_en": "Stone",
   "name_local": "",
   "cities": [
@@ -667,7 +678,7 @@
   ]
  },
  {
-  "id": "D057",
+  "id": "D058",
   "name_en": "Mia",
   "name_local": "",
   "cities": [
@@ -678,7 +689,7 @@
   ]
  },
  {
-  "id": "D058",
+  "id": "D059",
   "name_en": "YuJing",
   "name_local": "",
   "cities": [
@@ -690,7 +701,7 @@
   ]
  },
  {
-  "id": "D059",
+  "id": "D060",
   "name_en": "Anthony Miller",
   "name_local": "",
   "cities": [
@@ -701,7 +712,7 @@
   ]
  },
  {
-  "id": "D060",
+  "id": "D061",
   "name_en": "Ferrol Matthew",
   "name_local": "",
   "cities": [
@@ -712,7 +723,7 @@
   ]
  },
  {
-  "id": "D061",
+  "id": "D062",
   "name_en": "Fiona Szeto",
   "name_local": "",
   "cities": [
@@ -724,7 +735,7 @@
   ]
  },
  {
-  "id": "D062",
+  "id": "D063",
   "name_en": "Horacio Pebete Godoy",
   "name_local": "",
   "cities": [
@@ -735,7 +746,7 @@
   ]
  },
  {
-  "id": "D063",
+  "id": "D064",
   "name_en": "Huy Q Nguyen",
   "name_local": "",
   "cities": [
@@ -746,7 +757,7 @@
   ]
  },
  {
-  "id": "D064",
+  "id": "D065",
   "name_en": "Jin Epitone",
   "name_local": "",
   "cities": [
@@ -757,7 +768,7 @@
   ]
  },
  {
-  "id": "D065",
+  "id": "D066",
   "name_en": "Kaiyu Liu",
   "name_local": "",
   "cities": [
@@ -768,7 +779,7 @@
   ]
  },
  {
-  "id": "D066",
+  "id": "D067",
   "name_en": "Kathy Chan",
   "name_local": "",
   "cities": [
@@ -779,7 +790,7 @@
   ]
  },
  {
-  "id": "D067",
+  "id": "D068",
   "name_en": "Ken Wong",
   "name_local": "",
   "cities": [
@@ -793,7 +804,7 @@
   ]
  },
  {
-  "id": "D068",
+  "id": "D069",
   "name_en": "Kirill",
   "name_local": "",
   "cities": [
@@ -804,7 +815,7 @@
   ]
  },
  {
-  "id": "D069",
+  "id": "D070",
   "name_en": "Kostas",
   "name_local": "",
   "cities": [
@@ -815,7 +826,7 @@
   ]
  },
  {
-  "id": "D070",
+  "id": "D071",
   "name_en": "Lung-Kuei Lin",
   "name_local": "",
   "cities": [
@@ -826,7 +837,7 @@
   ]
  },
  {
-  "id": "D071",
+  "id": "D072",
   "name_en": "Mantisa",
   "name_local": "",
   "cities": [
@@ -837,7 +848,7 @@
   ]
  },
  {
-  "id": "D072",
+  "id": "D073",
   "name_en": "Miguel Calvo",
   "name_local": "",
   "cities": [
@@ -848,7 +859,7 @@
   ]
  },
  {
-  "id": "D073",
+  "id": "D074",
   "name_en": "Ray Rudowski",
   "name_local": "",
   "cities": [
@@ -862,7 +873,7 @@
   ]
  },
  {
-  "id": "D074",
+  "id": "D075",
   "name_en": "Sam Tsang",
   "name_local": "",
   "cities": [
@@ -873,7 +884,7 @@
   ]
  },
  {
-  "id": "D075",
+  "id": "D076",
   "name_en": "Stefan Pan",
   "name_local": "",
   "cities": [
@@ -884,7 +895,7 @@
   ]
  },
  {
-  "id": "D076",
+  "id": "D077",
   "name_en": "Thyne Kong",
   "name_local": "",
   "cities": [
@@ -895,7 +906,7 @@
   ]
  },
  {
-  "id": "D077",
+  "id": "D078",
   "name_en": "Stark",
   "name_local": "",
   "cities": [
@@ -908,7 +919,7 @@
   ]
  },
  {
-  "id": "D078",
+  "id": "D079",
   "name_en": "Andy “El Oso”",
   "name_local": "",
   "cities": [
@@ -919,7 +930,7 @@
   ]
  },
  {
-  "id": "D079",
+  "id": "D080",
   "name_en": "Robin Graeme Thomas",
   "name_local": "",
   "cities": [
@@ -930,7 +941,7 @@
   ]
  },
  {
-  "id": "D080",
+  "id": "D081",
   "name_en": "Victor Won",
   "name_local": "",
   "cities": [
@@ -941,7 +952,7 @@
   ]
  },
  {
-  "id": "D081",
+  "id": "D082",
   "name_en": "Michael",
   "name_local": "",
   "cities": [
@@ -952,7 +963,7 @@
   ]
  },
  {
-  "id": "D082",
+  "id": "D083",
   "name_en": "Risoo",
   "name_local": "",
   "cities": [
@@ -963,7 +974,7 @@
   ]
  },
  {
-  "id": "D083",
+  "id": "D084",
   "name_en": "Rob Roy",
   "name_local": "",
   "cities": [
@@ -974,7 +985,7 @@
   ]
  },
  {
-  "id": "D084",
+  "id": "D085",
   "name_en": "Oscar",
   "name_local": "",
   "cities": [
@@ -985,7 +996,7 @@
   ]
  },
  {
-  "id": "D085",
+  "id": "D086",
   "name_en": "Bubbleti",
   "name_local": "",
   "cities": [
@@ -996,7 +1007,7 @@
   ]
  },
  {
-  "id": "D086",
+  "id": "D087",
   "name_en": "Alan",
   "name_local": "",
   "cities": [
@@ -1007,7 +1018,7 @@
   ]
  },
  {
-  "id": "D087",
+  "id": "D088",
   "name_en": "Alu",
   "name_local": "",
   "cities": [
@@ -1018,7 +1029,7 @@
   ]
  },
  {
-  "id": "D088",
+  "id": "D089",
   "name_en": "Anton",
   "name_local": "",
   "cities": [
@@ -1031,7 +1042,7 @@
   ]
  },
  {
-  "id": "D089",
+  "id": "D090",
   "name_en": "Bobby Moon",
   "name_local": "",
   "cities": [
@@ -1042,7 +1053,7 @@
   ]
  },
  {
-  "id": "D090",
+  "id": "D091",
   "name_en": "Jessie",
   "name_local": "",
   "cities": [
@@ -1054,7 +1065,7 @@
   "from": "SH"
  },
  {
-  "id": "D091",
+  "id": "D092",
   "name_en": "Jim Yeh",
   "name_local": "",
   "cities": [
@@ -1065,7 +1076,7 @@
   ]
  },
  {
-  "id": "D092",
+  "id": "D093",
   "name_en": "Kaiyu",
   "name_local": "",
   "cities": [
@@ -1076,7 +1087,7 @@
   ]
  },
  {
-  "id": "D093",
+  "id": "D094",
   "name_en": "Marco",
   "name_local": "",
   "cities": [
@@ -1090,7 +1101,7 @@
   ]
  },
  {
-  "id": "D094",
+  "id": "D095",
   "name_en": "Min",
   "name_local": "",
   "cities": [
@@ -1101,7 +1112,7 @@
   ]
  },
  {
-  "id": "D095",
+  "id": "D096",
   "name_en": "Monica",
   "name_local": "",
   "cities": [
@@ -1115,7 +1126,7 @@
   ]
  },
  {
-  "id": "D096",
+  "id": "D097",
   "name_en": "Nico",
   "name_local": "",
   "cities": [
@@ -1126,7 +1137,7 @@
   ]
  },
  {
-  "id": "D097",
+  "id": "D098",
   "name_en": "Sergio",
   "name_local": "",
   "cities": [
@@ -1137,7 +1148,7 @@
   ]
  },
  {
-  "id": "D098",
+  "id": "D099",
   "name_en": "Teo",
   "name_local": "",
   "cities": [
@@ -1148,7 +1159,7 @@
   ]
  },
  {
-  "id": "D099",
+  "id": "D100",
   "name_en": "TJ 老汉",
   "name_local": "TJ 老汉",
   "cities": [
@@ -1159,7 +1170,7 @@
   ]
  },
  {
-  "id": "D100",
+  "id": "D101",
   "name_en": "Vincent",
   "name_local": "",
   "cities": [
@@ -1170,7 +1181,7 @@
   ]
  },
  {
-  "id": "D101",
+  "id": "D102",
   "name_en": "Vuk",
   "name_local": "",
   "cities": [
@@ -1181,7 +1192,7 @@
   ]
  },
  {
-  "id": "D102",
+  "id": "D103",
   "name_en": "Wang Wei",
   "name_local": "",
   "cities": [
@@ -1193,7 +1204,7 @@
   ]
  },
  {
-  "id": "D103",
+  "id": "D104",
   "name_en": "Xeniya",
   "name_local": "",
   "cities": [
@@ -1205,7 +1216,7 @@
   "from": "Kazakhstan"
  },
  {
-  "id": "D104",
+  "id": "D105",
   "name_en": "Yuan Long",
   "name_local": "",
   "cities": [
@@ -1217,7 +1228,7 @@
   "from": "Shanghai"
  },
  {
-  "id": "D105",
+  "id": "D106",
   "name_en": "Yutan; Stone; Cris; Robin; Jessi; Pampamia Yuko; Kwon",
   "name_local": "",
   "cities": [
@@ -1228,7 +1239,7 @@
   ]
  },
  {
-  "id": "D106",
+  "id": "D107",
   "name_en": "小北",
   "name_local": "小北",
   "cities": [
@@ -1239,7 +1250,7 @@
   ]
  },
  {
-  "id": "D107",
+  "id": "D108",
   "name_en": "王为/Wei",
   "name_local": "王为/Wei",
   "cities": [
@@ -1250,7 +1261,7 @@
   ]
  },
  {
-  "id": "D108",
+  "id": "D109",
   "name_en": "Aykut",
   "name_local": "",
   "cities": [
@@ -1264,7 +1275,7 @@
   ]
  },
  {
-  "id": "D109",
+  "id": "D110",
   "name_en": "BAN A LEE",
   "name_local": "",
   "cities": [
@@ -1276,7 +1287,7 @@
   "from": "Korea"
  },
  {
-  "id": "D110",
+  "id": "D111",
   "name_en": "Han",
   "name_local": "",
   "cities": [
@@ -1287,7 +1298,7 @@
   ]
  },
  {
-  "id": "D111",
+  "id": "D112",
   "name_en": "Hanlin",
   "name_local": "",
   "cities": [
@@ -1298,7 +1309,7 @@
   ]
  },
  {
-  "id": "D112",
+  "id": "D113",
   "name_en": "Resident DJ",
   "name_local": "",
   "cities": [
@@ -1310,7 +1321,7 @@
   "from": "Ken Wong / SC Lee"
  },
  {
-  "id": "D113",
+  "id": "D114",
   "name_en": "思哲",
   "name_local": "思哲",
   "cities": [
@@ -1322,7 +1333,7 @@
   "from": "Sizhe"
  },
  {
-  "id": "D114",
+  "id": "D115",
   "name_en": "El Puntazo",
   "name_local": "",
   "cities": [
@@ -1334,7 +1345,7 @@
   "from": "Riccardo"
  },
  {
-  "id": "D115",
+  "id": "D116",
   "name_en": "TJ",
   "name_local": "",
   "cities": [
@@ -1345,7 +1356,7 @@
   ]
  },
  {
-  "id": "D116",
+  "id": "D117",
   "name_en": "Chanbee",
   "name_local": "",
   "cities": [
@@ -1356,7 +1367,7 @@
   ]
  },
  {
-  "id": "D117",
+  "id": "D118",
   "name_en": "Robin Thomas",
   "name_local": "",
   "cities": [
@@ -1367,7 +1378,7 @@
   ]
  },
  {
-  "id": "D118",
+  "id": "D119",
   "name_en": "DJ NERO",
   "name_local": "",
   "cities": [
@@ -1378,7 +1389,7 @@
   ]
  },
  {
-  "id": "D119",
+  "id": "D120",
   "name_en": "Fukkun",
   "name_local": "",
   "cities": [
@@ -1389,7 +1400,7 @@
   ]
  },
  {
-  "id": "D120",
+  "id": "D121",
   "name_en": "Jaco Chen",
   "name_local": "",
   "cities": [
@@ -1400,7 +1411,7 @@
   ]
  },
  {
-  "id": "D121",
+  "id": "D122",
   "name_en": "Koike",
   "name_local": "",
   "cities": [
@@ -1411,7 +1422,7 @@
   ]
  },
  {
-  "id": "D122",
+  "id": "D123",
   "name_en": "Taisuke",
   "name_local": "",
   "cities": [
@@ -1422,7 +1433,7 @@
   ]
  },
  {
-  "id": "D123",
+  "id": "D124",
   "name_en": "Tomo Hoshino",
   "name_local": "",
   "cities": [
@@ -1433,7 +1444,7 @@
   ]
  },
  {
-  "id": "D124",
+  "id": "D125",
   "name_en": "Yuko AMANO",
   "name_local": "",
   "cities": [
@@ -1444,7 +1455,7 @@
   ]
  },
  {
-  "id": "D125",
+  "id": "D126",
   "name_en": "Pingfan",
   "name_local": "平凡",
   "cities": [
@@ -1455,7 +1466,7 @@
   ]
  },
  {
-  "id": "D126",
+  "id": "D127",
   "name_en": "Maggie Ho",
   "name_local": "",
   "cities": [
