@@ -329,7 +329,7 @@
 
 **期限：11/30 北京时间 22:00 前第 5、6、7 步没有全部完成并核对，就照「回退一」撤回，改天开。**
 
-中英文活动页价格、日程的「草稿 / DRAFT」字样已拿掉（Shiao 11/28「已定稿，拿掉」），随本 PR 上线。当天以前要 Shiao 决定：前台账号「探戈助理」（11/26 建）是不是测试用的；是就在第 3 步删。
+中英文活动页价格、日程的「草稿 / DRAFT」字样已拿掉（Shiao 11/28「已定稿，拿掉」），随本 PR 上线。前台账号「探戈助理」（11/26 建）是测试用的，11/30 第 3 步删（Shiao 11/28「是测试，11/30 删」）。
 
 1. 开工：`git fetch`，确认 main 的 worker 程序没有别人新改；把上线 PR 接到最新的 main，本机测试再跑一次（后台全套、`launch-ui`、`hotel-check`、`adjust-ui`、`modify-ui`、`uxfix-ui`、`jsqr-ui` 等）。
 2. 记还原点，并把测试资料另存一份：
@@ -348,7 +348,7 @@
    ```
    ⚠️ **这四句只在 12/1 00:00 以前用，开放以后绝对不能跑**（会删掉全部正式报名）。
    删后四张表都应是 0：`SELECT (SELECT COUNT(*) FROM reg) reg,(SELECT COUNT(*) FROM reg_payment) pay,(SELECT COUNT(*) FROM reg_checkin) checkin,(SELECT COUNT(*) FROM reg_log) log;`
-   留着：3 张收款码、张竟文和刘峥的账号和手机、活动邮箱设定、网站会员账号。测试用的前台账号（见上面 ②）在设置页删除（手机同时退出）。测试名单上线后不起作用（拿掉 `REG_LIVE` 时又会生效）。删完后正式编号从 BJ27-0101 开始（#524，不用另外设）。
+   留着：3 张收款码、张竟文和刘峥的账号和手机、活动邮箱设定、网站会员账号。前台账号「探戈助理」在设置页删除（手机同时退出；Shiao 11/28 定），删后前台 0。测试名单上线后不起作用（拿掉 `REG_LIVE` 时又会生效）。删完后正式编号从 BJ27-0101 开始（#524，不用另外设）。
 4. 合并上线 PR（网页）：报名页搬到 `register/`（拿掉测试横幅、可被搜寻；00:00 前显示开放时间，时间到自己打开报名表）；`draft/` 转到 `register/`（保留 `?lang`、`#pay`／`#passes`）；中文预告页 `zh/register/` 转到 `register/?lang=zh`；中英文活动页的报名按钮和倒数上面那行字 00:00 自己改；地图提醒条 `reg-notice.js` 指向 `register/`（两张地图页 `?v=rn10`）。等网页发布完，先看 HTML 里是 `?v=rn10` 再抓 JS（不然 CDN 会把旧档按新版本号缓存一年）。这时后台还是旧的、测试模式：新报名页 00:00 以前只显示开放时间。
 5. 部署后台：GitHub Actions「API deploy」→ Run workflow → 填 `deploy`（或 `gh workflow run api-deploy.yml --repo Shiao64/my1 --ref main -f confirm=deploy`）。部署的是第 4 步合并后的 main：信里「回到报名页」改成 `register/`；正式模式下 12/1 00:00 以前回 `not_open_yet`。看步骤清单：「Deploy」成功就是部署好了；最后的「Check」照例显示失败（找人机验证 site key），但要点开看：印得出那段 config 内容、错误只有缺 site key 一项才不用管；连内容都抓不到（curl 错误）就是部署坏了；没填迁移时流程会照预设再跑 `0019`（栏位已经有，不改资料）。记下新的 worker 版本和流程印出的书签。
 6. **Shiao** 在 Cloudflare 设 `REG_LIVE=1`（Workers → tango-subscribe → Settings → Variables；部署流程带 `--keep-vars`，以后部署不会洗掉）。**一定要在第 5 步之后**：旧后台没有 00:00 的关卡。从这时起：信直接寄报名者本人、不加「[TEST]」「[测试]」，测试名单不起作用；00:00 以前没人报得进来。
