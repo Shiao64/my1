@@ -1,6 +1,6 @@
 # 待确认清单（自动生成草稿）
 
-统计：活动卡 329 张；场地 142 个；团体 87 个；组织者 121 位。
+统计：活动卡 330 张；场地 143 个；团体 87 个；组织者 121 位。
 已回答的题目记在 data/entities-draft/decisions.json，不会再出现。
 
 # 第一部分：中国大陆和香港（先做）
@@ -13,7 +13,7 @@
 ## B. 同一个场地有几种写法，用哪个？（也可能是同一栋楼里不同的小场地）
 
 3. Hangzhou：V028 名称：INTANGO SALON ／ inTango HangZhou
-4. Xi'an：V068 名称：TangoSang ／ TangoSang Argentine Tango Club
+4. Xi'an：V069 名称：TangoSang ／ TangoSang Argentine Tango Club
 
 ## C. 这两个主办是不是同一个？
 
@@ -33,18 +33,20 @@
 12. Beijing：Diego y Aldana 再临北京 · 交流论坛（E131）场地写“待定”
 13. Chengdu：2027 TangotoWorldCUP 成都预选赛 · 第5届成都国际非遗探戈比赛（E163）场地写“待定”
 14. Qingdao：Tango La Vida / Tango La Vida 青岛阿根廷探戈舞蹈俱乐部（青岛周六 Milonga · Tango La Vida、Wednesday práctica） 没有地址
-15. Shanghai：STP（2026 Milonga 集训营｜周末提升训练营） 没有地址
-16. Shanghai：TeAmo / Paramount / Pampamia（2027上海探戈（新年）假期） 没有地址
-17. Shenzhen：Gianpiero Galdi & Lorena Tarantino 深圳研习课与工作坊（E201）场地写“待定”
-18. Wuhan：喝死拉倒 | 2027·WuHan·HSLD（E132）场地写“待定”
-19. Wuhan：第二届武汉探戈国际嘉年华（E160）场地写“待定”
+15. Shanghai：MiTango Studio / MiTango 工作室（从舞厅到赛场：探戈如何走向世界？（免费公开课）） 没有地址
+16. Shanghai：STP（2026 Milonga 集训营｜周末提升训练营） 没有地址
+17. Shanghai：TeAmo / Paramount / Pampamia（2027上海探戈（新年）假期） 没有地址
+18. Shenzhen：Gianpiero Galdi & Lorena Tarantino 深圳研习课与工作坊（E201）场地写“待定”
+19. Wuhan：喝死拉倒 | 2027·WuHan·HSLD（E132）场地写“待定”
+20. Wuhan：第二届武汉探戈国际嘉年华（E160）场地写“待定”
 
 ## F. 资料要补的（只列还在进行的活动）
 
-20. Beijing：北京精选探戈周末（E093）：缺本地语言地址
-21. Qingdao：Wednesday práctica（R253）：缺本地语言地址
-22. Qingdao：青岛周六 Milonga · Tango La Vida（R252）：缺本地语言地址
-23. Shanghai：2026 Milonga 集训营｜周末提升训练营（E203）：缺本地语言地址
+21. Beijing：北京精选探戈周末（E093）：缺本地语言地址
+22. Qingdao：Wednesday práctica（R253）：缺本地语言地址
+23. Qingdao：青岛周六 Milonga · Tango La Vida（R252）：缺本地语言地址
+24. Shanghai：2026 Milonga 集训营｜周末提升训练营（E203）：缺本地语言地址
+25. Shanghai：从舞厅到赛场：探戈如何走向世界？（免费公开课）（E206）：缺本地语言地址
 
 # 第二部分：其他地区（暂缓）
 
