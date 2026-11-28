@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#4a0609">
-<link rel="icon" href="../tp-scan.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-scan-180.png">
+<link rel="icon" href="../tp-desk.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-desk-180.png">
 <title>工作人员登入 · 北京精选探戈周末 2027</title>
 <style>
 :root{--red:#b3121b;--deep:#4a0609;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--soft:#f6e3b4;--ok:#1f7a3a}
@@ -35,7 +35,7 @@ label{display:block;margin:20px 0 8px;color:var(--muted);font-size:.95rem}
 </style>
 </head>
 <body>
-<header><img class="tpi" src="../tp-scan.svg" width="44" height="44" alt=""><div><b>北京精选探戈周末 2027</b><small>探戈通 · 工作人员登入</small></div></header>
+<header><img class="tpi" src="../tp-desk.svg" width="44" height="44" alt=""><div><b>北京精选探戈周末 2027</b><small>探戈通 · 工作人员登入</small></div></header>
 <main>
   <div id="none" hidden>
     <div class="hi">请用你的专属链接</div>
@@ -85,6 +85,9 @@ function post(p,body,tok){return fetch(API+'/social/reg/login'+p,{method:'POST',
   .then(function(r){return r.json().then(function(d){d._s=r.status;return d},function(){return {_s:r.status,error:'http'}})},function(){return {error:'network'}})}
 function say(kind,text){var m=$('msg');m.className='msg '+kind;m.textContent=text;m.hidden=!text}
 function home(d){var to=d.home==='checkin'?'../checkin/':'../admin/';location.replace(to+'?k='+KEY+apiQ+(d.home==='checkin'?'&new=1':''))}
+// the icon follows the role: 总管 (and 管理员) gold check, 经理 ticket, 前台 scan frame (Shiao 11/28)
+function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manager:'manager',desk:'desk'}[role]||'desk',f='../tp-'+n;
+  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png'}
 function show(id){['none','wechat','taken','form'].forEach(function(x){$(x).hidden=x!==id})}
 if(!KEY){show('none');return}
 // The link in the 任命信 carries ?m=: opening it shows the 总管邮箱 works (2026-11-24). Sent at once, whichever screen
@@ -102,7 +105,7 @@ function start(){
   (h||post('/hello',{key:KEY})).then(function(d){
     if(d._s===404){if(KEY===TP.key())TP.out(true);show('none');$('none').querySelector('.hi').textContent='这个链接已经失效';$('none').querySelector('p').textContent='链接被重设，或人已被删除。请找发链接给你的人拿新的。';return}
     if(!d.ok){show('none');$('none').querySelector('.hi').textContent=d.error==='network'?'连不上后台':'暂时不能登入';$('none').querySelector('p').textContent=d.error==='network'?'请检查网络，再打开一次链接。':'请稍后再试。';return}
-    HELLO=d;show('form');
+    HELLO=d;tpIcon(d.role);show('form');
     $('hi').textContent='你好，'+d.name;$('role').textContent=TP.ROLE[d.role]||d.role;$('role').className='badge'+(d.role==='desk'?' desk':'');
     $('help').textContent='不是'+d.name+'？这个链接是给'+d.name+'的，请关掉，找发链接给你的人。忘了密码：请'+TP.up(d.role)+'按「重设」。';
     if(d.state==='locked'){say('warn','连错 5 次，已锁住。北京时间 '+TP.bjTime(d.until)+' 以后再试。');$('pin').disabled=true;return}

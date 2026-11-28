@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="入场签到">
 <meta name="theme-color" content="#4a0609">
-<link rel="icon" href="../tp-scan.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-scan-180.png">
+<link rel="icon" href="../tp-desk.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-desk-180.png">
 <title>入场签到</title>
 <style>
 :root{--red:#b3121b;--deep:#4a0609;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--ok:#1f7a3a;--warn:#b26b00}
@@ -66,7 +66,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
 </style>
 </head>
 <body>
-<header><div class="ttl"><a id="toAdmin" href="../admin/" hidden>‹ 管理页</a><img class="tpi" src="../tp-scan.svg" width="36" height="36" alt="探戈通"><b><span class="nw">入场签到</span><small id="me"></small></b></div><select id="item" hidden aria-label="现在这一场">
+<header><div class="ttl"><a id="toAdmin" href="../admin/" hidden>‹ 管理页</a><img class="tpi" src="../tp-desk.svg" width="36" height="36" alt="探戈通"><b><span class="nw">入场签到</span><small id="me"></small></b></div><select id="item" hidden aria-label="现在这一场">
   <option value="MV">周五 欢迎舞会</option><option value="T1">周五 一日游</option>
   <option value="M1">周六 下午场</option><option value="M2">周六 晚场</option>
   <option value="M3">周日 下午场</option><option value="M4">周日 晚场</option>
@@ -185,7 +185,10 @@ function when(iso){return new Date(Date.parse(iso)+288e5).toISOString().slice(5,
 function late(text){flash=text;flashKind='warn';load()}
 function takeState(){$('take').disabled=taking||!method||!$('arrived').checked;[].forEach.call(document.querySelectorAll('[data-m]'),function(b){b.setAttribute('aria-pressed',b.dataset.m===method)})}
 var WHO={owner:'管理员',chief:'总管',deputy:'经理',manager:'现场经理'},myRole='';   // manager: only a role from before 2026-11-23
-function ready(name,collect,role){var adm=role!=='desk',badge=document.createElement('span'),org=adm&&role==='owner';
+// the icon follows the role: 总管 (and 管理员) gold check, 经理 ticket, 前台 scan frame (Shiao 11/28)
+function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manager:'manager',desk:'desk'}[role]||'desk',f='../tp-'+n;
+  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png'}
+function ready(name,collect,role){tpIcon(role);var adm=role!=='desk',badge=document.createElement('span'),org=adm&&role==='owner';
   myRole=WHO[role]||'经理';
   badge.className='badge';badge.textContent=adm?myRole:'前台';$('me').textContent='';$('me').appendChild(badge);
   $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
@@ -197,7 +200,7 @@ function lost(d){
   var owner=!!TP.owner()&&!TP.dev();
   if(owner)put('bstw_admin','');else TP.out(!!d&&/^(reset|deleted|stopped|ended)$/.test(d.why||''));
   choose();res('no',d&&d.error==='signed_out'?TP.gone(d):owner?'密码已经失效，请重新输入':'这台已经退出，请用链接重新登入')}
-function choose(){stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('now').hidden=true;$('nokey').hidden=false;
+function choose(){tpIcon('');stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('now').hidden=true;$('nokey').hidden=false;
   $('toIn').hidden=!TP.key();$('toIn').href=TP.loginUrl(TP.key(),Q.get('api')||'');}
 function show(){
   if(!info)return;var cur=$('item').value,p=info.person,did={},by={};info.checkins.forEach(function(c){did[c.item]=c.at;by[c.item]=c.staff});
