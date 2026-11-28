@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title>报名管理 · 北京精选探戈周末</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <style>
 :root{--deep:#4a0609;--red:#b3121b;--red-dark:#7a0a10;--gold:#e8c06a;--soft:#f6e3b4;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8}
 *{box-sizing:border-box}
@@ -21,6 +22,8 @@ button.p{background:var(--red);border-color:var(--red);color:#fff}
 button:disabled{opacity:.5;cursor:default}
 header{background:var(--deep);color:var(--soft);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 header b{font-size:15px}
+header .ttl{display:flex;align-items:center;gap:10px;min-width:0}
+header .logo{flex:none;display:block}
 #hello{color:var(--gold);font-weight:400}
 header .r{display:flex;gap:6px}
 header button{background:transparent;color:var(--soft);border-color:#a66;padding:4px 10px}
@@ -133,6 +136,8 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
 #msg{position:fixed;z-index:9;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:9px 16px;border-radius:10px;display:none;width:max-content;max-width:90vw}
 @media(max-width:760px){
   header{padding:9px 12px}
+  header .ttl{gap:8px}
+  header .logo{width:26px;height:26px}
   nav{padding:0}
   nav button{flex:1;padding:10px 2px}
   main{padding:10px 8px 50px}
@@ -147,7 +152,7 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
 </style>
 </head>
 <body>
-<header><div><b>报名管理 · 北京精选探戈周末 2027</b> <small id="hello"></small></div>
+<header><div class="ttl"><img class="logo" src="/favicon.svg" width="32" height="32" alt="亚洲探戈地图 ATM"><div><b>报名管理 · 北京精选探戈周末 2027</b> <small id="hello"></small></div></div>
   <div class="r" id="session" hidden><a class="hb" id="toScan" href="../checkin/">扫码签到</a><button id="refresh">刷新</button><button id="logout">退出</button></div></header>
 
 <div class="card" id="deskPhone" hidden>
