@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title>探戈通 报名管理系统 · 北京精选探戈周末</title>
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="../tp-icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-icon-180.png">
 <style>
 :root{--deep:#4a0609;--red:#b3121b;--red-dark:#7a0a10;--gold:#e8c06a;--soft:#f6e3b4;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8}
 *{box-sizing:border-box}
@@ -160,7 +160,7 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
 </style>
 </head>
 <body>
-<header><div class="ttl"><img class="logo" src="/favicon.svg" width="32" height="32" alt="亚洲探戈地图 ATM"><div class="names"><h1><span class="tp">探戈通</span><span class="sys">报名管理系统</span></h1><p><span>北京精选探戈周末 2027</span><small id="hello"></small></p></div></div>
+<header><div class="ttl"><img class="logo" src="../tp-icon.svg" width="44" height="44" alt="探戈通"><div class="names"><h1><span class="tp">探戈通</span><span class="sys">报名管理系统</span></h1><p><span>北京精选探戈周末 2027</span><small id="hello"></small></p></div></div>
   <div class="r" id="session" hidden><a class="hb" id="toScan" href="../checkin/">扫码签到</a><button id="refresh">刷新</button><button id="logout">退出</button></div></header>
 
 <div class="card" id="deskPhone" hidden>
@@ -391,9 +391,13 @@ function withPin(title,note,fn){
     .then(function(d){return d||{error:'cancelled'}})}
 var APPOINT=['任免前请再输一次密码','新增、删除、升降级、重设都要再输。'];
 function put(v){try{if(v)localStorage.setItem('bstw_admin',v);else localStorage.removeItem('bstw_admin')}catch(e){}}
+// 经理 on a phone get the scan icon, as on the check-in page; everyone else the pass icon (Shiao 11/28)
+var PHONE=window.matchMedia('(max-width:760px)'),iconRole='';
+function roleIcon(role){iconRole=role;document.querySelector('header img.logo').src='../tp-'+(PHONE.matches&&(role==='deputy'||role==='manager')?'scan':'icon')+'.svg'}
+if(PHONE.addEventListener)PHONE.addEventListener('change',function(){roleIcon(iconRole)});
 function signedOut(why){
   if(dev()){if(why)TP.out(/^(reset|deleted|stopped|ended)$/.test(why.why||''));else TP.out(false)}else put('');
-  DATA=null;TOKEN='';drafts={};bases={};MOD=null;S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
+  roleIcon('');DATA=null;TOKEN='';drafts={};bases={};MOD=null;S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
   $('app').hidden=$('nav').hidden=$('session').hidden=$('side').hidden=true;$('side').innerHTML='';
   $('login').hidden=isDesk()||!!why;$('deskPhone').hidden=!isDesk();$('hello').textContent='';
   $('gone').hidden=!why;if(why){$('goneText').textContent=why.why?TP.gone(why):why.text||'';$('goneIn').hidden=!TP.key()||/^(reset|deleted|stopped|ended)$/.test(why.why||'');$('goneIn').href=TP.loginUrl(TP.key(),apiParam)}
@@ -475,6 +479,7 @@ function render(){
   var all=full();
   $('deskPhone').hidden=true;
   $('hello').textContent=DATA.me.role==='owner'?'':DATA.me.name+'（'+WHO[DATA.me.role]+'）';
+  roleIcon(DATA.me.role);
   $('team').hidden=!all;$('qr').hidden=!can('asset');
   if(!can('passport'))S.show=false;
   [].forEach.call(document.querySelectorAll('[data-exp]'),function(b){b.hidden=!can('export')});
