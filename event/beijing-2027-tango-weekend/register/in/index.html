@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#4a0609">
-<link rel="icon" href="../tp-desk.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-desk-180.png">
+<link rel="icon" href="../tp-desk.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-desk-180.png"><link rel="icon" type="image/png" sizes="192x192" href="../tp-desk-192.png">
 <title>工作人员登入 · 北京精选探戈周末 2027</title>
 <style>
 :root{--red:#b3121b;--deep:#4a0609;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--soft:#f6e3b4;--ok:#1f7a3a}
@@ -87,7 +87,9 @@ function say(kind,text){var m=$('msg');m.className='msg '+kind;m.textContent=tex
 function home(d){var to=d.home==='checkin'?'../checkin/':'../admin/';location.replace(to+'?k='+KEY+apiQ+(d.home==='checkin'?'&new=1':''))}
 // the icon follows the role: 总管 (and 管理员) gold check, 经理 ticket, 前台 scan frame (Shiao 11/28)
 function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manager:'manager',desk:'desk'}[role]||'desk',f='../tp-'+n;
-  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png'}
+  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png';document.querySelector('link[rel=icon][sizes]').href=f+'-192.png';
+  // Android phones (Oppo too) take the home-screen icon from a manifest; no start_url, so the shortcut opens this very address. iPhones keep their own way.
+  if(/Android/i.test(navigator.userAgent)){var m=document.querySelector('link[rel=manifest]');if(!m){m=document.createElement('link');m.rel='manifest';document.head.appendChild(m)}m.href=f+'.webmanifest'}}
 function show(id){['none','wechat','taken','form'].forEach(function(x){$(x).hidden=x!==id})}
 if(!KEY){show('none');return}
 // The link in the 任命信 carries ?m=: opening it shows the 总管邮箱 works (2026-11-24). Sent at once, whichever screen

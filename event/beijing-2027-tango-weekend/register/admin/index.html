@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <title>探戈通 报名管理系统 · 北京精选探戈周末</title>
-<link rel="icon" href="../tp-manager.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-manager-180.png">
+<link rel="icon" href="../tp-manager.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-manager-180.png"><link rel="icon" type="image/png" sizes="192x192" href="../tp-manager-192.png">
 <style>
 :root{--deep:#4a0609;--red:#b3121b;--red-dark:#7a0a10;--gold:#e8c06a;--soft:#f6e3b4;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8}
 *{box-sizing:border-box}
@@ -393,7 +393,9 @@ var APPOINT=['任免前请再输一次密码','新增、删除、升降级、重
 function put(v){try{if(v)localStorage.setItem('bstw_admin',v);else localStorage.removeItem('bstw_admin')}catch(e){}}
 // the icon follows the role: 总管 (and 管理员) gold check, 经理 ticket, 前台 scan frame (Shiao 11/28)
 function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manager:'manager',desk:'desk'}[role]||'manager',f='../tp-'+n;
-  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png'}
+  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png';document.querySelector('link[rel=icon][sizes]').href=f+'-192.png';
+  // Android phones (Oppo too) take the home-screen icon from a manifest; no start_url, so the shortcut opens this very address. iPhones keep their own way.
+  if(/Android/i.test(navigator.userAgent)){var m=document.querySelector('link[rel=manifest]');if(!m){m=document.createElement('link');m.rel='manifest';document.head.appendChild(m)}m.href=f+'.webmanifest'}}
 function signedOut(why){
   if(dev()){if(why)TP.out(/^(reset|deleted|stopped|ended)$/.test(why.why||''));else TP.out(false)}else put('');
   tpIcon((TP.who()||{}).role==='desk'&&!TP.owner()?'desk':'');DATA=null;TOKEN='';drafts={};bases={};MOD=null;S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;

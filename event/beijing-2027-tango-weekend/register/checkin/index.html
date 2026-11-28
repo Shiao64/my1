@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="入场签到">
 <meta name="theme-color" content="#4a0609">
-<link rel="icon" href="../tp-desk.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-desk-180.png">
+<link rel="icon" href="../tp-desk.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-desk-180.png"><link rel="icon" type="image/png" sizes="192x192" href="../tp-desk-192.png">
 <title>入场签到</title>
 <style>
 :root{--red:#b3121b;--deep:#4a0609;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--ok:#1f7a3a;--warn:#b26b00}
@@ -187,7 +187,9 @@ function takeState(){$('take').disabled=taking||!method||!$('arrived').checked;[
 var WHO={owner:'管理员',chief:'总管',deputy:'经理',manager:'现场经理'},myRole='';   // manager: only a role from before 2026-11-23
 // the icon follows the role: 总管 (and 管理员) gold check, 经理 ticket, 前台 scan frame (Shiao 11/28)
 function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manager:'manager',desk:'desk'}[role]||'desk',f='../tp-'+n;
-  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png'}
+  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png';document.querySelector('link[rel=icon][sizes]').href=f+'-192.png';
+  // Android phones (Oppo too) take the home-screen icon from a manifest; no start_url, so the shortcut opens this very address. iPhones keep their own way.
+  if(/Android/i.test(navigator.userAgent)){var m=document.querySelector('link[rel=manifest]');if(!m){m=document.createElement('link');m.rel='manifest';document.head.appendChild(m)}m.href=f+'.webmanifest'}}
 function ready(name,collect,role){tpIcon(role);var adm=role!=='desk',badge=document.createElement('span'),org=adm&&role==='owner';
   myRole=WHO[role]||'经理';
   badge.className='badge';badge.textContent=adm?myRole:'前台';$('me').textContent='';$('me').appendChild(badge);
