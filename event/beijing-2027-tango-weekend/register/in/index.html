@@ -98,9 +98,10 @@ var FIRST=post('/hello',M?{key:KEY,m:M}:{key:KEY},TP.dev()||'');
 if(/MicroMessenger/i.test(navigator.userAgent)){show('wechat');
   $('copy').addEventListener('click',function(){var u=location.href;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){$('copied').textContent='已复制'},function(){$('copied').textContent='请长按网址手动复制'})});return}
 // one phone, one identity
-if(TP.owner()){show('taken');$('takenTitle').textContent='这台不能用这个链接';$('takenText').textContent='这台已经登入管理员。链接请给本人用自己的手机打开；自己想试，用另一支手机或无痕窗口。';$('stay').textContent='回管理页';return}
+if(TP.owner()){tpIcon('owner');show('taken');$('takenTitle').textContent='这台不能用这个链接';$('takenText').textContent='这台已经登入管理员。链接请给本人用自己的手机打开；自己想试，用另一支手机或无痕窗口。';$('stay').textContent='回管理页';return}
 var me=TP.who();
 function start(){
+  tpIcon('');
   var h=FIRST;FIRST=null;
   (h||post('/hello',{key:KEY})).then(function(d){
     if(d._s===404){if(KEY===TP.key())TP.out(true);show('none');$('none').querySelector('.hi').textContent='这个链接已经失效';$('none').querySelector('p').textContent='链接被重设，或人已被删除。请找发链接给你的人拿新的。';return}
@@ -116,7 +117,7 @@ function start(){
     setTimeout(function(){$('pin').focus()},50)});
 }
 function taken(){
-  show('taken');$('takenTitle').textContent='这台现在是「'+me.name+'」的';
+  tpIcon(me.role);show('taken');$('takenTitle').textContent='这台现在是「'+me.name+'」的';
   $('takenText').textContent='一支手机一种身份。换成这个链接的人，「'+me.name+'」在这台就会退出。';
   $('swap').hidden=false;$('swap').textContent='换人：让「'+me.name+'」在这台退出';$('stay').textContent='不换，回去';$('stay').href=(me.role==='desk'?'../checkin/':'../admin/')+'?k='+TP.key()+apiQ;
   $('swap').addEventListener('click',function(){post('/out',{},TP.dev()).then(function(){TP.out(true);me=null;start()})});

@@ -396,7 +396,7 @@ function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manage
   document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png'}
 function signedOut(why){
   if(dev()){if(why)TP.out(/^(reset|deleted|stopped|ended)$/.test(why.why||''));else TP.out(false)}else put('');
-  tpIcon('');DATA=null;TOKEN='';drafts={};bases={};MOD=null;S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
+  tpIcon((TP.who()||{}).role==='desk'&&!TP.owner()?'desk':'');DATA=null;TOKEN='';drafts={};bases={};MOD=null;S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
   $('app').hidden=$('nav').hidden=$('session').hidden=$('side').hidden=true;$('side').innerHTML='';
   $('login').hidden=isDesk()||!!why;$('deskPhone').hidden=!isDesk();$('hello').textContent='';
   $('gone').hidden=!why;if(why){$('goneText').textContent=why.why?TP.gone(why):why.text||'';$('goneIn').hidden=!TP.key()||/^(reset|deleted|stopped|ended)$/.test(why.why||'');$('goneIn').href=TP.loginUrl(TP.key(),apiParam)}
