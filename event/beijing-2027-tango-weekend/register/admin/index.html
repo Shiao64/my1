@@ -99,13 +99,55 @@ button.d{color:#a30d14;border-color:#e6b3b6;background:#fff}
 .item .h{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .remind{border:2px solid #b3131b;border-radius:10px;padding:10px;margin:10px 0}
 .team{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start;margin-bottom:14px}
-.team .card{margin:0;min-width:0}
-.team h2 em{float:right;font-style:normal;color:var(--ink)}
+.team .card{margin:0;min-width:0;padding:0}
 .team .bar input{flex:1;min-width:0}
-.team .item .h b{overflow-wrap:anywhere}
+/* 2026-11-28 职务管理（Shiao「照这样改」）：phone tabs, one card per 职务, coloured dots, 升降级和删除在「⋯」 */
+.ttabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.ttabs button{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 4px;position:relative}
+.ttabs img{width:24px;height:24px;border-radius:6px}
+.ttabs i{font-style:normal;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ttabs button[aria-pressed=true]{background:var(--deep);border-color:var(--deep);color:var(--soft);font-weight:700}
+.ttabs button[aria-pressed=true] i{color:var(--gold)}
+.ttabs .alert{position:absolute;top:5px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 0 2px #fff}
+.ch{display:flex;align-items:center;gap:10px;padding:12px 14px 6px}
+.ch img{width:38px;height:38px;border-radius:9px;flex:none}
+.ch h2{margin:0;display:flex;align-items:center;gap:8px;font-size:17px;white-space:nowrap}
+.ch h2 em{font-style:normal;font-size:12px;color:var(--ink);background:#f7ead0;border-radius:999px;padding:1px 10px;font-variant-numeric:tabular-nums}
+.ch h2 em:empty{display:none}
+.ch .opn{margin-left:auto;border-color:var(--red);color:var(--red);font-weight:700;padding:5px 11px}
+.ch .opn:disabled{border-color:var(--line);color:var(--muted)}
+.team .perm{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:none;border-radius:0;padding:2px 14px 10px;color:var(--muted);font-size:13px;white-space:normal}
+.perm span{flex:1;min-width:0}
+.perm .long,.perm[aria-expanded=true] .short{display:none}
+.perm[aria-expanded=true] .long{display:block}
+.perm em{font-style:normal;color:var(--red-dark);font-size:12px;white-space:nowrap}
+.team .bar{margin:0;padding:0 14px 10px;flex-wrap:nowrap}
+.team .why{background:none;border-radius:0;color:var(--muted);font-size:12px;margin:0;padding:0 14px 10px}
+.team .none{margin:0;padding:11px 14px;border-top:1px solid var(--line)}
+.team .item{display:flex;align-items:center;gap:10px;border-bottom:0;border-top:1px solid var(--line);padding:11px 14px;position:relative}
+.team .card>div:last-child>.item:last-child{border-radius:0 0 11px 11px}
+.team .item.bad{background:#fdf0ef}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;background:#a89a90}
+.dot.na{background:transparent}
+.dot.on{background:#1f7a3a}.dot.wait{background:#b7791f}.dot.bad{background:var(--red)}
+.who2{flex:1;min-width:0}
+.who2 b{display:block;font-size:15px;overflow-wrap:anywhere}
+.who2 small{display:block;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.who2 .login{color:var(--ink)}.who2 .login.r{color:var(--red)}
+.who2 .ext{white-space:nowrap}
+.team .item .btns{display:flex;gap:6px;flex:none}
+.btns button{padding:6px 11px}
+.btns .dots{width:36px;padding:6px 0;font-weight:700}
+.menu{position:absolute;right:14px;top:48px;z-index:5;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 26px rgba(60,20,10,.22);padding:6px;min-width:180px}
+.menu button{display:block;width:100%;text-align:left;border:0;border-radius:6px}
+.menu small{display:block;color:var(--muted);font-size:11px;padding:0 12px 4px}
+.menu .del{color:#a30d14;border-top:1px solid var(--line);border-radius:0 0 6px 6px}
+.menu .del:first-child{border-top:0}
+.team-key{display:flex;flex-wrap:wrap;gap:6px 14px;margin:-4px 2px 14px;font-size:12px;color:var(--muted)}
+.team-key span{display:flex;align-items:center;gap:5px}
 .why{background:#fff0bd;border-radius:8px;padding:6px 8px;font-size:13px;margin:0 0 8px}
-@media(min-width:700px){.team{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(min-width:1100px){.team{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:899px){.team>.card:not(.on){display:none}}
+@media(min-width:900px){.team{grid-template-columns:repeat(3,minmax(0,1fr))}.ttabs{display:none}}
 #mailto{max-width:760px}
 #mailto .lab{display:block;font-weight:700;margin:14px 0 4px}
 #mailto .bar{margin-bottom:4px}
@@ -252,27 +294,29 @@ a.btn{display:inline-block;border:1px solid var(--line);background:#fff;color:in
         <div class="pinbox"><b>2. 临时密码</b> <span class="bigpin" id="sPin"></span> <button id="sCopyPin">复制</button>
           <p class="muted" style="margin:4px 0 0">另外给：当面说，或另发一条消息，<b>不要和链接放在同一条</b>。对方第一次登入要换成自己的密码。</p></div></div>
     <div class="team" id="team">
-      <div class="card" id="col-chief">
-        <h2>总管<em id="c-chief"></em></h2>
-        <p class="muted">全部权限。每场 1 位，组织者本人或其委托的人。</p>
-        <div class="bar" id="add-chief"><input id="n-chief" aria-label="总管的名字" placeholder="名字"><button class="p" data-add="chief">新增</button></div>
+      <div class="ttabs" id="ttabs" role="group" aria-label="看哪个职务"></div>
+      <div class="card" id="col-chief" data-role="chief">
+        <div class="ch"><img src="../tp-chief.svg" width="38" height="38" alt=""><h2>总管<em id="c-chief"></em></h2><button type="button" class="opn" id="opn-chief" data-opn="chief" aria-expanded="false" aria-controls="add-chief" hidden>＋新增</button></div>
+        <button type="button" class="perm" aria-expanded="false"><span class="short">全部权限 · 每场 1 位</span><span class="long">全部权限。每场 1 位，组织者本人或其委托的人。</span><em>详情</em></button>
+        <div class="bar" id="add-chief" hidden><input id="n-chief" aria-label="总管的名字" placeholder="名字"><button class="p" data-add="chief">新增</button><button type="button" data-cls="chief">取消</button></div>
         <p class="why" id="why-chief" hidden></p>
         <div id="list-chief"></div>
       </div>
-      <div class="card" id="col-deputy">
-        <h2>经理<em id="c-deputy"></em></h2>
-        <p class="muted">日常工作。不能取消、退款、看护照姓名、导出。最多 3 位。</p>
-        <div class="bar" id="add-deputy"><input id="n-deputy" aria-label="经理的名字" placeholder="名字，例如 竟文"><button class="p" data-add="deputy">新增</button></div>
+      <div class="card" id="col-deputy" data-role="deputy">
+        <div class="ch"><img src="../tp-manager.svg" width="38" height="38" alt=""><h2>经理<em id="c-deputy"></em></h2><button type="button" class="opn" id="opn-deputy" data-opn="deputy" aria-expanded="false" aria-controls="add-deputy" hidden>＋新增</button></div>
+        <button type="button" class="perm" aria-expanded="false"><span class="short">日常工作 · 最多 3 位</span><span class="long">日常工作。不能取消、退款、看护照姓名、导出。最多 3 位。</span><em>详情</em></button>
+        <div class="bar" id="add-deputy" hidden><input id="n-deputy" aria-label="经理的名字" placeholder="名字，例如 竟文"><button class="p" data-add="deputy">新增</button><button type="button" data-cls="deputy">取消</button></div>
         <p class="why" id="why-deputy" hidden></p>
         <div id="list-deputy"></div>
       </div>
-      <div class="card" id="col-desk">
-        <h2>前台<em id="c-desk"></em></h2>
-        <p class="muted">只签到，看不到名单和金额。每人一个专属链接＋六位密码，<b>只能在 1 台手机登入</b>；换手机就在新手机重新登入，丢了密码按「重设」。活动结束（北京时间 6/23 06:00）自动失效。</p>
-        <div class="bar"><input id="sName" aria-label="前台的名字" placeholder="名字，例如 小李"><button class="p" id="sAdd">新增</button></div>
+      <div class="card" id="col-desk" data-role="desk">
+        <div class="ch"><img src="../tp-desk.svg" width="38" height="38" alt=""><h2>前台<em id="c-desk"></em></h2><button type="button" class="opn" id="opn-desk" data-opn="desk" aria-expanded="false" aria-controls="add-desk" hidden>＋新增</button></div>
+        <button type="button" class="perm" aria-expanded="false"><span class="short">只签到，看不到名单和金额</span><span class="long">只签到，看不到名单和金额。每人一个专属链接＋六位密码，<b>只能在 1 台手机登入</b>；换手机就在新手机重新登入，丢了密码按「重设」。活动结束（北京时间 6/23 06:00）自动失效。</span><em>详情</em></button>
+        <div class="bar" id="add-desk" hidden><input id="sName" aria-label="前台的名字" placeholder="名字，例如 小李"><button class="p" id="sAdd">新增</button><button type="button" data-cls="desk">取消</button></div>
         <div id="staffList"></div>
       </div>
     </div>
+    <p class="team-key" id="teamKey"><span><i class="dot on"></i>已登入</span><span><i class="dot wait"></i>还没登入</span><span><i class="dot bad"></i>要处理（锁住、连错停用、没有链接）</span><span><i class="dot"></i>没有登入的手机</span></p>
     <div class="card" id="mailto" hidden>
       <h2>活动邮箱</h2>
       <p class="muted">每封报名相关的信（收到、确认、候补、婉拒、催款、付款确认、取消、修改、新报名通知）都会<b>单独</b>寄一份到下面的邮箱，报名者看不到。副本不附入场码。<span id="mWho">只有管理员能改，总管只能看。</span></p>
@@ -397,17 +441,18 @@ function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manage
   document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png';document.querySelector('link[rel=icon][sizes]').href=f+'-192.png';
   // Android phones (Oppo too) take the home-screen icon from a manifest; no start_url, so the shortcut opens this very address. iPhones keep their own way.
   if(/Android/i.test(navigator.userAgent)){var m=document.querySelector('link[rel=manifest]');if(!m){m=document.createElement('link');m.rel='manifest';document.head.appendChild(m)}m.href=f+'.webmanifest'}}
+function teamReset(){TUI={tab:'',open:{},menu:''};['n-chief','n-deputy','sName'].forEach(function(i){$(i).value=''});TROLES.forEach(function(t){$('add-'+t).hidden=true;$('opn-'+t).hidden=true});$('ttabs').innerHTML='';[].forEach.call(document.querySelectorAll('#team .perm'),function(b){b.setAttribute('aria-expanded','false');b.querySelector('em').textContent='详情'})}
 function signedOut(why){
   // a 前台 phone that merely opens this page stays signed in: it only gets the 「这支手机是前台」 card (found 11/28)
   if(dev()){if(why)TP.out(/^(reset|deleted|stopped|ended)$/.test(why.why||''));else if(!isDesk())TP.out(false)}else put('');
-  tpIcon((TP.who()||{}).role==='desk'&&!TP.owner()?'desk':'');DATA=null;TOKEN='';drafts={};bases={};MOD=null;S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
+  tpIcon((TP.who()||{}).role==='desk'&&!TP.owner()?'desk':'');DATA=null;TOKEN='';drafts={};bases={};MOD=null;teamReset();S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
   $('app').hidden=$('nav').hidden=$('session').hidden=$('side').hidden=true;$('side').innerHTML='';
   $('login').hidden=isDesk()||!!why;$('deskPhone').hidden=!isDesk();$('hello').textContent='';
   $('gone').hidden=!why;if(why){$('goneText').textContent=why.why?TP.gone(why):why.text||'';$('goneIn').hidden=!TP.key()||/^(reset|deleted|stopped|ended)$/.test(why.why||'');$('goneIn').href=TP.loginUrl(TP.key(),apiParam)}
   $('toIn').hidden=!TP.key();$('toIn').href=TP.loginUrl(TP.key(),apiParam);
   closeLink();mailClear();
   wipe(['staffList','siteList','siteCards'].concat(LISTS))}
-var LISTS=['side','rows','people','ledgerList','ledgerSum','moneyCards','lWho','todoCards','caps','roleCards','chips','list-chief','list-deputy','staffList','c-chief','c-deputy','c-desk','checkWho'];
+var LISTS=['ttabs','side','rows','people','ledgerList','ledgerSum','moneyCards','lWho','todoCards','caps','roleCards','chips','list-chief','list-deputy','staffList','c-chief','c-deputy','c-desk','checkWho'];
 function wipe(ids){ids.forEach(function(i){$(i).innerHTML=''})}
 function load(){
   if(isDesk()){signedOut();return Promise.resolve()}   // one phone, one identity
@@ -483,7 +528,7 @@ function render(){
   $('deskPhone').hidden=true;
   $('hello').textContent=DATA.me.role==='owner'?'':DATA.me.name+'（'+WHO[DATA.me.role]+'）';
   tpIcon(DATA.me.role);
-  $('team').hidden=!all;$('qr').hidden=!can('asset');
+  $('team').hidden=$('teamKey').hidden=!all;$('qr').hidden=!can('asset');
   if(!can('passport'))S.show=false;
   [].forEach.call(document.querySelectorAll('[data-exp]'),function(b){b.hidden=!can('export')});
   if(all){todo();regs();people();money()}
@@ -946,39 +991,65 @@ function loginLine(l){if(!l)return '';var t=LOGIN[l.state]||['',''];
   var text=l.state==='on'?'已登入 '+l.devices+'/'+l.max+' 台':l.state==='locked'?'锁到 '+TP.bjTime(l.until)+'（连错 5 次）':t[0];
   return '<span class="login '+t[1]+'">'+esc(text)+'</span>'}
 // ---------- 设置：三栏（2026-11-23 起没有现场经理；旧资料里若还有，不显示）
+// what is open in the 职务 cards: the tab shown on narrow screens, the 新增 boxes, one 「⋯」 menu. A refresh keeps them.
+var TUI={tab:'',open:{},menu:''},TROLES=['chief','deputy','desk'],TFILE={chief:'chief',deputy:'manager',desk:'desk'},CAP={chief:1,deputy:3};
+var DOT={on:'on',new:'wait',locked:'bad',stopped:'bad',none:'bad',off:''};
+// dot: '' = signed in nowhere (grey); 'na' = no sign-in state to show (not sent to this viewer, 管理员本人, 已停用)
+function teamDot(x){return x.login&&!x.disabled_at?DOT[x.login.state]||'':'na'}
+function teamRow(name,mine,dot,status,extra,acts){
+  return '<div class="item'+(dot==='bad'?' bad':'')+'"><span class="dot '+dot+'" aria-hidden="true"></span><div class="who2"><b>'+esc(name)+(mine?' <span class="muted">（你）</span>':'')+'</b><small>'+status+(extra?(status?' ':'')+'<span class="ext">'+(status?'· ':'')+extra+'</span>':'')+'</small></div>'+acts+'</div>'}
+function rowActs(key,name,reset,menu){
+  return '<div class="btns">'+reset+'<button type="button" class="dots" data-more="'+key+'" aria-label="'+esc(name)+'的更多操作" aria-expanded="'+(TUI.menu===key)+'">⋯</button></div><div class="menu" data-menu="'+key+'"'+(TUI.menu===key?'':' hidden')+'>'+menu+'</div>'}
+function teamCount(role){return (role==='desk'?DATA.staff||[]:(DATA.admins||[]).filter(function(x){return x.role===role})).filter(function(x){return !x.disabled_at}).length+(role==='chief'&&DATA.chief?1:0)}
+// tabs, 新增 buttons and boxes, which card shows on a narrow screen
+function teamUI(){
+  if(!DATA||!full())return;
+  if(!TUI.tab)TUI.tab=appoints('chief')?'chief':appoints('deputy')?'deputy':'desk';
+  var tabs=TROLES.map(function(t){
+    var warn=(t==='desk'?(appoints('desk')?DATA.staff||[]:[]):(DATA.admins||[]).filter(function(x){return x.role===t})).some(function(x){return !x.disabled_at&&x.login&&DOT[x.login.state]==='bad'});
+    return '<button type="button" data-ttab="'+t+'" aria-pressed="'+(TUI.tab===t)+'"><img src="../tp-'+TFILE[t]+'.svg" width="24" height="24" alt="">'+(t==='desk'?'前台':WHO[t])+'<i>'+teamCount(t)+'</i>'+(warn?'<span class="alert" title="有人要处理"></span>':'')+'</button>'}).join('');
+  if(TUI.tabs!==tabs){var had=document.activeElement&&document.activeElement.dataset?document.activeElement.dataset.ttab:'';$('ttabs').innerHTML=TUI.tabs=tabs;
+    if(had)$('ttabs').querySelector('[data-ttab="'+had+'"]').focus({preventScroll:true})}
+  TROLES.forEach(function(t){
+    var may=appoints(t),full_=!!CAP[t]&&teamCount(t)>=CAP[t],open=may&&!full_&&!!TUI.open[t];
+    $('col-'+t).classList.toggle('on',TUI.tab===t);
+    $('opn-'+t).hidden=!may;$('opn-'+t).disabled=full_;$('opn-'+t).setAttribute('aria-expanded',open);
+    $('add-'+t).hidden=!open})}
+function teamTab(t){TUI.tab=t;TUI.menu='';menus();teamUI()}
+function teamClose(t){TUI.open[t]=false;teamUI()}
+function menus(){[].forEach.call(document.querySelectorAll('#team [data-menu]'),function(m){var on=m.dataset.menu===TUI.menu;m.hidden=!on;
+  var b=m.parentNode.querySelector('[data-more]');if(b)b.setAttribute('aria-expanded',on)})}
 function team(){
   if(!full())return;
   var list=DATA.admins||[],n={chief:DATA.chief?1:0,deputy:0,manager:0},h={chief:'',deputy:'',manager:''};
   list.forEach(function(x){if(!x.disabled_at)n[x.role]++});
   var cap={chief:1,deputy:3},over=function(t){return !!cap[t]&&n[t]>=cap[t]};
-  var net=function(name){var s=(DATA.ledger||{})[name]||{in:0,out:0},v=s.in-s.out;return v?'<span class="muted">收款净额 '+fmt(v)+'</span>':''};
-  if(DATA.chief)h.chief='<div class="item"><div class="h"><b>'+esc(DATA.chief)+'</b>'+net(DATA.chief)+'</div><p class="muted">管理员本人，用长密码登入，不另建账号，不在这里改。</p></div>';
+  var net=function(name){var s=(DATA.ledger||{})[name]||{in:0,out:0},v=s.in-s.out;return v?'收款净额 '+fmt(v):''};
+  if(DATA.chief)h.chief=teamRow(DATA.chief,false,'na','管理员本人，用长密码登入，不另建账号，不在这里改。',net(DATA.chief),'');
   list.forEach(function(x){
-    var id=' data-id="'+x.id+'"',ad=function(a,t,off){return '<button data-ad="'+a+'"'+id+(off?' disabled':'')+'>'+t+'</button>'},why='';
-    if(x.disabled_at){h[x.role]+='<div class="item"><div class="h"><b>'+esc(x.name)+'</b><span class="st cancelled">已停用</span></div>'+(x.manage?'<div class="acts">'+ad('delete','删除')+'</div>':'')+'</div>';return}
+    var key='a'+x.id,id=' data-id="'+x.id+'"',ad=function(a,t,off,cls){return '<button type="button"'+(cls?' class="'+cls+'"':'')+' data-ad="'+a+'"'+id+(off?' disabled':'')+'>'+t+'</button>'};
+    if(x.disabled_at){h[x.role]+=teamRow(x.name,false,'na','<span class="st cancelled">已停用</span>','',x.manage?rowActs(key,x.name,'',ad('delete','删除',false,'del')):'');return}
     var moves=['chief','deputy'].filter(function(t){return t!==x.role&&appoints(t)}).map(function(t){
-      var off=over(t);if(off&&!why)why=t==='deputy'?'经理已满 3 位，不能'+(x.role==='chief'?'降为':'升为')+'经理。':'已有 1 位总管，不能再升。';
-      return ad(t,(LEVEL[t]>LEVEL[x.role]?'升为':'降为')+WHO[t],off)}).join('');
-    h[x.role]+='<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b>'+(x.name===DATA.me.name?' <span class="muted">（你）</span>':'')+' '+loginLine(x.login)+'</span>'+net(x.name)+'</div>'+
-      (x.manage?'<div class="acts">'+moves+ad('reset','重设')+ad('delete','删除')+'</div>'+(why?'<p class="muted">'+why+'</p>':''):'')+'</div>'});
+      var off=over(t);return ad(t,(LEVEL[t]>LEVEL[x.role]?'升为':'降为')+WHO[t],off)+(off?'<small>'+(t==='deputy'?'经理已满 3 位，不能'+(x.role==='chief'?'降为':'升为')+'经理。':'已有 1 位总管，不能再升。')+'</small>':'')}).join('');
+    var dot=teamDot(x);
+    h[x.role]+=teamRow(x.name,x.name===DATA.me.name,dot,loginLine(x.login),net(x.name),x.manage?rowActs(key,x.name,ad('reset','重设',false,dot==='bad'?'p':''),moves+ad('delete','删除',false,'del')):'')});
   ['chief','deputy'].forEach(function(t){
     var may=appoints(t),full_=over(t),why='';
     if(t==='deputy'&&full_)why='已满 3 位：不能再新增，也不能升级。要换人，先删除或降级一位。'+(may?'':'只有总管能任免。');
     else if(t==='deputy'&&!may)why='只有总管能任免经理。';
     else if(t==='chief'&&!DATA.chief)why=may?(full_?'已有 1 位总管：要换人，先删除或降级现任。':''):'只有管理员能任免总管。';
     $('c-'+t).textContent=n[t]+(cap[t]?' / '+cap[t]:' 位');
-    $('add-'+t).hidden=!may;
-    $('n-'+t).disabled=full_;$('add-'+t).querySelector('button').disabled=full_;
-    if(full_)$('n-'+t).value='';
+    $('n-'+t).disabled=full_;$('add-'+t).querySelector('button[data-add]').disabled=full_;
+    if(full_){$('n-'+t).value='';TUI.open[t]=false}
     $('why-'+t).textContent=why;$('why-'+t).hidden=!why;
-    $('list-'+t).innerHTML=h[t]||'<p class="muted">现在没有'+WHO[t]+'。</p>'});
-  $('c-desk').textContent=(DATA.staff||[]).filter(function(x){return !x.disabled_at}).length+' 位'}
+    $('list-'+t).innerHTML=h[t]||'<p class="muted none">现在没有'+WHO[t]+'。</p>'});
+  $('c-desk').textContent=teamCount('desk')+' 位';teamUI()}
 function deskList(){
   if(!appoints('desk')){$('staffList').innerHTML='';return}
   $('staffList').innerHTML=(DATA.staff||[]).map(function(x){
+    var dot=teamDot(x),b=function(a,t,cls){return '<button type="button"'+(cls?' class="'+cls+'"':'')+' data-s="'+a+'" data-id="'+x.id+'">'+t+'</button>'};
     var s=x.disabled_at?'<span class="st cancelled">已停用</span>':loginLine(x.login);
-    return '<div class="item"><div class="h"><span><b>'+esc(x.name)+'</b> '+s+'</span><span class="muted">已签到 '+x.checkins+' 人次</span></div><div class="acts">'+
-      (x.disabled_at?'':'<button data-s="reset" data-id="'+x.id+'">重设</button>')+'<button data-s="delete" data-id="'+x.id+'">删除</button></div></div>'}).join('')||'<p class="muted">现在没有前台。</p>'}
+    return teamRow(x.name,false,dot,s,'已签到 '+x.checkins+' 人次',rowActs('s'+x.id,x.name,x.disabled_at?'':b('reset','重设',dot==='bad'?'p':''),b('delete','删除','del')))}).join('')||'<p class="muted none">现在没有前台。</p>';teamUI()}
 // ---------- 设置：活动邮箱（2026-11-24 起；管理员改，总管只能看，其他人后台不给）
 var MBOX={chief:'mChief',copy:'mCopy'};
 function liveChief(){return (DATA.admins||[]).filter(function(x){return x.role==='chief'&&!x.disabled_at})[0]}
@@ -1066,6 +1137,9 @@ function mailedLine(d){var m=DATA&&DATA.mailto&&DATA.mailto.chief;
   if(d.letter!=='sent'||!m){$('sMailed').hidden=true;return}
   $('sMailed').textContent='链接也已寄到总管邮箱 '+m+'（信里没有密码）。临时密码只在这里：请用微信或电话告诉对方，不要和链接放在一起。';$('sMailed').hidden=false}
 $('checkOk').addEventListener('click',function(){$('checkNote').hidden=true});
+// a 「⋯」 menu closes on a click anywhere else, and with Esc
+document.addEventListener('click',function(e){if(TUI.menu&&!(e.target.closest&&e.target.closest('[data-menu],[data-more]'))){TUI.menu='';menus()}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&TUI.menu){var b=document.querySelector('#team [data-more="'+TUI.menu+'"]');TUI.menu='';menus();if(b)b.focus()}});
 var LINK_TEXT='这是你在「北京精选探戈周末 2027」的专属登入链接。请用 Safari 或 Chrome 打开（在微信里按右上角 ··· 选「在浏览器打开」），再输入另外给你的六位临时密码；第一次登入要换成自己的密码。链接和密码都不要转发。\n';
 var qrLib=null;
 function drawLink(link){
@@ -1100,13 +1174,20 @@ $('sCopyUrl').addEventListener('click',function(){copy('sLink')});
 $('sCopy').addEventListener('click',function(){copy('sLink',LINK_TEXT)});
 $('sCopyPin').addEventListener('click',function(){var t=$('sPin').textContent;try{navigator.clipboard.writeText(t).then(function(){toast('已复制临时密码：请另发一条，不要和链接放在一起')},function(){toast('没复制成功，请手动抄下')})}catch(e){toast('没复制成功，请手动抄下')}});
 $('team').addEventListener('click',function(e){
+  var q=e.target.closest('button');if(!q)return;
+  if(q.dataset.ttab){var to=q.dataset.ttab;teamTab(to);$('ttabs').querySelector('[data-ttab="'+to+'"]').focus({preventScroll:true});return}
+  if(q.classList.contains('perm')){var on=q.getAttribute('aria-expanded')!=='true';q.setAttribute('aria-expanded',on);q.querySelector('em').textContent=on?'收起':'详情';return}
+  if(q.dataset.opn){var r=q.dataset.opn;TUI.open[r]=!TUI.open[r];teamUI();if(TUI.open[r])$(r==='desk'?'sName':'n-'+r).focus();return}
+  if(q.dataset.cls){teamClose(q.dataset.cls);$('opn-'+q.dataset.cls).focus({preventScroll:true});return}
+  if(q.dataset.more){TUI.menu=TUI.menu===q.dataset.more?'':q.dataset.more;return menus()}
+  if(q.closest('[data-menu]')){q.closest('.item').querySelector('[data-more]').focus({preventScroll:true});TUI.menu='';menus()}
   var add=e.target.closest('button[data-add]');
   if(add){var t=add.dataset.add,box=$('n-'+t),n=box.value.trim(),cm=t==='chief'&&DATA.mailto&&DATA.mailto.chief;if(!n)return toast('请填名字');
     if(cm&&!confirm('任命「'+n+'」为总管？\n\n任命信会寄到总管邮箱 '+cm+'（只附专属链接，不附密码）。不是这个人的邮箱的话，请先改「活动邮箱」的总管邮箱。'))return;
     add.disabled=true;
     withPin(APPOINT[0],APPOINT[1],function(pin){return act('/admins',{name:n,role:t,pin:pin})}).then(function(d){add.disabled=false;
       if(!d.ok){toast(errText(d),7000);if(d.error==='deputy_full'||d.error==='chief_taken')load();return}
-      box.value='';showLink(d,'admin');mailedLine(d);if(d.letter)toast('已任命'+letterTip(d),8000);load()});
+      box.value='';teamClose(t);showLink(d,'admin');mailedLine(d);if(d.letter)toast('已任命'+letterTip(d),8000);load()});
     return}
   var b=e.target.closest('button[data-ad]');if(!b)return;
   var a=b.dataset.ad,id=+b.dataset.id,x=(DATA.admins||[]).filter(function(v){return v.id===id})[0];if(!x)return;
@@ -1124,11 +1205,11 @@ $('team').addEventListener('click',function(e){
     if(!d.ok){toast(errText(d),7000);if(/^(changed|not_found|deputy_full|chief_taken)$/.test(d.error))load();return}
     if(a==='delete'&&+$('sNew').dataset.id===id&&$('sNew').dataset.kind==='admin')closeLink();
     if(d.link){showLink({id:id,name:x.name,link:d.link,pin:d.pin},'admin');mailedLine(d)}
-    if(d.check){$('checkWho').textContent='「'+x.name+'」已经不是经理。';$('checkNote').hidden=false;$('checkNote').scrollIntoView({block:'center'})}
+    if(d.check){teamTab('desk');$('checkWho').textContent='「'+x.name+'」已经不是经理。';$('checkNote').hidden=false;$('checkNote').scrollIntoView({block:'center'})}
     toast((role?'已改为'+WHO[role]:a==='reset'?'已产生新链接和临时密码':'已删除')+letterTip(d)+clearedTip(d),d.letter||d.mail_cleared?8000:4000);load()})});
 $('sAdd').addEventListener('click',function(){var b=this,n=$('sName').value.trim();if(!n)return toast('请填名字');
   b.disabled=true;
-  withPin(APPOINT[0],APPOINT[1],function(pin){return act('/staff',{name:n,pin:pin})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('sName').value='';showLink(d,'staff');load()})});
+  withPin(APPOINT[0],APPOINT[1],function(pin){return act('/staff',{name:n,pin:pin})}).then(function(d){b.disabled=false;if(!d.ok)return toast(errText(d));$('sName').value='';teamClose('desk');showLink(d,'staff');load()})});
 $('staffList').addEventListener('click',function(e){var b=e.target.closest('button[data-s]');if(!b)return;
   var a=b.dataset.s,id=+b.dataset.id,x=(DATA.staff||[]).filter(function(v){return v.id===id})[0]||{},name=x.name||'';
   if(!confirm(a==='delete'?'删除「'+name+'」？马上失效，手机马上退出，这个人会从这里消失，不能恢复。已有的签到纪录还留着。':'重设「'+name+'」？会产生新的链接和临时密码；旧的马上失效，手机马上退出。'))return;
