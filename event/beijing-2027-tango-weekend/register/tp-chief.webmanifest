@@ -1,0 +1,19 @@
+{
+ "name": "探戈通",
+ "short_name": "探戈通",
+ "lang": "zh-CN",
+ "theme_color": "#4a0609",
+ "background_color": "#0e6e78",
+ "icons": [
+  {
+   "src": "tp-chief-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "tp-chief-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  }
+ ]
+}

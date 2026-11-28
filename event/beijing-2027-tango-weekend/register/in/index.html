@@ -6,13 +6,14 @@
 <meta name="robots" content="noindex,nofollow">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#4a0609">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="../tp-desk.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="../tp-desk-180.png"><link rel="icon" type="image/png" sizes="192x192" href="../tp-desk-192.png">
 <title>工作人员登入 · 北京精选探戈周末 2027</title>
 <style>
 :root{--red:#b3121b;--deep:#4a0609;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--soft:#f6e3b4;--ok:#1f7a3a}
 *{box-sizing:border-box}
 body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif}
 header{background:var(--deep);color:#fff;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top))}
+header{display:flex;align-items:center;gap:12px}header .tpi{flex:none;display:block;border-radius:10px;box-shadow:0 0 0 1px rgba(246,227,180,.35)}
 header b{display:block;font-size:1rem}header small{color:var(--gold);font-size:.8rem}
 main{max-width:460px;margin:0 auto;padding:18px 16px 40px}
 .hi{font-size:1.6rem;font-weight:800;margin:6px 0 6px;line-height:1.25}
@@ -34,7 +35,7 @@ label{display:block;margin:20px 0 8px;color:var(--muted);font-size:.95rem}
 </style>
 </head>
 <body>
-<header><b>北京精选探戈周末 2027</b><small>探戈通 · 工作人员登入</small></header>
+<header><img class="tpi" src="../tp-desk.svg" width="44" height="44" alt=""><div><b>北京精选探戈周末 2027</b><small>探戈通 · 工作人员登入</small></div></header>
 <main>
   <div id="none" hidden>
     <div class="hi">请用你的专属链接</div>
@@ -84,6 +85,11 @@ function post(p,body,tok){return fetch(API+'/social/reg/login'+p,{method:'POST',
   .then(function(r){return r.json().then(function(d){d._s=r.status;return d},function(){return {_s:r.status,error:'http'}})},function(){return {error:'network'}})}
 function say(kind,text){var m=$('msg');m.className='msg '+kind;m.textContent=text;m.hidden=!text}
 function home(d){var to=d.home==='checkin'?'../checkin/':'../admin/';location.replace(to+'?k='+KEY+apiQ+(d.home==='checkin'?'&new=1':''))}
+// the icon follows the role: 总管 (and 管理员) gold check, 经理 ticket, 前台 scan frame (Shiao 11/28)
+function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manager:'manager',desk:'desk'}[role]||'desk',f='../tp-'+n;
+  document.querySelector('header img').src=f+'.svg';document.querySelector('link[rel=icon]').href=f+'.svg';document.querySelector('link[rel=apple-touch-icon]').href=f+'-180.png';document.querySelector('link[rel=icon][sizes]').href=f+'-192.png';
+  // Android phones (Oppo too) take the home-screen icon from a manifest; no start_url, so the shortcut opens this very address. iPhones keep their own way.
+  if(/Android/i.test(navigator.userAgent)){var m=document.querySelector('link[rel=manifest]');if(!m){m=document.createElement('link');m.rel='manifest';document.head.appendChild(m)}m.href=f+'.webmanifest'}}
 function show(id){['none','wechat','taken','form'].forEach(function(x){$(x).hidden=x!==id})}
 if(!KEY){show('none');return}
 // The link in the 任命信 carries ?m=: opening it shows the 总管邮箱 works (2026-11-24). Sent at once, whichever screen
@@ -94,14 +100,15 @@ var FIRST=post('/hello',M?{key:KEY,m:M}:{key:KEY},TP.dev()||'');
 if(/MicroMessenger/i.test(navigator.userAgent)){show('wechat');
   $('copy').addEventListener('click',function(){var u=location.href;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(function(){$('copied').textContent='已复制'},function(){$('copied').textContent='请长按网址手动复制'})});return}
 // one phone, one identity
-if(TP.owner()){show('taken');$('takenTitle').textContent='这台不能用这个链接';$('takenText').textContent='这台已经登入管理员。链接请给本人用自己的手机打开；自己想试，用另一支手机或无痕窗口。';$('stay').textContent='回管理页';return}
+if(TP.owner()){tpIcon('owner');show('taken');$('takenTitle').textContent='这台不能用这个链接';$('takenText').textContent='这台已经登入管理员。链接请给本人用自己的手机打开；自己想试，用另一支手机或无痕窗口。';$('stay').textContent='回管理页';return}
 var me=TP.who();
 function start(){
+  tpIcon('');
   var h=FIRST;FIRST=null;
   (h||post('/hello',{key:KEY})).then(function(d){
     if(d._s===404){if(KEY===TP.key())TP.out(true);show('none');$('none').querySelector('.hi').textContent='这个链接已经失效';$('none').querySelector('p').textContent='链接被重设，或人已被删除。请找发链接给你的人拿新的。';return}
     if(!d.ok){show('none');$('none').querySelector('.hi').textContent=d.error==='network'?'连不上后台':'暂时不能登入';$('none').querySelector('p').textContent=d.error==='network'?'请检查网络，再打开一次链接。':'请稍后再试。';return}
-    HELLO=d;show('form');
+    HELLO=d;tpIcon(d.role);show('form');
     $('hi').textContent='你好，'+d.name;$('role').textContent=TP.ROLE[d.role]||d.role;$('role').className='badge'+(d.role==='desk'?' desk':'');
     $('help').textContent='不是'+d.name+'？这个链接是给'+d.name+'的，请关掉，找发链接给你的人。忘了密码：请'+TP.up(d.role)+'按「重设」。';
     if(d.state==='locked'){say('warn','连错 5 次，已锁住。北京时间 '+TP.bjTime(d.until)+' 以后再试。');$('pin').disabled=true;return}
@@ -112,7 +119,7 @@ function start(){
     setTimeout(function(){$('pin').focus()},50)});
 }
 function taken(){
-  show('taken');$('takenTitle').textContent='这台现在是「'+me.name+'」的';
+  tpIcon(me.role);show('taken');$('takenTitle').textContent='这台现在是「'+me.name+'」的';
   $('takenText').textContent='一支手机一种身份。换成这个链接的人，「'+me.name+'」在这台就会退出。';
   $('swap').hidden=false;$('swap').textContent='换人：让「'+me.name+'」在这台退出';$('stay').textContent='不换，回去';$('stay').href=(me.role==='desk'?'../checkin/':'../admin/')+'?k='+TP.key()+apiQ;
   $('swap').addEventListener('click',function(){post('/out',{},TP.dev()).then(function(){TP.out(true);me=null;start()})});
