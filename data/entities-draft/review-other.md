@@ -9,10 +9,10 @@
 
 ## B. 同一个场地有几种写法，用哪个？（也可能是同一栋楼里不同的小场地）
 
-- Daegu：V095 名称：Mariposa ／ Tango Cafe Dia
-- Daejeon：V098 名称：Daejeon O Nada ／ Daejeon Tango O Nada
-- Seoul：V116 名称：Hongdae Pista ／ PISTA
-- Taipei：V138 名称：Tanguisimo ／ Tanguisimo Tango Space ／ Tanguísimo ／ Tanguísimo Tango Space
+- Daegu：V096 名称：Mariposa ／ Tango Cafe Dia
+- Daejeon：V099 名称：Daejeon O Nada ／ Daejeon Tango O Nada
+- Seoul：V117 名称：Hongdae Pista ／ PISTA
+- Taipei：V139 名称：Tanguisimo ／ Tanguisimo Tango Space ／ Tanguísimo ／ Tanguísimo Tango Space
 
 ## C. 这两个主办是不是同一个？
 
