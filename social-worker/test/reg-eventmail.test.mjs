@@ -211,6 +211,8 @@ delete env.REG_LIVE;
 // --- 寄件人 and the 新报名 notice (Shiao, 2026-11-26), through the real send_email binding
 { const got = []; let refuse = '';
   env.SOCIAL_MAIL = 'sub_mail'; env.REG_LIVE = '1';
+  // live means after the opening (12/1 00:00 Beijing, reg-open.test.mjs): this part runs as if it were
+  const nowReal = Date.now; Date.now = () => Math.max(nowReal(), Date.parse('2026-12-01T00:00:00+08:00'));
   env.SUB_MAIL = { async send(m) { if (refuse && m.from.email !== 'subscribe@tangoweekend.org') throw new Error(refuse); got.push(m); } };
   const takeB = () => got.splice(0, got.length), who = ms => ms.map(m => m.from.email + ' > ' + m.to + ' | ' + m.subject + ' | rt=' + m.replyTo);
   const dora = subscriber('dora@example.com', 'Dora');
@@ -242,6 +244,7 @@ delete env.REG_LIVE;
   let tries = 0; env.SUB_MAIL = { async send() { tries++; throw new Error('daily quota exceeded'); } };
   d = await call('POST', '/admin/reg/act', { id: await idOf(code), action: 'cancel' }, ADMIN);
   check('another send error: one try per letter, reported as failed', d.mail === 'failed' && tries === 1, [d, tries]);
+  Date.now = nowReal;
   env.SOCIAL_MAIL = 'log'; delete env.SUB_MAIL; delete env.REG_LIVE; }
 
 // --- not a 活动专属邮箱: false, so live.js hands it to huodong@ as before

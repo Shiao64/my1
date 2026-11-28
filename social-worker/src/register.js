@@ -48,7 +48,8 @@ export const EVENTS = {
     ciMin: '2027-06-11', ciMax: '2027-06-27', coMin: '2027-06-12', coMax: '2027-06-28',
     earlyEnd: Date.parse('2027-02-02T00:00:00+08:00'), earlyPrice: 1350, friendPrice: 1200,
     refundBy: '2027-06-11', fee: 50, payDays: 14, remindDay: 10, maxPeople: 6,   // refundBy: last day (Beijing) a cancellation gets money back, hotel included (Shiao, 2026-11-26)
-    deskEnds: '2027-06-22T22:00:00.000Z'   // 前台 sign-ins end 2027-06-23 06:00 Beijing, after the farewell milonga
+    deskEnds: '2027-06-22T22:00:00.000Z',   // 前台 sign-ins end 2027-06-23 06:00 Beijing, after the farewell milonga
+    openAt: '2026-12-01T00:00:00+08:00'   // registration opens (international), 12/1 00:00 Beijing: once live, nobody is let in before it
   }
 };
 // looked up by what a visitor typed: 'constructor' and the like are not entries
@@ -92,7 +93,7 @@ async function passesOf(env, reg) { const d = typeof reg.data === 'string' ? JSO
 const passImg = (env, pass) => String(env.API_BASE || 'https://api.tangoweekend.org').replace(/\/$/, '') + '/social/reg/pass/' + encodeURIComponent(pass) + '.png';
 const checkinUrl = (env, pass) => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/checkin/?p=' + encodeURIComponent(pass);
 const bjDate = iso => new Date(Date.parse(iso) + 8 * 36e5).toISOString().slice(0, 10);   // Beijing date, as on the page
-const regPage = env => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/draft/';   // 12/1: move to register/, or keep draft/ redirecting there
+const regPage = env => String(env.REG_SITE || 'https://tangoweekend.org').replace(/\/$/, '') + '/event/beijing-2027-tango-weekend/register/';   // the form since 12/1 (draft/ forwards here, with ?lang and #pay／#passes)
 
 function nights(ci, co) { const n = Math.round((Date.parse(co + 'T00:00:00Z') - Date.parse(ci + 'T00:00:00Z')) / 864e5); return n > 0 ? n : 0; }
 
@@ -931,6 +932,8 @@ export async function regSubmit(req, env, b, json, kit) {
   if (b && b.website) return json({ ok: true });   // honeypot
   let r = evaluate(b, env);
   if (r.error) return json(r, 400);
+  // 12/1 (Shiao 2026-11-25): once live, nobody registers before the opening time; the page waits for it too. Testing is not held.
+  if (env.REG_LIVE === '1' && r.ev.openAt && Date.now() < Date.parse(r.ev.openAt)) return json({ error: 'not_open_yet', opens: r.ev.openAt }, 403);
   const ts = nowIso(); let data = JSON.stringify(r.data);
   const live = () => env.SDB.prepare("SELECT * FROM reg WHERE event=? AND email=? AND status<>'cancelled' ORDER BY id DESC LIMIT 1").bind(r.ev.id, email).first();
   let reg = null, ex = await live();

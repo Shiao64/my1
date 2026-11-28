@@ -10,6 +10,9 @@ import { pathToFileURL } from 'node:url';
 import { DatabaseSync } from 'node:sqlite';
 import crypto from 'node:crypto';
 
+// a day after the opening (12/1 00:00 Beijing, the gate #450 adds while REG_LIVE=1), so this test does not depend on today
+const RealDate = Date, OFFSET = RealDate.parse('2027-01-05T12:00:00+08:00') - RealDate.now();
+globalThis.Date = class extends RealDate { constructor(...a) { super(...(a.length ? a : [RealDate.now() + OFFSET])); } static now() { return RealDate.now() + OFFSET; } };
 const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '../..');
 const dir = '/tmp/atm-reg-adjust';
 fs.mkdirSync(path.join(dir, 'vendor'), { recursive: true });
