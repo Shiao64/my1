@@ -41,6 +41,7 @@ nav button{border:0;border-bottom:3px solid transparent;border-radius:0;backgrou
 nav button.on{border-color:var(--red);color:var(--red);font-weight:700}
 main{max-width:1400px;margin:0 auto;padding:12px 16px 60px}
 #login{max-width:420px;margin:40px auto;padding:0 14px}
+#deskPhone,#gone{width:calc(100% - 28px);max-width:392px;margin:40px auto 14px}
 #login input{width:100%;margin:6px 0 10px;font-size:16px}
 #login button{width:100%}
 .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
@@ -397,7 +398,8 @@ function tpIcon(role){var n={owner:'chief',chief:'chief',deputy:'manager',manage
   // Android phones (Oppo too) take the home-screen icon from a manifest; no start_url, so the shortcut opens this very address. iPhones keep their own way.
   if(/Android/i.test(navigator.userAgent)){var m=document.querySelector('link[rel=manifest]');if(!m){m=document.createElement('link');m.rel='manifest';document.head.appendChild(m)}m.href=f+'.webmanifest'}}
 function signedOut(why){
-  if(dev()){if(why)TP.out(/^(reset|deleted|stopped|ended)$/.test(why.why||''));else TP.out(false)}else put('');
+  // a 前台 phone that merely opens this page stays signed in: it only gets the 「这支手机是前台」 card (found 11/28)
+  if(dev()){if(why)TP.out(/^(reset|deleted|stopped|ended)$/.test(why.why||''));else if(!isDesk())TP.out(false)}else put('');
   tpIcon((TP.who()||{}).role==='desk'&&!TP.owner()?'desk':'');DATA=null;TOKEN='';drafts={};bases={};MOD=null;S.open=0;S.st='';S.show=false;$('checkNote').hidden=true;
   $('app').hidden=$('nav').hidden=$('session').hidden=$('side').hidden=true;$('side').innerHTML='';
   $('login').hidden=isDesk()||!!why;$('deskPhone').hidden=!isDesk();$('hello').textContent='';
