@@ -285,7 +285,7 @@ $('take').addEventListener('click',function(){var c=info&&info.collect;if(!c||!m
 // ---------- in-page scanner (camera stays inside this page, so the phone key is always here) ----------
 var video=$('video'),stream=null,scanning=false,det=null,cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
 try{if('BarcodeDetector' in window)det=new BarcodeDetector({formats:['qr_code']})}catch(e){det=null}
-function loadJsQR(cb){if(window.jsQR)return cb();var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';s.onload=cb;s.onerror=function(){res('no','扫码工具载入失败，请检查网络')};document.head.appendChild(s)}
+function loadJsQR(cb){if(window.jsQR)return cb();var s=document.createElement('script');s.src='../vendor/jsqr-1.4.0.min.js';s.onload=cb;s.onerror=function(){res('no','扫码工具载入失败，请检查网络')};document.head.appendChild(s)}
 function stopScan(){scanning=false;if(stream)stream.getTracks().forEach(function(t){t.stop()});stream=null;$('cam').hidden=true;$('stopBtn').hidden=true;$('scanBtn').hidden=false}
 function found(text){var m=/[?&]p=([^&#\s]+)/.exec(text||'');stopScan();if(navigator.vibrate)navigator.vibrate(60);
   if(!m){res('no','✕ 这不是入场码');return}pass=decodeURIComponent(m[1]);keepUrl({p:pass});info=null;flash='';flashKind='ok';res('','');load()}
