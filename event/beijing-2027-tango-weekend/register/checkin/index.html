@@ -14,15 +14,23 @@
 :root{--red:#b3121b;--deep:#4a0609;--gold:#e8c06a;--cream:#fbf5e9;--ink:#2a1a14;--muted:#7a6255;--line:#ead9b8;--ok:#1f7a3a;--warn:#b26b00}
 *{box-sizing:border-box}
 body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"PingFang SC",sans-serif}
-header{background:var(--deep);color:#f6e3b4;padding:10px 14px calc(10px);padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;justify-content:space-between;position:sticky;top:0;z-index:5}
-header b{font-size:1rem;line-height:1.2}
-header small{display:block;font-weight:400;font-size:.75rem;color:var(--gold)}
-header .ttl{display:flex;align-items:center;gap:10px;min-width:0}
-header .nw{white-space:nowrap}
-header .tpi{flex:none;display:block;width:36px;height:36px;border-radius:9px;box-shadow:0 0 0 1px rgba(246,227,180,.35)}
-@media (max-width:380px){header{gap:6px}header .ttl{gap:6px}#toAdmin{padding:4px 6px;font-size:.78rem}#item{max-width:38vw;padding:8px 6px;font-size:.88rem}header .tpi{width:28px;height:28px;border-radius:7px}}
-@media (max-width:340px){#toAdmin:not([hidden])+.tpi{display:none}}   /* the narrowest phones: 管理页 button and name need the room */
-#toAdmin{color:#f6e3b4;text-decoration:none;border:1px solid rgba(246,227,180,.45);border-radius:8px;padding:5px 9px;font-size:.85rem;white-space:nowrap;flex:none}
+/* 2026-11-28（Shiao「签到页也照这样优化」）：header like the admin page, 退出 in 「⋯」, the whole session line is the picker */
+header{background:linear-gradient(135deg,#5c090e 0%,var(--deep) 55%,#330306 100%);border-bottom:2px solid var(--gold);color:#f6e3b4;padding:10px 14px;padding-top:max(10px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;position:relative;z-index:2}
+.top{position:sticky;top:0;z-index:5}
+header .tpi{flex:none;display:block;width:42px;height:42px;border-radius:10px;box-shadow:0 0 0 1px rgba(246,227,180,.35)}
+header .ttl{flex:1;min-width:0}
+header b{display:flex;align-items:center;flex-wrap:wrap;column-gap:8px;font-size:1rem;line-height:1.25}
+header .tp{font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:1.2rem;font-weight:900;letter-spacing:.08em;color:var(--gold)}
+header .nw{white-space:nowrap;color:#fff6df;border-left:1px solid rgba(232,192,106,.55);padding-left:8px}
+header small{display:block;font-weight:400;font-size:.75rem;line-height:1.5;color:var(--gold);overflow-wrap:anywhere}
+header small:empty{display:none}
+.hr{display:flex;gap:6px;flex:none}
+#toAdmin,#more{color:#f6e3b4;text-decoration:none;border:1px solid rgba(246,227,180,.45);border-radius:8px;background:none;height:34px;display:flex;align-items:center;white-space:nowrap}
+#toAdmin{padding:0 9px;font-size:.85rem}
+#more{width:36px;justify-content:center;font-weight:700;cursor:pointer;padding:0}
+#menu{position:absolute;right:10px;top:calc(100% - 4px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 26px rgba(60,20,10,.3);padding:6px;min-width:170px}
+#menu button{display:block;width:100%;text-align:left;border:0;border-radius:8px;background:none;color:#a30d14;font-weight:700;padding:11px 12px;cursor:pointer}
+@media (max-width:360px){header{gap:8px;padding-left:10px;padding-right:10px}header .tpi{width:36px;height:36px}header .tp{display:none}header .nw{border-left:0;padding-left:0}#toAdmin{padding:0 6px;font-size:.78rem}#menu{right:6px}}
 select,input,button{font:inherit}
 select,input{border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:#fff}
 main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
@@ -37,11 +45,22 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
 .it.on{background:#d9f2df;border-color:var(--ok);color:var(--ok);font-weight:700}
 .it.cur{outline:2px solid var(--deep)}
 .btn{display:block;width:100%;border:0;border-radius:14px;padding:16px;font-size:1.15rem;font-weight:800;background:var(--red);color:#fff;cursor:pointer;margin-top:10px}
-.btn.scan{background:var(--deep)}
+.btn.scan{background:var(--deep);padding:26px 16px;font-size:1.3rem}
+.btn.scan svg{display:block;width:44px;height:44px;margin:0 auto 8px;color:var(--gold)}
+/* with a result on screen it is small again, so the person and the money stay in view */
+#res:not([hidden])~.btn.scan{padding:14px 16px;font-size:1.15rem}
+#res:not([hidden])~.btn.scan svg{display:none}
 .btn.go{background:var(--ok)}
-#now{display:flex;gap:10px;align-items:center;justify-content:space-between;width:100%;border:0;border-bottom:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 14px;font:inherit;font-weight:800;font-size:1.05rem;text-align:left;cursor:pointer}
-#now small{font-weight:700;font-size:.9rem;white-space:nowrap;text-decoration:underline}
+.nowbar{position:relative}
+#now{display:flex;gap:10px;align-items:center;width:100%;border:0;border-bottom:1px solid var(--line);background:#fff;color:var(--ink);padding:13px 14px;font:inherit;font-weight:800;font-size:1.1rem;text-align:left;cursor:pointer}
+#now::before{content:"";flex:none;width:10px;height:10px;border-radius:50%;background:var(--ok)}
+#now span{flex:1;min-width:0}
+#now small{font-weight:700;font-size:.9rem;white-space:nowrap;color:var(--red)}
+#now small::after{content:" ▾"}
 #now.off{background:#ffe1b8}
+#now.off::before{background:var(--warn)}
+#item{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;font-size:16px;cursor:pointer;border:0;padding:0}
+.nowbar:focus-within{outline:3px solid var(--gold);outline-offset:-3px}
 #prev{display:block;width:100%;text-align:left;border:2px dashed var(--muted);background:#fff;color:var(--ink);border-radius:12px;padding:10px 12px;margin-bottom:12px;font:inherit;font-weight:700;cursor:pointer}
 #prev.bad{border-color:var(--red);color:#8a0c12}
 .btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:600;font-size:1rem;padding:11px}
@@ -66,13 +85,17 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
 </style>
 </head>
 <body>
-<header><div class="ttl"><a id="toAdmin" href="../admin/" hidden>‹ 管理页</a><img class="tpi" src="../tp-desk.svg" width="36" height="36" alt="探戈通"><b><span class="nw">入场签到</span><small id="me"></small></b></div><select id="item" hidden aria-label="现在这一场">
+<div class="top">
+<header><img class="tpi" src="../tp-desk.svg" width="42" height="42" alt="探戈通"><div class="ttl"><b><span class="tp">探戈通</span><span class="nw">入场签到</span></b><small id="me"></small></div>
+  <div class="hr"><a id="toAdmin" href="../admin/" hidden>‹ 管理页</a><button type="button" id="more" aria-label="更多" aria-expanded="false" aria-controls="menu" hidden>⋯</button></div>
+  <div id="menu" hidden><button type="button" id="swap" hidden></button></div></header>
+<div class="nowbar"><button type="button" id="now" tabindex="-1" hidden></button><select id="item" hidden aria-label="现在这一场（换场）">
   <option value="MV">周五 欢迎舞会</option><option value="T1">周五 一日游</option>
   <option value="M1">周六 下午场</option><option value="M2">周六 晚场</option>
   <option value="M3">周日 下午场</option><option value="M4">周日 晚场</option>
   <option value="S1">周一 探戈小院</option><option value="T2">周二 城市漫步</option><option value="MF">周二 告别舞会</option>
-</select></header>
-<button type="button" id="now" hidden></button>
+</select></div>
+</div>
 <main>
   <div class="card" id="oldLink" hidden>
     <div class="big">这个前台连结已经停用</div>
@@ -100,7 +123,7 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
   <button class="btn sec" id="retry" hidden>重试</button>
   <button type="button" id="prev" role="status" hidden></button>
   <div id="cam" hidden><video id="video" playsinline muted></video><div class="frame"></div></div>
-  <button class="btn scan" id="scanBtn" hidden>📷 扫描入场码</button>
+  <button class="btn scan" id="scanBtn" hidden><svg viewBox="0 0 48 48" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"><path d="M5 15V9a4 4 0 0 1 4-4h6M33 5h6a4 4 0 0 1 4 4v6M43 33v6a4 4 0 0 1-4 4h-6M15 43H9a4 4 0 0 1-4-4v-6M12 24h24"/></svg>扫描入场码</button>
   <button class="btn sec" id="stopBtn" hidden>关闭相机</button>
   <div class="card" id="who" hidden style="margin-top:12px">
     <div class="big" id="name"></div>
@@ -118,7 +141,6 @@ main{max-width:520px;margin:0 auto;padding:14px 14px 40px}
     <p class="muted" id="undoHelp" hidden>按错了？请找经理或总管撤销。</p>
     <button class="btn sec" id="undo" hidden>撤销这一场的签到</button>
   </div>
-  <button class="btn sec" id="swap" hidden></button>
 </main>
 <script src="../tp.js?v=3"></script>
 <script>
@@ -194,7 +216,7 @@ function ready(name,collect,role){tpIcon(role);var adm=role!=='desk',badge=docum
   myRole=WHO[role]||'经理';
   badge.className='badge';badge.textContent=adm?myRole:'前台';$('me').textContent='';$('me').appendChild(badge);
   $('me').appendChild(document.createTextNode((org?'':name+' · ')+(adm?(collect?'签到＋收款':'签到（没有收款权限）'):'只能签到')));
-  $('swap').hidden=false;$('swap').textContent='退出'+(adm?myRole:'前台');$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false;nowLine();
+  $('more').hidden=$('swap').hidden=false;$('swap').textContent='退出'+(adm?myRole:'前台');$('nokey').hidden=true;$('scanBtn').hidden=false;$('item').hidden=false;nowLine();
   $('toAdmin').hidden=!adm}   // 2026-11-24 Shiao: 经理、总管、管理员 can go back to the admin page; 前台 has no admin page
 $('toAdmin').addEventListener('click',function(){this.href='../admin/'+location.search});   // keep ?api= and the sign-in key, like the admin page's link here
 function lost(d){
@@ -202,7 +224,7 @@ function lost(d){
   var owner=!!TP.owner()&&!TP.dev();
   if(owner)put('bstw_admin','');else TP.out(!!d&&/^(reset|deleted|stopped|ended)$/.test(d.why||''));
   choose();res('no',d&&d.error==='signed_out'?TP.gone(d):owner?'密码已经失效，请重新输入':'这台已经退出，请用链接重新登入')}
-function choose(){tpIcon('');stopScan();$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('now').hidden=true;$('nokey').hidden=false;
+function choose(){tpIcon('');stopScan();menu(false);$('more').hidden=true;$('scanBtn').hidden=true;$('swap').hidden=true;$('who').hidden=true;$('welcome').hidden=true;$('me').textContent='';$('item').hidden=true;$('now').hidden=true;$('nokey').hidden=false;
   $('toIn').hidden=!TP.key();$('toIn').href=TP.loginUrl(TP.key(),Q.get('api')||'');}
 function show(){
   if(!info)return;var cur=$('item').value,p=info.person,did={},by={};info.checkins.forEach(function(c){did[c.item]=c.at;by[c.item]=c.staff});
@@ -263,7 +285,12 @@ $('undo').addEventListener('click',function(){var cur=$('item').value;if(!confir
 $('login').addEventListener('submit',function(e){e.preventDefault();var v=$('tok').value.trim();if(!v){$('tok').focus();return}
   if(TP.dev()){res('no','这台已经是「'+((TP.who()||{}).name||'')+'」的：一支手机一种身份');return}
   put('bstw_admin',v);$('tok').value='';res('','');whoami()});
-$('swap').addEventListener('click',function(){var adm=asAdmin(),dev=!!TP.dev()&&!TP.owner();
+// 「⋯」: opens and closes; a tap elsewhere or Esc closes it
+function menu(on){$('menu').hidden=!on;$('more').setAttribute('aria-expanded',!!on)}
+$('more').addEventListener('click',function(){menu($('menu').hidden)});
+['click','touchstart'].forEach(function(t){document.addEventListener(t,function(e){if(!$('menu').hidden&&!(e.target.closest&&e.target.closest('#menu,#more')))menu(false)},{passive:true})});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!$('menu').hidden){menu(false);$('more').focus()}});
+$('swap').addEventListener('click',function(){menu(false);var adm=asAdmin(),dev=!!TP.dev()&&!TP.owner();
   if(!confirm(adm?'退出'+myRole+'？再进来要'+(dev?'用链接和密码':'重新输入长密码')+'。':'退出前台？这支手机就不能签到了，再用要用链接和密码重新登入。'))return;
   stopScan();info=null;pass='';res('','');
   if(dev)raw('/social/reg/login/out',{method:'POST',body:{}}).catch(function(){});
