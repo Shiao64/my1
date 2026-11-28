@@ -14,6 +14,14 @@
 <link rel="stylesheet" href="../../css/style.css?v=china185">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png"><link rel="alternate icon" href="/favicon.ico"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="stylesheet" href="../../css/atm-detail.css?v=d10">
+<style>/* Pass: four cards since the Full Pass was added (11/28) */
+#prices .grid.price4{grid-template-columns:repeat(4,minmax(0,1fr))}
+#prices .price4 .breakdown li{gap:8px}
+@media (max-width:1060px){#prices .grid.price4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:820px){#prices .grid.price4{grid-template-columns:1fr}}
+@media (max-width:1060px){#prices .price-card.featured::after{right:-6px}}
+@media (min-width:821px){#prices .price-card.featured::after{width:128px;height:54px;font-size:15px;top:-42px}}
+@media (min-width:1061px){#prices .price-card.featured::after{right:-30px}}</style>
 </head>
 <body>
 <div class="atm-bar atm-sticky"><a class="atm-map" href="/asia/"><span class="atm-ico" aria-hidden="true"></span>Asia Tango Map</a><a class="atm-lang" href="zh/" hreflang="zh-CN">中文</a></div>
@@ -133,7 +141,7 @@
   <div class="wrap">
     <div class="about-intro sched-intro"><h2 class="about-big">Pass</h2>
     <p><strong class="sched-date">All prices in RMB</strong></p></div>
-    <div class="grid g3">
+    <div class="grid g3 price4">
       <div class="card price-card">
         <h3>Weekend Pass</h3>
         <div class="amt">700 <small>RMB</small></div>
@@ -149,6 +157,11 @@
         <div class="amt">1,150 <small>RMB</small></div>
         <p>Sat &amp; Sun 4 milongas + Tango Courtyard</p>
         <p class="note">Weekend Package opens first. Buyers get first pick of the featured activities.</p>
+      </div>
+      <div class="card price-card">
+        <h3>Full Pass</h3>
+        <div class="amt">1,450 <small>RMB</small></div>
+        <p>Every milonga from Friday night to Tuesday, plus the Monday Tango Courtyard</p>
       </div>
       <div class="card price-card">
         <h3>Featured Activities</h3>
